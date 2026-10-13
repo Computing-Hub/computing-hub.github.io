@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Computing Hub</title>
+  <meta name="description" content="Computing Hub — a growing collection of free computer science teaching and learning resources: diagnostic questions, explainer videos, GCSE activities and more.">
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --surface: #ffffff;
+      --text: #1d2433;
+      --muted: #5b6475;
+      --border: #e2e6ee;
+      --accent: #2f5bea;
+      --accent-soft: #e8eefe;
+      --badge-bg: #fff4d6;
+      --badge-text: #8a5a00;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #11151d;
+        --surface: #1a202b;
+        --text: #e8ebf2;
+        --muted: #a0a8b8;
+        --border: #2b3240;
+        --accent: #7c9bff;
+        --accent-soft: #232c45;
+        --badge-bg: #3a3018;
+        --badge-text: #f3cf73;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: var(--accent); }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* Navigation */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 64px;
+      flex-wrap: wrap;
+    }
+    .brand {
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .brand span { color: var(--accent); }
+    .nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 0;
+      padding: 0;
+    }
+    .nav a.link {
+      display: block;
+      padding: 8px 12px;
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+    .nav a.link:hover,
+    .nav a.link:focus-visible {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: var(--text);
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    @media (max-width: 720px) {
+      .menu-toggle { display: block; }
+      .nav ul {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        padding-bottom: 12px;
+      }
+      .nav ul.open { display: flex; }
+    }
+
+    /* Hero */
+    .hero {
+      padding: 64px 0 40px;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      line-height: 1.15;
+      margin: 0 0 16px;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 680px;
+      margin: 0 0 12px;
+    }
+    .wip {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* Projects */
+    section h2 {
+      font-size: 1.5rem;
+      margin: 0 0 8px;
+    }
+    .section-intro {
+      color: var(--muted);
+      margin: 0 0 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .card h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      flex: 1;
+    }
+    .card .status {
+      align-self: flex-start;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+    }
+    .card a.open {
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .card a.open:hover { text-decoration: underline; }
+
+    .about {
+      margin: 56px 0;
+      padding: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .about p { margin: 0 0 12px; color: var(--muted); }
+    .about p:last-child { margin-bottom: 0; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container nav">
+      <a class="brand" href="./">Computing <span>Hub</span></a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="nav-links">Menu</button>
+      <nav aria-label="Main">
+        <ul id="nav-links">
+          <li><a class="link" href="#">Home</a></li>
+          <li><a class="link" href="diagnostic-questions/">Diagnostic Questions</a></li>
+          <li><a class="link" href="explainer-videos/">Explainer Videos</a></li>
+          <li><a class="link" href="gcse-activities/">GCSE Activities</a></li>
+          <li><a class="link" href="#projects">More Projects</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="hero">
+      <span class="wip">Work in progress</span>
+      <h1>Computer science resources, all in one place</h1>
+      <p>
+        Computing Hub brings together a growing collection of educational projects for
+        teaching and learning computer science. Each project lives in its own folder in
+        this site and can be reached from the navigation above.
+      </p>
+      <p>
+        You'll find diagnostic questions to uncover misconceptions, short explainer videos
+        on key topics, and hands-on GCSE activities, with more being added over time.
+      </p>
+    </section>
+
+    <section id="projects">
+      <h2>Projects</h2>
+      <p class="section-intro">The projects currently available or under development.</p>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Diagnostic Questions</h3>
+          <p>
+            Multiple-choice questions designed so that every wrong answer reveals a specific
+            misconception. Use them to check understanding at the start or end of a lesson.
+          </p>
+          <span class="status">In development</span>
+          <a class="open" href="diagnostic-questions/">Open project &rarr;</a>
+        </article>
+
+        <article class="card">
+          <h3>Explainer Videos</h3>
+          <p>
+            Short, focused videos that explain one concept at a time, ideal for flipped
+            learning, revision or catching up on a missed lesson.
+          </p>
+          <span class="status">In development</span>
+          <a class="open" href="explainer-videos/">Open project &rarr;</a>
+        </article>
+
+        <article class="card">
+          <h3>GCSE Activities</h3>
+          <p>
+            Interactive activities and practice tasks mapped to the GCSE Computer Science
+            specification, covering both theory and programming.
+          </p>
+          <span class="status">In development</span>
+          <a class="open" href="gcse-activities/">Open project &rarr;</a>
+        </article>
+
+        <article class="card">
+          <h3>More coming soon</h3>
+          <p>
+            Further projects will be added to the hub as they are developed. Each will
+            appear here and in the navigation menu.
+          </p>
+          <span class="status">Planned</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="about">
+      <h2>How this site works</h2>
+      <p>
+        Every educational project is stored in its own folder in the
+        <a href="https://github.com/Computing-Hub/computing-hub.github.io">Computing Hub repository</a>.
+        This page is the front door: it explains what's here and links to each project.
+      </p>
+      <p>
+        The site is a work in progress. Some links may not work yet while projects are
+        being built.
+      </p>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      &copy; <span id="year"></span> Computing Hub &middot; Work in progress
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const toggle = document.querySelector('.menu-toggle');
+    const links = document.getElementById('nav-links');
+    toggle.addEventListener('click', () => {
+      const open = links.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+  </script>
+</body>
+</html>
