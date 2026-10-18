@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Computing Hub</title>
-  <meta name="description" content="Computing Hub — a growing collection of free computer science teaching and learning resources: diagnostic questions, explainer videos, GCSE activities and more.">
+  <meta name="description" content="Computing Hub — free computer science and maths teaching resources from Coderra: revision games, diagnostic questions, programming activities, animations and physical computing.">
   <style>
     :root {
       --bg: #f7f8fb;
@@ -16,6 +16,8 @@
       --accent-soft: #e8eefe;
       --badge-bg: #fff4d6;
       --badge-text: #8a5a00;
+      --tag-bg: #eef1f6;
+      --tag-text: #3f4859;
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -28,6 +30,8 @@
         --accent-soft: #232c45;
         --badge-bg: #3a3018;
         --badge-text: #f3cf73;
+        --tag-bg: #242b38;
+        --tag-text: #c3cad8;
       }
     }
 
@@ -115,9 +119,7 @@
     }
 
     /* Hero */
-    .hero {
-      padding: 64px 0 40px;
-    }
+    .hero { padding: 56px 0 32px; }
     .hero h1 {
       font-size: clamp(2rem, 5vw, 2.8rem);
       line-height: 1.15;
@@ -140,14 +142,18 @@
       font-weight: 600;
     }
 
-    /* Projects */
-    section h2 {
+    /* Sections */
+    section.group {
+      padding-top: 40px;
+      scroll-margin-top: 80px;
+    }
+    section.group h2 {
       font-size: 1.5rem;
-      margin: 0 0 8px;
+      margin: 0 0 6px;
     }
     .section-intro {
       color: var(--muted);
-      margin: 0 0 24px;
+      margin: 0 0 20px;
     }
     .grid {
       display: grid;
@@ -172,20 +178,32 @@
       color: var(--muted);
       flex: 1;
     }
-    .card .status {
-      align-self: flex-start;
-      font-size: 0.8rem;
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tag {
+      font-size: 0.75rem;
       font-weight: 600;
-      padding: 2px 10px;
+      padding: 2px 9px;
       border-radius: 999px;
-      background: var(--badge-bg);
-      color: var(--badge-text);
+      background: var(--tag-bg);
+      color: var(--tag-text);
     }
     .card a.open {
       font-weight: 600;
       text-decoration: none;
     }
     .card a.open:hover { text-decoration: underline; }
+
+    /* Unpublished projects: set by the script when the folder isn't live yet */
+    .card.soon { opacity: 0.7; }
+    .card.soon a.open {
+      pointer-events: none;
+      color: var(--muted);
+    }
+    .card.soon a.open::after { content: " (coming soon)"; font-weight: 400; }
 
     .about {
       margin: 56px 0;
@@ -194,6 +212,7 @@
       border: 1px solid var(--border);
       border-radius: 12px;
     }
+    .about h2 { margin: 0 0 12px; font-size: 1.3rem; }
     .about p { margin: 0 0 12px; color: var(--muted); }
     .about p:last-child { margin-bottom: 0; }
 
@@ -203,6 +222,7 @@
       color: var(--muted);
       font-size: 0.9rem;
     }
+    footer a { color: var(--muted); }
   </style>
 </head>
 <body>
@@ -213,11 +233,11 @@
       <button class="menu-toggle" aria-expanded="false" aria-controls="nav-links">Menu</button>
       <nav aria-label="Main">
         <ul id="nav-links">
-          <li><a class="link" href="#">Home</a></li>
-          <li><a class="link" href="diagnostic-questions/">Diagnostic Questions</a></li>
-          <li><a class="link" href="explainer-videos/">Explainer Videos</a></li>
-          <li><a class="link" href="gcse-activities/">GCSE Activities</a></li>
-          <li><a class="link" href="#projects">More Projects</a></li>
+          <li><a class="link" href="#revision">Revision games</a></li>
+          <li><a class="link" href="#maths">Maths</a></li>
+          <li><a class="link" href="#programming">Programming</a></li>
+          <li><a class="link" href="#alevel">A-level &amp; databases</a></li>
+          <li><a class="link" href="#clubs">Clubs &amp; primary</a></li>
         </ul>
       </nav>
     </div>
@@ -227,74 +247,220 @@
 
     <section class="hero">
       <span class="wip">Work in progress</span>
-      <h1>Computer science resources, all in one place</h1>
+      <h1>Computer science and maths resources, all in one place</h1>
       <p>
-        Computing Hub brings together a growing collection of educational projects for
-        teaching and learning computer science. Each project lives in its own folder in
-        this site and can be reached from the navigation above.
+        Computing Hub is a growing collection of free classroom tools built by a
+        practising teacher: revision games, diagnostic questions, programming
+        activities, block-based builders and club projects.
       </p>
       <p>
-        You'll find diagnostic questions to uncover misconceptions, short explainer videos
-        on key topics, and hands-on GCSE activities, with more being added over time.
+        Everything runs in the browser, works on a phone, and needs no login.
       </p>
     </section>
 
-    <section id="projects">
-      <h2>Projects</h2>
-      <p class="section-intro">The projects currently available or under development.</p>
+    <!--
+      Each card links to a project that lives in its own repository under
+      github.com/Computing-Hub and is published as a folder of this site.
+      To add a project: copy a card, set href to "<repo-name>/" and the text.
+      Cards whose folder is not yet published are marked "coming soon" automatically.
+    -->
 
+    <section class="group" id="revision">
+      <h2>Revision games</h2>
+      <p class="section-intro">Quick, phone-friendly games for key terms and recall. Good for starters, plenaries and homework.</p>
       <div class="grid">
         <article class="card">
-          <h3>Diagnostic Questions</h3>
-          <p>
-            Multiple-choice questions designed so that every wrong answer reveals a specific
-            misconception. Use them to check understanding at the start or end of a lesson.
-          </p>
-          <span class="status">In development</span>
-          <a class="open" href="diagnostic-questions/">Open project &rarr;</a>
+          <h3>Revision Hub</h3>
+          <p>Seven short games in one place: True or False, Pi&ntilde;ata, Unscramble, Sequence, Higher or Lower, Sort It and Key Terms. Works offline once opened, and teachers can load their own term lists from a CSV file.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span><span class="tag">All subjects</span></div>
+          <a class="open" href="revision-hub/">Open &rarr;</a>
         </article>
-
         <article class="card">
-          <h3>Explainer Videos</h3>
-          <p>
-            Short, focused videos that explain one concept at a time, ideal for flipped
-            learning, revision or catching up on a missed lesson.
-          </p>
-          <span class="status">In development</span>
-          <a class="open" href="explainer-videos/">Open project &rarr;</a>
+          <h3>Key Terms</h3>
+          <p>Read a clue or look at a picture, guess the key term, then answer a follow-up question to check you understand it, not just recognise it.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span><span class="tag">All subjects</span></div>
+          <a class="open" href="wordletsubjects/">Open &rarr;</a>
         </article>
-
         <article class="card">
-          <h3>GCSE Activities</h3>
-          <p>
-            Interactive activities and practice tasks mapped to the GCSE Computer Science
-            specification, covering both theory and programming.
-          </p>
-          <span class="status">In development</span>
-          <a class="open" href="gcse-activities/">Open project &rarr;</a>
+          <h3>Revision Games</h3>
+          <p>The six subject games on their own: Design &amp; Technology, Spanish, Biology, Geography, Maths and RE. Each takes a few minutes and keeps your best score on the device.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span></div>
+          <a class="open" href="revisiongames/">Open &rarr;</a>
         </article>
-
         <article class="card">
-          <h3>More coming soon</h3>
-          <p>
-            Further projects will be added to the hub as they are developed. Each will
-            appear here and in the navigation menu.
-          </p>
-          <span class="status">Planned</span>
+          <h3>Connections</h3>
+          <p>Sort sixteen tiles into four groups of four, with four mistakes allowed. Pick a subject and find what links the terms.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">All subjects</span></div>
+          <a class="open" href="connections_game/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>CS Boggle</h3>
+          <p>Trace adjacent letters to find hidden computer science terms. Choose a topic, difficulty and time limit, and teachers can add their own word lists.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">Computer Science</span></div>
+          <a class="open" href="boggle/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>Hex Escape Room</h3>
+          <p>Convert hexadecimal to binary to unlock five doors. Three difficulty levels, optional hints, and a timer on the harder modes.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">Computer Science</span></div>
+          <a class="open" href="Hexadecimal/">Open &rarr;</a>
         </article>
       </div>
     </section>
 
-    <section class="about">
+    <section class="group" id="maths">
+      <h2>Maths</h2>
+      <p class="section-intro">Find misconceptions, explain one idea at a time, and practise.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Diagnostic Questions</h3>
+          <p>Multiple-choice questions for the projector where every wrong answer reveals a named misconception. Includes presentation mode, printable worksheets, a quiz builder and a vote-discuss-revote team game.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span><span class="tag">Teachers</span></div>
+          <a class="open" href="diagnosticQuestions/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>Quick Explainers</h3>
+          <p>A short video on a single Maths or English idea, followed by practice questions with answers. Display settings for SEND, and teachers can share a link, worksheet or QR code for one topic.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">Maths</span><span class="tag">English</span></div>
+          <a class="open" href="coreRevision/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>Maths Pathways</h3>
+          <p>Topic-by-topic maths revision pages, each with a worked explanation, exercises and a printable sheet.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span></div>
+          <a class="open" href="maths_revision/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>Maths Practice</h3>
+          <p>A worksheet library filtered by topic, starting with fractions, linear equations and simultaneous equations. Progress is saved on the device, and there is a separate teacher area.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span></div>
+          <a class="open" href="math-practice-app/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>Maths Lab</h3>
+          <p>Five live tools: an equation editor with a visual maths keyboard, function graphing with pan and zoom, draggable geometry with live side, angle and area readouts, a step-by-step solver for linear equations, and an answer checker that marks by equivalence (&frac12; = 0.5). Runs entirely in the browser.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span><span class="tag">Tools</span></div>
+          <a class="open" href="maths-lab/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>Maths Animations</h3>
+          <p>Short animated explainers rendered from code: an introduction to linear equations (form, gradient, y-intercept and a worked example), a gradient explainer, and a binary search walkthrough.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span><span class="tag">Video</span></div>
+          <a class="open" href="math_animation/">Open &rarr;</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="group" id="programming">
+      <h2>Programming</h2>
+      <p class="section-intro">Python and pseudocode for OCR GCSE Computer Science, from first steps to exam practice.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Python Blocks</h3>
+          <p>Fifty marked Python exercises with badges, a block editor that writes and runs real Python, and a flowchart editor that converts between flowcharts and code and steps through execution. Built for OCR J277.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">Python</span><span class="tag">OCR</span></div>
+          <a class="open" href="pythonblocks/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>Sprout</h3>
+          <p>A friendly mini-language for beginners: build programs from blocks, see the code they generate, then run and test it. Interface in English, Portuguese and Polish, with a KS3 block mode and a KS4 writing mode.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">KS4</span><span class="tag">Beginners</span></div>
+          <a class="open" href="MLCoding/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>CodeJourney</h3>
+          <p>A six-lesson course for OCR GCSE: identify inputs, processes and outputs, choose a construct, predict and build a Python solution, explain it, then apply it to a new problem.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">Python</span><span class="tag">OCR</span></div>
+          <a class="open" href="codejourney-mvp/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>PRIMM Lessons</h3>
+          <p>Interactive GCSE Computer Science lessons built on the PRIMM approach: Predict, Run, Investigate, Modify, Make.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">Python</span></div>
+          <a class="open" href="Jupyter_GCSE/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>Python IDE</h3>
+          <p>A browser-based Python environment for GCSE: console programs, Turtle graphics, a syntax helper, a live variable watch panel, and trace-table exercises that mark themselves.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">Python</span></div>
+          <a class="open" href="Python_IDE/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>Pseudocode IDE</h3>
+          <p>Write and run OCR GCSE pseudocode with Run, Step and Stop controls, worked examples, and panels showing output, variables and files.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">OCR</span></div>
+          <a class="open" href="pseudocode/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>ERL Runner</h3>
+          <p>Write and run OCR Exam Reference Language and A-level pseudocode in the browser, stepping through line by line while a trace table fills in. The checker looks at logic, not exact spelling.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">A-level</span><span class="tag">OCR</span></div>
+          <a class="open" href="pi/">Open &rarr;</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="group" id="alevel">
+      <h2>A-level, databases and web</h2>
+      <p class="section-intro">Block-based builders for the harder topics: classes, SQL, HTML and normalisation.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>OOP Blocks</h3>
+          <p>Build Python classes and objects by dragging blocks, and watch each object appear as a card on the Object Bench. Covers attributes, constructors, getters and setters, and encapsulation.</p>
+          <div class="tags"><span class="tag">A-level</span><span class="tag">Python</span></div>
+          <a class="open" href="OOP_Blocks/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>SQL Blocks</h3>
+          <p>Assemble SQL queries from blocks, watch the SQL generate, and run it against a sample school database in the browser. Practice tasks are checked automatically, or type SQL by hand.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">A-level</span><span class="tag">SQL</span></div>
+          <a class="open" href="SQL_Blocks/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>HTML Blocks</h3>
+          <p>Build a web page from visual blocks, with a checklist that tracks progress through set tasks.</p>
+          <div class="tags"><span class="tag">A-level</span><span class="tag">HTML</span></div>
+          <a class="open" href="HTML_Blocks/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>Database Normalisation</h3>
+          <p>A lesson on organising tables: primary and foreign keys, then 1NF, 2NF and 3NF with examples, walkthroughs and practice activities.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">A-level</span><span class="tag">Databases</span></div>
+          <a class="open" href="DBNormalisation/">Open &rarr;</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="group" id="clubs">
+      <h2>Clubs and primary</h2>
+      <p class="section-intro">Hands-on projects for younger students and after-school clubs.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Robotics Club: Buggy Battle</h3>
+          <p>An eight-week project to build and program a radio-controlled buggy from micro:bits, a motor driver and motors, ending in speed, manoeuvring and sumo events.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">micro:bit</span><span class="tag">Clubs</span></div>
+          <a class="open" href="robotics/">Open &rarr;</a>
+        </article>
+        <article class="card">
+          <h3>Teachable Machine</h3>
+          <p>A six-lesson primary unit on building image classifiers from hand-drawn shapes, with no coding, camera or microphone. Covers training, bias, testing accuracy and what AI can and cannot do.</p>
+          <div class="tags"><span class="tag">Primary</span><span class="tag">AI</span></div>
+          <a class="open" href="AI4kids/">Open &rarr;</a>
+        </article>
+      </div>
+    </section>
+
+<section class="about">
       <h2>How this site works</h2>
       <p>
-        Every educational project is stored in its own folder in the
-        <a href="https://github.com/Computing-Hub/computing-hub.github.io">Computing Hub repository</a>.
-        This page is the front door: it explains what's here and links to each project.
+        Each project is a separate repository in the
+        <a href="https://github.com/Computing-Hub">Computing-Hub organisation</a>
+        and is published as a folder of this site, so links are short and stable.
+        This page is the front door.
       </p>
       <p>
-        The site is a work in progress. Some links may not work yet while projects are
-        being built.
+        Everything here is free to use in the classroom. Teaching notes, answers
+        and editable versions for member schools are coming later.
       </p>
     </section>
 
@@ -302,7 +468,9 @@
 
   <footer>
     <div class="container">
-      &copy; <span id="year"></span> Computing Hub &middot; Work in progress
+      &copy; <span id="year"></span> <a href="https://coderra.je">Coderra</a>, Jersey &middot;
+      Content and code are copyright, all rights reserved &middot;
+      <a href="https://coderra.je/#contact">Contact</a>
     </div>
   </footer>
 
@@ -314,6 +482,17 @@
     toggle.addEventListener('click', () => {
       const open = links.classList.toggle('open');
       toggle.setAttribute('aria-expanded', open);
+    });
+
+    // Mark projects whose folder isn't published yet. Same-origin HEAD request;
+    // GitHub Pages answers 404 for a repo that has no Pages site.
+    document.querySelectorAll('.card a.open').forEach(async (a) => {
+      try {
+        const res = await fetch(a.getAttribute('href'), { method: 'HEAD' });
+        if (!res.ok) a.closest('.card').classList.add('soon');
+      } catch (e) {
+        // Network error: leave the card as it is.
+      }
     });
   </script>
 </body>
