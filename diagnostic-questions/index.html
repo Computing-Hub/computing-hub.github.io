@@ -5,21 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
   <title>KS3 &amp; KS4 Maths diagnostic questions</title>
-  <meta http-equiv="refresh" content="0; url=https://diagnosticquestions-production.up.railway.app/">
-  <link rel="canonical" href="https://diagnosticquestions-production.up.railway.app/">
+  <meta http-equiv="refresh" content="0; url=/diagnosticQuestions/">
+  <link rel="canonical" href="/diagnosticQuestions/">
   <script>
-    /* Send /diagnosticQuestions/<path> (or /diagnostic-questions/<path>) to the same page on the app. */
-    (function () {
-      var app = "https://diagnosticquestions-production.up.railway.app";
-      var path = location.pathname.replace(/^\/(diagnosticquestions|diagnostic-questions)(\/|$)/i, "/");
-      if (/\/(index|404)\.html$/.test(path)) path = path.replace(/[^\/]*$/, "");
-      location.replace(app + path + location.search + location.hash);
-    })();
+    /* Send /diagnostic-questions/ to the static copy at /diagnosticQuestions/ on this site,
+       which schools that block railway.app can still reach. */
+    location.replace("/diagnosticQuestions/" + location.search + location.hash);
   </script>
   <style>body { font: 1.1rem/1.5 system-ui, sans-serif; max-width: 40rem; margin: 3rem auto; padding: 0 16px; }</style>
 </head>
 <body>
   <h1>KS3 &amp; KS4 Maths diagnostic questions</h1>
-  <p>Opening the app… If nothing happens, <a href="https://diagnosticquestions-production.up.railway.app/">go to the diagnostic questions</a>.</p>
+  <p>Opening the questions… If nothing happens, <a href="/diagnosticQuestions/">go to the diagnostic questions</a>.</p>
 </body>
 </html>
