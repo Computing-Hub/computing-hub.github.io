@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Averages and Range</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one or more interactive SVG panels drawn from JS (number cards, towers of blocks, dot plots), followed by mini "try it" inputs with instant feedback. Graph-paper neutrals. Colours on this page: grey = raw data (number cards, dots, blocks before levelling); plum = the MODE (most common value, its column or dots); orange = the MEDIAN (the middle card(s) once in order, the median marker); teal = the MEAN (levelled towers, the mean line and mean triangle); dark ink = the RANGE (the bracket from smallest to largest). A dashed ring marks an outlier. Green/red are only used for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.MN{color:var(--accent);font-weight:600}.MD{color:var(--hi);font-weight:600}.MO{color:var(--two);font-weight:600}.RG{color:var(--fg);font-weight:700}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.btn.right{border-color:var(--good);color:var(--good);font-weight:600}
+button.btn.wrong{border-color:var(--bad);opacity:.6}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}.readout .k{color:var(--fg);font-weight:600}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:.95rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.sent{line-height:2.4;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.6rem .9rem;margin:.8rem 0 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use.mo{border-color:var(--two)}.use.md{border-color:var(--hi)}.use.mn{border-color:var(--accent)}.use.rg{border-color:var(--fg)}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a,main a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Statistics · KS3</div>
+  <h1>Averages and Range</h1>
+  <p class="lede">"The average family has 2.4 children." "Our bus is usually 5 minutes late." People squeeze a whole list of numbers into one or two numbers all the time. On this page you'll meet the three kinds of average (the <span class="MO">mode</span>, the <span class="MD">median</span> and the <span class="MN">mean</span>), plus the <span class="RG">range</span>, which tells you how spread out the numbers are, and you'll learn which one to use when.</p>
+  <span class="gcse">National curriculum KS3: describe, interpret and compare observed distributions of a single variable through appropriate measures of central tendency (mean, mode, median) and spread (range, consideration of outliers)</span>
+</header>
+
+<h2>1 · Data, and why we summarise it</h2>
+<p><strong>Data</strong> is information that has been collected, often as a list of numbers. Each number in the list is called a <strong>value</strong>, and the whole list is a <strong>data set</strong>. For example, a teacher asks nine pupils how many minutes it takes them to get to school and writes down their answers: 12, 5, 20, 8, 15, 8, 25, 10, 8. That's a data set with nine values.</p>
+<p>A jumbled list is hard to make sense of. Quick: what's a typical journey? What's the longest? Your eyes have to jump around. The first trick statisticians use is simple: <strong>put the values in order</strong>, from smallest to largest. Try it.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>data set <select id="sdSet">
+      <option value="school">minutes to get to school</option>
+      <option value="shoe">shoe sizes</option>
+      <option value="goals">goals per match</option>
+    </select></label>
+    <button class="btn primary" id="sdSort">Put in order</button>
+    <button class="btn" id="sdShuf">Shuffle</button>
+  </div>
+  <svg id="sdSvg" viewBox="0 0 560 120" width="560" height="120" aria-label="Number cards for the data set"></svg>
+  <div class="readout">
+    <div><b>How many values</b><span id="sdN"></span></div>
+    <div class="k"><b>Smallest</b><span id="sdMin"></span></div>
+    <div class="k"><b>Largest</b><span id="sdMax"></span></div>
+  </div>
+  <div class="msg" id="sdMsg"></div>
+</div>
+
+<p>Even in order, nine or twelve numbers are a lot to remember. So we <strong>summarise</strong> them: we describe the whole data set with just a couple of numbers. There are two big questions to ask about any data set.</p>
+<ul>
+  <li><strong>What is a typical value?</strong> A number that represents the whole set is called an <strong>average</strong>. There are three different averages, each with its own idea of "typical".</li>
+  <li><strong>How spread out are the values?</strong> Are they all bunched close together, or scattered far apart? This is called the <strong>spread</strong>, and at KS3 we measure it with the range.</li>
+</ul>
+<div class="grid2">
+  <div class="use mo"><h3 class="MO">Mode</h3><p>The most common value. "Most people walk 8 minutes."</p></div>
+  <div class="use md"><h3 class="MD">Median</h3><p>The middle value once the data is in order.</p></div>
+  <div class="use mn"><h3 class="MN">Mean</h3><p>Share the total out equally: total ÷ how many.</p></div>
+  <div class="use rg"><h3>Range</h3><p>How spread out: largest − smallest.</p></div>
+</div>
+<p>The colours above stay the same all the way down the page: <span class="MO">plum for the mode</span>, <span class="MD">orange for the median</span>, <span class="MN">teal for the mean</span> and <span class="RG">dark ink for the range</span>. Grey is just raw data.</p>
+
+<h2>2 · The mode: the most common value</h2>
+<p>The <strong>mode</strong> is the value that appears <em>most often</em>. It's the "most popular" answer. If you ask your class what pet they have and more people say "dog" than anything else, the mode is dog. Another name for it is the <strong>modal</strong> value ("the modal pet is a dog").</p>
+<p>To find it, count how many times each value appears. That count is called the <strong>frequency</strong>. The value with the highest frequency is the mode.</p>
+<p>Below is a class survey of favourite pets. Each dot is one pupil's vote. <strong>Tap a column to add a vote</strong> (or tick the box and tap to take one away), and watch the <span class="MO">plum</span> mode change.</p>
+
+<div class="lab">
+  <svg id="moSvg" viewBox="0 0 560 255" width="560" height="255" aria-label="Pet survey: tap a column to add a vote"></svg>
+  <div class="controls">
+    <label><input type="checkbox" id="moDel"> tapping removes a vote</label>
+    <button class="btn" id="moSurvey">Original survey</button>
+    <button class="btn" id="moTie">Make a tie</button>
+    <button class="btn" id="moDiff">Everyone different</button>
+  </div>
+  <div class="work" id="moOut"></div>
+</div>
+
+<p>Three things this shows:</p>
+<ul>
+  <li><strong>The mode works for words, not just numbers.</strong> Pets, colours, shoe brands: you can't add up "dog + cat", but you can still say which is most common. The mode is the <em>only</em> average that works for this kind of <strong>non-numerical</strong> data.</li>
+  <li><strong>There can be more than one mode.</strong> If two values tie for most common, both are modes. (Data with two modes is called <em>bimodal</em>.)</li>
+  <li><strong>There can be no mode.</strong> If every value appears only once, nothing is more common than anything else, so there is no mode.</li>
+</ul>
+
+<div class="callout">
+  <p><strong>Common mistake: giving the frequency instead of the mode.</strong> In 4, 7, 7, 2, 7, 9 the mode is <strong>7</strong>. It appears 3 times, but "3" is the <em>frequency</em>, not the mode. The mode is always one of the values in the list.</p>
+</div>
+
+<h3>Try it: find the mode</h3>
+<div class="lab">
+  <p class="pq" id="mtQ"></p>
+  <div class="controls">
+    <label>mode = <input type="text" id="mtA" inputmode="decimal" autocomplete="off"></label>
+    <button class="btn primary" id="mtGo">Check</button>
+    <button class="btn" id="mtNew">New list</button>
+  </div>
+  <div class="msg" id="mtMsg"></div>
+</div>
+
+<h2>3 · The median: the middle value</h2>
+<p>Imagine your class lines up in order of height, shortest to tallest. The person standing exactly in the middle of the line has the <strong>median</strong> height: half the class is shorter, half is taller. The median is the <strong>middle value once the data is in order</strong>.</p>
+<p>The method: <strong>(1) put the values in order</strong>; <strong>(2)</strong> cross off one from each end, again and again, until you reach the middle. Step through it below.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>how many values <select id="meN"><option value="7">7 (odd)</option><option value="8">8 (even)</option></select></label>
+    <button class="btn" id="meNew">New numbers</button>
+  </div>
+  <svg id="meSvg" viewBox="0 0 560 120" width="560" height="120" aria-label="Number cards for finding the median"></svg>
+  <div class="controls">
+    <button class="btn primary" id="meSort">1. Put in order</button>
+    <button class="btn primary" id="meCross">2. Cross off the ends</button>
+  </div>
+  <div class="msg" id="meMsg"></div>
+  <div class="work" id="meWork"></div>
+</div>
+
+<p>With an <strong>odd</strong> number of values, one card is left in the middle: that's the median. With an <strong>even</strong> number, you are left with <em>two</em> middle cards. The median is <strong>halfway between them</strong>: add them and divide by 2. For 12 and 15 that's (12 + 15) ÷ 2 = 27 ÷ 2 = 13.5. The median doesn't have to be one of the values.</p>
+<p><strong>Shortcut for big data sets:</strong> with n values (n just means "how many"), the median is the <span class="m">(n + 1) ÷ 2</span>th value in order. For 7 values: (7 + 1) ÷ 2 = 4, the 4th value. For 25 values: the 13th. For 8 values: 4.5, meaning halfway between the 4th and 5th values. Careful: this tells you <em>where</em> the median is, not what it is.</p>
+
+<div class="callout">
+  <p><strong>Common mistake: not ordering first.</strong> The middle of the list <em>as written</em> is just whichever number happened to be written in the middle. In 9, 3, 12, 6, 5 the middle number written is 12, but in order it's 3, 5, <strong>6</strong>, 9, 12, so the median is 6.</p>
+</div>
+
+<h3>Try it: find the median</h3>
+<div class="lab">
+  <p class="pq" id="mdtQ"></p>
+  <div class="controls">
+    <label>median = <input type="text" id="mdtA" inputmode="decimal" autocomplete="off"></label>
+    <button class="btn primary" id="mdtGo">Check</button>
+    <button class="btn" id="mdtNew">New list</button>
+  </div>
+  <div class="msg" id="mdtMsg"></div>
+</div>
+
+<h2>4 · The mean: sharing out equally</h2>
+<p>Five friends have some sweets: 3, 7, 2, 6 and 7. That's not fair! So they put all the sweets in a pile and share them out equally. The pile has 3 + 7 + 2 + 6 + 7 = 25 sweets, and 25 shared between 5 people is 5 each. That fair share, 5, is the <strong>mean</strong>.</p>
+<p>Think of each value as a tower of blocks. The mean is the height you get if you <strong>level the towers</strong>: move blocks from tall towers to short towers until they're all the same. <strong>Drag a tower up or down</strong> to change the data, then press <em>Level</em>.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>towers <select id="twN"><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option></select></label>
+    <button class="btn primary" id="twLevel">Level the towers</button>
+    <button class="btn" id="twBack">Un-level</button>
+    <button class="btn" id="twRand">Random</button>
+    <label><input type="checkbox" id="twLine" checked> show the mean line</label>
+  </div>
+  <svg id="twSvg" class="drag" viewBox="0 0 560 300" width="560" height="300" aria-label="Towers of blocks; drag to change heights"></svg>
+  <div class="msg" id="twMsg"></div>
+  <div class="work" id="twWork"></div>
+</div>
+
+<p>Levelling always gives the same answer as this quick method:</p>
+<p class="big"><span class="MN">mean</span> = total ÷ how many values</p>
+<p>Add up all the values to get the <strong>total</strong> (all the blocks in one pile), then divide by how many values there are (the number of towers). Notice:</p>
+<ul>
+  <li>The mean doesn't have to be one of the values, or even a whole number. 26 blocks in 5 towers gives 26 ÷ 5 = 5.2. That's why "2.4 children" is a perfectly sensible mean, even though no family has 2.4 children!</li>
+  <li>If the answer doesn't come out exactly, round it sensibly, e.g. 17 ÷ 3 = 5.666… ≈ 5.7 (to 1 decimal place).</li>
+  <li>A value of 0 still counts! It adds nothing to the total but it does count as one of the values.</li>
+  <li>When data is given in a frequency table, there's a faster way to find the total: see <a href="frequency-tables.html">Frequency tables</a>.</li>
+</ul>
+
+<h3>Try it: find the mean</h3>
+<div class="lab">
+  <p class="pq" id="mntQ"></p>
+  <div class="controls">
+    <label>mean = <input type="text" id="mntA" inputmode="decimal" autocomplete="off"></label>
+    <button class="btn primary" id="mntGo">Check</button>
+    <button class="btn" id="mntNew">New list</button>
+  </div>
+  <div class="msg" id="mntMsg"></div>
+</div>
+
+<h2>5 · The range: how spread out?</h2>
+<p>An average only tells half the story. Amir and Bea both play seven basketball games and both have a mean of 10 points a game. Are they the same kind of player? Move the slider and look.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>how up-and-down Bea is <input type="range" id="raS" min="1" max="3" step="1" value="2"></label>
+  </div>
+  <svg id="raSvg" viewBox="0 0 560 270" width="560" height="270" aria-label="Dot plots of Amir's and Bea's points"></svg>
+  <div class="work" id="raWork"></div>
+</div>
+
+<p>Amir scores between 8 and 11 every game: he's <strong>consistent</strong> (reliable, always about the same). Bea might score 4 one game and 16 the next. Their averages are identical, but the <strong>spread</strong> is very different. The simplest measure of spread is the <strong>range</strong>:</p>
+<p class="big"><span class="RG">range</span> = largest value − smallest value</p>
+<p>A <strong>small range</strong> means the values are close together (consistent). A <strong>large range</strong> means they are spread out (varied, less predictable). If a coach needs a player who reliably scores about 10, they'd pick Amir; if they need someone who might win the game with a huge score, maybe Bea.</p>
+
+<div class="callout">
+  <p><strong>Common mistakes with the range</strong></p>
+  <ul>
+    <li><strong>Writing "6 to 20".</strong> That describes where the data starts and ends, but the range is a <em>single number</em>: 20 − 6 = <strong>14</strong>.</li>
+    <li><strong>Using the first and last values as written.</strong> Find the actual largest and smallest. Ordering first helps.</li>
+    <li><strong>Calling the range an average.</strong> It isn't: it says nothing about what's typical, only how spread out the data is.</li>
+  </ul>
+</div>
+
+<h3>Try it: find the range</h3>
+<div class="lab">
+  <p class="pq" id="rgtQ"></p>
+  <div class="controls">
+    <label>range = <input type="text" id="rgtA" autocomplete="off"></label>
+    <button class="btn primary" id="rgtGo">Check</button>
+    <button class="btn" id="rgtNew">New list</button>
+  </div>
+  <div class="msg" id="rgtMsg"></div>
+</div>
+
+<h2>6 · Outliers, and choosing the best average</h2>
+<p>An <strong>outlier</strong> is a value that is much bigger or much smaller than the rest: it "lies outside" the group. Here is the weekly pocket money (in £) of nine friends, shown as a <strong>dot plot</strong> (each dot is one person, stacked above their amount; see <a href="statistical-charts.html">Statistical charts</a> for more on these). The cards above it show the same values as a list.</p>
+<p><strong>Drag any dot</strong> along the line to change the data. Then tick the box to add Zak, who gets £30 a week, and watch what each measure does.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><input type="checkbox" id="dpOut"> add Zak (£30)</label>
+    <button class="btn" id="dpSort">Put the cards in order</button>
+    <button class="btn" id="dpReset">Reset</button>
+  </div>
+  <svg id="dpStrip" viewBox="0 0 560 110" width="560" height="110" aria-label="The data as number cards"></svg>
+  <svg id="dpSvg" class="drag" viewBox="0 0 560 262" width="560" height="262" aria-label="Dot plot of pocket money; drag the dots"></svg>
+  <div class="readout">
+    <div class="f"><b>Mean</b><span id="dpMean"></span></div>
+    <div class="t"><b>Median</b><span id="dpMed"></span></div>
+    <div class="p"><b>Mode</b><span id="dpMode"></span></div>
+    <div class="k"><b>Range</b><span id="dpRange"></span></div>
+  </div>
+  <div class="work" id="dpWork"></div>
+</div>
+
+<p>Zak's £30 is an outlier. Look at what happens:</p>
+<ul>
+  <li>The <span class="MN">mean</span> jumps up, because the mean uses <em>every</em> value, and Zak's big number adds a lot to the total. Now only Zak gets more than the mean, so it's not very "typical".</li>
+  <li>The <span class="MD">median</span> hardly moves (here it doesn't move at all). It only cares about the middle, and Zak just joins the end of the line.</li>
+  <li>The <span class="MO">mode</span> doesn't change: Zak's £30 appears only once.</li>
+  <li>The <span class="RG">range</span> shoots up, because Zak is the new largest value.</li>
+</ul>
+<p>Sometimes an outlier is a mistake (someone typed 300 instead of 3.00) and should be checked or removed. Sometimes it's real and important. Either way, it's a reason to think about which average to use.</p>
+
+<div class="grid2">
+  <div class="use mo"><h3 class="MO">Use the mode when…</h3><p>the data is words or categories (favourite colour), or you want the most popular option (which shoe size to stock). Not useful if every value is different.</p></div>
+  <div class="use md"><h3 class="MD">Use the median when…</h3><p>there are outliers or a few extreme values (salaries, house prices). It gives a fair "middle" that extremes can't drag.</p></div>
+  <div class="use mn"><h3 class="MN">Use the mean when…</h3><p>the data is numbers with no outliers, and you want to use every value, or you need to link to a total (mean × count = total).</p></div>
+</div>
+
+<h3>Try it: which average would you choose?</h3>
+<div class="lab">
+  <p class="msg" id="chProg"></p>
+  <p class="pq" id="chQ"></p>
+  <div class="chips" id="chBtns"></div>
+  <div class="msg" id="chMsg"></div>
+  <div class="controls"><button class="btn" id="chNext">Next situation</button></div>
+</div>
+
+<h2>7 · Working backwards from the mean</h2>
+<p>The mean is total ÷ how many. Turn that round and you get a very useful fact:</p>
+<p class="big">total = <span class="MN">mean</span> × how many values</p>
+<p>If 4 friends have a mean of 5 sweets each, there must be 4 × 5 = 20 sweets altogether, whatever the individual amounts. This lets you find a <strong>missing value</strong>: work out what the total <em>should</em> be, then take away the values you know. In the picture, the <span class="MN">teal line</span> is the mean you need. Type a guess to see where the mean would end up, then check.</p>
+
+<div class="lab">
+  <p class="pq" id="wbQ"></p>
+  <svg id="wbSvg" viewBox="0 0 560 280" width="560" height="280" aria-label="Bars for the known values and the missing one"></svg>
+  <div class="controls">
+    <label>missing value = <input type="text" id="wbA" inputmode="decimal" autocomplete="off"></label>
+    <button class="btn primary" id="wbGo">Check</button>
+    <button class="btn" id="wbShow">Show working</button>
+    <button class="btn" id="wbNew">New puzzle</button>
+  </div>
+  <div class="msg" id="wbMsg"></div>
+  <div class="work" id="wbWork" hidden></div>
+</div>
+
+<h2>8 · Comparing two data sets</h2>
+<p>Which team is better? Which class did better in the test? To compare two data sets properly you need <strong>two comparisons</strong>:</p>
+<ol>
+  <li><strong>Compare an average</strong> (usually the mean or median): which set is higher on average?</li>
+  <li><strong>Compare the range</strong>: which set is more consistent (smaller range)?</li>
+</ol>
+<p>And each comparison must say what it <em>means</em> in the real situation, not just quote numbers. "The Lions' mean is 2.6 and the Tigers' is 1.9" is only half an answer. "The Lions scored more goals on average, because their mean is higher" is a full one. Below are the goals scored by two teams in 10 matches. Build the two sentences.</p>
+
+<div class="lab">
+  <svg id="cpSvg" viewBox="0 0 560 360" width="560" height="360" aria-label="Dot plots of goals for two teams"></svg>
+  <div class="work" id="cpData"></div>
+  <p class="sent">The <select id="cpT1"><option value="">choose…</option><option value="0">Lions</option><option value="1">Tigers</option></select> scored more goals on average, because their mean is <select id="cpHL"><option value="">choose…</option><option value="higher">higher</option><option value="lower">lower</option></select> (<span id="cpV1">…</span>).<br>
+  The <select id="cpT2"><option value="">choose…</option><option value="0">Lions</option><option value="1">Tigers</option></select> were more consistent, because their range is <select id="cpSL"><option value="">choose…</option><option value="smaller">smaller</option><option value="larger">larger</option></select> (<span id="cpV2">…</span>).</p>
+  <div class="controls">
+    <button class="btn primary" id="cpGo">Check my sentences</button>
+    <button class="btn" id="cpNew">New teams</button>
+  </div>
+  <div class="msg" id="cpMsg"></div>
+</div>
+
+<p>The best team on average isn't always the most consistent one. Real comparisons often say "Team A scored more on average, but Team B was more consistent." Looking at the whole shape of the data is the next step: see <a href="distributions-correlation.html">Distributions and correlation</a>.</p>
+
+<h3>Practice: mixed questions</h3>
+<p>New questions every time. If you go wrong, the feedback tries to spot <em>which</em> mistake you made.</p>
+<div class="lab">
+  <div class="controls">
+    <label>question type <select id="prType">
+      <option value="mix">mixed</option><option value="mode">mode</option><option value="median">median</option><option value="mean">mean</option><option value="range">range</option><option value="missing">missing value</option>
+    </select></label>
+  </div>
+  <p class="pq" id="prQ"></p>
+  <div class="controls">
+    <label>answer <input type="text" id="prA" autocomplete="off" style="width:7em"></label>
+    <button class="btn primary" id="prGo">Check</button>
+    <button class="btn" id="prShow">Show working</button>
+    <button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+  <div class="msg" id="prScore"></div>
+</div>
+
+<div class="callout">
+  <p><strong>The classic mistakes, all in one place</strong></p>
+  <ul>
+    <li>Median: forgetting to <strong>put the data in order</strong> first.</li>
+    <li>Median with an even number of values: picking one of the two middle values instead of <strong>halfway between</strong> them.</li>
+    <li>Mode: giving how many times it appears (the frequency) instead of <strong>the value</strong>.</li>
+    <li>Mean: dividing by the wrong number. Count the values carefully, including any zeros.</li>
+    <li>Range: writing "6 to 20" instead of the <strong>single number</strong> 20 − 6 = 14.</li>
+    <li>Comparing: quoting numbers without saying what they mean, or forgetting to compare the spread as well as the average.</li>
+  </ul>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Find the mode, median, mean and range of 8, 3, 5, 12, 5, 9, 7</summary>
+  <div class="step"><strong>Order first:</strong> 3, 5, 5, 7, 8, 9, 12. There are 7 values.</div>
+  <div class="step"><strong class="MO">Mode:</strong> 5 appears twice; every other value appears once. Mode = <strong>5</strong>.</div>
+  <div class="step"><strong class="MD">Median:</strong> (7 + 1) ÷ 2 = 4, so the 4th value: 3, 5, 5, <strong>7</strong>, 8, 9, 12. Median = <strong>7</strong>.</div>
+  <div class="step"><strong class="MN">Mean:</strong> total = 3 + 5 + 5 + 7 + 8 + 9 + 12 = 49. Mean = 49 ÷ 7 = <strong>7</strong>.</div>
+  <div class="step"><strong>Range:</strong> largest − smallest = 12 − 3 = <strong>9</strong>.</div>
+</details>
+<details>
+  <summary>Six plants are 14, 9, 21, 12, 18 and 10 cm tall. Find the median height.</summary>
+  <div class="step"><strong>Order:</strong> 9, 10, 12, 14, 18, 21. There are 6 values, an even number.</div>
+  <div class="step"><strong>Position:</strong> (6 + 1) ÷ 2 = 3.5, so halfway between the 3rd and 4th values: 12 and 14.</div>
+  <div class="step"><strong>Halfway:</strong> (12 + 14) ÷ 2 = 26 ÷ 2 = <strong>13 cm</strong>.</div>
+  <div class="step"><strong>Check:</strong> 3 plants are shorter than 13 cm and 3 are taller ✓. (Without ordering, the middle two as written are 21 and 12, which would give 16.5: wrong.)</div>
+</details>
+<details>
+  <summary>Rainfall over 6 days was 2, 0, 5, 3, 0, 4 mm. Find the mean and the mode.</summary>
+  <div class="step"><strong>Total:</strong> 2 + 0 + 5 + 3 + 0 + 4 = 14 mm.</div>
+  <div class="step"><strong>How many values:</strong> 6 (the two dry days still count as values, even though they are 0).</div>
+  <div class="step"><strong>Mean:</strong> 14 ÷ 6 = 2.333… = <strong>2.3 mm</strong> (to 1 d.p.). Dividing by 4 (forgetting the zeros) would give 3.5: wrong.</div>
+  <div class="step"><strong>Mode:</strong> 0 appears twice, everything else once. Mode = <strong>0 mm</strong>. Zero can be the mode.</div>
+</details>
+<details>
+  <summary>The mean of five numbers is 8. Four of them are 6, 11, 7 and 9. Find the fifth.</summary>
+  <div class="step"><strong>Total of all five:</strong> mean × how many = 8 × 5 = 40.</div>
+  <div class="step"><strong>Total of the four you know:</strong> 6 + 11 + 7 + 9 = 33.</div>
+  <div class="step"><strong>Missing number:</strong> 40 − 33 = <strong>7</strong>.</div>
+  <div class="step"><strong>Check:</strong> 6 + 11 + 7 + 9 + 7 = 40, and 40 ÷ 5 = 8 ✓</div>
+</details>
+<details>
+  <summary>House prices in a street: £180 000, £195 000, £200 000, £210 000 and £1 200 000. Which average should an estate agent use for a typical house?</summary>
+  <div class="step"><strong>Mean:</strong> total = 180 000 + 195 000 + 200 000 + 210 000 + 1 200 000 = 1 985 000. Mean = 1 985 000 ÷ 5 = £397 000.</div>
+  <div class="step"><strong>Median:</strong> the prices are already in order; the middle (3rd) is <strong>£200 000</strong>.</div>
+  <div class="step"><strong>Decide:</strong> the £1 200 000 house is an outlier. It drags the mean up to £397 000, more than four of the five houses cost. The <strong>median, £200 000</strong>, is the better typical price.</div>
+</details>
+<details>
+  <summary>Class A: mean test score 64, range 30. Class B: mean 58, range 12. Compare the two classes.</summary>
+  <div class="step"><strong>Average:</strong> Class A did better on average, because its mean (64) is higher than Class B's (58).</div>
+  <div class="step"><strong>Spread:</strong> Class B's scores were more consistent, because its range (12) is smaller than Class A's (30).</div>
+  <div class="step"><strong>Notice:</strong> two sentences, each with a comparison word (higher, smaller) and a meaning in context (did better, more consistent).</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li><strong>Data</strong> is a set of values. We <strong>summarise</strong> it with an average (what's typical) and a measure of spread (how spread out).</li>
+  <li>The <span class="MO">mode</span> is the most common value. It works for words as well as numbers; there can be several modes or none. Don't give its frequency by mistake.</li>
+  <li>The <span class="MD">median</span> is the middle value <strong>once the data is in order</strong>. With an even number of values it's halfway between the two middle ones. It's at position (n + 1) ÷ 2.</li>
+  <li>The <span class="MN">mean</span> is the fair share: <strong>total ÷ how many</strong>, like levelling towers of blocks. It needn't be a whole number or one of the values.</li>
+  <li>The <span class="RG">range</span> = largest − smallest: one number that measures spread. A small range means consistent.</li>
+  <li>An <strong>outlier</strong> drags the mean and stretches the range, but barely moves the median and doesn't affect the mode. With outliers, prefer the median; for categories, the mode; otherwise the mean uses all the data.</li>
+  <li>Work backwards with <strong>total = mean × how many</strong> to find a missing value.</li>
+  <li>Compare two data sets using <strong>an average and the range</strong>, with a sentence that says what each means in context.</li>
+</ul>
+
+<footer>Made for KS3 students. Mean, median, mode and range are in the England national curriculum at key stage 3 under Statistics. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat(v.toFixed(d)).toString()) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const sum = a => a.reduce((s,x)=>s+x,0);
+const sortN = a => a.slice().sort((x,y)=>x-y);
+const mean = a => sum(a)/a.length;
+const median = a => { const s=sortN(a), n=s.length; return n%2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2; };
+const modes = a => { const c={}; a.forEach(v=>c[v]=(c[v]||0)+1); const mx=Math.max(...Object.values(c)); return mx<2 ? {vals:[],f:1} : {vals:Object.keys(c).filter(k=>c[k]===mx).map(Number).sort((x,y)=>x-y),f:mx}; };
+const count = (a,v) => a.filter(x=>x===v).length;
+const list = a => a.map(v=>minus(v)).join(', ');
+const andList = a => a.length<2 ? a.join('') : a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const num = s => { const t=String(s).replace(/[−–]/g,'-').replace(/[£,\s]/g,''); return /^-?\d*\.?\d+$/.test(t) ? parseFloat(t) : NaN; };
+const close = (u,v) => Math.abs(u-v)<1e-6;
+const okAns = (u,v) => close(u,v) || close(u, Math.round(v*10)/10);
+const dec = v => { const ex=Math.abs(v*100-Math.round(v*100))<1e-9; return ex ? fmt(v,2) : minus((Math.floor(v*1000+1e-9)/1000).toFixed(3))+'… ≈ '+minus(v.toFixed(1))+' (1 d.p.)'; };
+const svgPt = (svg,ev,W,H) => { const r=svg.getBoundingClientRect(); return [(ev.clientX-r.left)/r.width*W,(ev.clientY-r.top)/r.height*H]; };
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const unsortedMid = v => v.length%2 ? v[(v.length-1)/2] : (v[v.length/2-1]+v[v.length/2])/2;
+const setMsg = (el,cls,txt) => { el.className='msg'+(cls?' '+cls:''); el.textContent=txt; };
+
+/* number-card strip with an ordering animation (used in sections 1, 3 and 6) */
+function makeStrip(svg,W,H,styler){
+  const S={vals:[],slot:[],from:[],to:[],e:1,raf:null};
+  const ids=()=>S.vals.map((_,i)=>i);
+  S.set=v=>{ if(S.raf){cancelAnimationFrame(S.raf);S.raf=null;} S.vals=v.slice(); S.slot=ids(); S.from=S.slot.slice(); S.to=S.slot.slice(); S.e=1; };
+  S.n=()=>S.vals.length;
+  S.busy=()=>!!S.raf;
+  S.inOrder=()=>ids().sort((a,b)=>S.slot[a]-S.slot[b]).map(i=>S.vals[i]);
+  S.ordered=()=>{ const o=S.inOrder(); return o.every((v,i)=>i===0||v>=o[i-1]); };
+  S.moveTo=(ns,ms,done)=>{
+    if(S.raf){cancelAnimationFrame(S.raf);S.raf=null;}
+    S.from=S.slot.slice(); S.to=ns.slice();
+    const fin=()=>{ S.raf=null; S.slot=ns.slice(); S.from=S.slot.slice(); S.to=S.slot.slice(); S.e=1; S.draw(); if(done)done(); };
+    if(reduceMotion){fin();return;}
+    const t0=performance.now(); S.e=0;
+    const step=now=>{ const t=Math.min(1,(now-t0)/ms); S.e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; if(t<1){S.raf=requestAnimationFrame(step);S.draw();} else fin(); };
+    S.raf=requestAnimationFrame(step);
+  };
+  S.sort=done=>{ const o=ids().sort((a,b)=>S.vals[a]-S.vals[b]||S.slot[a]-S.slot[b]); const ns=[]; o.forEach((id,k)=>ns[id]=k); S.moveTo(ns,1100,done); };
+  S.shuffle=done=>{ S.moveTo(shuffle([...Array(S.n()).keys()]),900,done); };
+  S.draw=()=>{
+    const n=S.n(), anim=!!S.raf; if(!n){svg.innerHTML='';return;}
+    const sw=Math.min(62,(W-12)/n), cw=sw-6, ch=46, x0=(W-n*sw)/2, cy=H/2-8, fs=Math.min(19,cw*0.42);
+    const order=ids().sort((a,b)=>Math.abs(S.to[a]-S.from[a])-Math.abs(S.to[b]-S.from[b]));
+    let s='';
+    order.forEach(id=>{
+      const a=S.from[id], b=S.to[id], p=anim?a+(b-a)*S.e:S.slot[id];
+      const lift=anim&&a!==b ? Math.sin(Math.PI*S.e)*Math.min(24,8+Math.abs(b-a)*3)*(b>a?-1:1) : 0;
+      const st=Object.assign({fill:css('--bg'),stroke:css('--muted'),sw:1.5,tc:css('--fg')}, anim?{}:(styler(id,S.slot[id])||{}));
+      const x=x0+p*sw+3, y=cy-ch/2+lift;
+      s+=`<g opacity="${st.cross?0.35:1}"><rect x="${x}" y="${y}" width="${cw}" height="${ch}" rx="6" fill="${st.fill}" stroke="${st.stroke}" stroke-width="${st.sw}" ${st.dash?'stroke-dasharray="4 3"':''}/><text x="${x+cw/2}" y="${y+ch/2+fs*0.36}" text-anchor="middle" font-size="${fs}" font-weight="600" ${F()} fill="${st.tc}">${minus(S.vals[id])}</text>`;
+      if(st.cross) s+=`<line x1="${x+3}" y1="${y+ch-4}" x2="${x+cw-3}" y2="${y+4}" stroke="${css('--fg')}" stroke-width="2"/>`;
+      s+='</g>';
+      if(st.below) s+=`<text x="${x+cw/2}" y="${cy+ch/2+17}" text-anchor="middle" font-size="11" ${F()} fill="${st.bc||css('--muted')}">${st.below}</text>`;
+    });
+    svg.innerHTML=s;
+  };
+  return S;
+}
+
+/* 1. data cards */
+const SD={school:{vals:[12,5,20,8,15,8,25,10,8],u:' minutes'},shoe:{vals:[5,6,4,7,6,5,6,8,6,5],u:''},goals:{vals:[1,0,2,3,1,0,4,1,2,1,0,5],u:' goals'}};
+const sdStrip=makeStrip($('sdSvg'),560,120,(id,slot)=>{
+  if(!sdStrip.ordered())return null; const n=sdStrip.n(), fg=css('--fg');
+  if(slot===0)return {stroke:fg,sw:2.5,below:'smallest',bc:fg};
+  if(slot===n-1)return {stroke:fg,sw:2.5,below:'largest',bc:fg};
+  return null;});
+function drawSD(){
+  sdStrip.draw();
+  const d=SD[$('sdSet').value], v=sdStrip.vals, ok=sdStrip.ordered()&&!sdStrip.busy();
+  $('sdN').textContent=v.length;
+  $('sdMin').textContent=ok?Math.min(...v)+d.u:'order them first…';
+  $('sdMax').textContent=ok?Math.max(...v)+d.u:'order them first…';
+  $('sdMsg').textContent=ok?`In order, you can see at a glance that the values run from ${Math.min(...v)} to ${Math.max(...v)}, and which values bunch together or repeat.`:'Jumbled data is hard to read. Press "Put in order".';
+}
+$('sdSet').addEventListener('change',()=>{sdStrip.set(SD[$('sdSet').value].vals);drawSD();});
+$('sdSort').addEventListener('click',()=>sdStrip.sort(drawSD));
+$('sdShuf').addEventListener('click',()=>{sdStrip.shuffle(drawSD);drawSD();});
+sdStrip.set(SD.school.vals); drawSD();
+
+/* 2. mode: pet survey */
+const MO_CATS=['Dog','Cat','Fish','Rabbit','Hamster'];
+const MO_PRE={survey:[6,4,2,3,1],tie:[4,4,2,1,3],diff:[1,1,1,1,1]};
+let moC=MO_PRE.survey.slice();
+const moSvg=$('moSvg'), moX0=30, moCW=100, moBase=222;
+function drawMO(){
+  const mx=Math.max(...moC), md=mx<2?[]:MO_CATS.filter((c,i)=>moC[i]===mx), tw=css('--two'), mu=css('--muted');
+  let s='';
+  MO_CATS.forEach((c,i)=>{
+    const cx=moX0+moCW*(i+.5), isM=md.includes(c);
+    if(isM) s+=`<rect x="${cx-34}" y="${moBase-moC[i]*19-26}" width="68" height="${moC[i]*19+26}" rx="8" fill="${css('--two-soft')}"/>`;
+    for(let j=0;j<moC[i];j++) s+=`<circle cx="${cx}" cy="${moBase-10-j*19}" r="8" fill="${isM?tw:mu}" fill-opacity="${isM?1:.55}"/>`;
+    s+=`<text x="${cx}" y="${moBase-moC[i]*19-8}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${isM?tw:mu}">${moC[i]}</text>`;
+    s+=`<text x="${cx}" y="${moBase+22}" text-anchor="middle" font-size="14" ${F()} fill="${isM?tw:css('--fg')}" font-weight="${isM?700:400}">${c}</text>`;
+    s+=`<rect x="${cx-moCW/2}" y="0" width="${moCW}" height="255" fill="transparent" style="cursor:pointer"/>`;
+  });
+  s+=`<line x1="20" y1="${moBase}" x2="540" y2="${moBase}" stroke="${mu}" stroke-width="1.5"/>`;
+  moSvg.innerHTML=s;
+  const N=sum(moC); let t;
+  if(N===0) t='No votes yet. Tap a column to add one.';
+  else if(md.length===0) t=`Every pet that was chosen was chosen just once, so there is <strong>no mode</strong>: nothing is more common than anything else.`;
+  else if(md.length===1) t=`<span class="c">Mode = <strong>${md[0]}</strong></span>. It was chosen ${mx} times, so its <em>frequency</em> is ${mx}.<br>The answer is "${md[0]}", not ${mx}: ${mx} is how many times, not the mode itself.`;
+  else t=`<span class="c">${md.length===MO_CATS.length?'Every pet ties':md.length+' modes'}: <strong>${andList(md)}</strong></span>, chosen ${mx} times each.<br>${md.length===2?'Two modes: the data is <em>bimodal</em>.':'When lots of values tie, the mode doesn\'t tell you much.'}`;
+  $('moOut').innerHTML=`${N} vote${N===1?'':'s'} altogether.<br>`+t;
+}
+moSvg.addEventListener('pointerdown',e=>{
+  const [x]=svgPt(moSvg,e,560,255); const i=Math.floor((x-moX0)/moCW); if(i<0||i>4)return;
+  moC[i]=$('moDel').checked?Math.max(0,moC[i]-1):Math.min(10,moC[i]+1); drawMO();});
+$('moSurvey').addEventListener('click',()=>{moC=MO_PRE.survey.slice();drawMO();});
+$('moTie').addEventListener('click',()=>{moC=MO_PRE.tie.slice();drawMO();});
+$('moDiff').addEventListener('click',()=>{moC=MO_PRE.diff.slice();drawMO();});
+drawMO();
+
+/* 2b. mode try-it */
+function genMode(){ const n=rnd(8,10), m=rnd(2,15), v=[m,m,m]; while(v.length<n){const x=rnd(1,18); if(x===m||count(v,x)>=2)continue; v.push(x);} shuffle(v); return {v,m}; }
+function modeWrong(Q,u){
+  if(u===3&&Q.m!==3) return `3 is how many times the mode appears (its frequency). The mode is the value that appears 3 times.`;
+  if(Q.v.includes(u)) return `${u} appears ${count(Q.v,u)} time${count(Q.v,u)>1?'s':''}, but another value appears 3 times. Count each value carefully.`;
+  return `${minus(u)} isn't in the list. The mode is always one of the values.`;
+}
+let MT=null;
+function mtNew(){ MT=genMode(); $('mtQ').textContent='Find the mode of: '+list(MT.v); $('mtA').value=''; setMsg($('mtMsg'),'',''); }
+function mtCheck(){ const raw=$('mtA').value.trim(), M=$('mtMsg');
+  if(/none|no/i.test(raw)){setMsg(M,'bad','Not quite. There is a mode here: one value appears more often than the others.');return;}
+  const u=num(raw); if(!isFinite(u)){setMsg(M,'bad','Type a number from the list.');return;}
+  if(u===MT.m) setMsg(M,'good',`Correct. ${MT.m} appears 3 times, more than any other value.`);
+  else setMsg(M,'bad','Not quite. '+modeWrong(MT,u)); }
+$('mtGo').addEventListener('click',mtCheck); $('mtA').addEventListener('keydown',e=>{if(e.key==='Enter')mtCheck();});
+$('mtNew').addEventListener('click',mtNew); mtNew();
+
+/* 3. median: order then cross off */
+let meK=0;
+const meDone=()=>meK>=Math.floor((meStrip.n()-1)/2);
+const meStrip=makeStrip($('meSvg'),560,120,(id,slot)=>{
+  if(!meStrip.ordered())return null; const n=meStrip.n(), st={below:String(slot+1)};
+  if(slot<meK||slot>=n-meK) return Object.assign(st,{cross:true});
+  if(meDone()) return Object.assign(st,{fill:css('--hi-soft'),stroke:css('--hi'),sw:2.5,tc:css('--hi'),bc:css('--hi')});
+  return st;});
+function meNew(){ const n=+$('meN').value; let v; do{v=Array.from({length:n},()=>rnd(1,40));}while(unsortedMid(v)===median(v)||new Set(v).size<n-1);
+  meStrip.set(v); meK=0; setMsg($('meMsg'),'',''); drawME(); }
+function drawME(){
+  meStrip.draw(); const v=meStrip.vals, n=v.length, W=$('meWork');
+  if(meStrip.busy()) return;
+  if(!meStrip.ordered()){ W.innerHTML=`Values as written: ${list(v)}<br>${n} values, not in order yet. Press "Put in order".`; return; }
+  const s=sortN(v); let h=`In order: ${list(s)}<br>${n} values.`;
+  if(!meDone()) h+=` Crossed off ${meK} from each end so far. Keep going.`;
+  else if(n%2){ h+=` One card left in the middle.<br>Position: (${n} + 1) ÷ 2 = ${(n+1)/2}, the ${(n+1)/2}th value.<br><span class="b">Median = <strong>${s[(n-1)/2]}</strong></span>`; }
+  else { const a=s[n/2-1], b=s[n/2]; h+=` Two cards left: the ${n/2}th and ${n/2+1}th values, ${a} and ${b}.<br>Position: (${n} + 1) ÷ 2 = ${(n+1)/2}, halfway between them.<br><span class="b">Median = (${a} + ${b}) ÷ 2 = ${a+b} ÷ 2 = <strong>${fmt((a+b)/2)}</strong></span>`; }
+  if(meDone()) h+=`<br><span class="x">✗ the middle of the list as first written gave ${fmt(unsortedMid(v))}, which is wrong.</span>`;
+  W.innerHTML=h;
+}
+$('meSort').addEventListener('click',()=>{ if(meStrip.busy())return; meK=0; setMsg($('meMsg'),'','Sorting smallest to largest…'); meStrip.sort(()=>{setMsg($('meMsg'),'','In order. Now cross off one card from each end, again and again.');drawME();}); drawME(); });
+$('meCross').addEventListener('click',()=>{ if(meStrip.busy())return; const M=$('meMsg');
+  if(!meStrip.ordered()){ setMsg(M,'bad',`Stop! These aren't in order yet. Crossing off now would leave ${fmt(unsortedMid(meStrip.vals))}, which is not the median. Put them in order first.`); return; }
+  if(meDone()){ setMsg(M,'','Already at the middle. Press "New numbers" to try another set.'); return; }
+  meK++; setMsg(M,meDone()?'good':'',meDone()?(meStrip.n()%2?'Found it: one card left in the middle.':'Two cards left: the median is halfway between them.'):'Crossed off the smallest and the largest. Again!'); drawME(); });
+$('meNew').addEventListener('click',meNew); $('meN').addEventListener('change',meNew); meNew();
+
+/* 3b. median try-it */
+function genMedian(nMin,nMax){ const n=rnd(nMin,nMax); let v; do{v=Array.from({length:n},()=>rnd(1,30));}while(unsortedMid(v)===median(v)||new Set(v).size<n-1); return {v,ans:median(v)}; }
+function medianWrong(Q,u){
+  const v=Q.v, n=v.length, s=sortN(v);
+  if(n%2===0&&(u===s[n/2-1]||u===s[n/2])) return `There are two middle values, ${s[n/2-1]} and ${s[n/2]}. The median is halfway between them: add them and divide by 2.`;
+  if(close(u,unsortedMid(v))||(n%2===0&&(u===v[n/2-1]||u===v[n/2]))) return `You took the middle of the list as it was written. Put the values in order first.`;
+  if(close(u,(n+1)/2)) return `${fmt((n+1)/2)} is the position of the median in the ordered list, not its value.`;
+  if(close(u,mean(v))) return `That's the mean. The median is the middle value once the list is in order.`;
+  return `Write the values in order, smallest to largest, then find the middle.`;
+}
+let MDT=null;
+function mdtNew(){ MDT=genMedian(5,8); $('mdtQ').textContent='Find the median of: '+list(MDT.v); $('mdtA').value=''; setMsg($('mdtMsg'),'',''); }
+function mdtCheck(){ const u=num($('mdtA').value), M=$('mdtMsg'); if(!isFinite(u)){setMsg(M,'bad','Type a number, e.g. 12 or 12.5.');return;}
+  if(close(u,MDT.ans)) setMsg(M,'good',`Correct. In order: ${list(sortN(MDT.v))}. Median = ${fmt(MDT.ans)}.`);
+  else setMsg(M,'bad','Not quite. '+medianWrong(MDT,u)); }
+$('mdtGo').addEventListener('click',mdtCheck); $('mdtA').addEventListener('keydown',e=>{if(e.key==='Enter')mdtCheck();});
+$('mdtNew').addEventListener('click',mdtNew); mdtNew();
+
+/* 4. mean: levelling towers */
+let twH=[3,7,2,6,7], twO=twH.slice(), twLev=false, twAnim=false, twRaf=null, twFly=null, twDrag=-1;
+const twSvg=$('twSvg');
+const twG=()=>{ const n=twH.length, slot=500/n; return {n,slot,cx:i=>30+slot*(i+.5),bw:Math.min(60,slot-16),base:262,bs:21}; };
+function drawTW(){
+  const g=twG(), mu=css('--muted'), ac=css('--accent'), T=sum(twO), m=T/g.n;
+  const fill=twLev?css('--accent-soft'):css('--grid'), str=twLev?ac:mu;
+  let s=`<text x="12" y="20" font-size="12" ${F()} fill="${mu}">drag a tower up or down</text>`;
+  twH.forEach((h,i)=>{
+    const cx=g.cx(i), x=cx-g.bw/2, full=Math.floor(h+1e-9), fr=h-full;
+    for(let j=0;j<full;j++) s+=`<rect x="${x}" y="${g.base-(j+1)*g.bs+1}" width="${g.bw}" height="${g.bs-2}" rx="2" fill="${fill}" stroke="${str}" stroke-width="1.2"/>`;
+    if(fr>1e-6) s+=`<rect x="${x}" y="${g.base-full*g.bs-fr*g.bs+1}" width="${g.bw}" height="${Math.max(0,fr*g.bs-2)}" rx="2" fill="${fill}" stroke="${str}" stroke-width="1.2"/>`;
+    s+=`<text x="${cx}" y="${g.base+20}" text-anchor="middle" font-size="14" font-weight="600" ${F()} fill="${twLev?ac:css('--fg')}">${fmt(h,2)}</text>`;
+  });
+  s+=`<line x1="20" y1="${g.base}" x2="540" y2="${g.base}" stroke="${mu}" stroke-width="1.5"/>`;
+  if(twFly) s+=`<rect x="${twFly.x-g.bw/2}" y="${twFly.y+1}" width="${g.bw}" height="${g.bs-2}" rx="2" fill="${ac}" stroke="${ac}"/>`;
+  if($('twLine').checked){ const y=g.base-m*g.bs; s+=`<line x1="20" y1="${y}" x2="540" y2="${y}" stroke="${ac}" stroke-width="2.5" stroke-dasharray="7 5"/><text x="540" y="${y-6}" text-anchor="end" font-size="13" font-weight="600" ${F()} fill="${ac}">mean = ${fmt(m,2)}</text>`; }
+  twSvg.innerHTML=s;
+  $('twWork').innerHTML=`total = ${twO.join(' + ')} = ${T} blocks<br>how many towers = ${g.n}<br><span class="a">mean = ${T} ÷ ${g.n} = <strong>${dec(m)}</strong></span>`;
+}
+function twStop(){ if(twRaf)cancelAnimationFrame(twRaf); twRaf=null; twAnim=false; twFly=null; }
+function twDoneMsg(){ const n=twO.length, T=sum(twO), q=Math.floor(T/n), r=T%n;
+  setMsg($('twMsg'),'good', r===0 ? `Level! ${T} blocks shared between ${n} towers gives ${q} each. The mean is ${q}.`
+    : `${T} ÷ ${n} doesn't share out exactly: each tower gets ${q} whole blocks, and the ${r} block${r>1?'s':''} left over ${r>1?'are':'is'} cut into ${n} equal pieces. The mean is ${dec(T/n)}.`); }
+function twLevel(){
+  if(twAnim||twLev)return; const n=twO.length, m=sum(twO)/n, h=twO.slice(), moves=[];
+  twH=twO.slice();
+  for(let k=0;k<300;k++){ let a=0,b=0; h.forEach((v,i)=>{if(v>h[a])a=i; if(v<h[b])b=i;}); if(h[a]-h[b]<=1)break; h[a]--; h[b]++; moves.push([a,b]); }
+  if(reduceMotion){ twH=twH.map(()=>m); twLev=true; twDoneMsg(); drawTW(); return; }
+  twAnim=true; setMsg($('twMsg'),'','Taking a block from the tallest tower and giving it to the shortest…');
+  let k=0;
+  const fin=()=>{ twAnim=false; twRaf=null; twLev=true; twDoneMsg(); drawTW(); };
+  const smooth=()=>{ if(twH.every(v=>Math.abs(v-m)<1e-9)){fin();return;} setMsg($('twMsg'),'','Nearly level. Now cut the leftover blocks into equal pieces…'); const h0=twH.slice(), t0=performance.now();
+    const step=now=>{ const t=Math.min(1,(now-t0)/900); twH=h0.map(v=>v+(m-v)*t); drawTW(); if(t<1) twRaf=requestAnimationFrame(step); else { twH=h0.map(()=>m); fin(); } }; twRaf=requestAnimationFrame(step); };
+  const next=()=>{ if(k>=moves.length){smooth();return;} const [a,b]=moves[k++], g=twG();
+    const sx=g.cx(a), sy=g.base-twH[a]*g.bs; twH[a]--; const ex=g.cx(b), ey=g.base-(twH[b]+1)*g.bs, t0=performance.now();
+    const step=now=>{ const t=Math.min(1,(now-t0)/450), e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; twFly={x:sx+(ex-sx)*e,y:sy+(ey-sy)*e-Math.sin(Math.PI*t)*50}; drawTW();
+      if(t<1) twRaf=requestAnimationFrame(step); else { twFly=null; twH[b]++; drawTW(); next(); } };
+    twRaf=requestAnimationFrame(step); };
+  next();
+}
+function twSet(e){ const [x,y]=svgPt(twSvg,e,560,300), g=twG(); const v=Math.max(0,Math.min(10,Math.round((g.base-y)/g.bs))); twH[twDrag]=v; twO=twH.slice(); drawTW(); }
+twSvg.addEventListener('pointerdown',e=>{ if(twAnim)return; const [x]=svgPt(twSvg,e,560,300), g=twG(); const i=Math.floor((x-30)/g.slot); if(i<0||i>=g.n)return;
+  if(twLev){twH=twO.slice();twLev=false;} twDrag=i; twSvg.setPointerCapture(e.pointerId); setMsg($('twMsg'),'',''); twSet(e); });
+twSvg.addEventListener('pointermove',e=>{ if(twDrag>=0) twSet(e); });
+const twUp=()=>{twDrag=-1;}; twSvg.addEventListener('pointerup',twUp); twSvg.addEventListener('pointercancel',twUp);
+const twRandom=n=>{ twStop(); twH=Array.from({length:n},()=>rnd(1,9)); twO=twH.slice(); twLev=false; setMsg($('twMsg'),'',''); drawTW(); };
+$('twLevel').addEventListener('click',twLevel);
+$('twBack').addEventListener('click',()=>{ twStop(); twH=twO.slice(); twLev=false; setMsg($('twMsg'),'',''); drawTW(); });
+$('twRand').addEventListener('click',()=>twRandom(+$('twN').value));
+$('twN').addEventListener('change',()=>twRandom(+$('twN').value));
+$('twLine').addEventListener('input',drawTW);
+drawTW();
+
+/* 4b. mean try-it */
+function genMean(){ const n=rnd(4,7), v=Array.from({length:n},()=>rnd(1,20)); if(n>5){ v[n-1]+=(n-sum(v)%n)%n; } shuffle(v); return {v,ans:mean(v)}; }
+function meanWrong(Q,u){ const v=Q.v, n=v.length, T=sum(v);
+  if(close(u,T)) return `${T} is the total. Now divide by how many values there are (${n}).`;
+  if(close(u,T/(n-1))||close(u,Math.round(T/(n-1)*10)/10)||close(u,T/(n+1))||close(u,Math.round(T/(n+1)*10)/10)) return `Check how many values there are: count them again. You need total ÷ ${n}.`;
+  if(close(u,median(v))) return `That's the median. The mean is total ÷ how many.`;
+  return `Add all the values to get the total, then divide by how many values there are.`; }
+let MNT=null;
+function mntNew(){ MNT=genMean(); $('mntQ').textContent='Find the mean of: '+list(MNT.v); $('mntA').value=''; setMsg($('mntMsg'),'',''); }
+function mntCheck(){ const u=num($('mntA').value), M=$('mntMsg'); if(!isFinite(u)){setMsg(M,'bad','Type a number, e.g. 7 or 7.4.');return;}
+  const T=sum(MNT.v), n=MNT.v.length;
+  if(okAns(u,MNT.ans)) setMsg(M,'good',`Correct. Total = ${T}, and ${T} ÷ ${n} = ${fmt(MNT.ans)}.`);
+  else setMsg(M,'bad','Not quite. '+meanWrong(MNT,u)); }
+$('mntGo').addEventListener('click',mntCheck); $('mntA').addEventListener('keydown',e=>{if(e.key==='Enter')mntCheck();});
+$('mntNew').addEventListener('click',mntNew); mntNew();
+
+/* row dot plot used in sections 5 and 8 */
+function rowPlot(o){
+  const mu=css('--muted'), ac=css('--accent'), fg=css('--fg'), X=o.X, cl=x=>Math.max(80,Math.min(480,x));
+  let s=`<text x="4" y="${o.top+14}" font-size="14" font-weight="600" fill="${fg}" font-family="${css('--body')}">${o.name}</text>`;
+  s+=`<line x1="${X(o.lo)-10}" y1="${o.ay}" x2="${X(o.hi)+10}" y2="${o.ay}" stroke="${mu}" stroke-width="1.5"/>`;
+  for(let v=o.lo;v<=o.hi;v+=o.tick) s+=`<line x1="${X(v)}" y1="${o.ay}" x2="${X(v)}" y2="${o.ay+5}" stroke="${mu}"/><text x="${X(v)}" y="${o.ay+17}" text-anchor="middle" font-size="11" ${F()} fill="${mu}">${v}</text>`;
+  const c={}; o.vals.forEach(v=>{ const k=c[v]=(c[v]||0)+1; s+=`<circle cx="${X(v)}" cy="${o.ay-o.r-2-(k-1)*o.step}" r="${o.r}" fill="${mu}" fill-opacity=".75"/>`; });
+  const mn=Math.min(...o.vals), mx=Math.max(...o.vals), by=o.by, m=mean(o.vals);
+  s+=`<path d="M${X(mn)},${by+7} V${by} H${X(mx)} V${by+7}" fill="none" stroke="${fg}" stroke-width="2"/><text x="${cl((X(mn)+X(mx))/2)}" y="${by-6}" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${fg}">range = ${mx} − ${mn} = ${mx-mn}</text>`;
+  s+=`<path d="M${X(m)},${o.ay+21} l-6,9 h12 z" fill="${ac}"/><text x="${cl(X(m))}" y="${o.ay+44}" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${ac}">mean = ${fmt(m,2)}</text>`;
+  return s;
+}
+
+/* 5. range: Amir and Bea */
+const RA_A=[11,9,10,8,11,10,11], RA_OFF=[0,3,-2,1,-3,2,-1];
+function drawRA(){
+  const k=+$('raS').value, B=RA_OFF.map(o=>10+o*k), X=v=>40+v*24;
+  $('raSvg').innerHTML=rowPlot({vals:RA_A,name:'Amir',top:0,ay:82,by:20,X,lo:0,hi:20,tick:2,r:7,step:15})+rowPlot({vals:B,name:'Bea',top:135,ay:217,by:155,X,lo:0,hi:20,tick:2,r:7,step:15});
+  const rA=Math.max(...RA_A)-Math.min(...RA_A), rB=Math.max(...B)-Math.min(...B);
+  $('raWork').innerHTML=`Amir: ${list(RA_A)} → <span class="a">mean = ${sum(RA_A)} ÷ 7 = ${fmt(mean(RA_A))}</span>, range = ${Math.max(...RA_A)} − ${Math.min(...RA_A)} = <strong>${rA}</strong><br>Bea: ${list(B)} → <span class="a">mean = ${sum(B)} ÷ 7 = ${fmt(mean(B))}</span>, range = ${Math.max(...B)} − ${Math.min(...B)} = <strong>${rB}</strong><br>Same mean, but Bea's range is ${rB/rA} times Amir's: Amir is more consistent.`;
+}
+$('raS').addEventListener('input',drawRA); drawRA();
+
+/* 5b. range try-it */
+const RANGE_STR=/\d\s*(to|-|–|−)\s*\d/i;
+function genRange(){ let v; do{ v=Array.from({length:rnd(6,8)},()=>rnd(2,40)); }while(Math.abs(v[0]-v[v.length-1])===Math.max(...v)-Math.min(...v)); return {v,ans:Math.max(...v)-Math.min(...v)}; }
+function rangeWrong(Q,u){ const v=Q.v, mx=Math.max(...v), mn=Math.min(...v);
+  if(close(u,-Q.ans)) return `Subtract the other way round: largest − smallest, which is never negative.`;
+  if(u===mx) return `${mx} is the largest value. The range is largest − smallest.`;
+  if(u===mn) return `${mn} is the smallest value. The range is largest − smallest.`;
+  if(u===Math.abs(v[0]-v[v.length-1])) return `You used the first and last values as written. Find the actual largest and smallest values.`;
+  return `Find the largest and the smallest values, then subtract.`; }
+let RGT=null;
+function rgtNew(){ RGT=genRange(); $('rgtQ').textContent='Find the range of: '+list(RGT.v); $('rgtA').value=''; setMsg($('rgtMsg'),'',''); }
+function rgtCheck(){ const raw=$('rgtA').value.trim(), M=$('rgtMsg');
+  if(RANGE_STR.test(raw)){ setMsg(M,'bad',`Not quite. "${raw}" says where the data starts and ends, but the range is a single number: subtract smallest from largest.`); return; }
+  const u=num(raw); if(!isFinite(u)){setMsg(M,'bad','Type a single number.');return;}
+  if(close(u,RGT.ans)) setMsg(M,'good',`Correct. ${Math.max(...RGT.v)} − ${Math.min(...RGT.v)} = ${RGT.ans}.`);
+  else setMsg(M,'bad','Not quite. '+rangeWrong(RGT,u)); }
+$('rgtGo').addEventListener('click',rgtCheck); $('rgtA').addEventListener('keydown',e=>{if(e.key==='Enter')rgtCheck();});
+$('rgtNew').addEventListener('click',rgtNew); rgtNew();
+
+/* 6. outliers: draggable dot plot */
+const DP_BASE=[6,3,8,5,6,4,7,6,5];
+let dpB=DP_BASE.slice(), dpZ=30, dpOn=false, dpDrag=-1;
+const dpVals=()=>dpOn?dpB.concat([dpZ]):dpB.slice();
+const DX=v=>30+v*500/30, dpAY=180;
+const dpStrip=makeStrip($('dpStrip'),560,110,(id,slot)=>{
+  const st={}, v=dpStrip.vals;
+  if(modes(v).vals.includes(v[id])) st.tc=css('--two');
+  if(dpStrip.ordered()){ const n=v.length, mids=n%2?[(n-1)/2]:[n/2-1,n/2]; if(mids.includes(slot)) Object.assign(st,{fill:css('--hi-soft'),stroke:css('--hi'),sw:2.5,below:'middle',bc:css('--hi')}); }
+  if(dpOn&&id===dpB.length) Object.assign(st,{dash:true,stroke:css('--fg'),sw:2,below:'Zak'});
+  return st;});
+function dpPos(){ const c={}; return dpVals().map(x=>{ const k=c[x]=(c[x]||0)+1; return [DX(x),dpAY-9-(k-1)*15]; }); }
+const modeStr=v=>{ const m=modes(v).vals; return m.length?'£'+m.join(' and £'):'none'; };
+function drawDP(){
+  const v=dpVals(), md=modes(v).vals, med=median(v), mn=mean(v), lo=Math.min(...v), hi=Math.max(...v);
+  const mu=css('--muted'), ac=css('--accent'), hc=css('--hi'), tw=css('--two'), fg=css('--fg'), cl=x=>Math.max(60,Math.min(500,x));
+  let s=`<line x1="20" y1="${dpAY}" x2="540" y2="${dpAY}" stroke="${mu}" stroke-width="1.5"/>`;
+  for(let x=0;x<=30;x++) s+=`<line x1="${DX(x)}" y1="${dpAY}" x2="${DX(x)}" y2="${dpAY+(x%5?3:6)}" stroke="${mu}"/>`+(x%5?'':`<text x="${DX(x)}" y="${dpAY+18}" text-anchor="middle" font-size="11" ${F()} fill="${mu}">£${x}</text>`);
+  s+=`<line x1="${DX(med)}" y1="${dpAY}" x2="${DX(med)}" y2="36" stroke="${hc}" stroke-width="2" stroke-dasharray="5 4"/><line x1="${DX(mn)}" y1="${dpAY}" x2="${DX(mn)}" y2="36" stroke="${ac}" stroke-width="2" stroke-dasharray="2 3"/>`;
+  const P=dpPos();
+  v.forEach((x,i)=>{ const [cx,cy]=P[i]; s+=`<circle cx="${cx}" cy="${cy}" r="7" fill="${md.includes(x)?tw:mu}" fill-opacity="${md.includes(x)?1:.75}" style="cursor:grab"/>`;
+    if(dpOn&&i===dpB.length) s+=`<circle cx="${cx}" cy="${cy}" r="11" fill="none" stroke="${fg}" stroke-width="1.5" stroke-dasharray="3 2"/><text x="${cx}" y="${cy-16}" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${fg}">Zak</text>`; });
+  s+=`<path d="M${DX(lo)},${30} V${23} H${DX(hi)} V${30}" fill="none" stroke="${fg}" stroke-width="2"/><text x="${cl((DX(lo)+DX(hi))/2)}" y="16" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${fg}">range = ${hi} − ${lo} = ${hi-lo}</text>`;
+  s+=`<path d="M${DX(med)},${dpAY+22} l-6,9 h12 z" fill="${hc}"/><text x="${cl(DX(med))}" y="${dpAY+46}" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${hc}">median = £${fmt(med)}</text>`;
+  s+=`<path d="M${DX(mn)},${dpAY+50} l-6,9 h12 z" fill="${ac}"/><text x="${cl(DX(mn))}" y="${dpAY+76}" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${ac}">mean = £${fmt(mn)}</text>`;
+  $('dpSvg').innerHTML=s;
+  dpStrip.draw();
+  $('dpMean').textContent=`£${fmt(mn)} (${sum(v)} ÷ ${v.length})`;
+  $('dpMed').textContent=`£${fmt(med)}`;
+  $('dpMode').textContent=modeStr(v);
+  $('dpRange').textContent=`£${hi-lo} (${hi} − ${lo})`;
+  if(dpOn){ const b=dpB, bm=mean(b), bd=median(b), br=Math.max(...b)-Math.min(...b);
+    $('dpWork').innerHTML=`without Zak: mean £${fmt(bm)}, median £${fmt(bd)}, mode ${modeStr(b)}, range £${br}<br>with Zak:&nbsp;&nbsp;&nbsp; mean £${fmt(mn)}, median £${fmt(med)}, mode ${modeStr(v)}, range £${hi-lo}<br><span class="a">mean changed by £${fmt(Math.abs(mn-bm))}</span>, <span class="b">median changed by £${fmt(Math.abs(med-bd))}</span>, range changed by £${Math.abs(hi-lo-br)}.`; }
+  else $('dpWork').innerHTML=`Drag the dots and watch all four measures update. Then tick "add Zak" to add an outlier.`;
+}
+const dpSvg=$('dpSvg');
+function dpMove(e){ const [x]=svgPt(dpSvg,e,560,262); const val=Math.max(0,Math.min(30,Math.round((x-30)/(500/30))));
+  if(dpDrag<dpB.length) dpB[dpDrag]=val; else dpZ=val; dpStrip.vals[dpDrag]=val; drawDP(); }
+dpSvg.addEventListener('pointerdown',e=>{ const [x,y]=svgPt(dpSvg,e,560,262); let best=-1,bd=24; dpPos().forEach(([cx,cy],i)=>{const d=Math.hypot(cx-x,cy-y); if(d<bd){bd=d;best=i;}});
+  if(best<0)return; dpDrag=best; dpSvg.setPointerCapture(e.pointerId); dpMove(e); });
+dpSvg.addEventListener('pointermove',e=>{ if(dpDrag>=0) dpMove(e); });
+const dpUp=()=>{dpDrag=-1;}; dpSvg.addEventListener('pointerup',dpUp); dpSvg.addEventListener('pointercancel',dpUp);
+$('dpOut').addEventListener('input',()=>{ dpOn=$('dpOut').checked; dpStrip.set(dpVals()); drawDP(); });
+$('dpSort').addEventListener('click',()=>dpStrip.sort(drawDP));
+$('dpReset').addEventListener('click',()=>{ dpB=DP_BASE.slice(); dpZ=30; dpOn=false; $('dpOut').checked=false; dpStrip.set(dpVals()); drawDP(); });
+dpStrip.set(dpVals()); drawDP();
+
+/* 6b. which average? */
+const CH=[
+  {q:'A shoe shop is deciding which trainer size to order the most of.',a:'mode',fb:{mode:'Right: the shop wants the size that sells most often, the most common one. (The mean might be 6.3, which isn\'t even a real size!)',median:'The median is the middle size, but the shop wants the size most people actually buy: the most common one.',mean:'The mean could be something like 6.3, which isn\'t a size you can order. The shop wants the most common size.'}},
+  {q:'A small company has 9 workers earning £24 000 each and a boss earning £300 000. What is a typical salary?',a:'median',fb:{median:'Right: the median salary is £24 000, and the boss\'s huge pay can\'t drag it up.',mean:'The boss\'s £300 000 is an outlier. It drags the mean up to (9 × 24 000 + 300 000) ÷ 10 = £51 600, more than 9 of the 10 people earn.',mode:'Here the mode (£24 000) happens to work too, but in real life salaries are rarely exactly equal. With an outlier, the median is the safe choice.'}},
+  {q:'Ella\'s test scores were 62, 65, 68, 70 and 71. She wants one number that uses all of her scores.',a:'mean',fb:{mean:'Right: there are no outliers, and the mean uses every score: 336 ÷ 5 = 67.2.',median:'The median (68) only looks at the middle score. Ella wants a number that uses every score, and there are no outliers: the mean.',mode:'Every score appears once, so there is no mode!'}},
+  {q:'A class votes for their favourite colour.',a:'mode',fb:{mode:'Right: colours are words, not numbers. You can\'t add them or put them in order, so the mode is the only average that works.',mean:'You can\'t add up "red + blue + green"! For non-numerical data only the mode works.',median:'Colours have no natural order, so there is no "middle" colour. Only the mode works.'}},
+  {q:'Five houses in a street cost about £200 000 each and one mansion costs £2 000 000. What is a typical price?',a:'median',fb:{median:'Right: the median ignores how extreme the mansion is, so it stays near £200 000.',mean:'The mansion is an outlier: it drags the mean up to about (5 × 200 000 + 2 000 000) ÷ 6 = £500 000, far more than most houses cost.',mode:'The prices are "about" £200 000, so they probably aren\'t exactly equal and there may be no mode. The median handles the outlier.'}},
+  {q:'A café wants a typical number of cakes sold per day, so it can multiply up to estimate a month\'s total.',a:'mean',fb:{mean:'Right: mean × number of days = total. The mean is the only average tied to the total.',median:'The median is a fine "typical day", but only the mean multiplies back up to the total: total = mean × number of days.',mode:'The most common daily figure doesn\'t multiply back up to the total. The mean does: total = mean × how many.'}}
+];
+let chI=0, chDone=false;
+const chBtns={};
+['mean','median','mode'].forEach(k=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=k[0].toUpperCase()+k.slice(1); b.addEventListener('click',()=>chPick(k)); chBtns[k]=b; $('chBtns').appendChild(b); });
+function chShow(){ const C=CH[chI]; $('chProg').textContent=`Situation ${chI+1} of ${CH.length}`; $('chQ').textContent=C.q; Object.values(chBtns).forEach(b=>{b.className='btn';b.disabled=false;}); setMsg($('chMsg'),'',''); chDone=false; }
+function chPick(k){ if(chDone)return; const C=CH[chI], ok=k===C.a; chBtns[k].className='btn '+(ok?'right':'wrong'); setMsg($('chMsg'),ok?'good':'bad',(ok?'':'Not the best choice. ')+C.fb[k]); if(ok){chDone=true;Object.values(chBtns).forEach(b=>b.disabled=true);} }
+$('chNext').addEventListener('click',()=>{chI=(chI+1)%CH.length;chShow();}); chShow();
+
+/* 7. working backwards */
+function genMissing(){ let n,m,k,x; do{ n=rnd(4,6); m=rnd(4,12); k=Array.from({length:n-1},()=>rnd(1,18)); x=m*n-sum(k); }while(x<0||x>20||x===m); return {n,m,k,x}; }
+function missingWrong(Q,u){ const T=Q.m*Q.n, K=sum(Q.k);
+  if(u===T) return `${T} is the total of all ${Q.n} numbers. Now take away the ones you know.`;
+  if(u===K) return `${K} is the total of the numbers you know. The total of all ${Q.n} must be ${Q.m} × ${Q.n}.`;
+  if(u===Q.m) return `The missing number doesn't have to equal the mean. Find the total first: mean × how many.`;
+  if(close(u,K/(Q.n-1))||close(u,Math.round(K/(Q.n-1)*10)/10)) return `That's the mean of the numbers you know. Use total = mean × how many instead.`;
+  return `With ${minus(u)}, the mean would be ${fmt((K+u)/Q.n)}, which is too ${(K+u)/Q.n>Q.m?'high':'low'}. Find the total first: mean × how many.`; }
+const missingWork=Q=>{ const T=Q.m*Q.n, K=sum(Q.k); return [`total of all ${Q.n} = mean × how many = ${Q.m} × ${Q.n} = ${T}`,`total of the ones you know = ${Q.k.join(' + ')} = ${K}`,`missing value = ${T} − ${K} = <strong>${Q.x}</strong>`,`check: (${K} + ${Q.x}) ÷ ${Q.n} = ${T} ÷ ${Q.n} = ${Q.m} ✓`]; };
+let WB=null;
+function wbNew(){ WB=genMissing(); $('wbQ').textContent=`The mean of ${WB.n} numbers is ${WB.m}. ${WB.n-1} of them are ${list(WB.k)}. What is the missing number?`; $('wbA').value=''; setMsg($('wbMsg'),'',''); $('wbWork').hidden=true; $('wbWork').innerHTML=missingWork(WB).join('<br>'); drawWB(); }
+function drawWB(){
+  if(!WB)return; const g=num($('wbA').value), has=isFinite(g)&&g>=0&&g<=40, n=WB.n, slot=420/n, bw=Math.min(60,slot-20), base=245, u=9.5;
+  const mu=css('--muted'), ac=css('--accent'), fg=css('--fg');
+  let s=`<line x1="20" y1="${base}" x2="450" y2="${base}" stroke="${mu}" stroke-width="1.5"/>`;
+  const vals=WB.k.concat([has?g:null]);
+  vals.forEach((v,i)=>{ const cx=30+slot*(i+.5), x=cx-bw/2;
+    if(v===null) s+=`<rect x="${x}" y="${base-50}" width="${bw}" height="50" fill="none" stroke="${fg}" stroke-width="1.5" stroke-dasharray="5 4"/><text x="${cx}" y="${base-58}" text-anchor="middle" font-size="16" font-weight="700" ${F()} fill="${fg}">?</text>`;
+    else { const last=i===n-1; s+=`<rect x="${x}" y="${base-v*u}" width="${bw}" height="${v*u}" fill="${css('--grid')}" stroke="${last?fg:mu}" stroke-width="1.5" ${last?'stroke-dasharray="5 4"':''}/><text x="${cx}" y="${base-v*u-6}" text-anchor="middle" font-size="14" font-weight="600" ${F()} fill="${fg}">${minus(v)}${last?'?':''}</text>`; }
+  });
+  const ty=base-WB.m*u; s+=`<line x1="20" y1="${ty}" x2="460" y2="${ty}" stroke="${ac}" stroke-width="2.5" stroke-dasharray="7 5"/><text x="465" y="${ty+4}" font-size="13" font-weight="600" ${F()} fill="${ac}">mean ${WB.m}</text>`;
+  if(has){ const cm=(sum(WB.k)+g)/n; if(!close(cm,WB.m)){ const yy=base-cm*u; s+=`<line x1="20" y1="${yy}" x2="460" y2="${yy}" stroke="${mu}" stroke-width="2" stroke-dasharray="2 3"/><text x="465" y="${yy+(cm>WB.m?-2:12)}" font-size="12" ${F()} fill="${mu}">yours ${fmt(cm)}</text>`; } }
+  $('wbSvg').innerHTML=s;
+}
+function wbCheck(){ const u=num($('wbA').value), M=$('wbMsg'); if(!isFinite(u)){setMsg(M,'bad','Type a number.');return;}
+  if(u===WB.x){ setMsg(M,'good',`Correct. The ${WB.n} numbers now add up to ${WB.m*WB.n}, and ${WB.m*WB.n} ÷ ${WB.n} = ${WB.m}.`); $('wbWork').hidden=false; }
+  else setMsg(M,'bad','Not quite. '+missingWrong(WB,u)); }
+$('wbA').addEventListener('input',drawWB);
+$('wbGo').addEventListener('click',wbCheck); $('wbA').addEventListener('keydown',e=>{if(e.key==='Enter')wbCheck();});
+$('wbShow').addEventListener('click',()=>{$('wbWork').hidden=!$('wbWork').hidden;});
+$('wbNew').addEventListener('click',wbNew); wbNew();
+
+/* 8. comparing two teams */
+const TEAMS=['Lions','Tigers'];
+let CP=null;
+const maxStack=v=>Math.max(...Object.values(v.reduce((c,x)=>(c[x]=(c[x]||0)+1,c),{})));
+function cpGen(){ let A,B;
+  do{ const c=rnd(1,3), steady=Array.from({length:10},()=>rnd(c,c+2)), wild=Array.from({length:10},()=>rnd(0,7));
+    [A,B]=Math.random()<.5?[steady,wild]:[wild,steady];
+  }while(Math.abs(mean(A)-mean(B))<0.3||Math.max(...A)-Math.min(...A)===Math.max(...B)-Math.min(...B)||maxStack(A)>7||maxStack(B)>7);
+  return [A,B]; }
+const rng=v=>Math.max(...v)-Math.min(...v);
+function drawCP(){
+  const [A,B]=CP, X=v=>50+v*65;
+  $('cpSvg').innerHTML=rowPlot({vals:A,name:'Lions',top:0,ay:128,by:22,X,lo:0,hi:7,tick:1,r:6,step:13})+rowPlot({vals:B,name:'Tigers',top:180,ay:320,by:214,X,lo:0,hi:7,tick:1,r:6,step:13});
+  $('cpData').innerHTML=CP.map((v,i)=>`${TEAMS[i]}: ${list(v)}<br>&nbsp;&nbsp;<span class="a">mean = ${sum(v)} ÷ 10 = ${fmt(mean(v))}</span>, range = ${Math.max(...v)} − ${Math.min(...v)} = ${rng(v)}`).join('<br>');
+  cpFill();
+}
+function cpFill(){ const t1=$('cpT1').value, t2=$('cpT2').value;
+  $('cpV1').textContent=t1===''?'…':`${fmt(mean(CP[+t1]))} compared with ${fmt(mean(CP[1-t1]))}`;
+  $('cpV2').textContent=t2===''?'…':`${rng(CP[+t2])} compared with ${rng(CP[1-t2])}`; }
+function cpCheck(){
+  const t1=$('cpT1').value, hl=$('cpHL').value, t2=$('cpT2').value, sl=$('cpSL').value, M=$('cpMsg');
+  if(!t1||!hl||!t2||!sl){ setMsg(M,'bad','Choose an option in every box first.'); return; }
+  const [A,B]=CP, hiT=mean(A)>mean(B)?0:1, conT=rng(A)<rng(B)?0:1, fb=[];
+  if(+t1!==hiT) fb.push(`Average: the ${TEAMS[hiT]} have the higher mean (${fmt(mean(CP[hiT]))} against ${fmt(mean(CP[1-hiT]))}), so they scored more on average.`);
+  if(hl!=='higher') fb.push('A team that scores more on average has a higher mean, not a lower one.');
+  if(+t2!==conT) fb.push(`Consistency: the ${TEAMS[conT]} have the smaller range (${rng(CP[conT])} against ${rng(CP[1-conT])}), so their scores are closer together.`);
+  if(sl!=='smaller') fb.push('More consistent means the scores are closer together, which is a smaller range.');
+  if(fb.length===0) setMsg(M,'good',`Both sentences are right. You compared an average and the spread, and said what each means.${hiT!==conT?' Notice the higher-scoring team was not the more consistent one.':''}`);
+  else setMsg(M,'bad','Not quite. '+fb.join(' '));
+}
+['cpT1','cpT2'].forEach(id=>$(id).addEventListener('change',cpFill));
+$('cpGo').addEventListener('click',cpCheck);
+$('cpNew').addEventListener('click',()=>{ CP=cpGen(); ['cpT1','cpHL','cpT2','cpSL'].forEach(id=>$(id).value=''); setMsg($('cpMsg'),'',''); drawCP(); });
+CP=cpGen(); drawCP();
+
+/* 8b. practice generator */
+const PG={
+  mode:()=>{ const Q=genMode(); return {q:'Find the mode of: '+list(Q.v),ans:Q.m,work:['Count how many times each value appears.',`${Q.m} appears 3 times; no other value appears more than twice.`,`Mode = <strong>${Q.m}</strong>`],wrong:u=>modeWrong(Q,u)}; },
+  median:()=>{ const Q=genMedian(5,9), s=sortN(Q.v), n=s.length;
+    return {q:'Find the median of: '+list(Q.v),ans:Q.ans,work:[`In order: ${list(s)}`,`${n} values, so the median is the (${n} + 1) ÷ 2 = ${fmt((n+1)/2)}th value`,n%2?`Median = <strong>${Q.ans}</strong>`:`halfway between ${s[n/2-1]} and ${s[n/2]}: (${s[n/2-1]} + ${s[n/2]}) ÷ 2 = <strong>${fmt(Q.ans)}</strong>`],wrong:u=>medianWrong(Q,u)}; },
+  mean:()=>{ const Q=genMean(), T=sum(Q.v), n=Q.v.length; return {q:'Find the mean of: '+list(Q.v),ans:Q.ans,work:[`total = ${Q.v.join(' + ')} = ${T}`,`how many = ${n}`,`mean = ${T} ÷ ${n} = <strong>${fmt(Q.ans)}</strong>`],wrong:u=>meanWrong(Q,u)}; },
+  range:()=>{ const Q=genRange(), mx=Math.max(...Q.v), mn=Math.min(...Q.v); return {range:true,q:'Find the range of: '+list(Q.v),ans:Q.ans,work:[`largest = ${mx}, smallest = ${mn}`,`range = ${mx} − ${mn} = <strong>${Q.ans}</strong>`],wrong:u=>rangeWrong(Q,u)}; },
+  missing:()=>{ const Q=genMissing(); return {q:`The mean of ${Q.n} numbers is ${Q.m}. ${Q.n-1} of them are ${list(Q.k)}. Find the missing number.`,ans:Q.x,work:missingWork(Q),wrong:u=>missingWrong(Q,u)}; }
+};
+let PQ=null, prDone=false, prRight=0, prTried=0, prKey='';
+function prNew(){ const t=$('prType').value, pool=t==='mix'?Object.keys(PG):[t]; let k; do{k=pool[Math.floor(Math.random()*pool.length)];}while(pool.length>1&&k===prKey); prKey=k;
+  PQ=PG[k](); prDone=false; $('prQ').textContent=PQ.q; $('prA').value=''; setMsg($('prMsg'),'',''); $('prWork').hidden=true; $('prWork').innerHTML=PQ.work.join('<br>'); }
+function prCheck(){ if(!PQ)return; const raw=$('prA').value.trim(), M=$('prMsg');
+  let ok=false, msg='';
+  if(PQ.range&&RANGE_STR.test(raw)) msg=`"${raw}" says where the data starts and ends, but the range is a single number: largest − smallest.`;
+  else { const u=num(raw); if(!isFinite(u)){setMsg(M,'bad','Type a number.');return;}
+    if(okAns(u,PQ.ans)){ok=true;msg=`Correct: ${fmt(PQ.ans)}.`;} else msg=PQ.wrong(u); }
+  if(!prDone){prTried++; if(ok)prRight++;} prDone=true;
+  setMsg(M,ok?'good':'bad',(ok?'':'Not quite. ')+msg); if(ok)$('prWork').hidden=false;
+  $('prScore').textContent=`Score: ${prRight} right first time out of ${prTried}.`; }
+$('prGo').addEventListener('click',prCheck); $('prA').addEventListener('keydown',e=>{if(e.key==='Enter')prCheck();});
+$('prShow').addEventListener('click',()=>{$('prWork').hidden=!$('prWork').hidden;});
+$('prNew').addEventListener('click',prNew); $('prType').addEventListener('change',prNew); prNew();
+
+const redrawAll=()=>{drawSD();drawMO();drawME();drawTW();drawRA();drawDP();drawWB();drawCP();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'What is the mode of 4, 7, 2, 7, 9, 3, 7, 2?',opts:['7','3','2','5.125'],a:0,fb:'7 appears three times, more than any other value. 3 is its frequency (how many times), not the mode.'},
+  {q:'What is the median of 9, 3, 12, 6, 5?',opts:['6','12','7','9'],a:0,fb:'Order first: 3, 5, 6, 9, 12. The middle (3rd) value is 6. 12 is just the middle of the list as written; 7 is the mean.'},
+  {q:'What is the median of 4, 8, 10, 15, 2, 7?',opts:['7.5','10','7','8'],a:0,fb:'In order: 2, 4, 7, 8, 10, 15. There are two middle values, 7 and 8, so the median is halfway: (7 + 8) ÷ 2 = 7.5.'},
+  {q:'What is the mean of 3, 5, 8, 4, 10?',opts:['6','30','5','7.5'],a:0,fb:'Total = 3 + 5 + 8 + 4 + 10 = 30, and there are 5 values: 30 ÷ 5 = 6. (30 is the total; 7.5 divides by 4 instead of 5.)'},
+  {q:'What is the range of 14, 6, 20, 9, 11?',opts:['14','6 to 20','20','3'],a:0,fb:'Largest − smallest = 20 − 6 = 14. The range is one number, not "6 to 20". 3 comes from first − last as written (14 − 11).'},
+  {q:'A class records each pupil\'s favourite ice-cream flavour. Which average can be used?',opts:['the mode','the mean','the median','the range'],a:0,fb:'Flavours are words, not numbers: you can\'t add them up or put them in order, so only the mode works.'},
+  {q:'The mean of 4 numbers is 9. Three of them are 7, 10 and 12. What is the fourth?',opts:['7','9','29','36'],a:0,fb:'Total of all four = 9 × 4 = 36. Known total = 7 + 10 + 12 = 29. Missing = 36 − 29 = 7.'},
+  {q:'Five people earn £20 000, £22 000, £23 000, £25 000 and £160 000. Which average best shows a typical salary?',opts:['the median','the mean','the range','the largest value'],a:0,fb:'The mean is 250 000 ÷ 5 = £50 000, more than four of the five earn, because the £160 000 outlier drags it up. The median, £23 000, isn\'t affected.'},
+  {q:'Team P: mean 12, range 3. Team Q: mean 15, range 11. Which statement is correct?',opts:['Q scored more on average; P was more consistent','P scored more on average; Q was more consistent','Q scored more on average and was more consistent','The teams are the same'],a:0,fb:'Q has the higher mean (15 against 12), so it scored more on average. P has the smaller range (3 against 11), so it was more consistent.'},
+  {q:'The data 5, 6, 6, 7, 6 has mean 6. The value 30 is added. What happens?',opts:['The mean rises to 10','The mean stays at 6','The mean rises to 36','The median rises to 18'],a:0,fb:'New total = 30 + 30 = 60, and there are now 6 values: 60 ÷ 6 = 10. The median stays 6 (5, 6, 6, 6, 7, 30) and the range jumps from 2 to 25.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

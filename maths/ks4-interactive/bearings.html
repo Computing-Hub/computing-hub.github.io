@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Bearings</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each section has an SVG compass, map or grid drawn from JS, most with draggable points. Colours on this page: grey dashed vertical lines = north lines (always parallel); teal = the bearing being measured (its arc and the line it is measured to); orange = the back bearing or the second leg of a journey; plum = distances and lines you calculate (the direct route, east and north components). Green/red = right/wrong feedback only. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.D{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.parts-svg [data-part]{cursor:pointer}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.12rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.45rem;position:relative;top:-.12em;white-space:nowrap}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+summary .tag{font-size:.6rem}
+.grp{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.lab svg.drag{touch-action:none;cursor:grab}
+.lab svg.drag:active{cursor:grabbing}
+.hint{font-size:.85rem;color:var(--muted);margin:.4rem 0 0}
+.formula{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.7rem 1rem;margin:1.2rem 0;font-family:var(--mono);font-size:1.05rem;line-height:1.8}
+.formula b{font-family:var(--body)}
+.A{color:var(--accent);font-weight:600}.H{color:var(--hi);font-weight:600}.T{color:var(--two);font-weight:600}
+sup,sub{line-height:0}
+@media (max-width:540px){
+  table.stack tr:first-child{display:none}
+  table.stack tr{display:block;border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{display:block;border:0;padding:.15rem .3rem}
+  table.stack td[data-h]::before{content:attr(data-h) ": ";font:600 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+}
+.opts2{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem}
+.opts2 button{font:inherit;font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Geometry and measures</div>
+  <h1>Bearings</h1>
+  <p class="lede">Ships, planes, hikers and search-and-rescue teams describe directions with a single number: the bearing. It's an angle measured clockwise from north, always written with three figures. On this page you'll read and draw bearings, turn them round (back bearings), use parallel north lines to find angles, make scale drawings, and finally calculate distances and bearings with trigonometry.</p>
+  <span class="gcse">GCSE subject content G15: measure line segments and angles in geometric figures, including interpreting maps and scale drawings and use of bearings. G20 and (Higher) G22: trigonometry, including the sine and cosine rules, applied to bearings problems.</span>
+</header>
+
+<h2>1 · Three-figure bearings</h2>
+<p>A <strong>bearing</strong> is a direction given as an angle with three rules:</p>
+<ol>
+  <li>measure from <strong>north</strong>,</li>
+  <li>turn <strong>clockwise</strong>,</li>
+  <li>write it with <strong>three figures</strong>: 45° becomes 045°, 7° becomes 007°.</li>
+</ol>
+<p>So east is 090°, south is 180°, west is 270°, and north is 000° (or 360°). Drag the arrow round the compass. (Angles recap: <a href="../ks3-interactive/angle-facts.html">Angle facts</a>.)</p>
+<div class="lab">
+  <div class="chips" id="cpBtns"></div>
+  <svg id="cpSvg" class="drag" viewBox="0 0 400 360" width="400" height="360" aria-label="Compass with draggable arrow"></svg>
+  <div class="big" id="cpOut"></div>
+</div>
+
+<h2>2 · Measuring and drawing bearings</h2>
+<p>To measure the bearing of B <strong>from</strong> A: stand at A. Draw a north line at A. Put the centre of the protractor on A with 0° on the north line, and measure clockwise round to the line AB. If the angle is more than 180°, a 360° protractor helps; with a 180° protractor, measure the anticlockwise angle instead and subtract it from 360°.</p>
+<div class="lab">
+  <div class="controls">
+    <span class="grp"><button class="btn on" id="msMeas">Measure it</button><button class="btn" id="msDraw">Draw it</button></span>
+    <label><input type="checkbox" id="msProt" checked> show protractor</label>
+  </div>
+  <p class="pq" id="msQ"></p>
+  <svg id="msSvg" class="drag" viewBox="0 0 400 360" width="400" height="360"></svg>
+  <div class="controls" id="msInRow">
+    <label>bearing = <input type="text" id="msA" inputmode="numeric" autocomplete="off" style="width:5em"> °</label>
+    <button class="btn primary" id="msGo">Check</button>
+  </div>
+  <div class="controls"><button class="btn" id="msNew">New question</button></div>
+  <div class="msg" id="msMsg"></div>
+</div>
+
+<h2>3 · "From" matters: back bearings</h2>
+<p>The bearing of B from A and the bearing of A from B are different: they point opposite ways, so they differ by exactly 180°. This reverse direction is the <strong>back bearing</strong>.</p>
+<div class="formula">back bearing = bearing + 180° (if the bearing is less than 180°)<br>back bearing = bearing − 180° (if the bearing is 180° or more)</div>
+<p>Why? The north lines at A and B are parallel, and the line AB crosses both, so the two angles between AB and north on the same side are <strong>co-interior</strong>: they add to 180°. Drag A and B.</p>
+<div class="lab">
+  <svg id="bbSvg" class="drag" viewBox="0 0 420 340" width="420" height="340"></svg>
+  <div class="readout">
+    <div class="f"><b>Bearing of B from A</b><span id="bbAB"></span></div>
+    <div class="t"><b>Bearing of A from B</b><span id="bbBA"></span></div>
+  </div>
+  <div class="work" id="bbWork"></div>
+</div>
+<div class="callout"><p><strong>Read the question carefully:</strong> "the bearing of B from A" means you stand at <strong>A</strong> (the word after "from"). Underline it. Measuring at the wrong end gives an answer that's out by 180°.</p></div>
+
+<h2>4 · Bearings and angle facts</h2>
+<p>Exam questions often give two bearings and ask for an angle inside the triangle, or the other way round. Draw a north line at every point, then use angle facts: <strong>angles round a point add to 360°</strong>, <strong>angles on a straight line add to 180°</strong>, and with parallel north lines, <strong>alternate angles are equal</strong> and <strong>co-interior angles add to 180°</strong>. A ship sails from A to B, then turns and sails to C:</p>
+<div class="lab">
+  <div class="controls">
+    <label>A→B bearing <input type="range" id="afT1" min="0" max="359" value="50"><span id="afT1v" style="font-family:var(--mono)"></span></label>
+    <label>B→C bearing <input type="range" id="afT2" min="0" max="359" value="140"><span id="afT2v" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="afSvg" viewBox="0 0 420 340" width="420" height="340"></svg>
+  <div class="work" id="afWork"></div>
+</div>
+
+<h2>5 · Scale drawings with bearings</h2>
+<p>A <strong>scale drawing</strong> shrinks real distances by a fixed amount; the scale tells you how. Here 1 grid square (1 cm on the map) = 2 km. To plot a point: draw a north line, measure the bearing, then measure along the line the scaled distance (real distance ÷ 2 here). (Recap: <a href="../ks3-interactive/scale-factors.html">Scale factors</a>.) Drag the flag to the right place.</p>
+<div class="lab">
+  <p class="pq" id="scQ"></p>
+  <svg id="scSvg" class="drag" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="controls"><button class="btn primary" id="scGo">Check my point</button><button class="btn" id="scNew">New task</button><label><input type="checkbox" id="scHelp"> show guide line</label></div>
+  <div class="msg" id="scMsg"></div>
+</div>
+
+<h2>6 · Bearings with right-angled trigonometry</h2>
+<p>When a bearing makes a right-angled triangle with a north–south and an east–west line, SOH CAH TOA finds distances (see <a href="right-angled-trigonometry.html">Trigonometry and exact values</a>). Travelling d km on a bearing θ (for θ between 0° and 90°): the north line is adjacent to θ and the east line is opposite, so you go <strong>d cos θ north</strong> and <strong>d sin θ east</strong>. For other bearings, find the acute angle the route makes with the north–south line first.</p>
+<div class="lab">
+  <div class="controls">
+    <label>distance <input type="range" id="trD" min="2" max="30" value="20"><span id="trDv" style="font-family:var(--mono)"></span></label>
+    <label>bearing <input type="range" id="trT" min="0" max="359" value="40"><span id="trTv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="trSvg" viewBox="0 0 400 360" width="400" height="360"></svg>
+  <div class="work" id="trWork"></div>
+</div>
+
+<h2>7 · Bearings with the sine and cosine rules <span class="tag g">Higher</span></h2>
+<p>When the triangle has no right angle, use the cosine rule (two sides and the angle between) and the sine rule (see <a href="sine-cosine-rules.html">Sine and cosine rules</a>). Two ships leave port P. Ship A sails on one bearing and ship B on another. The angle at P is the difference between the bearings; the cosine rule gives the distance between the ships.</p>
+<div class="lab">
+  <div class="controls">
+    <label>A: <input type="range" id="ssT1" min="0" max="359" value="30"><span id="ssT1v" style="font-family:var(--mono)"></span></label>
+    <label>PA <input type="range" id="ssD1" min="3" max="15" value="8"><span id="ssD1v" style="font-family:var(--mono)"></span></label>
+    <label>B: <input type="range" id="ssT2" min="0" max="359" value="110"><span id="ssT2v" style="font-family:var(--mono)"></span></label>
+    <label>PB <input type="range" id="ssD2" min="3" max="15" value="11"><span id="ssD2v" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="ssSvg" viewBox="0 0 400 360" width="400" height="360"></svg>
+  <div class="work" id="ssWork"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>B is directly south-west of A. What is the bearing of B from A?</summary>
+  <div class="step">South is 180°. South-west is halfway between south and west (270°): 180° + 45° = <strong>225°</strong>.</div>
+</details>
+<details>
+  <summary>The bearing of B from A is 070°. Find the bearing of A from B.</summary>
+  <div class="step">070° is less than 180°, so add 180°: 070° + 180° = <strong>250°</strong>.</div>
+  <div class="step">Check with co-interior angles: at B the angle from north clockwise to BA is 250°, and the anticlockwise angle is 360° − 250° = 110°; 110° + 70° = 180° ✓.</div>
+</details>
+<details>
+  <summary>The bearing of Q from P is 300°. Find the bearing of P from Q.</summary>
+  <div class="step">300° is more than 180°, so subtract: 300° − 180° = <strong>120°</strong>. (Adding would give 480°, which is more than a full turn.)</div>
+</details>
+<details>
+  <summary>A ship sails from A to B on a bearing of 050°, then from B to C on a bearing of 140°. Find angle ABC.</summary>
+  <div class="step"><strong>Back bearing at B:</strong> the bearing of A from B is 050° + 180° = 230°.</div>
+  <div class="step">At B, the ship's new direction is 140° and the direction back to A is 230°. The angle between them is 230° − 140° = <strong>90°</strong>.</div>
+  <div class="step">(Or: the co-interior angle at B between north and BA is 180° − 50° = 130°, measured anticlockwise; the turn to 140° clockwise leaves 360° − 130° − 140° = 90°.)</div>
+</details>
+<details>
+  <summary>A ship sails 20 km on a bearing of 040°. How far east and how far north of its start is it?</summary>
+  <div class="step">The route is the hypotenuse; 40° is the angle with north. North is adjacent, east is opposite.</div>
+  <div class="step"><strong>East</strong> = 20 sin 40° = 12.855… = <strong>12.9 km</strong>. <strong>North</strong> = 20 cos 40° = 15.320… = <strong>15.3 km</strong> (3 s.f.).</div>
+</details>
+<details>
+  <summary>A walker goes 5 km east then 12 km north. Find her distance and bearing from the start, and the bearing she must walk to return.</summary>
+  <div class="step"><strong>Distance</strong> = √(5² + 12²) = √169 = <strong>13 km</strong>.</div>
+  <div class="step"><strong>Angle with north:</strong> tan θ = opposite ÷ adjacent = 5 ÷ 12, θ = 22.619…° → bearing <strong>023°</strong> (nearest degree).</div>
+  <div class="step"><strong>Return:</strong> back bearing = 023° + 180° = <strong>203°</strong>.</div>
+</details>
+<details>
+  <summary>Two ships leave port P. Ship A sails 8 km on a bearing of 030°; ship B sails 11 km on a bearing of 110°. How far apart are they, and what is the bearing of B from A? <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Angle APB</strong> = 110° − 30° = 80°.</div>
+  <div class="step"><strong>Cosine rule:</strong> AB² = 8² + 11² − 2 × 8 × 11 × cos 80° = 185 − 30.561… = 154.438…, AB = 12.427… = <strong>12.4 km</strong>.</div>
+  <div class="step"><strong>Angle PAB</strong> (cosine rule for an angle): cos PAB = (8² + 12.427…² − 11²) ÷ (2 × 8 × 12.427…) = 0.4903…, PAB = 60.66…°.</div>
+  <div class="step"><strong>Bearing:</strong> at A, the bearing back to P is 030° + 180° = 210°. B is anticlockwise from that direction by 60.66…°: 210° − 60.66…° = 149.3…° → <strong>149°</strong>.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A bearing is measured from north, clockwise, and written with three figures (045°, 270°).</li>
+  <li>"The bearing of B from A": stand at A, draw a north line, measure clockwise to B.</li>
+  <li>Back bearing = bearing ± 180°, because north lines are parallel and co-interior angles add to 180°.</li>
+  <li>Use north lines with alternate and co-interior angles, angles on a line and angles round a point to find angles in journey problems.</li>
+  <li>Scale drawings: measure the bearing, then the scaled distance.</li>
+  <li>Right-angled trig: d km on bearing θ is d sin θ east and d cos θ north (for 0° to 90°). Higher: the sine and cosine rules handle non-right-angled journeys.</li>
+</ul>
+
+<footer>Made for GCSE students. Bearings, maps and scale drawings are in the DfE GCSE mathematics subject content under Geometry and measures; bearings problems using the sine and cosine rules are Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const PI = Math.PI, RAD = PI/180;
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat((+v).toFixed(d)).toString()) : '—';
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(Math.abs(v)<1e-12) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); if(e>=n-1) return minus(String(Math.round(r))); return minus(r.toFixed(n-1-e)); };
+const long = v => isFinite(v) ? minus((Math.trunc(v*1000+(v<0?-1e-9:1e-9))/1000).toFixed(3)) + '…' : '—';
+const dp1 = v => isFinite(v) ? minus((+v).toFixed(1)) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v = parseFloat(String(el.value).replace(/−/g,'-').replace(/,/g,'')); return isFinite(v) ? v : NaN; };
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T = (x,y,s,col,o={}) => `<text x="${x}" y="${y}" font-size="${o.fs||13}" ${o.w?`font-weight="${o.w}"`:''} text-anchor="${o.a||'middle'}" fill="${col}" ${F()} ${o.extra||''}>${s}</text>`;
+const L = (x1,y1,x2,y2,col,w=2,dash) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+const C = (x,y,r,fill,stroke='none',w=0) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${w}"/>`;
+const poly = (pts,fill,stroke='none',w=0,op=1,dash) => `<polygon points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="${fill}" fill-opacity="${op}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+/* angle arc at vertex V between directions to A and B (screen coords), radius r */
+function angArc(V,A,B,r,col,w=1.6){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]), a2=Math.atan2(B[1]-V[1],B[0]-V[0]); let d=a2-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const p1=[V[0]+r*Math.cos(a1),V[1]+r*Math.sin(a1)], p2=[V[0]+r*Math.cos(a1+d),V[1]+r*Math.sin(a1+d)]; return `<path d="M${p1[0]},${p1[1]} A${r},${r} 0 0 ${d>0?1:0} ${p2[0]},${p2[1]}" fill="none" stroke="${col}" stroke-width="${w}"/>`; }
+function angLabelPos(V,A,B,r){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]); let d=Math.atan2(B[1]-V[1],B[0]-V[0])-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const m=a1+d/2; return [V[0]+r*Math.cos(m), V[1]+r*Math.sin(m)+4]; }
+/* right-angle square at V between A and B */
+function rightMark(V,A,B,s,col){ const u=[A[0]-V[0],A[1]-V[1]],v=[B[0]-V[0],B[1]-V[1]]; const lu=Math.hypot(...u)||1, lv=Math.hypot(...v)||1; const p=[V[0]+u[0]/lu*s,V[1]+u[1]/lu*s], q=[V[0]+v[0]/lv*s,V[1]+v[1]/lv*s], r=[p[0]+v[0]/lv*s,p[1]+v[1]/lv*s]; return `<polyline points="${p[0]},${p[1]} ${r[0]},${r[1]} ${q[0]},${q[1]}" fill="none" stroke="${col}" stroke-width="1.5"/>`; }
+const svgXY = (svg,ev) => { const vb=svg.viewBox.baseVal, r=svg.getBoundingClientRect(); const k=Math.min(r.width/vb.width, r.height/vb.height); const ox=(r.width-vb.width*k)/2, oy=(r.height-vb.height*k)/2; return [vb.x+(ev.clientX-r.left-ox)/k, vb.y+(ev.clientY-r.top-oy)/k]; };
+/* generic drag: pick(p) returns a handle key or null; move(key,p) updates */
+function dragger(svg,pick,move,end){ let key=null; svg.addEventListener('pointerdown',e=>{ const p=svgXY(svg,e); const k=pick(p); if(k===null||k===undefined) return; key=k; try{svg.setPointerCapture(e.pointerId);}catch(_){} e.preventDefault(); move(key,p); }); svg.addEventListener('pointermove',e=>{ if(key===null) return; e.preventDefault(); move(key,svgXY(svg,e)); }); const up=()=>{ if(key!==null&&end) end(key); key=null; }; svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',up); }
+const nearest = (p,pts,maxd) => { let best=null,bd=maxd; pts.forEach((q,i)=>{ const d=Math.hypot(p[0]-q[0],p[1]-q[1]); if(d<bd){bd=d;best=i;} }); return best; };
+const REDRAW=[]; const reg = f => { REDRAW.push(f); f(); return f; };
+const feedback = (el,ok,msg) => { el.className='msg '+(ok?'good':'bad'); el.textContent=msg; };
+
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const TE=()=>css('--accent'),OR=()=>css('--hi'),PL=()=>css('--two'),FG=()=>css('--fg'),MU=()=>css('--muted');
+const b3=t=>String(((Math.round(t)%360)+360)%360).padStart(3,'0');
+const norm=t=>((t%360)+360)%360;
+const dirP=(c,r,t)=>[c[0]+r*Math.sin(t*RAD),c[1]-r*Math.cos(t*RAD)];
+const brg=(p,q)=>norm(Math.atan2(q[0]-p[0],-(q[1]-p[1]))/RAD);
+/* clockwise arc from north (bearing 0) to bearing t, radius r at c */
+const bArc=(c,r,t,col,w=2)=>{if(t<0.5)return '';if(t>359.5)return `<circle cx="${c[0]}" cy="${c[1]}" r="${r}" fill="none" stroke="${col}" stroke-width="${w}"/>`;const p0=dirP(c,r,0),p1=dirP(c,r,t);return `<path d="M${p0[0]},${p0[1]} A${r},${r} 0 ${t>180?1:0} 1 ${p1[0]},${p1[1]}" fill="none" stroke="${col}" stroke-width="${w}"/>`;};
+const north=(c,len,lab=true)=>L(c[0],c[1]+len*0.6,c[0],c[1]-len,MU(),1.5,'5 4')+(lab?T(c[0],c[1]-len-6,'N',MU(),{fs:12,w:700}):'');
+const arrowTo=(p,q,col,w=3)=>{const d=Math.hypot(q[0]-p[0],q[1]-p[1])||1,ux=(q[0]-p[0])/d,uy=(q[1]-p[1])/d,h=12;const b=[q[0]-ux*h,q[1]-uy*h];return L(p[0],p[1],b[0],b[1],col,w)+`<polygon points="${q[0]},${q[1]} ${b[0]-uy*5},${b[1]+ux*5} ${b[0]+uy*5},${b[1]-ux*5}" fill="${col}"/>`;};
+function protractor(c,r){let s=`<circle cx="${c[0]}" cy="${c[1]}" r="${r}" fill="${css('--panel')}" fill-opacity=".55" stroke="${MU()}" stroke-width="1"/>`;
+  for(let t=0;t<360;t+=5){const long=t%10===0,big=t%30===0;const p=dirP(c,r,t),q=dirP(c,r-(big?12:long?8:4),t);s+=L(p[0],p[1],q[0],q[1],MU(),big?1.4:.8);if(big){const lp=dirP(c,r-22,t);s+=T(lp[0],lp[1]+4,String(t),MU(),{fs:9});}}return s;}
+
+/* 1. compass */
+let cpT=45; const cpC=[200,185],cpR=135;
+const NAMES={0:'north',45:'north-east',90:'east',135:'south-east',180:'south',225:'south-west',270:'west',315:'north-west'};
+Object.keys(NAMES).forEach(k=>{const b=document.createElement('button');b.className='btn';b.textContent=NAMES[k];b.addEventListener('click',()=>{cpT=+k;drawCP();});$('cpBtns').appendChild(b);});
+function drawCP(){let s=protractor(cpC,cpR);
+  ['N','E','S','W'].forEach((n,i)=>{const p=dirP(cpC,cpR+16,i*90);s+=T(p[0],p[1]+5,n,FG(),{w:700,fs:14});});
+  s+=north(cpC,cpR,false)+bArc(cpC,46,cpT,TE(),3)+arrowTo(cpC,dirP(cpC,cpR-8,cpT),TE(),4)+C(cpC[0],cpC[1],5,FG());
+  const lp=dirP(cpC,66,cpT/2);s+=T(lp[0],lp[1]+4,b3(cpT)+'°',TE(),{w:700,fs:13});
+  const h=dirP(cpC,cpR-8,cpT);s+=C(h[0],h[1],8,TE(),css('--panel'),2);
+  $('cpSvg').innerHTML=s; $('cpOut').innerHTML=`bearing <strong>${b3(cpT)}°</strong>${NAMES[cpT]?' ('+NAMES[cpT]+')':''}`;
+  [...$('cpBtns').children].forEach((b,i)=>b.classList.toggle('on',+Object.keys(NAMES)[i]===cpT));}
+dragger($('cpSvg'),p=>Math.hypot(p[0]-cpC[0],p[1]-cpC[1])>20?'a':null,(k,p)=>{cpT=Math.round(brg(cpC,p))%360;drawCP();}); reg(drawCP);
+
+/* 2. measure / draw */
+let MS={mode:'meas'}; const msC=[200,190];
+function msNew(){const t=rnd(1,359);MS={mode:MS.mode,t,len:rnd(95,140),user:MS.mode==='draw'?rnd(0,359):null,done:false};
+  $('msQ').textContent=MS.mode==='meas'?'What is the bearing of B from A?':`Drag B so that the bearing of B from A is ${b3(t)}°.`;
+  $('msInRow').style.display=MS.mode==='meas'?'':'none'; $('msA').value=''; $('msMsg').textContent=''; $('msMsg').className='msg'; drawMS();}
+function drawMS(){const t=MS.mode==='meas'?MS.t:MS.user;const B=dirP(msC,MS.len,t);let s='';
+  if($('msProt').checked)s+=protractor(msC,150);
+  s+=north(msC,160)+L(msC[0],msC[1],B[0],B[1],TE(),3)+C(msC[0],msC[1],5,FG())+T(msC[0]-12,msC[1]+16,'A',FG(),{w:700})+C(B[0],B[1],MS.mode==='draw'?8:5,MS.mode==='draw'?TE():FG(),css('--panel'),2)+T(B[0]+12,B[1]+5,'B',FG(),{w:700,a:'start'});
+  if(MS.mode==='draw'||MS.done)s+=bArc(msC,34,t,TE(),2.5);
+  $('msSvg').innerHTML=s;}
+function msCheck(){const raw=$('msA').value.trim(),u=parseFloat(raw);const M=$('msMsg');if(!isFinite(u)){feedback(M,false,'Type the bearing in degrees.');return;}
+  const t=MS.t,d=(a,b)=>Math.min(norm(a-b),norm(b-a));
+  if(d(u,t)<=1){MS.done=true;drawMS();feedback(M,true,`Correct: ${b3(t)}°.`+(raw.length<3||!/^\d{3}/.test(raw)?` Remember to write it with three figures: ${b3(t)}°.`:''));return;}
+  if(d(u,360-t)<=1)feedback(M,false,'Not quite. You measured anticlockwise. Bearings go clockwise from north.');
+  else if(d(u,t+180)<=1)feedback(M,false,'Not quite. That is the bearing of A from B. Stand at A (the point after "from").');
+  else if(d(u,90-t)<=1||d(u,t-90)<=1)feedback(M,false,'Not quite. Measure from the north line, not from east.');
+  else feedback(M,false,`Not quite. Put the protractor's centre on A with 0° on the north line, and count clockwise.`);}
+dragger($('msSvg'),p=>MS.mode==='draw'&&Math.hypot(p[0]-msC[0],p[1]-msC[1])>20?'b':null,(k,p)=>{MS.user=Math.round(brg(msC,p))%360;drawMS();const M=$('msMsg');const d=Math.min(norm(MS.user-MS.t),norm(MS.t-MS.user));
+  if(d<=1)feedback(M,true,`Spot on: B is on a bearing of ${b3(MS.user)}°.`);else if(Math.min(norm(MS.user-(360-MS.t)),norm(360-MS.t-MS.user))<=1)feedback(M,false,'That is anticlockwise from north. Bearings go clockwise.');else if(Math.min(norm(MS.user-MS.t-180),norm(MS.t+180-MS.user))<=1)feedback(M,false,'That points the opposite way (the back bearing).');else{M.className='msg';M.textContent=`Currently ${b3(MS.user)}°.`;}});
+$('msGo').addEventListener('click',msCheck); $('msA').addEventListener('keydown',e=>{if(e.key==='Enter')msCheck();});
+$('msNew').addEventListener('click',msNew); $('msProt').addEventListener('input',drawMS);
+$('msMeas').addEventListener('click',()=>{MS.mode='meas';$('msMeas').classList.add('on');$('msDraw').classList.remove('on');msNew();});
+$('msDraw').addEventListener('click',()=>{MS.mode='draw';$('msDraw').classList.add('on');$('msMeas').classList.remove('on');msNew();});
+msNew(); REDRAW.push(drawMS);
+
+/* 3. back bearings */
+const BB={A:[110,230],B:[300,120]};
+function drawBB(){const A=BB.A,B=BB.B,t=brg(A,B),bk=brg(B,A);let s=north(A,90)+north(B,90);
+  s+=L(A[0],A[1],B[0],B[1],FG(),2.5)+bArc(A,40,t,TE(),3)+bArc(B,30,bk,OR(),3);
+  const la=dirP(A,58,t/2),lb=dirP(B,48,bk/2);s+=T(la[0],la[1]+4,b3(t)+'°',TE(),{w:700,fs:12})+T(lb[0],lb[1]+4,b3(bk)+'°',OR(),{w:700,fs:12});
+  s+=C(A[0],A[1],8,TE(),css('--panel'),2)+C(B[0],B[1],8,OR(),css('--panel'),2)+T(A[0]-14,A[1]+20,'A',FG(),{w:700})+T(B[0]+14,B[1]+20,'B',FG(),{w:700});
+  $('bbSvg').innerHTML=s; $('bbAB').textContent=b3(t)+'°'; $('bbBA').textContent=b3(bk)+'°';
+  const tr=Math.round(t);
+  $('bbWork').innerHTML=tr<180?`${b3(tr)}° is less than 180°, so back bearing = ${b3(tr)}° + 180° = <strong>${b3(tr+180)}°</strong>`:`${b3(tr)}° is 180° or more, so back bearing = ${b3(tr)}° − 180° = <strong>${b3(tr-180)}°</strong>`;}
+dragger($('bbSvg'),p=>{const k=nearest(p,[BB.A,BB.B],30);return k===null?null:['A','B'][k];},(k,p)=>{const q=[Math.max(20,Math.min(400,p[0])),Math.max(30,Math.min(320,p[1]))];const o=k==='A'?BB.B:BB.A;if(Math.hypot(q[0]-o[0],q[1]-o[1])<40)return;BB[k]=q;drawBB();}); reg(drawBB);
+
+/* 4. angle facts */
+const afT1=$('afT1'),afT2=$('afT2');
+function journey(t1,t2,d1,d2,W,H){const A=[0,0],B=[d1*Math.sin(t1*RAD),d1*Math.cos(t1*RAD)],C=[B[0]+d2*Math.sin(t2*RAD),B[1]+d2*Math.cos(t2*RAD)];
+  const xs=[A[0],B[0],C[0]],ys=[A[1],B[1],C[1]];const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const k=Math.min((W-120)/Math.max(x1-x0,1),(H-130)/Math.max(y1-y0,1));const ox=(W-(x1-x0)*k)/2-x0*k,oy=(H+(y1-y0)*k)/2+y0*k+15;
+  const S=p=>[ox+p[0]*k,oy-p[1]*k];return [S(A),S(B),S(C)];}
+function drawAF(){const t1=+afT1.value,t2=+afT2.value;$('afT1v').textContent=' '+b3(t1)+'°';$('afT2v').textContent=' '+b3(t2)+'°';
+  const [A,B,Cc]=journey(t1,t2,1,0.8,420,340);
+  let s=north(A,70)+north(B,70)+L(A[0],A[1],B[0],B[1],TE(),3)+L(B[0],B[1],Cc[0],Cc[1],OR(),3);
+  s+=bArc(A,30,t1,TE(),2.5)+bArc(B,26,t2,OR(),2);const back=norm(t1+180);
+  let diff=Math.abs(back-t2);if(diff>180)diff=360-diff;
+  if(diff>1&&diff<179){s+=angArc(B,A,Cc,40,PL(),2.5);const lp=angLabelPos(B,A,Cc,60);s+=T(lp[0],lp[1],fmt(diff,0)+'°',PL(),{w:700,fs:12});}
+  const la=dirP(A,48,t1/2);s+=T(la[0],la[1]+4,b3(t1)+'°',TE(),{fs:11,w:700});
+  s+=C(A[0],A[1],5,FG())+C(B[0],B[1],5,FG())+C(Cc[0],Cc[1],5,FG())+T(A[0]-12,A[1]+16,'A',FG(),{w:700})+T(B[0]+12,B[1]-6,'B',FG(),{w:700})+T(Cc[0]+12,Cc[1]+14,'C',FG(),{w:700});
+  $('afSvg').innerHTML=s;
+  $('afWork').innerHTML=`At B, the bearing back to A is ${b3(t1)}° ${t1<180?'+':'−'} 180° = <span class="b">${b3(back)}°</span> (co-interior angles with parallel north lines)<br>The ship leaves B on <span class="b">${b3(t2)}°</span><br>angle ABC = difference between ${b3(back)}° and ${b3(t2)}° = <strong>${fmt(diff,0)}°</strong>${diff<1?' (it turns straight back)':diff>179?' (it carries straight on: A, B, C in a line)':''}<br><span class="c">If the difference is more than 180°, the angle inside the triangle is 360° minus it.</span>`;}
+[afT1,afT2].forEach(e=>e.addEventListener('input',drawAF)); reg(drawAF);
+
+/* 5. scale drawing */
+const G5=20,SC=2; const H5=[200,220]; let SCQ=null, flag=[320,330];
+function scNew(){const t=rnd(1,35)*10,d=pick([6,8,10,12,14,16]);SCQ={t,d};const p=dirP(H5,d/SC*G5,t);if(p[0]<20||p[0]>380||p[1]<20||p[1]>380){return scNew();}
+  flag=[330,360];$('scQ').textContent=`The lighthouse L is ${d} km from the harbour H on a bearing of ${b3(t)}°. Scale: 1 square = 2 km. Drag the flag to L.`;$('scMsg').textContent='';$('scMsg').className='msg';drawSC();}
+function drawSC(){let s='';for(let i=0;i<=20;i++){s+=L(i*G5,0,i*G5,400,css('--grid'),1)+L(0,i*G5,400,i*G5,css('--grid'),1);}
+  s+=north(H5,120)+C(H5[0],H5[1],6,FG())+T(H5[0]-12,H5[1]+18,'H',FG(),{w:700});
+  if($('scHelp').checked){const p=dirP(H5,260,SCQ.t);s+=L(H5[0],H5[1],p[0],p[1],TE(),1.5,'6 4')+bArc(H5,30,SCQ.t,TE(),2);}
+  s+=L(flag[0],flag[1],flag[0],flag[1]-22,FG(),2)+poly([[flag[0],flag[1]-22],[flag[0]+14,flag[1]-17],[flag[0],flag[1]-12]],OR())+C(flag[0],flag[1],5,OR(),css('--panel'),2);
+  s+=T(392,394,'1 square = 2 km',MU(),{fs:11,a:'end'});
+  $('scSvg').innerHTML=s;}
+dragger($('scSvg'),p=>Math.hypot(p[0]-flag[0],p[1]-(flag[1]-10))<34?'f':null,(k,p)=>{flag=[Math.max(5,Math.min(395,p[0])),Math.max(25,Math.min(395,p[1]))];drawSC();});
+$('scGo').addEventListener('click',()=>{const t=brg(H5,flag),dk=Math.hypot(flag[0]-H5[0],flag[1]-H5[1])/G5*SC;const M=$('scMsg');const dt=Math.min(norm(t-SCQ.t),norm(SCQ.t-t));const okT=dt<=3,okD=Math.abs(dk-SCQ.d)<=0.6;
+  if(okT&&okD)feedback(M,true,`Good: your point is ${fmt(dk,1)} km on a bearing of ${b3(t)}°. The bearing of H from L would be ${b3(SCQ.t+180)}°.`);
+  else{let m=`Your point is ${fmt(dk,1)} km from H on a bearing of ${b3(t)}°. `;if(!okT)m+=Math.min(norm(t-(360-SCQ.t)),norm(360-SCQ.t-t))<=4?'You went anticlockwise: bearings are clockwise from north. ':`The bearing should be ${b3(SCQ.t)}°. `;if(!okD)m+=Math.abs(dk/SC-SCQ.d)<=0.6?`You used ${SCQ.d} squares; with 1 square = 2 km, ${SCQ.d} km is ${SCQ.d/2} squares.`:`The distance should be ${SCQ.d} km = ${SCQ.d/2} squares.`;feedback(M,false,'Not quite. '+m);}});
+$('scNew').addEventListener('click',scNew); $('scHelp').addEventListener('input',drawSC); scNew(); REDRAW.push(drawSC);
+
+/* 6. right-angled trig */
+const trD=$('trD'),trT=$('trT');
+function drawTR(){const d=+trD.value,t=+trT.value;$('trDv').textContent=' '+d+' km';$('trTv').textContent=' '+b3(t)+'°';
+  const O=[200,180],k=Math.min(8,160/d),E=d*Math.sin(t*RAD),N=d*Math.cos(t*RAD),P=[O[0]+E*k,O[1]-N*k];
+  let s=north(O,150)+L(40,O[1],360,O[1],MU(),1,'2 4');
+  s+=L(O[0],O[1],O[0],P[1],PL(),3)+L(O[0],P[1],P[0],P[1],PL(),3)+arrowTo(O,P,TE(),3.5)+bArc(O,30,t,TE(),2);
+  if(Math.abs(E)>0.3&&Math.abs(N)>0.3)s+=rightMark([O[0],P[1]],O,P,9,MU());
+  s+=T(O[0]+(E>=0?-8:8),(O[1]+P[1])/2,fmt(Math.abs(N),2)+' km '+(N>=0?'N':'S'),PL(),{fs:12,w:700,a:E>=0?'end':'start'})+T((O[0]+P[0])/2,P[1]+(N>=0?-8:16),fmt(Math.abs(E),2)+' km '+(E>=0?'E':'W'),PL(),{fs:12,w:700});
+  s+=C(O[0],O[1],5,FG());
+  $('trSvg').innerHTML=s;
+  const q=t<=90?t:t<=180?180-t:t<=270?t-180:360-t;const nsDir=t<=90||t>=270?'north':'south',ewDir=t<=180?'east':'west';
+  $('trWork').innerHTML=`acute angle with the north–south line = ${fmt(q,0)}°${t>90?` (from ${t<=180?'180° − '+t+'°':t<=270?t+'° − 180°':'360° − '+t+'°'})`:''}<br><span class="c">${ewDir}: ${d} × sin ${fmt(q,0)}° = ${fmt(Math.abs(E),3)} km</span><br><span class="c">${nsDir}: ${d} × cos ${fmt(q,0)}° = ${fmt(Math.abs(N),3)} km</span>`;}
+[trD,trT].forEach(e=>e.addEventListener('input',drawTR)); reg(drawTR);
+
+/* 7. two ships (Higher) */
+const ss=['ssT1','ssD1','ssT2','ssD2'].map(i=>$(i));
+function drawSS(){const [t1,d1,t2,d2]=ss.map(e=>+e.value);$('ssT1v').textContent=' '+b3(t1)+'°';$('ssD1v').textContent=' '+d1+' km';$('ssT2v').textContent=' '+b3(t2)+'°';$('ssD2v').textContent=' '+d2+' km';
+  const P=[200,180],k=Math.min(13,150/Math.max(d1,d2)),A=dirP(P,d1*k,t1),B=dirP(P,d2*k,t2);
+  let s=north(P,140)+north(A,40)+arrowTo(P,A,TE(),3)+arrowTo(P,B,OR(),3)+L(A[0],A[1],B[0],B[1],PL(),3.5,'7 4');
+  let ang=Math.abs(t1-t2);if(ang>180)ang=360-ang;
+  if(ang>1&&ang<179){s+=angArc(P,A,B,26,FG(),2);const lp=angLabelPos(P,A,B,44);s+=T(lp[0],lp[1],fmt(ang,0)+'°',FG(),{fs:12,w:700});}
+  s+=C(P[0],P[1],5,FG())+T(P[0]-12,P[1]+16,'P',FG(),{w:700})+C(A[0],A[1],5,TE())+T(A[0]+10,A[1]-6,'A',TE(),{w:700,a:'start'})+C(B[0],B[1],5,OR())+T(B[0]+10,B[1]+14,'B',OR(),{w:700,a:'start'});
+  $('ssSvg').innerHTML=s;
+  const AB2=d1*d1+d2*d2-2*d1*d2*Math.cos(ang*RAD),AB=Math.sqrt(Math.max(0,AB2));
+  let w=`angle APB = difference between ${b3(t1)}° and ${b3(t2)}° = ${fmt(ang,0)}°${Math.abs(t1-t2)>180?' (going the short way round)':''}<br>`;
+  if(AB<1e-6){w+='The ships are in the same place.';}
+  else{w+=`<span class="c">AB² = ${d1}² + ${d2}² − 2 × ${d1} × ${d2} × cos ${fmt(ang,0)}° = ${fmt(AB2,3)}<br>AB = <strong>${sf(AB)} km</strong></span><br>`;
+    const bAB=brg(A,B);w+=`bearing of B from A = <strong>${b3(bAB)}°</strong>`;
+    if(ang>1&&ang<179){const cosA=(d1*d1+AB2-d2*d2)/(2*d1*AB),angA=Math.acos(Math.max(-1,Math.min(1,cosA)))/RAD;w+=` (angle PAB = ${fmt(angA,1)}° by the cosine rule; at A the bearing back to P is ${b3(t1+180)}°, and B is ${fmt(angA,1)}° ${Math.abs(norm(t1+180+angA)-bAB)<0.6||Math.abs(norm(t1+180+angA)-bAB)>359.4?'clockwise':'anticlockwise'} from that)`;}}
+  $('ssWork').innerHTML=w;}
+ss.forEach(e=>e.addEventListener('input',drawSS)); reg(drawSS);
+
+/* quiz */
+const QS=[
+  {q:'The bearing of due east is…',opts:['090°','045°','270°','180°'],a:0,fb:'East is a quarter turn clockwise from north: 090°.'},
+  {q:'The bearing of due south-west is…',opts:['225°','135°','315°','045°'],a:0,fb:'South is 180°, then another 45° on towards west: 225°.'},
+  {q:'The bearing of B from A is 125°. The bearing of A from B is…',opts:['305°','055°','235°','145°'],a:0,fb:'125° is less than 180°, so add 180°: 305°.'},
+  {q:'The back bearing of 310° is…',opts:['130°','490°','050°','230°'],a:0,fb:'310° is more than 180°, so subtract 180°: 130°.'},
+  {q:'Bearings are measured…',opts:['clockwise from north','anticlockwise from north','clockwise from east','from the nearest compass point'],a:0,fb:'Always from north, always clockwise.'},
+  {q:'A bearing of 45° should be written as…',opts:['045°','45°','45° N','N45°'],a:0,fb:'Bearings always have three figures: 045°.'},
+  {q:'On a map with scale 1 cm : 5 km, a line is 3.4 cm long. The real distance is…',opts:['17 km','8.4 km','1.47 km','34 km'],a:0,fb:'3.4 × 5 = 17 km.'},
+  {q:'A ship sails 10 km on 090° then 10 km on 180°. Its bearing from the start is…',opts:['135°','045°','225°','180°'],a:0,fb:'It is 10 km east and 10 km south: exactly south-east, 135°.'},
+  {q:'In that journey, how far is the ship from its start (3 s.f.)?',opts:['14.1 km','20 km','10 km','100 km'],a:0,fb:'√(10² + 10²) = √200 = 14.142… = 14.1 km.'},
+  {q:'Why does a back bearing differ by exactly 180°?',opts:['North lines are parallel, so co-interior angles add to 180°','Angles in a triangle add to 180°','Bearings are measured clockwise','Angles round a point add to 360°'],a:0,fb:'The line between the points crosses two parallel north lines; the co-interior angles add to 180°.'}
+];
+const redrawAll=()=>REDRAW.forEach(f=>f());
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

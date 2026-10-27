@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Comparing Distributions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one interactive panel: SVG dot plots, a skew curve, side-by-side box plots and overlaid frequency polygons drawn from JS, an HTML back-to-back stem-and-leaf diagram, and a sentence builder made of drop-down menus (all kept narrow enough for a 360px phone). Graph-paper neutrals. Colours on this page: teal = the FIRST group in every comparison (group A, Bus A, the boys, Year 9, class P), orange = the SECOND group (group B, Bus B, the girls, Year 11, class Q), plum = MEASURES calculated from the data (mean, median, quartiles, IQR and range markers, the skew curve's averages). Green/red are only used for right/wrong feedback. The orange pill "Higher" marks Higher-tier-only sections. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.3rem;position:relative;top:-.15em}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.X{color:var(--accent);font-weight:600}.F{color:var(--hi);font-weight:600}.P{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);flex-wrap:wrap}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.btn:disabled{opacity:.45;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:.95rem;line-height:1.8;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent);font-weight:600}.work .b{color:var(--hi);font-weight:600}.work .c{color:var(--two);font-weight:600}.work .x{color:var(--bad)}
+.raw{display:flex;flex-wrap:wrap;gap:.3rem;margin:.6rem 0}
+.chip{display:inline-block;min-width:2.4em;text-align:center;font-family:var(--mono);font-size:.9rem;padding:.12rem .3rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--hi);font-weight:500;line-height:1.5}
+.chip.rep{color:var(--muted);text-decoration:line-through;opacity:.7}
+.ft{font-family:var(--mono);font-variant-numeric:tabular-nums;border-collapse:collapse;width:auto;min-width:min(100%,240px);margin:.6rem auto;font-size:.9rem}
+.ft th,.ft td{text-align:center;padding:.3rem .5rem;border-bottom:1px solid var(--line);vertical-align:middle}
+.ft th{font:600 .68rem var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);line-height:1.3}
+.ft td.X{color:var(--accent);font-weight:600}.ft td.F{color:var(--hi);font-weight:600}.ft td.P{color:var(--two);font-weight:600}
+.ft tr.tot td{border-top:2px solid var(--line);font-weight:600}
+.ft tr.hm td{background:var(--two-soft)}
+.ft.left{margin-left:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.dc{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.6rem}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.chip.v{color:var(--accent)}
+.ft td.dim{color:var(--muted);font-weight:400}
+.qd{display:block;font-family:var(--mono);font-size:.92rem;margin-top:.3rem;color:var(--muted)}
+.sl{font-family:var(--mono);border-collapse:collapse;margin:.6rem auto;font-size:1rem;width:auto}
+.sl td{padding:.2rem .45rem;border:none;vertical-align:middle;white-space:nowrap}
+.sl td.st{border-left:2px solid var(--muted);border-right:2px solid var(--muted);text-align:center;font-weight:600;color:var(--fg)}
+.sl td.la{text-align:right;color:var(--accent);letter-spacing:.18em}
+.sl td.lb{text-align:left;color:var(--hi);letter-spacing:.18em}
+.sl span.md{background:var(--two);color:#fff;border-radius:3px;padding:0 .1em;letter-spacing:0}
+.sl span.nw{outline:2px solid var(--fg);border-radius:3px;letter-spacing:0}
+.sb{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.5rem 0}
+.sb select{font-size:.88rem;max-width:100%}
+.say{font-size:1.02rem;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.6rem .8rem;margin-top:.6rem}
+.chk{list-style:none;padding:0;margin:.5rem 0}
+.chk li{margin:.2rem 0;font-size:.93rem}
+.chk li.y{color:var(--good)}.chk li.n{color:var(--bad)}.chk li.t{color:var(--muted)}
+.tf{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Statistics</div>
+  <h1>Comparing Distributions</h1>
+  <p class="lede">"Compare the two distributions" is one of the most common GCSE statistics questions, and one of the easiest to lose marks on. The recipe is short: compare one average and one measure of spread, quote the numbers, and say what each comparison means in the real situation. This page practises that recipe with dot plots, box plots, frequency polygons and stem-and-leaf diagrams.</p>
+  <span class="gcse">GCSE subject content (Statistics): interpret, analyse and compare the distributions of data sets through appropriate graphical representation and appropriate measures of central tendency and spread (range, including consideration of outliers; Higher: quartiles, inter-quartile range and box plots)</span>
+</header>
+
+<div class="callout">
+  <p><strong>Before you start.</strong> You need the mean, median, mode and range (<a href="../ks3-interactive/averages-and-range.html">averages and range</a>) and the ideas of shape, outliers and comparing from <a href="../ks3-interactive/distributions-correlation.html">distributions and correlation</a>. The grouped-data parts use <a href="grouped-data-estimated-mean.html">estimated means and frequency polygons</a>; the Higher parts use quartiles, IQR and box plots from <a href="cumulative-frequency-box-plots-histograms.html">cumulative frequency, box plots and histograms</a>.</p>
+</div>
+
+<h2>1 · What a comparison needs</h2>
+<p>A <strong>distribution</strong> is the whole pattern of a set of data: where it sits, how spread out it is, and its shape. Two numbers capture most of it:</p>
+<ul>
+  <li>an <strong>average</strong> (a measure of <em>central tendency</em>: mean, median or mode) says where the data is centred: what's "typical";</li>
+  <li>a <strong>measure of spread</strong> (range or inter-quartile range) says how spread out the data is. Small spread means <strong>consistent</strong>; large spread means <strong>variable</strong>.</li>
+</ul>
+<p>Two bus companies were each late on 11 journeys. Here are the numbers of minutes late. Look at the dots first, then compare the measures.</p>
+<div class="lab">
+  <div class="chips" id="c1Btns"></div>
+  <svg id="c1Svg" viewBox="0 0 400 190" width="400" height="190" aria-label="Dot plots of minutes late for Bus A and Bus B"></svg>
+  <div class="tbl"><table class="ft" id="c1Tab"></table></div>
+  <div class="msg" id="c1Msg"></div>
+</div>
+<div class="callout">
+  <p><strong>Full-mark answer:</strong> "On average Bus B was less late, because its median was lower (3 minutes compared with 5 minutes). Bus A was more consistent, because its range was smaller (7 minutes compared with 14 minutes)." Two comparisons, each with the measure named, the numbers quoted, and a meaning <em>in context</em>. Saying only "B's median is lower" or "A's numbers are less spread out" without saying what that means about lateness loses the interpretation marks.</p>
+</div>
+
+<h2>2 · Which measures? Outliers</h2>
+<p>An <strong>outlier</strong> is a value that is much bigger or smaller than the rest. Here is the weekly pocket money (£) of 9 friends. Drag the largest value and watch what happens to each measure.</p>
+<div class="lab">
+  <svg id="olSvg" class="drag" viewBox="0 0 400 110" width="400" height="110" aria-label="Dot plot of pocket money; the largest value can be dragged"></svg>
+  <div class="tbl"><table class="ft" id="olTab"></table></div>
+  <div class="msg" id="olMsg"></div>
+</div>
+<div class="tbl"><table>
+  <tr><th>Measure</th><th>Good at</th><th>Weakness</th></tr>
+  <tr><td><strong>Mean</strong></td><td>Uses every value</td><td>Dragged towards outliers</td></tr>
+  <tr><td><strong>Median</strong></td><td>Ignores extreme values</td><td>Ignores most of the actual values</td></tr>
+  <tr><td><strong>Mode</strong></td><td>Works for non-numerical data</td><td>May not exist or not be typical</td></tr>
+  <tr><td><strong>Range</strong></td><td>Quick and simple</td><td>Uses only the two extremes, so one outlier ruins it</td></tr>
+  <tr><td><strong>IQR</strong> <span class="tag g">Higher</span></td><td>Spread of the middle half, so it ignores outliers</td><td>Needs quartiles</td></tr>
+</table></div>
+<p>Rule of thumb: if there are outliers, compare the <strong>median and IQR</strong> (or median and range at Foundation, but mention the outlier). If the data has no outliers, the <strong>mean and range</strong> are fine. Match the pair: median goes with IQR, mean goes with range. And only remove an outlier if it is a mistake (a typing error, say); a genuine extreme value is part of the data.</p>
+
+<h2>3 · Shape and skew</h2>
+<p>A distribution is <strong>symmetrical</strong> if one side is a mirror image of the other. If it has a long tail on one side it is <strong>skewed</strong>: a tail to the right (towards big values) is <strong>positive skew</strong>; a tail to the left is <strong>negative skew</strong>. Incomes are positively skewed (a few people earn huge amounts); marks on an easy test are negatively skewed. Slide the skew and watch the three averages separate.</p>
+<div class="lab">
+  <div class="controls"><label>skew <input type="range" id="skS" min="-10" max="10" step="1" value="6"><span id="skSv" style="font-family:var(--mono)"></span></label></div>
+  <svg id="skSvg" viewBox="0 0 400 236" width="400" height="236" aria-label="A distribution with its mean, median and mode marked"></svg>
+  <div class="readout">
+    <div><b>Mode</b><span id="skMo"></span></div>
+    <div class="p"><b>Median</b><span id="skMe"></span></div>
+    <div class="p"><b>Mean</b><span id="skMn"></span></div>
+  </div>
+  <div class="msg" id="skMsg"></div>
+</div>
+<p>The mean is pulled furthest into the tail, because it adds up every value, including the extreme ones in the tail. The median stays nearer the bulk of the data. For a skewed distribution the median is usually the better "typical" value: it's why news reports quote median house prices and median incomes.</p>
+
+<h2>4 · Box plots side by side <span class="tag g">Higher</span></h2>
+<p>Two box plots on the <em>same scale</em> make comparing quick: compare the median lines for the average and the box lengths (IQR) for the spread. Here are the test marks of two classes, P and Q. Decide whether each statement is true, false, or can't be told from the box plots.</p>
+<div class="lab">
+  <svg id="bpSvg" viewBox="0 0 400 190" width="400" height="190" aria-label="Box plots of test marks for class P and class Q"></svg>
+  <p class="pq" id="bpQ"></p>
+  <div class="tf">
+    <button class="btn" id="bpT">True</button><button class="btn" id="bpF">False</button><button class="btn" id="bpC">Can't tell</button><button class="btn" id="bpNext">Next</button>
+  </div>
+  <div class="msg" id="bpMsg"></div>
+  <div class="msg" id="bpScore"></div>
+</div>
+<div class="callout">
+  <p><strong>Box plot traps.</strong> A box plot shows the median, not the mean. It shows proportions (a quarter of the data in each section), not how many people: a longer section does not mean more people. And "75% scored more than the LQ" works for each class separately, but you can't compare actual numbers of pupils unless you know the class sizes.</p>
+</div>
+
+<h2>5 · Frequency polygons and histograms</h2>
+<p>For large grouped data sets, draw both frequency polygons on the same axes. The polygon further to the right has the higher values; a flatter, wider polygon is more spread out. Back it up with numbers: estimated means and modal classes from the tables.</p>
+<div class="lab">
+  <div class="controls">
+    <label>data <select id="fpSet"><option value="hw">homework time, Year 9 and Year 11</option><option value="sf">sunflower heights, two fertilisers</option></select></label>
+    <label><input type="checkbox" id="fpBars"> draw as histograms</label>
+  </div>
+  <svg id="fpSvg" viewBox="0 0 400 284" width="400" height="284" aria-label="Two frequency polygons on the same axes"></svg>
+  <div class="tbl"><table class="ft" id="fpTab"></table></div>
+  <div class="controls"><button class="btn" id="fpModel">Show a model comparison</button></div>
+  <div class="work" id="fpWork" hidden></div>
+</div>
+<div class="callout">
+  <p><strong>Different-sized groups?</strong> If one group has 50 people and the other 200, a frequency polygon of the bigger group sits higher everywhere just because it's bigger. Compare averages and spreads (which don't depend on group size), or compare relative frequencies (proportions) instead of frequencies.</p>
+</div>
+
+<h2>6 · Back-to-back stem-and-leaf diagrams</h2>
+<p>A <strong>stem-and-leaf diagram</strong> splits each number into a stem (the tens digit) and a leaf (the units digit), so 73 is stem 7, leaf 3. A <strong>back-to-back</strong> diagram shares the stems down the middle: one group's leaves go to the right, the other's to the left. On the left the leaves are read <em>backwards</em>: the leaf nearest the stem is the smallest. Build the diagram for the resting pulse rates (beats per minute) of 13 boys and 13 girls.</p>
+<div class="lab">
+  <div class="controls">
+    <button class="btn primary" id="slNext">Place next value</button><button class="btn" id="slAll">Place all</button><button class="btn" id="slOrd">Order the leaves</button><button class="btn" id="slMed">Show medians</button><button class="btn" id="slReset">Start again</button>
+  </div>
+  <div class="tbl"><table class="sl" id="slTab"></table></div>
+  <p class="msg" style="text-align:center">Key: boys <span class="X">8 | 5</span> means 58 bpm; girls <span class="F">6 | 1</span> means 61 bpm</p>
+  <div class="msg" id="slMsg"></div>
+  <div class="controls">
+    <label>girls' median <input type="text" id="slA" inputmode="decimal" autocomplete="off"></label>
+    <label>boys' range <input type="text" id="slB" inputmode="decimal" autocomplete="off"></label>
+    <button class="btn" id="slGo">Check</button>
+  </div>
+  <div class="msg" id="slQM"></div>
+</div>
+
+<h2>7 · Writing full-mark sentences</h2>
+<p>Build two sentences, one comparing an average and one comparing a spread. The feedback checks what an examiner checks: <em>which group</em>, <em>which measure</em>, <em>the right direction</em>, the <em>numbers</em>, and an <em>interpretation in context</em>.</p>
+<div class="lab">
+  <div class="controls"><label>situation <select id="wsSet"></select></label></div>
+  <div class="work" id="wsData"></div>
+  <h3 style="font-size:1rem">Average</h3>
+  <div class="sb" id="wsA"></div>
+  <div class="say" id="wsAS"></div>
+  <ul class="chk" id="wsAC"></ul>
+  <h3 style="font-size:1rem">Spread</h3>
+  <div class="sb" id="wsB"></div>
+  <div class="say" id="wsBS"></div>
+  <ul class="chk" id="wsBC"></ul>
+  <div class="msg" id="wsMsg"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Compare using the median and IQR</summary>
+  <p>Reaction times: boys median 0.42 s, IQR 0.10 s; girls median 0.38 s, IQR 0.15 s. Compare the distributions.</p>
+  <div class="step"><strong>Average:</strong> the girls' median is lower (0.38 s compared with 0.42 s), so <strong>on average the girls reacted faster</strong>. (A lower time is better here: say so in words.)</div>
+  <div class="step"><strong>Spread:</strong> the boys' IQR is smaller (0.10 s compared with 0.15 s), so <strong>the boys' reaction times were more consistent</strong>.</div>
+  <div class="step"><strong>Check the recipe:</strong> two comparisons, each with a named measure, both values, and a meaning in context ✓</div>
+</details>
+<details>
+  <summary>Choosing the right average when there's an outlier</summary>
+  <p>Pocket money (£): 5, 6, 6, 7, 8, 8, 9, 10, 50. Which average best represents the data?</p>
+  <div class="step"><strong>Mean:</strong> 109 ÷ 9 = 12.11… ≈ £12.11. Eight of the nine friends get less than this.</div>
+  <div class="step"><strong>Median:</strong> the 5th value of 9 = <strong>£8</strong>.</div>
+  <div class="step"><strong>Answer:</strong> the median, £8, because £50 is an outlier that pulls the mean up. For spread use the IQR (£9.50 − £6 = £3.50), not the range (£45).</div>
+</details>
+<details>
+  <summary>Comparing box plots <span class="tag g">Higher</span></summary>
+  <p>Class P: min 22, LQ 41, median 52, UQ 60, max 78. Class Q: min 30, LQ 45, median 49, UQ 54, max 70. Compare the marks.</p>
+  <div class="step"><strong>Average:</strong> P's median is higher (52 compared with 49), so on average <strong>class P scored higher marks</strong>.</div>
+  <div class="step"><strong>Spread:</strong> P's IQR = 60 − 41 = 19; Q's IQR = 54 − 45 = 9. Q's IQR is smaller, so <strong>class Q's marks were more consistent</strong>.</div>
+  <div class="step"><strong>Extra:</strong> ranges 78 − 22 = 56 and 70 − 30 = 40 agree. But the IQR is better because it isn't affected by one very low or high mark.</div>
+</details>
+<details>
+  <summary>Back-to-back stem-and-leaf: pulse rates</summary>
+  <p>Boys: 58, 62, 64, 65, 67, 68, 70, 71, 73, 74, 76, 81, 85. Girls: 61, 66, 69, 72, 72, 75, 77, 78, 79, 80, 83, 86, 92 (bpm).</p>
+  <div class="step"><strong>Medians:</strong> 13 values each, so the median is the (13 + 1) ÷ 2 = 7th value. Boys: <strong>70</strong>. Girls: <strong>77</strong>.</div>
+  <div class="step"><strong>Ranges:</strong> boys 85 − 58 = <strong>27</strong>; girls 92 − 61 = <strong>31</strong>.</div>
+  <div class="step"><strong>Compare:</strong> the girls' median is higher (77 compared with 70 bpm), so on average the girls had higher resting pulse rates. The boys' range is smaller (27 compared with 31 bpm), so the boys' pulse rates were more consistent.</div>
+</details>
+<details>
+  <summary>Comparing grouped data</summary>
+  <p>Homework time t (minutes), 50 pupils in each year group. Classes 0–10, 10–20, …, 50–60. Year 9: 6, 14, 15, 9, 4, 2. Year 11: 2, 5, 10, 14, 12, 7.</p>
+  <div class="step"><strong>Year 9 estimated mean:</strong> (6 × 5 + 14 × 15 + 15 × 25 + 9 × 35 + 4 × 45 + 2 × 55) ÷ 50 = (30 + 210 + 375 + 315 + 180 + 110) ÷ 50 = 1220 ÷ 50 = <strong>24.4 min</strong>.</div>
+  <div class="step"><strong>Year 11 estimated mean:</strong> (10 + 75 + 250 + 490 + 540 + 385) ÷ 50 = 1750 ÷ 50 = <strong>35 min</strong>.</div>
+  <div class="step"><strong>Compare:</strong> Year 11's estimated mean is higher (35 compared with 24.4 minutes), so on average Year 11 spent longer on homework. The modal classes agree: 30–40 for Year 11, 20–30 for Year 9.</div>
+</details>
+<details>
+  <summary>Exam-style: spot what's missing</summary>
+  <p>A student wrote: "The median for A is 12 and the median for B is 15. The range for A is bigger." The data is the time in seconds two groups took to solve a puzzle. Improve the answer.</p>
+  <div class="step"><strong>Problem 1:</strong> the first sentence lists two numbers but doesn't compare them or interpret them.</div>
+  <div class="step"><strong>Problem 2:</strong> the second sentence compares the range but gives no values and no meaning.</div>
+  <div class="step"><strong>Improved:</strong> "Group A's median time was lower (12 s compared with 15 s), so on average group A solved the puzzle faster. Group A's range was bigger, so their times were less consistent than group B's."</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>To compare two distributions, compare <strong>one average</strong> and <strong>one measure of spread</strong>, quote both values, and say what each means <strong>in context</strong>.</li>
+  <li>A smaller spread means more <strong>consistent</strong> data; a larger spread means more variable.</li>
+  <li><strong>Outliers</strong> distort the mean and the range. Use the <strong>median and IQR</strong> when there are outliers or skew; the mean and range otherwise.</li>
+  <li><strong>Positive skew</strong> has a tail to the right and usually mean &gt; median &gt; mode; negative skew is the reverse.</li>
+  <li><span class="tag g">Higher</span> <strong>Box plots</strong> side by side: compare the medians and the IQRs (box lengths). They show proportions, not numbers of people, and not the mean.</li>
+  <li><strong>Frequency polygons</strong> on the same axes compare grouped data; back them up with estimated means and modal classes.</li>
+  <li>In a <strong>back-to-back stem-and-leaf diagram</strong>, the left-hand leaves are read from the stem outwards; find medians by counting to the middle position.</li>
+</ul>
+
+<footer>Made for GCSE students. Comparing distributions using averages, spread, outliers and graphical representations is in the DfE GCSE mathematics subject content under Statistics. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat(v.toFixed(d)).toString()) : '—';
+const num = el => { const v = parseFloat(String(el.value).replace(/−/g,'-').trim()); return isFinite(v) ? v : NaN; };
+const sum = a => a.reduce((s,v)=>s+v,0);
+const F = () => `font-family="${css('--mono')}"`;
+const svgPt=(svg,e,W,H)=>{ const r=svg.getBoundingClientRect(); return [(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H]; };
+const med=a=>{ const m=a.length; return m%2?a[(m-1)/2]:(a[m/2-1]+a[m/2])/2; };
+function stats(a){ const s=a.slice().sort((x,y)=>x-y), n=s.length, cnt={}; s.forEach(v=>cnt[v]=(cnt[v]||0)+1); const mx=Math.max(...Object.values(cnt));
+  const modes=Object.keys(cnt).filter(k=>cnt[k]===mx).map(Number);
+  return {s,n,mean:sum(s)/n,md:med(s),lq:med(s.slice(0,Math.floor(n/2))),uq:med(s.slice(Math.ceil(n/2))),min:s[0],max:s[n-1],range:s[n-1]-s[0],modes,mx}; }
+
+/* 1. bus comparison */
+const BUS={A:[2,3,3,4,5,5,6,6,7,8,9],B:[0,1,1,2,2,3,4,7,10,12,14]};
+const BS={A:stats(BUS.A),B:stats(BUS.B)};
+let c1M='median';
+const C1=[['median','Median'],['mean','Mean'],['mode','Mode'],['range','Range'],['iqr','IQR (Higher)']];
+$('c1Btns').innerHTML=C1.map(([k,t])=>`<button class="btn" data-k="${k}">${t}</button>`).join('');
+function c1Draw(){ $('c1Btns').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===c1M));
+  const L=20,Rr=384, X=v=>L+v/15*(Rr-L); let s='';
+  [['A',70,css('--accent')],['B',150,css('--hi')]].forEach(([g,ax,col])=>{ const S=BS[g];
+    s+=`<line x1="${L}" y1="${ax}" x2="${Rr}" y2="${ax}" stroke="${css('--muted')}"/>`;
+    for(let v=0;v<=15;v++){ s+=`<line x1="${X(v)}" y1="${ax}" x2="${X(v)}" y2="${ax+4}" stroke="${css('--muted')}"/>`; s+=`<text x="${X(v)}" y="${ax+15}" text-anchor="middle" font-size="9.5" fill="${css('--muted')}" ${F()}>${v}</text>`; }
+    s+=`<text x="${L}" y="${ax-50}" font-size="11" font-weight="600" fill="${col}" ${F()}>Bus ${g} (minutes late)</text>`;
+    const st={}; S.s.forEach(v=>{ st[v]=(st[v]||0)+1; s+=`<circle cx="${X(v)}" cy="${ax-7-(st[v]-1)*11}" r="5" fill="${col}"/>`; });
+    const P=css('--two');
+    if(c1M==='median'||c1M==='mean'){ const v=c1M==='median'?S.md:S.mean; s+=`<line x1="${X(v)}" y1="${ax-40}" x2="${X(v)}" y2="${ax}" stroke="${P}" stroke-width="2.5"/><text x="${X(v)+4}" y="${ax-32}" font-size="10" fill="${P}" ${F()}>${fmt(v)}</text>`; }
+    else if(c1M==='mode') S.modes.forEach(v=>{ s+=`<circle cx="${X(v)}" cy="${ax-7-(S.mx-1)*11}" r="8" fill="none" stroke="${P}" stroke-width="2"/>`; });
+    else { const a=c1M==='range'?S.min:S.lq, b=c1M==='range'?S.max:S.uq; s+=`<line x1="${X(a)}" y1="${ax-36}" x2="${X(b)}" y2="${ax-36}" stroke="${P}" stroke-width="2.5"/><line x1="${X(a)}" y1="${ax-41}" x2="${X(a)}" y2="${ax-31}" stroke="${P}" stroke-width="2"/><line x1="${X(b)}" y1="${ax-41}" x2="${X(b)}" y2="${ax-31}" stroke="${P}" stroke-width="2"/><text x="${(X(a)+X(b))/2}" y="${ax-44}" text-anchor="middle" font-size="10" fill="${P}" ${F()}>${fmt(b-a)}</text>`; } });
+  $('c1Svg').innerHTML=s;
+  const val=S=>({median:fmt(S.md),mean:fmt(S.mean),mode:S.modes.join(' and '),range:`${S.max} − ${S.min} = ${S.range}`,iqr:`${S.uq} − ${S.lq} = ${S.uq-S.lq}`}[c1M]);
+  $('c1Tab').innerHTML=`<tr><th>Measure</th><th>Bus A</th><th>Bus B</th></tr><tr><td>${C1.find(c=>c[0]===c1M)[1]}</td><td class="X">${val(BS.A)}</td><td class="F">${val(BS.B)}</td></tr>`;
+  $('c1Msg').textContent={median:'Median: B is lower (3 vs 5 minutes), so on average Bus B was less late.',
+    mean:'Mean: almost the same (5.27 vs 5.09). B\'s few very late journeys pull its mean up to match A\'s, hiding that B is usually less late. The mean alone would say "no real difference".',
+    mode:'Mode: A has three modes (3, 5 and 6) and B has two (1 and 2). With so little data the mode tells you very little here.',
+    range:'Range: A is 7 minutes, B is 14. Bus A is more consistent: you know roughly when it will turn up.',
+    iqr:'IQR: A is 4, B is 9. The middle half of A\'s journeys is much more tightly packed: A is more consistent.'}[c1M]; }
+$('c1Btns').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b){ c1M=b.dataset.k; c1Draw(); } }); c1Draw();
+
+/* 2. outlier */
+const OL0=[5,6,6,7,8,8,9,10,12]; let olX=12, olDrag=false; const olSvg=$('olSvg');
+const OLs=v=>20+v/60*360;
+function olDraw(){ const d=OL0.slice(0,8).concat([olX]), S=stats(d), S0=stats(OL0); let s='';
+  s+=`<line x1="20" y1="70" x2="380" y2="70" stroke="${css('--muted')}"/>`;
+  for(let v=0;v<=60;v+=5){ s+=`<line x1="${OLs(v)}" y1="70" x2="${OLs(v)}" y2="74" stroke="${css('--muted')}"/>`; if(v%10===0) s+=`<text x="${OLs(v)}" y="86" text-anchor="middle" font-size="10" fill="${css('--muted')}" ${F()}>£${v}</text>`; }
+  const st={}; d.forEach((v,i)=>{ st[v]=(st[v]||0)+1; s+=`<circle cx="${OLs(v)}" cy="${64-(st[v]-1)*8}" r="${i===8?6:3.2}" fill="${css('--accent')}" ${i===8?`stroke="${css('--fg')}" stroke-width="2"`:''}/>`; });
+  s+=`<path d="M${OLs(S.mean)},92 l-5,9 h10 z" fill="${css('--two')}"/><text x="${OLs(S.mean)+8}" y="102" font-size="9.5" fill="${css('--two')}" ${F()}>mean</text>`;
+  s+=`<text x="${OLs(olX)}" y="22" text-anchor="middle" font-size="10" fill="${css('--muted')}" ${F()}>drag me</text>`;
+  olSvg.innerHTML=s;
+  const row=(t,a,b,hig)=>`<tr><td>${t}${hig?' <span class="tag g">Higher</span>':''}</td><td class="P">${a}</td><td class="P">${b}</td><td class="${Math.abs(parseFloat(a.replace('£',''))-parseFloat(b.replace('£','')))>1e-9?'F':'dim'}">${Math.abs(parseFloat(a.replace('£',''))-parseFloat(b.replace('£','')))>1e-9?'changed':'same'}</td></tr>`;
+  $('olTab').innerHTML=`<tr><th>Measure</th><th>Start (£12)</th><th>Now (£${olX})</th><th></th></tr>`+
+    row('Mean','£'+fmt(S0.mean),'£'+fmt(S.mean))+row('Median','£'+fmt(S0.md),'£'+fmt(S.md))+row('Mode','£'+S0.modes.join(', £'),'£'+S.modes.join(', £'))+row('Range','£'+fmt(S0.range),'£'+fmt(S.range))+row('IQR','£'+fmt(S0.uq-S0.lq),'£'+fmt(S.uq-S.lq),true);
+  $('olMsg').textContent=olX>=25?`£${olX} is an outlier. The mean and range have shot up, but the median and IQR haven't moved: they describe the typical friend much better now.`:olX<10?'Now the dragged value is no longer the largest, so the median and quartiles can shift a little: but never by much.':'Drag the £12 dot to the right to make it an outlier.'; }
+olSvg.addEventListener('pointerdown',e=>{ const [px]=svgPt(olSvg,e,400,110); if(Math.abs(px-OLs(olX))>18) return; olDrag=true; olSvg.setPointerCapture(e.pointerId); });
+olSvg.addEventListener('pointermove',e=>{ if(!olDrag) return; const [px]=svgPt(olSvg,e,400,110); olX=Math.max(0,Math.min(60,Math.round((px-20)/360*60))); olDraw(); });
+olSvg.addEventListener('pointerup',()=>{ olDrag=false; }); olSvg.addEventListener('pointercancel',()=>{ olDrag=false; }); olDraw();
+
+/* 3. skew */
+function skDraw(){ const sv=+$('skS').value/10; $('skSv').textContent=' '+(sv>0?'positive ':sv<0?'negative ':'none ')+fmt(Math.abs(sv),1);
+  const a=sv<0?2+8*(-sv):2, b=sv>0?2+8*sv:2, pdf=x=>Math.pow(x,a-1)*Math.pow(1-x,b-1);
+  const N=800; let tot=0; const cdf=[0]; for(let i=1;i<=N;i++){ const x0=(i-1)/N,x1=i/N; tot+=(pdf(x0)+pdf(x1))/2/N; cdf.push(tot); }
+  const mean=a/(a+b), mode=(a-1)/(a+b-2); let mdI=cdf.findIndex(c=>c>=tot/2); const mdn=mdI/N;
+  const L=20,Rr=384,T=14,B=170, X=v=>L+v*(Rr-L); let ymax=0; for(let i=0;i<=200;i++) ymax=Math.max(ymax,pdf(i/200)/tot);
+  const Y=v=>B-v/ymax*(B-T-20); let s='', d='';
+  for(let k=0;k<20;k++){ const lo=k/20, hi=(k+1)/20, h=(cdf[Math.round(hi*N)]-cdf[Math.round(lo*N)])/tot*20; s+=`<rect x="${X(lo)}" y="${Y(h)}" width="${X(hi)-X(lo)}" height="${B-Y(h)}" fill="${css('--accent-soft')}" stroke="${css('--accent')}" stroke-opacity=".5"/>`; }
+  for(let i=0;i<=200;i++){ const x=i/200; d+=(i?'L':'M')+X(x).toFixed(1)+','+Y(pdf(x)/tot).toFixed(1); }
+  s+=`<path d="${d}" fill="none" stroke="${css('--accent')}" stroke-width="2"/>`;
+  s+=`<line x1="${L}" y1="${B}" x2="${Rr}" y2="${B}" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  for(let v=0;v<=100;v+=20) s+=`<text x="${X(v/100)}" y="${B+14}" text-anchor="middle" font-size="10" fill="${css('--muted')}" ${F()}>${v}</text>`;
+  const mk=(v,lab,col,dash,yy)=>`<line x1="${X(v)}" y1="${T+12}" x2="${X(v)}" y2="${B}" stroke="${col}" stroke-width="2" ${dash?'stroke-dasharray="5 4"':''}/><text x="${X(v)}" y="${B+30+yy}" text-anchor="middle" font-size="10" fill="${col}" ${F()}>${lab}</text>`;
+  s+=mk(mode,'mode',css('--muted'),true,0)+mk(mdn,'median',css('--two'),true,15)+mk(mean,'mean',css('--two'),false,30);
+  $('skSvg').innerHTML=s;
+  $('skMo').textContent=fmt(mode*100,1); $('skMe').textContent=fmt(mdn*100,1); $('skMn').textContent=fmt(mean*100,1);
+  $('skMsg').textContent=sv>0?'Positive skew: tail to the right. Mean > median > mode: the tail drags the mean up.':sv<0?'Negative skew: tail to the left. Mean < median < mode: the tail drags the mean down.':'Symmetrical: mean, median and mode are all equal, in the middle.'; }
+$('skS').addEventListener('input',skDraw); skDraw();
+
+/* 4. box plots statements */
+const BP={P:{min:22,lq:41,md:52,uq:60,max:78},Q:{min:30,lq:45,md:49,uq:54,max:70}};
+const BPQ=[
+  ['Class P had the higher median mark.','t','True: P\'s median is 52, Q\'s is 49.'],
+  ['Class Q\'s marks were more consistent.','t','True: Q\'s IQR is 54 − 45 = 9, P\'s is 60 − 41 = 19. A smaller IQR means more consistent.'],
+  ['The mean mark of class P was 52.','c','Can\'t tell: 52 is the median. A box plot doesn\'t show the mean.'],
+  ['Half of class Q scored between 45 and 54.','t','True: the box runs from the LQ to the UQ, which holds the middle 50%.'],
+  ['More pupils in class P than in class Q scored over 60.','c','Can\'t tell: a quarter of P scored over 60, and fewer than a quarter of Q, but without the class sizes you can\'t compare numbers of pupils.'],
+  ['The range of class Q\'s marks was 40.','t','True: 70 − 30 = 40.'],
+  ['The lowest mark was in class Q.','f','False: the lowest mark, 22, was in class P.'],
+  ['The longer whisker on P\'s plot means more pupils scored low marks in P.','f','False: each whisker holds about a quarter of the class. A long whisker means those marks are spread out, not that there are more of them.']
+];
+let bpI=0,bpR=0,bpT=0,bpDone=false;
+function bpDraw(){ const L=24,Rr=384, X=v=>L+v/100*(Rr-L); let s='';
+  s+=`<line x1="${L}" y1="150" x2="${Rr}" y2="150" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  for(let v=0;v<=100;v+=5){ s+=`<line x1="${X(v)}" y1="150" x2="${X(v)}" y2="${v%10?153:156}" stroke="${css('--muted')}"/>`; if(v%10===0) s+=`<text x="${X(v)}" y="168" text-anchor="middle" font-size="10" fill="${css('--muted')}" ${F()}>${v}</text>`; }
+  s+=`<text x="${(L+Rr)/2}" y="184" text-anchor="middle" font-size="10" fill="${css('--muted')}" ${F()}>test mark</text>`;
+  [['P',45,css('--accent')],['Q',110,css('--hi')]].forEach(([g,y,c])=>{ const q=BP[g], h=34;
+    s+=`<text x="${L}" y="${y-24}" font-size="11" font-weight="600" fill="${c}" ${F()}>Class ${g}</text>`;
+    s+=`<line x1="${X(q.min)}" y1="${y}" x2="${X(q.lq)}" y2="${y}" stroke="${c}" stroke-width="2"/><line x1="${X(q.uq)}" y1="${y}" x2="${X(q.max)}" y2="${y}" stroke="${c}" stroke-width="2"/>`+
+      `<line x1="${X(q.min)}" y1="${y-10}" x2="${X(q.min)}" y2="${y+10}" stroke="${c}" stroke-width="2"/><line x1="${X(q.max)}" y1="${y-10}" x2="${X(q.max)}" y2="${y+10}" stroke="${c}" stroke-width="2"/>`+
+      `<rect x="${X(q.lq)}" y="${y-h/2}" width="${X(q.uq)-X(q.lq)}" height="${h}" fill="${c}" fill-opacity=".15" stroke="${c}" stroke-width="2"/><line x1="${X(q.md)}" y1="${y-h/2}" x2="${X(q.md)}" y2="${y+h/2}" stroke="${css('--two')}" stroke-width="3.5"/>`; });
+  $('bpSvg').innerHTML=s; }
+function bpShow(){ $('bpQ').textContent=BPQ[bpI][0]; $('bpMsg').className='msg'; $('bpMsg').textContent=''; bpDone=false; $('bpNext').disabled=true; }
+function bpAns(k){ if(bpDone) return; const it=BPQ[bpI], ok=k===it[1]; bpT++; if(ok) bpR++; bpDone=true; $('bpNext').disabled=false;
+  $('bpMsg').className='msg '+(ok?'good':'bad'); $('bpMsg').textContent=(ok?'✓ ':'Not quite. ')+it[2]; $('bpScore').textContent=`${bpR} right out of ${bpT}`; }
+$('bpT').addEventListener('click',()=>bpAns('t')); $('bpF').addEventListener('click',()=>bpAns('f')); $('bpC').addEventListener('click',()=>bpAns('c'));
+$('bpNext').addEventListener('click',()=>{ bpI=(bpI+1)%BPQ.length; bpShow(); }); bpDraw(); bpShow();
+
+/* 5. frequency polygons */
+const FP={hw:{x:'homework time t (minutes)',u:'min',lo:0,w:10,g:['Year 9','Year 11'],f:[[6,14,15,9,4,2],[2,5,10,14,12,7]],more:'spent longer on homework'},
+  sf:{x:'height h (cm)',u:'cm',lo:100,w:20,g:['Fertiliser A','Fertiliser B'],f:[[3,9,16,14,6,2],[1,4,8,15,15,7]],more:'grew taller'}};
+function fpStats(T,j){ const f=T.f[j], n=sum(f), mids=f.map((_,i)=>T.lo+i*T.w+T.w/2), fm=sum(f.map((x,i)=>x*mids[i])), mi=f.indexOf(Math.max(...f));
+  return {n,mean:fm/n,fm,modal:`${T.lo+mi*T.w}–${T.lo+(mi+1)*T.w}`}; }
+function fpDraw(){ const T=FP[$('fpSet').value], k=T.f[0].length, L=40,Rr=388,Tp=12,B=222, top=Math.ceil(Math.max(...T.f.flat())/2)*2+2;
+  const X=v=>L+(v-T.lo)/(k*T.w)*(Rr-L), Y=c=>B-c/top*(B-Tp); let s='';
+  for(let c=0;c<=top;c+=2){ s+=`<line x1="${L}" y1="${Y(c)}" x2="${Rr}" y2="${Y(c)}" stroke="${css('--grid')}"/><text x="${L-5}" y="${Y(c)+3}" text-anchor="end" font-size="10" fill="${css('--muted')}" ${F()}>${c}</text>`; }
+  for(let i=0;i<=k;i++) s+=`<line x1="${X(T.lo+i*T.w)}" y1="${Tp}" x2="${X(T.lo+i*T.w)}" y2="${B}" stroke="${css('--grid')}"/><text x="${X(T.lo+i*T.w)}" y="${B+14}" text-anchor="middle" font-size="10" fill="${css('--muted')}" ${F()}>${T.lo+i*T.w}</text>`;
+  s+=`<line x1="${L}" y1="${B}" x2="${Rr}" y2="${B}" stroke="${css('--muted')}" stroke-width="1.5"/><line x1="${L}" y1="${Tp}" x2="${L}" y2="${B}" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  s+=`<text x="${(L+Rr)/2}" y="${B+29}" text-anchor="middle" font-size="10" fill="${css('--muted')}" ${F()}>${T.x}</text><text x="11" y="${(Tp+B)/2}" text-anchor="middle" font-size="10" fill="${css('--muted')}" transform="rotate(-90 11 ${(Tp+B)/2})" ${F()}>frequency</text>`;
+  [css('--accent'),css('--hi')].forEach((col,j)=>{ const f=T.f[j];
+    if($('fpBars').checked) f.forEach((c,i)=>{ s+=`<rect x="${X(T.lo+i*T.w)}" y="${Y(c)}" width="${X(T.w)-X(0)}" height="${B-Y(c)}" fill="${col}" fill-opacity=".18" stroke="${col}" stroke-width="1.5"/>`; });
+    else s+=`<polyline points="${f.map((c,i)=>X(T.lo+i*T.w+T.w/2)+','+Y(c)).join(' ')}" fill="none" stroke="${col}" stroke-width="2.5"/>`+f.map((c,i)=>`<circle cx="${X(T.lo+i*T.w+T.w/2)}" cy="${Y(c)}" r="4" fill="${col}"/>`).join('');
+    const S=fpStats(T,j); s+=`<line x1="${X(S.mean)}" y1="${Tp}" x2="${X(S.mean)}" y2="${B}" stroke="${col}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+    s+=`<text x="${j?Rr:L}" y="${B+48}" text-anchor="${j?'end':'start'}" font-size="10.5" font-weight="600" fill="${col}" ${F()}>${T.g[j]} (dashed: est. mean)</text>`; });
+  $('fpSvg').innerHTML=s;
+  const S0=fpStats(T,0), S1=fpStats(T,1);
+  $('fpTab').innerHTML=`<tr><th></th><th>${T.g[0]}</th><th>${T.g[1]}</th></tr><tr><td>Total</td><td class="X">${S0.n}</td><td class="F">${S1.n}</td></tr><tr><td>Est. mean</td><td class="X">${fmt(S0.fm)} ÷ ${S0.n} = ${fmt(S0.mean)}</td><td class="F">${fmt(S1.fm)} ÷ ${S1.n} = ${fmt(S1.mean)}</td></tr><tr><td>Modal class</td><td class="X">${S0.modal}</td><td class="F">${S1.modal}</td></tr>`;
+  const hiJ=S1.mean>S0.mean?1:0;
+  $('fpWork').innerHTML=`<span class="${hiJ?'b':'a'}">${T.g[hiJ]}</span>'s estimated mean is higher (${fmt(Math.max(S0.mean,S1.mean))} ${T.u} compared with ${fmt(Math.min(S0.mean,S1.mean))} ${T.u}), so on average ${T.g[hiJ]} ${T.more}. The polygons are a similar width, with ${T.g[hiJ]}'s shifted to the right, so the spreads look similar: the main difference is the average.`; }
+$('fpSet').addEventListener('input',()=>{ $('fpWork').hidden=true; fpDraw(); }); $('fpBars').addEventListener('input',fpDraw);
+$('fpModel').addEventListener('click',()=>{ $('fpWork').hidden=false; }); fpDraw();
+
+/* 6. back-to-back stem and leaf */
+const SLB=[73,58,67,81,62,70,76,64,85,68,71,65,74], SLG=[77,61,83,72,69,79,92,66,75,80,72,86,78];
+const SLQ=SLB.map(v=>['b',v]).concat(SLG.map(v=>['g',v]));
+let sl={k:0,ord:false,med:false};
+function slDraw(){ const placed=SLQ.slice(0,sl.k), stems=[5,6,7,8,9];
+  const leaves=(g,st)=>{ let a=placed.map((p,i)=>({g:p[0],v:p[1],i})).filter(p=>p.g===g&&Math.floor(p.v/10)===st); if(sl.ord) a=a.slice().sort((x,y)=>x.v-y.v); return a; };
+  const all=g=>placed.filter(p=>p[0]===g).map(p=>p[1]).sort((x,y)=>x-y), mB=all('b'), mG=all('g');
+  const mdB=sl.med&&mB.length===13?mB[6]:null, mdG=sl.med&&mG.length===13?mG[6]:null; let usedB=false, usedG=false;
+  const span=(p,isMed)=>`<span class="${isMed?'md':p.i===sl.k-1?'nw':''}">${p.v%10}</span>`;
+  $('slTab').innerHTML=`<tr><td class="la" style="font:600 .7rem var(--body);letter-spacing:.06em;color:var(--accent)">BOYS</td><td></td><td class="lb" style="font:600 .7rem var(--body);letter-spacing:.06em;color:var(--hi)">GIRLS</td></tr>`+stems.map(st=>{
+    const lb=leaves('b',st), lg=leaves('g',st);
+    const lbH=lb.map(p=>{ const m=!usedB&&mdB!==null&&p.v===mdB; if(m) usedB=true; return span(p,m); }).reverse().join(''), lgH=lg.map(p=>{ const m=!usedG&&mdG!==null&&p.v===mdG; if(m) usedG=true; return span(p,m); }).join('');
+    return `<tr><td class="la">${lbH}</td><td class="st">${st}</td><td class="lb">${lgH}</td></tr>`; }).join('');
+  const M=$('slMsg');
+  if(sl.k===0) M.textContent='Press Place next value. Boys first, in the order they were recorded.';
+  else if(sl.k<=SLQ.length&&!sl.ord&&!sl.med){ const p=SLQ[sl.k-1]; M.innerHTML=sl.k===SLQ.length?'All 26 values placed. The leaves are in the order they arrived: press Order the leaves.':`${p[0]==='b'?'Boy':'Girl'}: ${p[1]} → stem ${Math.floor(p[1]/10)}, leaf ${p[1]%10}, written on the ${p[0]==='b'?'left (boys)':'right (girls)'}${p[0]==='b'?', building outwards from the stem':''}.`; }
+  else if(sl.ord&&!sl.med) M.textContent='Ordered: on the right the leaves increase left to right; on the left they increase from the stem outwards (right to left). Press Show medians.';
+  else if(sl.med) M.innerHTML=`13 values each, so each median is the 7th value. Boys: <strong class="X">${mB[6]}</strong> bpm (count from 58 upwards); girls: <strong class="F">${mG[6]}</strong> bpm. Ranges: boys ${mB[12]} − ${mB[0]} = ${mB[12]-mB[0]}, girls ${mG[12]} − ${mG[0]} = ${mG[12]-mG[0]}.`;
+  $('slNext').disabled=sl.k>=SLQ.length; }
+$('slNext').addEventListener('click',()=>{ if(sl.k<SLQ.length){ sl.k++; slDraw(); } });
+$('slAll').addEventListener('click',()=>{ sl.k=SLQ.length; slDraw(); });
+$('slOrd').addEventListener('click',()=>{ sl.k=SLQ.length; sl.ord=true; slDraw(); });
+$('slMed').addEventListener('click',()=>{ sl.k=SLQ.length; sl.ord=true; sl.med=true; slDraw(); });
+$('slReset').addEventListener('click',()=>{ sl={k:0,ord:false,med:false}; $('slQM').textContent=''; slDraw(); }); slDraw();
+$('slGo').addEventListener('click',()=>{ const a=num($('slA')), b=num($('slB')), M=$('slQM'), msg=[]; let good=true;
+  if(isNaN(a)&&isNaN(b)){ M.className='msg'; M.textContent='Type at least one answer.'; return; }
+  if(!isNaN(a)){ if(a===77) msg.push('✓ Girls\' median 77 (the 7th of 13).'); else { good=false; msg.push(a===7?'7 is the position: the median is the 7th value, 77.':a===79||a===76||a===75?'Count the leaves carefully from the smallest (61): the 7th girl is 77.':'Girls\' median: count to the 7th of the 13 ordered values.'); } }
+  if(!isNaN(b)){ if(b===27) msg.push('✓ Boys\' range 85 − 58 = 27.'); else { good=false; msg.push(b===85-55||b===58-85?'Check your subtraction: largest 85 − smallest 58.':b===31?'31 is the girls\' range (92 − 61).':'Boys\' range: largest 85 − smallest 58. Remember the left leaves read outwards from the stem: 8 | 5 is 58, not 85.'); } }
+  M.className='msg '+(good?'good':'bad'); M.textContent=msg.join(' '); });
+
+/* 7. sentence builder */
+const WS=[
+  {name:'reaction times (boys and girls)',g:['the boys','the girls'],things:'reaction times',one:'reaction time',unit:'s',stats:{median:[0.42,0.38],IQR:[0.10,0.15]},dp:2,avgM:'median',sprM:'IQR',
+    hiAvg:'reacted more slowly',loAvg:'reacted faster'},
+  {name:'minutes late (Bus A and Bus B)',g:['Bus A','Bus B'],things:'arrival times',one:'number of minutes late',unit:'min',stats:{median:[5,3],range:[7,14]},avgM:'median',sprM:'range',
+    hiAvg:'was later',loAvg:'was less late'},
+  {name:'test marks (class P and class Q)',g:['class P','class Q'],things:'marks',one:'mark',unit:'marks',stats:{median:[52,49],IQR:[19,9]},avgM:'median',sprM:'IQR',
+    hiAvg:'did better on the test',loAvg:'did worse on the test'}];
+$('wsSet').innerHTML=WS.map((w,i)=>`<option value="${i}">${w.name}</option>`).join('');
+const fv=(W,v)=>W.dp?v.toFixed(W.dp):fmt(v);
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const sel=(id,opts)=>`<select id="${id}" aria-label="${id}">${opts.map((o,i)=>`<option value="${i}">${o}</option>`).join('')}</select>`;
+function wsBuild(){ const W=WS[+$('wsSet').value], st=W.stats, keys=Object.keys(st);
+  $('wsData').innerHTML=keys.map(k=>`${cap(k==='IQR'?'IQR':k)}: <span class="a">${cap(W.g[0])} ${fv(W,st[k][0])} ${W.unit}</span>, <span class="b">${cap(W.g[1])} ${fv(W,st[k][1])} ${W.unit}</span>`).join('<br>');
+  $('wsA').innerHTML=sel('wa1',[cap(W.g[0]),cap(W.g[1]),'They'])+' had a '+sel('wa2',['higher','lower'])+sel('wa3',['median','mean','(no measure)'])+sel('wa4',['and quoted the numbers','with no numbers'])+sel('wa5',[`so on average … ${W.hiAvg}`,`so on average … ${W.loAvg}`,'so they were better','(stop there)']);
+  $('wsB').innerHTML=sel('wb1',[cap(W.g[0]),cap(W.g[1]),'They'])+' had a '+sel('wb2',['greater','smaller'])+sel('wb3',['IQR','range','(no measure)'])+sel('wb4',['and quoted the numbers','with no numbers'])+sel('wb5',[`so their ${W.things} were more consistent`,`so their ${W.things} were more spread out`,'so they were better','(stop there)']);
+  $('wsA').querySelectorAll('select').forEach(s=>s.addEventListener('input',wsCheck)); $('wsB').querySelectorAll('select').forEach(s=>s.addEventListener('input',wsCheck));
+  $('wa5').value='3'; $('wb5').value='3'; $('wa3').value='2'; $('wb3').value='2'; wsCheck(); }
+function wsOne(W,p,kind){ const st=W.stats, g=+$(p+'1').value, up=$(p+'2').value==='0', m=+$(p+'3').value, nums=$(p+'4').value==='0', e=+$(p+'5').value;
+  const measures=kind==='a'?['median','mean',null]:['IQR','range',null], meas=measures[m], li=[]; let full=true;
+  const who=g<2?W.g[g]:'they', other=g<2?W.g[1-g]:'';
+  let sent=`${cap(who)} had a ${up?(kind==='a'?'higher':'greater'):(kind==='a'?'lower':'smaller')} `+(kind==='a'?`${meas?meas+' ':''}${W.one}`:(meas||'spread'));
+  if(nums&&g<2&&meas&&st[meas]) sent+=` (${fv(W,st[meas][g])} ${W.unit} compared with ${fv(W,st[meas][1-g])} ${W.unit})`;
+  const ends=kind==='a'?[`so on average ${who} ${W.hiAvg}`,`so on average ${who} ${W.loAvg}`,'so they were better','']:[`so their ${W.things} were more consistent`,`so their ${W.things} were more spread out`,'so they were better',''];
+  if(ends[e]) sent+=`, ${ends[e]}`; sent+='.';
+  /* checks */
+  if(g===2){ full=false; li.push(['n','Which group? "They" doesn\'t say. Name the group: context.']); } else li.push(['y',`Names the group (${who}).`]);
+  if(!meas){ full=false; li.push(['n',`No measure named. Say which ${kind==='a'?'average':'measure of spread'} you are comparing.`]); }
+  else if(!st[meas]){ full=false; li.push(['n',`You don't know the ${meas} here: only the ${Object.keys(st).join(' and ')} ${Object.keys(st).length>1?'are':'is'} given.`]); }
+  else li.push(['y',`Names the measure (${meas}).`]);
+  if(meas&&st[meas]&&g<2){ const truth=st[meas][g]>st[meas][1-g]; if(truth===up) li.push(['y',`Right direction: ${fv(W,st[meas][g])} is ${up?'more':'less'} than ${fv(W,st[meas][1-g])}.`]); else { full=false; li.push(['n',`Wrong direction: ${who}'s ${meas} is ${fv(W,st[meas][g])}, which is ${truth?'more':'less'} than ${fv(W,st[meas][1-g])}.`]); } }
+  if(meas&&st[meas]&&g<2) li.push(nums?['y','Quotes both values (examiners like this).']:['t','Tip: quote both values to show where the comparison comes from.']);
+  if(e===3){ full=false; li.push(['n',`No interpretation. Say what ${kind==='a'?'the higher or lower average':'the bigger or smaller spread'} means for the ${W.things}.`]); }
+  else if(e===2){ full=false; li.push(['n','"Better" at what? Interpret in context: say what it means for the '+W.things+'.']); }
+  else if(meas&&st[meas]&&g<2){ const truth=st[meas][g]>st[meas][1-g];
+    const right=kind==='a'?(truth?0:1):(truth?1:0);
+    if(e===right) li.push(['y','Interprets the comparison in context.']); else { full=false; li.push(['n',kind==='a'?`The interpretation doesn't match: ${who} had the ${truth?'higher':'lower'} ${meas}, so on average ${who} ${truth?W.hiAvg:W.loAvg}.`:`The interpretation doesn't match: a ${truth?'greater':'smaller'} spread means ${truth?'less':'more'} consistent ${W.things}.`]); } }
+  else li.push(['t','Interpretation given, but fix the problems above first.']);
+  return {sent,li,full}; }
+function wsCheck(){ const W=WS[+$('wsSet').value], A=wsOne(W,'wa','a'), B=wsOne(W,'wb','b');
+  $('wsAS').textContent=A.sent; $('wsBS').textContent=B.sent;
+  const lis=r=>r.li.map(([c,t])=>`<li class="${c}">${c==='y'?'✓':c==='n'?'✗':'•'} ${t}</li>`).join('');
+  $('wsAC').innerHTML=lis(A); $('wsBC').innerHTML=lis(B);
+  const M=$('wsMsg'); M.className='msg '+(A.full&&B.full?'good':''); M.textContent=A.full&&B.full?'Both sentences would earn full marks: an average and a spread, each compared and interpreted in context.':`${A.full?'Average sentence complete. ':''}${B.full?'Spread sentence complete. ':''}Fix the ✗ items.`; }
+$('wsSet').addEventListener('input',wsBuild); wsBuild();
+
+const redraw=()=>{ c1Draw(); olDraw(); skDraw(); bpDraw(); fpDraw(); };
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw); }
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'To compare two distributions fully you should compare…',opts:['one average and one measure of spread, in context','two averages','the mean and the mode','the largest values'],a:0,fb:'An average says what\'s typical, a spread says how consistent. Both, with numbers and a meaning in context.'},
+  {q:'Which pair of measures is least affected by an outlier?',opts:['median and IQR','mean and range','mean and IQR','mode and range'],a:0,fb:'The median and IQR depend only on the middle of the data, so one extreme value barely moves them.'},
+  {q:'Team A\'s scores have range 4; team B\'s have range 15. Which statement is correct?',opts:['Team A\'s scores are more consistent','Team B is better','Team A scored more','Team B\'s scores are more consistent'],a:0,fb:'A smaller range means less spread, so more consistent. It says nothing about who scored more.'},
+  {q:'Data: 4, 5, 5, 6, 7, 40. Which average best represents it?',opts:['the median, 5.5','the mean, 11.17','the range, 36','the largest value, 40'],a:0,fb:'40 is an outlier that drags the mean up to 67 ÷ 6 ≈ 11.17. The median, (5 + 6) ÷ 2 = 5.5, is typical. (The range is not an average.)'},
+  {q:'A distribution has a long tail to the right. Which is usually true?',opts:['mean > median','mean < median','mean = median','there is no median'],a:0,fb:'Positive skew: the large values in the tail pull the mean above the median.'},
+  {q:'(Higher) Box plot A has LQ 20, median 30, UQ 45. Box plot B has LQ 25, median 28, UQ 32. Whose data is more consistent?',opts:['B (IQR 7)','A (IQR 25)','A, because its median is higher','You can\'t tell'],a:0,fb:'IQR A = 45 − 20 = 25; IQR B = 32 − 25 = 7. Smaller IQR means more consistent.'},
+  {q:'(Higher) What can you NOT read from a box plot?',opts:['the mean','the median','the IQR','the range'],a:0,fb:'A box plot shows min, LQ, median, UQ and max. The mean isn\'t shown.'},
+  {q:'In a back-to-back stem-and-leaf diagram, the left side shows "4 3 | 5 |" with key 3 | 5 = 53. What values are on the left of stem 5?',opts:['53 and 54','43 and 35','45 and 35','34 and 35'],a:0,fb:'Leaves on the left are read from the stem outwards: 3 then 4, giving 53 and 54.'},
+  {q:'Which sentence would get full marks?',opts:['On average girls were faster: their median time was lower (12 s compared with 15 s).','The girls\' median is 12 and the boys\' is 15.','The girls were better.','The median is lower.'],a:0,fb:'It names the group and the measure, quotes both values, and interprets them in context (faster).'},
+  {q:'Two frequency polygons are drawn on the same axes. Polygon B is the same shape as A but shifted to the right. Which is true?',opts:['B has a higher average, similar spread','B is more spread out','A has a higher average','B has more data'],a:0,fb:'Shifting right moves every value up, so the average increases; the same shape means a similar spread.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

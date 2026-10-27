@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Pythagoras' Theorem</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column of numbered sections, each with an interactive "lab" panel (SVG triangles, squares and grids drawn from JS); graph-paper neutrals.
+   Colours on this page: teal = shorter side a and its square a²; plum = shorter side b and its square b²; orange = the hypotenuse c, its square c² and the unknown answer;
+   grey = the four copied triangles in the rearrangement proof; green / red = "yes, right-angled / correct" and "no / mistake" messages. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+main a{color:var(--accent)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.A{color:var(--accent);font-weight:600}.B{color:var(--two);font-weight:600}.H{color:var(--hi);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none;cursor:grab}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn:disabled{opacity:.45;cursor:default}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--two)}.work .c{color:var(--hi)}
+.work .why{font-family:var(--body);font-size:.85rem;color:var(--muted)}
+.work .bad{color:var(--bad)}.work .good{color:var(--good)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+.chips button{font:inherit;font-family:var(--mono);font-size:.88rem;padding:.2rem .65rem;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.chips button:hover{border-color:var(--accent)}
+.formula{font-family:var(--mono);font-size:1.7rem;text-align:center;margin:1.2rem 0;letter-spacing:.02em}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Geometry and measures · KS3</div>
+  <h1>Pythagoras' Theorem</h1>
+  <p class="lede">Draw a square on each side of a right-angled triangle. The two smaller squares, added together, have exactly the same area as the biggest one. That one fact, written <span class="m">a² + b² = c²</span>, lets you work out a missing length without measuring it: ladders, TV screens, shortcuts across a field and distances on a map.</p>
+  <span class="gcse">National curriculum KS3: use Pythagoras' theorem to solve problems involving right-angled triangles</span>
+</header>
+
+<h2>1 · Right-angled triangles and the hypotenuse</h2>
+<p>A <strong>right angle</strong> is a quarter turn, exactly 90°. It's the corner of a book, a door frame or a sheet of paper. On diagrams we mark it with a small square in the corner instead of an arc.</p>
+<p>A <strong>right-angled triangle</strong> is a triangle with one right angle. Its three sides have names:</p>
+<ul>
+  <li>The two sides that make the right angle (they touch the little square) are the <strong>shorter sides</strong>, sometimes called the <em>legs</em>. We'll call them <span class="A">a</span> and <span class="B">b</span>. It doesn't matter which is which.</li>
+  <li>The side <strong>opposite</strong> the right angle, the one that doesn't touch the little square, is the <strong>hypotenuse</strong>. We always call it <span class="H">c</span>. It is <em>always</em> the longest side of the triangle.</li>
+</ul>
+<p>Triangles are not always drawn sitting flat on their bottom edge, so the hypotenuse can point in any direction. The trick is the same every time: <strong>find the little square, then look straight across from it</strong>. Try it. Tap the side you think is the hypotenuse (or use the buttons).</p>
+
+<div class="lab">
+  <svg id="spSvg" viewBox="0 0 320 240" width="320" height="240" aria-label="A right-angled triangle with sides labelled x, y and z"></svg>
+  <div class="controls">
+    <span style="font-size:.92rem;color:var(--muted)">The hypotenuse is side:</span>
+    <button class="btn" id="spX">x</button><button class="btn" id="spY">y</button><button class="btn" id="spZ">z</button>
+    <button class="btn primary" id="spNew">New triangle</button>
+  </div>
+  <div class="msg" id="spMsg"></div>
+  <div class="readout"><div><b>Score (first tries)</b><span id="spScore">0 out of 0</span></div></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistake: labelling the wrong side as c.</strong> The hypotenuse is not "the side at the bottom" or "the slanted one". It is the side opposite the right angle. Label c first, before doing anything else, and the rest of the question follows.</p>
+</div>
+
+<h2>2 · Squares on the sides</h2>
+<p>Here's the big discovery, shown with numbers before any formula. Take a right-angled triangle whose shorter sides are 3 and 4 squares long, and whose hypotenuse is 5. Now build a square on each side, so each side becomes the edge of a square:</p>
+<ul>
+  <li>the square on the side of length 3 has area 3 × 3 = <span class="A">9</span> little squares;</li>
+  <li>the square on the side of length 4 has area 4 × 4 = <span class="B">16</span>;</li>
+  <li>the square on the hypotenuse has area 5 × 5 = <span class="H">25</span>.</li>
+</ul>
+<p>And <span class="A">9</span> + <span class="B">16</span> = <span class="H">25</span>. The two small squares exactly make the big one. (If squaring or square roots feel rusty, have a look at the <a href="powers-and-roots.html">powers and roots</a> page first: this whole topic uses them.)</p>
+<p>Is that a coincidence? Drag the three corners (they snap to the grid) and watch the areas. Keep the angle at 90° and the two small areas always add to the big one, even when the triangle is tilted. Pull the angle away from 90° and the sum breaks.</p>
+
+<div class="lab">
+  <svg id="dgSvg" class="drag" viewBox="0 0 375 375" width="375" height="375" aria-label="Triangle with a square drawn on each side; drag the corners"></svg>
+  <div class="controls">
+    <button class="btn" id="dg345">3, 4, 5 triangle</button>
+    <button class="btn" id="dgTilt">Tilted right angle</button>
+    <button class="btn" id="dgObt">Not a right angle</button>
+  </div>
+  <div class="readout">
+    <div><b>Side lengths</b><span id="dgSides"></span></div>
+    <div class="f"><b>a² + b² (small squares)</b><span id="dgSum"></span></div>
+    <div class="t"><b>c² (big square)</b><span id="dgC"></span></div>
+    <div><b>Angle opposite c</b><span id="dgAng"></span></div>
+  </div>
+  <div class="msg" id="dgMsg"></div>
+</div>
+
+<p>So, for every right-angled triangle, and only for right-angled triangles:</p>
+<div class="formula"><span class="A">a²</span> + <span class="B">b²</span> = <span class="H">c²</span></div>
+<p>In words: <strong>the square on the hypotenuse equals the sum of the squares on the other two sides.</strong> This is <strong>Pythagoras' theorem</strong>. A <em>theorem</em> is a fact that has been proved to be true every time, not just checked on a few examples. It's named after Pythagoras, a Greek thinker from about 2500 years ago, although Babylonian and Chinese mathematicians knew the pattern even earlier.</p>
+
+<h2>3 · Why it's always true: a proof you can watch</h2>
+<p>Checking examples is convincing, but a <strong>proof</strong> shows it must work for every right-angled triangle. Here's one of the oldest and neatest. Take four identical copies of a right-angled triangle with shorter sides <span class="A">a</span>, <span class="B">b</span> and hypotenuse <span class="H">c</span>, and a big square frame with sides of length a + b. Step through it.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><span class="A">a</span> = <input type="range" id="pfA" min="1" max="6" step="1" value="3"><span id="pfAv" style="font-family:var(--mono)"></span></label>
+    <label><span class="B">b</span> = <input type="range" id="pfB" min="1" max="6" step="1" value="4"><span id="pfBv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="pfSvg" viewBox="0 0 320 320" width="320" height="320" aria-label="Rearrangement proof of Pythagoras' theorem"></svg>
+  <div class="controls">
+    <button class="btn" id="pfBack">◀ Back</button>
+    <button class="btn primary" id="pfNext">Next ▶</button>
+    <span id="pfStep" style="font-family:var(--mono);font-size:.9rem;color:var(--muted)"></span>
+  </div>
+  <div class="work" id="pfCap"></div>
+</div>
+
+<p>The trick is that nothing was added or taken away. The same frame holds the same four triangles both times, so the empty space must be the same size both times. In the first picture the empty space is one tilted square, <span class="H">c²</span>. In the second it is two squares, <span class="A">a²</span> + <span class="B">b²</span>. They must be equal. Change the sliders: it works whatever a and b are.</p>
+
+<h2>4 · Finding the hypotenuse</h2>
+<p>Now use it. If you know the two shorter sides, you can find the hypotenuse in four moves: <strong>square</strong> both, <strong>add</strong>, then <strong>square root</strong> (because the sum is c², and you want c).</p>
+<p>Example with numbers: shorter sides 6 cm and 8 cm. 6² = 36 and 8² = 64. 36 + 64 = 100, so c² = 100. The square root of 100 is 10, so <strong>c = 10 cm</strong>. Use the sliders and watch every line of the working.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><span class="A">a</span> = <input type="range" id="hyA" min="1" max="12" step="0.5" value="6"><span id="hyAv" style="font-family:var(--mono)"></span></label>
+    <label><span class="B">b</span> = <input type="range" id="hyB" min="1" max="12" step="0.5" value="8"><span id="hyBv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="twin">
+    <svg id="hySvg" viewBox="0 0 320 230" width="320" height="230" aria-label="Right-angled triangle with the hypotenuse to be found"></svg>
+    <div class="work" id="hyWork" style="margin-top:0"></div>
+  </div>
+</div>
+
+<h3>Rounding sensibly</h3>
+<p>Most answers are not whole numbers. With shorter sides 5 and 7, c² = 25 + 49 = 74, and √74 = 8.602325… on a calculator. The digits go on forever, so you <strong>round</strong>:</p>
+<ul>
+  <li>Keep the full calculator value until the very last line. Round only the final answer. Rounding halfway through makes the answer drift.</li>
+  <li>If the question says how to round, do that. "To 1 d.p." (one decimal place) means one digit after the point: 8.602… → <strong>8.6</strong>.</li>
+  <li>If it doesn't say, 1 d.p. is usually sensible for lengths in cm or m. Don't give 8 decimal places for a ladder: nobody can measure that accurately.</li>
+  <li><em>Optional, for an exact answer:</em> you can leave it as <span class="m">√74</span>. A square root left like this is called a <strong>surd</strong>. Some questions ask for an "exact answer"; that means leave the √ in.</li>
+</ul>
+
+<div class="callout">
+  <p><strong>Common mistake: forgetting the square root.</strong> After adding, you have c², not c. With 6 and 8 you get 100, but the side is 10. Sense check: the hypotenuse is the longest side, but it is always <em>shorter</em> than the other two put together (here 6 + 8 = 14). An answer of 100 can't be right.</p>
+  <p><strong>Another one: adding before squaring.</strong> (6 + 8)² = 196, which is not 6² + 8² = 100. Square each side on its own first.</p>
+</div>
+
+<h2>5 · Finding a shorter side: subtract!</h2>
+<p>Sometimes you know the hypotenuse and one shorter side, and need the other shorter side. The formula is the same, but you have to undo it. Start with numbers: the hypotenuse is 13 and one side is 5.</p>
+<ul>
+  <li>The big square is 13² = 169. One small square is 5² = 25.</li>
+  <li>The two small squares add up to the big one, so the missing small square is what's left: 169 − 25 = 144.</li>
+  <li>The missing side is √144 = <strong>12</strong>.</li>
+</ul>
+<p>In symbols: from a² + b² = c², take b² from both sides to get <span class="m">a² = c² − b²</span>. So the rule of thumb is:</p>
+<div class="tbl"><table>
+  <tr><th>Missing side is…</th><th>Do this</th><th>Why</th></tr>
+  <tr><td>the hypotenuse c</td><td class="mono">square, <strong>add</strong>, √</td><td>The big square is the two small ones together.</td></tr>
+  <tr><td>a shorter side</td><td class="mono">square, <strong>subtract</strong>, √</td><td>The small square is the big one take away the other small one. Always biggest minus smaller.</td></tr>
+</table></div>
+<p>This solver does either kind. First decide whether the missing side is the hypotenuse, then enter what you know.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>The missing side is <select id="svMode">
+      <option value="leg">a shorter side</option>
+      <option value="hyp">the hypotenuse</option>
+    </select></label>
+  </div>
+  <div class="controls">
+    <label id="svXl">hypotenuse c = <input type="number" id="svX" value="13" min="0" step="any"></label>
+    <label id="svYl">known side b = <input type="number" id="svY" value="5" min="0" step="any"></label>
+    <label>units <select id="svUnit"><option value="cm">cm</option><option value="m">m</option><option value="mm">mm</option><option value="km">km</option><option value="">none</option></select></label>
+    <label>round to <select id="svRound"><option value="1">1 d.p.</option><option value="2">2 d.p.</option><option value="0">whole number</option></select></label>
+  </div>
+  <div class="twin">
+    <svg id="svSvg" viewBox="0 0 320 230" width="320" height="230" aria-label="Triangle for the solver"></svg>
+    <div class="work" id="svWork" style="margin-top:0"></div>
+  </div>
+  <div class="msg" id="svMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistake: adding when you should subtract.</strong> With hypotenuse 13 and side 5, adding gives √(169 + 25) = √194 ≈ 13.9. That would make a shorter side longer than the hypotenuse, which is impossible. If your "shorter side" comes out longer than the hypotenuse, you added instead of subtracting.</p>
+</div>
+
+<h2>6 · Pythagorean triples and checking for a right angle</h2>
+<p>A few right-angled triangles have three whole-number sides. Such a set of three whole numbers is a <strong>Pythagorean triple</strong>. The famous one is <span class="m">3, 4, 5</span>: 9 + 16 = 25. Others worth knowing: <span class="m">5, 12, 13</span> (25 + 144 = 169), <span class="m">8, 15, 17</span> (64 + 225 = 289) and <span class="m">7, 24, 25</span> (49 + 576 = 625).</p>
+<p>Multiply every number in a triple by the same amount and you get another triple, because you've just made a bigger copy of the same shape: 3, 4, 5 × 2 gives <span class="m">6, 8, 10</span>; × 3 gives <span class="m">9, 12, 15</span>. Spotting a triple can save you the whole calculation.</p>
+<p>Pythagoras' theorem also works <strong>backwards</strong> (this is called the <strong>converse</strong>): if the three sides of a triangle fit a² + b² = c², then the triangle <em>must</em> have a right angle, opposite the longest side. So you can test whether a triangle is right-angled using only its lengths:</p>
+<ol>
+  <li>Pick out the longest side. That's the only side that could be c.</li>
+  <li>Square the two shorter sides and add them.</li>
+  <li>Square the longest side. Same answer? Right-angled. Different? Not right-angled.</li>
+</ol>
+<p>Builders use this with a tape measure to check corners are square: mark 3 m along one wall and 4 m along the other, and the diagonal should be exactly 5 m. Type any three lengths, in any order, or tap a set to try.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Side 1 <input type="number" id="ckA" value="5" min="0" step="any"></label>
+    <label>Side 2 <input type="number" id="ckB" value="12" min="0" step="any"></label>
+    <label>Side 3 <input type="number" id="ckC" value="13" min="0" step="any"></label>
+  </div>
+  <div class="chips" id="ckChips"></div>
+  <div class="twin" style="margin-top:.6rem">
+    <svg id="ckSvg" viewBox="0 0 320 230" width="320" height="230" aria-label="The triangle drawn to scale"></svg>
+    <div class="work" id="ckWork" style="margin-top:0"></div>
+  </div>
+  <div class="msg" id="ckMsg"></div>
+</div>
+
+<p>Notice what happens when it fails. If a² + b² is <em>bigger</em> than c², the angle opposite c is less than 90° (<strong>acute</strong>): the corner is pinched closed. If a² + b² is <em>smaller</em> than c², that angle is more than 90° (<strong>obtuse</strong>): the corner has been pushed open. You saw both in section 2.</p>
+
+<h2>7 · Real-world problems</h2>
+<p>In real problems nobody hands you a labelled triangle. You have to spot it. Look for a right angle hiding in the situation (a wall meets the ground, the corner of a rectangle, "north" and "east"), sketch the triangle, label the hypotenuse c, then decide: add or subtract?</p>
+
+<h3>The ladder against a wall</h3>
+<p>Walls stand at right angles to the ground. A ladder leaning on a wall makes a right-angled triangle: the wall and the ground are the shorter sides, and the ladder itself is the hypotenuse (it's opposite the corner where the wall meets the ground). To find how high it reaches, you know the hypotenuse, so <strong>subtract</strong>.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>ladder length <input type="range" id="ldL" min="5" max="10" step="0.5" value="5"><span id="ldLv" style="font-family:var(--mono)"></span></label>
+    <label>foot from wall <input type="range" id="ldD" min="0.5" max="4.5" step="0.1" value="1.5"><span id="ldDv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="twin">
+    <svg id="ldSvg" viewBox="0 0 320 300" width="320" height="300" aria-label="Ladder leaning against a wall"></svg>
+    <div class="work" id="ldWork" style="margin-top:0"></div>
+  </div>
+  <div class="msg" id="ldMsg"></div>
+</div>
+
+<h3>Diagonals of rectangles and TV screens</h3>
+<p>Every corner of a rectangle is a right angle, so a diagonal cuts it into two right-angled triangles. The width and height are the shorter sides and the diagonal is the hypotenuse: <strong>add</strong>. TV and phone screens are sold by their diagonal, measured in inches. A "55-inch TV" is about 48 inches wide and 27 inches tall.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>width <input type="number" id="tvW" value="48" min="1" max="200" step="any"></label>
+    <label>height <input type="number" id="tvH" value="27" min="1" max="200" step="any"></label>
+    <span style="font-size:.92rem;color:var(--muted)">inches</span>
+  </div>
+  <div class="twin">
+    <svg id="tvSvg" viewBox="0 0 320 220" width="320" height="220" aria-label="Screen with its diagonal"></svg>
+    <div class="work" id="tvWork" style="margin-top:0"></div>
+  </div>
+</div>
+
+<h2>8 · Distance between two points</h2>
+<p>How far apart are the points (−2, −3) and (4, 5)? You can't count squares along a slanting line, but you can draw a right-angled triangle under it: go <strong>across</strong> from one point and <strong>up</strong> to the other. The across part and the up part are the shorter sides, and they are easy to count. The straight-line distance is the hypotenuse.</p>
+<ul>
+  <li>Across: from x = −2 to x = 4 is 4 − (−2) = <span class="A">6</span>.</li>
+  <li>Up: from y = −3 to y = 5 is 5 − (−3) = <span class="B">8</span>.</li>
+  <li>Distance² = 6² + 8² = 36 + 64 = 100, so the distance is √100 = <span class="H">10</span>.</li>
+</ul>
+<p>Drag either point. Negative coordinates are fine: a distance across or up is always positive, and squaring would make a negative positive anyway.</p>
+
+<div class="lab">
+  <svg id="cdSvg" class="drag" viewBox="0 0 400 400" width="400" height="400" aria-label="Coordinate grid with two draggable points"></svg>
+  <div class="work" id="cdWork"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Find the hypotenuse of a right-angled triangle with shorter sides 9 cm and 12 cm</summary>
+  <div class="step"><strong>Label.</strong> The missing side is opposite the right angle, so it's the hypotenuse c. a = 9, b = 12. Missing hypotenuse means <strong>add</strong>.</div>
+  <div class="step"><strong>Write the formula:</strong> c² = a² + b²</div>
+  <div class="step"><strong>Substitute:</strong> c² = 9² + 12²</div>
+  <div class="step"><strong>Square:</strong> c² = 81 + 144</div>
+  <div class="step"><strong>Add:</strong> c² = 225</div>
+  <div class="step"><strong>Square root:</strong> c = √225 = <strong>15 cm</strong>. (9, 12, 15 is 3, 4, 5 multiplied by 3, so this checks out.)</div>
+</details>
+<details>
+  <summary>Find the missing shorter side: hypotenuse 10 cm, other side 7 cm. Give your answer to 1 d.p.</summary>
+  <div class="step"><strong>Label.</strong> The hypotenuse is given, so the missing side is a shorter side: <strong>subtract</strong>.</div>
+  <div class="step"><strong>Rearrange:</strong> a² = c² − b²</div>
+  <div class="step"><strong>Substitute:</strong> a² = 10² − 7²</div>
+  <div class="step"><strong>Square:</strong> a² = 100 − 49</div>
+  <div class="step"><strong>Subtract:</strong> a² = 51</div>
+  <div class="step"><strong>Square root:</strong> a = √51 = 7.14142… = <strong>7.1 cm</strong> to 1 d.p.</div>
+  <div class="step"><strong>Check:</strong> 7.1 is shorter than the hypotenuse 10 ✓. (Exact answer, if asked: √51 cm.)</div>
+</details>
+<details>
+  <summary>A 5 m ladder leans against a wall with its foot 1.5 m from the wall. How high up the wall does it reach?</summary>
+  <div class="step"><strong>Sketch and label.</strong> Wall and ground meet at a right angle. The ladder is opposite it, so the ladder is the hypotenuse: c = 5. The ground is b = 1.5. The height is the missing shorter side: <strong>subtract</strong>.</div>
+  <div class="step"><strong>Rearrange and substitute:</strong> h² = 5² − 1.5²</div>
+  <div class="step"><strong>Square:</strong> h² = 25 − 2.25</div>
+  <div class="step"><strong>Subtract:</strong> h² = 22.75</div>
+  <div class="step"><strong>Square root:</strong> h = √22.75 = 4.7696… = <strong>4.8 m</strong> to 1 d.p.</div>
+  <div class="step"><strong>Check:</strong> 4.8 m is less than the 5 m ladder ✓. Keep full values until the end: rounding too early (say h² ≈ 23) would give √23 = 4.795…, which happens to round to 4.8 here but often won't.</div>
+</details>
+<details>
+  <summary>A TV screen is 85 cm wide and 48 cm tall. How long is its diagonal?</summary>
+  <div class="step"><strong>Spot the triangle.</strong> The corner of the screen is a right angle; the diagonal is opposite it, so it's the hypotenuse: <strong>add</strong>.</div>
+  <div class="step"><strong>Substitute:</strong> d² = 85² + 48²</div>
+  <div class="step"><strong>Square:</strong> d² = 7225 + 2304</div>
+  <div class="step"><strong>Add:</strong> d² = 9529</div>
+  <div class="step"><strong>Square root:</strong> d = √9529 = 97.6165… = <strong>97.6 cm</strong> to 1 d.p.</div>
+  <div class="step"><strong>Check:</strong> longer than 85 cm (the longest edge) but less than 85 + 48 = 133 cm ✓</div>
+</details>
+<details>
+  <summary>Find the distance between the points (1, 2) and (7, 10)</summary>
+  <div class="step"><strong>Across:</strong> 7 − 1 = 6. <strong>Up:</strong> 10 − 2 = 8.</div>
+  <div class="step"><strong>Pythagoras:</strong> d² = 6² + 8² = 36 + 64 = 100</div>
+  <div class="step"><strong>Square root:</strong> d = √100 = <strong>10 units</strong>. (6, 8, 10 is a triple: 3, 4, 5 doubled.)</div>
+</details>
+<details>
+  <summary>Are these triangles right-angled? (i) sides 7, 9, 12 &nbsp; (ii) sides 20, 21, 29</summary>
+  <div class="step"><strong>(i)</strong> Longest side 12. Shorter sides: 7² + 9² = 49 + 81 = 130. Longest: 12² = 144. 130 ≠ 144, so <strong>not right-angled</strong>. (130 is smaller, so the biggest angle is obtuse.)</div>
+  <div class="step"><strong>(ii)</strong> Longest side 29. 20² + 21² = 400 + 441 = 841. 29² = 841. Equal, so <strong>right-angled</strong>, with the right angle opposite the 29 side. 20, 21, 29 is a Pythagorean triple.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A right-angled triangle has one 90° angle. The side opposite it is the <strong>hypotenuse</strong>, c, and it is always the longest side. The other two are the shorter sides a and b. Label c first.</li>
+  <li><strong>Pythagoras' theorem:</strong> a² + b² = c². The squares on the two shorter sides add up to the square on the hypotenuse. The rearrangement proof shows why: the same four triangles in the same frame leave c² uncovered one way and a² + b² the other.</li>
+  <li><strong>Finding the hypotenuse:</strong> square, add, square root.</li>
+  <li><strong>Finding a shorter side:</strong> square, <strong>subtract</strong> (biggest minus smaller), square root. The answer must come out shorter than the hypotenuse.</li>
+  <li>Don't forget the final square root, and don't add before squaring: (a + b)² is not a² + b².</li>
+  <li>Round only at the end, usually to 1 d.p.; an exact answer can be left as a surd like √74.</li>
+  <li><strong>Pythagorean triples</strong> such as 3, 4, 5 and 5, 12, 13 (and their multiples) are whole-number right-angled triangles.</li>
+  <li>The <strong>converse</strong>: if a² + b² = c² for the sides, the triangle is right-angled. If not, it isn't (acute if a² + b² is bigger, obtuse if smaller).</li>
+  <li>Real problems hide a right angle: ladders and walls, rectangle diagonals, and the across-and-up triangle between two coordinate points.</li>
+</ul>
+
+<footer>Made for KS3 students. Pythagoras' theorem and its use in solving problems with right-angled triangles are in the England national curriculum at key stage 3 under Geometry and measures. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const nf = v => { const r = Math.round(v*10000)/10000; return String(Object.is(r,-0)?0:r).replace('-','−'); };
+const sqr = v => v<0 ? `(${nf(v)})²` : `${nf(v)}²`;
+const mono = () => `font-family="${css('--mono').replace(/"/g,"'")}"`;
+const txt = (x,y,s,col,opt='') => `<text x="${x}" y="${y}" ${/font-size=/.test(opt)?'':'font-size="14"'} font-weight="600" fill="${col}" ${mono()} ${/text-anchor=/.test(opt)?'':'text-anchor="middle"'} dominant-baseline="middle" ${opt}>${s}</text>`;
+/* exact square root? returns the root if √N has at most 3 decimal places, else null */
+const exactRoot = N => { const r = Math.round(Math.sqrt(N)*1000)/1000; return Math.abs(r*r-N) < 1e-9 ? r : null; };
+const trunc = (v,d) => { const k = 10**d; return (Math.floor(v*k+1e-9)/k).toFixed(d); };
+const isPerfect = N => Number.isInteger(N) && Number.isInteger(Math.round(Math.sqrt(N))) && Math.round(Math.sqrt(N))**2 === N;
+const reduceMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* draw a right-angled triangle: vertical leg a (teal), horizontal leg b (plum), hypotenuse (orange).
+   labels: text for each side; unknown: 'a'|'b'|'c' drawn dashed */
+function drawRT(svg, a, b, labA, labB, labC, unknown){
+  const W=320,H=230,padL=70,padB=40,padT=20,padR=30;
+  const k=Math.min((W-padL-padR)/b,(H-padB-padT)/a);
+  const ox=padL,oy=H-padB,ax=ox,ay=oy-a*k,bx=ox+b*k,by=oy;
+  const col={a:css('--accent'),b:css('--two'),c:css('--hi')};
+  const seg=(x1,y1,x2,y2,s)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col[s]}" stroke-width="${unknown===s?3:3.5}" stroke-linecap="round" ${unknown===s?'stroke-dasharray="7 6"':''}/>`;
+  const m=12;
+  let s=`<polygon points="${ox},${oy} ${ax},${ay} ${bx},${by}" fill="${css('--hi-soft')}" opacity=".45"/>`;
+  s+=`<polyline points="${ox},${oy-m} ${ox+m},${oy-m} ${ox+m},${oy}" fill="none" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  s+=seg(ox,oy,ax,ay,'a')+seg(ox,oy,bx,by,'b')+seg(ax,ay,bx,by,'c');
+  // hypotenuse label: offset along outward normal
+  const mx=(ax+bx)/2,my=(ay+by)/2,len=Math.hypot(bx-ax,by-ay),nx=(by-ay)/len,ny=-(bx-ax)/len;
+  s+=txt(ox-8,(oy+ay)/2,labA,col.a,'text-anchor="end"');
+  s+=txt((ox+bx)/2,oy+20,labB,col.b);
+  s+=txt(mx+nx*22,my+ny*22-0,labC,col.c,`text-anchor="${nx>0.3?'start':'middle'}"`);
+  svg.innerHTML=s;
+}
+
+/* 1. hypotenuse spotter */
+const spSvg=$('spSvg');let sp={},spRight=0,spTries=0;
+function spNew(){
+  const L1=2+Math.random()*4,L2=2+Math.random()*4,th=Math.random()*Math.PI*2,flip=Math.random()<.5?1:-1;
+  const R=[0,0],P=[L1*Math.cos(th),L1*Math.sin(th)],Q=[L2*Math.cos(th+flip*Math.PI/2),L2*Math.sin(th+flip*Math.PI/2)];
+  const xs=[R[0],P[0],Q[0]],ys=[R[1],P[1],Q[1]];
+  const minx=Math.min(...xs),maxx=Math.max(...xs),miny=Math.min(...ys),maxy=Math.max(...ys);
+  const k=Math.min(240/(maxx-minx),170/(maxy-miny));
+  const cx=(minx+maxx)/2,cy=(miny+maxy)/2,map=p=>[160+(p[0]-cx)*k,120+(p[1]-cy)*k];
+  const letters=['x','y','z'].sort(()=>Math.random()-.5);
+  sp={R:map(R),P:map(P),Q:map(Q),names:{hyp:letters[0],l1:letters[1],l2:letters[2]},done:false,first:true};
+  $('spMsg').className='msg';$('spMsg').textContent='Find the little square first.';
+  spDraw();
+}
+function spDraw(){
+  const {R,P,Q,names}=sp,fg=css('--fg'),hi=css('--hi');
+  const sides={hyp:[P,Q],l1:[R,P],l2:[R,Q]};
+  // centroid for pushing labels outward
+  const gx=(R[0]+P[0]+Q[0])/3,gy=(R[1]+P[1]+Q[1])/3;
+  let s='';
+  // right angle marker
+  const u=[(P[0]-R[0])/Math.hypot(P[0]-R[0],P[1]-R[1]),(P[1]-R[1])/Math.hypot(P[0]-R[0],P[1]-R[1])];
+  const v=[(Q[0]-R[0])/Math.hypot(Q[0]-R[0],Q[1]-R[1]),(Q[1]-R[1])/Math.hypot(Q[0]-R[0],Q[1]-R[1])];
+  const m=13;
+  s+=`<polygon points="${R[0]},${R[1]} ${R[0]+u[0]*m},${R[1]+u[1]*m} ${R[0]+u[0]*m+v[0]*m},${R[1]+u[1]*m+v[1]*m} ${R[0]+v[0]*m},${R[1]+v[1]*m}" fill="${css('--accent-soft')}" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  for(const key in sides){
+    const [A,B]=sides[key],done=sp.done&&key==='hyp';
+    s+=`<line x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}" stroke="${done?hi:fg}" stroke-width="${done?5:3}" stroke-linecap="round"/>`;
+    s+=`<line x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}" stroke="transparent" stroke-width="26" pointer-events="stroke" data-s="${key}" style="cursor:pointer"/>`;
+    const mx=(A[0]+B[0])/2,my=(A[1]+B[1])/2,d=Math.hypot(mx-gx,my-gy)||1;
+    s+=txt(Math.max(60,Math.min(260,mx+(mx-gx)/d*18)),Math.max(12,Math.min(228,my+(my-gy)/d*18)),done?`${names[key]} = hypotenuse`:names[key],done?hi:css('--muted'),'pointer-events="none"');
+  }
+  spSvg.innerHTML=s;
+}
+function spAnswer(key){
+  if(sp.done)return;
+  const M=$('spMsg');
+  if(sp.first){spTries++;}
+  if(key==='hyp'){
+    if(sp.first)spRight++;
+    sp.done=true;M.className='msg good';M.textContent=`Yes: side ${sp.names.hyp} is opposite the right angle, so it's the hypotenuse. It's also the longest side. Press "New triangle" for another.`;
+  }else{
+    M.className='msg bad';M.textContent=`Side ${sp.names[key]} touches the right angle (the little square), so it's one of the shorter sides. The hypotenuse is the side directly opposite the little square.`;
+  }
+  sp.first=false;
+  $('spScore').textContent=`${spRight} out of ${spTries}`;
+  spDraw();
+}
+spSvg.addEventListener('click',e=>{const k=e.target.getAttribute&&e.target.getAttribute('data-s');if(k)spAnswer(k);});
+const keyOf=l=>Object.keys(sp.names).find(k=>sp.names[k]===l);
+$('spX').addEventListener('click',()=>spAnswer(keyOf('x')));
+$('spY').addEventListener('click',()=>spAnswer(keyOf('y')));
+$('spZ').addEventListener('click',()=>spAnswer(keyOf('z')));
+$('spNew').addEventListener('click',spNew);
+spNew();
+
+/* 2. drag the triangle: squares on the sides */
+const dgSvg=$('dgSvg');const DG={lo:-9,hi:16,S:375,min:0,max:7};const du=DG.S/(DG.hi-DG.lo);
+const dx=x=>(x-DG.lo)*du,dy=y=>(DG.hi-y)*du;
+let dgP=[[1,1],[1,4],[5,1]],dgDrag=-1;
+function dgDraw(){
+  const P=dgP,acc=css('--accent'),two=css('--two'),hi=css('--hi');
+  let s=`<defs><clipPath id="dgClip"><rect x="0" y="0" width="${DG.S}" height="${DG.S}"/></clipPath></defs><g clip-path="url(#dgClip)">`;
+  for(let i=DG.lo;i<=DG.hi;i++){s+=`<line x1="${dx(i)}" y1="0" x2="${dx(i)}" y2="${DG.S}" stroke="${css('--grid')}"/><line x1="0" y1="${dy(i)}" x2="${DG.S}" y2="${dy(i)}" stroke="${css('--grid')}"/>`;}
+  // dragging zone
+  s+=`<rect x="${dx(DG.min)}" y="${dy(DG.max)}" width="${(DG.max-DG.min)*du}" height="${(DG.max-DG.min)*du}" fill="none" stroke="${css('--line')}" stroke-dasharray="4 4"/>`;
+  const cross=(P[1][0]-P[0][0])*(P[2][1]-P[0][1])-(P[1][1]-P[0][1])*(P[2][0]-P[0][0]);
+  const sq=[0,1,2].map(i=>{const U=P[(i+1)%3],V=P[(i+2)%3];return (V[0]-U[0])**2+(V[1]-U[1])**2;});
+  let k=0;for(let i=1;i<3;i++)if(sq[i]>sq[k])k=i;
+  const others=[0,1,2].filter(i=>i!==k),ia=others[0],ib=others[1];
+  const colOf=i=>i===k?hi:i===ia?acc:two,softOf=i=>i===k?css('--hi-soft'):i===ia?css('--accent-soft'):css('--two-soft'),nameOf=i=>i===k?'c':i===ia?'a':'b';
+  if(cross!==0){
+    [0,1,2].forEach(i=>{
+      const U=P[(i+1)%3],V=P[(i+2)%3],W=P[i];
+      let n=[-(V[1]-U[1]),V[0]-U[0]];
+      if(n[0]*(W[0]-U[0])+n[1]*(W[1]-U[1])>0)n=[-n[0],-n[1]];
+      const pts=[U,V,[V[0]+n[0],V[1]+n[1]],[U[0]+n[0],U[1]+n[1]]];
+      s+=`<polygon points="${pts.map(p=>dx(p[0])+','+dy(p[1])).join(' ')}" fill="${softOf(i)}" fill-opacity=".85" stroke="${colOf(i)}" stroke-width="2"/>`;
+      const cx=(U[0]+V[0])/2+n[0]/2,cy=(U[1]+V[1])/2+n[1]/2;
+      s+=txt(dx(cx),dy(cy),`${nameOf(i)}² = ${sq[i]}`,colOf(i),'font-size="13"');
+    });
+    s+=`<polygon points="${P.map(p=>dx(p[0])+','+dy(p[1])).join(' ')}" fill="${css('--panel')}" stroke="none"/>`;
+  }
+  [0,1,2].forEach(i=>{const U=P[(i+1)%3],V=P[(i+2)%3];s+=`<line x1="${dx(U[0])}" y1="${dy(U[1])}" x2="${dx(V[0])}" y2="${dy(V[1])}" stroke="${cross?colOf(i):css('--fg')}" stroke-width="3.5" stroke-linecap="round"/>`;});
+  // angle opposite c
+  const C=P[k],u=[P[(k+1)%3][0]-C[0],P[(k+1)%3][1]-C[1]],v=[P[(k+2)%3][0]-C[0],P[(k+2)%3][1]-C[1]];
+  const dot=u[0]*v[0]+u[1]*v[1],lu=Math.hypot(...u),lv=Math.hypot(...v);
+  if(cross!==0&&dot===0){const m=0.6,uu=[u[0]/lu*m,u[1]/lu*m],vv=[v[0]/lv*m,v[1]/lv*m];
+    s+=`<polyline points="${dx(C[0]+uu[0])},${dy(C[1]+uu[1])} ${dx(C[0]+uu[0]+vv[0])},${dy(C[1]+uu[1]+vv[1])} ${dx(C[0]+vv[0])},${dy(C[1]+vv[1])}" fill="none" stroke="${css('--fg')}" stroke-width="1.5"/>`;}
+  P.forEach((p,i)=>{s+=`<circle cx="${dx(p[0])}" cy="${dy(p[1])}" r="${dgDrag===i?10:8}" fill="${css('--fg')}" stroke="${css('--panel')}" stroke-width="2.5"/>`;});
+  s+='</g>';dgSvg.innerHTML=s;
+  const len=q=>isPerfect(q)?String(Math.sqrt(q)):`√${q} ≈ ${Math.sqrt(q).toFixed(2)}`;
+  const M=$('dgMsg');
+  if(cross===0){
+    $('dgSides').textContent='—';$('dgSum').textContent='—';$('dgC').textContent='—';$('dgAng').textContent='—';
+    M.className='msg bad';M.textContent='The three corners are in a straight line, so this isn\'t a triangle. Drag one off the line.';return;
+  }
+  $('dgSides').innerHTML=`<span class="A">a = ${len(sq[ia])}</span><br><span class="B">b = ${len(sq[ib])}</span><br><span class="H">c = ${len(sq[k])}</span>`;
+  $('dgSum').textContent=`${sq[ia]} + ${sq[ib]} = ${sq[ia]+sq[ib]}`;
+  $('dgC').textContent=String(sq[k]);
+  const ang=Math.acos(dot/(lu*lv))*180/Math.PI;
+  $('dgAng').textContent=dot===0?'90° exactly':`${ang.toFixed(1)}°`;
+  const L=sq[ia]+sq[ib],R=sq[k];
+  if(L===R){M.className='msg good';M.textContent=`${sq[ia]} + ${sq[ib]} = ${R}: the two small squares exactly match the big one, and the angle opposite c is a right angle.`;}
+  else if(L<R){M.className='msg bad';M.textContent=`${sq[ia]} + ${sq[ib]} = ${L}, which is less than ${R}. The angle opposite c is more than 90° (obtuse), so the small squares fall short.`;}
+  else{M.className='msg bad';M.textContent=`${sq[ia]} + ${sq[ib]} = ${L}, which is more than ${R}. The angle opposite c is less than 90° (acute), so the small squares are too big.`;}
+}
+const dgWorld=e=>{const r=dgSvg.getBoundingClientRect();return [(e.clientX-r.left)/r.width*DG.S/du+DG.lo,DG.hi-(e.clientY-r.top)/r.height*DG.S/du];};
+dgSvg.addEventListener('pointerdown',e=>{const [x,y]=dgWorld(e);let best=-1,bd=1.6;dgP.forEach((p,i)=>{const d=Math.hypot(p[0]-x,p[1]-y);if(d<bd){bd=d;best=i;}});
+  if(best>=0){dgDrag=best;dgSvg.setPointerCapture(e.pointerId);e.preventDefault();dgDraw();}});
+dgSvg.addEventListener('pointermove',e=>{if(dgDrag<0)return;const [x,y]=dgWorld(e);
+  const nx=Math.max(DG.min,Math.min(DG.max,Math.round(x))),ny=Math.max(DG.min,Math.min(DG.max,Math.round(y)));
+  if(dgP.some((p,i)=>i!==dgDrag&&p[0]===nx&&p[1]===ny))return;
+  if(dgP[dgDrag][0]!==nx||dgP[dgDrag][1]!==ny){dgP[dgDrag]=[nx,ny];dgDraw();}});
+const dgEnd=()=>{if(dgDrag>=0){dgDrag=-1;dgDraw();}};
+dgSvg.addEventListener('pointerup',dgEnd);dgSvg.addEventListener('pointercancel',dgEnd);
+$('dg345').addEventListener('click',()=>{dgP=[[1,1],[1,4],[5,1]];dgDraw();});
+$('dgTilt').addEventListener('click',()=>{dgP=[[2,1],[5,2],[1,4]];dgDraw();});
+$('dgObt').addEventListener('click',()=>{dgP=[[0,1],[7,1],[2,3]];dgDraw();});
+dgDraw();
+
+/* 3. rearrangement proof */
+const pfSvg=$('pfSvg');let pfStep=0,pfT=0,pfAnim=null;
+const pfCaps=[
+  (a,b)=>`<span class="why">Step 1.</span> A big square frame with each side a + b = ${a} + ${b} = ${a+b} long. Its area never changes.`,
+  (a,b)=>`<span class="why">Step 2.</span> Put the four triangles in the corners. The space left in the middle is a tilted square whose sides are all hypotenuses, so its area is <span class="c">c²</span>.<br><span class="why">Here: c² = ${a*a+b*b}.</span>`,
+  (a,b)=>`<span class="why">Step 3.</span> Slide three of the triangles (no turning, no cutting). Now the space left is two squares: one with side a, one with side b. Their areas are <span class="a">a² = ${a*a}</span> and <span class="b">b² = ${b*b}</span>.`,
+  (a,b)=>`<span class="why">Step 4.</span> Same frame, same four triangles, so the empty space is the same both times:<br><span class="a">a²</span> + <span class="b">b²</span> = <span class="c">c²</span><br>${a*a} + ${b*b} = ${a*a+b*b} ✓`
+];
+function pfDraw(){
+  const a=+$('pfA').value,b=+$('pfB').value,s=a+b,k=270/s,o=25;
+  $('pfAv').textContent=' '+a;$('pfBv').textContent=' '+b;
+  const X=x=>o+x*k,Y=y=>o+y*k;
+  const tris=[[[0,0],[a,0],[0,b]],[[s,0],[s,a],[a,0]],[[s,s],[b,s],[s,a]],[[0,s],[0,b],[b,s]]];
+  const off=[[0,a],[0,0],[-b,0],[a,-b]];
+  const ease=t=>t<.5?2*t*t:1-2*(1-t)**2,t=ease(pfT);
+  let g=`<rect x="${X(0)}" y="${Y(0)}" width="${s*k}" height="${s*k}" fill="${css('--bg')}" stroke="${css('--fg')}" stroke-width="2"/>`;
+  if(pfStep>=1&&pfT===0){
+    g+=`<polygon points="${[[a,0],[s,a],[b,s],[0,b]].map(p=>X(p[0])+','+Y(p[1])).join(' ')}" fill="${css('--hi-soft')}" stroke="${css('--hi')}" stroke-width="2"/>`;
+    g+=txt(X(s/2),Y(s/2),`c² = ${a*a+b*b}`,css('--hi'));
+  }
+  if(pfStep>=2&&pfT===1){
+    g+=`<rect x="${X(0)}" y="${Y(0)}" width="${a*k}" height="${a*k}" fill="${css('--accent-soft')}" stroke="${css('--accent')}" stroke-width="2"/>`;
+    g+=`<rect x="${X(a)}" y="${Y(a)}" width="${b*k}" height="${b*k}" fill="${css('--two-soft')}" stroke="${css('--two')}" stroke-width="2"/>`;
+    g+=txt(X(a/2),Y(a/2),a>=2?`a² = ${a*a}`:'a²',css('--accent'),a<2?'font-size="11"':'');
+    g+=txt(X(a+b/2),Y(a+b/2),b>=2?`b² = ${b*b}`:'b²',css('--two'),b<2?'font-size="11"':'');
+  }
+  if(pfStep>=1){
+    tris.forEach((T,i)=>{const ox=off[i][0]*t,oy=off[i][1]*t;
+      g+=`<polygon points="${T.map(p=>X(p[0]+ox)+','+Y(p[1]+oy)).join(' ')}" fill="${css('--muted')}" fill-opacity=".35" stroke="${css('--fg')}" stroke-width="1.5" stroke-linejoin="round"/>`;});
+  }
+  // edge labels (top edge always split a then b; left edge depends on arrangement)
+  const lab=(x,y,str,col)=>txt(x,y,str,col,'font-size="13"');
+  g+=lab(X(a/2),Y(0)-12,'a',css('--accent'))+lab(X(a+b/2),Y(0)-12,'b',css('--two'));
+  if(pfStep===0)g+=lab(X(s/2),Y(s)+13,'a + b',css('--muted'));
+  if(pfStep>=1&&pfT===0)g+=lab(X(0)-12,Y(b/2),'b',css('--two'))+lab(X(0)-12,Y(b+a/2),'a',css('--accent'));
+  if(pfStep>=2&&pfT===1)g+=lab(X(0)-12,Y(a/2),'a',css('--accent'))+lab(X(0)-12,Y(a+b/2),'b',css('--two'));
+  pfSvg.innerHTML=g;
+  $('pfCap').innerHTML=pfCaps[pfStep](a,b);
+  $('pfStep').textContent=`step ${pfStep+1} of 4`;
+  $('pfBack').disabled=pfStep===0||pfAnim!==null;$('pfNext').disabled=pfStep===3||pfAnim!==null;
+}
+function pfAnimate(to){
+  if(reduceMotion()){pfT=to;pfDraw();return;}
+  const from=pfT,start=performance.now(),dur=1200;
+  pfAnim=1;
+  const tick=now=>{const p=Math.min(1,(now-start)/dur);pfT=from+(to-from)*p;
+    if(p<1){pfT=Math.min(.999,Math.max(.001,pfT));pfDraw();requestAnimationFrame(tick);}else{pfT=to;pfAnim=null;pfDraw();}};
+  requestAnimationFrame(tick);
+}
+$('pfNext').addEventListener('click',()=>{if(pfAnim||pfStep>=3)return;pfStep++;if(pfStep===2)pfAnimate(1);else pfDraw();});
+$('pfBack').addEventListener('click',()=>{if(pfAnim||pfStep<=0)return;pfStep--;if(pfStep===1)pfAnimate(0);else pfDraw();});
+$('pfA').addEventListener('input',pfDraw);$('pfB').addEventListener('input',pfDraw);
+pfDraw();
+
+/* 4. finding the hypotenuse */
+function drawHy(){
+  const a=+$('hyA').value,b=+$('hyB').value,N=a*a+b*b,r=exactRoot(N),c=Math.sqrt(N);
+  $('hyAv').textContent=' '+nf(a);$('hyBv').textContent=' '+nf(b);
+  drawRT($('hySvg'),a,b,`a = ${nf(a)}`,`b = ${nf(b)}`,`c = ${r!==null?nf(r):'?'}`,'c');
+  let w=`<span class="why">Formula</span><br>c² = <span class="a">a²</span> + <span class="b">b²</span><br>`;
+  w+=`<span class="why">Substitute</span><br>c² = <span class="a">${sqr(a)}</span> + <span class="b">${sqr(b)}</span><br>`;
+  w+=`<span class="why">Square each side</span><br>c² = <span class="a">${nf(a*a)}</span> + <span class="b">${nf(b*b)}</span><br>`;
+  w+=`<span class="why">Add</span><br>c² = ${nf(N)}<br>`;
+  w+=`<span class="why">Square root (don't stop at c²!)</span><br>c = √${nf(N)}<br>`;
+  w+= r!==null ? `c = <span class="c"><strong>${nf(r)}</strong></span> exactly` : `c = ${trunc(c,4)}…<br>c = <span class="c"><strong>${c.toFixed(1)}</strong></span> to 1 d.p.`;
+  if(r===null&&Number.isInteger(N))w+=`<br><span class="why">Exact (surd) form: c = √${N}</span>`;
+  w+=`<br><span class="why">Check: ${r!==null?nf(r):c.toFixed(1)} is longer than ${nf(Math.max(a,b))} but shorter than ${nf(a)} + ${nf(b)} = ${nf(a+b)} ✓</span>`;
+  $('hyWork').innerHTML=w;
+}
+$('hyA').addEventListener('input',drawHy);$('hyB').addEventListener('input',drawHy);drawHy();
+
+/* 5. solver: hypotenuse or shorter side */
+function drawSv(){
+  const mode=$('svMode').value,x=parseFloat($('svX').value),y=parseFloat($('svY').value),dp=+$('svRound').value,unit=$('svUnit').value,U=unit?' '+unit:'';
+  $('svXl').firstChild.textContent=mode==='hyp'?'a = ':'hypotenuse c = ';
+  $('svYl').firstChild.textContent=mode==='hyp'?'b = ':'known side b = ';
+  const M=$('svMsg');M.className='msg';M.textContent='';
+  const svg=$('svSvg'),W=$('svWork');
+  if(!(x>0)||!(y>0)){svg.innerHTML='';W.innerHTML='<span class="why">Enter two positive lengths.</span>';return;}
+  const rstr=v=>dp===0?`${Math.round(v)}${U} to the nearest whole number`:`${v.toFixed(dp)}${U} to ${dp} d.p.`;
+  if(mode==='hyp'){
+    const N=x*x+y*y,r=exactRoot(N),c=Math.sqrt(N);
+    drawRT(svg,x,y,`a = ${nf(x)}`,`b = ${nf(y)}`,`c = ?`,'c');
+    let w=`<span class="why">The missing side is the hypotenuse, so ADD.</span><br>c² = <span class="a">a²</span> + <span class="b">b²</span><br>`;
+    w+=`c² = <span class="a">${sqr(x)}</span> + <span class="b">${sqr(y)}</span><br>c² = <span class="a">${nf(x*x)}</span> + <span class="b">${nf(y*y)}</span><br>c² = ${nf(N)}<br>c = √${nf(N)}<br>`;
+    w+= r!==null?`c = <span class="c"><strong>${nf(r)}${U}</strong></span>`:`c = ${trunc(c,4)}…<br>c = <span class="c"><strong>${rstr(c)}</strong></span>`;
+    if(r===null&&Number.isInteger(N))w+=`<br><span class="why">Exact (surd) form: √${N}${U}</span>`;
+    w+=`<br><span class="good">Check: the hypotenuse is longer than both ${nf(x)} and ${nf(y)} ✓</span>`;
+    w+=`<br><span class="bad">Forget the √ and you'd write ${nf(N)}: that's c², not c.</span>`;
+    W.innerHTML=w;
+  }else{
+    if(x<=y){svg.innerHTML='';W.innerHTML=`<span class="bad">The hypotenuse is always the longest side, so c must be bigger than ${nf(y)}. Check which length is opposite the right angle.</span>`;M.className='msg bad';M.textContent='Hypotenuse too short: did you swap the two lengths?';return;}
+    const N=x*x-y*y,r=exactRoot(N),a=Math.sqrt(N);
+    drawRT(svg,a,y,`a = ?`,`b = ${nf(y)}`,`c = ${nf(x)}`,'a');
+    let w=`<span class="why">The hypotenuse is given, so SUBTRACT.</span><br>a² + <span class="b">b²</span> = <span class="c">c²</span><br><span class="why">take b² from both sides</span><br>a² = <span class="c">c²</span> − <span class="b">b²</span><br>`;
+    w+=`a² = <span class="c">${sqr(x)}</span> − <span class="b">${sqr(y)}</span><br>a² = <span class="c">${nf(x*x)}</span> − <span class="b">${nf(y*y)}</span><br>a² = ${nf(N)}<br>a = √${nf(N)}<br>`;
+    w+= r!==null?`a = <span class="a"><strong>${nf(r)}${U}</strong></span>`:`a = ${trunc(a,4)}…<br>a = <span class="a"><strong>${rstr(a)}</strong></span>`;
+    if(r===null&&Number.isInteger(N))w+=`<br><span class="why">Exact (surd) form: √${N}${U}</span>`;
+    w+=`<br><span class="good">Check: ${r!==null?nf(r):a.toFixed(dp)} is shorter than the hypotenuse ${nf(x)} ✓</span>`;
+    const wrong=Math.sqrt(x*x+y*y);
+    w+=`<br><span class="bad">Adding by mistake gives √${nf(x*x+y*y)} ≈ ${wrong.toFixed(1)}: longer than the hypotenuse, impossible.</span>`;
+    W.innerHTML=w;
+  }
+}
+['svMode','svX','svY','svRound','svUnit'].forEach(id=>$(id).addEventListener('input',drawSv));
+$('svMode').addEventListener('change',()=>{if($('svMode').value==='hyp'){$('svX').value=5;$('svY').value=7;}else{$('svX').value=13;$('svY').value=5;}drawSv();});
+drawSv();
+
+/* 6. triples and the converse */
+const ckSets=[[3,4,5],[6,8,10],[5,12,13],[8,15,17],[7,24,25],[20,21,29],[4,5,6],[7,9,12],[2,3,4],[1,2,3]];
+ckSets.forEach(t=>{const b=document.createElement('button');b.type='button';b.textContent=t.join(', ');
+  b.addEventListener('click',()=>{$('ckA').value=t[0];$('ckB').value=t[1];$('ckC').value=t[2];drawCk();});$('ckChips').appendChild(b);});
+function drawCk(){
+  const v=['ckA','ckB','ckC'].map(id=>parseFloat($(id).value)),M=$('ckMsg'),W=$('ckWork'),svg=$('ckSvg');
+  if(v.some(x=>!(x>0))){svg.innerHTML='';W.innerHTML='<span class="why">Enter three positive lengths.</span>';M.className='msg';M.textContent='';return;}
+  const [p,q,r]=[...v].sort((x,y)=>x-y);
+  const L=p*p+q*q,R=r*r,tol=1e-9*Math.max(1,R);
+  let w=`<span class="why">Longest side: ${nf(r)}, so that's c.</span><br>`;
+  w+=`<span class="a">${sqr(p)}</span> + <span class="b">${sqr(q)}</span> = ${nf(p*p)} + ${nf(q*q)} = <strong>${nf(L)}</strong><br>`;
+  w+=`<span class="c">${sqr(r)}</span> = <strong>${nf(R)}</strong><br>`;
+  if(p+q<=r){svg.innerHTML='';W.innerHTML=w+`<span class="bad">But ${nf(p)} + ${nf(q)} = ${nf(p+q)} is not more than ${nf(r)}: these sides can't even make a triangle. The two short sides can't reach.</span>`;M.className='msg bad';M.textContent='Not a triangle at all.';return;}
+  // draw: longest side horizontal
+  const x=(q*q+r*r-p*p)/(2*r),y=Math.sqrt(Math.max(0,q*q-x*x));
+  const k=Math.min(260/r,170/y),ox=30,oy=200;
+  const A=[ox,oy],B=[ox+r*k,oy],C=[ox+x*k,oy-y*k];
+  const ln=(P1,P2,col)=>`<line x1="${P1[0]}" y1="${P1[1]}" x2="${P2[0]}" y2="${P2[1]}" stroke="${col}" stroke-width="3.5" stroke-linecap="round"/>`;
+  let s=`<polygon points="${A} ${B} ${C}" fill="${css('--hi-soft')}" opacity=".45"/>`;
+  s+=ln(A,B,css('--hi'))+ln(A,C,css('--two'))+ln(B,C,css('--accent'));
+  const right=Math.abs(L-R)<=tol;
+  const ang=Math.acos(Math.max(-1,Math.min(1,(L-R)/(2*p*q))))*180/Math.PI;
+  if(right){const m=12,u=[(A[0]-C[0]),(A[1]-C[1])],vv=[(B[0]-C[0]),(B[1]-C[1])],lu=Math.hypot(...u),lv=Math.hypot(...vv);
+    const U1=[C[0]+u[0]/lu*m,C[1]+u[1]/lu*m],V1=[C[0]+vv[0]/lv*m,C[1]+vv[1]/lv*m];
+    s+=`<polyline points="${U1} ${U1[0]+vv[0]/lv*m},${U1[1]+vv[1]/lv*m} ${V1}" fill="none" stroke="${css('--fg')}" stroke-width="1.5"/>`;}
+  s+=txt((A[0]+B[0])/2,oy+18,nf(r),css('--hi'));
+  s+=txt((A[0]+C[0])/2-14,(A[1]+C[1])/2-8,nf(q),css('--two'),'text-anchor="end"');
+  s+=txt((B[0]+C[0])/2+14,(B[1]+C[1])/2-8,nf(p),css('--accent'),'text-anchor="start"');
+  s+=txt(C[0],Math.max(12,C[1]-16),right?'90°':`${ang.toFixed(1)}°`,css('--fg'),'font-size="12"');
+  svg.innerHTML=s;
+  if(right){
+    const triple=[p,q,r].every(Number.isInteger);
+    w+=`<span class="good">${nf(L)} = ${nf(R)}, so the triangle is right-angled.</span>`;
+    M.className='msg good';M.textContent=`Right-angled: the right angle is opposite the side of length ${nf(r)}.`+(triple?` All whole numbers, so ${nf(p)}, ${nf(q)}, ${nf(r)} is a Pythagorean triple.`:'');
+  }else if(L>R){
+    w+=`<span class="bad">${nf(L)} > ${nf(R)}, so not right-angled.</span>`;
+    M.className='msg bad';M.textContent=`Not right-angled. a² + b² is bigger than c², so the angle opposite the longest side is less than 90° (acute): about ${ang.toFixed(1)}°.`;
+  }else{
+    w+=`<span class="bad">${nf(L)} < ${nf(R)}, so not right-angled.</span>`;
+    M.className='msg bad';M.textContent=`Not right-angled. a² + b² is smaller than c², so the angle opposite the longest side is more than 90° (obtuse): about ${ang.toFixed(1)}°.`;
+  }
+  W.innerHTML=w;
+}
+['ckA','ckB','ckC'].forEach(id=>$(id).addEventListener('input',drawCk));drawCk();
+
+/* 7a. ladder */
+function drawLd(){
+  const L=+$('ldL').value,d=+$('ldD').value,H2=L*L-d*d,h=Math.sqrt(H2);
+  $('ldLv').textContent=` ${nf(L)} m`;$('ldDv').textContent=` ${d.toFixed(1)} m`;
+  const k=26,wallX=270,gy=275,fx=wallX-d*k,ty=gy-h*k;
+  let s=`<line x1="10" y1="${gy}" x2="310" y2="${gy}" stroke="${css('--muted')}" stroke-width="2"/>`;
+  s+=`<rect x="${wallX}" y="${gy-10.2*k}" width="22" height="${10.2*k}" fill="${css('--line')}"/>`;
+  s+=`<polyline points="${wallX-12},${gy} ${wallX-12},${gy-12} ${wallX},${gy-12}" fill="none" stroke="${css('--fg')}" stroke-width="1.5"/>`;
+  s+=`<line x1="${fx}" y1="${gy}" x2="${wallX}" y2="${gy}" stroke="${css('--accent')}" stroke-width="4" stroke-linecap="round"/>`;
+  s+=`<line x1="${wallX}" y1="${gy}" x2="${wallX}" y2="${ty}" stroke="${css('--two')}" stroke-width="4" stroke-dasharray="7 6"/>`;
+  // ladder with rungs
+  const n=Math.floor(L/0.5),ux=(wallX-fx)/L,uy=(ty-gy)/L,nx=-uy/Math.hypot(ux,uy)*6,ny=ux/Math.hypot(ux,uy)*6;
+  s+=`<line x1="${fx+nx}" y1="${gy+ny}" x2="${wallX+nx}" y2="${ty+ny}" stroke="${css('--hi')}" stroke-width="3"/><line x1="${fx-nx}" y1="${gy-ny}" x2="${wallX-nx}" y2="${ty-ny}" stroke="${css('--hi')}" stroke-width="3"/>`;
+  for(let i=1;i<n;i++){const t=i/n,px=fx+(wallX-fx)*t,py=gy+(ty-gy)*t;s+=`<line x1="${px+nx}" y1="${py+ny}" x2="${px-nx}" y2="${py-ny}" stroke="${css('--hi')}" stroke-width="1.5"/>`;}
+  s+=txt((fx+wallX)/2,gy+15,`${d.toFixed(1)} m`,css('--accent'),'font-size="12"');
+  s+=txt(wallX-8,(gy+ty)/2,'h = ?',css('--two'),'text-anchor="end" font-size="12"');
+  s+=txt((fx+wallX)/2-20,(gy+ty)/2-10,`${nf(L)} m`,css('--hi'),'text-anchor="end" font-size="12"');
+  $('ldSvg').innerHTML=s;
+  let w=`<span class="why">Ladder = hypotenuse (given), so SUBTRACT.</span><br>h² = <span class="c">${sqr(L)}</span> − <span class="a">${sqr(+d.toFixed(1))}</span><br>h² = <span class="c">${nf(L*L)}</span> − <span class="a">${nf(d*d)}</span><br>h² = ${nf(H2)}<br>h = √${nf(H2)}<br>`;
+  const r=exactRoot(H2);
+  w+= r!==null?`h = <span class="b"><strong>${nf(r)} m</strong></span>`:`h = ${trunc(h,4)}…<br>h = <span class="b"><strong>${h.toFixed(1)} m</strong></span> to 1 d.p.`;
+  $('ldWork').innerHTML=w;
+  const ratio=h/d,M=$('ldMsg');
+  M.className='msg';
+  M.textContent=`Up : out ≈ ${ratio.toFixed(1)} : 1. UK safety advice is the "1 in 4" rule: about 1 out for every 4 up. `+(ratio<3.5?'This ladder is too shallow: the foot could slide out.':ratio>4.5?'This ladder is too steep: it could tip backwards.':'This one is about right.');
+}
+$('ldL').addEventListener('input',drawLd);$('ldD').addEventListener('input',drawLd);drawLd();
+
+/* 7b. TV diagonal */
+function drawTv(){
+  const w=parseFloat($('tvW').value),h=parseFloat($('tvH').value),svg=$('tvSvg'),W=$('tvWork');
+  if(!(w>0)||!(h>0)){svg.innerHTML='';W.innerHTML='<span class="why">Enter a positive width and height.</span>';return;}
+  const k=Math.min(240/w,160/h),x0=(320-w*k)/2,y0=(210-h*k)/2;
+  let s=`<rect x="${x0}" y="${y0}" width="${w*k}" height="${h*k}" fill="${css('--bg')}" stroke="${css('--fg')}" stroke-width="5" rx="4"/>`;
+  s+=`<line x1="${x0}" y1="${y0+h*k}" x2="${x0+w*k}" y2="${y0+h*k}" stroke="${css('--accent')}" stroke-width="4"/>`;
+  s+=`<line x1="${x0+w*k}" y1="${y0+h*k}" x2="${x0+w*k}" y2="${y0}" stroke="${css('--two')}" stroke-width="4"/>`;
+  s+=`<line x1="${x0}" y1="${y0+h*k}" x2="${x0+w*k}" y2="${y0}" stroke="${css('--hi')}" stroke-width="3.5" stroke-dasharray="8 6"/>`;
+  s+=`<polyline points="${x0+w*k-12},${y0+h*k} ${x0+w*k-12},${y0+h*k-12} ${x0+w*k},${y0+h*k-12}" fill="none" stroke="${css('--fg')}" stroke-width="1.5"/>`;
+  s+=txt(x0+w*k/2,y0+h*k+0-14,`${nf(w)}`,css('--accent'),'font-size="12"');
+  s+=txt(x0+w*k-16,y0+h*k/2,`${nf(h)}`,css('--two'),'text-anchor="end" font-size="12"');
+  s+=txt(x0+w*k/2-10,y0+h*k/2-12,'d = ?',css('--hi'),'text-anchor="end" font-size="13"');
+  svg.innerHTML=s;
+  const N=w*w+h*h,d=Math.sqrt(N),r=exactRoot(N);
+  W.innerHTML=`<span class="why">Diagonal = hypotenuse, so ADD.</span><br>d² = <span class="a">${sqr(w)}</span> + <span class="b">${sqr(h)}</span><br>d² = <span class="a">${nf(w*w)}</span> + <span class="b">${nf(h*h)}</span><br>d² = ${nf(N)}<br>d = √${nf(N)}<br>`+
+    (r!==null?`d = <span class="c"><strong>${nf(r)} inches</strong></span>`:`d = ${trunc(d,4)}…<br>d = <span class="c"><strong>${d.toFixed(1)} inches</strong></span> to 1 d.p.`)+
+    `<br><span class="why">Sold as a ${Math.round(d)}-inch screen.</span>`;
+}
+$('tvW').addEventListener('input',drawTv);$('tvH').addEventListener('input',drawTv);drawTv();
+
+/* 8. coordinate distance */
+const cdSvg=$('cdSvg');const R=6,S=400,pad=24,cell=(S-2*pad)/(2*R);
+const sx=x=>pad+(x+R)*cell,sy=y=>pad+(R-y)*cell;
+const toGrid=(svg,ev)=>{const r=svg.getBoundingClientRect();const px=(ev.clientX-r.left)/r.width*S,py=(ev.clientY-r.top)/r.height*S;return [(px-pad)/cell-R,R-(py-pad)/cell];};
+function grid(){const f=mono();let s='';
+  for(let i=-R;i<=R;i++){s+=`<line x1="${sx(i)}" y1="${sy(-R)}" x2="${sx(i)}" y2="${sy(R)}" stroke="${css('--grid')}"/><line x1="${sx(-R)}" y1="${sy(i)}" x2="${sx(R)}" y2="${sy(i)}" stroke="${css('--grid')}"/>`;}
+  s+=`<line x1="${sx(-R)}" y1="${sy(0)}" x2="${sx(R)}" y2="${sy(0)}" stroke="${css('--muted')}" stroke-width="1.5"/><line x1="${sx(0)}" y1="${sy(-R)}" x2="${sx(0)}" y2="${sy(R)}" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  for(let i=-R;i<=R;i+=2){if(i===0)continue;s+=`<text x="${sx(i)}" y="${sy(0)+13}" text-anchor="middle" font-size="10" fill="${css('--muted')}" ${f}>${String(i).replace('-','−')}</text><text x="${sx(0)-5}" y="${sy(i)+3}" text-anchor="end" font-size="10" fill="${css('--muted')}" ${f}>${String(i).replace('-','−')}</text>`;}
+  s+=`<text x="${sx(R)-3}" y="${sy(0)-5}" text-anchor="end" font-size="12" font-weight="600" fill="${css('--muted')}" ${f}>x</text><text x="${sx(0)+6}" y="${sy(R)+10}" font-size="12" font-weight="600" fill="${css('--muted')}" ${f}>y</text>`;return s;}
+let cdP=[[-2,-3],[4,5]],cdDrag=-1;
+const cs=p=>`(${nf(p[0])}, ${nf(p[1])})`;
+function drawCd(){
+  const [A,B]=cdP,Cn=[B[0],A[1]],ddx=Math.abs(B[0]-A[0]),ddy=Math.abs(B[1]-A[1]),N=ddx*ddx+ddy*ddy;
+  let s=grid();
+  if(ddx&&ddy){
+    s+=`<polygon points="${sx(A[0])},${sy(A[1])} ${sx(Cn[0])},${sy(Cn[1])} ${sx(B[0])},${sy(B[1])}" fill="${css('--hi-soft')}" opacity=".5"/>`;
+    const m=10,hx=Math.sign(A[0]-Cn[0])*m,vy=-Math.sign(B[1]-Cn[1])*m;
+    s+=`<polyline points="${sx(Cn[0])+hx},${sy(Cn[1])} ${sx(Cn[0])+hx},${sy(Cn[1])+vy} ${sx(Cn[0])},${sy(Cn[1])+vy}" fill="none" stroke="${css('--fg')}" stroke-width="1.2"/>`;
+  }
+  s+=`<line x1="${sx(A[0])}" y1="${sy(A[1])}" x2="${sx(Cn[0])}" y2="${sy(Cn[1])}" stroke="${css('--accent')}" stroke-width="3" stroke-dasharray="6 4"/>`;
+  s+=`<line x1="${sx(Cn[0])}" y1="${sy(Cn[1])}" x2="${sx(B[0])}" y2="${sy(B[1])}" stroke="${css('--two')}" stroke-width="3" stroke-dasharray="6 4"/>`;
+  s+=`<line x1="${sx(A[0])}" y1="${sy(A[1])}" x2="${sx(B[0])}" y2="${sy(B[1])}" stroke="${css('--hi')}" stroke-width="3.5"/>`;
+  if(ddx)s+=txt((sx(A[0])+sx(Cn[0]))/2,sy(Cn[1])+(B[1]>A[1]?14:-12),String(ddx),css('--accent'),'font-size="13"');
+  if(ddy)s+=txt(sx(Cn[0])+(B[0]>A[0]?14:-14),(sy(Cn[1])+sy(B[1]))/2,String(ddy),css('--two'),'font-size="13"');
+  cdP.forEach((p,i)=>{s+=`<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="${cdDrag===i?10:8}" fill="${css('--fg')}" stroke="${css('--panel')}" stroke-width="2.5"/>`;
+    s+=`<text x="${sx(p[0])+(p[0]>3?-12:12)}" y="${sy(p[1])+(p[1]>4?18:-12)}" text-anchor="${p[0]>3?'end':'start'}" font-size="12" font-weight="600" fill="${css('--fg')}" ${mono()}>${cs(p)}</text>`;});
+  cdSvg.innerHTML=s;
+  const neg=v=>v<0?`(${nf(v)})`:nf(v);
+  const r=exactRoot(N),d=Math.sqrt(N);
+  let w=`<span class="why">Across</span> <span class="a">${nf(Math.max(A[0],B[0]))} − ${neg(Math.min(A[0],B[0]))} = ${ddx}</span> &nbsp; <span class="why">Up</span> <span class="b">${nf(Math.max(A[1],B[1]))} − ${neg(Math.min(A[1],B[1]))} = ${ddy}</span><br>`;
+  w+=`d² = <span class="a">${ddx}²</span> + <span class="b">${ddy}²</span> = ${ddx*ddx} + ${ddy*ddy} = ${N}<br>`;
+  if(N===0)w+=`<span class="why">Both points are in the same place: the distance is 0.</span>`;
+  else if(!ddx||!ddy)w+=`d = √${N} = <span class="c"><strong>${nf(d)}</strong></span> <span class="why">(a straight horizontal or vertical line: you could just count)</span>`;
+  else w+=r!==null?`d = √${N} = <span class="c"><strong>${nf(r)}</strong></span> units`:`d = √${N} = ${trunc(d,4)}… = <span class="c"><strong>${d.toFixed(1)}</strong></span> units to 1 d.p.`;
+  $('cdWork').innerHTML=w;
+}
+cdSvg.addEventListener('pointerdown',e=>{const [x,y]=toGrid(cdSvg,e);let best=-1,bd=1;cdP.forEach((p,i)=>{const d=Math.hypot(p[0]-x,p[1]-y);if(d<bd){bd=d;best=i;}});
+  if(best>=0){cdDrag=best;cdSvg.setPointerCapture(e.pointerId);e.preventDefault();drawCd();}});
+cdSvg.addEventListener('pointermove',e=>{if(cdDrag<0)return;const [x,y]=toGrid(cdSvg,e);
+  const nx=Math.max(-R,Math.min(R,Math.round(x))),ny=Math.max(-R,Math.min(R,Math.round(y)));
+  if(cdP[cdDrag][0]!==nx||cdP[cdDrag][1]!==ny){cdP[cdDrag]=[nx,ny];drawCd();}});
+const cdEnd=()=>{if(cdDrag>=0){cdDrag=-1;drawCd();}};
+cdSvg.addEventListener('pointerup',cdEnd);cdSvg.addEventListener('pointercancel',cdEnd);
+drawCd();
+
+const redrawAll=()=>{spDraw();dgDraw();pfDraw();drawHy();drawSv();drawCk();drawLd();drawTv();drawCd();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'In triangle ABC the right angle is at B. Which side is the hypotenuse?',opts:['AC','AB','BC','It could be any of them'],a:0,fb:'The hypotenuse is opposite the right angle, so it is the side that doesn\'t touch B: AC.'},
+  {q:'The shorter sides of a right-angled triangle are 6 cm and 8 cm. How long is the hypotenuse?',opts:['10 cm','14 cm','100 cm','48 cm'],a:0,fb:'6² + 8² = 36 + 64 = 100, and √100 = 10. (100 is c², and 14 is just 6 + 8.)'},
+  {q:'A right-angled triangle has hypotenuse 13 cm and one side 5 cm. How long is the other side?',opts:['12 cm','13.9 cm','8 cm','144 cm'],a:0,fb:'Missing a shorter side, so subtract: 13² − 5² = 169 − 25 = 144, and √144 = 12. Adding would give 13.9, longer than the hypotenuse.'},
+  {q:'The shorter sides are 4 cm and 7 cm. Find the hypotenuse to 1 d.p.',opts:['8.1 cm','11 cm','65 cm','5.7 cm'],a:0,fb:'4² + 7² = 16 + 49 = 65, and √65 = 8.062… = 8.1 cm to 1 d.p. (5.7 comes from subtracting by mistake.)'},
+  {q:'Which of these is a Pythagorean triple?',opts:['8, 15, 17','4, 5, 6','6, 7, 8','5, 10, 15'],a:0,fb:'8² + 15² = 64 + 225 = 289 = 17². The others don\'t fit a² + b² = c².'},
+  {q:'A triangle has sides 7 cm, 9 cm and 12 cm. Is it right-angled?',opts:['No, because 7² + 9² = 130, not 144','Yes, because 7 + 9 is more than 12','Yes, because 12 is the longest side','You can\'t tell without measuring an angle'],a:0,fb:'Test the converse: 49 + 81 = 130 and 12² = 144. They are not equal, so it is not right-angled (130 < 144 means the biggest angle is obtuse).'},
+  {q:'A 6 m ladder leans against a wall with its foot 2 m from the wall. How high does it reach, to 1 d.p.?',opts:['5.7 m','6.3 m','4 m','8 m'],a:0,fb:'The ladder is the hypotenuse, so subtract: 6² − 2² = 36 − 4 = 32, and √32 = 5.656… = 5.7 m. (6.3 m comes from adding, which would be taller than the ladder.)'},
+  {q:'What is the distance between the points (−1, 2) and (5, 10)?',opts:['10','14','100','8'],a:0,fb:'Across: 5 − (−1) = 6. Up: 10 − 2 = 8. d² = 36 + 64 = 100, so d = √100 = 10.'},
+  {q:'A rectangle is 5 cm by 12 cm. How long is its diagonal?',opts:['13 cm','17 cm','169 cm','10.9 cm'],a:0,fb:'The diagonal is the hypotenuse: 5² + 12² = 25 + 144 = 169, and √169 = 13. (5, 12, 13 is a triple.)'},
+  {q:'To find a shorter side, a student writes √(10² + 6²). What went wrong?',opts:['They added; it should be √(10² − 6²) = 8','Nothing, that\'s right','They forgot to square root','They should have halved the answer'],a:0,fb:'When the hypotenuse (10) is known, subtract: 100 − 36 = 64, and √64 = 8. Adding would give √136 ≈ 11.7, longer than the hypotenuse.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

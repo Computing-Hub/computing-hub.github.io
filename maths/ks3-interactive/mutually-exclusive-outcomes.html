@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Mutually Exclusive Outcomes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive SVG panel drawn from JS (spinners, dice, a pack of cards, a 100-square grid and probability bars of length 1). Graph-paper neutrals. Colours on this page: teal = the event or outcome you are looking at (A), and outcomes covered exactly once; grey = "not A", everything else; orange = overlap and double counting (sectors/faces/cards that are in BOTH events, dice faces covered twice, any part of a total that runs past 1); purple = the unknown (the "?" piece or the x boxes in the missing-probability bar). On the 8-sector spinner teal, purple and grey are simply the sector colours named in the questions, and event membership is shown with the letters A and B; on the share-out spinner the four sectors are four outcomes (teal, orange, purple, grey). Faded = in neither event. Green/red are only used for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.A{color:var(--accent);font-weight:600}.N{color:var(--muted);font-weight:600}.O{color:var(--hi);font-weight:600}.U{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none;cursor:grab}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;max-width:340px;border-collapse:collapse;font-size:.95rem;margin:.4rem 0}
+.vt td,.vt th{text-align:left;padding:.35rem .6rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child{font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600;background:var(--two-soft)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.mkopts{display:grid;gap:.4rem;margin-top:.8rem}
+.mkopts button.btn{text-align:left}
+.mkopts button.right{border-color:var(--good);color:var(--good);font-weight:600}
+.mkopts button.wrong{border-color:var(--bad);opacity:.6}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Probability · KS3</div>
+  <h1>Mutually Exclusive Outcomes</h1>
+  <p class="lede">When you spin a spinner, exactly one thing happens: it lands on one colour, never two at once. That simple fact gives one of the most useful rules in probability: if you list <em>every</em> possible outcome, and no two of them can happen together, their probabilities add up to exactly 1. On this page you'll learn the words for this, see why it works, and use it to find probabilities nobody has told you.</p>
+  <span class="gcse">National curriculum KS3: apply the property that the probabilities of an exhaustive set of outcomes sum to one; apply the property that the probabilities of an exhaustive set of mutually exclusive events sum to one</span>
+</header>
+
+<h2>1 · Can both happen at the same time?</h2>
+<p>Some things simply can't happen together. A traffic light can't be on red and on green at the same moment. You can't be in London and in Paris at the same time. When you flip a coin once it lands on heads <em>or</em> tails, never both.</p>
+<p>First, two words. An <strong>outcome</strong> is one possible result, like "the dice shows 4". An <strong>event</strong> is an outcome or a group of outcomes you are interested in, like "the dice shows an even number" (that's the outcomes 2, 4 and 6). If you need a reminder of how to work out a probability, such as P(even) = 3 ÷ 6, see the <a href="probability-scale.html">probability scale page</a>.</p>
+<p>Two events are <strong>mutually exclusive</strong> if they <strong>cannot happen at the same time</strong>. "Mutually" means "each other", and "exclude" means "keep out": each event keeps the other one out.</p>
+<ul>
+  <li><strong>Mutually exclusive:</strong> rolling a 2 and rolling a 5 on one dice. One roll shows one number.</li>
+  <li><strong>Not mutually exclusive:</strong> on a spinner where sector 2 is red, landing on "red" and landing on "an even number" <em>can</em> happen together: sector 2 is both. We say the events <strong>overlap</strong>.</li>
+</ul>
+<div class="callout">
+  <p><strong>The test:</strong> try to find <em>one single outcome</em> that is in both events. If you can find even one, the events are <strong>not</strong> mutually exclusive. If there is no such outcome, they are.</p>
+</div>
+<p>Have a go. Decide for each pair, then the diagram shows any overlap, outlined in <span class="O">orange</span>. Outcomes in neither event fade out.</p>
+
+<div class="lab">
+  <p class="pq" id="srQ"></p>
+  <svg id="srSvg" viewBox="0 0 400 290" width="400" height="290" aria-label="Diagram of the possible outcomes"></svg>
+  <div class="controls">
+    <button class="btn" id="srYes">Mutually exclusive</button>
+    <button class="btn" id="srNo">Not mutually exclusive (can overlap)</button>
+    <button class="btn primary" id="srNext">Next pair</button>
+  </div>
+  <div class="msg" id="srMsg"></div>
+  <div class="msg" id="srScore"></div>
+</div>
+
+<h2>2 · Exhaustive: nothing left out</h2>
+<p>A list of events is <strong>exhaustive</strong> if it covers <strong>every</strong> possible outcome, so that one of them is certain to happen. ("Exhaustive" is like "exhausting" all the possibilities: you've used them all up.)</p>
+<p>On one dice the outcomes are 1, 2, 3, 4, 5, 6. The events "even" and "odd" are exhaustive: every number is one or the other. But "less than 3" and "more than 3" are not exhaustive, because 3 has been left out.</p>
+<p>The most useful lists are <strong>both</strong>: every outcome is in <strong>exactly one</strong> event. Think of sorting socks into drawers: every sock goes in a drawer (exhaustive) and no sock is in two drawers at once (mutually exclusive).</p>
+<p>Pick events below to cover the dice. Faces covered once turn <span class="A">teal</span>, faces covered twice or more turn <span class="O">orange</span> (overlap), and faces you have missed stay dashed <span class="N">grey</span>. Can you find three different sets that are both exhaustive and mutually exclusive?</p>
+
+<div class="lab">
+  <svg id="exSvg" viewBox="0 0 400 130" width="400" height="130" aria-label="Six dice faces showing how often each is covered"></svg>
+  <div class="chips" id="exChips"></div>
+  <div class="work" id="exWork"></div>
+  <div class="msg" id="exFound"></div>
+</div>
+
+<h2>3 · Sharing out the 1</h2>
+<p>A probability of <strong>1</strong> means <strong>certain</strong>. If your list of outcomes is exhaustive, one of them is certain to happen, so together they have probability 1. If the outcomes are also mutually exclusive, none of them overlap, so that 1 is <em>shared out</em> between them with nothing counted twice, like slices of one cake that together make the whole cake.</p>
+<p>Concrete example first: a fair dice has six outcomes, each with probability 1/6. Add them: 1/6 + 1/6 + 1/6 + 1/6 + 1/6 + 1/6 = 6/6 = <strong>1</strong>.</p>
+<p>Now drag the white handles on the spinner (or on the bar underneath) to change the sizes of the sectors. However you share it out, the four probabilities always add to exactly 1, because the bar is always exactly 1 long and is always completely filled.</p>
+
+<div class="lab">
+  <svg id="shSvg" class="drag" viewBox="0 0 400 380" width="400" height="380" aria-label="Spinner with draggable sectors and a probability bar of length 1"></svg>
+  <div class="readout" id="shRead"></div>
+  <div class="work" id="shWork"></div>
+  <div class="controls">
+    <label><input type="checkbox" id="shFine"> finer steps (0.01)</label>
+    <button class="btn" id="shTest">Hide one and test me</button>
+  </div>
+  <div class="controls" id="shAsk" hidden>
+    <label><span id="shAskL"></span> = <input type="text" id="shAns" inputmode="decimal" autocomplete="off"></label>
+    <button class="btn primary" id="shGo">Check</button>
+  </div>
+  <div class="msg" id="shMsg"></div>
+</div>
+
+<p class="big">P(A) + P(B) + P(C) + … = 1</p>
+<p>…as long as the outcomes A, B, C, … are <strong>mutually exclusive</strong> and <strong>exhaustive</strong>. The same is true of results from experiments: the relative frequencies of all the outcomes add up to 1 too (see <a href="theoretical-experimental-probability.html">theoretical and experimental probability</a>).</p>
+
+<h2>4 · The chance it doesn't happen: P(not A)</h2>
+<p>A weather app says there is a 30% chance of rain. What is the chance of no rain? You probably already know: 70%. As probabilities that is 0.3 and 0.7, and notice that 0.3 + 0.7 = 1.</p>
+<p>For any event A, the event <strong>"not A"</strong> means "A does not happen". A and not A can't both happen (mutually exclusive) and one of them must happen (exhaustive). So they share out the 1:</p>
+<p class="big">P(A) + P(not A) = 1, so P(not A) = 1 − P(A)</p>
+<p>The grid has 100 squares and stands for the whole probability, 1. Each square is 0.01. Slide to shade event A in <span class="A">teal</span>; whatever is left over, in <span class="N">grey</span>, is "not A".</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>event A: <select id="nvE">
+      <option value="0">it rains tomorrow</option><option value="1">the bus is late</option><option value="2">you win the raffle</option><option value="3">dropped toast lands butter-side down</option>
+    </select></label>
+    <label>P(A) = <input type="range" id="nvP" min="0" max="100" value="30"><span id="nvPv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="nvSvg" viewBox="0 0 400 240" width="400" height="240" aria-label="A 100-square grid split into A and not A"></svg>
+  <div class="work" id="nvWork"></div>
+</div>
+
+<h3>Try it</h3>
+<div class="lab">
+  <p class="pq" id="ntQ"></p>
+  <div class="controls">
+    <label>answer <input type="text" id="ntA" inputmode="decimal" autocomplete="off"></label>
+    <button class="btn primary" id="ntGo">Check</button>
+    <button class="btn" id="ntNew">New question</button>
+  </div>
+  <div class="msg" id="ntMsg"></div>
+</div>
+<p>You can type decimals like <span class="m">0.65</span> or fractions like <span class="m">5/8</span>.</p>
+
+<h2>5 · Finding a missing probability in a table</h2>
+<p>Exam questions often give a table of probabilities for every outcome with one missing. Because the outcomes are mutually exclusive and exhaustive, the full list must add up to 1. So:</p>
+<ol>
+  <li><strong>Add up</strong> the probabilities you know.</li>
+  <li><strong>Take that total away from 1.</strong> What's left is the missing probability.</li>
+  <li><strong>Check</strong>: all of them together should now make exactly 1.</li>
+</ol>
+<p>Example: P(red) = 0.2, P(blue) = 0.5, P(green) = ?. Known total 0.2 + 0.5 = 0.7, so P(green) = 1 − 0.7 = 0.3. Check: 0.2 + 0.5 + 0.3 = 1 ✓</p>
+<p><strong>With an unknown x.</strong> Sometimes the missing probabilities are written with a letter, such as 0.2, 0.35, 2x and x. Write "everything adds to 1" as an equation and solve it: 0.2 + 0.35 + 2x + x = 1, so 0.55 + 3x = 1, so 3x = 0.45, so x = 0.15. Notice 2x + x is <strong>3x</strong>, so you divide by 3 at the end.</p>
+<p>Practise below. The bar shows the known probabilities in <span class="A">teal</span> and the unknown part in <span class="U">purple</span>. If you go wrong, the feedback tries to spot <em>which</em> mistake you made.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>question type <select id="mpType">
+      <option value="mix">mixed</option><option value="dec">decimals</option><option value="frac">fractions</option><option value="alg">with x</option>
+    </select></label>
+  </div>
+  <p class="pq" id="mpQ"></p>
+  <table class="vt" id="mpTable"></table>
+  <svg id="mpSvg" viewBox="0 0 400 110" width="400" height="110" aria-label="Probability bar of length 1"></svg>
+  <p class="pq" id="mpAsk"></p>
+  <div class="controls">
+    <label>answer <input type="text" id="mpA" inputmode="decimal" autocomplete="off"></label>
+    <button class="btn primary" id="mpGo">Check</button>
+    <button class="btn" id="mpShow">Show working</button>
+    <button class="btn" id="mpNew">New question</button>
+  </div>
+  <div class="msg" id="mpMsg"></div>
+  <div class="work" id="mpWork" hidden></div>
+  <div class="msg" id="mpScore"></div>
+</div>
+
+<h2>6 · The OR rule: P(A or B) = P(A) + P(B)</h2>
+<p>A bag has 10 counters: 3 red, 2 blue and 5 green. What is the probability of taking a counter that is red <em>or</em> blue? Count them: 3 + 2 = 5 of the 10 counters, so 5/10. And look: P(red) + P(blue) = 3/10 + 2/10 = 5/10. Adding works, because no counter is both red and blue.</p>
+<p class="big">If A and B are mutually exclusive:<br>P(A or B) = P(A) + P(B)</p>
+<p>But if the events <strong>overlap</strong>, adding counts the overlapping outcomes <strong>twice</strong> and gives an answer that is too big. Choose two events on the spinner below and compare "add the probabilities" with "count the sectors".</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>A = landing on <select id="orA"></select></label>
+    <label>B = landing on <select id="orB"></select></label>
+  </div>
+  <svg id="orSvg" viewBox="0 0 400 290" width="400" height="290" aria-label="Spinner with eight equal sectors"></svg>
+  <div class="work" id="orWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Only add when the events can't happen together.</strong> When they overlap, list or count the outcomes instead. Diagrams that show overlapping events clearly, called Venn diagrams, are on the <a href="sample-spaces-venn-diagrams.html">sample spaces and Venn diagrams page</a>.</p>
+</div>
+
+<h2>7 · Common mistakes and how to spot them</h2>
+<ul>
+  <li><strong>Probabilities adding to more than 1.</strong> A full list of mutually exclusive outcomes must add to <em>exactly</em> 1. If yours make 1.2, something is wrong.</li>
+  <li><strong>Using 100 instead of 1.</strong> Certain is 1. "100 − 0.3" gives 99.7, which is impossible. (100 is only right if everything is in percentages: 100% − 30% = 70%.)</li>
+  <li><strong>Subtracting from the wrong value</strong> (or the wrong way round). The missing probability is <em>1 minus the total</em>, not one probability minus another, and not 0.7 − 1.</li>
+  <li><strong>Adding overlapping events.</strong> P(A) + P(B) only gives P(A or B) when A and B are mutually exclusive.</li>
+  <li><strong>Stopping too soon with x.</strong> If you reach 3x = 0.45, you still have to divide by 3.</li>
+</ul>
+<p>Spot the mistake in each student's working. The bar shows their numbers on a scale from 0 to 1; anything past 1 shows in <span class="O">orange</span>.</p>
+
+<div class="lab">
+  <p class="pq" id="mkQ"></p>
+  <div class="work" id="mkWork"></div>
+  <svg id="mkSvg" viewBox="0 0 400 150" width="400" height="150" aria-label="The student's probabilities drawn on a bar"></svg>
+  <div class="mkopts" id="mkOpts"></div>
+  <div class="msg" id="mkMsg"></div>
+  <div class="controls"><button class="btn primary" id="mkNext">Next student</button></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>A spinner can land on red, blue or green. P(red) = 0.3 and P(blue) = 0.45. Find P(green).</summary>
+  <div class="step"><strong>Can I use "add to 1"?</strong> The spinner lands on exactly one colour (mutually exclusive) and these are the only colours (exhaustive). Yes.</div>
+  <div class="step"><strong>Add the ones I know:</strong> 0.3 + 0.45 = 0.75.</div>
+  <div class="step"><strong>Take away from 1:</strong> P(green) = 1 − 0.75 = <strong>0.25</strong>.</div>
+  <div class="step"><strong>Check:</strong> 0.3 + 0.45 + 0.25 = 1 ✓ (0.25 is the same as 1/4.)</div>
+</details>
+<details>
+  <summary>The probability a train is late is 0.08. Find the probability it is not late. Then: P(Sam wins) = 3/7; find P(Sam does not win).</summary>
+  <div class="step"><strong>Late and not late</strong> are mutually exclusive and exhaustive, so P(not late) = 1 − P(late).</div>
+  <div class="step">P(not late) = 1 − 0.08 = <strong>0.92</strong>. Check: 0.08 + 0.92 = 1 ✓</div>
+  <div class="step"><strong>With fractions,</strong> write 1 as a fraction with the same denominator: 1 = 7/7.</div>
+  <div class="step">P(Sam does not win) = 7/7 − 3/7 = <strong>4/7</strong>. Check: 3/7 + 4/7 = 7/7 = 1 ✓</div>
+</details>
+<details>
+  <summary>The table shows probabilities for a bag of counters: red 0.2, blue 0.35, green 2x, yellow x. Find x and P(green).</summary>
+  <div class="step"><strong>Everything adds to 1:</strong> 0.2 + 0.35 + 2x + x = 1.</div>
+  <div class="step"><strong>Collect like terms:</strong> 0.2 + 0.35 = 0.55 and 2x + x = 3x, so 0.55 + 3x = 1.</div>
+  <div class="step"><strong>Subtract 0.55 from both sides:</strong> 3x = 1 − 0.55 = 0.45.</div>
+  <div class="step"><strong>Divide both sides by 3:</strong> x = 0.45 ÷ 3 = <strong>0.15</strong>.</div>
+  <div class="step"><strong>P(green) = 2x</strong> = 2 × 0.15 = <strong>0.3</strong>.</div>
+  <div class="step"><strong>Check:</strong> 0.2 + 0.35 + 0.3 + 0.15 = 1 ✓</div>
+</details>
+<details>
+  <summary>Outcomes A, B and C are mutually exclusive and exhaustive. P(A) = 1/4 and P(B) = 1/3. Find P(C).</summary>
+  <div class="step"><strong>Common denominator:</strong> 12 works for both 4 and 3. 1/4 = 3/12 and 1/3 = 4/12.</div>
+  <div class="step"><strong>Add:</strong> 3/12 + 4/12 = 7/12.</div>
+  <div class="step"><strong>Take away from 1 = 12/12:</strong> P(C) = 12/12 − 7/12 = <strong>5/12</strong>.</div>
+  <div class="step"><strong>Check:</strong> 3/12 + 4/12 + 5/12 = 12/12 = 1 ✓</div>
+</details>
+<details>
+  <summary>A counter is taken from a bag. P(red) = 0.15 and P(blue) = 0.4. Find P(red or blue) and P(neither red nor blue).</summary>
+  <div class="step"><strong>Mutually exclusive?</strong> One counter can't be red and blue, so yes: use the OR rule.</div>
+  <div class="step">P(red or blue) = 0.15 + 0.4 = <strong>0.55</strong>.</div>
+  <div class="step"><strong>"Neither"</strong> is "not (red or blue)": P = 1 − 0.55 = <strong>0.45</strong>.</div>
+</details>
+<details>
+  <summary>A fair dice is rolled. Find P(even or more than 4).</summary>
+  <div class="step"><strong>List each event:</strong> even = 2, 4, 6 (3/6); more than 4 = 5, 6 (2/6).</div>
+  <div class="step"><strong>Overlap?</strong> 6 is in both, so they are <em>not</em> mutually exclusive. Adding 3/6 + 2/6 = 5/6 would count the 6 twice: wrong.</div>
+  <div class="step"><strong>Count instead:</strong> the outcomes that are even or more than 4 are 2, 4, 5, 6: four outcomes.</div>
+  <div class="step">P(even or more than 4) = 4/6 = <strong>2/3</strong>.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>An <strong>outcome</strong> is one possible result; an <strong>event</strong> is an outcome or a group of outcomes.</li>
+  <li>Events are <strong>mutually exclusive</strong> if they cannot happen at the same time. To test, look for one outcome in both: if there is one, they overlap.</li>
+  <li>A set of outcomes is <strong>exhaustive</strong> if it includes every possibility, so one of them must happen.</li>
+  <li>The probabilities of a set of mutually exclusive, exhaustive outcomes <strong>add up to exactly 1</strong>.</li>
+  <li><strong>P(not A) = 1 − P(A)</strong>.</li>
+  <li>To find a missing probability: add the known ones and take the total away from 1. With x, write "total = 1" as an equation, collect the x terms and solve.</li>
+  <li>For mutually exclusive events, <strong>P(A or B) = P(A) + P(B)</strong>. If events overlap, adding counts the overlap twice, so count the outcomes instead.</li>
+  <li>Sense checks: no probability is below 0 or above 1, use 1 not 100, and a full list must total exactly 1.</li>
+</ul>
+
+<footer>Made for KS3 students. Mutually exclusive and exhaustive outcomes, and probabilities that sum to one, are in the England national curriculum at key stage 3 under Probability. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=4) => minus(parseFloat((+v).toFixed(d)).toString());
+const gcd = (a,b) => b ? gcd(b, a % b) : Math.abs(a);
+const frac = (n,d) => { if(n===0) return '0'; const g=gcd(n,d); n/=g; d/=g; return d===1 ? minus(String(n)) : minus(n+'/'+d); };
+const F = () => `font-family="${css('--mono')}"`;
+const near = (a,b,t=1e-6) => Math.abs(a-b) < t;
+const rnd = n => Math.floor(Math.random()*n);
+const pick = a => a[rnd(a.length)];
+const sum = a => a.reduce((s,x)=>s+x,0);
+function parseAns(s){
+  s = String(s).trim().replace(/−/g,'-').replace(/\s+/g,''); if(!s) return null;
+  let pct=false; if(s.endsWith('%')){ pct=true; s=s.slice(0,-1); }
+  let v, isFrac=false;
+  if(s.includes('/')){ const parts=s.split('/'); if(parts.length!==2) return null; const x=parseFloat(parts[0]), y=parseFloat(parts[1]); if(!isFinite(x)||!isFinite(y)||y===0) return null; v=x/y; isFrac=true; }
+  else { if(!/^-?\d*\.?\d+$/.test(s)) return null; v=parseFloat(s); }
+  if(pct) v/=100;
+  return {v, isFrac};
+}
+const svgXY = (svg,ev,W,H) => { const r=svg.getBoundingClientRect(); return [(ev.clientX-r.left)/r.width*W, (ev.clientY-r.top)/r.height*H]; };
+const polar = (cx,cy,r,f) => { const a=f*2*Math.PI - Math.PI/2; return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; };
+function sectorD(cx,cy,r,f0,f1){
+  if(f1-f0 >= 0.9999) return `M${cx},${cy-r} A${r},${r} 0 1 1 ${cx-0.01},${cy-r} Z`;
+  const [x0,y0]=polar(cx,cy,r,f0),[x1,y1]=polar(cx,cy,r,f1);
+  return `M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${(f1-f0)>0.5?1:0} 1 ${x1},${y1} Z`;
+}
+const listStr = a => a.length<=1 ? a.join('') : a.slice(0,-1).join(', ') + ' and ' + a[a.length-1];
+
+/* shared: 8-sector spinner, dice and cards */
+const SP_COL = ['teal','grey','purple','teal','grey','purple','teal','grey'];
+const COLTOK = {teal:'--accent', purple:'--two', grey:'--muted', orange:'--hi'};
+const EV8 = {
+  teal:{n:'teal', f:k=>SP_COL[k-1]==='teal'},
+  purple:{n:'purple', f:k=>SP_COL[k-1]==='purple'},
+  grey:{n:'grey', f:k=>SP_COL[k-1]==='grey'},
+  even:{n:'an even number', f:k=>k%2===0},
+  odd:{n:'an odd number', f:k=>k%2===1},
+  prime:{n:'a prime number', f:k=>[2,3,5,7].includes(k)},
+  lt4:{n:'a number less than 4', f:k=>k<4},
+  gt6:{n:'a number more than 6', f:k=>k>6},
+  m3:{n:'a multiple of 3', f:k=>k%3===0}
+};
+function spin8SVG(fa,fb,reveal){
+  const cx=200, cy=145, r=105; let s='', outl='';
+  for(let k=1;k<=8;k++){
+    const inA=fa?fa(k):false, inB=fb?fb(k):false, both=inA&&inB, none=!inA&&!inB;
+    const f0=(k-1)/8, f1=k/8, op=(reveal&&none)?0.2:1;
+    s+=`<path d="${sectorD(cx,cy,r,f0,f1)}" fill="${css(COLTOK[SP_COL[k-1]])}" stroke="${css('--panel')}" stroke-width="2" opacity="${op}"/>`;
+    const [tx,ty]=polar(cx,cy,r*0.66,(f0+f1)/2);
+    s+=`<text x="${tx}" y="${ty+6}" text-anchor="middle" font-size="18" font-weight="600" fill="${css('--bg')}" ${F()} opacity="${op}">${k}</text>`;
+    if(reveal && !none){
+      const [lx,ly]=polar(cx,cy,r+22,(f0+f1)/2);
+      s+=`<text x="${lx}" y="${ly+5}" text-anchor="middle" font-size="14" font-weight="700" fill="${both?css('--hi'):css('--fg')}" ${F()}>${both?'A+B':inA?'A':'B'}</text>`;
+    }
+    if(reveal && both) outl+=`<path d="${sectorD(cx,cy,r,f0,f1)}" fill="none" stroke="${css('--hi')}" stroke-width="4" stroke-dasharray="7 4" stroke-linejoin="round"/>`;
+  }
+  const [px,py]=polar(cx,cy,r*0.45,0.31);
+  s+=outl+`<line x1="${cx}" y1="${cy}" x2="${px}" y2="${py}" stroke="${css('--fg')}" stroke-width="4" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="7" fill="${css('--fg')}"/>`;
+  return s;
+}
+const PIPS={1:[[0,0]],2:[[-1,-1],[1,1]],3:[[-1,-1],[0,0],[1,1]],4:[[-1,-1],[1,-1],[-1,1],[1,1]],5:[[-1,-1],[1,-1],[0,0],[-1,1],[1,1]],6:[[-1,-1],[1,-1],[-1,0],[1,0],[-1,1],[1,1]]};
+function dieSVG(x,y,s,n,fill,stroke,sw,dash,op){
+  let t=`<g opacity="${op}"><rect x="${x}" y="${y}" width="${s}" height="${s}" rx="8" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+  PIPS[n].forEach(([a,b])=>t+=`<circle cx="${x+s/2+a*s*0.27}" cy="${y+s/2+b*s*0.27}" r="${s*0.085}" fill="${css('--fg')}"/>`);
+  return t+'</g>';
+}
+const DX = i => 16.5 + i*63;
+function dice6SVG(fa,fb,reveal){
+  let s='';
+  for(let k=1;k<=6;k++){
+    const inA=fa?fa(k):false, inB=fb?fb(k):false, both=inA&&inB, none=!inA&&!inB;
+    const x=DX(k-1), y=40;
+    if(!reveal) s+=dieSVG(x,y,52,k,css('--panel'),css('--fg'),2,'',1);
+    else{
+      s+=dieSVG(x,y,52,k,both?css('--hi-soft'):css('--panel'),both?css('--hi'):css('--fg'),both?4:2,both?'7 4':'',none?0.2:1);
+      if(!none) s+=`<text x="${x+26}" y="${y+76}" text-anchor="middle" font-size="14" font-weight="700" fill="${both?css('--hi'):css('--fg')}" ${F()}>${both?'A+B':inA?'A':'B'}</text>`;
+    }
+  }
+  return s;
+}
+const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'], SUITS=['♠','♥','♦','♣'];
+const CARDS=[]; for(let si=0;si<4;si++) for(let ri=0;ri<13;ri++) CARDS.push({r:ri,s:si});
+function cardsSVG(fa,fb,reveal){
+  let s='', outl='';
+  SUITS.forEach((su,i)=>s+=`<text x="16" y="${14+i*40+22}" text-anchor="middle" font-size="18" fill="${css('--fg')}">${su}</text>`);
+  CARDS.forEach(c=>{
+    const x=34+c.r*28, y=14+c.s*40;
+    const inA=fa?fa(c):false, inB=fb?fb(c):false, both=inA&&inB, none=!inA&&!inB;
+    const op=(reveal&&none)?0.2:1;
+    s+=`<g opacity="${op}"><rect x="${x+1}" y="${y}" width="26" height="34" rx="4" fill="${reveal&&both?css('--hi-soft'):css('--panel')}" stroke="${css('--line')}" stroke-width="1.5"/><text x="${x+14}" y="${y+22}" text-anchor="middle" font-size="12" font-weight="600" fill="${css('--fg')}" ${F()}>${RANKS[c.r]}</text></g>`;
+    if(reveal&&both) outl+=`<rect x="${x+1}" y="${y}" width="26" height="34" rx="4" fill="none" stroke="${css('--hi')}" stroke-width="3.5" stroke-dasharray="5 3"/>`;
+  });
+  return s+outl;
+}
+
+/* 1. sorter */
+const UNIV={
+  dice:{items:[1,2,3,4,5,6], name:k=>String(k), intro:'Roll one ordinary dice.', vb:'0 0 400 130', draw:dice6SVG, unit:'number'},
+  spin:{items:[1,2,3,4,5,6,7,8], name:k=>'sector '+k, intro:'Spin this spinner once.', vb:'0 0 400 290', draw:spin8SVG, unit:'sector'},
+  cards:{items:CARDS, name:c=>RANKS[c.r]+SUITS[c.s], intro:'Pick one card from a normal pack of 52.', vb:'0 0 400 176', draw:cardsSVG, unit:'card'}
+};
+const SORT=[
+  {u:'dice',a:'rolling a 6',b:'rolling an odd number',fa:k=>k===6,fb:k=>k%2===1},
+  {u:null,a:'today is Monday',b:'today is Tuesday',ex:true,why:'A day cannot be Monday and Tuesday at the same time, so these are mutually exclusive.'},
+  {u:'spin',a:'landing on grey',b:'landing on an even number',fa:EV8.grey.f,fb:EV8.even.f},
+  {u:'cards',a:'picking a King',b:'picking a Heart',fa:c=>c.r===12,fb:c=>c.s===1},
+  {u:'dice',a:'rolling an even number',b:'rolling more than 3',fa:k=>k%2===0,fb:k=>k>3},
+  {u:null,a:'it is raining',b:'it is sunny',ex:false,why:'Sun and rain can happen at the same time (that\'s when you see a rainbow), so these are not mutually exclusive.'},
+  {u:'spin',a:'landing on purple',b:'landing on a number more than 6',fa:EV8.purple.f,fb:EV8.gt6.f},
+  {u:'cards',a:'picking a King',b:'picking a Queen',fa:c=>c.r===12,fb:c=>c.r===11},
+  {u:'dice',a:'rolling a 1',b:'rolling a prime number',fa:k=>k===1,fb:k=>[2,3,5].includes(k),extra:' Careful: 1 is not a prime number (a prime has exactly two factors).'},
+  {u:'cards',a:'picking a red card (♥ or ♦)',b:'picking a club (♣)',fa:c=>c.s===1||c.s===2,fb:c=>c.s===3},
+  {u:'spin',a:'landing on teal',b:'landing on an odd number',fa:EV8.teal.f,fb:EV8.odd.f},
+  {u:null,a:'a coin lands heads',b:'the same coin, on the same flip, lands tails',ex:true,why:'One flip gives one result, so heads and tails are mutually exclusive.'},
+  {u:'cards',a:'picking a picture card (J, Q or K)',b:'picking a spade (♠)',fa:c=>c.r>=10,fb:c=>c.s===0},
+  {u:null,a:'a student plays football',b:'the same student plays tennis',ex:false,why:'Plenty of people play both sports, so these are not mutually exclusive.'},
+  {u:'spin',a:'landing on teal',b:'landing on a multiple of 3',fa:EV8.teal.f,fb:EV8.m3.f},
+  {u:'dice',a:'rolling less than 3',b:'rolling more than 4',fa:k=>k<3,fb:k=>k>4}
+];
+SORT.forEach(S=>{ if(S.u){ const U=UNIV[S.u]; const both=U.items.filter(x=>S.fa(x)&&S.fb(x)).map(U.name); S.ex=both.length===0;
+  S.why = S.ex ? `No ${U.unit} is in both events, so they can't happen together: mutually exclusive.${S.extra||''}`
+               : `${listStr(both)} ${both.length===1?'is':'are'} in both (outlined in orange), so both events can happen at once: NOT mutually exclusive.${S.extra||''}`; }});
+let sr={i:0,done:false,right:0,tries:0};
+function drawSR(){
+  const S=SORT[sr.i], svg=$('srSvg');
+  $('srQ').innerHTML=`${S.u?UNIV[S.u].intro+' ':''}A = <strong>${S.a}</strong>, B = <strong>${S.b}</strong>. Can A and B happen at the same time?`;
+  if(S.u){ svg.hidden=false; svg.setAttribute('viewBox',UNIV[S.u].vb); const vb=UNIV[S.u].vb.split(' '); svg.setAttribute('height',vb[3]); svg.innerHTML=UNIV[S.u].draw(S.fa,S.fb,sr.done); }
+  else { svg.hidden=true; svg.innerHTML=''; }
+}
+function srAnswer(saysEx){ if(sr.done) return; const S=SORT[sr.i]; sr.done=true; sr.tries++; const ok=saysEx===S.ex; if(ok) sr.right++;
+  const M=$('srMsg'); M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'Yes. ':'Not this time. ')+S.why;
+  $('srScore').textContent=`Score: ${sr.right} out of ${sr.tries}.`; drawSR(); }
+$('srYes').addEventListener('click',()=>srAnswer(true));
+$('srNo').addEventListener('click',()=>srAnswer(false));
+$('srNext').addEventListener('click',()=>{ sr.i=(sr.i+1)%SORT.length; sr.done=false; $('srMsg').className='msg'; $('srMsg').textContent=''; drawSR(); });
+drawSR();
+
+/* 2. exhaustive dice cover */
+const EV2=[{n:'even',s:[2,4,6]},{n:'odd',s:[1,3,5]},{n:'less than 3',s:[1,2]},{n:'3 or 4',s:[3,4]},{n:'more than 4',s:[5,6]},{n:'a prime',s:[2,3,5]},{n:'a 1',s:[1]},{n:'a 6',s:[6]},{n:'more than 1',s:[2,3,4,5,6]},{n:'4 or 6',s:[4,6]}];
+const exOn=new Set([0,4]); const exFound=new Set();
+EV2.forEach((e,i)=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=e.n; b.dataset.i=i;
+  b.addEventListener('click',()=>{ exOn.has(i)?exOn.delete(i):exOn.add(i); drawEX(); }); $('exChips').appendChild(b); });
+function drawEX(){
+  $('exChips').querySelectorAll('button').forEach(b=>b.classList.toggle('on',exOn.has(+b.dataset.i)));
+  const on=[...exOn].sort((a,b)=>a-b), cnt=[0,0,0,0,0,0,0];
+  on.forEach(i=>EV2[i].s.forEach(k=>cnt[k]++));
+  let s='';
+  for(let k=1;k<=6;k++){ const c=cnt[k], x=DX(k-1), y=14;
+    if(c===0) s+=dieSVG(x,y,52,k,css('--panel'),css('--muted'),2,'5 4',0.45);
+    else s+=dieSVG(x,y,52,k,c===1?css('--accent-soft'):css('--hi-soft'),c===1?css('--accent'):css('--hi'),c===1?2.5:4,'',1);
+    s+=`<text x="${x+26}" y="${y+80}" text-anchor="middle" font-size="13" font-weight="600" fill="${c===0?css('--muted'):c===1?css('--accent'):css('--hi')}" ${F()}>${c===0?'missed':c===1?'once':'×'+c}</text>`;
+  }
+  $('exSvg').innerHTML=s;
+  const missed=[1,2,3,4,5,6].filter(k=>cnt[k]===0), twice=[1,2,3,4,5,6].filter(k=>cnt[k]>1);
+  let w;
+  if(!on.length) w='Tap some events to start covering the dice.';
+  else{
+    w=`Chosen: ${on.map(i=>'"'+EV2[i].n+'"').join(', ')}<br>`;
+    w+= missed.length ? `<span class="x">Not exhaustive:</span> ${listStr(missed.map(String))} ${missed.length===1?'is':'are'} not covered.<br>` : `<span class="a">Exhaustive:</span> every face is covered.<br>`;
+    w+= twice.length ? `<span class="b">Not mutually exclusive:</span> ${listStr(twice.map(String))} ${twice.length===1?'is':'are'} in more than one event.` : (on.length>1?`<span class="a">Mutually exclusive:</span> no face is in two events.`:`Only one event chosen, so nothing can overlap.`);
+    if(!missed.length && !twice.length){ w+=`<br><strong>Both! Every face is in exactly one event.</strong>`; exFound.add(on.map(i=>EV2[i].n).join(' | ')); }
+  }
+  $('exWork').innerHTML=w;
+  $('exFound').textContent = exFound.size ? `Sets you've found that are both (${exFound.size}): ${[...exFound].map(t=>'{'+t.split(' | ').join(', ')+'}').join('; ')}` : '';
+}
+drawEX();
+
+/* 3. share-out spinner */
+const SH={c:[25,55,80], step:5, drag:null, hide:-1};
+const SHN=['teal','orange','purple','grey'], SHT=['--accent','--hi','--two','--muted'];
+const SCX=200, SCY=160, SR=125, BX=30, BW=340, BY=300, BH=32;
+const shVals = () => { const b=[0,...SH.c,100]; return [0,1,2,3].map(i=>b[i+1]-b[i]); };
+function drawSH(){
+  const v=shVals(), b=[0,...SH.c,100]; let s='';
+  v.forEach((h,i)=>{ const f0=b[i]/100, f1=b[i+1]/100;
+    s+=`<path d="${sectorD(SCX,SCY,SR,f0,f1)}" fill="${css(SHT[i])}" stroke="${css('--panel')}" stroke-width="2"/>`;
+    if(h>=6){ const [tx,ty]=polar(SCX,SCY,SR*0.64,(f0+f1)/2); s+=`<text x="${tx}" y="${ty+6}" text-anchor="middle" font-size="16" font-weight="600" fill="${css('--bg')}" ${F()}>${SH.hide===i?'?':fmt(h/100)}</text>`; }
+    const x=BX+BW*f0, w=BW*(f1-f0);
+    s+=`<rect x="${x}" y="${BY}" width="${w}" height="${BH}" fill="${css(SHT[i])}" stroke="${css('--panel')}" stroke-width="1.5"/>`;
+    if(w>=36) s+=`<text x="${x+w/2}" y="${BY+21}" text-anchor="middle" font-size="13" font-weight="600" fill="${css('--bg')}" ${F()}>${SH.hide===i?'?':fmt(h/100)}</text>`;
+  });
+  s+=`<polygon points="${SCX-7},${SCY-SR-12} ${SCX+7},${SCY-SR-12} ${SCX},${SCY-SR-2}" fill="${css('--fg')}"/>`;
+  SH.c.forEach(t=>{ const [hx,hy]=polar(SCX,SCY,SR,t/100); const bx=BX+BW*t/100;
+    s+=`<circle cx="${hx}" cy="${hy}" r="11" fill="${css('--panel')}" stroke="${css('--fg')}" stroke-width="2.5"/>`;
+    s+=`<rect x="${bx-6}" y="${BY-7}" width="12" height="${BH+14}" rx="4" fill="${css('--panel')}" stroke="${css('--fg')}" stroke-width="2"/>`; });
+  s+=`<text x="${BX}" y="${BY+BH+24}" text-anchor="middle" font-size="12" fill="${css('--muted')}" ${F()}>0</text><text x="${BX+BW}" y="${BY+BH+24}" text-anchor="middle" font-size="12" fill="${css('--muted')}" ${F()}>1</text><text x="${BX+BW/2}" y="${BY+BH+24}" text-anchor="middle" font-size="12" fill="${css('--muted')}">the whole bar is 1 (certain)</text>`;
+  $('shSvg').innerHTML=s;
+  $('shRead').innerHTML=v.map((h,i)=>`<div style="color:var(${SHT[i]})"><b>P(${SHN[i]})</b>${SH.hide===i?'?':fmt(h/100)}${SH.hide===i?'':' = '+frac(h,100)}</div>`).join('');
+  $('shWork').innerHTML=`P(teal) + P(orange) + P(purple) + P(grey)<br>= ${v.map((h,i)=>SH.hide===i?'<span class="c">?</span>':fmt(h/100)).join(' + ')} = <strong>1</strong>`;
+}
+function shMove(e){ if(!SH.drag) return; const [x,y]=svgXY($('shSvg'),e,400,380); const i=SH.drag.i; let t;
+  if(SH.drag.mode==='spin'){ let f=Math.atan2(x-SCX, -(y-SCY))/(2*Math.PI); if(f<0) f+=1; t=f*100;
+    if(i===0 && t>SH.c[1] && t>75) t=0; if(i===2 && t<SH.c[1] && t<25) t=100; }
+  else t=(x-BX)/BW*100;
+  const st=SH.step; t=Math.round(t/st)*st;
+  const lo=(i?SH.c[i-1]:0)+st, hi=(i<2?SH.c[i+1]:100)-st; t=Math.max(lo,Math.min(hi,t));
+  if(t!==SH.c[i]){ SH.c[i]=t; if(SH.hide>=0){ SH.hide=-1; $('shAsk').hidden=true; $('shMsg').className='msg'; $('shMsg').textContent='The sectors changed, so the test was cancelled. Press the button again for a new one.'; } drawSH(); } }
+$('shSvg').addEventListener('pointerdown',e=>{ const [x,y]=svgXY($('shSvg'),e,400,380); let best=-1, bd=1e9, mode='';
+  SH.c.forEach((t,i)=>{ const [hx,hy]=polar(SCX,SCY,SR,t/100); const d=Math.hypot(x-hx,y-hy); if(d<bd){bd=d;best=i;mode='spin';}
+    const bx=BX+BW*t/100; const d2=Math.abs(x-bx)+((y>BY-25&&y<BY+BH+25)?0:999); if(d2<bd){bd=d2;best=i;mode='bar';} });
+  if(bd>34) return; SH.drag={i:best,mode}; try{$('shSvg').setPointerCapture(e.pointerId);}catch(err){} e.preventDefault(); shMove(e); });
+$('shSvg').addEventListener('pointermove',shMove);
+['pointerup','pointercancel','lostpointercapture'].forEach(n=>$('shSvg').addEventListener(n,()=>{SH.drag=null;}));
+$('shFine').addEventListener('input',()=>{ SH.step=$('shFine').checked?1:5;
+  if(SH.step===5){ SH.c=SH.c.map(v=>Math.round(v/5)*5); const b=[0,...SH.c,100]; if(b.some((v,i)=>i&&v-b[i-1]<5)) SH.c=[25,55,80]; drawSH(); } });
+$('shTest').addEventListener('click',()=>{ SH.hide=rnd(4); $('shAsk').hidden=false; $('shAskL').textContent=`P(${SHN[SH.hide]})`; $('shAns').value=''; $('shMsg').className='msg'; $('shMsg').textContent=`One probability is hidden. Use the others to work out P(${SHN[SH.hide]}).`; drawSH(); });
+$('shGo').addEventListener('click',()=>{ if(SH.hide<0) return; const v=shVals(), h=SH.hide, T=v[h]/100, others=1-T, p=parseAns($('shAns').value), M=$('shMsg');
+  if(!p){ M.className='msg bad'; M.textContent='Type a number, e.g. 0.35.'; return; }
+  if(near(p.v,T)){ M.className='msg good'; M.textContent=`Correct: 1 − ${fmt(others)} = ${fmt(T)}. The hidden sector is back.`; SH.hide=-1; $('shAsk').hidden=true; drawSH(); return; }
+  M.className='msg bad';
+  if(near(p.v,others)) M.textContent=`${fmt(others)} is what the other three add up to. The missing one is what is left over: subtract it from 1.`;
+  else if(near(p.v,100-others)) M.textContent='It looks like you used 100. Certain is 1, so subtract from 1, not 100.';
+  else if(near(p.v,T*100)) M.textContent=`That's the percentage. As a probability, divide by 100: it's between 0 and 1.`;
+  else if(p.v>1) M.textContent='A probability can never be more than 1. Add the three you can see, then take that from 1.';
+  else M.textContent='Not quite. Add the three probabilities you can see, then take the total away from 1.'; });
+drawSH();
+
+/* 4. not visualiser */
+const NVE=[['rain','no rain'],['bus late','bus not late'],['win','not win'],['butter-side down','not butter-side down']];
+function drawNV(){ const p=+$('nvP').value, e=NVE[+$('nvE').value]; $('nvPv').textContent=' '+fmt(p/100);
+  let s=''; const q=21, x0=8, y0=10;
+  for(let i=0;i<100;i++){ const r=Math.floor(i/10), c=i%10, inA=i<p;
+    s+=`<rect x="${x0+c*q}" y="${y0+r*q}" width="${q-2}" height="${q-2}" rx="2" fill="${inA?css('--accent'):css('--muted')}" opacity="${inA?1:0.3}"/>`; }
+  const tx=240;
+  s+=`<text x="${tx}" y="40" font-size="15" font-weight="600" fill="${css('--accent')}">A: ${p} square${p===1?'':'s'}</text><text x="${tx}" y="62" font-size="14" fill="${css('--accent')}" ${F()}>P(A) = ${fmt(p/100)}</text>`;
+  s+=`<text x="${tx}" y="110" font-size="15" font-weight="600" fill="${css('--muted')}">not A: ${100-p} square${100-p===1?'':'s'}</text><text x="${tx}" y="132" font-size="14" fill="${css('--muted')}" ${F()}>P(not A) = ${fmt((100-p)/100)}</text>`;
+  s+=`<text x="${tx}" y="180" font-size="14" fill="${css('--fg')}">together: 100 squares</text><text x="${tx}" y="200" font-size="14" fill="${css('--fg')}" ${F()}>= 1 whole</text>`;
+  $('nvSvg').innerHTML=s;
+  $('nvWork').innerHTML=`P(${e[1]}) = 1 − P(${e[0]})<br>= 1 − ${fmt(p/100)} = <strong class="a">${fmt((100-p)/100)}</strong><br>Check: ${fmt(p/100)} + ${fmt((100-p)/100)} = 1 ✓`; }
+$('nvP').addEventListener('input',drawNV); $('nvE').addEventListener('input',drawNV); drawNV();
+
+const NTC=[['a train is late','the train is not late'],['it snows on Christmas Day','it does not snow on Christmas Day'],['a seed grows','the seed does not grow'],['Sam wins the game','Sam does not win the game'],['a spinner lands on blue','the spinner does not land on blue'],['a light bulb is faulty','the light bulb is not faulty']];
+let nt={};
+const terminates = d => { while(d%2===0) d/=2; while(d%5===0) d/=5; return d===1; };
+function ntNew(){ const c=pick(NTC);
+  if(Math.random()<0.55){ const p=Math.random()<0.6 ? 5*(1+rnd(19)) : 1+rnd(99); nt={c, A:p/100, T:(100-p)/100, shown:fmt(p/100), ans:fmt((100-p)/100), d:100}; }
+  else{ const d=pick([3,4,5,6,7,8,9,10,12,20]); let n; do{ n=1+rnd(d-1); } while(gcd(n,d)!==1); nt={c, A:n/d, T:(d-n)/d, shown:frac(n,d), ans:frac(d-n,d), d}; }
+  $('ntQ').innerHTML=`The probability that ${c[0]} is <strong>${nt.shown}</strong>. What is the probability that ${c[1]}?`;
+  $('ntA').value=''; $('ntMsg').className='msg'; $('ntMsg').textContent=''; }
+$('ntGo').addEventListener('click',()=>{ const p=parseAns($('ntA').value), M=$('ntMsg');
+  if(!p){ M.className='msg bad'; M.textContent='Type a decimal like 0.65 or a fraction like 5/8.'; return; }
+  const tol=(p.isFrac||terminates(nt.d))?1e-6:0.006;
+  if(near(p.v,nt.T,tol)){ M.className='msg good'; M.textContent=`Correct: 1 − ${nt.shown} = ${nt.ans}. Check: ${nt.shown} + ${nt.ans} = 1 ✓`; return; }
+  M.className='msg bad';
+  if(near(p.v,nt.A,tol)) M.textContent='That is the probability that it DOES happen. "Not" is everything else: subtract it from 1.';
+  else if(near(p.v,100-nt.A,tol)) M.textContent='It looks like you used 100. Certain is 1, so work out 1 − '+nt.shown+'.';
+  else if(near(p.v,nt.A-1,tol)) M.textContent='Wrong way round: that gives a negative number, and probabilities are never negative. Start from 1: 1 − '+nt.shown+'.';
+  else if(near(p.v,nt.T*100,tol)) M.textContent='That is a percentage. As a probability it must be between 0 and 1, so divide by 100.';
+  else if(p.v>1) M.textContent='A probability can never be more than 1. Work out 1 − '+nt.shown+'.';
+  else M.textContent='Not quite. What do you add to '+nt.shown+' to make exactly 1?'; });
+$('ntNew').addEventListener('click',ntNew); ntNew();
+
+/* 5. missing probability table */
+const NAMES=['red','blue','green','yellow','white'];
+function split(total,n,unit,min){ for(let t=0;t<500;t++){ const cuts=new Set(); while(cuts.size<n-1) cuts.add(unit*(1+rnd(total/unit-1)));
+  const cs=[0,...[...cuts].sort((a,b)=>a-b),total]; const parts=cs.slice(1).map((c,i)=>c-cs[i]); if(parts.every(p=>p>=min)) return parts; } return null; }
+const PAT=[[1,1],[2,1],[1,2],[3,1],[2,3],[1,1,1],[2,1,1],[1,4],[3,2]];
+let mp={}, mpScore={r:0,t:0};
+function mpNew(){
+  let mode=$('mpType').value; if(mode==='mix') mode=pick(['dec','dec','frac','alg']);
+  const ctx=Math.random()<0.5?'A counter is taken at random from a bag. The table shows the probability of each colour.':'A spinner is spun once. The table shows the probability of landing on each colour.';
+  if(mode==='dec'){ const n=3+rnd(3), unit=Math.random()<0.3?1:5; const parts=split(100,n,unit,unit===1?3:5); const m=rnd(n);
+    mp={mode,n,names:NAMES.slice(0,n),vals:parts.map(p=>p/100),m,T:parts[m]/100,d:100,disp:parts.map(p=>fmt(p/100)),ans:fmt(parts[m]/100)}; }
+  else if(mode==='frac'){ const d=pick([6,8,10,12,20]), n=3+rnd(2); const parts=split(d,n,1,1); const m=rnd(n);
+    mp={mode,n,names:NAMES.slice(0,n),vals:parts.map(p=>p/d),num:parts,d,m,T:parts[m]/d,disp:parts.map(p=>frac(p,d)),ans:frac(parts[m],d)}; }
+  else { let coefs,c,x,known;
+    for(;;){ coefs=pick(PAT); c=sum(coefs); x=pick([5,10,15,20,25]); const rem=100-c*x; if(rem<10||rem>80) continue;
+      known = (rem>=25 && Math.random()<0.7) ? split(rem,2,5,5) : [rem]; if(known) break; }
+    const n=known.length+coefs.length;
+    mp={mode,n,names:NAMES.slice(0,n),known:known.map(k=>k/100),coefs,c,x:x/100,T:x/100,d:100,m:-1,
+      disp:[...known.map(k=>fmt(k/100)),...coefs.map(k=>(k===1?'':k)+'x')],ans:fmt(x/100)}; }
+  $('mpQ').textContent=ctx;
+  $('mpTable').innerHTML=`<tr><th>Colour</th><th>Probability</th></tr>`+mp.names.map((nm,i)=>`<tr><td>${nm}</td><td class="${i===mp.m||(mp.mode==='alg'&&i>=mp.known.length)?'on':''}">${i===mp.m?'?':mp.disp[i]}</td></tr>`).join('');
+  $('mpAsk').innerHTML = mp.mode==='alg' ? 'Find the value of <strong>x</strong>.' : `Find <strong>P(${mp.names[mp.m]})</strong>.`;
+  $('mpA').value=''; $('mpMsg').className='msg'; $('mpMsg').textContent=''; $('mpWork').hidden=true; mp.solved=false; drawMP();
+}
+function drawMP(){
+  const x0=20, W=360, y=34, h=38; let s='', at=0;
+  const seg=(v,fill,stroke,dash,label,lc)=>{ const x=x0+W*at, w=W*v; at+=v;
+    let t=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="${stroke}" stroke-width="2" ${dash?'stroke-dasharray="5 3"':''}/>`;
+    if(w>=26) t+=`<text x="${x+w/2}" y="${y+h/2+5}" text-anchor="middle" font-size="${w>=40?13:11}" font-weight="600" fill="${lc}" ${F()}>${label}</text>`; return t; };
+  const kf=css('--accent-soft'), ks=css('--accent'), uf=css('--two-soft'), us=css('--two');
+  if(mp.mode==='alg'){
+    mp.known.forEach((v,i)=>s+=seg(v,kf,ks,false,mp.disp[i],ks));
+    mp.coefs.forEach((k,j)=>{ const gx=x0+W*at; for(let r=0;r<k;r++) s+=seg(mp.x,uf,us,true,mp.solved?fmt(mp.x):'x',us);
+      const gw=W*k*mp.x; s+=`<rect x="${gx}" y="${y}" width="${gw}" height="${h}" fill="none" stroke="${us}" stroke-width="3"/>`;
+      s+=`<text x="${gx+gw/2}" y="${y-8}" text-anchor="middle" font-size="12" font-weight="600" fill="${us}" ${F()}>${mp.disp[mp.known.length+j]}</text>`; });
+  } else {
+    mp.vals.forEach((v,i)=>{ s+= i===mp.m ? seg(v,uf,us,true,mp.solved?mp.ans:'?',us) : seg(v,kf,ks,false,mp.disp[i],ks); });
+  }
+  s+=`<text x="${x0}" y="${y+h+20}" text-anchor="middle" font-size="12" fill="${css('--muted')}" ${F()}>0</text><text x="${x0+W}" y="${y+h+20}" text-anchor="middle" font-size="12" fill="${css('--muted')}" ${F()}>1</text><text x="${x0+W/2}" y="${y+h+20}" text-anchor="middle" font-size="12" fill="${css('--muted')}">all the outcomes together make 1</text>`;
+  $('mpSvg').innerHTML=s;
+}
+function mpWorking(){
+  let w;
+  if(mp.mode==='dec'){ const kn=mp.vals.filter((v,i)=>i!==mp.m), ks=sum(kn);
+    w=`All the outcomes add up to 1.<br>Known: ${kn.map(v=>fmt(v)).join(' + ')} = ${fmt(ks)}<br>P(${mp.names[mp.m]}) = 1 − ${fmt(ks)} = <strong class="c">${mp.ans}</strong><br>Check: ${mp.vals.map(v=>fmt(v)).join(' + ')} = 1 ✓`; }
+  else if(mp.mode==='frac'){ const d=mp.d, kn=mp.num.filter((v,i)=>i!==mp.m), ks=sum(kn);
+    w=`All the outcomes add up to 1 = ${d}/${d}.<br>Write each with denominator ${d}: ${mp.num.map((v,i)=>i===mp.m?'?':v+'/'+d).join(', ')}<br>Known: ${kn.map(v=>v+'/'+d).join(' + ')} = ${ks}/${d}<br>P(${mp.names[mp.m]}) = ${d}/${d} − ${ks}/${d} = ${d-ks}/${d}${frac(d-ks,d)!==(d-ks)+'/'+d?' = '+frac(d-ks,d):''} → <strong class="c">${mp.ans}</strong><br>Check: ${mp.num.map(v=>v+'/'+d).join(' + ')} = ${d}/${d} = 1 ✓`; }
+  else { const ks=sum(mp.known), xs=mp.coefs.map(k=>(k===1?'':k)+'x');
+    w=`All the outcomes add up to 1:<br>${[...mp.known.map(v=>fmt(v)),...xs].join(' + ')} = 1<br>Collect: ${fmt(ks)} + ${mp.c}x = 1<br>${mp.c}x = 1 − ${fmt(ks)} = ${fmt(1-ks)}<br>x = ${fmt(1-ks)} ÷ ${mp.c} = <strong class="c">${mp.ans}</strong><br>`;
+    w+=mp.coefs.map((k,j)=>`P(${mp.names[mp.known.length+j]}) = ${xs[j]} = ${fmt(k*mp.x)}`).join(', ')+`<br>Check: ${[...mp.known,...mp.coefs.map(k=>k*mp.x)].map(v=>fmt(v)).join(' + ')} = 1 ✓`; }
+  return w;
+}
+$('mpGo').addEventListener('click',()=>{ const p=parseAns($('mpA').value), M=$('mpMsg');
+  if(!p){ M.className='msg bad'; M.textContent='Type a number, e.g. 0.35 or 3/8.'; return; }
+  const tol=(p.isFrac||terminates(mp.d))?1e-6:0.006, T=mp.T, nr=(a,b)=>near(a,b,tol);
+  mpScore.t++;
+  if(nr(p.v,T)){ mpScore.r++; M.className='msg good'; M.textContent=mp.mode==='alg'?`Correct: x = ${mp.ans}.`:`Correct: P(${mp.names[mp.m]}) = ${mp.ans}.`; mp.solved=true; drawMP(); $('mpWork').innerHTML=mpWorking(); $('mpWork').hidden=false; }
+  else { M.className='msg bad'; let t='';
+    if(mp.mode==='alg'){ const ks=sum(mp.known), rem=1-ks, nt=mp.coefs.length;
+      const kmatch=mp.coefs.map((k,j)=>({k,j})).find(o=>o.k!==1&&nr(p.v,o.k*mp.x));
+      if(nr(p.v,rem)) t=`${fmt(rem)} is 1 − ${fmt(ks)}, which is what all the x terms add up to: ${mp.c}x = ${fmt(rem)}. One more step: divide by ${mp.c}.`;
+      else if(kmatch) t=`That is ${kmatch.k}x, the probability of ${mp.names[mp.known.length+kmatch.j]}. The question asks for x itself.`;
+      else if(nt!==mp.c && nr(p.v,rem/nt)) t=`You divided by ${nt}, the number of outcomes with an x. But ${mp.coefs.map(k=>(k===1?'':k)+'x').join(' + ')} = ${mp.c}x, so divide by ${mp.c}.`;
+      else if(nr(p.v,(100-ks)/mp.c)) t='It looks like you used 100. The probabilities add up to 1, not 100.';
+      else if(nr(p.v,(1+ks)/mp.c)) t=`Check your signs: to get ${mp.c}x on its own, subtract ${fmt(ks)} from 1 (don't add it).`;
+      else if(p.v>1) t='A probability can never be more than 1, so x must be less than 1.';
+      else t='Not quite. Write "everything = 1", collect the x terms, then solve.'; }
+    else { const kn=mp.vals.filter((v,i)=>i!==mp.m), ks=sum(kn); const named=mp.vals.map((v,i)=>({v,nm:mp.names[i]})).filter((o,i)=>i!==mp.m);
+      const missOne=named.find(o=>nr(p.v,1-(ks-o.v))), onlyOne=named.find(o=>nr(p.v,1-o.v));
+      let diff=false; for(let i=0;i<kn.length;i++) for(let j=0;j<kn.length;j++) if(i!==j&&nr(p.v,kn[i]-kn[j])) diff=true;
+      if(nr(p.v,ks)) t=`${fmt(ks)} is the total of the probabilities you were given. The missing one is what's left: subtract that total from 1.`;
+      else if(nr(p.v,100-ks)) t='It looks like you used 100. All the probabilities add up to 1, not 100.';
+      else if(nr(p.v,T*100)) t='That looks like a percentage. As a probability it must be between 0 and 1: divide by 100.';
+      else if(nr(p.v,ks-1)) t='Wrong way round: that gives a negative, and probabilities are never negative. Work out 1 − (the total).';
+      else if(missOne && kn.length>2) t=`Close, but it looks like you left out P(${missOne.nm}) when adding up. Add all ${kn.length} given probabilities.`;
+      else if(onlyOne && kn.length>1) t=`You only took P(${onlyOne.nm}) away from 1. Add up ALL the given probabilities first, then subtract from 1.`;
+      else if(diff) t='You subtracted one probability from another. Subtract the total of the given ones from 1 instead.';
+      else if(p.v>1) t='A probability can never be more than 1. Add the known probabilities, then subtract from 1.';
+      else if(p.v<0) t='Probabilities are never negative. Work out 1 − (the total of the known ones).';
+      else t='Not quite. Add up the probabilities you know, then take that total away from 1.'; }
+    M.textContent=t; }
+  $('mpScore').textContent=`Correct: ${mpScore.r} out of ${mpScore.t} tries.`; });
+$('mpShow').addEventListener('click',()=>{ $('mpWork').innerHTML=mpWorking(); $('mpWork').hidden=false; mp.solved=true; drawMP(); });
+$('mpNew').addEventListener('click',mpNew); $('mpType').addEventListener('input',mpNew); mpNew();
+
+/* 6. OR rule */
+Object.keys(EV8).forEach(k=>{ ['orA','orB'].forEach(id=>{ const o=document.createElement('option'); o.value=k; o.textContent=EV8[k].n; $(id).appendChild(o); }); });
+$('orA').value='teal'; $('orB').value='purple';
+function drawOR(){ const A=EV8[$('orA').value], B=EV8[$('orB').value];
+  $('orSvg').innerHTML=spin8SVG(A.f,B.f,true);
+  const S=[1,2,3,4,5,6,7,8], sa=S.filter(A.f), sb=S.filter(B.f), su=S.filter(k=>A.f(k)||B.f(k)), both=S.filter(k=>A.f(k)&&B.f(k));
+  const f8=n=>{ const r=frac(n,8); return n+'/8'+(r!==n+'/8'?' = '+r:''); };
+  let w=`A = ${A.n}: ${sa.length?'sectors '+sa.join(', '):'no sectors'} → P(A) = ${sa.length}/8<br>B = ${B.n}: ${sb.length?'sectors '+sb.join(', '):'no sectors'} → P(B) = ${sb.length}/8<br>`;
+  w+=`Adding: P(A) + P(B) = ${sa.length}/8 + ${sb.length}/8 = ${f8(sa.length+sb.length)}<br>Counting: A or B = ${su.length?'sectors '+su.join(', '):'none'} → P(A or B) = ${f8(su.length)}<br>`;
+  w+= both.length ? `<span class="b">Adding gives too much: ${both.length===1?'sector':'sectors'} ${listStr(both.map(String))} ${both.length===1?'is':'are'} in both events and got counted twice. A and B are not mutually exclusive, so the OR rule doesn't work.</span>`
+                  : `<span class="a">The same answer: no sector is in both, so A and B are mutually exclusive and P(A or B) = P(A) + P(B) works.</span>`;
+  $('orWork').innerHTML=w; }
+$('orA').addEventListener('input',drawOR); $('orB').addEventListener('input',drawOR); drawOR();
+
+/* 7. spot the mistake */
+const MKL=['The probabilities add up to more than 1','Used 100 instead of 1','Subtracted from the wrong value (or the wrong way round)','Added events that overlap','Stopped before finding x'];
+const MK=[
+  {q:'A spinner can only land on red, blue or green. Ali writes down these probabilities:',w:['P(red) = 0.4, P(blue) = 0.5, P(green) = 0.3'],a:0,bar:[[0.4,'0.4'],[0.5,'0.5'],[0.3,'0.3']],fix:null,fb:'0.4 + 0.5 + 0.3 = 1.2. The three colours are mutually exclusive and exhaustive, so they must add to exactly 1. At least one of Ali\'s numbers is wrong.'},
+  {q:'P(it rains) = 0.3. Beth works out P(it does not rain):',w:['100 − 0.3 = 99.7'],a:1,bar:[[0.3,'0.3'],[99.7,'99.7']],fix:[[0.3,'0.3'],[0.7,'0.7']],fb:'Certain is 1, not 100. P(not rain) = 1 − 0.3 = 0.7. (100 only works in percentages: 100% − 30% = 70%.)'},
+  {q:'A bag has red, blue and green counters. P(red) = 0.25 and P(blue) = 0.4. Cal finds P(green):',w:['0.4 − 0.25 = 0.15'],a:2,bar:[[0.25,'0.25'],[0.4,'0.4'],[0.15,'0.15']],fix:[[0.25,'0.25'],[0.4,'0.4'],[0.35,'0.35']],fb:'Subtract from 1, not from another probability: 1 − (0.25 + 0.4) = 1 − 0.65 = 0.35. Check: 0.25 + 0.4 + 0.35 = 1 ✓'},
+  {q:'Dev rolls a fair dice and works out P(even or more than 3):',w:['P(even) = 3/6, P(more than 3) = 3/6','3/6 + 3/6 = 6/6 = 1'],a:3,bar:[[0.5,'3/6'],[0.5,'3/6']],fix:[[2/3,'4/6'],[1/3,'2/6']],fb:'Even (2, 4, 6) and more than 3 (4, 5, 6) overlap: 4 and 6 were counted twice. Count instead: 2, 4, 5, 6 gives 4/6 = 2/3. An answer of 1 means certain, yet rolling a 1 or a 3 is neither!'},
+  {q:'P(A) = 0.7. Eve works out P(not A):',w:['0.7 − 1 = −0.3'],a:2,bar:[[0.7,'0.7']],neg:'−0.3 can\'t be drawn: no probability is negative',fix:[[0.7,'0.7'],[0.3,'0.3']],fb:'Wrong way round. Always start from 1: P(not A) = 1 − 0.7 = 0.3.'},
+  {q:'Red 0.2, blue 0.35, green 2x, yellow x. Fin works out x:',w:['0.2 + 0.35 + 2x + x = 1','0.55 + 3x = 1','3x = 0.45','x = 0.45'],a:4,bar:[[0.2,'0.2'],[0.35,'0.35'],[0.9,'0.9'],[0.45,'0.45']],fix:[[0.2,'0.2'],[0.35,'0.35'],[0.3,'0.3'],[0.15,'0.15']],fb:'Fin stopped at 3x = 0.45. Divide by 3: x = 0.15. With x = 0.45, green would be 0.9 and the total 1.9, which is impossible. Check: 0.2 + 0.35 + 0.3 + 0.15 = 1 ✓'},
+  {q:'A card is picked from a normal pack of 52. Gus works out P(King or Heart):',w:['4/52 + 13/52 = 17/52'],a:3,bar:[[4/52,'4/52'],[13/52,'13/52']],fix:[[16/52,'16/52'],[36/52,'36/52']],fb:'The King of Hearts is a King AND a Heart, so it was counted twice. There are 16 cards that are Kings or Hearts: P = 16/52 = 4/13.'}
+];
+let mk={i:0,done:false};
+function barSVG(segs,y,label,neg){ const x0=20, U=300, MAX=380; let s=`<text x="${x0}" y="${y-8}" font-size="12" fill="${css('--muted')}">${label}</text>`, at=0;
+  segs.forEach(([v,t],i)=>{ const x=x0+U*at, w=Math.min(U*v, Math.max(0,MAX-x)); at+=v; if(w<=0) return;
+    s+=`<rect x="${x}" y="${y}" width="${w}" height="30" fill="${i%2?css('--two-soft'):css('--accent-soft')}" stroke="${i%2?css('--two'):css('--accent')}" stroke-width="1.5"/>`;
+    if(w>=30) s+=`<text x="${x+w/2}" y="${y+20}" text-anchor="middle" font-size="12" font-weight="600" fill="${css('--fg')}" ${F()}>${t}</text>`; });
+  const end=x0+U*at;
+  if(at>1+1e-9){ const xe=Math.min(end,MAX); s+=`<rect x="${x0+U}" y="${y-3}" width="${xe-x0-U}" height="36" fill="${css('--hi')}" opacity="0.35" stroke="${css('--hi')}" stroke-width="2"/>`;
+    s+=`<text x="${MAX}" y="${y+48}" text-anchor="end" font-size="12" font-weight="600" fill="${css('--hi')}">${end>MAX?'runs way off the end! ':''}total ${fmt(at,3)}: more than 1</text>`; }
+  if(neg) s+=`<text x="${x0+U*at+6}" y="${y+20}" font-size="11" fill="${css('--hi')}">${neg}</text>`;
+  return s; }
+function drawMK(){ const Q=MK[mk.i];
+  $('mkQ').textContent=Q.q; $('mkWork').innerHTML=Q.w.join('<br>');
+  let s=barSVG(Q.bar,24,'Their numbers on a 0 to 1 bar:',Q.neg);
+  if(mk.done) s+= Q.fix ? barSVG(Q.fix,96,'Corrected:') : `<text x="20" y="110" font-size="12" fill="${css('--muted')}">No single correct version: the numbers must be changed so they total 1.</text>`;
+  s+=`<line x1="320" y1="10" x2="320" y2="142" stroke="${css('--fg')}" stroke-width="1.5" stroke-dasharray="4 3"/><text x="324" y="146" font-size="11" fill="${css('--fg')}" ${F()}>1</text><text x="20" y="146" font-size="11" fill="${css('--muted')}" ${F()}>0</text>`;
+  $('mkSvg').innerHTML=s;
+  const box=$('mkOpts'); box.innerHTML='';
+  MKL.forEach((t,k)=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=t;
+    if(mk.done&&k===Q.a) b.classList.add('right');
+    b.addEventListener('click',()=>{ if(mk.done) return; const M=$('mkMsg');
+      if(k===Q.a){ mk.done=true; M.className='msg good'; M.textContent='Yes. '+Q.fb; drawMK(); }
+      else { b.classList.add('wrong'); M.className='msg bad'; M.textContent='Not quite. Look at the working again: what has gone wrong?'; } });
+    box.appendChild(b); }); }
+$('mkNext').addEventListener('click',()=>{ mk={i:(mk.i+1)%MK.length,done:false}; $('mkMsg').className='msg'; $('mkMsg').textContent=''; drawMK(); });
+drawMK();
+
+function redrawAll(){ drawSR(); drawEX(); drawSH(); drawNV(); drawMP(); drawOR(); drawMK(); }
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll); }
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'You roll one dice. Which pair of events is mutually exclusive?',opts:['rolling a 2 and rolling a 5','rolling a 2 and rolling an even number','rolling an odd number and rolling a prime number','rolling less than 4 and rolling a 3'],a:0,fb:'One roll can\'t show 2 and 5. The others overlap: 2 is even; 3 and 5 are odd and prime; 3 is less than 4.'},
+  {q:'A set of outcomes is exhaustive if…',opts:['it includes every possible outcome','no two outcomes can happen together','all the outcomes are equally likely','every probability is less than 0.5'],a:0,fb:'Exhaustive means nothing is left out, so one of the outcomes is certain to happen. "No two can happen together" is mutually exclusive.'},
+  {q:'P(win) = 0.35. What is P(not win)?',opts:['0.65','0.35','99.65','1.35'],a:0,fb:'P(not win) = 1 − 0.35 = 0.65. Check: 0.35 + 0.65 = 1.'},
+  {q:'A spinner lands on red, blue or green. P(red) = 0.2 and P(blue) = 0.5. P(green) = ?',opts:['0.3','0.7','0.1','99.3'],a:0,fb:'0.2 + 0.5 = 0.7, so P(green) = 1 − 0.7 = 0.3.'},
+  {q:'Which list could NOT be the probabilities of a complete set of mutually exclusive, exhaustive outcomes?',opts:['0.5, 0.4, 0.2','0.5, 0.3, 0.2','0.25, 0.25, 0.5','0.6, 0.4, 0'],a:0,fb:'0.5 + 0.4 + 0.2 = 1.1, which is more than 1. The others all add to exactly 1.'},
+  {q:'The probabilities of four outcomes are 0.1, 0.4, x and x. Find x.',opts:['0.25','0.5','0.2','0.125'],a:0,fb:'0.1 + 0.4 + 2x = 1, so 2x = 0.5 and x = 0.25.'},
+  {q:'Four outcomes have probabilities 0.2, 0.3, 2x and 3x. What is the probability of the outcome 3x?',opts:['0.3','0.1','0.5','0.15'],a:0,fb:'0.5 + 5x = 1, so 5x = 0.5 and x = 0.1. Then 3x = 0.3. Check: 0.2 + 0.3 + 0.2 + 0.3 = 1.'},
+  {q:'P(red) = 0.3 and P(blue) = 0.25 for one counter taken from a bag. What is P(red or blue)?',opts:['0.55','0.075','0.45','0.05'],a:0,fb:'A counter can\'t be red and blue, so they are mutually exclusive: 0.3 + 0.25 = 0.55. (0.45 would be P(neither).)'},
+  {q:'A fair dice is rolled. What is P(even or more than 3)?',opts:['2/3','1','1/2','5/6'],a:0,fb:'Even is 2, 4, 6 and more than 3 is 4, 5, 6. Together: 2, 4, 5, 6 = 4/6 = 2/3. Adding 3/6 + 3/6 counts 4 and 6 twice.'},
+  {q:'A, B and C are mutually exclusive and exhaustive. P(A) = 2/5 and P(B) = 1/4. Find P(C).',opts:['7/20','3/9','13/20','3/20'],a:0,fb:'2/5 = 8/20 and 1/4 = 5/20, total 13/20. P(C) = 20/20 − 13/20 = 7/20.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

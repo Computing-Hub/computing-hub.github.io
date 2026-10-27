@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Inequalities and Regions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive panel (SVG number lines and coordinate grids drawn from JS, sliders, step-through buttons, clickable lattice points). Colours on this page: teal = the solution set (the ray or interval on a number line, the shaded region, the part of a curve that satisfies the inequality), orange = boundaries (the circles at the end of a ray, boundary lines: solid for ≤ or ≥, dashed for < or >), plum = individual values being tested (integer solutions, test points, the numbers in the flipping demo). Green/red are only for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.ca{color:var(--accent);font-weight:600}.ch{color:var(--hi);font-weight:600}.ct{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+a{color:var(--accent)}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.15rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:.35em;margin-left:.35rem;line-height:1.4}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+h3 .tag,summary .tag{vertical-align:.15em}
+.lab svg.drag{touch-action:none}
+.lab svg.drag [data-h]{cursor:grab}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.callout.trap{background:var(--two-soft)}
+.work .s{display:block}
+.work .s[hidden]{display:none}
+.work .note{color:var(--muted);font-family:var(--body);font-size:.9rem}
+.next{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;background:var(--panel)}
+@media (max-width:560px){
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block;width:100%}
+  table.stack tr:first-child{display:none}
+  table.stack tr{border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{border:0;padding:.15rem .3rem}
+}
+.controls label{flex-wrap:wrap}
+.readout b.nt,th.nt{text-transform:none;letter-spacing:.02em}
+.vt.sm td,.vt.sm th{padding:.3rem .25rem;font-size:.82rem}
+.vt th{text-transform:none;letter-spacing:.02em;font-size:.8rem}
+.controls label{max-width:100%}.controls select{min-width:0;max-width:100%}
+.typebtns{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+.typebtns button{font-family:var(--mono)}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Algebra</div>
+  <h1>Inequalities and Regions</h1>
+  <p class="lede">An equation has a few exact answers; an <strong>inequality</strong> usually has a whole range of them. "x is bigger than 3" is true for 3.1, 4, 100 and infinitely many other numbers. This page shows how to write, draw and solve inequalities, and (Higher) how to solve quadratic inequalities and shade regions on a graph.</p>
+  <span class="gcse">GCSE subject content: solve linear inequalities in one variable; represent the solution set on a number line; <strong>Higher:</strong> solve linear inequalities in two variables and quadratic inequalities in one variable; represent the solution set using set notation and on a graph</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start.</strong> Solving an inequality uses the same "do the same to both sides" steps as solving a linear equation (see <a href="../ks3-interactive/linear-equations.html">Linear equations</a>). For the regions section you'll need to draw straight lines like y = 2x + 1 (see <a href="../ks3-interactive/linear-graphs.html">Linear graphs</a>).</p>
+</div>
+
+<h2>1 · Symbols and number lines</h2>
+<p>There are four inequality symbols. The open end of the symbol faces the bigger number, like a mouth eating it.</p>
+<div class="tbl"><table class="stack">
+  <tr><th>Symbol</th><th>Means</th><th>Example</th><th>On a number line</th></tr>
+  <tr><td class="mono">&lt;</td><td>is less than</td><td class="mono">x &lt; 3</td><td>open circle at 3, arrow left</td></tr>
+  <tr><td class="mono">≤</td><td>is less than or equal to</td><td class="mono">x ≤ 3</td><td>filled circle at 3, arrow left</td></tr>
+  <tr><td class="mono">&gt;</td><td>is greater than</td><td class="mono">x &gt; 3</td><td>open circle at 3, arrow right</td></tr>
+  <tr><td class="mono">≥</td><td>is greater than or equal to</td><td class="mono">x ≥ 3</td><td>filled circle at 3, arrow right</td></tr>
+</table></div>
+<p>An <strong>open circle</strong> means the end number is <em>not</em> included (it's a <strong>strict</strong> inequality); a <strong>filled circle</strong> means it is included. Try the builder, then test yourself.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>x <select id="b1Op"><option>&lt;</option><option>≤</option><option>&gt;</option><option>≥</option></select></label>
+    <label><input type="range" id="b1V" min="-6" max="6" step="1" value="2"><span id="b1Vv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="b1Svg" viewBox="0 0 400 80" width="400" height="80" aria-label="Number line"></svg>
+  <div class="work" id="b1Work"></div>
+</div>
+
+<div class="lab">
+  <p class="pq">Which inequality does this number line show?</p>
+  <svg id="r1Svg" viewBox="0 0 400 80" width="400" height="80" aria-label="Number line to read"></svg>
+  <div class="typebtns" id="r1Btns"></div>
+  <div class="msg" id="r1Msg"></div>
+  <div class="controls"><button class="btn" id="r1New">Another one</button></div>
+</div>
+
+<h2>2 · Solving linear inequalities</h2>
+<p>To <strong>solve</strong> an inequality means to get x on its own, like solving an equation. You may add or subtract the same number on both sides, and multiply or divide both sides by a <em>positive</em> number, and the inequality stays true. There is one exception, and it's the whole point of this section:</p>
+<p class="big">multiply or divide by a <span class="ch">negative</span> → <span class="ch">flip</span> the sign</p>
+<p>Why? 2 &lt; 5 is true. Multiply both by −1: −2 and −5. But −2 is <em>bigger</em> than −5. Multiplying by a negative reflects every number in 0, so the order reverses. Slide k and watch the two plum numbers swap order.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>multiply 2 &lt; 5 by k = <input type="range" id="fkK" min="-3" max="3" step="1" value="-1"><span id="fkKv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="fkSvg" viewBox="0 0 400 120" width="400" height="120" aria-label="Multiplying by a negative reverses order"></svg>
+  <div class="big" id="fkBig"></div>
+</div>
+
+<div class="lab">
+  <div class="controls">
+    <label>Solve <select id="slE">
+      <option value="0">3x + 5 &lt; 20</option><option value="1">2(x − 3) ≥ 7</option><option value="2">7 − 2x &gt; 1</option><option value="3">(x + 4)/3 ≤ 2</option><option value="4">5x − 2 &gt; 2x + 7</option><option value="5">4 − 3x ≥ 10</option>
+    </select></label>
+    <button class="btn primary" id="slNext">Next step</button><button class="btn" id="slAll">Show all</button><button class="btn" id="slReset">Reset</button>
+  </div>
+  <div class="work" id="slWork"></div>
+  <svg id="slSvg" viewBox="0 0 400 80" width="400" height="80" aria-label="Solution on a number line"></svg>
+</div>
+
+<div class="callout">
+  <p><strong>Ways to avoid the flip.</strong> In 7 − 2x &gt; 1 you can add 2x to both sides first: 7 &gt; 1 + 2x, so 6 &gt; 2x, so 3 &gt; x, which is the same as x &lt; 3. Either way, <strong>check</strong> with a number: x = 0 gives 7 &gt; 1 ✓ and 0 &lt; 3 ✓.</p>
+  <p><strong>Never</strong> write the answer as an equation (x = 3) or forget which way it points. "3 &gt; x" and "x &lt; 3" say the same thing; read them carefully.</p>
+</div>
+
+<h2>3 · Double inequalities and integer solutions</h2>
+<p>A <strong>double inequality</strong> like <span class="m">−2 &lt; x ≤ 4</span> traps x between two values: bigger than −2 <em>and</em> at most 4. Solve it by doing the same thing to <em>all three parts</em>. An <strong>integer</strong> is a whole number (positive, negative or zero), and questions often ask you to list the integers that satisfy an inequality. Watch the ends: is each one included?</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>from <input type="range" id="dbL" min="-6" max="5" step="1" value="-2"><span id="dbLv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="dbLi"> include</label>
+    <label>to <input type="range" id="dbU" min="-5" max="6" step="1" value="4"><span id="dbUv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="dbUi" checked> include</label>
+  </div>
+  <div class="big" id="dbBig"></div>
+  <svg id="dbSvg" viewBox="0 0 400 90" width="400" height="90" aria-label="Double inequality"></svg>
+  <div class="work" id="dbWork"></div>
+</div>
+
+<div class="lab">
+  <p class="pq" id="itQ"></p>
+  <div class="controls">
+    <label>integers: <input type="text" id="itA" autocomplete="off" style="width:12em" placeholder="e.g. −1, 0, 1, 2"></label>
+    <button class="btn primary" id="itGo">Check</button><button class="btn" id="itNew">New one</button>
+  </div>
+  <div class="msg" id="itMsg"></div>
+</div>
+
+<h2>4 · Quadratic inequalities <span class="tag g">Higher</span></h2>
+<p><strong>Set notation</strong> is a compact way to write a solution: <span class="m">{x : −2 &lt; x &lt; 3}</span> reads "the set of all x such that x is between −2 and 3". For two separate pieces, write <span class="m">{x : x &lt; −2} ∪ {x : x &gt; 3}</span> (∪ means "or", the union of the two sets).</p>
+<p>To solve a <strong>quadratic inequality</strong> like <span class="m">x² − x − 6 &lt; 0</span>, never try to "solve it like an equation". Instead:</p>
+<ol>
+  <li>Solve the equation x² − x − 6 = 0 to find the <strong>critical values</strong> (here x = −2 and x = 3).</li>
+  <li><strong>Sketch</strong> the graph y = x² − x − 6: a U shape crossing the x-axis at those values.</li>
+  <li>"&lt; 0" means "where is the curve <em>below</em> the x-axis?" That's <em>between</em> the roots. "&gt; 0" means above: the two <em>outside</em> pieces.</li>
+</ol>
+
+<div class="lab">
+  <div class="controls">
+    <label><select id="qiE">
+      <option value="-2,3">x² − x − 6</option><option value="-3,3">x² − 9</option><option value="1,5">x² − 6x + 5</option><option value="-4,1">x² + 3x − 4</option><option value="0,4">x² − 4x</option>
+    </select></label>
+    <label><select id="qiOp"><option>&lt;</option><option>≤</option><option>&gt;</option><option>≥</option></select> 0</label>
+  </div>
+  <svg id="qiSvg" viewBox="0 0 400 360" width="400" height="360" aria-label="Quadratic inequality on a graph"></svg>
+  <svg id="qiNl" viewBox="0 0 400 80" width="400" height="80" aria-label="Solution on a number line"></svg>
+  <div class="work" id="qiWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Trap: x² &lt; 9.</strong> It's tempting to write x &lt; ±3, but that is meaningless. Sketch y = x² − 9: it is below the axis between −3 and 3, so <strong>−3 &lt; x &lt; 3</strong>. And x² &gt; 9 is <strong>x &lt; −3 or x &gt; 3</strong> (two separate inequalities, not one).</p>
+</div>
+
+<h2>5 · Inequalities on a graph <span class="tag g">Higher</span></h2>
+<p>An inequality with two letters, like <span class="m">y &gt; 2x − 1</span>, is true for a whole <strong>region</strong> of the coordinate grid. The line y = 2x − 1 is the <strong>boundary</strong>. Every point above it has a bigger y, so satisfies y &gt; 2x − 1; every point below doesn't.</p>
+<ul>
+  <li>Draw the boundary <strong>dashed</strong> for &lt; or &gt; (points on the line are not included) and <strong>solid</strong> for ≤ or ≥ (they are).</li>
+  <li>To decide which side, use a <strong>test point</strong> not on the line, usually (0, 0): substitute it. True → shade that side; false → the other side.</li>
+</ul>
+<p>Drag the plum test point around and watch the substitution.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>y <select id="hpOp"><option>&gt;</option><option>≥</option><option>&lt;</option><option>≤</option></select></label>
+    <label>m = <input type="range" id="hpM" min="-3" max="3" step="0.5" value="2"><span id="hpMv" style="font-family:var(--mono)"></span></label>
+    <label>c = <input type="range" id="hpC" min="-5" max="5" step="1" value="-1"><span id="hpCv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="big" id="hpBig"></div>
+  <svg id="hpSvg" class="drag" viewBox="0 0 400 400" width="400" height="400" aria-label="Half-plane region"></svg>
+  <div class="work" id="hpWork"></div>
+</div>
+
+<h2>6 · Regions from several inequalities <span class="tag g">Higher</span></h2>
+<p>When a question gives several inequalities, the <strong>region</strong> R that satisfies all of them is where all the shaded parts overlap. Draw each boundary line (solid or dashed), decide which side is wanted, and the region in the middle is usually a triangle or other polygon. Questions often ask you to <strong>list the integer points</strong> in R: points whose coordinates are both whole numbers. Points on a dashed boundary <em>don't</em> count; points on a solid one do.</p>
+<p>Click every integer point inside R, then press Check.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Region <select id="rgE">
+      <option value="0">y ≥ 1, x + y &lt; 6, y ≤ 2x</option><option value="1">x &gt; 0, y &gt; 0, x + 2y ≤ 6</option><option value="2">y &gt; 1, x &lt; 4, y &lt; x + 2</option>
+    </select></label>
+    <button class="btn primary" id="rgGo">Check</button><button class="btn" id="rgShow">Show answer</button><button class="btn" id="rgClear">Clear</button>
+  </div>
+  <div class="eqs" id="rgEqs" style="font-family:var(--mono);text-align:center;margin:.4rem 0"></div>
+  <svg id="rgSvg" class="drag" viewBox="0 0 400 400" width="400" height="400" aria-label="Region from several inequalities"></svg>
+  <div class="msg" id="rgMsg"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Solve 3x + 5 &lt; 20 and show the solution on a number line</summary>
+  <div class="step"><strong>Subtract 5:</strong> 3x &lt; 15.</div>
+  <div class="step"><strong>Divide by 3</strong> (positive, so no flip): x &lt; 5.</div>
+  <div class="step"><strong>Number line:</strong> an <strong>open</strong> circle at 5 (5 is not included) with an arrow to the left.</div>
+  <div class="step"><strong>Check:</strong> x = 4 gives 17 &lt; 20 ✓; x = 5 gives 20 &lt; 20, false ✓ (so 5 is correctly excluded).</div>
+</details>
+<details>
+  <summary>Solve 7 − 2x ≥ 1</summary>
+  <div class="step"><strong>Subtract 7:</strong> −2x ≥ −6.</div>
+  <div class="step"><strong>Divide by −2 and flip the sign:</strong> x ≤ 3.</div>
+  <div class="step"><strong>Check with x = 0:</strong> 7 ≥ 1 ✓ and 0 ≤ 3 ✓. With x = 4: −1 ≥ 1 is false ✓, and 4 ≤ 3 is false ✓.</div>
+</details>
+<details>
+  <summary>List the integers n with −3 &lt; 2n + 1 ≤ 9</summary>
+  <div class="step"><strong>Subtract 1 from all three parts:</strong> −4 &lt; 2n ≤ 8.</div>
+  <div class="step"><strong>Divide all three parts by 2:</strong> −2 &lt; n ≤ 4.</div>
+  <div class="step"><strong>List:</strong> −2 is not included (strict), 4 is included. <strong>n = −1, 0, 1, 2, 3, 4.</strong></div>
+</details>
+<details>
+  <summary>Find the smallest integer x with 5x − 2 &gt; 2x + 7</summary>
+  <div class="step"><strong>Subtract 2x:</strong> 3x − 2 &gt; 7. <strong>Add 2:</strong> 3x &gt; 9. <strong>Divide by 3:</strong> x &gt; 3.</div>
+  <div class="step"><strong>Smallest integer:</strong> 3 itself is not allowed (strict), so <strong>x = 4</strong>.</div>
+</details>
+<details>
+  <summary>Solve x² − 2x − 15 ≤ 0, giving your answer in set notation <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Critical values:</strong> x² − 2x − 15 = 0 → (x − 5)(x + 3) = 0 → x = 5 or x = −3.</div>
+  <div class="step"><strong>Sketch:</strong> a U-shaped curve crossing the x-axis at −3 and 5.</div>
+  <div class="step"><strong>≤ 0 means on or below the axis:</strong> between the roots, including them.</div>
+  <div class="step"><strong>Answer:</strong> −3 ≤ x ≤ 5, or <strong>{x : −3 ≤ x ≤ 5}</strong>.</div>
+</details>
+<details>
+  <summary>Solve x² &gt; 16 <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Critical values:</strong> x² = 16 → x = −4 or x = 4.</div>
+  <div class="step"><strong>Sketch y = x² − 16:</strong> above the axis outside the roots.</div>
+  <div class="step"><strong>Answer:</strong> <strong>x &lt; −4 or x &gt; 4</strong>, i.e. {x : x &lt; −4} ∪ {x : x &gt; 4}. Not "x &gt; ±4".</div>
+</details>
+<details>
+  <summary>Exam-style: list the integer points (x, y) satisfying y ≥ 1, x + y &lt; 6 and y ≤ 2x <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Draw the boundaries:</strong> y = 1 (solid), x + y = 6 (dashed), y = 2x (solid).</div>
+  <div class="step"><strong>Wanted sides:</strong> above y = 1; below x + y = 6 (test (0, 0): 0 &lt; 6 ✓); below y = 2x (test (1, 0): 0 ≤ 2 ✓).</div>
+  <div class="step"><strong>Row by row:</strong> y = 1: x = 1, 2, 3, 4 (x = 5 is on the dashed line, excluded). y = 2: x = 1, 2, 3. y = 3: x = 2 (x = 1.5 is the edge). y = 4: none.</div>
+  <div class="step"><strong>Answer:</strong> (1, 1), (2, 1), (3, 1), (4, 1), (1, 2), (2, 2), (3, 2), (2, 3): <strong>8 points</strong>.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>&lt; and &gt; are strict (open circle, end not included); ≤ and ≥ include the end (filled circle).</li>
+  <li>Solve inequalities like equations, but <strong>flip the sign when you multiply or divide by a negative</strong>, because that reverses the order of numbers.</li>
+  <li>For a double inequality, do the same to all three parts. When listing integers, check each end: included or not?</li>
+  <li><span class="tag g">Higher</span> Quadratic inequalities: find the critical values, sketch the curve, then read off where it is below (&lt; 0, between the roots) or above (&gt; 0, two outside pieces). Write answers in set notation, e.g. {x : −2 &lt; x &lt; 3}.</li>
+  <li><span class="tag g">Higher</span> Regions: boundary lines are dashed for &lt;, &gt; and solid for ≤, ≥; use a test point to choose the side; the required region satisfies every inequality at once.</li>
+</ul>
+
+<footer>Made for GCSE students. Inequalities are in the DfE GCSE mathematics subject content under Algebra; quadratic inequalities, set notation and inequalities in two variables (regions on a graph) are Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">Subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => { if(!isFinite(v)) return '—'; let r=parseFloat((+v).toFixed(d)); if(Object.is(r,-0)) r=0; return minus(String(r)); };
+const fix = (v,d) => { if(!isFinite(v)) return '—'; let s=(+v).toFixed(d); if(/^-0(\.0*)?$/.test(s)) s=s.slice(1); return minus(s); };
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(v===0) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); return fix(r,Math.max(0,n-1-e)); };
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v=parseFloat(String(el.value).replace(/−/g,'-').replace(/\s/g,'')); return isFinite(v)?v:NaN; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a; };
+const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const sup = n => String(n).split('').map(c=>{const i='0123456789'.indexOf(c);return i>=0?'⁰¹²³⁴⁵⁶⁷⁸⁹'[i]:(c==='-'?'⁻':c);}).join('');
+/* polynomial from coefficients, highest power first: polyStr([1,-5,6]) = "x² − 5x + 6" */
+const polyStr = (cs,v='x') => { const n=cs.length-1; let s=''; cs.forEach((c,i)=>{ const p=n-i; if(Math.abs(c)<1e-12) return; const a=Math.abs(c); const body=p===0?fmt(a,4):((Math.abs(a-1)<1e-12?'':fmt(a,4))+v+(p>1?sup(p):'')); s+= s===''?(c<0?'−':'')+body:(c<0?' − ':' + ')+body; }); return s||'0'; };
+const xpm = (k,v='x') => Math.abs(k)<1e-12 ? v : `${v} ${k<0?'−':'+'} ${fmt(Math.abs(k),4)}`;
+const br = v => v<0 ? `(${fmt(v,4)})` : fmt(v,4);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const DRAW = [];
+const reg = f => { DRAW.push(f); f(); };
+function Plot(o){
+  const P=Object.assign({W:400,H:400,pad:26,gx:1,gy:1,lx:2,ly:2,xl:'x',yl:'y',xf:null,yf:null},o);
+  const W=P.W,H=P.H,pad=P.pad;
+  P.sx=x=>pad+(x-P.x0)/(P.x1-P.x0)*(W-2*pad);
+  P.sy=y=>H-pad-(y-P.y0)/(P.y1-P.y0)*(H-2*pad);
+  P.ix=px=>P.x0+(px-pad)/(W-2*pad)*(P.x1-P.x0);
+  P.iy=py=>P.y0+(H-pad-py)/(H-2*pad)*(P.y1-P.y0);
+  P.world=(svg,ev)=>{const r=svg.getBoundingClientRect();return [P.ix((ev.clientX-r.left)/r.width*W),P.iy((ev.clientY-r.top)/r.height*H)];};
+  const ticks=(a,b,st)=>{const out=[];for(let k=Math.ceil(a/st-1e-9);k*st<=b+1e-9;k++)out.push(Math.round(k*st*1e6)/1e6);return out;};
+  P.grid=()=>{const g=css('--grid'),mu=css('--muted'),f=F();let s='';
+    ticks(P.x0,P.x1,P.gx).forEach(x=>s+=`<line x1="${P.sx(x)}" y1="${P.sy(P.y0)}" x2="${P.sx(x)}" y2="${P.sy(P.y1)}" stroke="${g}"/>`);
+    ticks(P.y0,P.y1,P.gy).forEach(y=>s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(y)}" x2="${P.sx(P.x1)}" y2="${P.sy(y)}" stroke="${g}"/>`);
+    const ay=(P.y0<=0&&P.y1>=0)?0:P.y0, ax=(P.x0<=0&&P.x1>=0)?0:P.x0;
+    s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(ay)}" x2="${P.sx(P.x1)}" y2="${P.sy(ay)}" stroke="${mu}" stroke-width="1.5"/><line x1="${P.sx(ax)}" y1="${P.sy(P.y0)}" x2="${P.sx(ax)}" y2="${P.sy(P.y1)}" stroke="${mu}" stroke-width="1.5"/>`;
+    ticks(P.x0,P.x1,P.lx).forEach(x=>{if(Math.abs(x-ax)<1e-9&&ax===0)return;s+=`<text x="${P.sx(x)}" y="${P.sy(ay)+13}" text-anchor="middle" font-size="10" fill="${mu}" ${f}>${P.xf?P.xf(x):fmt(x)}</text>`;});
+    ticks(P.y0,P.y1,P.ly).forEach(y=>{if(Math.abs(y-ay)<1e-9&&ay===0)return;s+=`<text x="${P.sx(ax)-5}" y="${P.sy(y)+3}" text-anchor="end" font-size="10" fill="${mu}" ${f}>${P.yf?P.yf(y):fmt(y)}</text>`;});
+    if(ax===0&&ay===0)s+=`<text x="${P.sx(0)-5}" y="${P.sy(0)+13}" text-anchor="end" font-size="10" fill="${mu}" ${f}>0</text>`;
+    s+=`<text x="${P.sx(P.x1)-3}" y="${P.sy(ay)-5}" text-anchor="end" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.xl}</text><text x="${P.sx(ax)+6}" y="${P.sy(P.y1)+10}" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.yl}</text>`;
+    return s;};
+  P.clip=(svg,inner,over='')=>{svg.innerHTML=`<defs><clipPath id="cp${svg.id}"><rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${H-2*pad}"/></clipPath></defs>`+P.grid()+`<g clip-path="url(#cp${svg.id})">${inner}</g>`+over;};
+  P.path=(f,col,w=2.5,dash,a=P.x0,b=P.x1,n=400)=>{let d='',pen=false,prev=null;const span=P.y1-P.y0,mid=(P.y0+P.y1)/2;
+    for(let i=0;i<=n;i++){const x=a+(b-a)*i/n,y=f(x);
+      if(!isFinite(y)||Math.abs(y-mid)>span*3){pen=false;prev=null;continue;}
+      if(pen&&prev!==null&&Math.abs(y-prev)>span*1.5)pen=false;
+      d+=(pen?'L':'M')+P.sx(x).toFixed(1)+','+P.sy(y).toFixed(1);pen=true;prev=y;}
+    return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linejoin="round" stroke-linecap="round"/>`;};
+  P.seg=(x1,y1,x2,y2,col,w=2,dash)=>`<line x1="${P.sx(x1)}" y1="${P.sy(y1)}" x2="${P.sx(x2)}" y2="${P.sy(y2)}" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linecap="round"/>`;
+  P.dot=(x,y,col,r=5,label,dx=8,dy=-8,anchor='start')=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${col}"/>`+(label?`<text x="${P.sx(x)+dx}" y="${P.sy(y)+dy}" font-size="12" font-weight="600" fill="${col}" text-anchor="${anchor}" ${F()}>${label}</text>`:'');
+  P.ring=(x,y,col,r=5)=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${css('--panel')}" stroke="${col}" stroke-width="2.5"/>`;
+  P.text=(x,y,t,col,anchor='start',size=12,weight=600)=>`<text x="${P.sx(x)}" y="${P.sy(y)}" font-size="${size}" font-weight="${weight}" fill="${col}" text-anchor="${anchor}" ${F()}>${t}</text>`;
+  return P;
+}
+/* drag helper: calls onMove(ev) while a pointer is down on svg (or on an element with data-h) */
+function dragOn(svg,onMove,onDown){let on=false;
+  svg.addEventListener('pointerdown',e=>{if(onDown&&onDown(e)===false)return;on=true;try{svg.setPointerCapture(e.pointerId);}catch(_){}onMove(e);e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(on)onMove(e);});
+  const end=()=>{on=false;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);}
+/* step-through: lines is an array of html strings */
+function stepper(boxId,nextId,allId,resetId,onShow){const box=$(boxId);let lines=[],k=0;
+  const show=()=>{box.innerHTML=lines.map((l,i)=>`<span class="s"${i<k?'':' hidden'}>${l}</span>`).join('')+(k<lines.length?`<span class="s note">${k===0?'Press “Next step” to begin.':'…'}</span>`:'');if(nextId)$(nextId).disabled=k>=lines.length;if(onShow)onShow(k);};
+  if(nextId)$(nextId).addEventListener('click',()=>{if(k<lines.length)k++;show();});
+  if(allId)$(allId).addEventListener('click',()=>{k=lines.length;show();});
+  if(resetId)$(resetId).addEventListener('click',()=>{k=0;show();});
+  return {set(ls,start=0){lines=ls;k=start;show();},get k(){return k;}};}
+
+const OPS=['<','≤','>','≥'];
+const opTest=(op,l,r)=>op==='<'?l<r:op==='≤'?l<=r+1e-12:op==='>'?l>r:l>=r-1e-12;
+const esc2=s=>s.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* number line: segs [{a,ai,b,bi}] with a/b possibly ±Infinity; dots = plum points */
+function NL(o){ const lo=o.lo??-7,hi=o.hi??7,W=400,H=o.H||80,pad=22,y=o.y||40, X=v=>pad+(v-lo)/(hi-lo)*(W-2*pad);
+  const mu=css('--muted'),ac=css('--accent'),hi2=css('--hi'),tw=css('--two'),pn=css('--panel'); const lstep=o.lstep||1;
+  let s=`<line x1="${pad-8}" y1="${y}" x2="${W-pad+8}" y2="${y}" stroke="${mu}" stroke-width="1.5"/>`;
+  for(let v=Math.ceil(lo);v<=hi;v++){ s+=`<line x1="${X(v)}" y1="${y-5}" x2="${X(v)}" y2="${y+5}" stroke="${mu}" stroke-width="1"/>`; if(v%lstep===0) s+=`<text x="${X(v)}" y="${y+20}" text-anchor="middle" font-size="11" fill="${mu}" ${F()}>${minus(v)}</text>`; }
+  (o.segs||[]).forEach(g=>{ const a=Math.max(g.a,lo-0.6),b=Math.min(g.b,hi+0.6), yy=y-(g.lift||0);
+    s+=`<line x1="${X(a)}" y1="${yy}" x2="${X(b)}" y2="${yy}" stroke="${ac}" stroke-width="5" stroke-linecap="butt"/>`;
+    if(g.a===-Infinity) s+=`<path d="M${X(a)-8},${yy} L${X(a)+4},${yy-7} L${X(a)+4},${yy+7} Z" fill="${ac}"/>`;
+    if(g.b===Infinity) s+=`<path d="M${X(b)+8},${yy} L${X(b)-4},${yy-7} L${X(b)-4},${yy+7} Z" fill="${ac}"/>`;
+    [[g.a,g.ai],[g.b,g.bi]].forEach(([v,inc])=>{ if(isFinite(v)) s+=`<circle cx="${X(v)}" cy="${yy}" r="7" fill="${inc?hi2:pn}" stroke="${hi2}" stroke-width="2.5"/>`; }); });
+  (o.dots||[]).forEach(v=>s+=`<circle cx="${X(v)}" cy="${y-18}" r="5" fill="${tw}"/>`);
+  return s; }
+const segOf=(op,v)=>op==='<'||op==='≤'?{a:-Infinity,b:v,bi:op==='≤'}:{a:v,ai:op==='≥',b:Infinity};
+
+/* 1a. builder */
+function drawB1(){ const op=$('b1Op').value,v=+$('b1V').value; $('b1Vv').textContent=' '+minus(v);
+  $('b1Svg').innerHTML=NL({segs:[segOf(op,v)]});
+  const inc=op==='≤'||op==='≥', up=op==='>'||op==='≥', ex=up?[v+1,v+0.1,v-1]:[v-1,v-0.1,v+1];
+  $('b1Work').innerHTML=`x ${esc2(op)} ${minus(v)}: "x is ${{'<':'less than','≤':'less than or equal to','>':'greater than','≥':'greater than or equal to'}[op]} ${minus(v)}"<br><span class="b">${minus(v)} itself: ${inc?'included → filled circle':'not included → open circle'}</span><br>${ex.map(e=>`${minus(fmt(e,1))} ${opTest(op,e,v)?'✓':'✗'}`).join(' &nbsp; ')}`; }
+['b1Op','b1V'].forEach(i=>$(i).addEventListener('input',drawB1)); reg(drawB1);
+
+/* 1b. read it */
+let R1=null;
+function r1New(){ const op=pick(OPS),v=rnd(-5,5); R1={op,v}; const box=$('r1Btns'); box.innerHTML=''; $('r1Msg').className='msg'; $('r1Msg').textContent='';
+  OPS.slice().sort(()=>Math.random()-.5).forEach(o=>{const b=document.createElement('button');b.className='btn';b.type='button';b.textContent=`x ${o} ${minus(v)}`;
+    b.addEventListener('click',()=>{const M=$('r1Msg');if(o===R1.op){M.className='msg good';M.textContent=`Correct: x ${R1.op} ${minus(R1.v)}.`;return;}
+      const inc=x=>x==='≤'||x==='≥', up=x=>x==='>'||x==='≥'; M.className='msg bad';
+      M.textContent='Not quite. '+(up(o)!==up(R1.op)?`The arrow points ${up(R1.op)?'right, towards bigger numbers, so x is greater':'left, towards smaller numbers, so x is less'}. `:'')+(inc(o)!==inc(R1.op)?`The circle is ${inc(R1.op)?'filled, so '+minus(R1.v)+' is included (use ≤ or ≥)':'open, so '+minus(R1.v)+' is not included (use < or >)'}.`:'');});
+    box.appendChild(b);}); drawR1(); }
+const drawR1=()=>{ if(R1) $('r1Svg').innerHTML=NL({segs:[segOf(R1.op,R1.v)]}); };
+$('r1New').addEventListener('click',r1New); DRAW.push(drawR1); r1New();
+
+/* 2a. flip demo */
+function drawFK(){ const k=+$('fkK').value; $('fkKv').textContent=' '+minus(k);
+  const lo=-16,hi=16,W=400,pad=22,X=v=>pad+(v-lo)/(hi-lo)*(W-2*pad), mu=css('--muted'),tw=css('--two'),hi2=css('--hi');
+  let s='';
+  [[30,[2,5],'before'],[90,[2*k,5*k],'after × '+minus(k)]].forEach(([y,vals,lab])=>{ s+=`<line x1="${pad-6}" y1="${y}" x2="${W-pad+6}" y2="${y}" stroke="${mu}" stroke-width="1.5"/>`;
+    for(let v=lo;v<=hi;v+=2){ s+=`<line x1="${X(v)}" y1="${y-4}" x2="${X(v)}" y2="${y+4}" stroke="${mu}"/>`; if(v%4===0) s+=`<text x="${X(v)}" y="${y+17}" text-anchor="middle" font-size="10" fill="${mu}" ${F()}>${minus(v)}</text>`; }
+    s+=`<text x="${pad-6}" y="${y-10}" font-size="11" fill="${mu}" ${F()}>${lab}</text>`;
+    vals.forEach((v,i)=>s+=`<circle cx="${X(v)}" cy="${y}" r="6" fill="${i?hi2:tw}"/><text x="${X(v)}" y="${y-10}" text-anchor="middle" font-size="12" font-weight="600" fill="${i?hi2:tw}" ${F()}>${minus(v)}</text>`); });
+  s+=`<line x1="${X(0)}" y1="22" x2="${X(0)}" y2="100" stroke="${mu}" stroke-dasharray="3 3"/>`;
+  $('fkSvg').innerHTML=s;
+  const a=2*k,b=5*k, rel=a<b?'<':a>b?'>':'=';
+  $('fkBig').innerHTML=`2 &lt; 5 &nbsp;→&nbsp; ${minus(a)} ${esc2(rel)} ${minus(b)}${k<0?' &nbsp;<span class="ch">flipped!</span>':k===0?' (both 0)':' &nbsp;same way round'}`; }
+$('fkK').addEventListener('input',drawFK); reg(drawFK);
+
+/* 2b. solver */
+const SL=[
+ {L:['<span class="a">3x + 5 &lt; 20</span>','Subtract 5 from both sides: 3x &lt; 15','Divide both sides by 3 (positive, no flip): <strong>x &lt; 5</strong>','Check x = 0: 5 &lt; 20 ✓'],seg:{a:-Infinity,b:5,bi:false}},
+ {L:['<span class="a">2(x − 3) ≥ 7</span>','Expand: 2x − 6 ≥ 7','Add 6: 2x ≥ 13','Divide by 2: <strong>x ≥ 6.5</strong>','Check x = 7: 2(4) = 8 ≥ 7 ✓'],seg:{a:6.5,ai:true,b:Infinity}},
+ {L:['<span class="a">7 − 2x &gt; 1</span>','Subtract 7: −2x &gt; −6','<span class="b">Divide by −2: negative, so flip &gt; to &lt;</span>','<strong>x &lt; 3</strong>','Check x = 0: 7 &gt; 1 ✓'],seg:{a:-Infinity,b:3,bi:false}},
+ {L:['<span class="a">(x + 4)/3 ≤ 2</span>','Multiply both sides by 3: x + 4 ≤ 6','Subtract 4: <strong>x ≤ 2</strong>','Check x = 2: 6/3 = 2 ≤ 2 ✓ (included)'],seg:{a:-Infinity,b:2,bi:true}},
+ {L:['<span class="a">5x − 2 &gt; 2x + 7</span>','Subtract 2x (keeps x positive): 3x − 2 &gt; 7','Add 2: 3x &gt; 9','Divide by 3: <strong>x &gt; 3</strong>','Check x = 4: 18 &gt; 15 ✓'],seg:{a:3,ai:false,b:Infinity}},
+ {L:['<span class="a">4 − 3x ≥ 10</span>','Subtract 4: −3x ≥ 6','<span class="b">Divide by −3: negative, so flip ≥ to ≤</span>','<strong>x ≤ −2</strong>','Check x = −3: 4 + 9 = 13 ≥ 10 ✓'],seg:{a:-Infinity,b:-2,bi:true}}
+];
+const drawSL=k=>{ const S=SL[+$('slE').value]; $('slSvg').innerHTML=NL({lo:-7,hi:8,segs:k>=S.L.length-1?[S.seg]:[]}); };
+const slStep=stepper('slWork','slNext','slAll','slReset',k=>drawSL(k));
+const slLoad=()=>slStep.set(SL[+$('slE').value].L,1); $('slE').addEventListener('change',slLoad); DRAW.push(()=>drawSL(slStep.k)); slLoad();
+
+/* 3a. double inequality builder */
+function drawDB(){ let L=+$('dbL').value,U=+$('dbU').value; if(U<=L){U=L+1;$('dbU').value=U;} const li=$('dbLi').checked,ui=$('dbUi').checked;
+  $('dbLv').textContent=' '+minus(L); $('dbUv').textContent=' '+minus(U);
+  const ints=[]; for(let n=L;n<=U;n++){ if((n>L||li)&&(n<U||ui)) ints.push(n); }
+  $('dbBig').innerHTML=`${minus(L)} ${li?'≤':'&lt;'} x ${ui?'≤':'&lt;'} ${minus(U)}`;
+  $('dbSvg').innerHTML=NL({H:90,y:52,segs:[{a:L,ai:li,b:U,bi:ui}],dots:ints});
+  $('dbWork').innerHTML=`<span class="c">integers: ${ints.map(minus).join(', ')||'none'}</span> (${ints.length} of them)<br>${li?minus(L)+' is included':minus(L)+' is not included'}; ${ui?minus(U)+' is included':minus(U)+' is not included'}.`; }
+['dbL','dbU','dbLi','dbUi'].forEach(i=>$(i).addEventListener('input',drawDB)); reg(drawDB);
+
+/* 3b. list integers */
+let IT=null;
+function itNew(){ let L,U,li,ui,b,c,ints; do{ L=rnd(-5,3);U=L+rnd(2,6);li=Math.random()<.5;ui=Math.random()<.5;b=rnd(2,4);c=rnd(-6,6); ints=[]; for(let n=L;n<=U;n++) if((n>L||li)&&(n<U||ui)) ints.push(n); }while(ints.length<2||c===0);
+  IT={L,U,li,ui,b,c,ints}; $('itQ').innerHTML=`List the integers n such that &nbsp;<span class="m">${minus(b*L+c)} ${li?'≤':'&lt;'} ${b}n ${c<0?'−':'+'} ${Math.abs(c)} ${ui?'≤':'&lt;'} ${minus(b*U+c)}</span>`;
+  $('itA').value=''; $('itMsg').className='msg'; $('itMsg').textContent=''; }
+$('itGo').addEventListener('click',()=>{ const M=$('itMsg'); const got=[...new Set(($('itA').value.replace(/−/g,'-').match(/-?\d+/g)||[]).map(Number))].sort((a,b)=>a-b);
+  if(!got.length){M.className='msg bad';M.textContent='Type the integers separated by commas.';return;}
+  const {L,U,li,ui,b,c,ints}=IT, want=ints.join(','), ok=got.join(',')===want; M.className='msg '+(ok?'good':'bad');
+  const sol=`${minus(L)} ${li?'≤':'<'} n ${ui?'≤':'<'} ${minus(U)}`;
+  if(ok){M.textContent=`Correct. ${c<0?'Add '+(-c):'Subtract '+c} and divide all three parts by ${b}: ${sol}, so n = ${ints.map(minus).join(', ')}.`;return;}
+  let t=`Not quite. First solve it: ${c<0?'add '+(-c)+' to':'subtract '+c+' from'} all three parts, then divide all three by ${b}: ${sol}. `;
+  if(got.includes(L)&&!li) t+=`${minus(L)} is not included (strict <). `; else if(!got.includes(L)&&li&&got.length) t+=`${minus(L)} is included (≤). `;
+  if(got.includes(U)&&!ui) t+=`${minus(U)} is not included (strict <). `; else if(!got.includes(U)&&ui&&got.length) t+=`${minus(U)} is included (≤). `;
+  M.textContent=t; });
+$('itNew').addEventListener('click',itNew); itNew();
+
+/* 4. quadratic inequalities */
+const P4=Plot({x0:-6,x1:7,y0:-10,y1:10,H:360});
+function drawQI(){ const [p,q]=$('qiE').value.split(',').map(Number), op=$('qiOp').value, f=x=>(x-p)*(x-q), ac=css('--accent'),hi=css('--hi'),mu=css('--muted');
+  const below=op==='<'||op==='≤', inc=op==='≤'||op==='≥', b=-(p+q), c=p*q, expr=polyStr([1,b,c]);
+  let s=P4.path(f,mu,2);
+  if(below) s+=P4.path(f,ac,5,false,p,q,120)+P4.seg(p,0,q,0,ac,6);
+  else { s+=P4.path(f,ac,5,false,-6,p,160)+P4.path(f,ac,5,false,q,7,160)+P4.seg(-6,0,p,0,ac,6)+P4.seg(q,0,7,0,ac,6); }
+  [p,q].forEach(v=>s+=inc?P4.dot(v,0,hi,6):P4.ring(v,0,hi,6));
+  P4.clip($('qiSvg'),s);
+  $('qiNl').innerHTML=NL({lo:-6,hi:7,segs:below?[{a:p,ai:inc,b:q,bi:inc}]:[{a:-Infinity,b:p,bi:inc},{a:q,ai:inc,b:Infinity}]});
+  const o1=inc?'≤':'<', o2=inc?'≥':'>';
+  const fac=`${p===0?'x':'(x '+(p<0?'+':'−')+' '+Math.abs(p)+')'}(x ${q<0?'+':'−'} ${Math.abs(q)})`;
+  $('qiWork').innerHTML=`<span class="a">${expr} ${esc2(op)} 0</span><br>Critical values: ${expr} = ${fac} = 0 → x = ${minus(p)} or x = ${minus(q)}<br>${below?'Below the axis (':'Above the axis ('}${esc2(op)} 0): ${below?'between the roots':'outside the roots'}${inc?', including them':''}<br><strong>${below?`${minus(p)} ${o1} x ${o1} ${minus(q)}`:`x ${o1} ${minus(p)} or x ${o2} ${minus(q)}`}</strong><br><span class="c">set notation: ${below?`{x : ${minus(p)} ${o1} x ${o1} ${minus(q)}}`:`{x : x ${o1} ${minus(p)}} ∪ {x : x ${o2} ${minus(q)}}`}</span>`.replace(/ < /g,' &lt; ').replace(/ > /g,' &gt; '); }
+['qiE','qiOp'].forEach(i=>$(i).addEventListener('input',drawQI)); reg(drawQI);
+
+/* 5. half-plane */
+const P5=Plot({x0:-6,x1:6,y0:-6,y1:6}); let hpT=[1,3];
+function halfPoly(P,f,up){ const B=up?1e3:-1e3; return `<polygon points="${P.sx(P.x0-1)},${P.sy(f(P.x0-1))} ${P.sx(P.x1+1)},${P.sy(f(P.x1+1))} ${P.sx(P.x1+1)},${P.sy(B)} ${P.sx(P.x0-1)},${P.sy(B)}" fill="${css('--accent')}" fill-opacity=".22"/>`; }
+function drawHP(){ const op=$('hpOp').value,m=+$('hpM').value,c=+$('hpC').value; $('hpMv').textContent=' '+fmt(m); $('hpCv').textContent=' '+fmt(c);
+  const f=x=>m*x+c, up=op==='>'||op==='≥', strict=op==='<'||op==='>', hi=css('--hi'),tw=css('--two');
+  const rhs=polyStr([m,c]); $('hpBig').innerHTML=`y ${esc2(op)} ${rhs}`;
+  let s=halfPoly(P5,f,up)+P5.path(f,hi,3,strict?'8 6':false,-7,7,2);
+  const [tx,ty]=hpT, val=f(tx), ok=opTest(op,ty,val);
+  s+=`<circle data-h="1" cx="${P5.sx(tx)}" cy="${P5.sy(ty)}" r="9" fill="${tw}" stroke="${css('--panel')}" stroke-width="2"/>`;
+  P5.clip($('hpSvg'),s,P5.text(tx+0.3,ty+0.3,`(${fmt(tx)}, ${fmt(ty)})`,tw));
+  $('hpWork').innerHTML=`boundary y = ${rhs}: <span class="b">${strict?'dashed (points on it are not included)':'solid (points on it are included)'}</span><br>test point (${fmt(tx)}, ${fmt(ty)}): is ${minus(fmt(ty))} ${esc2(op)} ${fmt(m)} × ${br(tx)} ${c<0?'−':'+'} ${Math.abs(c)} = ${fmt(val)}? <strong>${ok?'Yes ✓: it is in the region':'No ✗: it is outside the region'}</strong>`; }
+['hpOp','hpM','hpC'].forEach(i=>$(i).addEventListener('input',drawHP));
+dragOn($('hpSvg'),e=>{const [x,y]=P5.world($('hpSvg'),e);hpT=[Math.max(-6,Math.min(6,Math.round(x*2)/2)),Math.max(-6,Math.min(6,Math.round(y*2)/2))];drawHP();});
+reg(drawHP);
+
+/* 6. regions with lattice points: each inequality a*x + b*y op c */
+const RG=[
+ {I:[[0,1,'≥',1,'y ≥ 1'],[1,1,'<',6,'x + y < 6'],[-2,1,'≤',0,'y ≤ 2x']]},
+ {I:[[1,0,'>',0,'x > 0'],[0,1,'>',0,'y > 0'],[1,2,'≤',6,'x + 2y ≤ 6']]},
+ {I:[[0,1,'>',1,'y > 1'],[1,0,'<',4,'x < 4'],[-1,1,'<',2,'y < x + 2']]}
+];
+const P6=Plot({x0:-2,x1:8,y0:-2,y1:8}); let rgSel=new Set(), rgShow=false;
+const inR=(R,x,y)=>R.I.every(([a,b,op,c])=>opTest(op,a*x+b*y,c));
+function clipPoly(poly,a,b,c){ const out=[],n=poly.length; const v=p=>c-(a*p[0]+b*p[1]); // keep v>=0 side if op is ≤/<, handled by caller sign
+  for(let i=0;i<n;i++){ const P=poly[i],Q=poly[(i+1)%n],vp=v(P),vq=v(Q); if(vp>=0) out.push(P); if((vp>=0)!==(vq>=0)){ const t=vp/(vp-vq); out.push([P[0]+(Q[0]-P[0])*t,P[1]+(Q[1]-P[1])*t]); } } return out; }
+function drawRG(){ const R=RG[+$('rgE').value], ac=css('--accent'),hi=css('--hi'),tw=css('--two'),mu=css('--muted'),good=css('--good'),bad=css('--bad');
+  $('rgEqs').textContent=R.I.map(i=>i[4]).join(',   ');
+  let poly=[[-3,-3],[9,-3],[9,9],[-3,9]];
+  R.I.forEach(([a,b,op,c])=>{ poly=(op==='<'||op==='≤')?clipPoly(poly,a,b,c):clipPoly(poly,-a,-b,-c); });
+  let s=poly.length?`<polygon points="${poly.map(p=>P6.sx(p[0])+','+P6.sy(p[1])).join(' ')}" fill="${ac}" fill-opacity=".22"/>`:'';
+  R.I.forEach(([a,b,op,c])=>{ const dash=op==='<'||op==='>'?'8 6':false; s+=b!==0?P6.path(x=>(c-a*x)/b,hi,2.5,dash,-3,9,2):P6.seg(c/a,-3,c/a,9,hi,2.5,dash); });
+  let over='';
+  for(let x=-1;x<=7;x++)for(let y=-1;y<=7;y++){ const k=x+','+y, sel=rgSel.has(k), inside=inR(R,x,y);
+    if(rgShow&&inside) over+=`<circle cx="${P6.sx(x)}" cy="${P6.sy(y)}" r="7" fill="${tw}"/>`;
+    else if(sel) over+=`<circle cx="${P6.sx(x)}" cy="${P6.sy(y)}" r="7" fill="${tw}" stroke="${css('--panel')}" stroke-width="2"/>`;
+    else over+=`<circle cx="${P6.sx(x)}" cy="${P6.sy(y)}" r="2.5" fill="${mu}"/>`; }
+  P6.clip($('rgSvg'),s,over); }
+$('rgSvg').addEventListener('pointerdown',e=>{ const [x,y]=P6.world($('rgSvg'),e), rx=Math.round(x), ry=Math.round(y); if(Math.hypot(x-rx,y-ry)>0.4||rx<-1||rx>7||ry<-1||ry>7) return; const k=rx+','+ry; rgSel.has(k)?rgSel.delete(k):rgSel.add(k); rgShow=false; drawRG(); $('rgMsg').className='msg'; $('rgMsg').textContent=`${rgSel.size} point${rgSel.size===1?'':'s'} marked.`; });
+$('rgGo').addEventListener('click',()=>{ const R=RG[+$('rgE').value], M=$('rgMsg'), want=[]; for(let x=-1;x<=7;x++)for(let y=-1;y<=7;y++) if(inR(R,x,y)) want.push(x+','+y);
+  const miss=want.filter(k=>!rgSel.has(k)), extra=[...rgSel].filter(k=>!want.includes(k)); const ok=!miss.length&&!extra.length; M.className='msg '+(ok?'good':'bad');
+  if(ok){M.textContent=`Correct: all ${want.length} integer points found.`;return;}
+  let t=`Not yet: ${want.length-miss.length} of ${want.length} found. `;
+  if(extra.length){ const [x,y]=extra[0].split(',').map(Number); const fail=R.I.find(([a,b,op,c])=>!opTest(op,a*x+b*y,c)); const onDash=fail&&Math.abs(fail[0]*x+fail[1]*y-fail[3])<1e-9;
+    t+=`(${minus(x)}, ${minus(y)}) is not in R: it ${onDash?'lies on the dashed line '+fail[4]+', which is not included':'breaks '+fail[4]}. `; }
+  if(miss.length){ const [x,y]=miss[0].split(',').map(Number); const onSolid=R.I.some(([a,b,op,c])=>Math.abs(a*x+b*y-c)<1e-9); t+=onSolid?`Points on a solid boundary count, e.g. (${minus(x)}, ${minus(y)}).`:`You've missed some, e.g. (${minus(x)}, ${minus(y)}).`; }
+  M.textContent=t; });
+$('rgShow').addEventListener('click',()=>{rgShow=true;drawRG();const R=RG[+$('rgE').value],want=[];for(let y=-1;y<=7;y++)for(let x=-1;x<=7;x++)if(inR(R,x,y))want.push(`(${minus(x)}, ${minus(y)})`);$('rgMsg').className='msg';$('rgMsg').textContent=`${want.length} points: ${want.join(', ')}`;});
+$('rgClear').addEventListener('click',()=>{rgSel.clear();rgShow=false;drawRG();$('rgMsg').textContent='';});
+$('rgE').addEventListener('change',()=>{rgSel.clear();rgShow=false;drawRG();$('rgMsg').textContent='';});
+reg(drawRG);
+
+const QS=[
+  {q:'Which inequality means "x is at least 4"?',opts:['x ≥ 4','x > 4','x ≤ 4','x < 4'],a:0,fb:'"At least 4" means 4 or more, so 4 is included: x ≥ 4.'},
+  {q:'On a number line, x < −1 is shown with…',opts:['an open circle at −1 and an arrow left','a filled circle at −1 and an arrow left','an open circle at −1 and an arrow right','a filled circle at −1 and an arrow right'],a:0,fb:'Strict < means −1 is not included (open circle); "less than" points to smaller numbers (left).'},
+  {q:'Solve 4x − 3 > 17.',opts:['x > 5','x > 3.5','x < 5','x > 20'],a:0,fb:'Add 3: 4x > 20. Divide by 4: x > 5.'},
+  {q:'Solve 10 − 3x ≤ 4.',opts:['x ≥ 2','x ≤ 2','x ≥ −2','x ≤ −2'],a:0,fb:'Subtract 10: −3x ≤ −6. Divide by −3 and flip: x ≥ 2.'},
+  {q:'Which integers satisfy −2 < x ≤ 3?',opts:['−1, 0, 1, 2, 3','−2, −1, 0, 1, 2, 3','−1, 0, 1, 2','−2, −1, 0, 1, 2'],a:0,fb:'−2 is excluded (strict), 3 is included (≤).'},
+  {q:'Solve 1 ≤ 2x + 3 < 11.',opts:['−1 ≤ x < 4','−1 ≤ x < 7','2 ≤ x < 7','−2 ≤ x < 8'],a:0,fb:'Subtract 3 from all parts: −2 ≤ 2x < 8. Divide all parts by 2: −1 ≤ x < 4.'},
+  {q:'Higher: solve x² − 4x − 12 < 0.',opts:['−2 < x < 6','x < −2 or x > 6','−6 < x < 2','x < 6'],a:0,fb:'(x − 6)(x + 2) = 0 gives −2 and 6. "< 0" is below the axis: between the roots.'},
+  {q:'Higher: solve x² ≥ 25.',opts:['x ≤ −5 or x ≥ 5','−5 ≤ x ≤ 5','x ≥ ±5','x ≥ 5'],a:0,fb:'y = x² − 25 is on or above the axis outside −5 and 5. Two separate pieces.'},
+  {q:'Higher: the boundary line for the region y < 3x − 2 should be drawn…',opts:['dashed','solid','dotted only where x > 0','not at all'],a:0,fb:'Strict < means points on the line are not included: dashed line.'},
+  {q:'Higher: which point is in the region y > 2x + 1?',opts:['(0, 3)','(1, 3)','(2, 4)','(0, 0)'],a:0,fb:'(0, 3): is 3 > 2(0) + 1 = 1? Yes. (1, 3) gives 3 > 3, false (it is on the dashed line).'}
+];
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>DRAW.forEach(f=>f()));}
+new MutationObserver(()=>DRAW.forEach(f=>f())).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Perimeter, Area and Volume</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each section has an interactive SVG panel on 1 cm squared paper, plus a "your turn" box with instant feedback.
+   Colours on this page: orange = lengths and the perimeter (edges, base, height, length of a prism); teal = area and volume (the squares or cubes that fit, the cross-section);
+   plum = pieces that get cut, moved, rotated or copied (and the draggable handles), plus the newest layer of cubes. Squared-paper neutrals for the grid. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.Ln{color:var(--hi);font-weight:600}.Ar{color:var(--accent);font-weight:600}.Mv{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none;cursor:pointer}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.try{border:1px dashed var(--line);border-radius:8px;padding:.8rem 1rem;margin-top:1rem}
+.try h3{margin:0 0 .2rem;font-size:1.05rem}
+.try p{margin:.3rem 0}
+.hint{font-size:.85rem;color:var(--muted);margin:.4rem 0 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.summary li{margin:.4rem 0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Geometry and measures · KS3</div>
+  <h1>Perimeter, Area and Volume</h1>
+  <p class="lede">How much fence goes round a garden? How much carpet covers a floor? How much water fills a fish tank? Those are three different questions, and they need three different measurements: <span class="Ln">perimeter</span> (a length), <span class="Ar">area</span> (squares that fit) and <span class="Ar">volume</span> (cubes that fit). This page builds each one from scratch, so you can see where every formula comes from instead of just memorising it.</p>
+  <span class="gcse">National curriculum KS3: derive and apply formulae to calculate and solve problems involving perimeter and area of triangles, parallelograms and trapezia, volume of cuboids (including cubes) and other prisms; calculate and solve problems involving perimeters of 2-D shapes and composite shapes; use standard units of measure</span>
+</header>
+
+<h2>1 · Perimeter: the distance around</h2>
+<p>Imagine an ant walking all the way round the edge of a shape, starting at a corner and stopping when it gets back to where it began. The total distance it walks is the <strong>perimeter</strong>. The word comes from Greek: <em>peri</em> means "around" and <em>metron</em> means "measure". So perimeter is simply "the measure around".</p>
+<p>Because perimeter is a distance, it is measured in ordinary length units: millimetres (mm), centimetres (cm), metres (m) or kilometres (km). A fence, a picture frame, the white line round a football pitch and the crust round a slice of toast are all perimeters.</p>
+<p>A <strong>rectangle</strong> is a four-sided shape whose corners are all right angles (square corners, 90°). Its opposite sides are equal, so it has two long sides (the <em>length</em>) and two short sides (the <em>width</em>). Press the button to walk the ant round one side at a time. Each orange dot is 1 cm along the way.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>length <input type="range" id="peL" min="1" max="10" value="5"><span id="peLv" style="font-family:var(--mono)"></span></label>
+    <label>width <input type="range" id="peW" min="1" max="6" value="3"><span id="peWv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="peSvg" viewBox="0 0 400 260" width="400" height="260" role="img" aria-label="A rectangle on 1 cm squared paper with its walked sides in orange"></svg>
+  <div class="controls">
+    <button class="btn primary" id="peStep">Walk one side</button>
+    <button class="btn" id="peAll">Walk all the way</button>
+    <button class="btn" id="peReset">Start again</button>
+  </div>
+  <div class="work" id="peWork"></div>
+  <div class="try">
+    <h3>Your turn</h3>
+    <p id="t1Q"></p>
+    <div class="controls"><label>Perimeter = <input type="number" id="t1A" step="any" inputmode="decimal"> <span id="t1U"></span></label><button class="btn primary" id="t1Go">Check</button><button class="btn" id="t1New">New question</button></div>
+    <div class="msg" id="t1Msg"></div>
+  </div>
+</div>
+
+<p>Notice the pattern. The ant always walks length, width, length, width. So for any rectangle:</p>
+<p class="big"><span class="Ln">perimeter = length + width + length + width = 2 × (length + width)</span></p>
+<div class="callout">
+  <p><strong>Common mistakes with perimeter</strong></p>
+  <ul>
+    <li><strong>Adding only the two sides you can see labelled.</strong> A 5 cm by 3 cm rectangle has perimeter 16 cm, not 8 cm. Opposite sides are equal, so both labels count twice.</li>
+    <li><strong>Mixing units.</strong> If one side is 2 m and another is 50 cm, change them to the same unit first (200 cm and 50 cm) before adding.</li>
+    <li><strong>Mixing it up with area.</strong> Perimeter is the edge (a length, in cm). Area is the inside (in cm²). Next section.</li>
+  </ul>
+</div>
+
+<h2>2 · Area: how many squares fit</h2>
+<p><strong>Area</strong> measures how much flat surface a shape covers: the inside, not the edge. Think of tiling a bathroom floor or covering a table with sticky notes. To measure area we need a "unit" of surface, just as we used 1 cm as a unit of length. The obvious choice is a little square that is 1 cm long and 1 cm wide. It is called <strong>one square centimetre</strong>, written <strong>1 cm²</strong>. The small ² is a reminder that two lengths (1 cm across and 1 cm up) were used to make it.</p>
+<p>So "the area is 15 cm²" means exactly this: <em>15 of those little squares fit inside, with no gaps and no overlaps</em>. Drag the purple corner (or use the sliders) to make any rectangle and count the squares.</p>
+
+<div class="lab">
+  <svg id="arSvg" class="drag" viewBox="0 0 400 290" width="400" height="290" role="img" aria-label="Squared grid; drag the purple corner to change the rectangle"></svg>
+  <p class="hint">Drag the purple dot. Each square is 1 cm by 1 cm.</p>
+  <div class="controls">
+    <label>length <input type="range" id="arC" min="1" max="10" value="5"></label>
+    <label>width <input type="range" id="arR" min="1" max="8" value="3"></label>
+    <label><input type="checkbox" id="arNum" checked> number the squares</label>
+  </div>
+  <div class="readout">
+    <div class="t"><b>Size</b><span id="arDim"></span></div>
+    <div class="f"><b>Area</b><span id="arArea"></span></div>
+    <div class="t"><b>Perimeter</b><span id="arPer"></span></div>
+  </div>
+  <div class="work" id="arWork"></div>
+  <div class="try">
+    <h3>Challenge</h3>
+    <p>Press the button for a target area, then drag the corner to make a rectangle with exactly that area. There is usually more than one way.</p>
+    <div class="controls"><button class="btn primary" id="arChal">Give me a target</button></div>
+    <div class="msg" id="arMsg"></div>
+  </div>
+</div>
+
+<p>You never actually need to count one by one. The squares come in neat <strong>rows</strong>. A 5 cm by 3 cm rectangle has 3 rows with 5 squares in each, so there are 3 × 5 = 15 squares. That is why:</p>
+<p class="big"><span class="Ar">area of a rectangle = length × width</span></p>
+<p>A <strong>square</strong> is a rectangle with all four sides equal, so a square with side 4 cm has area 4 × 4 = 16 cm². (This is where the word "squared" for 4² comes from.)</p>
+<div class="callout">
+  <p><strong>Perimeter and area are different things.</strong> A 6 cm × 2 cm rectangle and a 4 cm × 4 cm square both have perimeter 16 cm, but their areas are 12 cm² and 16 cm². Try both in the grid above. Same fence, different amount of field inside.</p>
+  <p><strong>Units:</strong> area always gets a "squared" unit: mm², cm², m², km². Writing "15 cm" for an area is a mistake: 15 cm is a length.</p>
+</div>
+
+<h2>3 · Triangles: half a rectangle</h2>
+<p>A triangle doesn't fill whole squares neatly, so counting is awkward. Instead we use a trick: <em>draw a rectangle around it</em>.</p>
+<p>Two new words first. The <strong>base</strong> is the side the triangle sits on. The <strong>perpendicular height</strong> (or just "height") is how tall the triangle is, measured straight up from the base at a right angle to it. "Perpendicular" means "meeting at a right angle", like the corner of a page. The height is the dashed orange line: it is <em>not</em> one of the sloping sides.</p>
+<p>The dashed line cuts the rectangle into two smaller rectangles. Each small rectangle is cut in half by a sloping side of the triangle: one half is inside the triangle (teal) and the other half is outside (plum). The numbers show each piece's area, and they match in pairs. So the triangle is exactly half of the rectangle. Drag the purple top corner left and right and watch: the area never changes.</p>
+
+<div class="lab">
+  <svg id="trSvg" class="drag" viewBox="0 0 400 280" width="400" height="280" role="img" aria-label="A triangle inside its surrounding rectangle; drag the top corner"></svg>
+  <p class="hint">Drag the purple top corner along the top edge.</p>
+  <div class="controls">
+    <label>base <input type="range" id="trB" min="2" max="10" value="6"><span id="trBv" style="font-family:var(--mono)"></span></label>
+    <label>height <input type="range" id="trH" min="2" max="7" value="4"><span id="trHv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="trSplit" checked> show the matching halves</label>
+  </div>
+  <div class="work" id="trWork"></div>
+  <div class="try">
+    <h3>Your turn</h3>
+    <p id="t3Q"></p>
+    <div class="controls"><label>Area = <input type="number" id="t3A" step="any" inputmode="decimal"> <span id="t3U"></span></label><button class="btn primary" id="t3Go">Check</button><button class="btn" id="t3New">New question</button></div>
+    <div class="msg" id="t3Msg"></div>
+  </div>
+</div>
+
+<p class="big"><span class="Ar">area of a triangle = ½ × base × height</span></p>
+<p>"½ ×" means "half of", so you can also multiply base × height and then divide by 2. Both give the same answer.</p>
+<div class="callout">
+  <p><strong>Common mistakes with triangles</strong></p>
+  <ul>
+    <li><strong>Forgetting to halve.</strong> base × height is the rectangle round the triangle. The triangle is only half of that.</li>
+    <li><strong>Using the sloping side as the height.</strong> The height must be perpendicular to the base. A sloping side is always longer than the true height, so it gives an answer that is too big.</li>
+  </ul>
+</div>
+
+<h2>4 · Parallelograms: cut and slide</h2>
+<p>Two lines are <strong>parallel</strong> if they run in the same direction and never meet, like railway tracks. A <strong>parallelogram</strong> is a four-sided shape whose opposite sides are parallel. It looks like a rectangle that has been pushed over sideways.</p>
+<p>Here is the trick. Cut off the triangle at one end along the dashed height line, then slide it across to the other end. It fits perfectly, and the parallelogram becomes a rectangle. Nothing was added or thrown away, so the area hasn't changed. Move the slider (or press <em>Play</em>).</p>
+
+<div class="lab">
+  <svg id="paSvg" viewBox="0 0 400 240" width="400" height="240" role="img" aria-label="A parallelogram whose end triangle slides across to make a rectangle"></svg>
+  <div class="controls">
+    <label>cut and slide <input type="range" id="paT" min="0" max="100" value="0"></label>
+    <button class="btn primary" id="paPlay">Play</button>
+  </div>
+  <div class="controls">
+    <label>base <input type="range" id="paB" min="4" max="8" value="6"><span id="paBv" style="font-family:var(--mono)"></span></label>
+    <label>height <input type="range" id="paH" min="2" max="6" value="4"><span id="paHv" style="font-family:var(--mono)"></span></label>
+    <label>lean <input type="range" id="paS" min="1" max="3" value="2"></label>
+  </div>
+  <div class="readout">
+    <div class="t"><b>Base</b><span id="paRB"></span></div>
+    <div class="t"><b>Perpendicular height</b><span id="paRH"></span></div>
+    <div><b>Sloping side (not used)</b><span id="paRS"></span></div>
+    <div class="f"><b>Area</b><span id="paRA"></span></div>
+  </div>
+  <div class="work" id="paWork"></div>
+  <div class="try">
+    <h3>Your turn</h3>
+    <p id="t4Q"></p>
+    <div class="controls"><label>Area = <input type="number" id="t4A" step="any" inputmode="decimal"> <span id="t4U"></span></label><button class="btn primary" id="t4Go">Check</button><button class="btn" id="t4New">New question</button></div>
+    <div class="msg" id="t4Msg"></div>
+  </div>
+</div>
+
+<p class="big"><span class="Ar">area of a parallelogram = base × height</span></p>
+<div class="callout">
+  <p><strong>Watch out:</strong> the "height" is the perpendicular height (the dashed line), not the sloping side. Change the "lean" slider: the sloping side gets longer but the area stays the same, because the base and height haven't changed. And there is no ½ here: the parallelogram turns into a whole rectangle, not half of one.</p>
+</div>
+
+<h2>5 · Trapezia: two make a parallelogram</h2>
+<p>A <strong>trapezium</strong> (plural <strong>trapezia</strong>) is a four-sided shape with exactly one pair of parallel sides. We call the two parallel sides <span class="Ln">a</span> and <span class="Ln">b</span>, and the perpendicular distance between them is the height <span class="Ln">h</span>. Think of the side view of a bucket, or a slice of a pyramid.</p>
+<p>The trick this time: take a second, identical trapezium, turn it upside down and push it against the first. Together they make a parallelogram! Its base is <span class="Ln">a + b</span> (one of each side joined end to end) and its height is still <span class="Ln">h</span>. Move the slider to rotate the copy into place.</p>
+
+<div class="lab">
+  <svg id="tzSvg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="A trapezium and a rotated copy that together make a parallelogram"></svg>
+  <div class="controls">
+    <label>rotate a copy <input type="range" id="tzT" min="0" max="100" value="0"></label>
+    <button class="btn primary" id="tzPlay">Play</button>
+  </div>
+  <div class="controls">
+    <label>top a <input type="range" id="tzA" min="1" max="6" value="3"><span id="tzAv" style="font-family:var(--mono)"></span></label>
+    <label>bottom b <input type="range" id="tzB" min="3" max="9" value="7"><span id="tzBv" style="font-family:var(--mono)"></span></label>
+    <label>height h <input type="range" id="tzH" min="2" max="5" value="4"><span id="tzHv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="work" id="tzWork"></div>
+  <div class="try">
+    <h3>Your turn</h3>
+    <p id="t5Q"></p>
+    <div class="controls"><label>Area = <input type="number" id="t5A" step="any" inputmode="decimal"> <span id="t5U"></span></label><button class="btn primary" id="t5Go">Check</button><button class="btn" id="t5New">New question</button></div>
+    <div class="msg" id="t5Msg"></div>
+  </div>
+</div>
+
+<p>The parallelogram has area (a + b) × h, and it is made of two identical trapezia, so one trapezium is half of it:</p>
+<p class="big"><span class="Ar">area of a trapezium = ½ × (a + b) × h</span></p>
+<p>In words: <em>add the parallel sides, multiply by the height, then halve</em>. The brackets matter: you add a and b <strong>first</strong> (BIDMAS).</p>
+<div class="callout">
+  <p><strong>Common mistakes with trapezia:</strong> forgetting the ½ (that gives the area of the whole parallelogram, twice too big); multiplying a × b × h instead of adding a and b first; using a sloping side instead of the perpendicular height.</p>
+</div>
+
+<h2>6 · Composite shapes: split it up</h2>
+<p>A <strong>composite shape</strong> is one made by joining simpler shapes together. The L-shape below is a good example. There is no special formula for it, and you don't need one: <em>split it into rectangles, find each area, then add</em>. Or think of it as a big rectangle with a piece cut out, and subtract.</p>
+<p>Choose a method. Every method gives the same answer, which is a great way to check your work.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>method <select id="coM">
+      <option value="v">split with a vertical cut</option>
+      <option value="h">split with a horizontal cut</option>
+      <option value="s">big rectangle − missing corner</option>
+    </select></label>
+  </div>
+  <svg id="coSvg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="An L-shaped composite shape split into rectangles"></svg>
+  <div class="controls">
+    <label>width <input type="range" id="coW" min="6" max="12" value="10"></label>
+    <label>height <input type="range" id="coH" min="5" max="10" value="8"></label>
+    <label>corner cut across <input type="range" id="coCW" min="1" max="11" value="4"></label>
+    <label>corner cut down <input type="range" id="coCH" min="1" max="9" value="3"></label>
+  </div>
+  <div class="readout">
+    <div class="f"><b>Area</b><span id="coArea"></span></div>
+    <div class="t"><b>Perimeter</b><span id="coPer"></span></div>
+  </div>
+  <div class="work" id="coWork"></div>
+  <div class="try">
+    <h3>Your turn</h3>
+    <p id="t6Q"></p>
+    <svg id="t6Svg" viewBox="0 0 320 230" width="320" height="230" role="img" aria-label="An L-shape with some sides labelled"></svg>
+    <div class="controls"><label>Area = <input type="number" id="t6A" step="any" inputmode="decimal"> <span id="t6U"></span></label><button class="btn primary" id="t6Go">Check</button><button class="btn" id="t6New">New question</button></div>
+    <div class="msg" id="t6Msg"></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Missing sides.</strong> Exam questions often leave some sides unlabelled. Find them by subtracting: if the whole bottom is 10 cm and the top is 6 cm, the step across must be 10 − 6 = 4 cm.</p>
+  <p><strong>Perimeter of a composite shape:</strong> go all the way round and add <em>every</em> outside edge, including the little inside steps. Do not include the cut lines you drew to split the shape: they are inside, so the ant never walks along them.</p>
+  <p><strong>Don't overlap.</strong> When you split a shape, each square must belong to exactly one piece. If your pieces overlap, you count some squares twice.</p>
+</div>
+
+<h2>7 · Volume: how many cubes fit</h2>
+<p>Now step up from flat shapes to solid ones. <strong>Volume</strong> measures how much space a 3-D object takes up, or how much it holds: how much water fills a tank, how much air is in a room. Just as area counts squares, volume counts <strong>cubes</strong>. A cube that is 1 cm long, 1 cm wide and 1 cm tall is called <strong>one cubic centimetre</strong>, written <strong>1 cm³</strong>. It is about the size of a sugar cube or a dice. The small ³ shows that three lengths made it.</p>
+<p>A <strong>cuboid</strong> is a box shape: six rectangular faces, all corners right angles. Think of a cereal box or a brick. Fill one with 1 cm cubes, one layer at a time.</p>
+
+<div class="lab">
+  <svg id="voSvg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="A cuboid being filled with centimetre cubes, layer by layer"></svg>
+  <div class="controls">
+    <label>layers filled <input type="range" id="voN" min="0" max="2" value="2"></label>
+  </div>
+  <div class="controls">
+    <label>length <input type="range" id="voL" min="1" max="6" value="4"></label>
+    <label>width <input type="range" id="voW" min="1" max="4" value="3"></label>
+    <label>height <input type="range" id="voH" min="1" max="5" value="2"></label>
+  </div>
+  <div class="readout">
+    <div class="f"><b>Cubes in one layer</b><span id="voRA"></span></div>
+    <div class="t"><b>Number of layers</b><span id="voRH"></span></div>
+    <div class="f"><b>Volume</b><span id="voRV"></span></div>
+  </div>
+  <div class="work" id="voWork"></div>
+  <div class="try">
+    <h3>Your turn</h3>
+    <p id="t7Q"></p>
+    <div class="controls"><label>Volume = <input type="number" id="t7A" step="any" inputmode="decimal"> <span id="t7U"></span></label><button class="btn primary" id="t7Go">Check</button><button class="btn" id="t7New">New question</button></div>
+    <div class="msg" id="t7Msg"></div>
+  </div>
+</div>
+
+<p>The bottom layer is just a rectangle of cubes: length × width of them. The height tells you how many identical layers are stacked up. So:</p>
+<p class="big"><span class="Ar">volume of a cuboid = length × width × height</span></p>
+<p>A cube with side 3 cm holds 3 × 3 × 3 = 27 cm³. (That is why 3³ is called "3 cubed".)</p>
+
+<h3>Length, area, volume: the units tell the story</h3>
+<div class="tbl"><table>
+  <tr><th>Measuring</th><th>Unit</th><th>What it means</th><th>Lengths multiplied</th></tr>
+  <tr><td>Perimeter (distance)</td><td class="mono">cm</td><td>how many 1 cm steps</td><td>one</td></tr>
+  <tr><td>Area (surface)</td><td class="mono">cm²</td><td>how many 1 cm × 1 cm squares fit</td><td>two</td></tr>
+  <tr><td>Volume (space)</td><td class="mono">cm³</td><td>how many 1 cm × 1 cm × 1 cm cubes fit</td><td>three</td></tr>
+</table></div>
+<div class="callout">
+  <p><strong>Useful check:</strong> count the lengths you multiplied. One length → cm. Two lengths → cm². Three lengths → cm³. If you multiplied three lengths and wrote cm², something has gone wrong.</p>
+  <p><strong>Same units first:</strong> a box 2 m by 50 cm by 30 cm must become 200 cm × 50 cm × 30 cm = 300 000 cm³. Multiplying 2 × 50 × 30 = 3000 mixes metres with centimetres and is wrong.</p>
+  <p><strong>Capacity:</strong> 1000 cm³ = 1 litre, and 1 cm³ = 1 millilitre (ml).</p>
+</div>
+
+<h2>8 · Prisms: cross-section × length</h2>
+<p>A <strong>prism</strong> is a solid that has the same shape all the way through, like a stick of rock, a Toblerone bar or a loaf of sliced bread. That shape is called the <strong>cross-section</strong>: it is the face you would see if you sliced straight through the prism. A cuboid is a prism whose cross-section is a rectangle.</p>
+<p>Think of a prism as a pile of identical 1 cm thick slices. Each slice has volume equal to the area of the cross-section (a slice of area 6 cm² and thickness 1 cm holds 6 cubes). If the prism is 8 cm long there are 8 slices. So multiply!</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>cross-section <select id="prS">
+      <option value="tri">right-angled triangle</option>
+      <option value="rect">rectangle (a cuboid)</option>
+      <option value="L">L-shape</option>
+      <option value="trap">trapezium</option>
+    </select></label>
+    <label>length <input type="range" id="prL" min="1" max="10" value="6"><span id="prLv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="prSl" checked> show 1 cm slices</label>
+  </div>
+  <svg id="prSvg" viewBox="0 0 400 270" width="400" height="270" role="img" aria-label="A prism with its cross-section shaded and its length in orange"></svg>
+  <div class="readout">
+    <div class="f"><b>Cross-section area</b><span id="prRA"></span></div>
+    <div class="t"><b>Length</b><span id="prRL"></span></div>
+    <div class="f"><b>Volume</b><span id="prRV"></span></div>
+  </div>
+  <div class="work" id="prWork"></div>
+  <div class="try">
+    <h3>Your turn</h3>
+    <p id="t8Q"></p>
+    <div class="controls"><label>Volume = <input type="number" id="t8A" step="any" inputmode="decimal"> <span id="t8U"></span></label><button class="btn primary" id="t8Go">Check</button><button class="btn" id="t8New">New question</button></div>
+    <div class="msg" id="t8Msg"></div>
+  </div>
+</div>
+
+<p class="big"><span class="Ar">volume of a prism = area of cross-section × length</span></p>
+<p>This is the same idea as the cuboid. For a cuboid, the cross-section is a rectangle with area length × width, and its "length" through the prism is the height. So length × width × height is just a special case.</p>
+<div class="callout">
+  <p><strong>Two-step method:</strong> (1) find the area of the cross-section using the right 2-D formula; (2) multiply by the length. Write the units: cm² after step 1, cm³ after step 2.</p>
+  <p><strong>Common mistake:</strong> multiplying every number you can see. For a triangular prism with base 6, height 4 and length 10, 6 × 4 × 10 = 240 is wrong: the cross-section is a triangle, so it's ½ × 6 × 4 = 12 cm², and the volume is 12 × 10 = 120 cm³.</p>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>A rectangular garden is 8 m long and 5 m wide. Find its perimeter and its area.</summary>
+  <div class="step"><strong>Perimeter</strong> (fence round the edge): add all four sides. 8 + 5 + 8 + 5 = <strong>26 m</strong>.</div>
+  <div class="step"><strong>Check with the shortcut:</strong> 2 × (8 + 5) = 2 × 13 = 26 m ✓</div>
+  <div class="step"><strong>Area</strong> (grass inside): 5 rows of 8 one-metre squares. 8 × 5 = <strong>40 m²</strong>.</div>
+  <div class="step"><strong>Units:</strong> the perimeter is a length (m); the area counts squares (m²).</div>
+</details>
+<details>
+  <summary>A triangle has base 10 cm and perpendicular height 7 cm. Find its area.</summary>
+  <div class="step"><strong>Formula:</strong> area = ½ × base × height.</div>
+  <div class="step"><strong>Substitute:</strong> ½ × 10 × 7.</div>
+  <div class="step"><strong>Work it out:</strong> 10 × 7 = 70 (the rectangle round the triangle). Half of 70 is 35.</div>
+  <div class="step"><strong>Answer:</strong> <strong>35 cm²</strong>.</div>
+</details>
+<details>
+  <summary>A parallelogram has base 9 cm, sloping sides of 6 cm and perpendicular height 5 cm. Find its area.</summary>
+  <div class="step"><strong>Pick the right numbers:</strong> area = base × perpendicular height. The 6 cm sloping side is not needed: it's there to catch you out.</div>
+  <div class="step"><strong>Work it out:</strong> 9 × 5 = <strong>45 cm²</strong>.</div>
+  <div class="step"><strong>Sense check:</strong> 9 × 6 = 54 would be too big, because the shape is "squashed" compared with a 9 by 6 rectangle.</div>
+</details>
+<details>
+  <summary>A trapezium has parallel sides 6 cm and 10 cm, and height 4 cm. Find its area.</summary>
+  <div class="step"><strong>Formula:</strong> area = ½ × (a + b) × h.</div>
+  <div class="step"><strong>Brackets first:</strong> 6 + 10 = 16.</div>
+  <div class="step"><strong>Multiply by the height:</strong> 16 × 4 = 64 (that's the parallelogram made of two trapezia).</div>
+  <div class="step"><strong>Halve:</strong> 64 ÷ 2 = <strong>32 cm²</strong>.</div>
+</details>
+<details>
+  <summary>An L-shape is a 10 cm by 8 cm rectangle with a 4 cm by 3 cm corner cut out. Find its area and perimeter.</summary>
+  <div class="step"><strong>Method 1, subtract:</strong> whole rectangle 10 × 8 = 80 cm². Missing corner 4 × 3 = 12 cm². Area = 80 − 12 = <strong>68 cm²</strong>.</div>
+  <div class="step"><strong>Method 2, split (to check):</strong> left piece is 10 − 4 = 6 cm wide and 8 cm tall: 6 × 8 = 48 cm². Right piece is 4 cm wide and 8 − 3 = 5 cm tall: 4 × 5 = 20 cm². Total 48 + 20 = 68 cm² ✓</div>
+  <div class="step"><strong>Perimeter:</strong> the six outside edges are 10 (bottom), 5 (right), 4 (step across), 3 (step up), 6 (top) and 8 (left). 10 + 5 + 4 + 3 + 6 + 8 = <strong>36 cm</strong>.</div>
+</details>
+<details>
+  <summary>A fish tank is a cuboid 50 cm long, 30 cm wide and 40 cm tall. How much water does it hold?</summary>
+  <div class="step"><strong>One layer:</strong> 50 × 30 = 1500 cubes, each 1 cm³.</div>
+  <div class="step"><strong>Number of layers:</strong> 40, so volume = 1500 × 40 = <strong>60 000 cm³</strong>.</div>
+  <div class="step"><strong>In litres:</strong> 1000 cm³ = 1 litre, so 60 000 ÷ 1000 = <strong>60 litres</strong>.</div>
+</details>
+<details>
+  <summary>A tent is a triangular prism. The triangle has base 6 m and height 4 m, and the tent is 15 m long. Find its volume.</summary>
+  <div class="step"><strong>Step 1, cross-section:</strong> ½ × 6 × 4 = ½ × 24 = 12 m².</div>
+  <div class="step"><strong>Step 2, times the length:</strong> 12 × 15 = <strong>180 m³</strong>.</div>
+  <div class="step"><strong>Check the units:</strong> three lengths multiplied (6, 4 and 15), so m³ ✓. Note 6 × 4 × 15 = 360 is exactly double: that's what forgetting the ½ gives.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul class="summary">
+  <li><strong>Perimeter</strong> is the distance all the way round the edge. Add every side. It is a length, in mm, cm, m or km. For a rectangle: 2 × (length + width).</li>
+  <li><strong>Area</strong> is how many 1-unit squares fit inside, in mm², cm², m². Rectangle: length × width (rows × squares in each row).</li>
+  <li><strong>Triangle</strong> = ½ × base × perpendicular height, because it is exactly half of the rectangle round it.</li>
+  <li><strong>Parallelogram</strong> = base × perpendicular height, because cutting off one end and sliding it across makes a rectangle.</li>
+  <li><strong>Trapezium</strong> = ½ × (a + b) × h, because two copies make a parallelogram with base a + b.</li>
+  <li><strong>Composite shapes</strong>: split into simple shapes and add, or take a big shape and subtract the missing part. Find missing sides by subtracting.</li>
+  <li><strong>Volume</strong> is how many 1-unit cubes fit inside, in cm³ or m³. Cuboid: length × width × height (one layer × number of layers).</li>
+  <li><strong>Prism</strong>: area of cross-section × length. Find the 2-D area first, then multiply.</li>
+  <li>Always use the <strong>perpendicular</strong> height, convert to the <strong>same units</strong> before calculating, and check the unit: one length → cm, two → cm², three → cm³.</li>
+</ul>
+
+<footer>Made for KS3 students. Perimeter, area and volume are in the England national curriculum at key stage 3 under Geometry and measures. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const fmt=(v,d=2)=>isFinite(v)?parseFloat(v.toFixed(d)).toLocaleString('en-GB',{maximumFractionDigits:d}):'—';
+const F=()=>`font-family="${css('--mono')}"`;
+const T=(x,y,s,col,anc='middle',sz=13,wt=400)=>`<text x="${x}" y="${y}" text-anchor="${anc}" font-size="${sz}" font-weight="${wt}" fill="${col}" ${F()}>${s}</text>`;
+const poly=(p,fill,fo,stroke,sw=2,extra='')=>`<polygon points="${p.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ')}" fill="${fill}" fill-opacity="${fo}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round" ${extra}/>`;
+const ln=(x1,y1,x2,y2,col,w=2,dash)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''} stroke-linecap="round"/>`;
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const grid=(W,H,u,x0,y0)=>{let s='';const c=css('--grid');for(let x=((x0%u)+u)%u;x<=W;x+=u)s+=ln(x,0,x,H,c,1);for(let y=((y0%u)+u)%u;y<=H;y+=u)s+=ln(0,y,W,y,c,1);return s;};
+const svgPt=(svg,e)=>{const r=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal;return [(e.clientX-r.left)/r.width*vb.width,(e.clientY-r.top)/r.height*vb.height];};
+function drag(svg,fn){let on=false;
+  svg.addEventListener('pointerdown',e=>{on=true;try{svg.setPointerCapture(e.pointerId);}catch(_){}fn(svgPt(svg,e));e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(on)fn(svgPt(svg,e));});
+  ['pointerup','pointercancel'].forEach(t=>svg.addEventListener(t,()=>{on=false;}));}
+const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function animate(inp,draw){if(reduce){inp.value=inp.max;draw();return;}const t0=performance.now(),dur=1500;inp.value=0;draw();
+  (function step(now){const k=Math.min(1,Math.max(0,(now-t0)/dur));inp.value=Math.round(k*100);draw();if(k<1)requestAnimationFrame(step);})(t0);}
+
+/* "your turn" helper: gen() returns {text, unit, ans, why, hint, wrong:[[value, targeted message],…], svg?} */
+function makeTry(p,gen){const Q=$(p+'Q'),A=$(p+'A'),M=$(p+'Msg'),U=$(p+'U'),SV=document.getElementById(p+'Svg');let cur;
+  function draw(){if(SV&&cur.svg)SV.innerHTML=cur.svg();}
+  function nw(){let k=0;do{cur=gen();k++;}while(k<50&&cur.wrong.some(w=>Math.abs(w[0]-cur.ans)<1e-9));
+    Q.innerHTML=cur.text;U.textContent=cur.unit;A.value='';M.className='msg';M.textContent='';draw();}
+  function check(){const v=parseFloat(A.value);if(isNaN(v)){M.className='msg';M.textContent='Type a number first.';return;}
+    if(Math.abs(v-cur.ans)<1e-6){M.className='msg good';M.innerHTML='Correct. '+cur.why;return;}
+    const w=cur.wrong.find(x=>Math.abs(v-x[0])<1e-6);M.className='msg bad';M.innerHTML='Not quite. '+(w?w[1]:cur.hint);}
+  $(p+'Go').addEventListener('click',check);A.addEventListener('keydown',e=>{if(e.key==='Enter')check();});$(p+'New').addEventListener('click',nw);nw();return draw;}
+
+/* 1. perimeter walk */
+const peL=$('peL'),peW=$('peW');let pk=0;
+function drawPE(){const L=+peL.value,W=+peW.value,u=30;$('peLv').textContent=' '+L+' cm';$('peWv').textContent=' '+W+' cm';
+  const ox=(400-L*u)/2,oy=(260-W*u)/2;const C=[[ox,oy],[ox+L*u,oy],[ox+L*u,oy+W*u],[ox,oy+W*u]];const lens=[L,W,L,W],names=['top','right','bottom','left'];
+  const hi=css('--hi'),mu=css('--muted');
+  let s=grid(400,260,u,ox,oy)+poly(C,css('--accent'),.08,mu,1.5);
+  for(let i=0;i<pk;i++){const a=C[i],b=C[(i+1)%4];s+=ln(a[0],a[1],b[0],b[1],hi,4);
+    for(let j=0;j<=lens[i];j++){const x=a[0]+(b[0]-a[0])*j/lens[i],y=a[1]+(b[1]-a[1])*j/lens[i];s+=`<circle cx="${x}" cy="${y}" r="3" fill="${hi}"/>`;}}
+  const lab=[[ox+L*u/2,oy-10,'middle'],[ox+L*u+8,oy+W*u/2+4,'start'],[ox+L*u/2,oy+W*u+20,'middle'],[ox-8,oy+W*u/2+4,'end']];
+  lab.forEach((p,i)=>s+=T(p[0],p[1],lens[i]+' cm',i<pk?hi:mu,p[2],13,i<pk?600:400));
+  const at=C[pk%4];s+=`<circle cx="${at[0]}" cy="${at[1]}" r="8" fill="${css('--two')}" stroke="${css('--panel')}" stroke-width="2"/>`;
+  $('peSvg').innerHTML=s;
+  let w=pk===0?'The ant (purple dot) starts at the top-left corner. Press <strong>Walk one side</strong>.':'';let tot=0;
+  for(let i=0;i<pk;i++){tot+=lens[i];w+=`${names[i]} side: <span class="b">${lens[i]} cm</span> → total so far ${tot} cm<br>`;}
+  if(pk===4)w+=`<strong>Perimeter = ${L} + ${W} + ${L} + ${W} = ${2*(L+W)} cm</strong><br><span class="c">Shortcut: 2 × (${L} + ${W}) = 2 × ${L+W} = ${2*(L+W)} cm</span>`;
+  else if(pk>0)w+=`<span class="c">Back at the start? Not yet: ${4-pk} side${4-pk===1?'':'s'} to go.</span>`;
+  $('peWork').innerHTML=w;}
+[peL,peW].forEach(e=>e.addEventListener('input',drawPE));
+$('peStep').addEventListener('click',()=>{pk=Math.min(4,pk+1);drawPE();});
+$('peAll').addEventListener('click',()=>{pk=4;drawPE();});
+$('peReset').addEventListener('click',()=>{pk=0;drawPE();});
+drawPE();
+makeTry('t1',()=>{const L=rnd(4,12),W=rnd(2,L-1),P=2*(L+W);return{unit:'cm',ans:P,
+  text:`A rectangle is <span class="Ln">${L} cm</span> long and <span class="Ln">${W} cm</span> wide. What is its perimeter?`,
+  why:`${L} + ${W} + ${L} + ${W} = ${P} cm, or 2 × (${L} + ${W}) = ${P} cm.`,
+  hint:`Walk round all four sides: ${L} cm, ${W} cm, ${L} cm and ${W} cm. Add them.`,
+  wrong:[[L*W,`${L} × ${W} = ${L*W} is the <em>area</em> (the squares inside). Perimeter is the distance round the edge: add the four sides.`],
+    [L+W,`You've added only two sides. A rectangle has four: two of ${L} cm and two of ${W} cm.`],
+    [2*L+W,'Close: you missed one of the short sides.'],[L+2*W,'Close: you missed one of the long sides.']]};});
+
+/* 2. area grid */
+const arSvg=$('arSvg'),arC=$('arC'),arR=$('arR'),arNum=$('arNum');const AU=30,AOX=50,AOY=20;let arT=0;
+function drawAR(){const c=+arC.value,r=+arR.value,u=AU,ox=AOX,oy=AOY;const g=css('--grid'),ac=css('--accent'),hi=css('--hi');let s='';
+  for(let i=0;i<=10;i++)s+=ln(ox+i*u,oy,ox+i*u,oy+8*u,g,1);for(let j=0;j<=8;j++)s+=ln(ox,oy+j*u,ox+10*u,oy+j*u,g,1);
+  let n=0;for(let j=0;j<r;j++)for(let i=0;i<c;i++){n++;s+=`<rect x="${ox+i*u+1.5}" y="${oy+j*u+1.5}" width="${u-3}" height="${u-3}" rx="3" fill="${ac}" fill-opacity=".28"/>`;
+    if(arNum.checked)s+=T(ox+i*u+u/2,oy+j*u+u/2+4,n,ac,'middle',11,600);}
+  s+=`<rect x="${ox}" y="${oy}" width="${c*u}" height="${r*u}" fill="none" stroke="${hi}" stroke-width="3"/>`;
+  s+=T(ox+c*u/2,oy+r*u+18,c+' cm',hi,'middle',13,600)+T(ox-8,oy+r*u/2+4,r+' cm',hi,'end',13,600);
+  s+=`<circle cx="${ox+c*u}" cy="${oy+r*u}" r="10" fill="${css('--two')}" stroke="${css('--panel')}" stroke-width="2"/>`;
+  arSvg.innerHTML=s;const A=c*r;
+  $('arDim').textContent=`${c} cm × ${r} cm`;$('arArea').textContent=`${A} cm²`;$('arPer').textContent=`${2*(c+r)} cm`;
+  $('arWork').innerHTML=`<span class="a">${r} row${r>1?'s':''} of ${c} square${c>1?'s':''}</span> = ${r} × ${c} = <strong>${A} squares</strong> → area = ${A} cm²<br><span class="b">Perimeter (orange edge) = ${c} + ${r} + ${c} + ${r} = ${2*(c+r)} cm</span>`;
+  const M=$('arMsg');if(arT){M.className='msg '+(A===arT?'good':'');
+    M.textContent=A===arT?`Yes! ${c} × ${r} = ${arT} cm². This one has perimeter ${2*(c+r)} cm. Can you find a different rectangle with area ${arT} cm²? Does its perimeter match?`:`Target: ${arT} cm². You have ${A} cm², which is ${A>arT?'too many':'too few'} squares.`;}}
+drag(arSvg,([x,y])=>{arC.value=Math.max(1,Math.min(10,Math.round((x-AOX)/AU)));arR.value=Math.max(1,Math.min(8,Math.round((y-AOY)/AU)));drawAR();});
+[arC,arR,arNum].forEach(e=>e.addEventListener('input',drawAR));
+$('arChal').addEventListener('click',()=>{const ts=[12,16,18,20,24,30].filter(t=>t!==arT&&t!==+arC.value*+arR.value);arT=ts[rnd(0,ts.length-1)];drawAR();});
+drawAR();
+
+/* 3. triangle = half a rectangle */
+const trSvg=$('trSvg'),trB=$('trB'),trH=$('trH'),trSplit=$('trSplit');const TU=30,TOX=50,TOY=250;let trX=2;
+function drawTR(){const b=+trB.value,h=+trH.value;trX=Math.min(trX,b);$('trBv').textContent=' '+b+' cm';$('trHv').textContent=' '+h+' cm';
+  const X=x=>TOX+x*TU,Y=y=>TOY-y*TU;const ac=css('--accent'),tw=css('--two'),hi=css('--hi'),mu=css('--muted');
+  let s=grid(400,280,TU,TOX,TOY);
+  s+=poly([[X(0),Y(0)],[X(0),Y(h)],[X(trX),Y(h)]],tw,.2,'none',0)+poly([[X(b),Y(0)],[X(b),Y(h)],[X(trX),Y(h)]],tw,.2,'none',0);
+  s+=`<rect x="${X(0)}" y="${Y(h)}" width="${b*TU}" height="${h*TU}" fill="none" stroke="${mu}" stroke-width="1.5" stroke-dasharray="6 5"/>`;
+  s+=poly([[X(0),Y(0)],[X(b),Y(0)],[X(trX),Y(h)]],ac,.35,ac,2.5);
+  s+=ln(X(trX),Y(h),X(trX),Y(0),hi,2.5,'6 4');
+  const ra=trX<b?1:-1;s+=`<polyline points="${X(trX)+ra*10},${Y(0)} ${X(trX)+ra*10},${Y(0)-10} ${X(trX)},${Y(0)-10}" fill="none" stroke="${hi}" stroke-width="1.5"/>`;
+  if(trSplit.checked){
+    if(trX>0){const a=fmt(trX*h/2);s+=T(X(trX*2/3),Y(h/3)+4,a,ac,'middle',12,600)+T(X(trX/3),Y(h*2/3)+4,a,tw,'middle',12,600);}
+    if(trX<b){const a=fmt((b-trX)*h/2);s+=T(X(trX+(b-trX)/3),Y(h/3)+4,a,ac,'middle',12,600)+T(X(b-(b-trX)/3),Y(h*2/3)+4,a,tw,'middle',12,600);}}
+  s+=T(X(b/2),Y(0)+20,'base '+b+' cm',hi,'middle',13,600)+T(X(trX),Y(h)-15,'height '+h+' cm',hi,'middle',13,600);
+  s+=`<circle cx="${X(trX)}" cy="${Y(h)}" r="9" fill="${tw}" stroke="${css('--panel')}" stroke-width="2"/>`;
+  trSvg.innerHTML=s;
+  $('trWork').innerHTML=`<span class="c">Rectangle round it: ${b} × ${h} = ${b*h} cm²</span><br>`+
+    (trSplit.checked&&trX>0&&trX<b?`Left: teal ${fmt(trX*h/2)} matches purple ${fmt(trX*h/2)}. Right: teal ${fmt((b-trX)*h/2)} matches purple ${fmt((b-trX)*h/2)}.<br>`:'')+
+    `<strong class="a">Triangle = ½ × ${b} × ${h} = ½ × ${b*h} = ${fmt(b*h/2)} cm²</strong> (exactly half)`;}
+drag(trSvg,([x])=>{const b=+trB.value;trX=Math.max(0,Math.min(b,Math.round((x-TOX)/TU*2)/2));drawTR();});
+[trB,trH,trSplit].forEach(e=>e.addEventListener('input',drawTR));drawTR();
+makeTry('t3',()=>{const b=rnd(3,14),h=rnd(2,12),sl=h+rnd(1,3),A=b*h/2;return{unit:'cm²',ans:A,
+  text:`A triangle has base <span class="Ln">${b} cm</span>, a sloping side of ${sl} cm and perpendicular height <span class="Ln">${h} cm</span>. Find its area.`,
+  why:`½ × ${b} × ${h} = ½ × ${b*h} = ${fmt(A)} cm². The ${sl} cm sloping side isn't needed.`,
+  hint:'Area of a triangle = ½ × base × perpendicular height. Multiply base by height, then halve.',
+  wrong:[[b*h,`${b} × ${h} = ${b*h} is the whole rectangle around the triangle. The triangle is exactly half of it.`],
+    [b*sl/2,`You used the sloping side. The height must be <em>perpendicular</em> (at right angles) to the base: that's the ${h} cm.`],
+    [b*sl,`That uses the sloping side and forgets to halve. Use ½ × base × perpendicular height.`],
+    [b+h,'Area comes from multiplying lengths, not adding them.']]};});
+
+/* 4. parallelogram cut and slide */
+const paB=$('paB'),paH=$('paH'),paS=$('paS'),paT=$('paT');
+function drawPA(){const b=+paB.value,h=+paH.value,sl=+paS.value,t=+paT.value/100,u=28,ox=30,oy=215;
+  const X=x=>ox+x*u,Y=y=>oy-y*u,P=p=>[X(p[0]),Y(p[1])];$('paBv').textContent=' '+b+' cm';$('paHv').textContent=' '+h+' cm';
+  const ac=css('--accent'),tw=css('--two'),hi=css('--hi'),mu=css('--muted');
+  let s=grid(400,240,u,ox,oy);
+  if(t>0)s+=poly([[0,0],[b,0],[b+sl,h],[sl,h]].map(P),'none',0,mu,1.5,'stroke-dasharray="5 5"');
+  s+=poly([[sl,0],[b,0],[b+sl,h],[sl,h]].map(P),ac,.35,ac,2);
+  s+=poly([[0,0],[sl,h],[sl,0]].map(p=>P([p[0]+t*b,p[1]])),tw,.4,tw,2);
+  s+=ln(X(sl),Y(0),X(sl),Y(h),hi,2.5,'6 4')+T(X(sl)+6,Y(h/2)+4,'h = '+h,hi,'start',13,600);
+  s+=T(X(b/2+t*sl),Y(0)+20,'base '+b+' cm',hi,'middle',13,600);
+  $('paSvg').innerHTML=s;
+  $('paRB').textContent=b+' cm';$('paRH').textContent=h+' cm';$('paRS').textContent='≈ '+fmt(Math.hypot(sl,h),1)+' cm';$('paRA').textContent=b*h+' cm²';
+  $('paWork').innerHTML=t<1?`Cut along the dashed height line. Slide the <span class="c">purple triangle</span> ${b} cm to the right${t>0?'…':' (move the slider).'}<br>The pieces are only moved, so the area can't change.`:
+    `It's now a rectangle, ${b} cm by ${h} cm.<br><strong class="a">Area = base × perpendicular height = ${b} × ${h} = ${b*h} cm²</strong>`;}
+[paB,paH,paS,paT].forEach(e=>e.addEventListener('input',drawPA));$('paPlay').addEventListener('click',()=>animate(paT,drawPA));drawPA();
+makeTry('t4',()=>{const b=rnd(5,12),h=rnd(3,8),sl=h+rnd(1,3);return{unit:'cm²',ans:b*h,
+  text:`A parallelogram has base <span class="Ln">${b} cm</span>, sloping sides of ${sl} cm and perpendicular height <span class="Ln">${h} cm</span>. Find its area.`,
+  why:`${b} × ${h} = ${b*h} cm². The sloping side is a distraction.`,
+  hint:'Area of a parallelogram = base × perpendicular height.',
+  wrong:[[b*sl,`You used the sloping side. Cut-and-slide makes a rectangle ${b} cm by the <em>perpendicular</em> height, ${h} cm.`],
+    [b*h/2,'No halving for a parallelogram: it rearranges into a whole rectangle, not half of one.'],
+    [2*(b+sl),`That's the perimeter (distance round). Area is base × perpendicular height.`],[b+h,'Area comes from multiplying, not adding.']]};});
+
+/* 5. trapezium + rotated copy */
+const tzA=$('tzA'),tzB=$('tzB'),tzH=$('tzH'),tzT=$('tzT');
+function drawTZ(){const a=+tzA.value,b=+tzB.value,h=+tzH.value,t=+tzT.value/100,u=20,oy=230;
+  $('tzAv').textContent=' '+a;$('tzBv').textContent=' '+b;$('tzHv').textContent=' '+h;
+  const d=(b-a)/2,ox=20+Math.max(0,-d)*u,X=x=>ox+x*u,Y=y=>oy-y*u;const ac=css('--accent'),tw=css('--two'),hi=css('--hi');
+  const pts=[[0,0],[b,0],[d+a,h],[d,h]].map(p=>[X(p[0]),Y(p[1])]);const mx=X((b+d+a)/2),my=Y(h/2);
+  let s=grid(400,300,u,ox,oy);
+  s+=`<g transform="rotate(${(180*t).toFixed(1)} ${mx} ${my})">${poly(pts,tw,.35,tw,2)}</g>`;
+  s+=poly(pts,ac,.35,ac,2);
+  const xl=Math.max(0,d),xr=Math.min(b,d+a),xh=xl+0.25*(xr-xl);
+  s+=ln(X(xh),Y(0),X(xh),Y(h),hi,2.5,'6 4')+T(X(xh)+5,Y(h/2)+4,'h = '+h,hi,'start',12,600);
+  s+=T(X(d+a/2),Y(h)-8,'a = '+a,hi,'middle',13,600)+T(X(b/2),Y(0)+18,'b = '+b,hi,'middle',13,600);
+  if(t>=1){s+=T(X(d+a+b/2),Y(h)-8,'b = '+b,tw,'middle',13,600)+T(X(b+a/2),Y(0)+18,'a = '+a,tw,'middle',13,600);
+    s+=T(X((a+b)/2),Y(0)+40,`base = ${b} + ${a} = ${a+b}`,tw,'middle',13,600);}
+  $('tzSvg').innerHTML=s;
+  $('tzWork').innerHTML=(t<1?'Rotate the <span class="c">purple copy</span> half a turn (move the slider)…<br>':'Two identical trapezia make a parallelogram.<br>')+
+    `Parallelogram: base (${a} + ${b}) × height ${h} = ${a+b} × ${h} = ${(a+b)*h} cm²<br><strong class="a">One trapezium = half = ½ × (${a} + ${b}) × ${h} = ${fmt((a+b)*h/2)} cm²</strong>`;}
+[tzA,tzB,tzH,tzT].forEach(e=>e.addEventListener('input',drawTZ));$('tzPlay').addEventListener('click',()=>animate(tzT,drawTZ));drawTZ();
+makeTry('t5',()=>{const a=rnd(2,8),b=a+rnd(2,8),h=rnd(2,9),A=(a+b)*h/2;return{unit:'cm²',ans:A,
+  text:`A trapezium has parallel sides <span class="Ln">${a} cm</span> and <span class="Ln">${b} cm</span>, and perpendicular height <span class="Ln">${h} cm</span>. Find its area.`,
+  why:`½ × (${a} + ${b}) × ${h} = ½ × ${a+b} × ${h} = ½ × ${(a+b)*h} = ${fmt(A)} cm².`,
+  hint:'Add the parallel sides, multiply by the height, then halve: ½ × (a + b) × h.',
+  wrong:[[(a+b)*h,`${a+b} × ${h} = ${(a+b)*h} is the parallelogram made from <em>two</em> trapezia. Halve it.`],
+    [a*b*h,'Don\'t multiply all three. Add the two parallel sides first (the brackets), then × height, then halve.'],
+    [a*b*h/2,'Add the parallel sides, don\'t multiply them: ½ × (a + b) × h.'],
+    [b*h,'You used only the longer parallel side. You need both: (a + b).'],[a+b+h,'Area comes from multiplying, not adding everything.']]};});
+
+/* 6. composite L-shape */
+const coW=$('coW'),coH=$('coH'),coCW=$('coCW'),coCH=$('coCH'),coM=$('coM');
+function drawCO(){const W=+coW.value,H=+coH.value;coCW.max=W-1;coCH.max=H-1;const cw=+coCW.value,ch=+coCH.value,m=coM.value,u=24;
+  const ox=(400-W*u)/2,base=30+H*u,X=x=>ox+x*u,Y=y=>base-y*u;const R=(x0,y0,x1,y1)=>[[x0,y0],[x1,y0],[x1,y1],[x0,y1]].map(p=>[X(p[0]),Y(p[1])]);
+  const ac=css('--accent'),tw=css('--two'),hi=css('--hi'),fg=css('--fg'),mu=css('--muted');
+  const ctr=(x0,y0,x1,y1)=>[X((x0+x1)/2),Y((y0+y1)/2)+5];
+  let s=grid(400,300,u,ox,base),w='';const A=W*H-cw*ch;
+  if(m==='v'){const a1=(W-cw)*H,a2=cw*(H-ch);s+=poly(R(0,0,W-cw,H),ac,.35,ac,1.5)+poly(R(W-cw,0,W,H-ch),tw,.35,tw,1.5)+ln(X(W-cw),Y(0),X(W-cw),Y(H-ch),fg,2,'6 4');
+    let c=ctr(0,0,W-cw,H);s+=T(c[0],c[1],a1,ac,'middle',15,700);c=ctr(W-cw,0,W,H-ch);s+=T(c[0],c[1],a2,tw,'middle',15,700);
+    w=`Cut straight down (dashed line).<br><span class="a">Left piece: ${W-cw} × ${H} = ${a1} cm²</span>  (its width is ${W} − ${cw} = ${W-cw})<br><span class="c">Right piece: ${cw} × ${H-ch} = ${a2} cm²</span>  (its height is ${H} − ${ch} = ${H-ch})<br><strong>Area = ${a1} + ${a2} = ${A} cm²</strong>`;}
+  else if(m==='h'){const a1=W*(H-ch),a2=(W-cw)*ch;s+=poly(R(0,0,W,H-ch),ac,.35,ac,1.5)+poly(R(0,H-ch,W-cw,H),tw,.35,tw,1.5)+ln(X(0),Y(H-ch),X(W-cw),Y(H-ch),fg,2,'6 4');
+    let c=ctr(0,0,W,H-ch);s+=T(c[0],c[1],a1,ac,'middle',15,700);c=ctr(0,H-ch,W-cw,H);s+=T(c[0],c[1],a2,tw,'middle',15,700);
+    w=`Cut straight across (dashed line).<br><span class="a">Bottom piece: ${W} × ${H-ch} = ${a1} cm²</span>  (its height is ${H} − ${ch} = ${H-ch})<br><span class="c">Top piece: ${W-cw} × ${ch} = ${a2} cm²</span>  (its width is ${W} − ${cw} = ${W-cw})<br><strong>Area = ${a1} + ${a2} = ${A} cm²</strong>`;}
+  else{s+=poly(R(0,0,W,H),ac,.35,ac,1.5)+poly(R(W-cw,H-ch,W,H),hi,.25,hi,2,'stroke-dasharray="5 4"');
+    let c=ctr(0,0,W,H);s+=T(c[0],c[1],W*H,ac,'middle',15,700);c=ctr(W-cw,H-ch,W,H);s+=T(c[0],c[1]-6,'−'+cw*ch,hi,'middle',14,700);
+    w=`Pretend the corner is filled in: <span class="a">big rectangle ${W} × ${H} = ${W*H} cm²</span><br><span class="b">Missing corner: ${cw} × ${ch} = ${cw*ch} cm²</span><br><strong>Area = ${W*H} − ${cw*ch} = ${A} cm²</strong>`;}
+  const Lp=[[0,0],[W,0],[W,H-ch],[W-cw,H-ch],[W-cw,H],[0,H]].map(p=>[X(p[0]),Y(p[1])]);s+=poly(Lp,'none',0,fg,2.5);
+  s+=T(X(W/2),Y(0)+18,W+' cm',mu,'middle',12)+T(X(0)-6,Y(H/2)+4,H+' cm',mu,'end',12)+T(X((W-cw)/2),Y(H)-8,(W-cw)+' cm',mu,'middle',12)+
+     T(X(W)+6,Y((H-ch)/2)+4,(H-ch)+' cm',mu,'start',12)+T(X(W-cw/2),Y(H-ch)-6,cw+' cm',mu,'middle',12)+T(X(W-cw)+6,Y(H-ch/2)+4,ch+' cm',mu,'start',12);
+  $('coSvg').innerHTML=s;const P=2*(W+H);
+  $('coArea').textContent=A+' cm²';$('coPer').textContent=P+' cm';
+  $('coWork').innerHTML=w+`<br><span class="b">Perimeter: all six outside edges, ${W} + ${H-ch} + ${cw} + ${ch} + ${W-cw} + ${H} = ${P} cm</span>`;}
+[coW,coH,coCW,coCH,coM].forEach(e=>e.addEventListener('input',drawCO));drawCO();
+const t6draw=makeTry('t6',()=>{const W=rnd(7,12),H=rnd(5,9),cw=rnd(2,W-3),ch=rnd(2,H-3),A=W*H-cw*ch;return{unit:'cm²',ans:A,
+  text:'Find the area of this L-shape. All lengths are in cm and every corner is a right angle. Two sides are not labelled.',
+  why:`Missing corner is (${W} − ${W-cw}) by (${H} − ${H-ch}) = ${cw} by ${ch}. Area = ${W} × ${H} − ${cw} × ${ch} = ${W*H} − ${cw*ch} = ${A} cm².`,
+  hint:'Split it into two rectangles (or subtract the missing corner from the big rectangle). Find the unlabelled sides by subtracting.',
+  wrong:[[W*H,`${W} × ${H} is the whole rectangle. The corner is missing: take it away.`],
+    [2*(W+H),'That\'s the perimeter (the distance round). Area counts the squares inside.'],
+    [(W-cw)*H+W*(H-ch),'Your two pieces overlap, so part of the shape was counted twice. Split it so each square is in exactly one piece.'],
+    [W*H-(W-cw)*(H-ch),`The missing corner isn't ${W-cw} by ${H-ch}. Find its sides by subtracting: ${W} − ${W-cw} and ${H} − ${H-ch}.`]],
+  svg:()=>{const u=Math.min(22,260/W,170/H),ox=(320-W*u)/2,base=20+H*u,X=x=>ox+x*u,Y=y=>base-y*u,mu=css('--fg'),ac=css('--accent');
+    const Lp=[[0,0],[W,0],[W,H-ch],[W-cw,H-ch],[W-cw,H],[0,H]].map(p=>[X(p[0]),Y(p[1])]);
+    return poly(Lp,ac,.2,ac,2.5)+T(X(W/2),Y(0)+18,W,mu,'middle',13,600)+T(X(0)-6,Y(H/2)+4,H,mu,'end',13,600)+T(X((W-cw)/2),Y(H)-7,W-cw,mu,'middle',13,600)+
+      T(X(W)+6,Y((H-ch)/2)+4,H-ch,mu,'start',13,600)+T(X(W-cw/2),Y(H-ch)-6,'?',css('--hi'),'middle',13,600)+T(X(W-cw)+6,Y(H-ch/2)+4,'?',css('--hi'),'start',13,600);}};});
+
+/* 7. volume: layers of cubes */
+const voL=$('voL'),voW=$('voW'),voH=$('voH'),voN=$('voN');let voFull=true;
+function drawVO(){const l=+voL.value,w=+voW.value,h=+voH.value;voN.max=h;if(voFull)voN.value=h;const n=Math.min(+voN.value,h);
+  const u=34,kx=16,ky=-10,ox=60,oy=270,P=(x,y,z)=>[ox+x*u+y*kx,oy-z*u+y*ky];
+  const mu=css('--muted'),ac=css('--accent'),tw=css('--two'),pn=css('--panel'),hi=css('--hi');let s='';
+  const bx=[[0,0,0],[l,0,0],[l,w,0],[0,w,0],[0,0,h],[l,0,h],[l,w,h],[0,w,h]].map(p=>P(...p));
+  [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]].forEach(([i,j])=>s+=ln(bx[i][0],bx[i][1],bx[j][0],bx[j][1],mu,1.2,'4 4'));
+  const face=(pts,c,o)=>poly(pts,pn,1,'none',0)+poly(pts,c,o,pn,1);
+  for(let y=w-1;y>=0;y--)for(let z=0;z<n;z++)for(let x=0;x<l;x++){const c=(z===n-1&&n<h)?tw:ac;
+    s+=face([P(x,y,z),P(x+1,y,z),P(x+1,y,z+1),P(x,y,z+1)],c,.55)+face([P(x,y,z+1),P(x+1,y,z+1),P(x+1,y+1,z+1),P(x,y+1,z+1)],c,.3)+face([P(x+1,y,z),P(x+1,y+1,z),P(x+1,y+1,z+1),P(x+1,y,z+1)],c,.8);}
+  const wl=P(l,w/2,0);
+  s+=T((P(0,0,0)[0]+P(l,0,0)[0])/2,oy+20,l+' cm',hi,'middle',13,600)+T(ox-8,P(0,0,h/2)[1]+4,h+' cm',hi,'end',13,600)+T(wl[0]+8,wl[1]+12,w+' cm',hi,'start',13,600);
+  $('voSvg').innerHTML=s;const B=l*w;
+  $('voRA').textContent=`${l} × ${w} = ${B}`;$('voRH').textContent=`${n} of ${h}`;$('voRV').textContent=n===h?`${B*h} cm³`:`${B*n} cm³ so far`;
+  $('voWork').innerHTML=`<span class="a">One layer = ${l} × ${w} = ${B} cubes</span><br>`+(n<h?`${n} layer${n===1?'':'s'} filled: ${n} × ${B} = ${n*B} cubes. The box is ${h} layer${h===1?'':'s'} tall, so keep going (slider).`:
+    `${h} layer${h===1?'':'s'} × ${B} cubes = ${B*h} cubes, each 1 cm³<br><strong class="a">Volume = ${l} × ${w} × ${h} = ${B*h} cm³</strong>`);}
+voN.addEventListener('input',()=>{voFull=+voN.value===+voN.max;drawVO();});[voL,voW,voH].forEach(e=>e.addEventListener('input',drawVO));drawVO();
+makeTry('t7',()=>{const l=rnd(2,12),w=rnd(2,9),h=rnd(2,8),V=l*w*h;return{unit:'cm³',ans:V,
+  text:`A cuboid is <span class="Ln">${l} cm</span> long, <span class="Ln">${w} cm</span> wide and <span class="Ln">${h} cm</span> tall. Find its volume.`,
+  why:`One layer holds ${l} × ${w} = ${l*w} cubes; ${h} layers make ${l*w} × ${h} = ${V} cm³.`,
+  hint:'Volume of a cuboid = length × width × height (one layer of cubes × number of layers).',
+  wrong:[[l+w+h,'Volume multiplies the three lengths: it counts cubes in layers, so don\'t add.'],
+    [l*w,`${l} × ${w} = ${l*w} is just one layer (the bottom). There are ${h} layers.`],
+    [2*(l*w+l*h+w*h),'That\'s the surface area (the total area of the six faces, in cm²). Volume counts the cubes inside.']]};});
+
+/* 8. prisms */
+const PR={
+  tri:{pts:[[0,0],[4,0],[0,3]],A:6,c:[1.2,.9],work:'½ × 4 × 3 = 6 cm²',lab:[[2,0,'4 cm','middle',0,18],[0,1.5,'3 cm','end',-6,4]]},
+  rect:{pts:[[0,0],[3,0],[3,2],[0,2]],A:6,c:[1.5,1],work:'3 × 2 = 6 cm²',lab:[[1.5,0,'3 cm','middle',0,18],[0,1,'2 cm','end',-6,4]]},
+  L:{pts:[[0,0],[4,0],[4,2],[2,2],[2,4],[0,4]],A:12,c:[1.2,1.2],work:'split into 4 × 2 and 2 × 2: 8 + 4 = 12 cm²',lab:[[2,0,'4 cm','middle',0,18],[0,2,'4 cm','end',-6,4],[1,4,'2 cm','middle',0,-6],[4,1,'2 cm','start',6,4]]},
+  trap:{pts:[[0,0],[5,0],[4,3],[1,3]],A:12,c:[2.7,1.3],work:'½ × (3 + 5) × 3 = ½ × 8 × 3 = 12 cm²',lab:[[2.5,0,'5 cm','middle',0,18],[2.5,3,'3 cm','middle',0,-6]],ht:[1,3]}
+};
+const prS=$('prS'),prL=$('prL'),prSl=$('prSl');
+function drawPR(){const S=PR[prS.value],L=+prL.value,u=28,kx=11,ky=-7,ox=50,oy=240;$('prLv').textContent=' '+L+' cm';
+  const P=(x,y,z)=>[ox+x*u+z*kx,oy-y*u+z*ky];const ac=css('--accent'),hi=css('--hi'),pn=css('--panel'),fg=css('--fg');
+  const pts=S.pts,N=pts.length;let s='';
+  for(let i=0;i<N;i++){const p=pts[i],q=pts[(i+1)%N],nx=q[1]-p[1],ny=-(q[0]-p[0]);if(nx*kx+ny*(-ky)<=0)continue;
+    const f=[P(p[0],p[1],0),P(q[0],q[1],0),P(q[0],q[1],L),P(p[0],p[1],L)];s+=poly(f,pn,1,'none',0)+poly(f,ac,.22,ac,1.5);
+    if(prSl.checked)for(let j=1;j<L;j++){const a=P(p[0],p[1],j),b=P(q[0],q[1],j);s+=ln(a[0],a[1],b[0],b[1],ac,1);}}
+  const xr=Math.max(...pts.filter(p=>p[1]===0).map(p=>p[0]));const e0=P(xr,0,0),e1=P(xr,0,L);
+  s+=ln(e0[0],e0[1],e1[0],e1[1],hi,3.5)+T((e0[0]+e1[0])/2+8,(e0[1]+e1[1])/2+16,'length '+L+' cm',hi,'start',13,600);
+  const fr=pts.map(p=>P(p[0],p[1],0));s+=poly(fr,pn,1,'none',0)+poly(fr,ac,.55,ac,2);
+  if(S.ht){const a=P(S.ht[0],0,0),b=P(S.ht[0],S.ht[1],0);s+=ln(a[0],a[1],b[0],b[1],hi,2,'5 4')+T(a[0]+5,(a[1]+b[1])/2+4,S.ht[1]+' cm',hi,'start',12,600);}
+  S.lab.forEach(l=>{const q=P(l[0],l[1],0);s+=T(q[0]+l[4],q[1]+l[5],l[2],hi,l[3],12,600);});
+  const c=P(S.c[0],S.c[1],0);s+=T(c[0],c[1]+4,S.A+' cm²',fg,'middle',13,700);
+  $('prSvg').innerHTML=s;
+  $('prRA').textContent=S.A+' cm²';$('prRL').textContent=L+' cm';$('prRV').textContent=S.A*L+' cm³';
+  $('prWork').innerHTML=`<span class="a">Cross-section (front face): ${S.work}</span><br>`+(prSl.checked?`Slice it into ${L} slice${L===1?'':'s'}, each 1 cm thick. Every slice holds ${S.A} cm³.<br>`:'')+
+    `<strong class="a">Volume = cross-section area × length = ${S.A} × ${L} = ${S.A*L} cm³</strong>`;}
+[prS,prL,prSl].forEach(e=>e.addEventListener('input',drawPR));drawPR();
+makeTry('t8',()=>{const b=2*rnd(1,6),h=rnd(2,10),L=rnd(3,20),A=b*h/2,V=A*L;return{unit:'cm³',ans:V,
+  text:`A prism has a right-angled triangle as its cross-section, with base <span class="Ln">${b} cm</span> and height <span class="Ln">${h} cm</span>. The prism is <span class="Ln">${L} cm</span> long. Find its volume.`,
+  why:`Cross-section ½ × ${b} × ${h} = ${A} cm². Volume = ${A} × ${L} = ${V} cm³.`,
+  hint:'Step 1: area of the triangle (½ × base × height). Step 2: multiply by the length.',
+  wrong:[[b*h*L,`You forgot that the triangle is half a rectangle. Cross-section = ½ × ${b} × ${h} = ${A} cm² first.`],
+    [A,`${A} cm² is the cross-section area. Now multiply by the length, ${L} cm.`],[b+h+L,'Volume comes from multiplying, not adding.']]};});
+
+const redraw=()=>{drawPE();drawAR();drawTR();drawPA();drawTZ();drawCO();drawVO();drawPR();t6draw();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);}
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'What is the perimeter of a rectangle 6 cm long and 4 cm wide?',opts:['20 cm','24 cm','10 cm','24 cm²'],a:0,fb:'Add all four sides: 6 + 4 + 6 + 4 = 20 cm. 24 is the area, and 10 forgets two of the sides.'},
+  {q:'A 6 cm × 2 cm rectangle and a 4 cm × 4 cm square have the same perimeter (16 cm). Which has the bigger area?',opts:['the square','the rectangle','they are equal','you can\'t tell'],a:0,fb:'Square: 4 × 4 = 16 cm². Rectangle: 6 × 2 = 12 cm². Same perimeter does not mean same area.'},
+  {q:'A triangle has base 8 cm and perpendicular height 5 cm. Its area is…',opts:['20 cm²','40 cm²','13 cm²','26 cm²'],a:0,fb:'½ × 8 × 5 = ½ × 40 = 20 cm². 40 cm² is the rectangle round it, and the triangle is half of that.'},
+  {q:'A parallelogram has base 10 cm, sloping sides 6 cm and perpendicular height 4 cm. Its area is…',opts:['40 cm²','60 cm²','20 cm²','32 cm²'],a:0,fb:'Base × perpendicular height = 10 × 4 = 40 cm². The 6 cm sloping side isn\'t used, and there is no ½.'},
+  {q:'A trapezium has parallel sides 5 cm and 9 cm and height 6 cm. Its area is…',opts:['42 cm²','84 cm²','270 cm²','20 cm²'],a:0,fb:'½ × (5 + 9) × 6 = ½ × 14 × 6 = ½ × 84 = 42 cm². 84 forgets to halve.'},
+  {q:'An L-shape is an 8 cm by 6 cm rectangle with a 3 cm by 2 cm corner cut out. Its area is…',opts:['42 cm²','48 cm²','54 cm²','28 cm²'],a:0,fb:'Whole rectangle 8 × 6 = 48 cm², minus the corner 3 × 2 = 6 cm²: 48 − 6 = 42 cm². (28 cm is its perimeter.)'},
+  {q:'What is the volume of a cuboid 5 cm by 4 cm by 3 cm?',opts:['60 cm³','12 cm³','94 cm³','60 cm²'],a:0,fb:'One layer is 5 × 4 = 20 cubes; 3 layers give 20 × 3 = 60 cm³. Volume needs cm³, not cm².'},
+  {q:'How many 1 cm cubes fit inside a cube with sides of 3 cm?',opts:['27','9','18','12'],a:0,fb:'One layer is 3 × 3 = 9 cubes, and there are 3 layers: 9 × 3 = 27. That\'s 3³.'},
+  {q:'A prism has cross-section area 15 cm² and length 8 cm. Its volume is…',opts:['120 cm³','23 cm³','60 cm³','120 cm²'],a:0,fb:'Volume = cross-section area × length = 15 × 8 = 120 cm³. The cross-section is already an area, so don\'t halve again.'},
+  {q:'Which unit would you use for the area of a classroom floor?',opts:['m²','m','m³','cm'],a:0,fb:'Area counts squares, so it needs a squared unit. A floor is big, so square metres (m²) are sensible.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

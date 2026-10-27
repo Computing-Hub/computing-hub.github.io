@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Linear Sequences</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive panels; graph-paper neutrals, teal = the common difference d, orange = the "zeroth term" adjustment, plum = the position n. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.D{color:var(--accent);font-weight:600}.Z{color:var(--hi);font-weight:600}.N{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.5em}
+input[type=text].wide{width:16em;max-width:70vw}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.5rem;text-align:center;margin:.6rem 0}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.seq{display:flex;flex-wrap:wrap;gap:.4rem .2rem;align-items:center;font-family:var(--mono);font-size:1.3rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.seq .term{padding:.3rem .7rem;border-radius:8px;background:var(--two-soft);color:var(--two);font-weight:600;position:relative}
+.seq .term small{display:block;font:600 .6rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
+.seq .term.z{background:var(--hi-soft);color:var(--hi);opacity:.9;border:2px dashed var(--hi)}
+.seq .gap{font-size:.85rem;color:var(--accent);font-weight:600;display:flex;flex-direction:column;align-items:center;min-width:2.6em}
+.seq .gap:before{content:'+';opacity:.6}
+.seq .gap.neg:before{content:'−'}
+.patt{display:flex;flex-wrap:wrap;gap:1.2rem;align-items:flex-end;margin-top:.8rem}
+.patt .fig{text-align:center;font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.patt svg{display:block;margin:0 auto .3rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse}
+.vt td,.vt th{text-align:center;padding:.4rem .5rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Algebra · KS3</div>
+  <h1>Linear Sequences</h1>
+  <p class="lede">5, 8, 11, 14, … What's the 100th number? You could add 3 ninety-nine times, or you could write one formula, the <strong>nth term</strong>, that jumps straight to any position. Finding it takes two numbers: how much you add each time, and where you'd have started.</p>
+  <span class="gcse">National curriculum KS3: generate terms of a sequence from a term-to-term or position-to-term rule; recognise arithmetic sequences and find the nth term</span>
+</header>
+
+<h2>1 · Patterns that grow by the same amount</h2>
+<p>A <strong>sequence</strong> is a list of numbers in order; each one is a <strong>term</strong>, and its place in the list is its <strong>position</strong>, n. A <strong>linear</strong> (or <strong>arithmetic</strong>) sequence goes up or down by the same amount every time. That amount is the <strong class="D">common difference</strong>, d.</p>
+<p>Here it is as a growing pattern. Each new shape adds the same number of sticks. Slide to build more.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Pattern <select id="ptK"><option value="sq">Squares in a row (+3 each)</option><option value="tri">Triangles in a row (+2 each)</option><option value="hex">Hexagons in a row (+5 each)</option><option value="dots">Dot L-shapes (+2 each)</option></select></label>
+    <label>show <input type="range" id="ptN" min="1" max="6" value="4"> shapes</label>
+  </div>
+  <div class="patt" id="patt"></div>
+  <div class="seq" id="ptSeq"></div>
+  <div class="work" id="ptWork"></div>
+</div>
+
+<h2>2 · Term-to-term versus position-to-term</h2>
+<p>There are two ways to describe the same sequence. The <strong>term-to-term rule</strong> says how to get the <em>next</em> term from the one before: "start at 5, add 3". Easy to state, useless for the 100th term. The <strong>position-to-term rule</strong> (the nth term) says how to get <em>any</em> term straight from its position: "3n + 2". Harder to find, but then it does everything.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>nth term: <input type="number" id="ftD" value="3" min="-9" max="9" style="width:4em">n <select id="ftS"><option value="+">+</option><option value="-">−</option></select> <input type="number" id="ftC" value="2" min="0" max="30" style="width:4em"></label>
+    <label>find term n = <input type="number" id="ftN" value="100" min="1" max="9999" style="width:5.5em"></label>
+  </div>
+  <table class="vt" id="ftTable"></table>
+  <div class="twin">
+    <div class="work" id="ftTT"></div>
+    <div class="work" id="ftPT"></div>
+  </div>
+</div>
+
+<h2>3 · Finding the nth term</h2>
+<p>Given the sequence, how do you find the formula? Two numbers.</p>
+<ol>
+  <li><strong class="D">The common difference</strong> is the coefficient of n. If the sequence goes up by 3, the formula starts <span class="m">3n</span>. (Think: the 3 times table goes up by 3, and so does anything built on it.)</li>
+  <li><strong class="Z">The adjustment</strong>: compare the sequence with the 3 times table. 3, 6, 9, 12 versus 5, 8, 11, 14. Every term is 2 more. So the formula is <span class="m">3n + 2</span>.</li>
+</ol>
+<p>A faster way to get the adjustment: step <em>backwards</em> one place from the first term to find the <strong>zeroth term</strong>. 5 − 3 = 2. That's the "+ 2". The zeroth term is where the sequence would have started if there were a position 0, and it's always the constant in the formula.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Sequence <input type="text" class="wide" id="fdIn" value="5, 8, 11, 14"></label>
+    <select id="fdPick"><option value="">examples…</option><option value="5, 8, 11, 14">5, 8, 11, 14</option><option value="7, 12, 17, 22">7, 12, 17, 22</option><option value="20, 17, 14, 11">20, 17, 14, 11 (going down)</option><option value="-4, -1, 2, 5">−4, −1, 2, 5</option><option value="2, 4, 6, 8">2, 4, 6, 8</option><option value="1, 1.5, 2, 2.5">1, 1.5, 2, 2.5</option><option value="3, 5, 9, 15">3, 5, 9, 15 (not linear)</option></select>
+  </div>
+  <div class="seq" id="fdSeq"></div>
+  <div class="work" id="fdWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>The classic mistake.</strong> Seeing 5, 8, 11, 14 and writing <span class="m">n + 3</span> because "you add 3". The term-to-term rule is add 3; the nth term needs <em>3n</em>, because by position n you have added 3 a total of (n − 1) times. Check any formula by substituting n = 1 and n = 2: n + 3 gives 4, 5. Wrong. 3n + 2 gives 5, 8. Right.</p>
+</div>
+
+<h2>4 · It's a straight line in disguise</h2>
+<p>Plot the terms against their positions and they sit on a straight line. The common difference is the gradient and the zeroth term is the y-intercept. The nth term <span class="m">dn + c</span> is <span class="m">y = mx + c</span> with x restricted to 1, 2, 3, … That's why it's called a <em>linear</em> sequence.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>d = <input type="range" id="lnD" min="-4" max="4" step="1" value="3"><span id="lnDv" style="font-family:var(--mono)"></span></label>
+    <label>zeroth term = <input type="range" id="lnC" min="-6" max="6" step="1" value="2"><span id="lnCv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="big" id="lnEq"></div>
+  <svg id="lnSvg" viewBox="0 0 480 300" width="480" height="300"></svg>
+</div>
+
+<h2>5 · Is a number in the sequence?</h2>
+<p>Once you have the nth term, you can answer "is 302 in the sequence 5, 8, 11, …?" without listing a hundred terms. Set the formula equal to the number and solve for n (see the linear equations page). If n is a <em>positive whole number</em>, yes, and you know which position. If it's a fraction or negative, no.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>nth term <input type="number" id="inD" value="3" style="width:4em">n + <input type="number" id="inC" value="2" style="width:4em"></label>
+    <label>is <input type="number" id="inV" value="302" style="width:5.5em"> in the sequence?</label>
+  </div>
+  <div class="work" id="inWork"></div>
+</div>
+
+<h2>6 · Practice</h2>
+<p>A random linear sequence; type its nth term as <em>coefficient</em> and <em>constant</em>. Working appears after you check.</p>
+<div class="lab">
+  <div class="seq" id="prSeq"></div>
+  <div class="controls">
+    <label>nth term = <input type="number" id="prD" style="width:4em" placeholder="d">n + <input type="number" id="prC" style="width:4em" placeholder="c"></label>
+    <button class="btn primary" id="prGo">Check</button><button class="btn" id="prNew">New sequence</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+  <div class="readout"><div><b>Score</b><span id="prScore">0 / 0</span></div></div>
+</div>
+
+<h2>7 · Where sequences show up</h2>
+<div class="grid2">
+  <div class="use"><h3>Saving and paying</h3>
+    <p>£20 in the account, £5 added weekly: 25, 30, 35, … The nth term 5n + 20 tells you the balance after n weeks without a spreadsheet. (Compound interest is a <em>geometric</em> sequence: multiply, not add.)</p></div>
+  <div class="use"><h3>Seating and stacking</h3>
+    <p>Tables pushed together in a row seat 4, 6, 8, 10 people: 2n + 2. Chairs around hexagonal tables, fence posts and panels, tiles around a pool: all pattern questions, all linear.</p></div>
+  <div class="use"><h3>Programming</h3>
+    <p><code>for i in range(5, 100, 3)</code> generates 5, 8, 11, … The nth term is how you compute the i-th element directly: <code>5 + 3*i</code>. Array indexing in memory is a linear sequence of addresses.</p></div>
+  <div class="use"><h3>Timetables</h3>
+    <p>A bus every 12 minutes from 7:04: the nth bus leaves at 12n − 8 minutes past 7. Which bus is at 9:16? Solve 12n − 8 = 136: n = 12.</p></div>
+  <div class="use"><h3>Music and poetry</h3>
+    <p>Bar numbers, syllable counts in a haiku, the fret positions on a guitar (geometric again). Pattern-spotting is the same skill.</p></div>
+  <div class="use"><h3>GCSE and beyond</h3>
+    <p>Quadratic sequences (second differences constant) at GCSE Higher; arithmetic series, the sum of n terms, at A-level: Sₙ = n/2 (2a + (n − 1)d) is this page scaled up.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Find the nth term of 7, 11, 15, 19</summary>
+  <div class="step"><strong>Common difference:</strong> +4 each time, so the formula starts 4n.</div>
+  <div class="step"><strong>Zeroth term:</strong> 7 − 4 = 3.</div>
+  <div class="step"><strong>nth term = 4n + 3.</strong> Check: n = 1 → 7 ✓, n = 2 → 11 ✓</div>
+</details>
+<details>
+  <summary>Find the nth term of 20, 17, 14, 11</summary>
+  <div class="step"><strong>Common difference:</strong> −3 (going down), so −3n.</div>
+  <div class="step"><strong>Zeroth term:</strong> 20 + 3 = 23 (step backwards means <em>adding</em> 3 when d is negative).</div>
+  <div class="step"><strong>nth term = 23 − 3n</strong> (same as −3n + 23). Check: n = 1 → 20 ✓, n = 4 → 11 ✓</div>
+</details>
+<details>
+  <summary>Is 150 in the sequence 4n + 2?</summary>
+  <div class="step"><strong>Set equal:</strong> 4n + 2 = 150.</div>
+  <div class="step"><strong>Solve:</strong> 4n = 148, n = 37.</div>
+  <div class="step"><strong>37 is a positive whole number</strong>, so yes: 150 is the 37th term.</div>
+</details>
+<details>
+  <summary>Exam-style: the 3rd term of a linear sequence is 14 and the 7th term is 30. Find the nth term.</summary>
+  <div class="step"><strong>From the 3rd to the 7th is 4 steps</strong> and the terms rise by 30 − 14 = 16. So d = 16 ÷ 4 = 4.</div>
+  <div class="step"><strong>Step back from the 3rd term to the zeroth:</strong> 14 − 3 × 4 = 2.</div>
+  <div class="step"><strong>nth term = 4n + 2.</strong> Check: n = 3 → 14 ✓, n = 7 → 30 ✓</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>A linear sequence changes by the same amount each step. A term-to-term rule describes that step; the nth term is a formula dn + c that jumps to any position. d is the common difference and becomes the coefficient of n; c is the zeroth term, found by stepping back once from the first term. Check by substituting n = 1 and 2. Plotted against n, the terms lie on the line y = dx + c, which is why they're called linear. Setting the formula equal to a number and solving for n tells you whether, and where, that number appears.</p>
+
+<footer>Made for KS3 students. Linear sequences and the nth term are in the England national curriculum at key stage 3 under Algebra. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=v=>Number.isInteger(v)?String(v):parseFloat(v.toFixed(3)).toString();
+const nth=(d,c)=>{let s=d===1?'n':d===-1?'−n':fmt(d).replace('-','−')+'n';if(c>0)s+=' + '+fmt(c);else if(c<0)s+=' − '+fmt(-c);return s;};
+function seqHTML(terms,d,withZero){let h='';if(withZero!==undefined)h+=`<span class="term z"><small>n = 0</small>${fmt(withZero)}</span><span class="gap ${d<0?'neg':''}">${fmt(Math.abs(d))}</span>`;
+  terms.forEach((t,i)=>{h+=`<span class="term"><small>n = ${i+1}</small>${fmt(t)}</span>`;if(i<terms.length-1)h+=`<span class="gap ${d<0?'neg':''}">${fmt(Math.abs(d))}</span>`;});return h+'<span style="color:var(--muted);margin-left:.4rem">…</span>';}
+
+/* 1. patterns */
+const PT={
+  sq:{d:3,c:1,draw:n=>{const u=22;let s='';for(let i=0;i<n;i++){s+=`<rect x="${i*u+1}" y="1" width="${u}" height="${u}" fill="none" stroke="${css('--accent')}" stroke-width="2.5"/>`;}return `<svg width="${n*u+4}" height="${u+4}">${s}</svg>`;},count:n=>3*n+1,unit:'sticks'},
+  tri:{d:2,c:1,draw:n=>{const u=24,h=21;let s='';for(let i=0;i<n;i++){s+=`<polygon points="${i*u/2+1},${h+1} ${i*u/2+u+1},${h+1} ${i*u/2+u/2+1},1" fill="none" stroke="${css('--accent')}" stroke-width="2.5" transform="${i%2?`translate(${0} 0) scale(1 -1) translate(0 -${h+2})`:''}"/>`;}return `<svg width="${n*u/2+u+4}" height="${h+4}">${s}</svg>`;},count:n=>2*n+1,unit:'sticks'},
+  hex:{d:5,c:1,draw:n=>{const r=13,w=r*Math.sqrt(3);let s='';for(let i=0;i<n;i++){const cx=i*w+w/2+1,cy=r+1;const pts=[0,1,2,3,4,5].map(k=>{const a=Math.PI/6+k*Math.PI/3;return `${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`;}).join(' ');s+=`<polygon points="${pts}" fill="none" stroke="${css('--accent')}" stroke-width="2.5"/>`;}return `<svg width="${n*w+4}" height="${2*r+4}">${s}</svg>`;},count:n=>5*n+1,unit:'sticks'},
+  dots:{d:2,c:1,draw:n=>{const u=12;let s='';for(let i=0;i<=n;i++){s+=`<circle cx="${6+i*u}" cy="${6+n*u}" r="4" fill="${css('--accent')}"/>`;if(i<n)s+=`<circle cx="6" cy="${6+i*u}" r="4" fill="${css('--accent')}"/>`;}return `<svg width="${(n+1)*u+2}" height="${(n+1)*u+2}">${s}</svg>`;},count:n=>2*n+1,unit:'dots'}
+};
+const ptK=document.getElementById('ptK'),ptN=document.getElementById('ptN');
+function drawPT(){const P=PT[ptK.value],n=+ptN.value;const terms=[];let h='';for(let i=1;i<=n;i++){terms.push(P.count(i));h+=`<div class="fig">${P.draw(i)}shape ${i}: ${P.count(i)}</div>`;}
+  document.getElementById('patt').innerHTML=h;document.getElementById('ptSeq').innerHTML=seqHTML(terms,P.d);
+  document.getElementById('ptWork').innerHTML=`Each new shape adds <span class="a">${P.d} ${P.unit}</span>: common difference d = ${P.d}.<br>Shape 1 has ${P.count(1)}; one step back would be ${P.count(1)-P.d}: the <span class="b">zeroth term</span>.<br>nth term = <strong>${nth(P.d,P.c)}</strong>. Shape 50 would need ${P.count(50)} ${P.unit}.`;}
+ptK.addEventListener('change',drawPT);ptN.addEventListener('input',drawPT);drawPT();
+
+/* 2. term-to-term vs position-to-term */
+const ftD=document.getElementById('ftD'),ftS=document.getElementById('ftS'),ftC=document.getElementById('ftC'),ftN=document.getElementById('ftN');
+function drawFT(){const d=+ftD.value|0,c=(ftS.value==='-'?-1:1)*(+ftC.value|0),N=Math.max(1,+ftN.value|0);const t=n=>d*n+c;
+  document.getElementById('ftTable').innerHTML=`<tr><th>position n</th>${[1,2,3,4,5].map(n=>`<td>${n}</td>`).join('')}<td>…</td><td>${N}</td></tr><tr><th>term</th>${[1,2,3,4,5].map(n=>`<td>${t(n)}</td>`).join('')}<td>…</td><td style="color:var(--two);font-weight:600">${t(N)}</td></tr>`;
+  document.getElementById('ftTT').innerHTML=`<span class="b">Term-to-term:</span> start at ${t(1)}, ${d>=0?'add':'subtract'} ${Math.abs(d)} each time.<br>To reach term ${N}: ${N-1} additions. ${N>8?'Tedious and easy to slip.':'Fine for small n.'}`;
+  document.getElementById('ftPT').innerHTML=`<span class="c">Position-to-term:</span> nth term = ${nth(d,c)}<br>term ${N} = ${d} × ${N} ${c<0?'−':'+'} ${Math.abs(c)} = <strong>${t(N)}</strong>. One line.`;}
+[ftD,ftS,ftC,ftN].forEach(e=>e.addEventListener('input',drawFT));drawFT();
+
+/* 3. find nth term */
+const fdIn=document.getElementById('fdIn'),fdPick=document.getElementById('fdPick');
+function drawFD(){const nums=fdIn.value.split(/[,\s]+/).map(s=>parseFloat(s.replace('−','-'))).filter(v=>isFinite(v));const S=document.getElementById('fdSeq'),W=document.getElementById('fdWork');
+  if(nums.length<3){S.innerHTML='';W.textContent='Enter at least three terms separated by commas.';return;}
+  const diffs=nums.slice(1).map((v,i)=>v-nums[i]);const d=diffs[0];const linear=diffs.every(x=>Math.abs(x-d)<1e-9);
+  if(!linear){S.innerHTML=nums.map((t,i)=>`<span class="term"><small>n = ${i+1}</small>${fmt(t)}</span>`).join('<span style="margin:0 .3rem;color:var(--muted)">·</span>');W.innerHTML=`Differences: ${diffs.map(fmt).join(', ')}. <span class="b">Not constant</span>, so this isn't a linear sequence and dn + c won't fit.${diffs.slice(1).every((x,i)=>Math.abs((x-diffs[i])-(diffs[1]-diffs[0]))<1e-9)?' Second differences are constant: it\'s quadratic (GCSE Higher).':''}`;return;}
+  const c=nums[0]-d;S.innerHTML=seqHTML(nums,d,c);
+  W.innerHTML=`<span class="a">Common difference d = ${fmt(d)}</span> → the formula starts ${fmt(d)}n<br><span class="b">Zeroth term: ${fmt(nums[0])} ${d>=0?'−':'+'} ${fmt(Math.abs(d))} = ${fmt(c)}</span> → the constant is ${fmt(c)}<br>nth term = <strong>${nth(d,c)}</strong><br><span class="c">check: n = 1 → ${fmt(d+c)} ✓   n = 2 → ${fmt(2*d+c)} ✓</span>`;}
+fdIn.addEventListener('input',drawFD);fdPick.addEventListener('change',()=>{if(fdPick.value){fdIn.value=fdPick.value;drawFD();}});drawFD();
+
+/* 4. straight line */
+const lnD=document.getElementById('lnD'),lnC=document.getElementById('lnC');
+function drawLN(){const d=+lnD.value,c=+lnC.value;document.getElementById('lnDv').textContent=' '+d;document.getElementById('lnCv').textContent=' '+c;
+  document.getElementById('lnEq').innerHTML=`nth term ${nth(d,c)}   ≡   y = ${nth(d,c).replace(/n/g,'x')}`;
+  const W=480,H=300,pl=44,pr=16,pt=16,pb=30;const xmax=8;const ys=[];for(let n=0;n<=xmax;n++)ys.push(d*n+c);const ymin=Math.min(0,...ys)-1,ymax=Math.max(0,...ys)+1;
+  const sx=x=>pl+x/xmax*(W-pl-pr),sy=y=>H-pb-(y-ymin)/(ymax-ymin)*(H-pt-pb);const f=`font-family="${css('--mono')}"`;
+  let s='';for(let n=0;n<=xmax;n++)s+=`<line x1="${sx(n)}" y1="${pt}" x2="${sx(n)}" y2="${H-pb}" stroke="${css('--grid')}"/><text x="${sx(n)}" y="${H-pb+16}" text-anchor="middle" font-size="11" fill="${css('--muted')}" ${f}>${n}</text>`;
+  const step=Math.max(1,Math.ceil((ymax-ymin)/8));for(let y=Math.ceil(ymin);y<=ymax;y+=step)s+=`<line x1="${pl}" y1="${sy(y)}" x2="${W-pr}" y2="${sy(y)}" stroke="${css('--grid')}"/><text x="${pl-6}" y="${sy(y)+4}" text-anchor="end" font-size="11" fill="${css('--muted')}" ${f}>${y}</text>`;
+  s+=`<line x1="${pl}" y1="${sy(0)}" x2="${W-pr}" y2="${sy(0)}" stroke="${css('--muted')}" stroke-width="1.5"/><line x1="${sx(0)}" y1="${pt}" x2="${sx(0)}" y2="${H-pb}" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  s+=`<line x1="${sx(0)}" y1="${sy(c)}" x2="${sx(xmax)}" y2="${sy(d*xmax+c)}" stroke="${css('--accent')}" stroke-width="2" stroke-dasharray="6 4"/>`;
+  s+=`<circle cx="${sx(0)}" cy="${sy(c)}" r="6" fill="${css('--panel')}" stroke="${css('--hi')}" stroke-width="2.5"/>`;
+  for(let n=1;n<=xmax;n++)s+=`<circle cx="${sx(n)}" cy="${sy(d*n+c)}" r="6" fill="${css('--two')}"/>`;
+  s+=`<text x="${sx(0)+8}" y="${sy(c)-10}" font-size="12" fill="${css('--hi')}" ${f}>zeroth term = intercept ${c}</text><text x="${W-pr}" y="${H-4}" text-anchor="end" font-size="11" fill="${css('--muted')}" ${f}>position n</text>`;
+  document.getElementById('lnSvg').innerHTML=s;}
+lnD.addEventListener('input',drawLN);lnC.addEventListener('input',drawLN);drawLN();
+
+/* 5. is it in the sequence */
+const inD=document.getElementById('inD'),inC=document.getElementById('inC'),inV=document.getElementById('inV');
+function drawIN(){const d=parseFloat(inD.value),c=parseFloat(inC.value),v=parseFloat(inV.value);const W=document.getElementById('inWork');if(![d,c,v].every(isFinite)||d===0){W.textContent='Enter d (not 0), c and a value.';return;}
+  const n=(v-c)/d;const ok=Number.isInteger(n)&&n>=1;
+  W.innerHTML=`${nth(d,c)} = ${v}<br>${fmt(d)}n = ${v} ${c<0?'+':'−'} ${fmt(Math.abs(c))} = ${fmt(v-c)}      ← ${c<0?'+':'−'} ${fmt(Math.abs(c))} both sides<br>n = ${fmt(v-c)} ÷ ${fmt(d)} = <strong>${fmt(n)}</strong>      ← ÷ ${fmt(d)}<br><span class="${ok?'a':'b'}">${ok?`n is a positive whole number: yes, ${v} is the ${n}${n%10===1&&n%100!==11?'st':n%10===2&&n%100!==12?'nd':n%10===3&&n%100!==13?'rd':'th'} term.`:Number.isInteger(n)?`n = ${n} is not a positive position: no.`:`n isn't a whole number: no, ${v} is not in the sequence (it falls between the ${Math.floor(n)}th and ${Math.ceil(n)}th terms).`}</span>`;}
+[inD,inC,inV].forEach(e=>e.addEventListener('input',drawIN));drawIN();
+
+/* 6. practice */
+let pr={d:0,c:0,score:0,n:0};
+function prNew(){const ds=[-5,-4,-3,-2,2,3,4,5,6,7];pr.d=ds[Math.floor(Math.random()*ds.length)];pr.c=Math.floor(Math.random()*19)-9;const terms=[1,2,3,4].map(n=>pr.d*n+pr.c);document.getElementById('prSeq').innerHTML=seqHTML(terms,pr.d);document.getElementById('prD').value='';document.getElementById('prC').value='';document.getElementById('prMsg').textContent='';document.getElementById('prMsg').className='msg';document.getElementById('prWork').hidden=true;}
+document.getElementById('prGo').addEventListener('click',()=>{const d=parseFloat(document.getElementById('prD').value),c=parseFloat(document.getElementById('prC').value);const M=document.getElementById('prMsg');if(isNaN(d)||isNaN(c)){M.textContent='Fill in both boxes (use a minus sign if needed).';return;}
+  pr.n++;const ok=d===pr.d&&c===pr.c;if(ok)pr.score++;M.className='msg '+(ok?'good':'bad');
+  M.textContent=ok?`Correct: ${nth(pr.d,pr.c)}.`:d===1&&c===pr.d?`That's the term-to-term trap: "add ${pr.d}" becomes ${pr.d}n, not n + ${pr.d}.`:d===pr.d?`Coefficient right. Step back from the first term: ${pr.d+pr.c} − (${pr.d}) = ${pr.c}.`:`The common difference is ${pr.d}, so the formula starts ${pr.d}n.`;
+  document.getElementById('prWork').innerHTML=`d = ${pr.d} → ${pr.d}n.  zeroth term = ${pr.d+pr.c} ${pr.d>=0?'−':'+'} ${Math.abs(pr.d)} = ${pr.c}.  nth term = <strong>${nth(pr.d,pr.c)}</strong>.  check n = 1: ${pr.d+pr.c} ✓`;document.getElementById('prWork').hidden=false;
+  document.getElementById('prScore').textContent=`${pr.score} / ${pr.n}`;});
+document.getElementById('prNew').addEventListener('click',prNew);prNew();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawPT();drawLN();});}
+new MutationObserver(()=>{drawPT();drawLN();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'nth term of 4, 7, 10, 13, …?',opts:['3n + 1','n + 3','4n + 3','3n + 4'],a:0,fb:'d = 3, zeroth term 4 − 3 = 1.'},
+  {q:'nth term of 11, 9, 7, 5, …?',opts:['13 − 2n','2n + 11','11 − 2n','−2n + 9'],a:0,fb:'d = −2, zeroth term 11 + 2 = 13.'},
+  {q:'What is the 20th term of 5n − 3?',opts:['97','103','100','17'],a:0,fb:'5 × 20 − 3 = 97.'},
+  {q:'Which is the term-to-term rule for 6, 10, 14, 18?',opts:['start at 6, add 4','4n + 2','add 6','start at 4, add 6'],a:0,fb:'Term-to-term describes the step from one term to the next. 4n + 2 is the position-to-term rule.'},
+  {q:'Is 83 in the sequence 4n + 3?',opts:['Yes, it\'s the 20th term','No','Yes, it\'s the 21st term','Can\'t tell'],a:0,fb:'4n + 3 = 83 → 4n = 80 → n = 20, a whole number.'},
+  {q:'Is 50 in the sequence 3n + 1?',opts:['No: n would be 16⅓','Yes, the 16th term','Yes, the 17th term','Yes, the 50th term'],a:0,fb:'3n + 1 = 50 → n = 49/3, not a whole number.'},
+  {q:'A pattern uses 5, 9, 13 sticks for shapes 1, 2, 3. Sticks for shape 30?',opts:['121','125','150','119'],a:0,fb:'d = 4, zeroth term 1, nth term 4n + 1. 4 × 30 + 1 = 121.'},
+  {q:'Plotted against n, the terms of 2n + 5 lie on a line with gradient…',opts:['2','5','7','n'],a:0,fb:'The common difference is the gradient; the zeroth term 5 is the intercept.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Direct and Inverse Proportion</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive panels; graph-paper neutrals, teal = the quantity, orange = the conversion factor, plum = compound result. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ladder{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;justify-content:center;font-family:var(--mono);margin-top:.8rem}
+.ladder .u{padding:.5rem .8rem;border-radius:8px;border:2px solid var(--line);background:var(--bg);font-weight:600;min-width:3.6em;text-align:center}
+.ladder .u.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ladder .u.to{border-color:var(--two);background:var(--two-soft);color:var(--two)}
+.ladder .k{font-size:.8rem;color:var(--hi);display:flex;flex-direction:column;align-items:center;min-width:3.4em}
+.tri{display:grid;grid-template-columns:1fr 1fr;width:220px;margin:.8rem auto;font-family:var(--mono);font-size:1.2rem;text-align:center}
+.tri div{padding:.5rem;border:1px solid var(--line)}
+.tri .top{grid-column:1/-1;background:var(--accent-soft);color:var(--accent);font-weight:600;border-radius:8px 8px 0 0}
+.tri .bl{background:var(--hi-soft);color:var(--hi);font-weight:600;border-radius:0 0 0 8px}
+.tri .br{background:var(--two-soft);color:var(--two);font-weight:600;border-radius:0 0 8px 0}
+.tri .cover{opacity:.25;text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<style>
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse}
+.vt td,.vt th{text-align:center;padding:.4rem .5rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left}
+.vt td.k{color:var(--two);font-weight:600}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.rects{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-top:.6rem}
+.rects div{background:var(--accent);opacity:.8;border-radius:3px;display:flex;align-items:flex-end;justify-content:center;color:#fff;font-family:var(--mono);font-size:.75rem}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Ratio, proportion and rates of change · KS3</div>
+  <h1>Direct and Inverse Proportion</h1>
+  <p class="lede">Two quantities are in <strong>direct</strong> proportion when doubling one doubles the other: more pens, more cost. They're in <strong>inverse</strong> proportion when doubling one halves the other: more workers, less time. Each has a signature graph and a one-line formula.</p>
+  <span class="gcse">National curriculum KS3: solve problems involving direct and inverse proportion, including graphical and algebraic representations; relate the algebraic solution to graphical representation</span>
+</header>
+
+<h2>1 · Direct proportion: a constant ratio</h2>
+<p>Pens cost 40p each. 1 pen is 40p, 2 pens 80p, 5 pens £2. Cost ÷ number is always 40: that constant is the whole story. Change the price and the number of pens and watch two things stay true: the ratio cost/pens doesn't move, and the graph is a straight line <em>through the origin</em> (zero pens cost nothing).</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>price per pen <input type="range" id="dpK" min="10" max="100" step="5" value="40"><span id="dpKv" style="font-family:var(--mono)"></span>p</label>
+    <label>pens <input type="range" id="dpN" min="1" max="10" value="5"><span id="dpNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="twin">
+    <svg id="dpSvg" viewBox="0 0 360 300" width="360" height="300"></svg>
+    <div><table class="vt" id="dpTable"></table><div class="work" id="dpWork"></div></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Not every straight line is direct proportion.</strong> A taxi with a £3 flag fare plus £2 per mile is linear but <em>not</em> proportional: 0 miles costs £3, not £0, and doubling the miles doesn't double the fare. Direct proportion is the special case y = kx with no "+ c". The graph must pass through (0, 0).</p>
+</div>
+
+<h2>2 · The unitary method</h2>
+<p>Most proportion questions give you one pair of values and ask for another. The reliable route is through <strong>one</strong>: find what one unit is worth, then multiply up. "Find for 1, then find for many."</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><input type="number" id="unA" value="6" step="any" style="width:5em"> items cost <input type="number" id="unB" value="4.50" step="any" style="width:5.5em"></label>
+    <label>how much for <input type="number" id="unC" value="10" step="any" style="width:5em"> items?</label>
+  </div>
+  <div class="work" id="unWork"></div>
+</div>
+
+<p>There's a second route that's sometimes quicker: find the <strong>scale factor</strong> between the two quantities you know (10 ÷ 6 = 1.67) and apply it to the other. Both give the same answer because both rely on the constant ratio.</p>
+
+<h2>3 · Inverse proportion: a constant product</h2>
+<p>A wall takes 12 hours for 1 painter. With 2 painters, 6 hours; with 3, 4 hours; with 4, 3 hours. More painters, less time, and painters × hours is always 12. That constant product is the signature of inverse proportion. The graph is a curve that falls steeply and then flattens, never touching either axis.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>total job <input type="range" id="ipK" min="6" max="48" step="6" value="12"><span id="ipKv" style="font-family:var(--mono)"></span> painter-hours</label>
+    <label>painters <input type="range" id="ipN" min="1" max="12" value="3"><span id="ipNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="twin">
+    <svg id="ipSvg" viewBox="0 0 360 300" width="360" height="300"></svg>
+    <div><table class="vt" id="ipTable"></table><div class="work" id="ipWork"></div></div>
+  </div>
+</div>
+
+<h3>Why the product is constant: rectangles</h3>
+<p>Think of x × y as the area of a rectangle. Inverse proportion says the area is fixed. Make the rectangle twice as wide and it must be half as tall. Every rectangle below has the same area.</p>
+<div class="lab">
+  <div class="controls"><label>fixed area xy = <input type="range" id="rcK" min="12" max="48" step="12" value="24"><span id="rcKv" style="font-family:var(--mono)"></span></label></div>
+  <div class="rects" id="rects"></div>
+</div>
+
+<h2>4 · Telling them apart</h2>
+<p>Given a table of values, which is it? Test both signatures: is y ÷ x constant (direct), or is x × y constant (inverse), or neither?</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>table <select id="tdE">
+      <option value="1,2,3,4;3,6,9,12">x: 1 2 3 4 · y: 3 6 9 12</option>
+      <option value="1,2,3,4;24,12,8,6">x: 1 2 3 4 · y: 24 12 8 6</option>
+      <option value="1,2,3,4;5,7,9,11">x: 1 2 3 4 · y: 5 7 9 11</option>
+      <option value="2,4,5,10;15,7.5,6,3">x: 2 4 5 10 · y: 15 7.5 6 3</option>
+      <option value="3,6,9,15;7.5,15,22.5,37.5">x: 3 6 9 15 · y: 7.5 15 22.5 37.5</option>
+      <option value="1,2,3,4;1,4,9,16">x: 1 2 3 4 · y: 1 4 9 16</option>
+    </select></label>
+  </div>
+  <table class="vt" id="tdTable"></table>
+  <div class="work" id="tdWork"></div>
+</div>
+
+<div class="tbl"><table>
+  <tr><th></th><th>Direct</th><th>Inverse</th></tr>
+  <tr><td>Rule</td><td class="mono">y = kx  (y ÷ x = k)</td><td class="mono">y = k/x  (x × y = k)</td></tr>
+  <tr><td>Double x</td><td>y doubles</td><td>y halves</td></tr>
+  <tr><td>Graph</td><td>Straight line through the origin</td><td>Curve, never reaches the axes</td></tr>
+  <tr><td>Words</td><td>"per", "each", "at a rate of"</td><td>"shared between", "the more … the less"</td></tr>
+  <tr><td>Examples</td><td>cost vs quantity; distance vs time at fixed speed; exchange rates</td><td>speed vs time for a fixed distance; workers vs time; pressure vs volume</td></tr>
+</table></div>
+
+<h2>5 · Recipes: proportion in the kitchen</h2>
+<p>A recipe for 4 people lists ingredients. Scale to any number of people: every ingredient is multiplied by the same factor, people ÷ 4. This is direct proportion applied to a whole list at once.</p>
+
+<div class="lab">
+  <div class="controls"><label>serves <input type="range" id="rcN" min="1" max="12" value="6"><span id="rcNv" style="font-family:var(--mono)"></span> people (recipe is for 4)</label></div>
+  <table class="vt" id="rcTable"></table>
+  <div class="work" id="rcWork"></div>
+</div>
+
+<h2>6 · Where proportion shows up</h2>
+<div class="grid2">
+  <div class="use"><h3>Currency</h3>
+    <p>£1 = €1.17: pounds and euros are directly proportional, k = 1.17. The exchange graph is a line through the origin; a "commission" would add a +c and break it.</p></div>
+  <div class="use"><h3>Physics</h3>
+    <p>Ohm's law V = IR: voltage directly proportional to current. Boyle's law PV = constant: pressure inversely proportional to volume. Both are the two formulas on this page with different letters.</p></div>
+  <div class="use"><h3>Travel</h3>
+    <p>Fixed speed: distance ∝ time (direct). Fixed distance: speed and time are inverse: double your speed, halve your journey.</p></div>
+  <div class="use"><h3>Computing</h3>
+    <p>More servers, less time per request (inverse, until coordination costs bite). Download time is inversely proportional to bandwidth; file size scales directly with resolution.</p></div>
+  <div class="use"><h3>Best buys</h3>
+    <p>Unit pricing is the unitary method in the supermarket: price ÷ quantity gives the constant k for each offer, then compare.</p></div>
+  <div class="use"><h3>Sharing out</h3>
+    <p>A fixed prize shared between n winners: each gets prize ÷ n. More winners, smaller share. Inverse.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>8 pencils cost £3.20. How much do 15 cost?</summary>
+  <div class="step"><strong>Find one:</strong> £3.20 ÷ 8 = 40p.</div>
+  <div class="step"><strong>Find many:</strong> 15 × 40p = <strong>£6.00</strong>.</div>
+</details>
+<details>
+  <summary>6 workers take 10 days to build a wall. How long for 4 workers?</summary>
+  <div class="step"><strong>Inverse:</strong> fewer workers, more days. Total work = 6 × 10 = 60 worker-days.</div>
+  <div class="step"><strong>Share among 4:</strong> 60 ÷ 4 = <strong>15 days</strong>. (If you'd treated it as direct you'd get 6.7 days, which is faster with fewer people: nonsense.)</div>
+</details>
+<details>
+  <summary>y is directly proportional to x, and y = 18 when x = 4. Find y when x = 10.</summary>
+  <div class="step"><strong>Find k:</strong> y = kx → 18 = 4k → k = 4.5.</div>
+  <div class="step"><strong>Use it:</strong> y = 4.5 × 10 = <strong>45</strong>.</div>
+</details>
+<details>
+  <summary>Exam-style: a journey takes 3 hours at 60 km/h. How long at 45 km/h?</summary>
+  <div class="step"><strong>Fixed distance</strong>, so speed and time are inversely proportional: speed × time = 60 × 3 = 180 km.</div>
+  <div class="step"><strong>At 45 km/h:</strong> 180 ÷ 45 = <strong>4 hours</strong>. Slower speed, longer time ✓</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>Direct proportion: y ÷ x is constant, y = kx, a straight line through the origin, and doubling one doubles the other. Inverse proportion: x × y is constant, y = k/x, a falling curve, and doubling one halves the other. The unitary method (find one, then find many) handles direct problems; the fixed-product idea (total work, total distance) handles inverse ones. A table tells you which by testing the ratio and the product. Before calculating, ask whether the answer should go up or down.</p>
+
+<footer>Made for KS3 students. Direct and inverse proportion are in the England national curriculum at key stage 3 under Ratio, proportion and rates of change. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(v,d=2)=>isFinite(v)?parseFloat(v.toFixed(d)).toLocaleString('en-GB',{maximumFractionDigits:d}):'—';
+const F=()=>`font-family="${css('--mono')}"`;
+function axes(W,H,pl,pb,xmax,ymax,xl,yl){const sx=x=>pl+x/xmax*(W-pl-14),sy=y=>H-pb-y/ymax*(H-pb-14);let s='';
+  for(let i=0;i<=xmax;i+=Math.ceil(xmax/10))s+=`<line x1="${sx(i)}" y1="14" x2="${sx(i)}" y2="${H-pb}" stroke="${css('--grid')}"/><text x="${sx(i)}" y="${H-pb+14}" text-anchor="middle" font-size="10" ${F()} fill="${css('--muted')}">${i}</text>`;
+  const ys=Math.max(1,Math.ceil(ymax/8));for(let j=0;j<=ymax;j+=ys)s+=`<line x1="${pl}" y1="${sy(j)}" x2="${W-14}" y2="${sy(j)}" stroke="${css('--grid')}"/><text x="${pl-5}" y="${sy(j)+3}" text-anchor="end" font-size="10" ${F()} fill="${css('--muted')}">${fmt(j,0)}</text>`;
+  s+=`<line x1="${pl}" y1="${H-pb}" x2="${W-14}" y2="${H-pb}" stroke="${css('--muted')}" stroke-width="1.5"/><line x1="${pl}" y1="14" x2="${pl}" y2="${H-pb}" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  s+=`<text x="${W-14}" y="${H-2}" text-anchor="end" font-size="11" ${F()} fill="${css('--muted')}">${xl}</text><text x="${pl+4}" y="12" font-size="11" ${F()} fill="${css('--muted')}">${yl}</text>`;return {s,sx,sy};}
+
+/* 1 direct */
+const dpK=document.getElementById('dpK'),dpN=document.getElementById('dpN');
+function drawDP(){const k=+dpK.value,n=+dpN.value;document.getElementById('dpKv').textContent=' '+k;document.getElementById('dpNv').textContent=' '+n;
+  const {s,sx,sy}=axes(360,300,44,30,10,1000,'pens','cost (p)');let g=s+`<line x1="${sx(0)}" y1="${sy(0)}" x2="${sx(10)}" y2="${sy(Math.min(1000,10*k))}" stroke="${css('--accent')}" stroke-width="2.5"/>`;
+  for(let i=1;i<=10;i++)g+=`<circle cx="${sx(i)}" cy="${sy(i*k)}" r="${i===n?7:4}" fill="${i===n?css('--two'):css('--accent')}"/>`;g+=`<circle cx="${sx(0)}" cy="${sy(0)}" r="5" fill="${css('--hi')}"/><text x="${sx(0)+8}" y="${sy(0)-8}" font-size="11" ${F()} fill="${css('--hi')}">through (0, 0)</text>`;
+  document.getElementById('dpSvg').innerHTML=g;
+  const xs=[1,2,3,4,5,n].filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>a-b).slice(0,6);
+  document.getElementById('dpTable').innerHTML=`<tr><th>pens</th>${xs.map(x=>`<td>${x}</td>`).join('')}</tr><tr><th>cost (p)</th>${xs.map(x=>`<td>${x*k}</td>`).join('')}</tr><tr><th>cost ÷ pens</th>${xs.map(x=>`<td class="k">${k}</td>`).join('')}</tr>`;
+  document.getElementById('dpWork').innerHTML=`cost ÷ pens is always <span class="c">${k}</span>: the constant of proportionality k.<br>cost = ${k} × pens  (y = kx).  ${n} pens: ${k} × ${n} = <strong>${n*k}p</strong>. Double the pens (${2*n}) → ${2*n*k}p, double the cost.`;}
+dpK.addEventListener('input',drawDP);dpN.addEventListener('input',drawDP);drawDP();
+
+/* 2 unitary */
+const unA=document.getElementById('unA'),unB=document.getElementById('unB'),unC=document.getElementById('unC');
+function drawUN(){const a=parseFloat(unA.value)||1,b=parseFloat(unB.value)||0,c=parseFloat(unC.value)||0;const one=b/a;
+  document.getElementById('unWork').innerHTML=`<span class="a">Unitary method:</span><br>${fmt(a)} items → ${fmt(b)}<br>1 item → ${fmt(b)} ÷ ${fmt(a)} = ${fmt(one,4)}      ← find for one<br>${fmt(c)} items → ${fmt(one,4)} × ${fmt(c)} = <strong>${fmt(one*c)}</strong>      ← find for many<br><br><span class="b">Scale-factor method:</span> ${fmt(c)} ÷ ${fmt(a)} = ${fmt(c/a,4)} times as many items, so ${fmt(c/a,4)} × ${fmt(b)} = <strong>${fmt(b*c/a)}</strong>. Same answer.`;}
+[unA,unB,unC].forEach(e=>e.addEventListener('input',drawUN));drawUN();
+
+/* 3 inverse */
+const ipK=document.getElementById('ipK'),ipN=document.getElementById('ipN');
+function drawIP(){const k=+ipK.value,n=+ipN.value;document.getElementById('ipKv').textContent=' '+k;document.getElementById('ipNv').textContent=' '+n;
+  const {s,sx,sy}=axes(360,300,44,30,12,48,'painters','hours');let d='';for(let i=0;i<=120;i++){const x=0.4+i*(12-0.4)/120;const y=k/x;if(y<=48)d+=(d?'L':'M')+sx(x)+','+sy(y);}
+  let g=s+`<path d="${d}" fill="none" stroke="${css('--accent')}" stroke-width="2.5"/>`;for(let i=1;i<=12;i++){if(k/i<=48)g+=`<circle cx="${sx(i)}" cy="${sy(k/i)}" r="${i===n?7:4}" fill="${i===n?css('--two'):css('--accent')}"/>`;}
+  document.getElementById('ipSvg').innerHTML=g;
+  const xs=[1,2,3,4,6,12];document.getElementById('ipTable').innerHTML=`<tr><th>painters</th>${xs.map(x=>`<td>${x}</td>`).join('')}</tr><tr><th>hours</th>${xs.map(x=>`<td>${fmt(k/x)}</td>`).join('')}</tr><tr><th>painters × hours</th>${xs.map(x=>`<td class="k">${k}</td>`).join('')}</tr>`;
+  document.getElementById('ipWork').innerHTML=`painters × hours is always <span class="c">${k}</span>: the job is ${k} painter-hours however you split it.<br>hours = ${k} ÷ painters  (y = k/x).  ${n} painters: ${k} ÷ ${n} = <strong>${fmt(k/n)} h</strong>. Double the painters (${2*n}) → ${fmt(k/(2*n))} h, half the time.`;}
+ipK.addEventListener('input',drawIP);ipN.addEventListener('input',drawIP);drawIP();
+
+/* rectangles */
+const rcK=document.getElementById('rcK');
+function drawRC(){const k=+rcK.value;document.getElementById('rcKv').textContent=' '+k;const ws=[1,2,3,4,6,8,12].filter(w=>k%w===0);const u=9;
+  document.getElementById('rects').innerHTML=ws.map(w=>`<div style="width:${w*u}px;height:${k/w*u}px" title="${w} × ${k/w}">${w}×${k/w}</div>`).join('');}
+rcK.addEventListener('input',drawRC);drawRC();
+
+/* 4 tell apart */
+const tdE=document.getElementById('tdE');
+function drawTD(){const [xs,ys]=tdE.value.split(';').map(s=>s.split(',').map(Number));const ratios=xs.map((x,i)=>ys[i]/x),prods=xs.map((x,i)=>ys[i]*x);const cR=ratios.every(r=>Math.abs(r-ratios[0])<1e-9),cP=prods.every(p=>Math.abs(p-prods[0])<1e-9);
+  document.getElementById('tdTable').innerHTML=`<tr><th>x</th>${xs.map(x=>`<td>${x}</td>`).join('')}</tr><tr><th>y</th>${ys.map(y=>`<td>${y}</td>`).join('')}</tr><tr><th>y ÷ x</th>${ratios.map(r=>`<td class="${cR?'k':''}">${fmt(r)}</td>`).join('')}</tr><tr><th>x × y</th>${prods.map(p=>`<td class="${cP?'k':''}">${fmt(p)}</td>`).join('')}</tr>`;
+  document.getElementById('tdWork').innerHTML=cR?`y ÷ x is constant (${fmt(ratios[0])}): <strong class="a">direct proportion</strong>, y = ${fmt(ratios[0])}x. Straight line through the origin.`:cP?`x × y is constant (${fmt(prods[0])}): <strong class="b">inverse proportion</strong>, y = ${fmt(prods[0])}/x. Falling curve.`:`Neither is constant: <strong>not proportional</strong>${ys[1]-ys[0]===ys[2]-ys[1]?' (it is linear, y = 2x + 3, but the +3 means it misses the origin)':ys.every((y,i)=>y===xs[i]*xs[i])?' (y = x²: a quadratic, not a proportion)':''}.`;}
+tdE.addEventListener('change',drawTD);drawTD();
+
+/* 5 recipe */
+const RC=[['flour',200,'g'],['butter',100,'g'],['sugar',150,'g'],['eggs',2,''],['milk',120,'ml']];
+const rcN=document.getElementById('rcN');
+function drawRecipe(){const n=+rcN.value;document.getElementById('rcNv').textContent=' '+n;const k=n/4;
+  document.getElementById('rcTable').innerHTML=`<tr><th>ingredient</th>${RC.map(r=>`<td>${r[0]}</td>`).join('')}</tr><tr><th>for 4</th>${RC.map(r=>`<td>${r[1]} ${r[2]}</td>`).join('')}</tr><tr><th>for ${n}</th>${RC.map(r=>`<td class="k">${fmt(r[1]*k)} ${r[2]}</td>`).join('')}</tr>`;
+  document.getElementById('rcWork').innerHTML=`Scale factor = ${n} ÷ 4 = <span class="c">${fmt(k,3)}</span>. Multiply every ingredient by it.${(2*k)%1?` <span class="b">Eggs come out as ${fmt(2*k)}: round sensibly, or choose a number of people that works.</span>`:''}`;}
+rcN.addEventListener('input',drawRecipe);drawRecipe();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawDP();drawIP();});}
+new MutationObserver(()=>{drawDP();drawIP();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const QS=[
+  {q:'5 books cost £12.50. 8 books cost…',opts:['£20','£15.50','£18','£25'],a:0,fb:'One book is £2.50; 8 × 2.50 = 20.'},
+  {q:'Which graph shows direct proportion?',opts:['a straight line through (0, 0)','any straight line','a curve falling to the right','a straight line starting at (0, 3)'],a:0,fb:'Direct proportion is y = kx: no intercept.'},
+  {q:'3 taps fill a tank in 20 minutes. 5 taps take…',opts:['12 min','33.3 min','60 min','8 min'],a:0,fb:'Inverse: 3 × 20 = 60 tap-minutes; 60 ÷ 5 = 12.'},
+  {q:'x = 2, y = 10 and x = 5, y = 4. The relationship is…',opts:['inverse: xy = 20','direct: y = 5x','direct: y = 0.8x','neither'],a:0,fb:'2 × 10 = 20 and 5 × 4 = 20: constant product.'},
+  {q:'y is directly proportional to x; y = 21 when x = 7. When x = 12, y = …',opts:['36','26','4','84'],a:0,fb:'k = 21 ÷ 7 = 3, so y = 3 × 12 = 36.'},
+  {q:'A journey at 80 km/h takes 2.5 h. At 100 km/h it takes…',opts:['2 h','3.125 h','2.25 h','1.5 h'],a:0,fb:'Distance 200 km; 200 ÷ 100 = 2 h. Faster, shorter.'},
+  {q:'Which is NOT direct proportion?',opts:['taxi fare: £3 plus £2 per mile','cost of petrol by the litre','euros for pounds at a fixed rate','distance at a fixed speed'],a:0,fb:'The £3 flag fare means 0 miles costs £3: the line misses the origin.'},
+  {q:'A recipe for 6 uses 450 g of rice. For 4 people…',opts:['300 g','675 g','150 g','400 g'],a:0,fb:'75 g per person; 4 × 75 = 300.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);const div=document.createElement('div');div.className='q';div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});opts.appendChild(b);});qz.appendChild(div);});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

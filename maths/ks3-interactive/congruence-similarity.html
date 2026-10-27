@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Congruence and Similarity</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each section has an interactive SVG panel (shapes drawn from JS on grids or free-standing triangles); graph-paper neutrals.
+   Colours on this page: teal = the original shape (triangle ABC, the piece you move); plum = the second shape (the target, the copy, triangle PQR, the image or the small triangle inside);
+   orange = the parts being compared or given (highlighted corresponding sides, equal-angle arcs, the measurements a congruence test uses, the unknown x);
+   dashed muted lines = construction lines (compass circles and rays); green = an exact fit / correct answer, red = no fit / wrong answer. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+li{margin:.35rem 0}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.M{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.P{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);max-width:100%}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--hi);background:var(--hi-soft);color:var(--hi);font-weight:600}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse}
+.vt td,.vt th{text-align:center;padding:.4rem .5rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left}
+.vt td.on{background:var(--two-soft);color:var(--two);font-weight:600}
+.vt td.bad{color:var(--bad)}
+.tbl table{font-size:.88rem}
+.tbl th,.tbl td{padding:.45rem .35rem;overflow-wrap:break-word;hyphens:auto}
+.tbl th{letter-spacing:.04em}
+#sfTable{font-size:.82rem;table-layout:fixed}
+#sfTable td,#sfTable th{padding:.35rem .2rem;letter-spacing:0;text-transform:none;font-size:inherit;overflow-wrap:anywhere}
+#sfTable tr:first-child th{text-align:center}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible,svg:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+#ftSvg{cursor:grab}#ftSvg:active{cursor:grabbing}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a,main p a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Geometry and measures · KS3</div>
+  <h1>Congruence and Similarity</h1>
+  <p class="lede">Print two copies of the same photo and they match perfectly. Shrink one to fit a phone screen and it's smaller, but still clearly the same picture. Stretch it sideways and faces suddenly look wrong. Those three cases are what this page is about: shapes that are exactly the same (<strong>congruent</strong>), shapes that are the same but resized (<strong>similar</strong>), and shapes that are neither.</p>
+  <span class="gcse">National curriculum KS3: use the standard conventions for labelling the sides and angles of triangle ABC, and know and use the criteria for congruence of triangles; identify and construct congruent triangles, and construct similar shapes by enlargement; apply triangle congruence and similarity to derive results about angles and sides</span>
+</header>
+
+<h2>1 · Congruent: same shape, same size</h2>
+<p>Think of two £1 coins, two pages from a photocopier, or two tiles from the same box. If you put one on top of the other, it covers it perfectly, with nothing sticking out. Mathematicians call shapes like that <strong>congruent</strong> (say "con-GROO-ent").</p>
+<p>Here is the important part: to check, you're allowed to <em>pick the shape up and move it</em>. You may <strong>slide</strong> it, <strong>turn</strong> it or even <strong>flip it over</strong>. What you may not do is stretch it or shrink it. So a shape is still congruent to its mirror image, and to a copy that is lying at a different angle.</p>
+<p>Try it. Drag the teal triangle to slide it. Use the buttons to turn it a quarter turn or flip it over. Can you make it land exactly on the dashed purple triangle?</p>
+
+<div class="lab">
+  <svg id="ftSvg" viewBox="0 0 520 360" width="520" height="360" tabindex="0" aria-label="Grid with a movable teal triangle and a dashed target triangle. Use the arrow keys to slide the triangle."></svg>
+  <div class="controls">
+    <button class="btn" id="ftRot">Turn 90°</button>
+    <button class="btn" id="ftFlip">Flip over</button>
+    <button class="btn" id="ftReset">Start again</button>
+    <label>piece <select id="ftPiece"><option value="A">A: the real copy</option><option value="B">B: a near miss</option></select></label>
+  </div>
+  <div class="readout">
+    <div class="f"><b>Piece side lengths</b><span id="ftPs"></span></div>
+    <div class="p"><b>Target side lengths</b><span id="ftTs"></span></div>
+    <div><b>Moves used</b><span id="ftMoves"></span></div>
+  </div>
+  <div class="msg" id="ftMsg"></div>
+</div>
+
+<p>Now switch to piece B. It looks almost the same, and from across a room you might say it matches. But no amount of sliding, turning or flipping makes it fit, because one of its sides is a different length. "Looks about the same" is not congruent. Congruent means <em>exactly</em> the same lengths and <em>exactly</em> the same angles.</p>
+
+<div class="callout">
+  <p><strong>What doesn't matter:</strong> where the shape is, which way round it faces, whether it's been flipped, and what colour it is.</p>
+  <p><strong>What does matter:</strong> every length and every angle. If all of those match, the shapes are congruent.</p>
+</div>
+
+<h2>2 · Matching parts: corresponding sides and angles</h2>
+<p>When one congruent shape sits on top of another, every side lands on a partner side and every corner lands on a partner corner. Those partners are called <strong>corresponding</strong> sides and <strong>corresponding</strong> angles. In congruent shapes, corresponding sides are equal and corresponding angles are equal.</p>
+<p>Triangles have a standard way of being labelled. The corners (called <strong>vertices</strong>; one is a <strong>vertex</strong>) get capital letters, like A, B and C. The side joining A and B is called <span class="m">AB</span>. The angle at corner A is written <span class="m">∠A</span> (you may also see ∠BAC, which means "the angle at A, between B and C").</p>
+<p>The symbol <span class="m">≅</span> means "is congruent to". When you write <span class="m">ABC ≅ PQR</span> the order of the letters is a promise: A matches P, B matches Q and C matches R. So side BC (2nd and 3rd letters) matches side QR (2nd and 3rd letters). Pick a part of triangle ABC to see its partner.</p>
+
+<div class="lab">
+  <svg id="coSvg" viewBox="0 0 560 250" width="560" height="250"></svg>
+  <div class="controls" id="coBtns">
+    <button class="btn on" data-k="AB">side AB</button><button class="btn" data-k="BC">side BC</button><button class="btn" data-k="CA">side CA</button>
+    <button class="btn" data-k="A">∠A</button><button class="btn" data-k="B">∠B</button><button class="btn" data-k="C">∠C</button>
+  </div>
+  <div class="work" id="coWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistake: matching the wrong sides.</strong> Triangle PQR has been turned and flipped, so "the bottom side" of one is not the bottom side of the other. Don't match by position on the page. Match by the letters (BC ↔ QR), or by size: the shortest side matches the shortest side, the longest matches the longest, and the angle opposite a side matches the angle opposite its partner.</p>
+</div>
+
+<h2>3 · Four tests for congruent triangles</h2>
+<p>A triangle has six measurements: three sides and three angles. To prove two triangles are congruent, do you have to check all six? No. Imagine describing a triangle over the phone so that a friend draws <em>exactly</em> the same one. Some sets of just three facts are enough, because they lock the triangle into one shape and size. These are the four <strong>congruence conditions</strong>:</p>
+
+<div class="tbl"><table>
+  <tr><th>Test</th><th>What you know</th><th>Example</th></tr>
+  <tr><td class="mono">SSS</td><td>All three <strong>S</strong>ides</td><td>7 cm, 6 cm, 5 cm</td></tr>
+  <tr><td class="mono">SAS</td><td>Two sides and the angle <em>between</em> them (the <strong>included angle</strong>)</td><td>7 cm, 50°, 5 cm</td></tr>
+  <tr><td class="mono">ASA / AAS</td><td>Two angles and one side, as long as it's a matching (corresponding) side</td><td>50°, 7 cm, 60°</td></tr>
+  <tr><td class="mono">RHS</td><td><strong>R</strong>ight angle, <strong>H</strong>ypotenuse (the longest side, opposite the right angle) and one other <strong>S</strong>ide</td><td>90°, 8 cm, 5 cm</td></tr>
+</table></div>
+
+<p>Why is AAS allowed? Angles in a triangle add up to 180°, so if you know two angles you know the third. Two angles and any side is really the same as ASA, provided the sides you compare are corresponding ones.</p>
+<p>Use the builder below. Pick a test and change the measurements. The dashed lines show how you'd construct it with a ruler, protractor and compasses. Each time, the given facts (in orange) leave exactly <em>one</em> place for corner C.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>test <select id="bdMode"><option value="SSS">SSS: three sides</option><option value="SAS">SAS: side, included angle, side</option><option value="ASA">ASA: angle, side, angle</option><option value="RHS">RHS: right angle, hypotenuse, side</option></select></label>
+  </div>
+  <div class="controls">
+    <label id="bdW1"><span id="bdL1"></span><input type="range" id="bdS1"><span id="bdV1" style="font-family:var(--mono)"></span></label>
+    <label id="bdW2"><span id="bdL2"></span><input type="range" id="bdS2"><span id="bdV2" style="font-family:var(--mono)"></span></label>
+    <label id="bdW3"><span id="bdL3"></span><input type="range" id="bdS3"><span id="bdV3" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="bdSvg" viewBox="0 0 560 300" width="560" height="300"></svg>
+  <div class="readout">
+    <div class="f"><b>Sides</b><span id="bdSides"></span></div>
+    <div class="t"><b>Angles</b><span id="bdAngs"></span></div>
+  </div>
+  <div class="msg" id="bdMsg"></div>
+</div>
+
+<p>Whatever you choose, you only ever get one triangle (or none, if the numbers are impossible). That's why these tests work: two triangles that share the same SSS, SAS, ASA or RHS facts must be the same triangle, so they are congruent, and then <em>all</em> their other sides and angles match too.</p>
+
+<h2>4 · Why SSA and AAA don't work</h2>
+<p>Two other combinations of three facts look like they should work, but don't. The first is <strong>SSA</strong>: two sides and an angle that is <em>not</em> between them. Below, you know side AB, the angle at A, and side BC. Corner C has to be on the dashed line from A (because of the angle) and on the dashed circle around B (because BC has a fixed length). Watch what happens.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>AB = <input type="range" id="saC" min="4" max="10" step="0.5" value="8"><span id="saCv" style="font-family:var(--mono)"></span></label>
+    <label>∠A = <input type="range" id="saA" min="20" max="80" step="5" value="35"><span id="saAv" style="font-family:var(--mono)"></span></label>
+    <label>BC = <input type="range" id="saB" min="2" max="10" step="0.5" value="5"><span id="saBv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="saSvg" viewBox="0 0 560 300" width="560" height="300"></svg>
+  <div class="readout">
+    <div class="t"><b>Triangles that fit</b><span id="saN"></span></div>
+    <div class="f"><b>Possible lengths of AC</b><span id="saAC"></span></div>
+  </div>
+  <div class="msg" id="saMsg"></div>
+</div>
+
+<p>With AB = 8 cm, ∠A = 35° and BC = 5 cm, the circle crosses the line <em>twice</em>, so there are two completely different triangles with those same three facts. This is called the <strong>ambiguous case</strong>. A test for congruence has to work every time, and SSA sometimes gives two answers, so SSA can't prove two triangles are congruent. (The exception is when the known angle is 90°: then the circle can only land once, and that is exactly the RHS test.)</p>
+
+<p>The second is <strong>AAA</strong>: all three angles. Angles fix the <em>shape</em> but say nothing about the <em>size</em>. Change the size below: the angles never change, but the sides do.</p>
+
+<div class="lab">
+  <div class="controls"><label>size of copy × <input type="range" id="aaK" min="0.5" max="2" step="0.25" value="1.5"><span id="aaKv" style="font-family:var(--mono)"></span></label></div>
+  <svg id="aaSvg" viewBox="0 0 560 240" width="560" height="240"></svg>
+  <div class="msg" id="aaMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistake: "same angles, so congruent".</strong> Two triangles with angles 40°, 60° and 80° could be the size of a stamp or the size of a football pitch. Same angles means the same <em>shape</em>, which is called <strong>similar</strong> (next section). It only means congruent if at least one pair of matching sides is also equal.</p>
+</div>
+
+<h2>5 · Similar: same shape, different size</h2>
+<p>When you pinch-zoom a photo on a phone, it gets bigger but still looks right: faces aren't squashed and circles stay round. When you drag only one edge of a picture in a document, it gets stretched, and it looks wrong. The zoomed photo is <strong>similar</strong> to the original. The stretched one is not.</p>
+<p>Two shapes are <strong>similar</strong> if one is an <strong>enlargement</strong> of the other: <em>every</em> length is multiplied by the same number, called the <strong>scale factor</strong>. When that happens, every angle stays exactly the same. (Enlargement, maps and how areas grow are covered in more depth on the <a href="scale-factors.html">Scale Factors and Drawings</a> page.)</p>
+<p>Below, the purple house is a copy of the teal one. With "keep in proportion" ticked, width and height grow by the same factor. Untick it and stretch just one direction. Watch the angle at the top of the roof and the round window.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>width × <input type="range" id="hsW" min="0.5" max="2.5" step="0.25" value="1.5"><span id="hsWv" style="font-family:var(--mono)"></span></label>
+    <label>height × <input type="range" id="hsH" min="0.5" max="2.5" step="0.25" value="1.5"><span id="hsHv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="hsLock" checked> keep in proportion</label>
+  </div>
+  <svg id="hsSvg" viewBox="0 0 560 300" width="560" height="300"></svg>
+  <div class="readout">
+    <div class="f"><b>Original</b><span id="hsO"></span></div>
+    <div class="p"><b>Copy</b><span id="hsC"></span></div>
+    <div class="t"><b>Roof-top angle</b><span id="hsAng"></span></div>
+  </div>
+  <div class="msg" id="hsMsg"></div>
+</div>
+
+<p>So two shapes are similar when <strong>both</strong> of these are true:</p>
+<ul>
+  <li>all corresponding angles are equal, and</li>
+  <li>all corresponding sides are in the same <strong>ratio</strong>: dividing each side of the big shape by its partner on the small shape always gives the same answer, the scale factor.</li>
+</ul>
+<p>Congruent shapes are a special case of similar shapes: the scale factor is 1.</p>
+
+<h2>6 · Scale factor and missing lengths</h2>
+<p>To find the <strong>scale factor</strong>, take a pair of corresponding sides where you know both lengths and divide:</p>
+<p class="big">scale factor = new length ÷ original length</p>
+<p>A scale factor bigger than 1 makes the shape bigger; a scale factor between 0 and 1 makes it smaller. Slide k and look at the table. Triangle PQR is similar to triangle ABC, with A ↔ P, B ↔ Q, C ↔ R. Matching angles are marked with the same number of arcs.</p>
+
+<div class="lab">
+  <div class="controls"><label>scale factor k = <input type="range" id="sfK" min="0.5" max="3" step="0.25" value="2"><span id="sfKv" style="font-family:var(--mono)"></span></label></div>
+  <svg id="sfSvg" viewBox="0 0 560 240" width="560" height="240"></svg>
+  <div class="tbl"><table class="vt" id="sfTable"></table></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistake: adding instead of multiplying.</strong> Look at the last column of the table. The ÷ column is the same for every side; the − column is different for every side. If AB = 4 becomes PQ = 8, you can't say "it went up by 4, so BC = 3 becomes 7". It went <em>times 2</em>, so BC = 3 becomes 6. Adding the same amount to every side changes the shape.</p>
+</div>
+
+<h3>The method</h3>
+<ol>
+  <li><strong>Match the sides.</strong> Use the letters, or the angles, to decide which side corresponds to which. Redraw the triangles the same way round if that helps.</li>
+  <li><strong>Find the scale factor</strong> from a pair where you know <em>both</em> lengths: big ÷ small.</li>
+  <li><strong>Multiply</strong> by the scale factor to go from the small shape to the big one, or <strong>divide</strong> to go from big to small.</li>
+  <li><strong>Sense check:</strong> a side on the bigger shape must come out bigger than its partner.</li>
+</ol>
+
+<p>Now practise. Find x, then check. If you go wrong, the feedback tries to spot <em>which</em> mistake you made.</p>
+
+<div class="lab">
+  <p id="prQ" style="margin-top:0"></p>
+  <svg id="prSvg" viewBox="0 0 560 260" width="560" height="260"></svg>
+  <div class="controls">
+    <label>x = <input type="number" id="prIn" step="any" inputmode="decimal"> cm</label>
+    <button class="btn primary" id="prGo">Check</button>
+    <button class="btn" id="prShow">Show working</button>
+    <button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+</div>
+
+<h2>7 · Similar triangles hiding inside triangles</h2>
+<p>Exam questions often hide two similar triangles inside one picture. The trick is a pair of <strong>parallel</strong> lines (lines that go in the same direction and never meet). Draw a line DE across triangle ABC, parallel to BC. That makes a small triangle ADE at the top.</p>
+<p>Why are ADE and ABC similar? Check the angles:</p>
+<ul>
+  <li><strong>∠A</strong> is shared: it is the same angle in both triangles.</li>
+  <li><strong>∠ADE = ∠ABC</strong>, because they are corresponding angles on parallel lines (the "F-angle" rule).</li>
+  <li><strong>∠AED = ∠ACB</strong> for the same reason.</li>
+</ul>
+<p>All three angles match, so the triangles are similar. (AAA can't prove congruence, but it <em>is</em> enough to prove similarity.) Slide DE up and down, then tick "pull apart" to see the two triangles separately.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>AD ÷ AB = <input type="range" id="plT" min="0.2" max="0.8" step="0.1" value="0.4"><span id="plTv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="plSep"> pull apart</label>
+  </div>
+  <svg id="plSvg" viewBox="0 0 560 260" width="560" height="260"></svg>
+  <div class="work" id="plWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistake: using DB instead of AB.</strong> The big triangle's side is the whole of AB, which is AD + DB. DB on its own isn't a side of either triangle, so comparing AD with DB gives the wrong scale factor. Always pull the triangles apart (or sketch them separately) before you match sides.</p>
+</div>
+
+<h2>8 · Congruence, similarity and transformations</h2>
+<p>A <strong>transformation</strong> is a rule for moving or changing a shape. The shape you start with is the <strong>object</strong> and the result is the <strong>image</strong>. The moves you used in section 1 are transformations: sliding is a <strong>translation</strong>, turning is a <strong>rotation</strong> and flipping is a <strong>reflection</strong>. None of them change any length or angle, so the image is always <em>congruent</em> to the object.</p>
+<p>An <strong>enlargement</strong> multiplies every length by the scale factor and keeps the angles, so the image is <em>similar</em> to the object (see <a href="scale-factors.html">Scale Factors and Drawings</a>). A stretch in just one direction changes the angles, so the image is neither.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>transformation <select id="trSel">
+      <option value="tr">translate 7 left, 6 down</option>
+      <option value="r90">rotate 90° anticlockwise about (0, 0)</option>
+      <option value="r180">rotate 180° about (0, 0)</option>
+      <option value="ref">reflect in the y-axis</option>
+      <option value="en2">enlarge, scale factor 2, centre (0, 0)</option>
+      <option value="enh">enlarge, scale factor ½, centre (0, 0)</option>
+      <option value="st">stretch sideways × 2 (not an enlargement)</option>
+    </select></label>
+  </div>
+  <svg id="trSvg" viewBox="0 0 420 420" width="420" height="420"></svg>
+  <div class="msg" id="trMsg"></div>
+</div>
+
+<div class="tbl"><table>
+  <tr><th>Move</th><th>Lengths</th><th>Angles</th><th>Image</th></tr>
+  <tr><td>Translation, rotation, reflection</td><td>unchanged</td><td>unchanged</td><td>congruent (and similar, scale factor 1)</td></tr>
+  <tr><td>Enlargement, scale factor k</td><td>all × k</td><td>unchanged</td><td>similar</td></tr>
+  <tr><td>Stretch in one direction</td><td>some change, some don't</td><td>changed</td><td>neither</td></tr>
+</table></div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Triangle ABC has AB = 7 cm, BC = 5 cm and ∠B = 40°. Triangle PQR has PQ = 7 cm, QR = 5 cm and ∠Q = 40°. Are they congruent? If AC = 4.6 cm, what is PR?</summary>
+  <div class="step"><strong>List what matches:</strong> AB = PQ = 7 cm, BC = QR = 5 cm, ∠B = ∠Q = 40°. That's two sides and an angle.</div>
+  <div class="step"><strong>Is the angle between the two sides?</strong> ∠B is at corner B, where sides AB and BC meet. Yes, it's the included angle. So the condition is <strong>SAS</strong>.</div>
+  <div class="step"><strong>Conclusion:</strong> triangle ABC ≅ triangle PQR by SAS, with A ↔ P, B ↔ Q, C ↔ R.</div>
+  <div class="step"><strong>Use it:</strong> AC (1st and 3rd letters) corresponds to PR (1st and 3rd letters). Corresponding sides of congruent triangles are equal, so <strong>PR = 4.6 cm</strong>.</div>
+</details>
+<details>
+  <summary>Triangle XYZ has XY = 8 cm, YZ = 5 cm and ∠X = 35°. Triangle LMN has LM = 8 cm, MN = 5 cm and ∠L = 35°. Must they be congruent?</summary>
+  <div class="step"><strong>Find the angle:</strong> ∠X is at corner X. Side XY touches X, but side YZ doesn't. So the angle is <em>not</em> between the two sides.</div>
+  <div class="step"><strong>Name the pattern:</strong> side, side, angle not included: <strong>SSA</strong>. This is not a congruence test.</div>
+  <div class="step"><strong>Check with the SSA widget</strong> (AB = 8, ∠A = 35°, BC = 5): there are two triangles. XZ could be about 4.6 cm or about 8.5 cm.</div>
+  <div class="step"><strong>Answer:</strong> <strong>No</strong>, they don't have to be congruent. One could have XZ ≈ 4.6 cm and the other LN ≈ 8.5 cm.</div>
+</details>
+<details>
+  <summary>Triangles ABC and DEF are similar, with A ↔ D, B ↔ E, C ↔ F. AB = 4 cm, BC = 6 cm, AC = 5 cm and DE = 10 cm. Find EF and DF.</summary>
+  <div class="step"><strong>Match a pair you know both of:</strong> AB ↔ DE, so 4 cm ↔ 10 cm.</div>
+  <div class="step"><strong>Scale factor</strong> (small → big) = 10 ÷ 4 = <strong>2.5</strong>.</div>
+  <div class="step"><strong>EF matches BC:</strong> 6 × 2.5 = <strong>15 cm</strong>. <strong>DF matches AC:</strong> 5 × 2.5 = <strong>12.5 cm</strong>.</div>
+  <div class="step"><strong>Avoid the trap:</strong> DE is 6 cm more than AB, but EF is <em>not</em> 6 + 6 = 12. Similar shapes multiply, they don't add. Check: 15 ÷ 6 = 2.5 and 12.5 ÷ 5 = 2.5, the same ratio every time ✓</div>
+</details>
+<details>
+  <summary>A photo measures 24 cm by 18 cm. A similar, smaller print has its long side 8 cm. How long is its short side?</summary>
+  <div class="step"><strong>Match:</strong> long side ↔ long side: 24 cm ↔ 8 cm.</div>
+  <div class="step"><strong>Scale factor</strong> (small → big) = 24 ÷ 8 = <strong>3</strong>. The big photo is 3 times the size of the small print.</div>
+  <div class="step"><strong>Going big → small, so divide:</strong> 18 ÷ 3 = <strong>6 cm</strong>.</div>
+  <div class="step"><strong>Sense check:</strong> the small print should be smaller than 18 cm, and 6 is ✓. (Multiplying would give 54 cm, bigger than the original: the wrong way round.)</div>
+</details>
+<details>
+  <summary>In triangle ABC, D is on AB and E is on AC, with DE parallel to BC. AD = 3 cm, DB = 6 cm, DE = 4 cm and AE = 2 cm. Find BC and EC.</summary>
+  <div class="step"><strong>Why similar:</strong> ∠A is shared, and ∠ADE = ∠ABC and ∠AED = ∠ACB (corresponding angles, DE ∥ BC). So triangle ADE is similar to triangle ABC.</div>
+  <div class="step"><strong>Whole side:</strong> AB = AD + DB = 3 + 6 = 9 cm. (Not 6!)</div>
+  <div class="step"><strong>Scale factor</strong> (small → big) = AB ÷ AD = 9 ÷ 3 = <strong>3</strong>.</div>
+  <div class="step"><strong>BC matches DE:</strong> 4 × 3 = <strong>12 cm</strong>.</div>
+  <div class="step"><strong>EC:</strong> AC matches AE, so AC = 2 × 3 = 6 cm. Then EC = AC − AE = 6 − 2 = <strong>4 cm</strong>. (Using DB = 6 instead of AB would give a scale factor of 2 and BC = 8 cm, which is wrong.)</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li><strong>Congruent</strong> shapes are the same shape and the same size. One fits exactly on the other after sliding, turning or flipping. Mirror images count.</li>
+  <li><strong>Corresponding</strong> sides and angles are the matching parts. In ABC ≅ PQR the letter order tells you: A ↔ P, B ↔ Q, C ↔ R, so BC ↔ QR.</li>
+  <li>Two triangles are congruent if they share <strong>SSS</strong>, <strong>SAS</strong> (included angle), <strong>ASA/AAS</strong> (matching side) or <strong>RHS</strong>. Each of these fixes exactly one triangle.</li>
+  <li><strong>SSA</strong> doesn't prove congruence because it can give two different triangles (the ambiguous case). <strong>AAA</strong> doesn't either: it fixes the shape but not the size.</li>
+  <li><strong>Similar</strong> shapes are the same shape, different size: one is an enlargement of the other. Corresponding angles are equal and corresponding sides are all in the same ratio.</li>
+  <li><strong>Scale factor</strong> = new length ÷ original length, from a pair of corresponding sides. Multiply to go small → big, divide to go big → small. Never add.</li>
+  <li>A line <strong>parallel</strong> to one side of a triangle cuts off a smaller similar triangle. Use whole sides (AB = AD + DB) when finding the scale factor.</li>
+  <li>Translations, rotations and reflections give <strong>congruent</strong> images; enlargements give <strong>similar</strong> images.</li>
+</ul>
+
+<footer>Made for KS3 students. Congruence, the congruence criteria for triangles and similar shapes are in the England national curriculum at key stage 3 under Geometry and measures. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(v,d=1)=>isFinite(v)?String(parseFloat(v.toFixed(d))).replace('-','−'):'—';
+const F=()=>`font-family="${css('--mono')}"`;
+const rad=d=>d*Math.PI/180,deg=r=>r*180/Math.PI;
+const dist=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1]);
+const angAt=(V,P,Q)=>{const ax=P[0]-V[0],ay=P[1]-V[1],bx=Q[0]-V[0],by=Q[1]-V[1];const c=(ax*bx+ay*by)/(Math.hypot(ax,ay)*Math.hypot(bx,by));return deg(Math.acos(Math.max(-1,Math.min(1,c))));};
+const cen=P=>[P.reduce((s,p)=>s+p[0],0)/P.length,P.reduce((s,p)=>s+p[1],0)/P.length];
+const ptStr=P=>P.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+const poly=(P,col,op=.18,w=2.5,dash)=>`<polygon points="${ptStr(P)}" fill="${col}" fill-opacity="${op}" stroke="${col}" stroke-width="${w}" stroke-linejoin="round"${dash?` stroke-dasharray="${dash}"`:''}/>`;
+const seg=(p,q,col,w=2,dash)=>`<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"${dash?` stroke-dasharray="${dash}"`:''}/>`;
+const circ=(c,r,col,dash='5 5')=>`<circle cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" r="${Math.max(0,r).toFixed(1)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-dasharray="${dash}"/>`;
+const txt=(x,y,s,col,size=13,anchor='middle',weight=500)=>`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" fill="${col}" ${F()}>${s}</text>`;
+const away=(p,G,d)=>{const dx=p[0]-G[0],dy=p[1]-G[1],L=Math.hypot(dx,dy)||1;return [p[0]+dx/L*d,p[1]+dy/L*d];};
+const vlab=(V,G,s,col)=>{const q=away(V,G,16);return txt(q[0],q[1]+5,s,col,15,'middle',600);};
+const slab=(P,Q,G,s,col,w=500)=>{const M=[(P[0]+Q[0])/2,(P[1]+Q[1])/2];const q=away(M,G,16);return txt(q[0],q[1]+4,s,col,13,'middle',w);};
+const arc=(V,P,Q,r,col,n=1,w=1.8)=>{const a1=Math.atan2(P[1]-V[1],P[0]-V[0]);let d=Math.atan2(Q[1]-V[1],Q[0]-V[0])-a1;while(d>Math.PI)d-=2*Math.PI;while(d<=-Math.PI)d+=2*Math.PI;let s='';
+  for(let k=0;k<n;k++){const R=r+k*5;const x1=V[0]+R*Math.cos(a1),y1=V[1]+R*Math.sin(a1),x2=V[0]+R*Math.cos(a1+d),y2=V[1]+R*Math.sin(a1+d);s+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} A${R} ${R} 0 0 ${d>0?1:0} ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${w}"/>`;}return s;};
+const rmark=(V,P,Q,s,col)=>{const dp=dist(V,P),dq=dist(V,Q);const u=[(P[0]-V[0])/dp,(P[1]-V[1])/dp],v=[(Q[0]-V[0])/dq,(Q[1]-V[1])/dq];return `<polyline points="${ptStr([[V[0]+u[0]*s,V[1]+u[1]*s],[V[0]+u[0]*s+v[0]*s,V[1]+u[1]*s+v[1]*s],[V[0]+v[0]*s,V[1]+v[1]*s]])}" fill="none" stroke="${col}" stroke-width="1.8"/>`;};
+/* triangle from sides: AB = c, BC = a, CA = b; A at origin, B on the x-axis, C above (maths coordinates, y up) */
+const triSSS=(c,a,b)=>{const x=(b*b-a*a+c*c)/(2*c);return [[0,0],[c,0],[x,Math.sqrt(Math.max(0,b*b-x*x))]];};
+/* maths coords → screen: scale u, flip y, centre the bounding box on (cx, cy) */
+const place=(P,u,cx,cy)=>{const s=P.map(p=>[p[0]*u,-p[1]*u]);const xs=s.map(p=>p[0]),ys=s.map(p=>p[1]);const mx=(Math.min(...xs)+Math.max(...xs))/2,my=(Math.min(...ys)+Math.max(...ys))/2;return s.map(p=>[p[0]-mx+cx,p[1]-my+cy]);};
+const xform=(P,flip,th)=>{const c=Math.cos(rad(th)),s=Math.sin(rad(th));return P.map(p=>{const x=flip?-p[0]:p[0],y=p[1];return [x*c-y*s,x*s+y*c];});};
+const ext=P=>{const xs=P.map(p=>p[0]),ys=P.map(p=>p[1]);return Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys));};
+const fitMap=(P,W,H,maxU,padX,padY)=>{const xs=P.map(p=>p[0]),ys=P.map(p=>p[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);const u=Math.min(maxU,(W-2*padX)/Math.max(x1-x0,.01),(H-2*padY)/Math.max(y1-y0,.01));const cx=(x0+x1)/2,cy=(y0+y1)/2;const m=p=>[W/2+(p[0]-cx)*u,H/2-(p[1]-cy)*u];m.u=u;return m;};
+const sidesOf=P=>[dist(P[0],P[1]),dist(P[1],P[2]),dist(P[2],P[0])];
+const anglesOf=P=>[angAt(P[0],P[1],P[2]),angAt(P[1],P[2],P[0]),angAt(P[2],P[0],P[1])];
+
+/* 1. fit the shape (grid units, y downwards) */
+const ftSvg=$('ftSvg'),FU=40,FW=12,FH=8,FM=20;
+const norm=P=>{const mx=Math.min(...P.map(p=>p[0])),my=Math.min(...P.map(p=>p[1]));return P.map(p=>[p[0]-mx,p[1]-my]);};
+const FT_BASE={A:[[0,3],[4,3],[1,0]],B:[[0,3],[4,3],[2,0]]};
+const FT_TGT=norm(norm(FT_BASE.A.map(p=>[-p[0],p[1]])).map(p=>[-p[1],p[0]])).map(p=>[p[0]+8,p[1]+2]);
+const key=P=>P.map(p=>p.join(',')).sort().join(' ');
+let ft;
+function ftClamp(){const w=Math.max(...ft.loc.map(p=>p[0])),h=Math.max(...ft.loc.map(p=>p[1]));ft.ox=Math.max(0,Math.min(FW-w,ft.ox));ft.oy=Math.max(0,Math.min(FH-h,ft.oy));}
+const ftCur=()=>ft.loc.map(p=>[p[0]+ft.ox,p[1]+ft.oy]);
+function ftReset(){const k=$('ftPiece').value;ft={k,loc:FT_BASE[k].map(p=>p.slice()),ox:1,oy:2,turns:0,flips:0,slides:0};drawFT();}
+function drawFT(){const g=css('--grid');let s='';
+  for(let i=0;i<=FW;i++)s+=`<line x1="${FM+i*FU}" y1="${FM}" x2="${FM+i*FU}" y2="${FM+FH*FU}" stroke="${g}"/>`;
+  for(let j=0;j<=FH;j++)s+=`<line x1="${FM}" y1="${FM+j*FU}" x2="${FM+FW*FU}" y2="${FM+j*FU}" stroke="${g}"/>`;
+  const scr=P=>P.map(p=>[FM+p[0]*FU,FM+p[1]*FU]);
+  const T=scr(FT_TGT),GT=cen(T),tw=css('--two');
+  s+=poly(T,tw,.08,2.5,'8 6');['P','Q','R'].forEach((n,i)=>s+=vlab(T[i],GT,n,tw));
+  const fit=key(ftCur())===key(FT_TGT);const col=fit?css('--good'):css('--accent');
+  const Pc=scr(ftCur()),GP=cen(Pc);s+=poly(Pc,col,.35,3);['A','B','C'].forEach((n,i)=>s+=vlab(Pc[i],GP,n,col));
+  ftSvg.innerHTML=s;
+  const sp=sidesOf(FT_BASE[ft.k]).map(v=>fmt(v)).join(', '),st=sidesOf(FT_TGT).map(v=>fmt(v)).join(', ');
+  $('ftPs').textContent=sp+' squares';$('ftTs').textContent=st+' squares';
+  $('ftMoves').textContent=`slides ${ft.slides} · turns ${ft.turns} · flips ${ft.flips}`;
+  const M=$('ftMsg');
+  if(fit){M.className='msg good';M.textContent='Exact fit! Every corner lands on a corner and every side lies on a side, so the triangles are congruent. A lands on P, B on Q and C on R. You needed a flip as well as a turn: a mirror image still counts as congruent.';}
+  else if(ft.k==='B'){M.className='msg bad';M.textContent=`Piece B's sides are ${sp} squares, but the target's are ${st}. However you slide, turn or flip it, B can never fit exactly, so B is not congruent to the target.`;}
+  else{M.className='msg';M.textContent='Drag to slide (or use the arrow keys). Turn and flip with the buttons. Make the teal triangle cover the dashed one exactly.';}}
+$('ftRot').addEventListener('click',()=>{ft.loc=norm(ft.loc.map(p=>[-p[1],p[0]]));ft.turns++;ftClamp();drawFT();});
+$('ftFlip').addEventListener('click',()=>{ft.loc=norm(ft.loc.map(p=>[-p[0],p[1]]));ft.flips++;ftClamp();drawFT();});
+$('ftReset').addEventListener('click',ftReset);$('ftPiece').addEventListener('change',ftReset);
+let ftDrag=null;
+ftSvg.addEventListener('pointerdown',e=>{const r=ftSvg.getBoundingClientRect();ftDrag={x:e.clientX,y:e.clientY,ox:ft.ox,oy:ft.oy,sc:(FW*FU+2*FM)/r.width};ftSvg.setPointerCapture(e.pointerId);e.preventDefault();});
+ftSvg.addEventListener('pointermove',e=>{if(!ftDrag)return;const nx=ftDrag.ox+Math.round((e.clientX-ftDrag.x)*ftDrag.sc/FU),ny=ftDrag.oy+Math.round((e.clientY-ftDrag.y)*ftDrag.sc/FU);if(nx!==ft.ox||ny!==ft.oy){ft.ox=nx;ft.oy=ny;ftClamp();ft.slides++;drawFT();}});
+['pointerup','pointercancel'].forEach(t=>ftSvg.addEventListener(t,()=>{ftDrag=null;}));
+ftSvg.addEventListener('keydown',e=>{const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!d)return;e.preventDefault();ft.ox+=d[0];ft.oy+=d[1];ftClamp();ft.slides++;drawFT();});
+ftReset();
+
+/* 2. corresponding parts */
+const CO_ABC=triSSS(6,5,4),CO_PQR=xform(CO_ABC,true,140),CO_ANG=anglesOf(CO_ABC);
+let coSel='AB';
+function drawCO(){const u=26;const L=place(CO_ABC,u,140,125),R=place(CO_PQR,u,420,125),GL=cen(L),GR=cen(R);
+  const ac=css('--accent'),tw=css('--two'),hi=css('--hi'),mu=css('--muted');
+  let s=poly(L,ac)+poly(R,tw);
+  const SIDES={AB:[0,1],BC:[1,2],CA:[2,0]},VS={A:0,B:1,C:2};
+  if(SIDES[coSel]){const [i,j]=SIDES[coSel];s+=seg(L[i],L[j],hi,6)+seg(R[i],R[j],hi,6);}
+  else{const i=VS[coSel],j=(i+1)%3,k=(i+2)%3;s+=arc(L[i],L[j],L[k],22,hi,1,4)+arc(R[i],R[j],R[k],22,hi,1,4);}
+  ['6 cm','5 cm','4 cm'].forEach((t,k)=>{const i=k,j=(k+1)%3;s+=slab(L[i],L[j],GL,t,mu)+slab(R[i],R[j],GR,t,mu);});
+  ['A','B','C'].forEach((n,i)=>s+=vlab(L[i],GL,n,ac));['P','Q','R'].forEach((n,i)=>s+=vlab(R[i],GR,n,tw));
+  $('coSvg').innerHTML=s;
+  const NM={AB:['AB','PQ','6 cm'],BC:['BC','QR','5 cm'],CA:['CA','RP','4 cm']},AN={A:['A','P',0],B:['B','Q',1],C:['C','R',2]};
+  const W=$('coWork');
+  if(NM[coSel]){const [a,b,l]=NM[coSel];W.innerHTML=`Side <span class="a">${a}</span> corresponds to side <span class="c">${b}</span>.<br>Both are <span class="b">${l}</span> long.`;}
+  else{const [a,b,i]=AN[coSel];W.innerHTML=`<span class="a">∠${a}</span> corresponds to <span class="c">∠${b}</span>.<br>Both are <span class="b">${Math.round(CO_ANG[i])}°</span>.`;}}
+$('coBtns').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;coSel=b.dataset.k;$('coBtns').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));drawCO();});
+drawCO();
+
+/* 3. congruence builder */
+const BD={
+  SSS:[['AB',2,10,.5,7,' cm'],['BC',2,10,.5,6,' cm'],['CA',2,10,.5,5,' cm']],
+  SAS:[['AB',2,10,.5,7,' cm'],['∠A',20,140,5,50,'°'],['CA',2,10,.5,5,' cm']],
+  ASA:[['∠A',20,140,5,50,'°'],['AB',2,10,.5,7,' cm'],['∠B',20,140,5,60,'°']],
+  RHS:[['AB',2,10,.5,5,' cm'],['hypotenuse AC',2,12,.5,8,' cm']]
+};
+const bdMode=$('bdMode'),bdS=[1,2,3].map(i=>$('bdS'+i)),bdL=[1,2,3].map(i=>$('bdL'+i)),bdV=[1,2,3].map(i=>$('bdV'+i)),bdWr=[1,2,3].map(i=>$('bdW'+i));
+function bdSetup(){const c=BD[bdMode.value];bdS.forEach((el,i)=>{const d=c[i];if(!d){bdWr[i].hidden=true;return;}bdWr[i].hidden=false;bdL[i].textContent=d[0]+' =';el.min=d[1];el.max=d[2];el.step=d[3];el.value=d[4];});drawBD();}
+function drawBD(){const mode=bdMode.value,c=BD[mode],v=bdS.map(e=>+e.value);
+  c.forEach((d,i)=>bdV[i].textContent=' '+fmt(v[i])+d[5]);
+  const ac=css('--accent'),hi=css('--hi'),mu=css('--muted');
+  let A=[0,0],B,C=null,why='',ok='';
+  if(mode==='SSS'){const [cc,a,b]=v;B=[cc,0];const srt=[a,b,cc].sort((x,y)=>x-y);
+    if(srt[0]+srt[1]>srt[2])C=triSSS(cc,a,b)[2];else why=`No triangle: the two shorter sides (${fmt(srt[0])} + ${fmt(srt[1])} = ${fmt(srt[0]+srt[1])} cm) must add up to more than the longest (${fmt(srt[2])} cm), or the circles never meet.`;
+    ok=`C must be ${fmt(b)} cm from A (on one dashed circle) and ${fmt(a)} cm from B (on the other). The circles cross at just one point above AB. The faint point below is the same triangle flipped over, which is congruent anyway. One triangle: SSS works.`;}
+  else if(mode==='SAS'){const [cc,Ad,b]=v;B=[cc,0];C=[b*Math.cos(rad(Ad)),b*Math.sin(rad(Ad))];
+    ok=`The ${fmt(Ad)}° angle at A fixes the direction of side CA, and its length (${fmt(b)} cm) fixes exactly where C is. One triangle: SAS works. The angle must be the one between the two sides.`;}
+  else if(mode==='ASA'){const [Ad,cc,Bd]=v;B=[cc,0];
+    if(Ad+Bd<180){const b=cc*Math.sin(rad(Bd))/Math.sin(rad(Ad+Bd));C=[b*Math.cos(rad(Ad)),b*Math.sin(rad(Ad))];}
+    else why=`No triangle: ∠A + ∠B = ${fmt(Ad+Bd)}°, but the angles of a triangle add up to 180°, so these two lines never meet.`;
+    ok=`The angle at A fixes one line and the angle at B fixes another. Two straight lines cross at only one point, so C is fixed. One triangle: ASA works (and ∠C must be 180° − ${fmt(Ad)}° − ${fmt(Bd)}° = ${fmt(180-Ad-Bd)}°).`;}
+  else{const [cc,h]=v;B=[cc,0];
+    if(h>cc)C=[cc,Math.sqrt(h*h-cc*cc)];else why='No triangle: the hypotenuse is the longest side, so it has to be longer than AB.';
+    ok=`C must be straight above B (that's the right angle) and exactly ${fmt(h)} cm from A (on the dashed circle). The circle meets that vertical line only once above AB. One triangle: RHS works.`;}
+  const m=fitMap([A,B,C||[B[0]/2,B[0]/2]],560,300,34,60,45);const a=m(A),b=m(B),u=m.u;
+  let s='';
+  if(mode==='SSS'){s+=circ(a,v[2]*u,mu)+circ(b,v[1]*u,mu);if(C){const cm=m([C[0],-C[1]]);s+=`<circle cx="${cm[0].toFixed(1)}" cy="${cm[1].toFixed(1)}" r="4" fill="${mu}" opacity=".5"/>`;}}
+  if(mode==='SAS'){const L=v[2]+2.5;s+=seg(a,m([L*Math.cos(rad(v[1])),L*Math.sin(rad(v[1]))]),mu,1.5,'5 5');}
+  if(mode==='ASA'){const L=v[1]*3;s+=seg(a,m([L*Math.cos(rad(v[0])),L*Math.sin(rad(v[0]))]),mu,1.5,'5 5')+seg(b,m([B[0]-L*Math.cos(rad(v[2])),L*Math.sin(rad(v[2]))]),mu,1.5,'5 5');}
+  if(mode==='RHS'){s+=seg(b,m([B[0],v[1]+1]),mu,1.5,'5 5')+circ(a,v[1]*u,mu);}
+  if(C){const P=[a,b,m(C)],G=cen(P);s+=poly(P,ac,.15,2.5);
+    if(mode==='SSS'){s+=seg(P[0],P[1],hi,4)+seg(P[1],P[2],hi,4)+seg(P[2],P[0],hi,4);}
+    if(mode==='SAS'){s+=seg(P[0],P[1],hi,4)+seg(P[2],P[0],hi,4)+arc(P[0],P[1],P[2],26,hi,1,3);}
+    if(mode==='ASA'){s+=seg(P[0],P[1],hi,4)+arc(P[0],P[1],P[2],26,hi,1,3)+arc(P[1],P[2],P[0],26,hi,2,3);}
+    if(mode==='RHS'){s+=seg(P[0],P[1],hi,4)+seg(P[2],P[0],hi,4)+rmark(P[1],P[0],P[2],14,hi);}
+    const sd=sidesOf([A,B,C]);[[0,1],[1,2],[2,0]].forEach(([i,j],k)=>s+=slab(P[i],P[j],G,fmt(sd[k])+' cm',mu));
+    ['A','B','C'].forEach((n,i)=>s+=vlab(P[i],G,n,ac));
+    const an=anglesOf([A,B,C]);
+    $('bdSides').textContent=`AB ${fmt(sd[0])}, BC ${fmt(sd[1])}, CA ${fmt(sd[2])} cm`;
+    $('bdAngs').textContent=`∠A ${Math.round(an[0])}°, ∠B ${Math.round(an[1])}°, ∠C ${Math.round(an[2])}°`;
+    $('bdMsg').className='msg good';$('bdMsg').textContent=ok;}
+  else{s+=seg(a,b,hi,4)+txt(a[0],a[1]+20,'A',ac,15)+txt(b[0],b[1]+20,'B',ac,15);
+    $('bdSides').textContent='—';$('bdAngs').textContent='—';$('bdMsg').className='msg bad';$('bdMsg').textContent=why;}
+  $('bdSvg').innerHTML=s;}
+bdMode.addEventListener('change',bdSetup);bdS.forEach(e=>e.addEventListener('input',drawBD));bdSetup();
+
+/* 4. SSA ambiguous case */
+function drawSA(){const c=+$('saC').value,Ad=+$('saA').value,a=+$('saB').value;
+  $('saCv').textContent=' '+fmt(c)+' cm';$('saAv').textContent=' '+Ad+'°';$('saBv').textContent=' '+fmt(a)+' cm';
+  const cs=Math.cos(rad(Ad)),sn=Math.sin(rad(Ad)),disc=a*a-c*c*sn*sn;let ts=[];
+  if(Math.abs(disc)<1e-9)ts=[c*cs];else if(disc>0){const r=Math.sqrt(disc);ts=[c*cs+r,c*cs-r];}
+  ts=ts.filter(t=>t>1e-6).sort((x,y)=>y-x);
+  const A=[0,0],B=[c,0],Cs=ts.map(t=>[t*cs,t*sn]),tEnd=Math.max(c,...ts)+2.5,E=[tEnd*cs,tEnd*sn];
+  const m=fitMap([A,B,E].concat(Cs),560,300,34,50,40);const a0=m(A),b0=m(B);
+  const ac=css('--accent'),tw=css('--two'),hi=css('--hi'),mu=css('--muted');const cols=[ac,tw];
+  let s=seg(a0,m(E),mu,1.5,'5 5')+circ(b0,a*m.u,mu);
+  Cs.forEach((C,i)=>{s+=poly([a0,b0,m(C)],cols[i],.15,2);});
+  Cs.forEach((C,i)=>{const P=[a0,b0,m(C)],G=cen(P);s+=seg(P[1],P[2],hi,3.5)+slab(P[1],P[2],G,fmt(a)+' cm',hi)+vlab(P[2],G,Cs.length>1?'C'+(i+1):'C',cols[i]);});
+  s+=seg(a0,b0,hi,4)+arc(a0,b0,m(E),30,hi,1,3)+txt(a0[0]-10,a0[1]+18,'A',ac,15,'middle',600)+txt(b0[0]+10,b0[1]+18,'B',ac,15,'middle',600)+txt((a0[0]+b0[0])/2,a0[1]+20,fmt(c)+' cm',hi,13);
+  $('saSvg').innerHTML=s;
+  $('saN').textContent=String(Cs.length);
+  $('saAC').textContent=ts.length?ts.map(t=>fmt(t)+' cm').join(' or '):'—';
+  const M=$('saMsg');
+  if(!ts.length){M.className='msg';M.textContent=`BC = ${fmt(a)} cm is too short to reach the dashed line, so there's no triangle at all.`;}
+  else if(Math.abs(disc)<1e-9){M.className='msg';M.textContent='BC just touches the dashed line: exactly one triangle, with a right angle at C.';}
+  else if(ts.length===1){M.className='msg';M.textContent=`This time BC (${fmt(a)} cm) is at least as long as AB, so the circle only lands once on the line: one triangle. But SSA doesn't always work, so it still can't be used to prove congruence.`;}
+  else{M.className='msg bad';M.textContent=`Two different triangles! Both have AB = ${fmt(c)} cm, ∠A = ${Ad}° and BC = ${fmt(a)} cm, but AC is ${fmt(ts[0])} cm in one and ${fmt(ts[1])} cm in the other. These three facts don't pin the triangle down.`;}}
+['saC','saA','saB'].forEach(id=>$(id).addEventListener('input',drawSA));drawSA();
+
+/* 4b. AAA */
+const AA_T=(()=>{const c=4,a=c*Math.sin(rad(40))/Math.sin(rad(80)),b=c*Math.sin(rad(60))/Math.sin(rad(80));return triSSS(c,a,b);})();
+function drawAA(){const k=+$('aaK').value;$('aaKv').textContent=' '+fmt(k,2);const u=26;
+  const L=place(AA_T,u,130,125),R=place(AA_T.map(p=>[p[0]*k,p[1]*k]),u,390,125),GL=cen(L),GR=cen(R);
+  const ac=css('--accent'),tw=css('--two'),hi=css('--hi');const sd=sidesOf(AA_T);
+  let s=poly(L,ac)+poly(R,tw);
+  [0,1,2].forEach(i=>{const j=(i+1)%3,q=(i+2)%3;s+=arc(L[i],L[j],L[q],14,hi,i+1)+arc(R[i],R[j],R[q],14,hi,i+1);
+    s+=slab(L[i],L[j],GL,fmt(sd[i])+' cm',ac)+slab(R[i],R[j],GR,fmt(sd[i]*k)+' cm',tw);});
+  [40,60,80].forEach((d,i)=>{const q=away(L[i],GL,-34);s+=txt(q[0],q[1]+4,d+'°',hi,12);});
+  $('aaSvg').innerHTML=s;
+  const M=$('aaMsg');
+  if(k===1){M.className='msg';M.textContent='Same angles (40°, 60°, 80°) and, this time, the same sides too: congruent. But only because the sizes happen to match.';}
+  else{M.className='msg bad';M.textContent=`Both triangles have angles 40°, 60° and 80°, but every side of the copy is × ${fmt(k,2)}. Same angles, different size: similar, not congruent.`;}}
+$('aaK').addEventListener('input',drawAA);drawAA();
+
+/* 5. similar or stretched house */
+const HS=[[0,0],[4,0],[4,2.5],[2,4],[0,2.5]],hsW=$('hsW'),hsH=$('hsH'),hsLock=$('hsLock');
+const apex=(ax,ay)=>180-2*deg(Math.atan((1.5*ay)/(2*ax)));
+function drawHS(){const sx=+hsW.value,sy=+hsH.value,u=24;$('hsWv').textContent=' '+fmt(sx,2);$('hsHv').textContent=' '+fmt(sy,2);
+  const hi=css('--hi');
+  const house=(x0,ax,ay,col)=>{const m=p=>[x0+p[0]*ax*u,285-p[1]*ay*u];const P=HS.map(m);let s=poly(P,col,.15);
+    const d=m([1.5,1.5]);s+=`<rect x="${d[0].toFixed(1)}" y="${d[1].toFixed(1)}" width="${(ax*u).toFixed(1)}" height="${(1.5*ay*u).toFixed(1)}" fill="${col}" fill-opacity=".45"/>`;
+    const w=m([2,3]);s+=`<ellipse cx="${w[0].toFixed(1)}" cy="${w[1].toFixed(1)}" rx="${(.4*ax*u).toFixed(1)}" ry="${(.4*ay*u).toFixed(1)}" fill="none" stroke="${col}" stroke-width="2"/>`;
+    s+=arc(P[3],P[2],P[4],16,hi,1,2.5)+txt(P[3][0],P[3][1]-8,Math.round(apex(ax,ay))+'°',hi,13,'middle',600);return s;};
+  $('hsSvg').innerHTML=house(20,1,1,css('--accent'))+house(190,sx,sy,css('--two'));
+  $('hsO').textContent='4 wide, 4 tall';$('hsC').textContent=`${fmt(4*sx,2)} wide, ${fmt(4*sy,2)} tall`;
+  $('hsAng').textContent=`${Math.round(apex(1,1))}° → ${Math.round(apex(sx,sy))}°`;
+  const M=$('hsMsg');
+  if(sx===sy){M.className='msg good';M.textContent=sx===1?'Scale factor 1: same shape and same size, so congruent (and similar).':`Every length × ${fmt(sx,2)} and the roof-top angle is still ${Math.round(apex(1,1))}°. The copy is similar to the original, with scale factor ${fmt(sx,2)}.`;}
+  else{M.className='msg bad';M.textContent=`Width × ${fmt(sx,2)} but height × ${fmt(sy,2)}. The roof-top angle changed from ${Math.round(apex(1,1))}° to ${Math.round(apex(sx,sy))}° and the round window became an oval. Stretched, so NOT similar.`;}}
+hsW.addEventListener('input',()=>{if(hsLock.checked)hsH.value=hsW.value;drawHS();});
+hsH.addEventListener('input',()=>{if(hsLock.checked)hsW.value=hsH.value;drawHS();});
+hsLock.addEventListener('change',()=>{if(hsLock.checked)hsH.value=hsW.value;drawHS();});
+drawHS();
+
+/* 6a. scale factor table */
+const SF=triSSS(4,3,2),SF_ANG=anglesOf(SF),sfK=$('sfK');
+function drawSF(){const k=+sfK.value;$('sfKv').textContent=' '+fmt(k,2);const u=22;
+  const L=place(SF,u,110,120),R=place(SF.map(p=>[p[0]*k,p[1]*k]),u,370,120),GL=cen(L),GR=cen(R);
+  const ac=css('--accent'),tw=css('--two'),hi=css('--hi');const sd=[4,3,2];
+  let s=poly(L,ac)+poly(R,tw);
+  [0,1,2].forEach(i=>{const j=(i+1)%3,q=(i+2)%3;s+=arc(L[i],L[j],L[q],12,hi,i+1)+arc(R[i],R[j],R[q],12,hi,i+1);s+=slab(L[i],L[j],GL,fmt(sd[i]),ac)+slab(R[i],R[j],GR,fmt(sd[i]*k,2),tw);});
+  ['A','B','C'].forEach((n,i)=>s+=vlab(L[i],GL,n,ac));['P','Q','R'].forEach((n,i)=>s+=vlab(R[i],GR,n,tw));
+  $('sfSvg').innerHTML=s;
+  const nm=[['AB','PQ'],['BC','QR'],['CA','RP']];let h='<tr><th>Pair</th><th>ABC</th><th>PQR</th><th>PQR ÷<br>ABC</th><th>PQR −<br>ABC</th></tr>';
+  sd.forEach((v,i)=>{h+=`<tr><th>${nm[i][0]}<br>↔ ${nm[i][1]}</th><td>${fmt(v)}</td><td>${fmt(v*k,2)}</td><td class="on">${fmt(k,2)}</td><td class="bad">${fmt(v*k-v,2)}</td></tr>`;});
+  ['A','B','C'].forEach((n,i)=>{h+=`<tr><th>∠${n}<br>↔ ∠${'PQR'[i]}</th><td>${Math.round(SF_ANG[i])}°</td><td>${Math.round(SF_ANG[i])}°</td><td colspan="2">equal</td></tr>`;});
+  $('sfTable').innerHTML=h;}
+sfK.addEventListener('input',drawSF);drawSF();
+
+/* 6b. find the missing side */
+const PR_T=[[4,6,7],[3,5,6],[5,6,8],[4,5,7],[6,7,9],[3,4,6]],PR_K=[1.5,2,2.5,3],PR_TF=[[true,0],[false,180],[true,180]];
+const SN=[['AB','BC','CA'],['PQ','QR','RP']];
+let pr;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function prNew(){const s=pick(PR_T).slice(),k=pick(PR_K),i=Math.floor(Math.random()*3);let j=Math.floor(Math.random()*2);if(j>=i)j++;
+  pr={s,k,i,j,big:Math.random()<.6,L:s.map(v=>v*k),tf:pick(PR_TF),tries:0};
+  $('prIn').value='';$('prMsg').textContent='';$('prMsg').className='msg';$('prWork').hidden=true;drawPR();}
+function prAns(){return pr.big?pr.s[pr.j]*pr.k:pr.s[pr.j];}
+function drawPR(){const {s,k,i,j,big,L,tf}=pr;const T=triSSS(s[0],s[1],s[2]),TL=xform(T.map(p=>[p[0]*k,p[1]*k]),tf[0],tf[1]);const u=Math.min(24,210/ext(TL));
+  const P1=place(T,u,130,135),P2=place(TL,u,400,135),G1=cen(P1),G2=cen(P2);
+  const ac=css('--accent'),tw=css('--two'),hi=css('--hi');
+  const l1=['','',''],l2=['','',''];l1[i]=fmt(s[i])+' cm';l2[i]=fmt(L[i])+' cm';
+  if(big){l1[j]=fmt(s[j])+' cm';l2[j]='x';}else{l1[j]='x';l2[j]=fmt(L[j])+' cm';}
+  let svg=poly(P1,ac)+poly(P2,tw);
+  [0,1,2].forEach(q=>{const r=(q+1)%3;if(l1[q])svg+=slab(P1[q],P1[r],G1,l1[q],l1[q]==='x'?hi:ac,l1[q]==='x'?700:500);if(l2[q])svg+=slab(P2[q],P2[r],G2,l2[q],l2[q]==='x'?hi:tw,l2[q]==='x'?700:500);});
+  ['A','B','C'].forEach((n,q)=>svg+=vlab(P1[q],G1,n,ac));['P','Q','R'].forEach((n,q)=>svg+=vlab(P2[q],G2,n,tw));
+  $('prSvg').innerHTML=svg;
+  $('prQ').innerHTML=`Triangle <span class="M">ABC</span> is similar to triangle <span class="P">PQR</span>, with A ↔ P, B ↔ Q and C ↔ R. Find <span class="C">${big?SN[1][j]:SN[0][j]}</span>, marked x.`;
+  const a=prAns();
+  $('prWork').innerHTML=`Matching pair you know both of: <span class="a">${SN[0][i]} = ${fmt(s[i])}</span> ↔ <span class="c">${SN[1][i]} = ${fmt(L[i])}</span><br>Scale factor (small → big) = ${fmt(L[i])} ÷ ${fmt(s[i])} = <strong>${fmt(k)}</strong><br>`+
+    (big?`x = ${SN[1][j]} matches ${SN[0][j]} = ${fmt(s[j])}. Small → big, so multiply:<br>x = ${fmt(s[j])} × ${fmt(k)} = <strong class="b">${fmt(a)} cm</strong><br><span class="c">Sense check: x is on the bigger triangle and ${fmt(a)} &gt; ${fmt(s[j])} ✓</span>`
+        :`x = ${SN[0][j]} matches ${SN[1][j]} = ${fmt(L[j])}. Big → small, so divide:<br>x = ${fmt(L[j])} ÷ ${fmt(k)} = <strong class="b">${fmt(a)} cm</strong><br><span class="c">Sense check: x is on the smaller triangle and ${fmt(a)} &lt; ${fmt(L[j])} ✓</span>`);}
+function prCheck(){const v=parseFloat(String($('prIn').value).replace('−','-'));const M=$('prMsg');
+  if(isNaN(v)){M.className='msg';M.textContent='Type a number for x first.';return;}
+  const {s,k,i,j,big,L}=pr,ans=prAns(),near=(x,y)=>Math.abs(x-y)<0.051;
+  if(near(v,ans)){M.className='msg good';M.textContent=`Correct: x = ${fmt(ans)} cm.`;$('prWork').hidden=false;return;}
+  pr.tries++;
+  const inv=big?s[j]/k:L[j]*k,add=big?s[j]+(L[i]-s[i]):L[j]-(L[i]-s[i]),cross=big?s[i]*L[i]/s[j]:s[i]*L[i]/L[j];
+  let t;
+  if(near(v,inv))t=`Wrong way round. x is on the ${big?'bigger':'smaller'} triangle, so it should be ${big?'bigger':'smaller'} than its partner (${fmt(big?s[j]:L[j])} cm). ${big?'Multiply':'Divide'} by the scale factor instead.`;
+  else if(near(v,add))t=`It looks like you ${big?'added':'subtracted'} ${fmt(L[i]-s[i])}, the difference between ${SN[1][i]} and ${SN[0][i]}. Similar shapes don't add the same amount to each side: they multiply every side by the same scale factor.`;
+  else if(near(v,cross))t=`Check which sides match. ${SN[0][i]} goes with ${SN[1][i]}, and ${SN[0][j]} goes with ${SN[1][j]}. Use the letters, not the position on the page.`;
+  else t=`Not quite. Start with the pair you know both of: ${SN[1][i]} ÷ ${SN[0][i]} = ${fmt(L[i])} ÷ ${fmt(s[i])} gives the scale factor.`;
+  M.className='msg bad';M.textContent=t+(pr.tries>=2?' The working is shown below.':'');if(pr.tries>=2)$('prWork').hidden=false;}
+$('prGo').addEventListener('click',prCheck);$('prIn').addEventListener('keydown',e=>{if(e.key==='Enter')prCheck();});
+$('prShow').addEventListener('click',()=>{$('prWork').hidden=false;});$('prNew').addEventListener('click',prNew);
+prNew();
+
+/* 7. parallel lines */
+const PLB=[0,0],PLC=[14,0],PLA=(()=>{const x=(100-144+196)/28;return [x,Math.sqrt(100-x*x)];})(); /* AB = 10, AC = 12, BC = 14 */
+function drawPL(){const t=+$('plT').value,sep=$('plSep').checked;$('plTv').textContent=' '+fmt(t);
+  const lerp=(P,Q)=>[P[0]+t*(Q[0]-P[0]),P[1]+t*(Q[1]-P[1])];const D=lerp(PLA,PLB),E=lerp(PLA,PLC);
+  const ac=css('--accent'),tw=css('--two'),hi=css('--hi'),mu=css('--muted');
+  let m1,m2;
+  if(!sep){m1=p=>[280+(p[0]-7)*22,232-p[1]*22];m2=m1;}
+  else{m1=p=>[160+(p[0]-7)*16,225-p[1]*16];const mx=(D[0]+E[0])/2;m2=p=>[420+(p[0]-mx)*16,225-(p[1]-D[1])*16];}
+  const big=[PLA,PLB,PLC].map(m1),sm=[PLA,D,E].map(m2),Gb=cen(big),Gs=cen(sm);
+  let s=poly(big,ac,.1,2.5);
+  if(sep)s+=seg(m1(D),m1(E),mu,1.5,'5 5');
+  s+=poly(sm,tw,.3,2.5);
+  s+=arc(big[0],big[1],big[2],18,hi,1)+arc(big[1],big[2],big[0],16,hi,2)+arc(big[2],big[0],big[1],16,hi,3);
+  s+=(sep?arc(sm[0],sm[1],sm[2],18,hi,1):'')+arc(sm[1],sm[2],sm[0],14,hi,2)+arc(sm[2],sm[0],sm[1],14,hi,3);
+  s+=vlab(big[1],Gb,'B',ac)+vlab(big[2],Gb,'C',ac)+slab(big[1],big[2],Gb,'14',ac);
+  if(sep){s+=vlab(big[0],Gb,'A',ac)+vlab(sm[0],Gs,'A',tw);}else s+=vlab(big[0],Gb,'A',ac);
+  const lD=sep?away(sm[1],Gs,16):[sm[1][0]-16,sm[1][1]+4],lE=sep?away(sm[2],Gs,16):[sm[2][0]+16,sm[2][1]+4];
+  s+=txt(lD[0],lD[1]+5,'D',tw,15,'middle',600)+txt(lE[0],lE[1]+5,'E',tw,15,'middle',600);
+  if(sep)s+=slab(sm[1],sm[2],Gs,fmt(14*t),tw);
+  $('plSvg').innerHTML=s;
+  const k=1/t;
+  $('plWork').innerHTML=`<span class="c">AD</span> ÷ <span class="a">AB</span> = ${fmt(10*t)} ÷ 10 = ${fmt(t)}<br><span class="c">AE</span> ÷ <span class="a">AC</span> = ${fmt(12*t)} ÷ 12 = ${fmt(t)}<br><span class="c">DE</span> ÷ <span class="a">BC</span> = ${fmt(14*t)} ÷ 14 = ${fmt(t)}<br>Same ratio every time, so the triangles are similar. Small → big scale factor = 10 ÷ ${fmt(10*t)} = <strong>${fmt(k,2)}</strong><br><span class="b">Careful: DB = ${fmt(10-10*t)}, and AD ÷ DB = ${fmt(10*t)} ÷ ${fmt(10-10*t)} = ${fmt(t/(1-t),2)}, which is not the same ratio.</span>`;}
+$('plT').addEventListener('input',drawPL);$('plSep').addEventListener('change',drawPL);drawPL();
+
+/* 8. transformations */
+const TR_O=[[1,1],[2,1],[2,3],[4,4],[2,5],[1,5]];
+const TRF={tr:[p=>[p[0]-7,p[1]-6],'c'],r90:[p=>[-p[1],p[0]],'c'],r180:[p=>[-p[0],-p[1]],'c'],ref:[p=>[-p[0],p[1]],'c'],en2:[p=>[2*p[0],2*p[1]],'s',2],enh:[p=>[p[0]/2,p[1]/2],'s',.5],st:[p=>[2*p[0],p[1]],'n']};
+function drawTR(){const [f,kind,k]=TRF[$('trSel').value];const I=TR_O.map(f);const sx=x=>210+x*20,sy=y=>210-y*20,scr=P=>P.map(p=>[sx(p[0]),sy(p[1])]);
+  const g=css('--grid'),mu=css('--muted');let s='';
+  for(let i=-10;i<=10;i++)s+=`<line x1="${sx(i)}" y1="${sy(-10)}" x2="${sx(i)}" y2="${sy(10)}" stroke="${g}"/><line x1="${sx(-10)}" y1="${sy(i)}" x2="${sx(10)}" y2="${sy(i)}" stroke="${g}"/>`;
+  s+=`<line x1="${sx(-10)}" y1="${sy(0)}" x2="${sx(10)}" y2="${sy(0)}" stroke="${mu}" stroke-width="1.5"/><line x1="${sx(0)}" y1="${sy(-10)}" x2="${sx(0)}" y2="${sy(10)}" stroke="${mu}" stroke-width="1.5"/>`;
+  [-10,-5,5,10].forEach(i=>{s+=txt(sx(i),sy(0)+14,String(i).replace('-','−'),mu,10)+txt(sx(0)-5,sy(i)+4,String(i).replace('-','−'),mu,10,'end');});
+  if($('trSel').value==='ref')s+=`<line x1="${sx(0)}" y1="${sy(-10)}" x2="${sx(0)}" y2="${sy(10)}" stroke="${css('--hi')}" stroke-width="2.5" stroke-dasharray="6 5"/>`;
+  s+=poly(scr(TR_O),css('--accent'),.3,2.5)+poly(scr(I),css('--two'),.3,2.5);
+  const oC=cen(scr(TR_O)),iC=cen(scr(I));s+=txt(oC[0],oC[1]+4,'object',css('--accent'),11,'middle',600)+txt(iC[0],iC[1]+4,'image',css('--two'),11,'middle',600);
+  $('trSvg').innerHTML=s;
+  const pole=dist(I[0],I[5]),base=dist(I[0],I[1]),tip=angAt(I[3],I[2],I[4]),tip0=angAt(TR_O[3],TR_O[2],TR_O[4]);
+  const M=$('trMsg');
+  if(kind==='c'){M.className='msg good';M.textContent=`Lengths unchanged (pole 4 → ${fmt(pole)}, base 1 → ${fmt(base)}) and angles unchanged (tip ${Math.round(tip0)}° → ${Math.round(tip)}°). The image is congruent to the object.`;}
+  else if(kind==='s'){M.className='msg';M.textContent=`Every length × ${fmt(k)} (pole 4 → ${fmt(pole)}, base 1 → ${fmt(base)}) but the angles are unchanged (tip still ${Math.round(tip)}°). The image is similar to the object, not congruent.`;}
+  else{M.className='msg bad';M.textContent=`Widths × 2 but heights × 1 (base 1 → ${fmt(base)}, pole 4 → ${fmt(pole)}), and the tip angle changes from ${Math.round(tip0)}° to ${Math.round(tip)}°. The image is neither congruent nor similar.`;}}
+$('trSel').addEventListener('change',drawTR);drawTR();
+
+const redraw=()=>{drawFT();drawCO();drawBD();drawSA();drawAA();drawHS();drawSF();drawPR();drawPL();drawTR();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);}
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'Two shapes are congruent if they…',opts:['are the same shape and the same size','are the same shape but can be different sizes','have the same area','have the same perimeter'],a:0,fb:'Congruent means one fits exactly on top of the other: every length and every angle matches. Same shape, different size is similar.'},
+  {q:'Shape B is the mirror image of shape A, with all the same lengths. Are they congruent?',opts:['Yes: a reflection still counts','No: it faces the other way','Only if it is also rotated','Only if they are triangles'],a:0,fb:'You are allowed to flip a shape over when checking. Reflections, rotations and translations all give congruent shapes.'},
+  {q:'Triangle ABC ≅ triangle PQR. Which side corresponds to BC?',opts:['QR','PQ','PR','RP'],a:0,fb:'B ↔ Q and C ↔ R, so BC ↔ QR. Take the 2nd and 3rd letters of each name.'},
+  {q:'Two triangles both have sides 5 cm and 7 cm with an angle of 45° between them. Which test shows they are congruent?',opts:['SAS','SSS','RHS','ASA'],a:0,fb:'The 45° angle is between the two known sides (the included angle), so it is Side–Angle–Side.'},
+  {q:'Which of these does NOT prove two triangles are congruent?',opts:['AAA','SSS','RHS','ASA'],a:0,fb:'Three equal angles fix the shape but not the size, so the triangles are similar but could be different sizes.'},
+  {q:'A rectangle 4 cm by 6 cm is enlarged by scale factor 3. What size is the new rectangle?',opts:['12 cm by 18 cm','7 cm by 9 cm','12 cm by 6 cm','4 cm by 18 cm'],a:0,fb:'Multiply every length by 3: 4 × 3 = 12 and 6 × 3 = 18. Adding 3 (7 by 9) changes the shape, so it would not be similar.'},
+  {q:'A small triangle has sides 6 cm and 9 cm. In a similar, larger triangle, the side matching 6 cm is 8 cm. What is the side matching 9 cm?',opts:['12 cm','11 cm','6.75 cm','17 cm'],a:0,fb:'Scale factor = 8 ÷ 6 = 4/3. Then 9 × 4/3 = 12 cm. Adding 2 gives 11, which is the adding mistake.'},
+  {q:'In two similar shapes, a side of 15 cm on the large shape matches 5 cm on the small one. A different side of the large shape is 12 cm. What is its partner on the small shape?',opts:['4 cm','36 cm','2 cm','7 cm'],a:0,fb:'Scale factor (small → big) = 15 ÷ 5 = 3. Going big → small, divide: 12 ÷ 3 = 4 cm.'},
+  {q:'In triangle ABC, DE is parallel to BC with D on AB and E on AC. AD = 2 cm, AB = 8 cm and DE = 3 cm. How long is BC?',opts:['12 cm','9 cm','6 cm','4.5 cm'],a:0,fb:'Triangles ADE and ABC are similar. Scale factor = AB ÷ AD = 8 ÷ 2 = 4, so BC = 3 × 4 = 12 cm. Using DB = 6 instead of AB gives the wrong answer of 9 cm.'},
+  {q:'Which transformation does NOT always give an image congruent to the object?',opts:['Enlargement by scale factor 2','Rotation of 90°','Reflection in a line','Translation'],a:0,fb:'An enlargement by scale factor 2 doubles every length, so the image is similar but not congruent. The other three keep every length and angle.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

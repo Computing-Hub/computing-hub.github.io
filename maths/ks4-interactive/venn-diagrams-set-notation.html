@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Venn Diagrams and Set Notation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one or more interactive panels (number tiles, two- and three-circle Venn diagrams drawn from JS, tappable regions, step-through shading, typed inputs). Graph-paper neutrals. Colours on this page: teal = set A (its circle, label and A-tiles); plum = set B; muted grey = set C in three-set diagrams and the ξ rectangle; orange = the region being shaded or picked, i.e. the set described by the expression (shaded regions, chosen tiles, the answer). In the step-by-step builder, the first part of an expression is shown in light teal and the second part in light plum before the result turns orange. Green/red are only right/wrong feedback. The orange "Higher" pill marks Higher-tier-only content. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.4rem;position:relative;top:-.15em}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.A{color:var(--accent);font-weight:600}.B{color:var(--two);font-weight:600}.E{color:var(--hi);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none}
+.tap{cursor:pointer}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);max-width:100%}
+input[type=range]{accent-color:var(--accent);width:150px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+input.good{border-color:var(--good);box-shadow:0 0 0 1px var(--good)}
+input.bad{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad)}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn:disabled{opacity:.45;cursor:default}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--hi);background:var(--hi-soft);color:var(--hi);font-weight:600}
+button.btn.no{border-color:var(--bad);color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem;align-items:center}
+.chips button.btn{font-size:.9rem;padding:.3rem .7rem;font-family:var(--mono)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout>div{min-width:0;overflow-wrap:anywhere}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.3rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.05rem;font-weight:500;margin:.4rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:.95rem;line-height:1.8;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+.fq{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr));gap:.5rem 1rem;margin-top:.8rem}
+.fq label{display:flex;flex-direction:column;gap:.2rem;font-size:.88rem;color:var(--muted)}
+.fq input{width:5em}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line);overflow-wrap:anywhere}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.recap{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.9rem 1.1rem;margin:1.5rem 0}
+.recap p{margin:.3rem 0}.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a,main a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Probability</div>
+  <h1>Venn Diagrams and Set Notation</h1>
+  <p class="lede">At GCSE, Venn diagrams come with their own short-hand: ξ, ∈, ∩, ∪ and ′. Once you can read and shade expressions like A′ ∩ B or (A ∪ B)′, you can fill in diagrams from clues (sometimes with algebra), work with three circles, and read probabilities straight off them.</p>
+  <span class="gcse">GCSE subject content: enumerate sets and combinations of sets systematically, using tables, grids, Venn diagrams and tree diagrams; calculate probabilities from them (Higher: conditional probabilities from Venn diagrams)</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start</strong></p>
+  <ul>
+    <li>The basics are on the KS3 page <a href="../ks3-interactive/sample-spaces-venn-diagrams.html">sample spaces and Venn diagrams</a>: sorting numbers into circles, ξ, A ∩ B, A ∪ B and A′, and filling in a Venn diagram by starting in the middle. This page goes further.</li>
+    <li>P(event) = outcomes you want ÷ all outcomes, and P(not A) = 1 − P(A). See <a href="../ks3-interactive/mutually-exclusive-outcomes.html">mutually exclusive outcomes</a>.</li>
+    <li>For the algebra part: forming and solving a linear equation. See <a href="../ks3-interactive/linear-equations.html">linear equations</a>.</li>
+  </ul>
+</div>
+
+<h2>1 · Sets, elements and the symbols</h2>
+<p>A <strong>set</strong> is a collection of things, called <strong>elements</strong> (or members). We list them inside curly brackets <span class="m">{ }</span>, separated by commas, each one written once. The order doesn't matter: {1, 2, 3} and {3, 1, 2} are the same set.</p>
+<div class="tbl"><table>
+  <tr><th>Symbol</th><th>Say it</th><th>Example</th></tr>
+  <tr><td class="mono">ξ</td><td>the universal set ("xi"): everything we are talking about</td><td class="mono">ξ = {1, 2, …, 15}</td></tr>
+  <tr><td class="mono">{ }</td><td>the set containing…</td><td class="mono">A = {2, 3, 5, 7}</td></tr>
+  <tr><td class="mono">∈</td><td>is an element of</td><td class="mono">5 ∈ A</td></tr>
+  <tr><td class="mono">∉</td><td>is not an element of</td><td class="mono">4 ∉ A</td></tr>
+  <tr><td class="mono">n(A)</td><td>the number of elements in A</td><td class="mono">n(A) = 4</td></tr>
+  <tr><td class="mono">∅ or { }</td><td>the empty set: no elements</td><td class="mono">{even primes &gt; 2} = ∅</td></tr>
+</table></div>
+<p>Try it. ξ = {1, 2, …, 15}. Tap the numbers that belong in set A, then press Check. After that, decide whether each statement is true or false.</p>
+
+<div class="lab">
+  <div class="controls"><label>A = <select id="lsR"></select></label></div>
+  <svg id="lsSvg" class="tap" viewBox="0 0 400 96" width="400" height="96" aria-label="The numbers 1 to 15 as tiles"></svg>
+  <div class="work" id="lsSet"></div>
+  <div class="controls"><button class="btn primary" id="lsGo">Check</button><button class="btn" id="lsClear">Clear</button></div>
+  <div class="msg" id="lsMsg"></div>
+  <div id="lsTF"></div>
+</div>
+
+<h2>2 · Intersection, union and complement</h2>
+<p>Three operations make new sets from old ones:</p>
+<div class="tbl"><table>
+  <tr><th>Notation</th><th>Say it</th><th>Means</th></tr>
+  <tr><td class="mono">A ∩ B</td><td>A intersection B</td><td>in A <strong>and</strong> in B (the overlap)</td></tr>
+  <tr><td class="mono">A ∪ B</td><td>A union B</td><td>in A <strong>or</strong> B <strong>or both</strong> (anywhere in the circles)</td></tr>
+  <tr><td class="mono">A′</td><td>A complement, "A dash", "not A"</td><td><strong>not</strong> in A, including outside both circles</td></tr>
+</table></div>
+<p>Here ξ = {1, 2, …, 20} has been sorted for you. <strong>Tap regions</strong> to shade them (tap again to unshade). The panel names the set you've shaded in set notation, lists its elements and gives the probability that a number picked at random from ξ is in it.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><span class="A">A</span> = <select id="vnA"></select></label>
+    <label><span class="B">B</span> = <select id="vnB"></select></label>
+  </div>
+  <svg id="vnSvg" class="tap" viewBox="0 0 400 296" width="400" height="296" aria-label="Venn diagram of 1 to 20; tap regions to shade"></svg>
+  <div class="readout">
+    <div class="t"><b>Set notation</b><span id="vnName"></span></div>
+    <div><b>Elements</b><span id="vnSet"></span></div>
+    <div class="t"><b>Probability</b><span id="vnP"></span></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Memory tricks.</strong> ∩ looks like a bridge joining two banks: you need both ("and"). ∪ is a cup that holds anything poured in ("or"). The dash ′ means "everything else in ξ", so A′ includes the region outside both circles.</p>
+</div>
+
+<h2>3 · Building combinations step by step</h2>
+<p>Exam questions combine the operations: <span class="m">A′ ∩ B</span>, <span class="m">(A ∪ B)′</span>, <span class="m">A ∪ B′</span>. Do them in order, like BIDMAS: <strong>brackets first</strong>, then dashes on single letters, then ∩ or ∪. For ∩, keep only where <em>both</em> shadings overlap. For ∪, keep everything shaded by <em>either</em>. Pick an expression and press <strong>Next step</strong>.</p>
+
+<div class="lab">
+  <div class="chips" id="bdChips"></div>
+  <svg id="bdSvg" viewBox="0 0 400 260" width="400" height="260" aria-label="Venn diagram showing the steps of shading"></svg>
+  <div class="controls"><button class="btn primary" id="bdNext">Next step</button><button class="btn" id="bdReset">Start again</button></div>
+  <div class="work" id="bdWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>A trap worth knowing.</strong> <span class="m">(A ∪ B)′</span> is "outside both circles", which is the same as <span class="m">A′ ∩ B′</span> (not A and not B). But <span class="m">A′ ∪ B′</span> is everything except the overlap: it's <span class="m">(A ∩ B)′</span>. Moving the dash inside a bracket swaps ∩ and ∪.</p>
+</div>
+
+<h2>4 · The reverse game: name the shading</h2>
+<p>Now the other way round: a region is shaded, you pick the expression. If you pick the wrong one, you'll be told which regions your choice would shade, so you can see the difference.</p>
+
+<div class="lab">
+  <svg id="rgSvg" viewBox="0 0 400 260" width="400" height="260" aria-label="A shaded Venn diagram"></svg>
+  <div class="chips" id="rgChips"></div>
+  <div class="msg" id="rgMsg"></div>
+  <div class="controls"><button class="btn" id="rgNext">Next diagram</button><span id="rgScore" style="color:var(--muted);font-size:.9rem"></span></div>
+</div>
+
+<h2>5 · Filling in a Venn diagram from clues</h2>
+<p>When each region holds a count, the KS3 rule was "start in the middle". At GCSE the clues are often given in set notation, and the middle isn't handed to you. The key fact: <strong>n(A) + n(B) counts the overlap twice</strong>, so</p>
+<p class="big">n(A ∩ B) = n(A) + n(B) − n(A ∪ B)</p>
+<p>and n(A ∪ B) = n(ξ) − n((A ∪ B)′). Fill in all four regions and press Check, or press <strong>Show me step by step</strong>.</p>
+
+<div class="lab">
+  <p class="pq" id="fqQ"></p>
+  <svg id="fqSvg" viewBox="0 0 400 260" width="400" height="260" aria-label="Venn diagram with frequencies"></svg>
+  <div class="fq">
+    <label><span id="fqL1">A ∩ B</span> <input type="text" id="fqAB" inputmode="numeric" autocomplete="off"></label>
+    <label><span id="fqL2">A ∩ B′ (A only)</span> <input type="text" id="fqA" inputmode="numeric" autocomplete="off"></label>
+    <label><span id="fqL3">A′ ∩ B (B only)</span> <input type="text" id="fqB" inputmode="numeric" autocomplete="off"></label>
+    <label><span id="fqL4">(A ∪ B)′</span> <input type="text" id="fqO" inputmode="numeric" autocomplete="off"></label>
+  </div>
+  <div class="controls">
+    <button class="btn primary" id="fqGo">Check</button>
+    <button class="btn" id="fqStep">Show me step by step</button>
+    <button class="btn" id="fqNew">New puzzle</button>
+  </div>
+  <div class="msg" id="fqMsg"></div>
+  <div class="work" id="fqWork" hidden></div>
+  <div id="fqPBox" hidden>
+    <p class="pq" id="fqPQ"></p>
+    <div class="controls">
+      <label>P = <input type="text" id="fqPA" autocomplete="off" style="width:6em"></label>
+      <button class="btn primary" id="fqPGo">Check</button>
+      <button class="btn" id="fqPNew">Another question</button>
+    </div>
+    <div class="msg" id="fqPMsg"></div>
+  </div>
+</div>
+
+<h2>6 · Venn diagrams with probabilities</h2>
+<p>A Venn diagram can hold <strong>probabilities</strong> instead of counts. Then everything in ξ adds up to <strong>1</strong>, so a missing region is 1 minus the rest. Probabilities of sets are found by adding regions, just like counts. Set the three regions inside the circles; the outside fills itself in.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>A only <input type="range" id="pvA" min="0" max="20" value="7"><span id="pvAv" style="font-family:var(--mono)"></span></label>
+    <label>A ∩ B <input type="range" id="pvAB" min="0" max="20" value="3"><span id="pvABv" style="font-family:var(--mono)"></span></label>
+    <label>B only <input type="range" id="pvB" min="0" max="20" value="6"><span id="pvBv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="pvSvg" viewBox="0 0 400 260" width="400" height="260" aria-label="Venn diagram with probabilities"></svg>
+  <div class="chips" id="pvChips"></div>
+  <div class="work" id="pvWork"></div>
+</div>
+
+<p>Notice the addition rule hiding in there: <span class="m">P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</span>. Adding P(A) and P(B) counts the overlap twice, so take it off once. The conditional probability <span class="m">P(A | B)</span> (Higher) means "A given B": only look inside B, so divide the overlap by P(B). There's a whole page on it: <a href="conditional-probability.html">conditional probability</a>.</p>
+
+<div class="lab">
+  <p class="pq" id="pqQ"></p>
+  <svg id="pqSvg" viewBox="0 0 400 260" width="400" height="260" aria-label="Venn diagram for the question"></svg>
+  <div class="controls">
+    <label>answer = <input type="text" id="pqA" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="pqGo">Check</button>
+    <button class="btn" id="pqNew">New question</button>
+  </div>
+  <div class="msg" id="pqMsg"></div>
+</div>
+
+<h2>7 · Venn diagrams with algebra <span class="tag g">Higher</span></h2>
+<p>Sometimes there aren't enough numbers to start in the middle. Then call the unknown region <strong>x</strong>, write every other region in terms of x, and use the fact that <strong>all the regions add up to n(ξ)</strong> to form an equation. Drag the slider to try values of x and watch whether the total balances; then solve it properly.</p>
+
+<div class="lab">
+  <p class="pq" id="alQ"></p>
+  <svg id="alSvg" viewBox="0 0 400 260" width="400" height="260" aria-label="Venn diagram with algebraic expressions"></svg>
+  <div class="controls">
+    <label>try x = <input type="range" id="alX" min="0" max="20" value="0"><span id="alXv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="work" id="alWork"></div>
+  <div class="controls">
+    <label>x = <input type="text" id="alAns" inputmode="decimal" autocomplete="off" style="width:5em"></label>
+    <button class="btn primary" id="alGo">Check</button>
+    <button class="btn" id="alSolve">Show the algebra</button>
+    <button class="btn" id="alNew">New puzzle</button>
+  </div>
+  <div class="msg" id="alMsg"></div>
+</div>
+
+<h2>8 · Three-set Venn diagrams <span class="tag g">Higher</span></h2>
+<p>Three circles A, B and C make <strong>8 regions</strong>: the very middle A ∩ B ∩ C, three "two-only" regions (like A ∩ B ∩ C′, in A and B but not C), three "one-only" regions, and the outside (A ∪ B ∪ C)′. Every element goes in exactly one. Tap regions, or pick an expression, and the elements of ξ = {1, 2, …, 30} light up.</p>
+
+<div class="lab">
+  <div class="controls"><label>sets <select id="v3S"><option value="0">A = multiples of 2, B = multiples of 3, C = multiples of 5</option><option value="1">A = factors of 24, B = even, C = multiples of 3</option></select></label></div>
+  <svg id="v3Svg" class="tap" viewBox="0 0 400 316" width="400" height="316" aria-label="Three-set Venn diagram of 1 to 30"></svg>
+  <div class="chips" id="v3Chips"></div>
+  <div class="readout">
+    <div class="t"><b>Set notation</b><span id="v3Name"></span></div>
+    <div><b>Elements</b><span id="v3Set"></span></div>
+    <div class="t"><b>Probability</b><span id="v3P"></span></div>
+  </div>
+</div>
+
+<p>To fill a three-set diagram from counts, the golden rule still holds: <strong>start in the very middle</strong> (all three), then the three "two-only" regions (subtract the middle from each pair's total), then the "one-only" regions (subtract everything else inside that circle), and the outside last. See the last worked example.</p>
+
+<div class="callout">
+  <p><strong>Common mistakes and exam traps</strong></p>
+  <ul>
+    <li><strong>Mixing up ∩ and ∪.</strong> ∩ = and = overlap only; ∪ = or = anywhere in either circle.</li>
+    <li><strong>Forgetting the outside.</strong> A′ includes the region outside both circles.</li>
+    <li><strong>Writing an element twice</strong> when listing A ∪ B. Each element once.</li>
+    <li><strong>Putting n(A) straight into circle A's outer part.</strong> n(A) includes the overlap: A only = n(A) − n(A ∩ B).</li>
+    <li><strong>(A ∪ B)′ is not A′ ∪ B′.</strong> Do the bracket first.</li>
+    <li><strong>Regions not adding up.</strong> Always check the total equals n(ξ) (or 1 for probabilities).</li>
+  </ul>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>ξ = {1, 2, …, 12}, A = {factors of 12}, B = {even numbers}. List A ∩ B, A ∪ B and A′ ∩ B, and find P(A′ ∩ B).</summary>
+  <div class="step"><strong>List the sets:</strong> A = {1, 2, 3, 4, 6, 12}; B = {2, 4, 6, 8, 10, 12}.</div>
+  <div class="step"><strong>A ∩ B</strong> (in both) = {2, 4, 6, 12}.</div>
+  <div class="step"><strong>A ∪ B</strong> (in either, each written once) = {1, 2, 3, 4, 6, 8, 10, 12}. Check: n(A) + n(B) − n(A ∩ B) = 6 + 6 − 4 = 8 ✓.</div>
+  <div class="step"><strong>A′</strong> = {5, 7, 8, 9, 10, 11}, so <strong>A′ ∩ B</strong> (not in A, but in B) = {8, 10}.</div>
+  <div class="step"><strong>P(A′ ∩ B)</strong> = 2/12 = <strong>1/6</strong>.</div>
+</details>
+<details>
+  <summary>Describe the regions (A ∪ B)′ and A′ ∪ B′ and explain why they are different.</summary>
+  <div class="step"><strong>(A ∪ B)′:</strong> bracket first. A ∪ B is everything inside the circles. The dash takes everything else: just the region <strong>outside both circles</strong>.</div>
+  <div class="step"><strong>A′ ∪ B′:</strong> A′ is B only plus outside. B′ is A only plus outside. Union means either, so A′ ∪ B′ = A only, B only and outside: <strong>everything except the overlap</strong>.</div>
+  <div class="step"><strong>Different:</strong> A′ ∪ B′ includes A only and B only; (A ∪ B)′ doesn't. In fact A′ ∪ B′ = (A ∩ B)′ and (A ∪ B)′ = A′ ∩ B′.</div>
+</details>
+<details>
+  <summary>n(ξ) = 50, n(A) = 20, n(B) = 25 and n((A ∪ B)′) = 12. Complete the Venn diagram and find P(A′ ∩ B).</summary>
+  <div class="step"><strong>Inside the circles:</strong> n(A ∪ B) = 50 − 12 = 38.</div>
+  <div class="step"><strong>The overlap:</strong> n(A) + n(B) = 20 + 25 = 45 counts the overlap twice, so n(A ∩ B) = 45 − 38 = <strong>7</strong>.</div>
+  <div class="step"><strong>A only</strong> = 20 − 7 = 13. <strong>B only</strong> = 25 − 7 = 18. Check: 13 + 7 + 18 + 12 = 50 ✓.</div>
+  <div class="step"><strong>P(A′ ∩ B)</strong> is "B only": 18/50 = <strong>9/25</strong>.</div>
+</details>
+<details>
+  <summary>In a Venn diagram, P(A only) = 0.35, P(A ∩ B) = 0.15 and P((A ∪ B)′) = 0.2. Find P(B only), P(A ∪ B), P(B′) and (Higher) P(A | B).</summary>
+  <div class="step"><strong>Everything adds to 1:</strong> P(B only) = 1 − (0.35 + 0.15 + 0.2) = 1 − 0.7 = <strong>0.3</strong>.</div>
+  <div class="step"><strong>P(A ∪ B)</strong> = 0.35 + 0.15 + 0.3 = <strong>0.8</strong> (or 1 − 0.2).</div>
+  <div class="step"><strong>P(B′)</strong> = A only + outside = 0.35 + 0.2 = <strong>0.55</strong>. Check: P(B) = 0.45 and 0.45 + 0.55 = 1 ✓.</div>
+  <div class="step"><strong>P(A | B)</strong> <span class="tag g">Higher</span>: inside B the total is 0.15 + 0.3 = 0.45, so P(A | B) = 0.15 ÷ 0.45 = <strong>1/3</strong>.</div>
+</details>
+<details>
+  <summary>Exam-style <span class="tag g">Higher</span>: 60 students. 35 play a sport (S), 28 play an instrument (I) and 7 do neither. Find how many do both.</summary>
+  <div class="step"><strong>Let x = n(S ∩ I).</strong> Then S only = 35 − x and I only = 28 − x. Outside = 7.</div>
+  <div class="step"><strong>All regions add to 60:</strong> (35 − x) + x + (28 − x) + 7 = 60.</div>
+  <div class="step"><strong>Simplify:</strong> 70 − x = 60, so <strong>x = 10</strong>.</div>
+  <div class="step"><strong>Check:</strong> 25 + 10 + 18 + 7 = 60 ✓. 10 students do both.</div>
+</details>
+<details>
+  <summary>Exam-style <span class="tag g">Higher</span>: 100 students. 40 study French, 35 German, 30 Spanish. 12 study French and German, 9 French and Spanish, 8 German and Spanish, and 5 study all three. Find P(a student picked at random studies exactly one language).</summary>
+  <div class="step"><strong>Very middle:</strong> F ∩ G ∩ S = 5.</div>
+  <div class="step"><strong>Two-only regions:</strong> F and G only = 12 − 5 = 7; F and S only = 9 − 5 = 4; G and S only = 8 − 5 = 3.</div>
+  <div class="step"><strong>One-only regions:</strong> F only = 40 − (7 + 4 + 5) = 24; G only = 35 − (7 + 3 + 5) = 20; S only = 30 − (4 + 3 + 5) = 18.</div>
+  <div class="step"><strong>Outside:</strong> inside the circles = 5 + 7 + 4 + 3 + 24 + 20 + 18 = 81, so 100 − 81 = 19 study none.</div>
+  <div class="step"><strong>Exactly one:</strong> 24 + 20 + 18 = 62. P = 62/100 = <strong>31/50</strong>.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li><strong>ξ</strong> is the universal set; <strong>{ }</strong> lists elements once each; <strong>∈ / ∉</strong> mean "is / is not an element of"; <strong>n(A)</strong> counts the elements.</li>
+  <li><strong>A ∩ B</strong> = and (overlap); <strong>A ∪ B</strong> = or (either or both); <strong>A′</strong> = not A (including outside the circles).</li>
+  <li>Build combinations in order: brackets, then dashes, then ∩ (overlap of shadings) or ∪ (all shadings). (A ∪ B)′ = A′ ∩ B′ and (A ∩ B)′ = A′ ∪ B′.</li>
+  <li>From clues: n(A ∩ B) = n(A) + n(B) − n(A ∪ B). Check the regions add to n(ξ).</li>
+  <li>With probabilities, all regions add to 1; P(A ∪ B) = P(A) + P(B) − P(A ∩ B).</li>
+  <li>Higher: use x for an unknown region and form an equation from the total; three-set diagrams have 8 regions and you fill them from the middle out.</li>
+</ul>
+
+<footer>Made for GCSE students. Venn diagrams and set notation are in the DfE GCSE mathematics subject content under Probability. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const F = () => `font-family="${css('--mono')}"`;
+const gcd = (a,b) => b ? gcd(b,a%b) : Math.abs(a);
+const frac = (n,d) => { if(n===0) return '0'; if(n===d) return '1'; const g=gcd(n,d); return `${n/g}/${d/g}`; };
+const fracW = (n,d) => { const s=frac(n,d); return s===`${n}/${d}` ? s : `${n}/${d} = ${s}`; };
+const dec = (n,d) => { const k=Math.round(Math.log10(d)); let s=(n/d).toFixed(k); if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,''); return s; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { const b=a.slice(); for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; };
+const svgPt = (svg,e,W,H) => { const r=svg.getBoundingClientRect(); return [(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H]; };
+function parseFrac(s){
+  s=String(s).trim().replace(/−/g,'-').replace(/\s+/g,'');
+  const m=s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
+  if(m){ const d=+m[2]; return d ? {v:+m[1]/d,n:+m[1],d:d,f:true} : null; }
+  if(/^-?(\d+\.?\d*|\.\d+)$/.test(s)) return {v:+s,f:false};
+  return null;
+}
+function judge(str,n,d,wrongs,tail){
+  const p=parseFrac(str);
+  if(!p) return {ok:false,msg:'Type a fraction such as 3/20 or a decimal.'};
+  if(Math.abs(p.v-n/d)<1e-9){ const s=frac(n,d); return {ok:true,msg:(p.f&&`${p.n}/${p.d}`!==s)?`Correct. ${p.n}/${p.d} simplifies to ${s}.`:`Correct: ${p.f?s:p.v}.`}; }
+  if(p.v>1) return {ok:false,msg:'Not quite. A probability can never be more than 1.'};
+  for(const [wn,wd,m] of (wrongs||[])){ if(wd && Math.abs(wn/wd-n/d)>1e-9 && Math.abs(p.v-wn/wd)<1e-9) return {ok:false,msg:'Not quite. '+m}; }
+  return {ok:false,msg:'Not quite. '+(tail||'Add up the regions in the set, then divide by the total.')};
+}
+
+/* set algebra on region keys */
+const U2=['a','ab','b','o'];
+const S2={A:new Set(['a','ab']),B:new Set(['ab','b'])};
+const I=(x,y)=>new Set([...x].filter(k=>y.has(k))), Un=(x,y)=>new Set([...x,...y]), Cm=(x,U)=>new Set(U.filter(k=>!x.has(k)));
+const same=(x,y)=>x.size===y.size&&[...x].every(k=>y.has(k));
+const EX2=[
+  ['A ∩ B',()=>I(S2.A,S2.B)],['A ∪ B',()=>Un(S2.A,S2.B)],['A',()=>S2.A],['B',()=>S2.B],['A′',()=>Cm(S2.A,U2)],['B′',()=>Cm(S2.B,U2)],
+  ['A ∩ B′',()=>I(S2.A,Cm(S2.B,U2))],['A′ ∩ B',()=>I(Cm(S2.A,U2),S2.B)],['(A ∪ B)′',()=>Cm(Un(S2.A,S2.B),U2)],['A′ ∩ B′',()=>I(Cm(S2.A,U2),Cm(S2.B,U2))],
+  ['(A ∩ B)′',()=>Cm(I(S2.A,S2.B),U2)],['A′ ∪ B′',()=>Un(Cm(S2.A,U2),Cm(S2.B,U2))],['A′ ∪ B',()=>Un(Cm(S2.A,U2),S2.B)],['A ∪ B′',()=>Un(S2.A,Cm(S2.B,U2))],
+  ['(A ∩ B′) ∪ (A′ ∩ B)',()=>new Set(['a','b'])],['(A ∩ B) ∪ (A ∪ B)′',()=>new Set(['ab','o'])],['ξ',()=>new Set(U2)],['∅',()=>new Set()]
+];
+const names2=keys=>EX2.filter(([,f])=>same(f(),keys)).map(e=>e[0]);
+const RW={a:'A only',ab:'the overlap',b:'B only',o:'outside both circles'};
+const words=keys=>keys.size?U2.filter(k=>keys.has(k)).map(k=>RW[k]).join(', '):'nothing';
+
+/* two-circle drawing */
+function vDefs(p,g){
+  const A=`cx="${g.ax}" cy="${g.ay}" r="${g.r}"`, B=`cx="${g.bx}" cy="${g.by}" r="${g.r}"`, R=`x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}"`;
+  return `<defs><clipPath id="${p}cb"><circle ${B}/></clipPath>`+
+    `<mask id="${p}ma" maskUnits="userSpaceOnUse" ${R}><rect ${R} fill="black"/><circle ${A} fill="white"/><circle ${B} fill="black"/></mask>`+
+    `<mask id="${p}mb" maskUnits="userSpaceOnUse" ${R}><rect ${R} fill="black"/><circle ${B} fill="white"/><circle ${A} fill="black"/></mask>`+
+    `<mask id="${p}mo" maskUnits="userSpaceOnUse" ${R}><rect ${R} fill="white"/><circle ${A} fill="black"/><circle ${B} fill="black"/></mask></defs>`;
+}
+function vFill(p,g,k,col,op){
+  const R=`x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}"`, f=`fill="${col}" fill-opacity="${op}"`;
+  if(k==='ab') return `<circle cx="${g.ax}" cy="${g.ay}" r="${g.r}" ${f} clip-path="url(#${p}cb)"/>`;
+  return `<rect ${R} ${f} mask="url(#${p}m${k})"/>`;
+}
+function vFrame(g,la,lb){
+  const ac=css('--accent'), tw=css('--two');
+  return `<rect x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" rx="6" fill="none" stroke="${css('--muted')}" stroke-width="1.5"/>`+
+    `<text x="${g.x+10}" y="${g.y+22}" font-size="16" font-weight="600" ${F()} fill="${css('--muted')}">ξ</text>`+
+    `<circle cx="${g.ax}" cy="${g.ay}" r="${g.r}" fill="none" stroke="${ac}" stroke-width="3"/><circle cx="${g.bx}" cy="${g.by}" r="${g.r}" fill="none" stroke="${tw}" stroke-width="3"/>`+
+    `<text x="${g.ax-g.r*0.95}" y="${g.ay-g.r*0.82}" text-anchor="middle" font-size="17" font-weight="700" ${F()} fill="${ac}">${la||'A'}</text>`+
+    `<text x="${g.bx+g.r*0.95}" y="${g.by-g.r*0.82}" text-anchor="middle" font-size="17" font-weight="700" ${F()} fill="${tw}">${lb||'B'}</text>`;
+}
+const GV={ax:155,ay:137,bx:245,by:137,r:88,x:10,y:12,w:380,h:236};
+const POS={a:[110,144],ab:[200,144],b:[290,144],o:[374,238]};
+function vText(v,keys,fs){ const fg=css('--fg'), hi=css('--hi'); return U2.map(k=>`<text x="${POS[k][0]}" y="${POS[k][1]}" text-anchor="${k==='o'?'end':'middle'}" font-size="${fs||20}" font-weight="700" ${F()} fill="${keys&&keys.has(k)?hi:fg}">${v[k]}</text>`).join(''); }
+const vRegAt=(g,x,y)=>{ const a=Math.hypot(x-g.ax,y-g.ay)<g.r, b=Math.hypot(x-g.bx,y-g.by)<g.r; return a?(b?'ab':'a'):(b?'b':'o'); };
+
+/* 1. listing a set */
+const PR=[2,3,5,7,11,13];
+const LR=[['{prime numbers}',n=>PR.includes(n),'prime'],['{factors of 12}',n=>12%n===0,'a factor of 12'],['{square numbers}',n=>[1,4,9].includes(n),'a square number'],['{multiples of 4}',n=>n%4===0,'a multiple of 4'],['{odd numbers less than 10}',n=>n%2===1&&n<10,'odd and less than 10']];
+const lsR=$('lsR'), lsSvg=$('lsSvg'); LR.forEach((r,i)=>lsR.add(new Option(r[0],i)));
+let ls={sel:new Set(),done:false,bad:new Set(),miss:new Set()};
+function drawLS(){
+  const R=LR[+lsR.value]; let s='';
+  for(let n=1;n<=15;n++){ const x=8+((n-1)%8)*49, y=4+Math.floor((n-1)/8)*46, on=ls.sel.has(n), bad=ls.bad.has(n), miss=ls.miss.has(n);
+    s+=`<g data-n="${n}"><rect x="${x}" y="${y}" width="43" height="40" rx="7" fill="${on?css('--hi-soft'):css('--bg')}" stroke="${bad||miss?css('--bad'):on?css('--hi'):css('--line')}" stroke-width="${on||bad||miss?2.5:1.3}" ${miss?'stroke-dasharray="5 3"':''}/><text x="${x+21.5}" y="${y+26}" text-anchor="middle" font-size="17" font-weight="${on?700:400}" ${F()} fill="${on?css('--hi'):css('--fg')}">${n}</text></g>`; }
+  lsSvg.innerHTML=s;
+  const L=[...ls.sel].sort((a,b)=>a-b);
+  $('lsSet').innerHTML=`ξ = {1, 2, …, 15}<br>A = ${R[0]}<br><span class="b">Your list: A = {${L.join(', ')}}${L.length?'':' '}</span>, n(A) = ${L.length}`;
+}
+lsSvg.addEventListener('click',e=>{ const g=e.target.closest&&e.target.closest('[data-n]'); if(!g) return; const n=+g.dataset.n; if(ls.sel.has(n)) ls.sel.delete(n); else ls.sel.add(n); ls.bad=new Set(); ls.miss=new Set(); drawLS(); });
+function lsCheck(){
+  const R=LR[+lsR.value], want=[]; for(let n=1;n<=15;n++) if(R[1](n)) want.push(n);
+  const extra=[...ls.sel].filter(n=>!R[1](n)), miss=want.filter(n=>!ls.sel.has(n)), M=$('lsMsg');
+  ls.bad=new Set(extra); ls.miss=new Set(miss); drawLS();
+  if(!extra.length&&!miss.length){ M.className='msg good'; M.textContent=`Correct: A = {${want.join(', ')}} and n(A) = ${want.length}. Now the statements.`; lsTF(want); return; }
+  let m='Not quite. ';
+  if(extra.length){ const n=extra[0]; m+=n===1&&R[2]==='prime'?'1 is not prime: a prime has exactly two factors, and 1 has only one. ':`${n} is not ${R[2]} (red outline). `; }
+  if(miss.length) m+=`You've missed ${miss.length} (dashed red)`+(miss.includes(2)&&R[2]==='prime'?': 2 is prime, the only even one.':'.');
+  M.className='msg bad'; M.textContent=m; $('lsTF').innerHTML='';
+}
+function lsTF(want){
+  const box=$('lsTF'); box.innerHTML=''; const S=new Set(want);
+  const st=[]; const a=pick(want), b=pick([...Array(15).keys()].map(i=>i+1).filter(n=>!S.has(n)));
+  st.push([`${a} ∈ A`,true,`${a} is in the list.`]); st.push([`${b} ∈ A`,false,`${b} is not in A, so ${b} ∉ A.`]);
+  const c=pick([...Array(15).keys()].map(i=>i+1)); st.push([`${c} ∉ A`,!S.has(c),S.has(c)?`${c} is in A, so "${c} ∉ A" is false.`:`${c} is not in A.`]);
+  const k=pick([want.length,want.length+1,want.length-1]); st.push([`n(A) = ${k}`,k===want.length,`A has ${want.length} elements.`]);
+  shuffle(st).forEach(([t,v,why])=>{ const d=document.createElement('div'); d.className='controls'; d.innerHTML=`<span style="font-family:var(--mono);min-width:6em">${t}</span><button class="btn" type="button" data-v="1">True</button><button class="btn" type="button" data-v="0">False</button><span class="msg" style="margin:0"></span>`;
+    const m=d.querySelector('.msg'); d.querySelectorAll('button').forEach(bt=>bt.addEventListener('click',()=>{ const ok=(bt.dataset.v==='1')===v; d.querySelectorAll('button').forEach(x=>x.classList.remove('on','no')); bt.classList.add(ok?'on':'no'); m.className='msg '+(ok?'good':'bad'); m.textContent=(ok?'Yes. ':'No. ')+why; }));
+    box.appendChild(d); });
+}
+$('lsGo').addEventListener('click',lsCheck);
+$('lsClear').addEventListener('click',()=>{ ls={sel:new Set(),done:false,bad:new Set(),miss:new Set()}; $('lsMsg').className='msg'; $('lsMsg').textContent=''; $('lsTF').innerHTML=''; drawLS(); });
+lsR.addEventListener('input',()=>$('lsClear').click());
+drawLS();
+
+/* 2. tap regions on a sorted Venn */
+const RULES={
+  even:{set:'even numbers',f:n=>n%2===0}, odd:{set:'odd numbers',f:n=>n%2===1},
+  m3:{set:'multiples of 3',f:n=>n%3===0}, m4:{set:'multiples of 4',f:n=>n%4===0},
+  m5:{set:'multiples of 5',f:n=>n%5===0}, prime:{set:'prime numbers',f:n=>[2,3,5,7,11,13,17,19].includes(n)},
+  sq:{set:'square numbers',f:n=>[1,4,9,16].includes(n)}, f20:{set:'factors of 20',f:n=>20%n===0},
+  gt12:{set:'numbers more than 12',f:n=>n>12}
+};
+const vnA=$('vnA'), vnB=$('vnB'), vnSvg=$('vnSvg');
+Object.keys(RULES).forEach(k=>{ vnA.add(new Option(RULES[k].set,k)); vnB.add(new Option(RULES[k].set,k)); });
+vnA.value='even'; vnB.value='m3';
+const VG={ax:150,ay:157,bx:250,by:157,r:100,x:8,y:26,w:384,h:262};
+const SLOTS={a:[],ab:[],b:[],o:[]};
+(function(){ const c={a:[95,157],ab:[200,157],b:[305,157],o:[200,157]};
+  for(let y=42;y<=276;y+=22) for(let x=24;x<=376;x+=26){
+    const dA=Math.hypot(x-VG.ax,y-VG.ay), dB=Math.hypot(x-VG.bx,y-VG.by);
+    if(Math.abs(dA-VG.r)<14||Math.abs(dB-VG.r)<14) continue; if(x<52&&y<62) continue;
+    if(Math.hypot(x-55,y-68)<18||Math.hypot(x-345,y-68)<18) continue;
+    SLOTS[vRegAt(VG,x,y)].push([x,y]); }
+  Object.keys(SLOTS).forEach(k=>{ const [cx,cy]=c[k]; SLOTS[k].sort((p,q)=>k==='o'?Math.hypot(q[0]-cx,q[1]-cy)-Math.hypot(p[0]-cx,p[1]-cy):Math.hypot(p[0]-cx,p[1]-cy)-Math.hypot(q[0]-cx,q[1]-cy)); });
+})();
+let vnSel=new Set(['ab']);
+const vTrue=n=>{ const a=RULES[vnA.value].f(n), b=RULES[vnB.value].f(n); return a?(b?'ab':'a'):(b?'b':'o'); };
+function drawVN(){
+  const hi=css('--hi'), fg=css('--fg');
+  let s=vDefs('vn',VG)+[...vnSel].map(k=>vFill('vn',VG,k,hi,.3)).join('')+vFrame(VG,'A','B');
+  const idx={a:0,ab:0,b:0,o:0}, mem=[];
+  for(let n=1;n<=20;n++){ const k=vTrue(n), L=SLOTS[k], p=L[Math.min(idx[k]++,L.length-1)], on=vnSel.has(k); if(on) mem.push(n);
+    s+=`<text x="${p[0]}" y="${p[1]+5}" text-anchor="middle" font-size="15" font-weight="${on?700:500}" ${F()} fill="${on?hi:fg}" pointer-events="none">${n}</text>`; }
+  vnSvg.innerHTML=s;
+  const nm=names2(vnSel);
+  $('vnName').textContent=nm.length?nm.join('  =  '):'tap regions to shade';
+  $('vnSet').textContent=`{${mem.join(', ')}}, n = ${mem.length}`;
+  $('vnP').textContent=nm.length?`P(${nm[0]}) = ${fracW(mem.length,20)}`:'';
+}
+vnSvg.addEventListener('click',e=>{ const [x,y]=svgPt(vnSvg,e,400,296); if(x<VG.x||x>VG.x+VG.w||y<VG.y||y>VG.y+VG.h) return; const k=vRegAt(VG,x,y); if(vnSel.has(k)) vnSel.delete(k); else vnSel.add(k); drawVN(); });
+[vnA,vnB].forEach(e=>e.addEventListener('input',drawVN));
+drawVN();
+
+/* 3. step-by-step builder */
+const BD={
+  'A′ ∩ B':[['A′','a′',()=>Cm(S2.A,U2)],['B','b',()=>S2.B],['∩','r',()=>I(Cm(S2.A,U2),S2.B)]],
+  'A ∩ B′':[['A','a',()=>S2.A],['B′','b′',()=>Cm(S2.B,U2)],['∩','r',()=>I(S2.A,Cm(S2.B,U2))]],
+  '(A ∪ B)′':[['A ∪ B (bracket first)','a',()=>Un(S2.A,S2.B)],['′','r',()=>Cm(Un(S2.A,S2.B),U2)]],
+  'A′ ∩ B′':[['A′','a′',()=>Cm(S2.A,U2)],['B′','b′',()=>Cm(S2.B,U2)],['∩','r',()=>I(Cm(S2.A,U2),Cm(S2.B,U2))]],
+  '(A ∩ B)′':[['A ∩ B (bracket first)','a',()=>I(S2.A,S2.B)],['′','r',()=>Cm(I(S2.A,S2.B),U2)]],
+  'A′ ∪ B′':[['A′','a′',()=>Cm(S2.A,U2)],['B′','b′',()=>Cm(S2.B,U2)],['∪','r',()=>Un(Cm(S2.A,U2),Cm(S2.B,U2))]],
+  'A′ ∪ B':[['A′','a′',()=>Cm(S2.A,U2)],['B','b',()=>S2.B],['∪','r',()=>Un(Cm(S2.A,U2),S2.B)]]
+};
+let bdK='A′ ∩ B', bdStep=0;
+function drawBD(){
+  const steps=BD[bdK], ac=css('--accent'), tw=css('--two'), hi=css('--hi');
+  let s=vDefs('bd',GV);
+  if(bdStep>=1&&bdStep<steps.length) [...steps[0][2]()].forEach(k=>s+=vFill('bd',GV,k,ac,.28));
+  if(bdStep>=2&&steps.length===3&&bdStep<3) [...steps[1][2]()].forEach(k=>s+=vFill('bd',GV,k,tw,.28));
+  if(bdStep>=steps.length) [...steps[steps.length-1][2]()].forEach(k=>s+=vFill('bd',GV,k,hi,.45));
+  s+=vFrame(GV,'A','B');
+  $('bdSvg').innerHTML=s;
+  const L=[`Shade <strong>${bdK}</strong>. Press Next step.`];
+  if(steps.length===3){
+    if(bdStep>=1) L.push(`<span class="a">Step 1: ${steps[0][0]}</span> = ${words(steps[0][2]())}.`);
+    if(bdStep>=2) L.push(`<span class="c">Step 2: ${steps[1][0]}</span> = ${words(steps[1][2]())}.`);
+    if(bdStep>=3) L.push(`<span class="b">Step 3: ${steps[2][0]==='∩'?'∩ keeps only where both shadings overlap':'∪ keeps everything shaded by either'}</span> → ${bdK} = ${words(steps[2][2]())}.`);
+  } else {
+    if(bdStep>=1) L.push(`<span class="a">Step 1: ${steps[0][0]}</span> = ${words(steps[0][2]())}.`);
+    if(bdStep>=2) L.push(`<span class="b">Step 2: the dash ′ takes everything else in ξ</span> → ${bdK} = ${words(steps[1][2]())}.`);
+  }
+  const nm=names2(steps[steps.length-1][2]()).filter(n=>n!==bdK);
+  if(bdStep>=steps.length&&nm.length) L.push(`Same region as: ${nm.join(', ')}.`);
+  $('bdWork').innerHTML=L.join('<br>');
+  $('bdNext').disabled=bdStep>=steps.length;
+  $('bdChips').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===bdK));
+}
+Object.keys(BD).forEach(k=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=k; b.dataset.k=k; b.addEventListener('click',()=>{ bdK=k; bdStep=0; drawBD(); }); $('bdChips').appendChild(b); });
+$('bdNext').addEventListener('click',()=>{ bdStep++; drawBD(); }); $('bdReset').addEventListener('click',()=>{ bdStep=0; drawBD(); });
+drawBD();
+
+/* 4. reverse game */
+const RG=['A ∩ B','A ∪ B','A′','B′','A ∩ B′','A′ ∩ B','(A ∪ B)′','(A ∩ B)′','A′ ∪ B','A ∪ B′'];
+const fx=nm=>EX2.find(e=>e[0]===nm)[1]();
+let rg={t:'A′ ∩ B',done:false,right:0,tries:0};
+function drawRG(){ let s=vDefs('rg',GV); [...fx(rg.t)].forEach(k=>s+=vFill('rg',GV,k,css('--hi'),.45)); s+=vFrame(GV,'A','B'); $('rgSvg').innerHTML=s; $('rgScore').textContent=`${rg.right} right first time out of ${rg.tries}`; }
+function rgNew(){ let t; do{ t=pick(RG); }while(t===rg.t); rg.t=t; rg.done=false; rg.first=true; $('rgMsg').className='msg'; $('rgMsg').textContent='Which expression is shaded?';
+  const box=$('rgChips'); box.innerHTML='';
+  shuffle(RG).forEach(nm=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=nm;
+    b.addEventListener('click',()=>{ if(rg.done) return; const M=$('rgMsg'), mine=fx(nm), want=fx(rg.t);
+      if(same(mine,want)){ rg.done=true; if(rg.first) rg.right++; rg.tries++; b.classList.add('on'); M.className='msg good'; M.textContent=`Yes: ${rg.t} is ${words(want)}.`; drawRG(); return; }
+      if(rg.first){ rg.first=false; } b.classList.add('no'); M.className='msg bad';
+      let hint=`${nm} would shade ${words(mine)}. The diagram shows ${words(want)}.`;
+      if(nm.includes('∩')&&rg.t===nm.replace('∩','∪')||nm.includes('∪')&&rg.t===nm.replace('∪','∩')) hint+=' You have ∩ and ∪ the wrong way round.';
+      else if(mine.has('o')!==want.has('o')) hint+=want.has('o')?' Remember a dash includes the outside.':' The outside is not shaded here.';
+      M.textContent='Not quite. '+hint; });
+    box.appendChild(b); });
+  drawRG(); }
+$('rgNext').addEventListener('click',rgNew); rgNew();
+
+/* 5. fill from clues */
+const FQC=[
+  {who:'students',A:'study History',B:'study Geography',la:'H',lb:'G'},
+  {who:'people',A:'have a laptop',B:'have a tablet',la:'L',lb:'T'},
+  {who:'members of a club',A:'swim',B:'run',la:'S',lb:'R'}
+];
+let fq=null;
+const fqIn=()=>({ab:$('fqAB'),a:$('fqA'),b:$('fqB'),o:$('fqO')});
+function fqNew(){
+  const ctx=pick(FQC), v={a:rnd(4,16),ab:rnd(2,9),b:rnd(4,16),o:rnd(2,10)}, N=v.a+v.ab+v.b+v.o, t=rnd(0,2);
+  fq={ctx,v,N,t,step:0,pq:null,nA:v.a+v.ab,nB:v.b+v.ab};
+  const la=ctx.la, lb=ctx.lb;
+  [`${la} ∩ ${lb}`,`${la} ∩ ${lb}′ (${la} only)`,`${la}′ ∩ ${lb} (${lb} only)`,`(${la} ∪ ${lb})′`].forEach((t,i)=>$('fqL'+(i+1)).textContent=t);
+  const clue=[`n(ξ) = ${N}, n(${la}) = ${fq.nA}, n(${lb}) = ${fq.nB}, n(${la} ∩ ${lb}) = ${v.ab}.`,
+    `n(ξ) = ${N}, n(${la}) = ${fq.nA}, n(${lb}) = ${fq.nB}, n((${la} ∪ ${lb})′) = ${v.o}.`,
+    `n(ξ) = ${N}, n(${la}′) = ${v.b+v.o}, n(${lb}′) = ${v.a+v.o}, n(${la} ∩ ${lb}) = ${v.ab}.`][t];
+  $('fqQ').textContent=`${N} ${ctx.who} were asked whether they ${ctx.A} (${la}) and whether they ${ctx.B} (${lb}). ${clue}`;
+  Object.values(fqIn()).forEach(i=>{ i.value=''; i.classList.remove('good','bad'); });
+  $('fqMsg').className='msg'; $('fqMsg').textContent=t===0?'Start in the middle.':t===1?'Find n(A ∪ B) first.':'Use n(A′): everything outside A.'; $('fqWork').hidden=true; $('fqPBox').hidden=true; $('fqStep').textContent='Show me step by step';
+  drawFQ();
+}
+function drawFQ(){
+  const I2=fqIn(), show={}; ['ab','a','b','o'].forEach(k=>show[k]=fq.step>=4?String(fq.v[k]):(I2[k].value.trim()||'?'));
+  $('fqSvg').innerHTML=vDefs('fq',GV)+vFrame(GV,fq.ctx.la,fq.ctx.lb)+vText(show)+`<text x="${GV.x+28}" y="${GV.y+22}" font-size="14" ${F()} fill="${css('--muted')}">= ${fq.N}</text>`;
+}
+function fqSteps(){
+  const v=fq.v, la=fq.ctx.la, lb=fq.ctx.lb, N=fq.N;
+  if(fq.t===0) return [`<span class="b">Middle:</span> ${la} ∩ ${lb} = ${v.ab} (given)`,`<span class="a">${la} only</span> = n(${la}) − middle = ${fq.nA} − ${v.ab} = ${v.a}`,`<span class="c">${lb} only</span> = ${fq.nB} − ${v.ab} = ${v.b}`,`Outside = ${N} − (${v.a} + ${v.ab} + ${v.b}) = ${v.o}`];
+  if(fq.t===1) return [`n(${la} ∪ ${lb}) = ${N} − ${v.o} = ${N-v.o} (everyone inside the circles)`,`<span class="b">Middle:</span> n(${la}) + n(${lb}) − n(${la} ∪ ${lb}) = ${fq.nA} + ${fq.nB} − ${N-v.o} = ${v.ab}`,`<span class="a">${la} only</span> = ${fq.nA} − ${v.ab} = ${v.a}; <span class="c">${lb} only</span> = ${fq.nB} − ${v.ab} = ${v.b}`,`Outside = ${v.o} (given). Check: ${v.a} + ${v.ab} + ${v.b} + ${v.o} = ${N} ✓`];
+  return [`n(${la}) = ${N} − n(${la}′) = ${N} − ${v.b+v.o} = ${fq.nA}; n(${lb}) = ${N} − ${v.a+v.o} = ${fq.nB}`,`<span class="b">Middle</span> = ${v.ab} (given)`,`<span class="a">${la} only</span> = ${fq.nA} − ${v.ab} = ${v.a}; <span class="c">${lb} only</span> = ${fq.nB} − ${v.ab} = ${v.b}`,`Outside = n(${la}′) − (${lb} only) = ${v.b+v.o} − ${v.b} = ${v.o}. Check: total ${N} ✓`];
+}
+function fqCheck(){
+  const I2=fqIn(), v=fq.v, M=$('fqMsg'), la=fq.ctx.la, lb=fq.ctx.lb, val=k=>parseInt(I2[k].value,10);
+  ['ab','a','b','o'].forEach(k=>{ I2[k].classList.remove('good','bad'); if(I2[k].value.trim()!=='') I2[k].classList.add(val(k)===v[k]?'good':'bad'); });
+  drawFQ(); let m='';
+  if(val('ab')!==v.ab) m=fq.t===1?(val('ab')===fq.nA+fq.nB-fq.N?`You used n(ξ) instead of n(${la} ∪ ${lb}). The ${v.o} outside are not in either circle: n(${la} ∪ ${lb}) = ${fq.N} − ${v.o}.`:`n(${la}) + n(${lb}) = ${fq.nA+fq.nB} counts the overlap twice. Compare it with n(${la} ∪ ${lb}) = ${fq.N} − ${v.o}.`):`The overlap is given: n(${la} ∩ ${lb}) = ${v.ab}.`;
+  else if(val('a')!==v.a) m=val('a')===fq.nA?`${fq.nA} is all of ${la}, overlap included. ${la} only = ${fq.nA} − ${v.ab}.`:fq.t===2?`First find n(${la}) = ${fq.N} − n(${la}′). Then subtract the middle.`:`${la} only = n(${la}) − middle.`;
+  else if(val('b')!==v.b) m=val('b')===fq.nB?`${fq.nB} is all of ${lb}, overlap included. ${lb} only = ${fq.nB} − ${v.ab}.`:fq.t===2?`First find n(${lb}) = ${fq.N} − n(${lb}′). Then subtract the middle.`:`${lb} only = n(${lb}) − middle.`;
+  else if(val('o')!==v.o) m=`Outside = n(ξ) − (the three regions inside the circles) = ${fq.N} − ${v.a+v.ab+v.b}.`;
+  if(m){ M.className='msg bad'; M.textContent='Not quite. '+m; return; }
+  M.className='msg good'; M.textContent=`All four correct. Check: ${v.a} + ${v.ab} + ${v.b} + ${v.o} = ${fq.N} ✓`; fqProb();
+}
+function fqStep(){ fq.step=Math.min(fq.step+1,4); const W=$('fqWork'); W.hidden=false; W.innerHTML=fqSteps().slice(0,fq.step).join('<br>'); $('fqStep').textContent=fq.step<4?'Next step':'Show me step by step'; drawFQ(); if(fq.step===4) fqProb(); }
+function fqProb(){
+  const v=fq.v, N=fq.N, la=fq.ctx.la, lb=fq.ctx.lb;
+  const Q=[
+    {t:`P(${la} ∪ ${lb})`,n:v.a+v.ab+v.b,d:N,wr:[[fq.nA+fq.nB,N,'That counts the overlap twice. Add the three regions inside the circles once each.'],[v.ab,N,'That\'s ∩ (and). ∪ means either or both.']]},
+    {t:`P(${la}′ ∩ ${lb})`,n:v.b,d:N,wr:[[v.a,N,`That's ${la} ∩ ${lb}′. ${la}′ ∩ ${lb} is in ${lb} but not ${la}.`],[v.b+v.o,N,`That's ${la}′ on its own. ∩ ${lb} keeps only the part inside ${lb}.`]]},
+    {t:`P((${la} ∩ ${lb})′)`,n:N-v.ab,d:N,wr:[[v.o,N,`That's (${la} ∪ ${lb})′. (${la} ∩ ${lb})′ is everything except the overlap.`]]},
+    {t:`P(${lb}′)`,n:v.a+v.o,d:N,wr:[[v.a,N,`Don't forget the outside region: it's not in ${lb} either.`]]}
+  ];
+  let q; do{ q=pick(Q); }while(fq.pq&&q.t===fq.pq.t);
+  fq.pq=q; $('fqPBox').hidden=false; $('fqPQ').textContent=`One of the ${N} is picked at random. Find ${q.t}.`; $('fqPA').value=''; $('fqPMsg').className='msg'; $('fqPMsg').textContent='';
+}
+$('fqGo').addEventListener('click',fqCheck); $('fqStep').addEventListener('click',fqStep); $('fqNew').addEventListener('click',fqNew);
+Object.values(fqIn()).forEach(i=>{ i.addEventListener('input',drawFQ); i.addEventListener('keydown',e=>{ if(e.key==='Enter') fqCheck(); }); });
+$('fqPGo').addEventListener('click',()=>{ if(!fq.pq) return; const q=fq.pq, r=judge($('fqPA').value,q.n,q.d,q.wr), M=$('fqPMsg'); M.className='msg '+(r.ok?'good':'bad'); M.textContent=r.msg; });
+$('fqPA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('fqPGo').click(); });
+$('fqPNew').addEventListener('click',fqProb);
+fqNew();
+
+/* 6. probabilities */
+const pvA=$('pvA'), pvAB=$('pvAB'), pvB=$('pvB');
+const PVQ={'P(A)':['a','ab'],'P(B′)':['a','o'],'P(A ∪ B)':['a','ab','b'],'P(A′ ∩ B)':['b'],'P((A ∪ B)′)':['o'],'P(A | B)':null};
+let pvK='P(A ∪ B)';
+function drawPV(){
+  let a=+pvA.value, ab=+pvAB.value, b=+pvB.value;
+  const lim=20; if(a+ab+b>lim){ const over=a+ab+b-lim; if(document.activeElement===pvA) a-=over; else if(document.activeElement===pvAB) ab-=over; else b-=over; }
+  a=Math.max(0,a); ab=Math.max(0,ab); b=Math.max(0,b); if(a+ab+b>lim){ b=lim-a-ab; if(b<0){ ab+=b; b=0; } }
+  pvA.value=a; pvAB.value=ab; pvB.value=b; const o=lim-a-ab-b, v={a,ab,b,o};
+  ['A','AB','B'].forEach((k,i)=>$('pv'+k+'v').textContent=' '+dec([a,ab,b][i]*5,100));
+  const keys=PVQ[pvK]?new Set(PVQ[pvK]):new Set(['ab']);
+  let s=vDefs('pv',GV);
+  if(!PVQ[pvK]) ['ab','b'].forEach(k=>s+=vFill('pv',GV,k,css('--two'),.22));
+  [...keys].forEach(k=>s+=vFill('pv',GV,k,css('--hi'),.4));
+  const sv={}; U2.forEach(k=>sv[k]=dec(v[k]*5,100));
+  s+=vFrame(GV,'A','B')+vText(sv,keys,18);
+  $('pvSvg').innerHTML=s;
+  const tot=PVQ[pvK]?PVQ[pvK].reduce((t,k)=>t+v[k],0):0, W=$('pvWork');
+  let w=`Outside = 1 − (${sv.a} + ${sv.ab} + ${sv.b}) = <strong>${sv.o}</strong> (everything adds to 1)<br>`;
+  if(PVQ[pvK]) w+=`<span class="b">${pvK}</span> = ${PVQ[pvK].map(k=>sv[k]).join(' + ')} = <strong>${dec(tot*5,100)}</strong>`;
+  else w+=`<span class="b">P(A | B)</span> (Higher): inside B (plum) the total is ${sv.ab} + ${sv.b} = ${dec((ab+b)*5,100)}. P(A | B) = ${sv.ab} ÷ ${dec((ab+b)*5,100)} = `+(ab+b?`<strong>${frac(ab,ab+b)}</strong>`:'undefined (B is empty)');
+  if(pvK==='P(A ∪ B)') w+=`<br>Addition rule: P(A) + P(B) − P(A ∩ B) = ${dec((a+ab)*5,100)} + ${dec((ab+b)*5,100)} − ${sv.ab} = ${dec((a+ab+b)*5,100)} ✓`;
+  if(pvK==='P(B′)') w+=`<br>Check: 1 − P(B) = 1 − ${dec((ab+b)*5,100)} = ${dec((a+o)*5,100)} ✓`;
+  W.innerHTML=w;
+  $('pvChips').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.k===pvK));
+}
+Object.keys(PVQ).forEach(k=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=k+(k==='P(A | B)'?' (Higher)':''); b.dataset.k=k; b.addEventListener('click',()=>{ pvK=k; drawPV(); }); $('pvChips').appendChild(b); });
+[pvA,pvAB,pvB].forEach(e=>e.addEventListener('input',drawPV)); drawPV();
+
+let pq=null;
+function pqNew(){
+  let v; do{ v={a:rnd(1,10),ab:rnd(1,6),b:rnd(1,10)}; v.o=20-v.a-v.ab-v.b; }while(v.o<1);
+  const miss=pick(['a','b','o']), sv={}; U2.forEach(k=>sv[k]=k===miss?'x':dec(v[k]*5,100));
+  const kind=pick(['x','union','Bdash','cond']);
+  const nm={x:'the value of x',union:'P(A ∪ B)',Bdash:'P(B′)',cond:'P(A | B) (Higher)'}[kind];
+  const ans={x:[v[miss]*5,100],union:[(v.a+v.ab+v.b)*5,100],Bdash:[(v.a+v.o)*5,100],cond:[v.ab,v.ab+v.b]}[kind];
+  const wr={x:[[100-(v[miss]*5),100,'That\'s the total of the other regions. x = 1 − that total.']],union:[[(2*v.ab+v.a+v.b)*5,100,'That\'s P(A) + P(B), which counts the overlap twice.'],[(v.a+v.b)*5,100,'∪ includes the overlap.']],Bdash:[[v.a*5,100,'B′ includes the outside region too.'],[(v.ab+v.b)*5,100,'That\'s P(B). B′ is 1 − P(B).']],cond:[[v.ab*5,100,'That\'s P(A ∩ B). Divide by P(B).'],[v.ab,v.a+v.ab,'That\'s P(B | A): you divided by P(A).']]}[kind];
+  pq={n:ans[0],d:ans[1],wr,v,miss,sv,kind};
+  $('pqQ').textContent=`Try it: the Venn diagram shows probabilities. Find ${nm}.`;
+  $('pqSvg').innerHTML=vDefs('pq',GV)+vFrame(GV,'A','B')+vText(sv,null,18);
+  $('pqA').value=''; $('pqMsg').className='msg'; $('pqMsg').textContent='';
+}
+$('pqGo').addEventListener('click',()=>{ const r=judge($('pqA').value,pq.n,pq.d,pq.wr,pq.kind==='cond'?'Only look inside B: P(A | B) = P(A ∩ B) ÷ P(B), where P(B) is the overlap plus B only.':`First find x = 1 − (the other three regions). Here x = ${dec(pq.v[pq.miss]*5,100)}.`), M=$('pqMsg'); M.className='msg '+(r.ok?'good':'bad'); M.textContent=r.msg; });
+$('pqA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('pqGo').click(); });
+$('pqNew').addEventListener('click',pqNew); pqNew();
+
+/* 7. algebra */
+const alX=$('alX'); let al=null;
+function alNew(){
+  if(Math.random()<0.5){ const x=rnd(3,12), a=rnd(5,15), b=rnd(5,15), o=rnd(2,9); const nA=a+x, nB=b+x, N=a+x+b+o;
+    al={type:1,x,N,ex:{a:`${nA} − x`,ab:'x',b:`${nB} − x`,o:String(o)},val:X=>({a:nA-X,ab:X,b:nB-X,o}),
+      q:`${N} people. ${nA} like apples (A), ${nB} like bananas (B) and ${o} like neither. Let x be the number who like both. Find x.`,
+      tot:`(${nA} − x) + x + (${nB} − x) + ${o} = ${nA+nB+o} − x`,eq:`${nA+nB+o} − x = ${N}`,sol:`x = ${nA+nB+o} − ${N} = ${x}`,max:Math.min(nA,nB)}; }
+  else { const x=rnd(2,9), k=rnd(2,3), c=rnd(1,6), o=rnd(2,8), N=k*x+x+(x+c)+o;
+    al={type:2,x,N,ex:{a:`${k}x`,ab:'x',b:`x + ${c}`,o:String(o)},val:X=>({a:k*X,ab:X,b:X+c,o}),
+      q:`ξ has ${N} elements. A only has ${k}x, A ∩ B has x, B only has x + ${c}, and ${o} are outside both circles. Find x.`,
+      tot:`${k}x + x + (x + ${c}) + ${o} = ${k+2}x + ${c+o}`,eq:`${k+2}x + ${c+o} = ${N}`,sol:`${k+2}x = ${N-c-o}, so x = ${N-c-o} ÷ ${k+2} = ${x}`,max:20}; }
+  alX.max=al.max; alX.value=0; $('alQ').textContent=al.q; $('alAns').value=''; $('alMsg').className='msg'; $('alMsg').textContent=''; al.shown=false; drawAL();
+}
+function drawAL(){
+  const X=+alX.value, v=al.val(X), sum=v.a+v.ab+v.b+v.o, ok=sum===al.N;
+  $('alXv').textContent=' '+X;
+  const fg=css('--fg'), tw=css('--two'), hi=css('--hi'), mu=css('--muted');
+  const t=(k,y,txt,col,fs)=>`<text x="${POS[k][0]}" y="${y}" text-anchor="${k==='o'?'end':'middle'}" font-size="${fs}" font-weight="700" ${F()} fill="${col}">${txt}</text>`;
+  let s=vDefs('al',GV)+vFrame(GV,'A','B')+`<text x="${GV.x+28}" y="${GV.y+22}" font-size="14" ${F()} fill="${mu}">= ${al.N}</text>`;
+  U2.forEach(k=>{ s+=t(k,POS[k][1]-(k==='o'?18:8),al.ex[k],tw,15)+t(k,POS[k][1]+(k==='o'?2:14),v[k]<0?v[k]+' ✗':v[k],v[k]<0?css('--bad'):ok?hi:fg,15); });
+  $('alSvg').innerHTML=s;
+  $('alWork').innerHTML=`Total of the regions: ${al.tot}<br>With x = ${X}: ${v.a} + ${v.ab} + ${v.b} + ${v.o} = <strong>${sum}</strong> ${ok?'= '+al.N+' ✓ balanced!':sum>al.N?'> '+al.N+' (too big)':'< '+al.N+' (too small)'}`+(Object.values(v).some(q=>q<0)?'<br><span class="b">A region is negative: impossible.</span>':'')+(al.shown?`<br><span class="a">Algebra:</span> ${al.eq}<br>${al.sol}`:'');
+}
+alX.addEventListener('input',drawAL);
+$('alSolve').addEventListener('click',()=>{ al.shown=true; drawAL(); });
+$('alGo').addEventListener('click',()=>{ const v=parseFloat(String($('alAns').value).replace('−','-')), M=$('alMsg');
+  if(isNaN(v)){ M.className='msg bad'; M.textContent='Type a number.'; return; }
+  if(v===al.x){ M.className='msg good'; M.textContent=`Correct: x = ${al.x}. Check: the regions add up to ${al.N} ✓`; alX.value=Math.min(al.x,+alX.max); drawAL(); return; }
+  M.className='msg bad';
+  if(al.type===1&&v===al.N-(al.val(0).a+al.val(0).b+al.val(0).o)) M.textContent='Not quite: check the sign. The equation is (total of the rest) − x = n(ξ), so x = (total) − n(ξ).';
+  else if(al.type===2&&Math.abs(v*(+al.eq.split('x')[0])-(al.N))<1e-9) M.textContent='Not quite. Subtract the number terms from both sides before dividing.';
+  else M.textContent=`Not quite. Write the total of all four regions, set it equal to ${al.N}, and solve. Try your value on the slider.`; });
+$('alAns').addEventListener('keydown',e=>{ if(e.key==='Enter') $('alGo').click(); });
+$('alNew').addEventListener('click',alNew); alNew();
+
+/* 8. three sets */
+const G3={ax:154,ay:112,bx:246,by:112,cx:200,cy:198,r:86,x:8,y:10,w:384,h:300};
+const U3=['a','b','c','ab','ac','bc','abc','o'];
+const k3=(x,y)=>{ let k=''; if(Math.hypot(x-G3.ax,y-G3.ay)<G3.r) k+='a'; if(Math.hypot(x-G3.bx,y-G3.by)<G3.r) k+='b'; if(Math.hypot(x-G3.cx,y-G3.cy)<G3.r) k+='c'; return k||'o'; };
+const SL3={}; U3.forEach(k=>SL3[k]=[]);
+(function(){ const cen={}; U3.forEach(k=>cen[k]=[0,0,0]);
+  for(let y=G3.y+18;y<=G3.y+G3.h-8;y+=19) for(let x=G3.x+14;x<=G3.x+G3.w-12;x+=22){
+    const ds=[[G3.ax,G3.ay],[G3.bx,G3.by],[G3.cx,G3.cy]].map(([a,b])=>Math.abs(Math.hypot(x-a,y-b)-G3.r)); if(Math.min(...ds)<10) continue; if(x<40&&y<40) continue;
+    if(Math.hypot(x-G3.ax+G3.r*0.8,y-G3.ay+G3.r*0.8)<16||Math.hypot(x-G3.bx-G3.r*0.8,y-G3.by+G3.r*0.8)<16||Math.hypot(x-G3.cx,y-G3.cy-G3.r-8)<14) continue;
+    const k=k3(x,y); SL3[k].push([x,y]); cen[k][0]+=x; cen[k][1]+=y; cen[k][2]++; }
+  U3.forEach(k=>{ const c=k==='o'?[200,160]:[cen[k][0]/cen[k][2],cen[k][1]/cen[k][2]]; SL3[k].sort((p,q)=>k==='o'?Math.hypot(q[0]-c[0],q[1]-c[1])-Math.hypot(p[0]-c[0],p[1]-c[1]):Math.hypot(p[0]-c[0],p[1]-c[1])-Math.hypot(q[0]-c[0],q[1]-c[1])); });
+})();
+const V3S=[[n=>n%2===0,n=>n%3===0,n=>n%5===0],[n=>24%n===0,n=>n%2===0,n=>n%3===0]];
+const A3=()=>new Set(U3.filter(k=>k.includes('a'))), B3=()=>new Set(U3.filter(k=>k.includes('b'))), C3=()=>new Set(U3.filter(k=>k.includes('c')));
+const EX3=[['A ∩ B ∩ C',()=>I(I(A3(),B3()),C3())],['A ∩ B ∩ C′',()=>I(I(A3(),B3()),Cm(C3(),U3))],['A ∩ C',()=>I(A3(),C3())],['(A ∪ B ∪ C)′',()=>Cm(Un(Un(A3(),B3()),C3()),U3)],['A ∩ B′ ∩ C′',()=>I(I(A3(),Cm(B3(),U3)),Cm(C3(),U3))],['C′',()=>Cm(C3(),U3)],['A ∪ B',()=>Un(A3(),B3())],['A′ ∩ B ∩ C',()=>I(I(Cm(A3(),U3),B3()),C3())],
+  ['A',A3],['B',B3],['C',C3],['A ∩ B',()=>I(A3(),B3())],['B ∩ C',()=>I(B3(),C3())],['A ∪ B ∪ C',()=>Un(Un(A3(),B3()),C3())],['A′ ∩ B′ ∩ C',()=>I(I(Cm(A3(),U3),Cm(B3(),U3)),C3())],['A′ ∩ B ∩ C′',()=>I(I(Cm(A3(),U3),B3()),Cm(C3(),U3))],['A ∩ B′ ∩ C',()=>I(I(A3(),Cm(B3(),U3)),C3())],['(A ∩ B ∩ C)′',()=>Cm(I(I(A3(),B3()),C3()),U3)],['ξ',()=>new Set(U3)]];
+let v3Sel=new Set(['ab']);
+function v3Fill(k,col,op){
+  const R=`x="${G3.x}" y="${G3.y}" width="${G3.w}" height="${G3.h}"`;
+  let inner=`<rect ${R} fill="${col}" fill-opacity="${op}"/>`;
+  ['a','b','c'].forEach(c=>{ if(k.includes(c)) inner=`<g clip-path="url(#v3c${c})">${inner}</g>`; });
+  return k==='abc'?inner:`<g mask="url(#v3m${k})">${inner}</g>`;
+}
+function drawV3(){
+  const fn=V3S[+$('v3S').value], hi=css('--hi'), fg=css('--fg'), ac=css('--accent'), tw=css('--two'), mu=css('--muted');
+  const R=`x="${G3.x}" y="${G3.y}" width="${G3.w}" height="${G3.h}"`, circ=c=>`cx="${G3[c+'x']}" cy="${G3[c+'y']}" r="${G3.r}"`;
+  let s='<defs>'+['a','b','c'].map(c=>`<clipPath id="v3c${c}"><circle ${circ(c)}/></clipPath>`).join('');
+  U3.filter(k=>k!=='abc').forEach(k=>{ s+=`<mask id="v3m${k}" maskUnits="userSpaceOnUse" ${R}><rect ${R} fill="white"/>`+['a','b','c'].filter(c=>!k.includes(c)).map(c=>`<circle ${circ(c)} fill="black"/>`).join('')+`</mask>`; });
+  s+='</defs>';
+  [...v3Sel].forEach(k=>s+=v3Fill(k,hi,.32));
+  s+=`<rect ${R} rx="6" fill="none" stroke="${mu}" stroke-width="1.5"/><text x="${G3.x+10}" y="${G3.y+20}" font-size="15" font-weight="600" ${F()} fill="${mu}">ξ</text>`;
+  [['a',ac,'A',G3.ax-G3.r*0.8,G3.ay-G3.r*0.8+4],['b',tw,'B',G3.bx+G3.r*0.8,G3.by-G3.r*0.8+4],['c',mu,'C',G3.cx,G3.cy+G3.r+14]].forEach(([c,col,lab,lx,ly])=>{ s+=`<circle ${circ(c)} fill="none" stroke="${col}" stroke-width="2.6"/><text x="${lx}" y="${ly}" text-anchor="middle" font-size="16" font-weight="700" ${F()} fill="${col}">${lab}</text>`; });
+  const idx={}, mem=[]; U3.forEach(k=>idx[k]=0);
+  for(let n=1;n<=30;n++){ let k=''; if(fn[0](n)) k+='a'; if(fn[1](n)) k+='b'; if(fn[2](n)) k+='c'; k=k||'o'; const L=SL3[k], p=L[Math.min(idx[k]++,L.length-1)], on=v3Sel.has(k); if(on) mem.push(n);
+    s+=`<text x="${p[0]}" y="${p[1]+5}" text-anchor="middle" font-size="13.5" font-weight="${on?700:500}" ${F()} fill="${on?hi:fg}" pointer-events="none">${n}</text>`; }
+  $('v3Svg').innerHTML=s;
+  const nm=EX3.filter(([,f])=>same(f(),v3Sel)).map(e=>e[0]);
+  $('v3Name').textContent=nm.length?nm.join('  =  '):(v3Sel.size?'(a combination of regions)':'tap regions to shade');
+  $('v3Set').textContent=`{${mem.join(', ')}}, n = ${mem.length}`;
+  $('v3P').textContent=`P = ${fracW(mem.length,30)}`;
+  $('v3Chips').querySelectorAll('button').forEach(b=>b.classList.toggle('on',nm.includes(b.dataset.k)));
+}
+EX3.slice(0,8).forEach(([k,f])=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=k; b.dataset.k=k; b.addEventListener('click',()=>{ v3Sel=new Set(f()); drawV3(); }); $('v3Chips').appendChild(b); });
+$('v3Svg').addEventListener('click',e=>{ const [x,y]=svgPt($('v3Svg'),e,400,316); if(x<G3.x||x>G3.x+G3.w||y<G3.y||y>G3.y+G3.h) return; const k=k3(x,y); if(v3Sel.has(k)) v3Sel.delete(k); else v3Sel.add(k); drawV3(); });
+$('v3S').addEventListener('input',drawV3);
+drawV3();
+
+const redrawAll=()=>{ drawLS(); drawVN(); drawBD(); drawRG(); drawFQ(); drawPV(); $('pqSvg').innerHTML=vDefs('pq',GV)+vFrame(GV,'A','B')+vText(pq.sv,null,18); drawAL(); drawV3(); };
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll); }
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'ξ = {1, 2, …, 10} and A = {2, 3, 5, 7}. Which statement is true?',opts:['9 ∉ A','5 ∉ A','n(A) = 5','2 ∉ A'],a:0,fb:'9 is not in the list, so 9 ∉ A. 5 and 2 are in A, and n(A) = 4.'},
+  {q:'A = {1, 2, 3, 4} and B = {3, 4, 5}. A ∩ B = ?',opts:['{3, 4}','{1, 2, 3, 4, 5}','{1, 2}','{5}'],a:0,fb:'∩ means in both: 3 and 4. {1, 2, 3, 4, 5} is A ∪ B.'},
+  {q:'Three-set Venn diagram (Higher): which region is A ∩ B ∩ C′?',opts:['in A and B but not C','in A, B and C','in C only','in A or B but not C'],a:0,fb:'In A, and in B, and not in C: the A–B overlap outside circle C.'},
+  {q:'ξ = {1, 2, …, 8} and A = {1, 2, 3}. n(A′) = ?',opts:['5','3','8','4'],a:0,fb:'A′ = {4, 5, 6, 7, 8}, which has 5 elements. n(A′) = n(ξ) − n(A) = 8 − 3.'},
+  {q:'Which region is A′ ∩ B?',opts:['in B but not in A','in A but not in B','outside both circles','in both A and B'],a:0,fb:'Not in A, and in B: the part of B outside A ("B only").'},
+  {q:'(A ∪ B)′ is the same as…',opts:['A′ ∩ B′','A′ ∪ B′','A ∩ B','A′ ∩ B'],a:0,fb:'Outside both circles means not in A and not in B. A′ ∪ B′ is everything except the overlap.'},
+  {q:'n(ξ) = 40, n(A) = 18, n(B) = 15 and n((A ∪ B)′) = 12. n(A ∩ B) = ?',opts:['5','7','33','12'],a:0,fb:'n(A ∪ B) = 40 − 12 = 28. n(A ∩ B) = 18 + 15 − 28 = 5. (7 = 40 − 18 − 15 ignores the outside region.)'},
+  {q:'A Venn diagram shows P(A only) = 0.3, P(A ∩ B) = 0.1 and P(B only) = 0.25. P((A ∪ B)′) = ?',opts:['0.35','0.65','0.45','0.6'],a:0,fb:'Everything adds to 1: 1 − (0.3 + 0.1 + 0.25) = 1 − 0.65 = 0.35.'},
+  {q:'Same diagram (Higher). P(A | B) = ?',opts:['2/7','1/4','0.1','1/3'],a:0,fb:'Inside B: 0.1 + 0.25 = 0.35. P(A | B) = 0.1 ÷ 0.35 = 10/35 = 2/7. (1/4 = 0.1 ÷ 0.4 is P(B | A).)'},
+  {q:'(Higher) A only = 2x, A ∩ B = x, B only = x + 3, outside = 5, and n(ξ) = 40. x = ?',opts:['8','10','12','6.5'],a:0,fb:'2x + x + x + 3 + 5 = 40, so 4x + 8 = 40, 4x = 32, x = 8.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

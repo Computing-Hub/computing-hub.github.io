@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Conditional Probability</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one or more interactive panels (number tiles, two-way tables with a dot picture, Venn diagrams, tree diagrams, bar models and a frequency tree, all drawn from JS), plus typed "try it" inputs. Graph-paper neutrals. Colours on this page: teal = the GIVEN set B, the new smaller "whole" you are choosing from (teal outlines, teal-tinted cells and regions, the teal part of a bar); orange = the outcomes you want inside the given set, A and B (orange tiles, cells, regions, dots, paths, bar segments); plum = Venn circle outlines and labels, event A outside the given set, and the second-stage branches of a tree; faded/muted = everything ruled out by "given that". Green/red text is only right/wrong feedback. The orange "Higher" pill marks Higher-tier-only content: the whole page is Higher tier. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.4rem;position:relative;top:-.15em}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+h1 .tag{font-size:.8rem;top:-.4em}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.A{color:var(--two);font-weight:600}.G{color:var(--accent);font-weight:600}.E{color:var(--hi);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none}
+.tap [data-i]{cursor:pointer}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);max-width:100%}
+input[type=range]{accent-color:var(--accent);width:150px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+input.good{border-color:var(--good);box-shadow:0 0 0 1px var(--good)}
+input.bad{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad)}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn:disabled{opacity:.45;cursor:default}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--hi);background:var(--hi-soft);color:var(--hi);font-weight:600}
+button.btn.gv{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem;align-items:center}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.chips .cl{font-size:.85rem;color:var(--muted);margin-right:.2rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout>div{min-width:0;overflow-wrap:anywhere}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.3rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.05rem;font-weight:500;margin:.4rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:.95rem;line-height:1.8;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tbl{overflow-x:auto}
+table.tw{font-family:var(--mono);table-layout:fixed}
+table.tw th,table.tw td{text-align:center;padding:.35rem .15rem;vertical-align:middle}
+table.tw th{font:600 .7rem var(--body);letter-spacing:.04em}
+table.tw th:first-child{text-align:left;width:22%}
+table.tw td.tot{font-weight:600;background:var(--bg)}
+table.tw td.giv{background:var(--accent-soft);color:var(--accent);font-weight:600}
+table.tw td.want{background:var(--hi-soft);color:var(--hi);font-weight:700;box-shadow:inset 0 0 0 2px var(--hi)}
+table.tw td.out{opacity:.35}
+table.tw input{width:100%;max-width:3.6em;padding:.2rem .2rem;text-align:center;font-size:.95rem}
+.tq{border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem}
+.tq p{margin:.2rem 0 .4rem}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line);overflow-wrap:anywhere}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.recap{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.9rem 1.1rem;margin:1.5rem 0}
+.recap p{margin:.3rem 0}.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a,main a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Probability</div>
+  <h1>Conditional Probability <span class="tag g">Higher</span></h1>
+  <p class="lede">"Given that it's raining, what's the chance the bus is late?" Once you know something has happened, some outcomes are ruled out and the chances change. Conditional probability is about <em>shrinking the whole</em> to just the outcomes that are still possible, then counting again.</p>
+  <span class="gcse">GCSE subject content (Higher tier): calculate and interpret conditional probabilities through representation using expected frequencies with two-way tables, tree diagrams and Venn diagrams</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start</strong></p>
+  <ul>
+    <li>P(event) = outcomes you want ÷ all outcomes, and two-way tables and Venn diagrams with frequencies: <a href="../ks3-interactive/sample-spaces-venn-diagrams.html">sample spaces and Venn diagrams</a>. Notice the KS3 trap there: "a girl is picked" means divide by the girls' total. That was conditional probability in disguise.</li>
+    <li>Tree diagrams: multiply along, add the ends; without replacement the second stage changes. See <a href="tree-diagrams.html">tree diagrams and combined events</a>.</li>
+    <li>Set notation: A ∩ B (A and B), A ∪ B (A or B), A′ (not A). See <a href="venn-diagrams-set-notation.html">Venn diagrams and set notation</a>.</li>
+  </ul>
+</div>
+
+<h2>1 · "Given that" shrinks the whole <span class="tag g">Higher</span></h2>
+<p>Your friend rolls a dice, hides it, and tells you "it's even". What's the probability it's a 6? Before she spoke it was 1/6. But now 1, 3 and 5 are impossible. Only 2, 4 and 6 are left, all equally likely, so it's <strong>1/3</strong>. The extra information shrank the "whole" from 6 outcomes to 3.</p>
+<p>We write this <span class="m">P(A | B)</span>, said "the probability of A <strong>given</strong> B". The bar | means "given that". B is the thing you know happened, the <strong>condition</strong>. To find it: throw away everything outside <span class="G">B</span>, then count how much of what's left is also in A:</p>
+<p class="big">P(A | B) = <span class="E">n(A ∩ B)</span> ÷ <span class="G">n(B)</span></p>
+<p>A number from 1 to 20 is picked at random. Choose what you're told (the condition) and what you want. Watch the tiles outside the condition fade away.</p>
+
+<div class="lab">
+  <div class="chips" id="giChipsB"><span class="cl">given B:</span></div>
+  <div class="chips" id="giChipsA"><span class="cl">want A:</span></div>
+  <svg id="giSvg" viewBox="0 0 400 104" width="400" height="104" aria-label="Numbers 1 to 20 with the condition highlighted"></svg>
+  <div class="readout">
+    <div class="p"><b>P(A), no information</b><span id="giPA"></span></div>
+    <div class="t"><b>P(A | B)</b><span id="giPAB"></span></div>
+  </div>
+  <div class="work" id="giWork"></div>
+</div>
+
+<h2>2 · From a two-way table <span class="tag g">Higher</span></h2>
+<p>A two-way table already sorts people into groups, so conditional probability is just choosing the right <em>total</em> to divide by. "Given that the student is a girl" means you only look at the <span class="G">girls' row</span>: its total becomes the bottom of the fraction. The top is the cell where that row meets what you want.</p>
+<p>Here are 200 students and their favourite subject. Choose the condition and the event. The table and the dot picture (one dot per student) fade out everyone ruled out by the condition.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>given <select id="ttG"></select></label>
+    <label>want <select id="ttE"></select></label>
+    <button class="btn" id="ttSwap">Swap them round</button>
+  </div>
+  <div class="tbl"><table class="tw" id="ttTable"></table></div>
+  <svg id="ttSvg" viewBox="0 0 400 168" width="400" height="168" aria-label="Every student as a dot"></svg>
+  <div class="work" id="ttWork"></div>
+</div>
+
+<div class="lab">
+  <p class="pq" id="tqQ"></p>
+  <div class="controls">
+    <label>P = <input type="text" id="tqA" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="tqGo">Check</button>
+    <button class="btn" id="tqNew">New question</button>
+  </div>
+  <div class="msg" id="tqMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Read who is being picked.</strong> "A student is picked. Find P(girl and Art)" divides by everyone (200). "A girl is picked. Find P(Art)" divides by the girls (115). "A student who likes Art is picked. Find P(girl)" divides by the Art column (70). Same top number, three different bottoms.</p>
+</div>
+
+<h2>3 · From a Venn diagram <span class="tag g">Higher</span></h2>
+<p>Exactly the same idea. "Given B" means you only look inside <span class="G">circle B</span>. Add up the numbers inside B: that's the bottom. The top is the part of B that is also in A, the overlap. Choose a conditional probability and the diagram shades the new whole in teal and the part you want in orange.</p>
+
+<div class="lab">
+  <svg id="vnSvg" viewBox="0 0 400 260" width="400" height="260" aria-label="Venn diagram with frequencies"></svg>
+  <div class="chips" id="vnChips"></div>
+  <div class="controls"><button class="btn" id="vnNew">New numbers</button></div>
+  <div class="work" id="vnWork"></div>
+</div>
+
+<div class="lab">
+  <p class="pq" id="vqQ"></p>
+  <svg id="vqSvg" viewBox="0 0 400 260" width="400" height="260" aria-label="Venn diagram for the question"></svg>
+  <div class="controls">
+    <label>P = <input type="text" id="vqA" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="vqGo">Check</button>
+    <button class="btn" id="vqNew">New question</button>
+  </div>
+  <div class="msg" id="vqMsg"></div>
+</div>
+
+<h2>4 · From a tree diagram <span class="tag g">Higher</span></h2>
+<p>You've been using conditional probabilities on trees all along. The second-stage branches after R are probabilities <em>given that R happened</em>: they are <span class="m">P(L | R)</span> and <span class="m">P(L′ | R)</span>. When the second stage depends on the first, the branches after R and after R′ are different.</p>
+<p>Here R is "it rains" and L is "the bus is late". Set the probabilities. The AND rule now reads <span class="m">P(R and L) = P(R) × P(L | R)</span>.</p>
+<p>The harder exam question goes <strong>backwards</strong>: "Given that the bus was late, what's the probability it rained?" That's <span class="m">P(R | L)</span>, and it is not on any branch. Shrink the whole to the <span class="G">paths where L happened</span> (teal), then ask what fraction of that is the <span class="E">rain path</span> (orange).</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>P(R) <input type="range" id="trA" min="1" max="9" value="3"><span id="trAv" style="font-family:var(--mono)"></span></label>
+    <label>P(L | R) <input type="range" id="trP" min="1" max="9" value="6"><span id="trPv" style="font-family:var(--mono)"></span></label>
+    <label>P(L | R′) <input type="range" id="trQ" min="1" max="9" value="2"><span id="trQv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="trSvg" viewBox="0 0 400 270" width="400" height="270" aria-label="Tree diagram with conditional branches"></svg>
+  <div class="chips" id="trChips"></div>
+  <div class="work" id="trWork"></div>
+</div>
+
+<div class="lab">
+  <p class="pq" id="rqQ"></p>
+  <div class="controls">
+    <label>P = <input type="text" id="rqA" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="rqGo">Check</button>
+    <button class="btn" id="rqNew">New question</button>
+  </div>
+  <div class="msg" id="rqMsg"></div>
+</div>
+
+<h2>5 · The formula P(A | B) = P(A ∩ B) ÷ P(B) <span class="tag g">Higher</span></h2>
+<p>Sometimes you only have probabilities, not counts. Counting gave P(A | B) = n(A ∩ B) ÷ n(B). Divide the top and the bottom by the total N, and nothing changes, but each part becomes a probability:</p>
+<p class="big">P(A | B) = P(A ∩ B) ÷ P(B)</p>
+<p>Picture the whole sample space as a bar of length 1. B is the teal part; A ∩ B is the orange part inside it. "Given B" means <em>zoom in</em> until B fills the whole bar. The orange part is now P(A | B).</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>P(B) <input type="range" id="fmB" min="2" max="20" value="8"><span id="fmBv" style="font-family:var(--mono)"></span></label>
+    <label>P(A ∩ B) <input type="range" id="fmAB" min="0" max="20" value="2"><span id="fmABv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="fmSvg" viewBox="0 0 400 170" width="400" height="170" aria-label="Bar model of the formula"></svg>
+  <div class="work" id="fmWork"></div>
+</div>
+
+<div class="lab">
+  <p class="pq" id="fqQ"></p>
+  <div class="controls">
+    <label>answer = <input type="text" id="fqA" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="fqGo">Check</button>
+    <button class="btn" id="fqNew">New question</button>
+  </div>
+  <div class="msg" id="fqMsg"></div>
+</div>
+
+<p>Rearranged, the formula is the AND rule for dependent events: <span class="m">P(A ∩ B) = P(B) × P(A | B)</span>. That's exactly "multiply along the branches" on a tree.</p>
+
+<h2>6 · Testing for independence <span class="tag g">Higher</span></h2>
+<p>If knowing B tells you <em>nothing</em> about A, the condition doesn't change anything: <span class="m">P(A | B) = P(A)</span>. That is the precise meaning of <strong>independent</strong>. (Equivalently, P(A ∩ B) = P(A) × P(B).) If P(A | B) is different from P(A), B is giving you information, so the events are dependent.</p>
+<p>Below, A is "wears glasses" and B is "is left-handed". Type any numbers in the table. The bars compare P(A) for everyone with P(A | B) for the left-handers and P(A | B′) for everyone else.</p>
+
+<div class="lab">
+  <div class="tbl"><table class="tw" id="inTable"></table></div>
+  <svg id="inSvg" viewBox="0 0 400 150" width="400" height="150" aria-label="Comparing P(A) with P(A | B)"></svg>
+  <div class="chips"><button class="btn" id="inInd">An independent example</button><button class="btn" id="inDep">A dependent example</button></div>
+  <div class="work" id="inWork"></div>
+</div>
+
+<h2>7 · The classic trap: P(A | B) ≠ P(B | A) <span class="tag g">Higher</span></h2>
+<p>"The probability a footballer is a girl" and "the probability a girl is a footballer" sound alike but divide by different groups. Mixing them up is the most common conditional-probability mistake, and it has real consequences. The famous example is medical testing.</p>
+<p>A disease affects a small percentage of people. A test is good at spotting it, but sometimes says "positive" for healthy people too (a <strong>false positive</strong>). You test positive. How worried should you be? Don't use percentages; use <strong>natural frequencies</strong>: imagine 10 000 people and count.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>have the disease <input type="range" id="mdP" min="1" max="10" value="1"><span id="mdPv" style="font-family:var(--mono)"></span></label>
+    <label>positive if ill <input type="range" id="mdS" min="50" max="100" step="5" value="90"><span id="mdSv" style="font-family:var(--mono)"></span></label>
+    <label>positive if healthy <input type="range" id="mdF" min="1" max="20" value="5"><span id="mdFv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="mdSvg" viewBox="0 0 400 348" width="400" height="348" aria-label="Frequency tree for a medical test"></svg>
+  <div class="readout">
+    <div class="p"><b>P(positive | ill)</b><span id="mdR1"></span></div>
+    <div class="t"><b>P(ill | positive)</b><span id="mdR2"></span></div>
+  </div>
+  <div class="work" id="mdWork"></div>
+</div>
+
+<p>With the starting numbers, the test catches 90% of ill people, yet a positive result means only about a 15% chance you're ill. The healthy group is so much bigger that its 5% of false positives outnumber all the true positives. Doctors confirm with a second test for exactly this reason.</p>
+<p>Now practise telling the two apart. For each sentence, which probability is it?</p>
+
+<div class="lab">
+  <div id="whList"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes and exam traps</strong></p>
+  <ul>
+    <li><strong>Dividing by the grand total.</strong> That's P(A ∩ B), not P(A | B). "Given", "of those who", "if the person is" all mean: divide by the condition's total.</li>
+    <li><strong>Swapping A and B.</strong> P(A | B) divides by B; P(B | A) divides by A. Say it in words before you calculate.</li>
+    <li><strong>Reading the "backwards" answer off a tree.</strong> P(R | L) is not on a branch. Find P(L) from <em>all</em> L paths, then divide.</li>
+    <li><strong>Forgetting regions in a Venn diagram.</strong> n(B) is everything inside circle B, including the overlap. n(B′) includes the outside.</li>
+    <li><strong>Assuming independence.</strong> Only call events independent if P(A | B) = P(A) (or the question says so).</li>
+  </ul>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Use the 200-student table: find P(Art | girl) and P(girl | Art).</summary>
+  <div class="step"><strong>The table:</strong> girls: Maths 32, Art 48, Music 35, total 115. Art column: boys 22, girls 48, total 70.</div>
+  <div class="step"><strong>P(Art | girl):</strong> only girls are possible, so divide by the girls' total. P = 48/115. (It doesn't simplify: 48 = 2⁴ × 3 and 115 = 5 × 23.)</div>
+  <div class="step"><strong>P(girl | Art):</strong> only Art-lovers are possible, so divide by the Art total: 48/70 = <strong>24/35</strong>.</div>
+  <div class="step"><strong>Notice:</strong> same top, different bottoms, different answers: 48/115 ≈ 0.417 but 24/35 ≈ 0.686.</div>
+</details>
+<details>
+  <summary>50 people were asked: 23 drink tea (T), 18 drink coffee (C) and 7 drink both. Find P(T | C) and P(C | T′).</summary>
+  <div class="step"><strong>Fill the Venn diagram from the middle:</strong> T ∩ C = 7; T only = 23 − 7 = 16; C only = 18 − 7 = 11; neither = 50 − (16 + 7 + 11) = 50 − 34 = 16.</div>
+  <div class="step"><strong>P(T | C):</strong> inside circle C there are 7 + 11 = 18 people. Of these, 7 also drink tea. P = <strong>7/18</strong>.</div>
+  <div class="step"><strong>P(C | T′):</strong> T′ is everyone outside circle T: C only (11) and neither (16), 27 people. Of these, 11 drink coffee. P = <strong>11/27</strong>.</div>
+</details>
+<details>
+  <summary>P(rain) = 0.3. If it rains, P(bus late) = 0.6; if not, P(bus late) = 0.2. The bus was late. Find the probability that it rained.</summary>
+  <div class="step"><strong>Tree paths with L:</strong> R and L: 0.3 × 0.6 = 0.18. R′ and L: 0.7 × 0.2 = 0.14.</div>
+  <div class="step"><strong>P(L):</strong> add every path where the bus is late: 0.18 + 0.14 = 0.32.</div>
+  <div class="step"><strong>P(R | L) = P(R ∩ L) ÷ P(L)</strong> = 0.18 ÷ 0.32 = 18/32 = <strong>9/16</strong> (= 0.5625).</div>
+  <div class="step"><strong>Sense check:</strong> rain only happens 30% of the time, but late buses are mostly rainy-day buses, so the chance goes up to over a half.</div>
+</details>
+<details>
+  <summary>P(A) = 0.5, P(B) = 0.4 and P(A ∩ B) = 0.2. Find P(A | B) and decide whether A and B are independent.</summary>
+  <div class="step"><strong>Formula:</strong> P(A | B) = P(A ∩ B) ÷ P(B) = 0.2 ÷ 0.4 = <strong>0.5</strong>.</div>
+  <div class="step"><strong>Compare:</strong> P(A | B) = 0.5 = P(A). Knowing B doesn't change the probability of A.</div>
+  <div class="step"><strong>So A and B are independent.</strong> Check the other way: P(A) × P(B) = 0.5 × 0.4 = 0.2 = P(A ∩ B) ✓.</div>
+</details>
+<details>
+  <summary>A bag has 5 red and 3 blue counters. Two are taken without replacement. Given that at least one is red, find the probability that both are red.</summary>
+  <div class="step"><strong>Tree:</strong> RR = 5/8 × 4/7 = 20/56; RB = 5/8 × 3/7 = 15/56; BR = 3/8 × 5/7 = 15/56; BB = 3/8 × 2/7 = 6/56.</div>
+  <div class="step"><strong>The condition, "at least one red":</strong> RR, RB and BR. P = 20/56 + 15/56 + 15/56 = 50/56. (Or 1 − 6/56.)</div>
+  <div class="step"><strong>Both red and at least one red</strong> is just RR: 20/56.</div>
+  <div class="step"><strong>Divide:</strong> P(both red | at least one red) = (20/56) ÷ (50/56) = 20/50 = <strong>2/5</strong>. The 56ths cancel, so you can divide the numerators.</div>
+</details>
+<details>
+  <summary>1% of people have a disease. A test is positive for 90% of people with it, and for 5% of people without it. Someone tests positive. Find the probability that they have the disease.</summary>
+  <div class="step"><strong>Imagine 10 000 people.</strong> 1% = 100 are ill; 9900 are healthy.</div>
+  <div class="step"><strong>Ill and positive:</strong> 90% of 100 = 90. <strong>Healthy and positive:</strong> 5% of 9900 = 495.</div>
+  <div class="step"><strong>Everyone positive:</strong> 90 + 495 = 585.</div>
+  <div class="step"><strong>P(ill | positive)</strong> = 90/585 = <strong>2/13</strong> ≈ 0.154. Not 0.9: that's P(positive | ill).</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li><strong>P(A | B)</strong> means "the probability of A, given that B has happened". The condition B becomes the new whole.</li>
+  <li>From counts: <strong>P(A | B) = n(A ∩ B) ÷ n(B)</strong>. In a two-way table, divide by the condition's row or column total; in a Venn diagram, by everything inside the condition's region.</li>
+  <li>From probabilities: <strong>P(A | B) = P(A ∩ B) ÷ P(B)</strong>, and so P(A ∩ B) = P(B) × P(A | B).</li>
+  <li>On a tree, second-stage branches are conditional probabilities. To go backwards, add every path for the condition, then divide.</li>
+  <li>A and B are <strong>independent</strong> exactly when P(A | B) = P(A).</li>
+  <li><strong>P(A | B) is usually not P(B | A).</strong> Natural frequencies (imagine 10 000 people) make problems like false positives easy to reason about.</li>
+</ul>
+
+<footer>Made for GCSE students. Conditional probability is in the DfE GCSE mathematics subject content under Probability (Higher tier). <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const F = () => `font-family="${css('--mono')}"`;
+const gcd = (a,b) => b ? gcd(b,a%b) : Math.abs(a);
+const frac = (n,d) => { if(n===0) return '0'; if(n===d) return '1'; const g=gcd(n,d); return `${n/g}/${d/g}`; };
+const fracW = (n,d) => { const s=frac(n,d); return s===`${n}/${d}` ? s : `${n}/${d} = ${s}`; };
+const dec = (n,d) => { const k=Math.round(Math.log10(d)); let s=(n/d).toFixed(k); if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,''); return s; };
+const sf3 = v => { if(v===0) return '0'; if(v===1) return '1'; return String(+v.toPrecision(3)); };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+function parseFrac(s){
+  s=String(s).trim().replace(/−/g,'-').replace(/\s+/g,'');
+  const m=s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
+  if(m){ const d=+m[2]; return d ? {v:+m[1]/d,n:+m[1],d:d,f:true} : null; }
+  if(/^-?(\d+\.?\d*|\.\d+)$/.test(s)) return {v:+s,f:false};
+  return null;
+}
+/* judge: exact match, or a decimal rounded to at least 3 s.f. (tol) */
+function judge(str,n,d,wrongs,tail){
+  const p=parseFrac(str);
+  if(!p) return {ok:false,msg:'Type a fraction such as 3/20 or a decimal.'};
+  const v=n/d, exact=Math.abs(p.v-v)<1e-9, close=!p.f&&v!==0&&Math.abs(p.v-v)/v<0.0021&&String(p.v).replace(/^0\.0*/,'').length>=3;
+  if(exact||close){ const s=frac(n,d); return {ok:true,msg:exact?((p.f&&`${p.n}/${p.d}`!==s)?`Correct. ${p.n}/${p.d} simplifies to ${s}.`:`Correct: ${s}`+(s.indexOf('/')>0?` ≈ ${sf3(v)}.`:'.')):`Correct to 3 s.f. Exactly, it's ${s}.`}; }
+  if(p.v>1) return {ok:false,msg:'Not quite. A probability can never be more than 1. Did you divide the wrong way up?'};
+  for(const [wn,wd,m] of (wrongs||[])){ if(wd && Math.abs(wn/wd-v)>1e-9 && Math.abs(p.v-wn/wd)<1e-9) return {ok:false,msg:'Not quite. '+m}; }
+  return {ok:false,msg:'Not quite. '+(tail||'Shrink the whole to the condition, then count what you want inside it.')};
+}
+
+/* 1. numbers 1 to 20 */
+const SQ=[1,4,9,16], PR=[2,3,5,7,11,13,17,19];
+const GB=[['even',n=>n%2===0],['a multiple of 3',n=>n%3===0],['more than 12',n=>n>12],['prime',n=>PR.includes(n)],['anything (no information)',()=>true]];
+const GA=[['a multiple of 4',n=>n%4===0],['odd',n=>n%2===1],['a square number',n=>SQ.includes(n)],['less than 10',n=>n<10],['a multiple of 5',n=>n%5===0]];
+let giB=0, giA=0;
+function giChips(){
+  [['giChipsB',GB,'gv',()=>giB,v=>giB=v],['giChipsA',GA,'on',()=>giA,v=>giA=v]].forEach(([id,L,cls,get,set])=>{
+    const box=$(id); box.querySelectorAll('button').forEach(b=>b.remove());
+    L.forEach(([nm],i)=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=nm; b.dataset.i=i; b.dataset.c=cls; b.addEventListener('click',()=>{ set(i); drawGI(); }); box.appendChild(b); }); });
+}
+function drawGI(){
+  const fB=GB[giB][1], fA=GA[giA][1], ac=css('--accent'), hi=css('--hi'), tw=css('--two'), mu=css('--muted');
+  let s=`<text x="4" y="12" font-size="11" ${F()} fill="${mu}">ξ = {1, 2, …, 20}</text>`;
+  const inB=[], inAB=[], inA=[];
+  for(let n=1;n<=20;n++){ const b=fB(n), a=fA(n), x=6+((n-1)%10)*39, y=20+Math.floor((n-1)/10)*42;
+    if(b) inB.push(n); if(a) inA.push(n); if(a&&b) inAB.push(n);
+    const fill=a&&b?css('--hi-soft'):b?css('--accent-soft'):css('--bg'), st=a&&b?hi:b?ac:css('--line'), tc=a&&b?hi:b?css('--fg'):(a?tw:mu);
+    s+=`<g opacity="${b?1:0.3}"><rect x="${x}" y="${y}" width="35" height="36" rx="6" fill="${fill}" stroke="${st}" stroke-width="${b?2:1.2}"/><text x="${x+17.5}" y="${y+23}" text-anchor="middle" font-size="15" font-weight="${a?700:400}" ${F()} fill="${tc}">${n}</text></g>`; }
+  $('giSvg').innerHTML=s;
+  const nmB=GB[giB][0], nmA=GA[giA][0];
+  $('giPA').textContent=`${inA.length}/20`+(frac(inA.length,20)!==`${inA.length}/20`?` = ${frac(inA.length,20)}`:'');
+  $('giPAB').textContent=fracW(inAB.length,inB.length);
+  $('giWork').innerHTML=`<span class="a">Given B (${nmB})</span>: only ${inB.length===20?'all 20 numbers':`{${inB.join(', ')}}`} are possible, so the new whole is <span class="a">${inB.length}</span>.<br><span class="b">A ∩ B</span> (${nmA} and ${nmB}): ${inAB.length?`{${inAB.join(', ')}}`:'none'}, that's <span class="b">${inAB.length}</span>.<br>P(${nmA} | ${nmB}) = ${inAB.length}/${inB.length}${frac(inAB.length,inB.length)!==`${inAB.length}/${inB.length}`?' = '+frac(inAB.length,inB.length):''}. `+
+    (giB===4?'With no information, P(A | ξ) is just P(A).':Math.abs(inAB.length/inB.length-inA.length/20)<1e-9?'Same as P(A): this condition gives no information about A. They are independent.':inAB.length/inB.length>inA.length/20?'Bigger than P(A): knowing B makes A more likely.':'Smaller than P(A): knowing B makes A less likely.');
+  $('giChipsB').querySelectorAll('button').forEach(b=>b.classList.toggle('gv',+b.dataset.i===giB));
+  $('giChipsA').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.i===giA));
+}
+giChips(); drawGI();
+
+/* 2. two-way table */
+const TT={rows:['Boys','Girls'],rs:['boy','girl'],cols:['Maths','Art','Music'],v:[[38,22,25],[32,48,35]]};
+const ttRT=r=>TT.v[r].reduce((a,b)=>a+b,0), ttCT=c=>TT.v[0][c]+TT.v[1][c], TN=ttRT(0)+ttRT(1);
+const ttG=$('ttG'), ttE=$('ttE');
+const ttOpts=[['r0','a boy'],['r1','a girl'],['c0','likes Maths'],['c1','likes Art'],['c2','likes Music']];
+const ttName=k=>k[0]==='r'?TT.rs[+k[1]]:TT.cols[+k[1]];
+ttOpts.forEach(([k,t])=>ttG.add(new Option(t,k))); ttG.value='r1';
+function ttFillE(keep){ const g=ttG.value, old=ttE.value; ttE.innerHTML=''; ttOpts.filter(([k])=>k[0]!==g[0]).forEach(([k,t])=>ttE.add(new Option(t,k))); if(keep&&[...ttE.options].some(o=>o.value===old)) ttE.value=old; else if(g==='r1') ttE.value='c1'; }
+function ttCell(g,e){ const r=g[0]==='r'?+g[1]:+e[1], c=g[0]==='c'?+g[1]:+e[1]; return [r,c]; }
+function drawTT(){
+  const g=ttG.value, e=ttE.value, [wr,wc]=ttCell(g,e), gr=g[0]==='r', gi=+g[1];
+  const inG=(r,c)=>gr?r===gi:c===gi;
+  let h='<tr><th></th>'+TT.cols.map(c=>`<th>${c}</th>`).join('')+'<th>Total</th></tr>';
+  for(let r=0;r<2;r++){ h+=`<tr><th>${TT.rows[r]}</th>`; for(let c=0;c<3;c++){ const cl=r===wr&&c===wc?'want':inG(r,c)?'giv':'out'; h+=`<td class="${cl}">${TT.v[r][c]}</td>`; } h+=`<td class="tot ${gr&&r===gi?'giv':''}">${ttRT(r)}</td></tr>`; }
+  h+=`<tr><th>Total</th>`+[0,1,2].map(c=>`<td class="tot ${!gr&&c===gi?'giv':''}">${ttCT(c)}</td>`).join('')+`<td class="tot">${TN}</td></tr>`;
+  $('ttTable').innerHTML=h;
+  const mu=css('--line'), ac=css('--accent'), hi=css('--hi'); let s='';
+  TT.cols.forEach((c,j)=>s+=`<text x="${62+j*112+50}" y="14" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${css('--muted')}">${c}</text>`);
+  for(let r=0;r<2;r++){ const y0=24+r*72; s+=`<text x="2" y="${y0+16}" font-size="12" font-weight="600" ${F()} fill="${css('--muted')}">${TT.rows[r]}</text>`;
+    for(let c=0;c<3;c++) for(let k=0;k<TT.v[r][c];k++){ const x=62+c*112+(k%10)*10+5, y=y0+Math.floor(k/10)*10+5, col=r===wr&&c===wc?hi:inG(r,c)?ac:mu; s+=`<circle cx="${x}" cy="${y}" r="3.7" fill="${col}"/>`; } }
+  $('ttSvg').innerHTML=s;
+  const gt=gr?ttRT(gi):ttCT(gi), cell=TT.v[wr][wc], eT=gr?ttCT(wc):ttRT(wr), gN=ttName(g), eN=ttName(e);
+  const P=(a,b)=>`P(${a} | ${b})`;
+  $('ttWork').innerHTML=`<span class="a">Given ${gN}</span>: only the ${gt} ${gr?TT.rows[gi].toLowerCase():'students who like '+TT.cols[gi]} are left (teal). That's the new bottom.<br><span class="b">${eN} as well</span>: ${cell} of them (orange).<br><strong>${P(eN,gN)} = ${fracW(cell,gt)}</strong> ≈ ${sf3(cell/gt)}<br>Compare P(${eN}) for everyone = ${fracW(eT,TN)} and the swapped ${P(gN,eN)} = ${fracW(cell,eT)}.`;
+}
+ttG.addEventListener('input',()=>{ ttFillE(false); drawTT(); }); ttE.addEventListener('input',drawTT);
+$('ttSwap').addEventListener('click',()=>{ const g=ttG.value, e=ttE.value; ttG.value=e; ttFillE(false); ttE.value=g; drawTT(); });
+ttFillE(false); drawTT();
+
+let tq=null;
+function tqNew(){
+  const g=pick(['r0','r1','c0','c1','c2']); const es=ttOpts.filter(([k])=>k[0]!==g[0]).map(o=>o[0]); const e=pick(es);
+  const [r,c]=ttCell(g,e), gt=g[0]==='r'?ttRT(+g[1]):ttCT(+g[1]), et=g[0]==='r'?ttCT(c):ttRT(r), cell=TT.v[r][c];
+  const q=g[0]==='r'?`A ${TT.rs[+g[1]]} is picked at random from the 200 students. Find the probability that they like ${TT.cols[c]}.`:`A student who likes ${TT.cols[+g[1]]} is picked at random. Find the probability that the student is a ${TT.rs[r]}.`;
+  tq={n:cell,d:gt,wr:[[cell,TN,`That's out of all 200, which is P(${ttName(g)} and ${ttName(e)}). You're only picking from the ${gt} in the condition.`],[cell,et,`You divided by the ${ttName(e)} total, which gives P(${ttName(g)} | ${ttName(e)}). The person picked is ${g[0]==='r'?'a '+ttName(g):'someone who likes '+ttName(g)}, so divide by that total, ${gt}.`],[et,TN,`That's P(${ttName(e)}) for everyone, ignoring the condition.`]]};
+  $('tqQ').textContent='Try it (use the table above): '+q; $('tqA').value=''; $('tqMsg').className='msg'; $('tqMsg').textContent='';
+}
+$('tqGo').addEventListener('click',()=>{ const r=judge($('tqA').value,tq.n,tq.d,tq.wr), M=$('tqMsg'); M.className='msg '+(r.ok?'good':'bad'); M.textContent=r.msg; });
+$('tqA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('tqGo').click(); });
+$('tqNew').addEventListener('click',tqNew); tqNew();
+
+/* 3. Venn diagrams */
+const GV={ax:155,ay:137,bx:245,by:137,r:88,x:10,y:12,w:380,h:236};
+function vShade(p,g,map){
+  const A=`cx="${g.ax}" cy="${g.ay}" r="${g.r}"`, B=`cx="${g.bx}" cy="${g.by}" r="${g.r}"`, R=`x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}"`;
+  let s=`<defs><clipPath id="${p}cb"><circle ${B}/></clipPath>`+
+    `<mask id="${p}ma" maskUnits="userSpaceOnUse" ${R}><rect ${R} fill="black"/><circle ${A} fill="white"/><circle ${B} fill="black"/></mask>`+
+    `<mask id="${p}mb" maskUnits="userSpaceOnUse" ${R}><rect ${R} fill="black"/><circle ${B} fill="white"/><circle ${A} fill="black"/></mask>`+
+    `<mask id="${p}mo" maskUnits="userSpaceOnUse" ${R}><rect ${R} fill="white"/><circle ${A} fill="black"/><circle ${B} fill="black"/></mask></defs>`;
+  const f=k=>map[k]?`fill="${map[k][0]}" fill-opacity="${map[k][1]}"`:'fill="none"';
+  s+=`<rect ${R} ${f('a')} mask="url(#${p}ma)"/><rect ${R} ${f('b')} mask="url(#${p}mb)"/><rect ${R} ${f('o')} mask="url(#${p}mo)"/><circle ${A} ${f('ab')} clip-path="url(#${p}cb)"/>`;
+  return s;
+}
+function vennDraw(p,v,want,giv,la,lb){
+  const ac=css('--accent'), hi=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg'), map={};
+  ['a','ab','b','o'].forEach(k=>{ if(want.includes(k)) map[k]=[hi,.4]; else if(giv.includes(k)) map[k]=[ac,.22]; });
+  let s=vShade(p,GV,map);
+  s+=`<rect x="${GV.x}" y="${GV.y}" width="${GV.w}" height="${GV.h}" rx="6" fill="none" stroke="${giv.includes('o')?ac:mu}" stroke-width="${giv.includes('o')?2.5:1.5}"/><text x="${GV.x+10}" y="${GV.y+22}" font-size="16" font-weight="600" ${F()} fill="${mu}">ξ</text>`;
+  s+=`<circle cx="${GV.ax}" cy="${GV.ay}" r="${GV.r}" fill="none" stroke="${tw}" stroke-width="2.5"/><circle cx="${GV.bx}" cy="${GV.by}" r="${GV.r}" fill="none" stroke="${tw}" stroke-width="2.5"/>`;
+  s+=`<text x="${GV.ax-GV.r*0.95}" y="${GV.ay-GV.r*0.82}" text-anchor="middle" font-size="17" font-weight="700" ${F()} fill="${tw}">${la}</text><text x="${GV.bx+GV.r*0.95}" y="${GV.by-GV.r*0.82}" text-anchor="middle" font-size="17" font-weight="700" ${F()} fill="${tw}">${lb}</text>`;
+  const t=(x,y,k,anc)=>{ const on=giv.includes(k)||want.includes(k), col=want.includes(k)?hi:on?fg:mu; return `<text x="${x}" y="${y}" text-anchor="${anc||'middle'}" font-size="20" font-weight="700" ${F()} fill="${col}" opacity="${on||!giv.length?1:0.35}">${v[k]}</text>`; };
+  return s+t(110,144,'a')+t(200,144,'ab')+t(290,144,'b')+t(374,238,'o','end');
+}
+const VC={'P(A | B)':{w:['ab'],g:['ab','b'],rev:'P(B | A)',and:'A ∩ B'},'P(B | A)':{w:['ab'],g:['a','ab'],rev:'P(A | B)',and:'A ∩ B'},'P(A | B′)':{w:['a'],g:['a','o'],and:'A ∩ B′'},'P(B | A′)':{w:['b'],g:['b','o'],and:'A′ ∩ B'},'P(A′ | B)':{w:['b'],g:['ab','b'],and:'A′ ∩ B'},'P(A ∩ B | A ∪ B)':{w:['ab'],g:['a','ab','b'],and:'A ∩ B'}};
+const RN={a:'A only',ab:'A ∩ B',b:'B only',o:'outside both'};
+let vn={v:{a:12,ab:5,b:8,o:5},k:'P(A | B)'};
+function drawVN(){
+  const C=VC[vn.k], v=vn.v; $('vnSvg').innerHTML=vennDraw('vn',v,C.w,C.g,'A','B');
+  const top=C.w.reduce((s,k)=>s+v[k],0), bot=C.g.reduce((s,k)=>s+v[k],0), N=v.a+v.ab+v.b+v.o;
+  $('vnWork').innerHTML=`<span class="a">The condition</span> = ${C.g.map(k=>RN[k]).join(' + ')} = ${C.g.map(k=>v[k]).join(' + ')} = <span class="a">${bot}</span> (the new whole)<br><span class="b">Wanted, inside it</span> = ${C.w.map(k=>RN[k]).join(' + ')} = <span class="b">${top}</span><br><strong>${vn.k} = ${fracW(top,bot)}</strong>`+(C.rev?`<br>Compare ${C.rev} = ${fracW(v.ab,C.rev==='P(B | A)'?v.a+v.ab:v.b+v.ab)}: same top, different bottom.`:'')+`<br>Dividing by everyone (${top}/${N}) would give P(${C.and}), not the conditional probability.`;
+  $('vnChips').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===vn.k));
+}
+Object.keys(VC).forEach(k=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=k; b.dataset.k=k; b.addEventListener('click',()=>{ vn.k=k; drawVN(); }); $('vnChips').appendChild(b); });
+$('vnNew').addEventListener('click',()=>{ vn.v={a:rnd(3,15),ab:rnd(2,9),b:rnd(3,15),o:rnd(1,10)}; drawVN(); });
+drawVN();
+
+let vq=null;
+function vqNew(){
+  const ctx=pick([['T','C','drink tea','drink coffee'],['F','S','study French','study Spanish'],['D','C','own a dog','own a cat']]);
+  const v={a:rnd(4,14),ab:rnd(2,8),b:rnd(4,14),o:rnd(2,9)}, N=v.a+v.ab+v.b+v.o, [la,lb,da,db]=ctx;
+  const ks=[['ab',['ab','b'],`they ${da}, given that they ${db}`,`P(${la} | ${lb})`],['ab',['a','ab'],`they ${db}, given that they ${da}`,`P(${lb} | ${la})`],['a',['a','o'],`they ${da}, given that they do not ${db.split(' ')[0]} ${db.split(' ').slice(1).join(' ')}`,`P(${la} | ${lb}′)`],['b',['b','o'],`they ${db}, given that they do not ${da.split(' ')[0]} ${da.split(' ').slice(1).join(' ')}`,`P(${lb} | ${la}′)`]];
+  const [w,g,txt,not]=pick(ks), top=v[w], bot=g.reduce((s,k)=>s+v[k],0);
+  const other=g.includes('a')&&g.includes('ab')?v.b+v.ab:g.includes('ab')?v.a+v.ab:null;
+  vq={n:top,d:bot,v,la,lb,wr:[[top,N,`That's out of all ${N}. "Given" means only count the people in the condition: ${bot} of them.`]].concat(other?[[top,other,'You divided by the wrong circle. That is the conditional probability the other way round.']]:[]).concat(g.includes('o')?[[top,g.filter(k=>k!=='o').reduce((s,k)=>s+v[k],0),`Don't forget the people outside both circles: they are in the condition too.`]]:[])};
+  $('vqQ').textContent=`Try it: ${N} people were asked. The Venn diagram shows how many ${da} (${la}) and ${db} (${lb}). One person is picked at random. Find the probability that ${txt}, ${not}.`;
+  $('vqSvg').innerHTML=vennDraw('vq',v,[],[],la,lb);
+  $('vqA').value=''; $('vqMsg').className='msg'; $('vqMsg').textContent='';
+}
+$('vqGo').addEventListener('click',()=>{ const r=judge($('vqA').value,vq.n,vq.d,vq.wr), M=$('vqMsg'); M.className='msg '+(r.ok?'good':'bad'); M.textContent=r.msg; });
+$('vqA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('vqGo').click(); });
+$('vqNew').addEventListener('click',vqNew); vqNew();
+
+/* 4. tree with conditional branches */
+const trA=$('trA'), trP=$('trP'), trQ=$('trQ'), trSvg=$('trSvg');
+const TRC={'P(R ∩ L)':{w:[0],g:[]},'P(L)':{w:[0,2],g:[]},'P(R | L)':{w:[0],g:[0,2]},'P(R′ | L)':{w:[2],g:[0,2]},'P(R | L′)':{w:[1],g:[1,3]}};
+let trK='P(R | L)';
+function drawTR(){
+  const a=+trA.value, p=+trP.value, q=+trQ.value; $('trAv').textContent=' '+dec(a,10); $('trPv').textContent=' '+dec(p,10); $('trQv').textContent=' '+dec(q,10);
+  const nodes=[{y:70,lab:'R',n:a,kids:[{lab:'L',n:p},{lab:'L′',n:10-p}]},{y:200,lab:'R′',n:10-a,kids:[{lab:'L',n:q},{lab:'L′',n:10-q}]}];
+  const C=TRC[trK], ac=css('--accent'), hi=css('--hi'), tw=css('--two'), fg=css('--fg'), mu=css('--muted');
+  const leafY=[36,104,166,234], ends=[a*p,a*(10-p),(10-a)*q,(10-a)*(10-q)];
+  let s='';
+  leafY.forEach((y,i)=>{ const w=C.w.includes(i), g=C.g.includes(i); if(w||g) s+=`<rect x="200" y="${y-24}" width="198" height="48" rx="6" fill="${w?css('--hi-soft'):css('--accent-soft')}" stroke="${w?hi:ac}" stroke-width="1.5"/>`; });
+  s+=`<circle cx="14" cy="135" r="4" fill="${fg}"/>`;
+  nodes.forEach((nd,j)=>{ const on=C.w.some(i=>Math.floor(i/2)===j), col=on?hi:ac, up=j===0;
+    s+=`<line x1="18" y1="135" x2="96" y2="${nd.y}" stroke="${col}" stroke-width="${on?3.2:2}" stroke-linecap="round"/><text x="100" y="${nd.y+5}" font-size="15" font-weight="700" ${F()} fill="${col}">${nd.lab}</text>`;
+    s+=`<text x="${52}" y="${up?96:190}" text-anchor="end" font-size="14" font-weight="600" ${F()} fill="${col}">${dec(nd.n,10)}</text>`;
+    nd.kids.forEach((k,m)=>{ const i=j*2+m, y=leafY[i], kon=C.w.includes(i), kc=kon?hi:tw, x1=124;
+      s+=`<line x1="${x1}" y1="${nd.y}" x2="178" y2="${y}" stroke="${kc}" stroke-width="${kon?3.2:2}" stroke-linecap="round"/><text x="182" y="${y+5}" font-size="15" font-weight="700" ${F()} fill="${kc}">${k.lab}</text>`;
+      s+=`<text x="${146}" y="${m===0?(nd.y+y)/2-6:(nd.y+y)/2+16}" text-anchor="end" font-size="13" font-weight="600" ${F()} fill="${kc}">${dec(k.n,10)}</text>`;
+      s+=`<text x="208" y="${y-4}" font-size="12.5" font-weight="${kon?700:500}" ${F()} fill="${kon?hi:fg}">${nd.lab} ∩ ${k.lab}</text><text x="208" y="${y+13}" font-size="12.5" ${F()} fill="${kon?hi:fg}">${dec(nd.n,10)} × ${dec(k.n,10)} = ${dec(ends[i],100)}</text>`; }); });
+  trSvg.innerHTML=s;
+  const W=$('trWork'), L=ends[0]+ends[2];
+  let w='';
+  if(trK==='P(R ∩ L)') w=`P(R ∩ L) = P(R) × P(L | R) = ${dec(a,10)} × ${dec(p,10)} = <strong>${dec(ends[0],100)}</strong>`;
+  else if(trK==='P(L)') w=`L happens on two paths: R ∩ L and R′ ∩ L.<br>P(L) = ${dec(ends[0],100)} + ${dec(ends[2],100)} = <strong>${dec(L,100)}</strong>`;
+  else { const gi=C.g, wi=C.w[0], gt=gi.reduce((s,i)=>s+ends[i],0), nm=trK.replace('P(','').replace(')','').split(' | ');
+    w=`<span class="a">Given ${nm[1]}</span>: keep only the paths ending in ${nm[1]} (teal): P(${nm[1]}) = ${gi.map(i=>dec(ends[i],100)).join(' + ')} = <span class="a">${dec(gt,100)}</span><br><span class="b">The one you want</span>: ${['R ∩ L','R ∩ L′','R′ ∩ L','R′ ∩ L′'][wi]} = <span class="b">${dec(ends[wi],100)}</span><br><strong>${trK} = ${dec(ends[wi],100)} ÷ ${dec(gt,100)} = ${fracW(ends[wi],gt)}</strong>`+(gt?` ≈ ${sf3(ends[wi]/gt)}`:'');
+    if(trK==='P(R | L)') w+=`<br>Compare P(L | R) = ${dec(p,10)} on the branch: not the same thing.`; }
+  W.innerHTML=w;
+  $('trChips').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===trK));
+}
+Object.keys(TRC).forEach(k=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=k; b.dataset.k=k; b.addEventListener('click',()=>{ trK=k; drawTR(); }); $('trChips').appendChild(b); });
+[trA,trP,trQ].forEach(e=>e.addEventListener('input',drawTR)); drawTR();
+
+let rq=null;
+function rqNew(){
+  const ctx=pick([['Ana is ill','she misses training'],['it is foggy','a flight is delayed'],['a light is faulty','it fails the safety check']]);
+  const a=rnd(1,4), p=rnd(5,9), q=rnd(1,3), top=a*p, bot=a*p+(10-a)*q;
+  rq={n:top,d:bot,wr:[[top,100,`That's P(both) = ${dec(a,10)} × ${dec(p,10)}. Now divide by P(${ctx[1]}), which comes from both paths.`],[p,10,`That's the branch probability the other way round. You need the probability of the first event given the second.`],[a*p,a*p+(10-a)*(10-q),'You added the wrong paths for the condition.']]};
+  $('rqQ').textContent=`Try it: P(${ctx[0]}) = ${dec(a,10)}. If ${ctx[0]}, P(${ctx[1]}) = ${dec(p,10)}; if not, P(${ctx[1]}) = ${dec(q,10)}. Given that ${ctx[1]}, find the probability that ${ctx[0]}. Give a fraction or a decimal to 3 s.f.`;
+  $('rqA').value=''; $('rqMsg').className='msg'; $('rqMsg').textContent='';
+}
+$('rqGo').addEventListener('click',()=>{ const r=judge($('rqA').value,rq.n,rq.d,rq.wr,'Find the condition\'s probability by adding both of its paths, then divide.'), M=$('rqMsg'); M.className='msg '+(r.ok?'good':'bad'); M.textContent=r.msg; });
+$('rqA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('rqGo').click(); });
+$('rqNew').addEventListener('click',rqNew); rqNew();
+
+/* 5. formula bar model */
+const fmB=$('fmB'), fmAB=$('fmAB');
+function drawFM(){
+  const B=+fmB.value; fmAB.max=B; if(+fmAB.value>B) fmAB.value=B; const AB=+fmAB.value;
+  $('fmBv').textContent=' '+dec(B*5,100); $('fmABv').textContent=' '+dec(AB*5,100);
+  const ac=css('--accent'), hi=css('--hi'), mu=css('--muted'), x0=20, W=360, wB=W*B/20, wAB=W*AB/20;
+  let s=`<text x="${x0}" y="16" font-size="12" ${F()} fill="${mu}">everything (total 1)</text>`;
+  s+=`<rect x="${x0}" y="24" width="${W}" height="30" rx="4" fill="${css('--bg')}" stroke="${css('--line')}"/><rect x="${x0}" y="24" width="${wB}" height="30" rx="4" fill="${css('--accent-soft')}" stroke="${ac}" stroke-width="2"/>`;
+  if(wAB>0) s+=`<rect x="${x0}" y="24" width="${wAB}" height="30" rx="4" fill="${hi}" fill-opacity=".75"/>`;
+  s+=`<text x="${x0+wB}" y="70" text-anchor="${B>16?'end':'middle'}" font-size="12" ${F()} fill="${ac}">P(B) = ${dec(B*5,100)}</text>`;
+  s+=`<line x1="${x0}" y1="76" x2="${x0}" y2="96" stroke="${ac}" stroke-dasharray="3 3"/><line x1="${x0+wB}" y1="56" x2="${x0+W}" y2="96" stroke="${ac}" stroke-dasharray="3 3"/>`;
+  s+=`<text x="${x0}" y="110" font-size="12" ${F()} fill="${ac}">zoom in: B is the new whole</text>`;
+  s+=`<rect x="${x0}" y="118" width="${W}" height="30" rx="4" fill="${css('--accent-soft')}" stroke="${ac}" stroke-width="2"/>`;
+  if(AB>0) s+=`<rect x="${x0}" y="118" width="${W*AB/B}" height="30" rx="4" fill="${hi}" fill-opacity=".75"/>`;
+  s+=`<text x="${x0+W}" y="166" text-anchor="end" font-size="12" font-weight="600" ${F()} fill="${hi}">P(A | B) = ${frac(AB,B)}</text>`;
+  $('fmSvg').innerHTML=s;
+  $('fmWork').innerHTML=`P(A | B) = <span class="b">P(A ∩ B)</span> ÷ <span class="a">P(B)</span> = ${dec(AB*5,100)} ÷ ${dec(B*5,100)} = ${AB*5}/${B*5}${frac(AB,B)!==`${AB*5}/${B*5}`?' = '+frac(AB,B):''}`+(AB&&AB<B?` ≈ ${sf3(AB/B)}`:'')+`<br>The orange part takes up ${AB===B?'all':AB===0?'none':frac(AB,B)} of the teal bar.`;
+}
+[fmB,fmAB].forEach(e=>e.addEventListener('input',drawFM)); drawFM();
+
+let fq=null;
+function fqNew(){
+  const t=rnd(0,1);
+  if(t===0){ const B=pick([2,4,5,8]), ans=rnd(1,B-1), AB=ans; // P(B)=B/10, P(A|B)=ans/B
+    fq={n:AB,d:B,wr:[[AB*B,100,'You multiplied. Given B means divide by P(B).']]};
+    $('fqQ').textContent=`Try it: P(A ∩ B) = ${dec(AB,10)} and P(B) = ${dec(B,10)}. Find P(A | B).`; }
+  else { const B=rnd(2,9), c=pick([1,2,3,4]), cd=pick([4,5,10]); const cn=Math.min(c,cd-1); // P(A|B)=cn/cd
+    fq={n:B*cn,d:10*cd,wr:[[B*cd,10*cn,'You divided. P(A ∩ B) = P(B) × P(A | B): multiply.']]};
+    $('fqQ').textContent=`Try it: P(B) = ${dec(B,10)} and P(A | B) = ${cn}/${cd}. Find P(A ∩ B).`; }
+  $('fqA').value=''; $('fqMsg').className='msg'; $('fqMsg').textContent='';
+}
+$('fqGo').addEventListener('click',()=>{ const r=judge($('fqA').value,fq.n,fq.d,fq.wr,'Use P(A | B) = P(A ∩ B) ÷ P(B), rearranged if needed.'), M=$('fqMsg'); M.className='msg '+(r.ok?'good':'bad'); M.textContent=r.msg; });
+$('fqA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('fqGo').click(); });
+$('fqNew').addEventListener('click',fqNew); fqNew();
+
+/* 6. independence test */
+let inV=[[6,9],[14,21]];
+function inBuild(){
+  const lab=[['Left-handed (B)','Right-handed (B′)'],['Glasses (A)','No glasses (A′)']];
+  let h=`<tr><th></th><th>${lab[1][0]}</th><th>${lab[1][1]}</th><th>Total</th></tr>`;
+  for(let r=0;r<2;r++){ h+=`<tr><th>${lab[0][r]}</th>`; for(let c=0;c<2;c++) h+=`<td><input type="text" inputmode="numeric" autocomplete="off" data-r="${r}" data-c="${c}" value="${inV[r][c]}" aria-label="${lab[0][r]}, ${lab[1][c]}"></td>`; h+=`<td class="tot" data-rt="${r}"></td></tr>`; }
+  h+=`<tr><th>Total</th><td class="tot" data-ct="0"></td><td class="tot" data-ct="1"></td><td class="tot" data-ct="2"></td></tr>`;
+  $('inTable').innerHTML=h;
+  $('inTable').querySelectorAll('input').forEach(i=>i.addEventListener('input',()=>{ const v=parseInt(i.value,10); inV[+i.dataset.r][+i.dataset.c]=isNaN(v)||v<0?0:Math.min(v,999); drawIN(); }));
+  drawIN();
+}
+function drawIN(){
+  const [[a,b],[c,d]]=inV, rt=[a+b,c+d], ct=[a+c,b+d], N=a+b+c+d, T=$('inTable');
+  rt.forEach((v,r)=>T.querySelector(`[data-rt="${r}"]`).textContent=v); [ct[0],ct[1],N].forEach((v,k)=>T.querySelector(`[data-ct="${k}"]`).textContent=v);
+  const bars=[['P(A), everyone',ct[0],N,css('--two')],['P(A | B), left-handers',a,rt[0],css('--hi')],['P(A | B′), right-handers',c,rt[1],css('--accent')]];
+  let s='';
+  bars.forEach(([nm,n,dd,col],i)=>{ const y=8+i*48, w=dd?300*n/dd:0; s+=`<text x="4" y="${y+12}" font-size="12" ${F()} fill="${css('--muted')}">${nm}</text><rect x="4" y="${y+18}" width="300" height="20" rx="4" fill="${css('--bg')}" stroke="${css('--line')}"/><rect x="4" y="${y+18}" width="${w}" height="20" rx="4" fill="${col}" fill-opacity=".8"/><text x="312" y="${y+33}" font-size="13" font-weight="600" ${F()} fill="${col}">${dd?frac(n,dd):'–'}</text>`; });
+  $('inSvg').innerHTML=s;
+  const W=$('inWork');
+  if(!N||!rt[0]||!rt[1]){ W.innerHTML='Put some numbers in every row.'; return; }
+  const eq=a*N===ct[0]*rt[0];
+  W.innerHTML=`P(A) = ${ct[0]}/${N}${frac(ct[0],N)!==`${ct[0]}/${N}`?' = '+frac(ct[0],N):''}; P(A | B) = ${a}/${rt[0]}${frac(a,rt[0])!==`${a}/${rt[0]}`?' = '+frac(a,rt[0]):''}.<br>`+
+    (eq?`<span class="a">Equal, so A and B are independent:</span> knowing someone is left-handed tells you nothing about glasses. Check: P(A) × P(B) = ${frac(ct[0],N)} × ${frac(rt[0],N)} = ${frac(ct[0]*rt[0],N*N)} = P(A ∩ B) = ${frac(a,N)} ✓`
+       :`<span class="b">Different, so A and B are not independent:</span> left-handers are ${a/rt[0]>ct[0]/N?'more':'less'} likely to wear glasses than people in general (in this data).`);
+}
+$('inInd').addEventListener('click',()=>{ inV=pick([[[6,9],[14,21]],[[4,12],[16,48]],[[3,7],[27,63]]]); inBuild(); });
+$('inDep').addEventListener('click',()=>{ inV=pick([[[10,5],[15,30]],[[2,18],[28,52]],[[8,4],[22,26]]]); inBuild(); });
+inBuild();
+
+/* 7. medical test */
+const mdP=$('mdP'), mdS=$('mdS'), mdF=$('mdF');
+function drawMD(){
+  const p=+mdP.value, se=+mdS.value, fp=+mdF.value; $('mdPv').textContent=` ${p}%`; $('mdSv').textContent=` ${se}%`; $('mdFv').textContent=` ${fp}%`;
+  const N=10000, ill=N*p/100, well=N-ill, tp=ill*se/100, fn=ill-tp, fpos=well*fp/100, tn=well-fpos, pos=tp+fpos;
+  const ac=css('--accent'), hi=css('--hi'), tw=css('--two'), fg=css('--fg'), mu=css('--muted');
+  const box=(x,y,t,lab,col,bold)=>`<rect x="${x-34}" y="${y-15}" width="68" height="30" rx="6" fill="${css('--bg')}" stroke="${col}" stroke-width="${bold?2.5:1.5}"/><text x="${x}" y="${y+6}" text-anchor="middle" font-size="15" font-weight="700" ${F()} fill="${col}">${t}</text>`+(lab?`<text x="${x}" y="${y-20}" text-anchor="middle" font-size="11" ${F()} fill="${col}">${lab}</text>`:'');
+  const ln=(x1,y1,x2,y2,col)=>`<line x1="${x1+34}" y1="${y1}" x2="${x2-34}" y2="${y2}" stroke="${col}" stroke-width="2"/>`;
+  let s='<g transform="translate(0,18)">'+ln(40,110,170,50,tw)+ln(40,110,170,170,tw)+ln(170,50,330,24,hi)+ln(170,50,330,80,mu)+ln(170,170,330,144,hi)+ln(170,170,330,200,mu);
+  s+=box(40,110,N,'people',fg)+box(170,50,ill,'ill',tw)+box(170,170,well,'healthy',tw)+box(330,24,tp,'positive',hi,true)+box(330,80,fn,'negative',mu)+box(330,144,fpos,'positive',hi,true)+box(330,200,tn,'negative',mu)+'</g>';
+  const y=258, wT=360*tp/pos;
+  s+=`<text x="20" y="${y}" font-size="12" ${F()} fill="${hi}">everyone who tests positive: ${pos}</text>`;
+  s+=`<rect x="20" y="${y+8}" width="360" height="26" rx="4" fill="${css('--line')}"/><rect x="20" y="${y+8}" width="${wT}" height="26" rx="4" fill="${hi}"/>`;
+  s+=`<text x="20" y="${y+52}" font-size="12" font-weight="600" ${F()} fill="${hi}">ill: ${tp}</text><text x="380" y="${y+52}" text-anchor="end" font-size="12" ${F()} fill="${mu}">healthy: ${fpos}</text>`;
+  s+=`<text x="200" y="${y+76}" text-anchor="middle" font-size="12" ${F()} fill="${fg}">only ${frac(tp,pos)} of the positives are ill</text>`;
+  $('mdSvg').innerHTML=s;
+  $('mdR1').textContent=`${tp}/${ill} = ${frac(tp,ill)} (${se}%)`;
+  $('mdR2').textContent=`${tp}/${pos} = ${frac(tp,pos)} ≈ ${sf3(tp/pos)}`;
+  $('mdWork').innerHTML=`Out of 10 000: ${p}% are ill → <span class="c">${ill}</span>; the other <span class="c">${well}</span> are healthy.<br>Ill and positive: ${se}% of ${ill} = <span class="b">${tp}</span>. Healthy but positive: ${fp}% of ${well} = <span class="b">${fpos}</span>.<br>Given positive, the whole is ${tp} + ${fpos} = <span class="a">${pos}</span>, and only ${tp} of them are ill.<br><strong>P(ill | positive) = ${tp}/${pos} = ${frac(tp,pos)} ≈ ${sf3(tp/pos)}</strong>, but P(positive | ill) = ${frac(tp,ill)}.`;
+}
+[mdP,mdS,mdF].forEach(e=>e.addEventListener('input',drawMD)); drawMD();
+
+const WH=[
+  {t:'The probability that a student who plays football is a girl.',o:['P(girl | football)','P(football | girl)'],a:0,fb:'"A student who plays football" is the group you pick from: the condition is football.'},
+  {t:'Of the girls, the proportion who play football.',o:['P(girl | football)','P(football | girl)'],a:1,fb:'"Of the girls" means you only look at girls: the condition is girl.'},
+  {t:'If a person has the disease, the chance the test is positive.',o:['P(positive | ill)','P(ill | positive)'],a:0,fb:'"If a person has the disease" sets the condition: ill.'},
+  {t:'You test positive. The chance you have the disease.',o:['P(positive | ill)','P(ill | positive)'],a:1,fb:'You know you tested positive: that is the condition.'},
+  {t:'The probability that it rained, given that the bus was late.',o:['P(rain | late)','P(late | rain)'],a:0,fb:'The thing after "given that" goes after the bar.'}
+];
+function drawWH(){
+  const box=$('whList'); box.innerHTML='';
+  WH.forEach((it,i)=>{ const d=document.createElement('div'); d.className='tq'; if(i===0) d.style.borderTop='0';
+    d.innerHTML=`<p>${i+1}. ${it.t}</p><div class="controls" style="margin-top:0">${it.o.map((o,k)=>`<button class="btn" type="button" data-k="${k}">${o}</button>`).join('')}</div><div class="msg"></div>`;
+    const msg=d.querySelector('.msg');
+    d.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ d.querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+      if(+b.dataset.k===it.a){ msg.className='msg good'; msg.textContent='Yes. '+it.fb; } else { msg.className='msg bad'; msg.textContent='Not quite. Ask: which group am I choosing from? That goes after the bar. '+it.fb; } }));
+    box.appendChild(d); });
+}
+drawWH();
+
+const redrawAll=()=>{ drawGI(); drawTT(); drawVN(); if(vq) $('vqSvg').innerHTML=vennDraw('vq',vq.v,[],[],vq.la,vq.lb); drawTR(); drawFM(); drawIN(); drawMD(); };
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll); }
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'P(A | B) means…',opts:['the probability of A, given that B has happened','the probability of A and B','the probability of B, given that A has happened','P(A) divided by P(B)'],a:0,fb:'The bar means "given that". The condition B goes after the bar.'},
+  {q:'30 students: 12 are girls, and 4 of the girls wear glasses. A girl is picked at random. P(she wears glasses) = ?',opts:['1/3','2/15','2/9','2/5'],a:0,fb:'Only the 12 girls are possible: 4/12 = 1/3. 2/15 = 4/30 divides by everyone.'},
+  {q:'A fair dice is rolled. Given that the score is odd, P(it is a 3) = ?',opts:['1/3','1/6','1/2','1/4'],a:0,fb:'Odd leaves {1, 3, 5}: three equally likely outcomes, one of which is 3.'},
+  {q:'A Venn diagram has A only 8, A ∩ B 4, B only 12, neither 6. P(A | B) = ?',opts:['1/4','1/3','2/15','1/2'],a:0,fb:'Inside B: 4 + 12 = 16. Of these, 4 are in A: 4/16 = 1/4. (1/3 is P(B | A); 2/15 = 4/30 is P(A ∩ B).)'},
+  {q:'Same Venn diagram. P(B | A) = ?',opts:['1/3','1/4','2/15','1/6'],a:0,fb:'Inside A: 8 + 4 = 12. Of these, 4 are in B: 4/12 = 1/3. Not the same as P(A | B) = 1/4.'},
+  {q:'P(A ∩ B) = 0.12 and P(B) = 0.3. P(A | B) = ?',opts:['0.4','0.036','2.5','0.12'],a:0,fb:'P(A | B) = P(A ∩ B) ÷ P(B) = 0.12 ÷ 0.3 = 0.4. Multiplying gives 0.036; dividing the wrong way gives 2.5, which is over 1.'},
+  {q:'P(A) = 0.5 and P(A | B) = 0.5. What can you say?',opts:['A and B are independent','A and B are mutually exclusive','P(B) = 0.5','P(A ∩ B) = 0'],a:0,fb:'Knowing B doesn\'t change the probability of A, which is the definition of independent.'},
+  {q:'P(R) = 0.4, P(L | R) = 0.5 and P(L | R′) = 0.25. P(L) = ?',opts:['0.35','0.75','0.2','0.125'],a:0,fb:'Two paths: 0.4 × 0.5 + 0.6 × 0.25 = 0.2 + 0.15 = 0.35.'},
+  {q:'Same tree. P(R | L) = ?',opts:['4/7','1/2','1/5','3/7'],a:0,fb:'P(R ∩ L) ÷ P(L) = 0.2 ÷ 0.35 = 20/35 = 4/7. (1/2 is P(L | R), the branch, not the answer.)'},
+  {q:'1 in 100 people have a disease. A test is positive for 90% of people with it and 10% of people without it. You test positive. P(you have the disease) = ?',opts:['1/12','9/10','1/100','1/11'],a:0,fb:'In 1000 people: 10 ill, 9 test positive; 990 healthy, 99 test positive. Positives: 9 + 99 = 108, so P = 9/108 = 1/12.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

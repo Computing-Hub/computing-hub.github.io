@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Constructions with Ruler and Compasses</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each section has a "blank paper" SVG panel with a step-through (Back / Next / Start again) that draws one arc or line per step, plus draggable points (dashed rings) so the construction redraws for any position. Colours: orange = compass arcs and the pair of compasses (construction marks you leave visible), teal = the line or shape you have constructed (the answer), plum = key points found where arcs cross, ink (--fg) = what you were given at the start, muted = protractor, rough guide lines and distances; green = "equal distances" in the loci explorer. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+li{margin:.3rem 0}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.M{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.P{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn:disabled{opacity:.4;cursor:default}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<style>
+.stepbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-top:.8rem}
+.stepcount{font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-left:.3rem}
+.steptext{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.7rem;min-height:4.4em;font-size:.98rem}
+.key{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;font-size:.88rem;color:var(--muted);margin-top:1rem}
+.key span{display:inline-flex;align-items:center;gap:.4rem}
+.key i{display:inline-block;width:18px;height:4px;border-radius:2px}
+.key i.ring{width:14px;height:14px;border-radius:50%;border:1.5px dashed var(--muted);background:none}
+.lab svg .hd{cursor:grab}
+.lab svg .nw{stroke-dasharray:1;stroke-dashoffset:1;animation:cdraw .8s ease-in-out both}
+.lab svg .fd{animation:cfade .45s ease both}
+@keyframes cdraw{to{stroke-dashoffset:0}}
+@keyframes cfade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.lab svg .nw,.lab svg .fd{animation:none;stroke-dasharray:none;stroke-dashoffset:0;opacity:1}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Geometry and measures · KS3</div>
+  <h1>Constructions with Ruler and Compasses</h1>
+  <p class="lede">With just a pencil, a ruler and a pair of compasses you can draw a perfect right angle, cut any line exactly in half, split any angle into two equal parts and build a triangle to exact sizes — no guessing and no measuring of angles. Each construction is a tiny chain of reasoning about <em>equal distances</em>, and on this page you will see why every one of them works.</p>
+  <span class="gcse">National curriculum KS3: derive and use the standard ruler and compass constructions (perpendicular bisector of a line segment, constructing a perpendicular to a given line from/at a given point, bisecting a given angle); recognise and use the perpendicular distance from a point to a line as the shortest distance to the line</span>
+  <div class="key">
+    <span><i style="background:var(--fg)"></i>what you are given</span>
+    <span><i style="background:var(--hi)"></i>compass arcs (leave them!)</span>
+    <span><i style="background:var(--two)"></i>points where arcs cross</span>
+    <span><i style="background:var(--accent)"></i>what you construct</span>
+    <span><i class="ring"></i>drag me</span>
+  </div>
+</header>
+
+<h2>1 · What a pair of compasses does</h2>
+<p>A <strong>pair of compasses</strong> (often just called "compasses") is a tool with two legs joined at a hinge. One leg ends in a sharp metal point that you press into the paper; the other holds a pencil. The gap between the point and the pencil is called the <strong>width</strong> (or the radius). When you twist the compasses, the point stays still, so the pencil is always the <em>same distance</em> from it.</p>
+<p>That is the whole secret: <strong>every point the pencil draws is exactly the same distance from the centre.</strong> A full turn draws a <strong>circle</strong>. A short twist draws an <strong>arc</strong>, which is just a piece of a circle. Try it: drag the pencil (P) round. Untick "lock the width" if you want to open or close the compasses.</p>
+
+<div class="lab">
+  <svg id="cpSvg" viewBox="0 0 560 320" width="560" height="320"></svg>
+  <div class="controls">
+    <label><input type="checkbox" id="cpLock" checked> lock the width (like tight compasses)</label>
+    <button class="btn primary" id="cpSpin">Spin a full circle</button>
+    <button class="btn" id="cpClear">Rub out</button>
+  </div>
+  <div class="readout">
+    <div class="t"><b>Width (radius)</b><span id="cpR"></span></div>
+    <div class="f"><b>Pencil has turned</b><span id="cpTurn"></span></div>
+  </div>
+  <div class="msg" id="cpMsg"></div>
+</div>
+
+<p>Here are the words you will meet on this page. Each one is explained again when it first matters.</p>
+<div class="tbl"><table>
+  <tr><th>Word</th><th>Meaning</th></tr>
+  <tr><td><strong>construct</strong></td><td>Draw accurately using only a ruler (for straight lines and measuring lengths), compasses and sometimes a protractor. No guessing by eye.</td></tr>
+  <tr><td><strong>arc</strong></td><td>Part of a circle. Every point on it is the same distance from the compass point.</td></tr>
+  <tr><td><strong>intersect</strong></td><td>Cross. The point where two arcs cross is an <em>intersection</em>.</td></tr>
+  <tr><td><strong>equidistant</strong></td><td>"Equal distance": the same distance from two (or more) things.</td></tr>
+  <tr><td><strong>line segment</strong></td><td>A piece of a straight line with two ends, like AB.</td></tr>
+  <tr><td><strong>perpendicular</strong></td><td>At right angles (90°) to.</td></tr>
+  <tr><td><strong>bisect / bisector</strong></td><td>Cut into two equal halves / the line that does the cutting.</td></tr>
+  <tr><td><strong>vertex</strong></td><td>A corner, where two lines meet. Plural: vertices.</td></tr>
+  <tr><td><strong>locus</strong></td><td>All the points that follow a rule (plural: <em>loci</em>, said "low-sigh").</td></tr>
+</table></div>
+
+<div class="callout">
+  <p><strong>Why we leave the arcs showing.</strong> In a construction the arcs <em>are</em> your working, just like the lines of working in a calculation. They prove you constructed the shape rather than drawing it by eye. In an exam, rubbing them out can lose you the marks even if the final line is perfect. So: draw arcs lightly, but never rub them out.</p>
+</div>
+
+<h2>2 · A triangle from three sides (SSS)</h2>
+<p>Suppose you want a triangle with sides 7 cm, 5 cm and 6 cm. A ruler alone isn't enough: you can draw the first side, but where do the other two meet? Compasses answer that question. The third corner must be 5 cm from one end <em>and</em> 6 cm from the other. Each arc shows every point at one of those distances, so the corner is where the arcs cross. This is called <strong>SSS</strong> (side, side, side). Change the sides and step through again.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>AB <input type="range" id="ssC" min="2" max="10" step="0.5" value="7"><span id="ssCv" style="font-family:var(--mono)"></span></label>
+    <label>AC <input type="range" id="ssB" min="2" max="9" step="0.5" value="5"><span id="ssBv" style="font-family:var(--mono)"></span></label>
+    <label>BC <input type="range" id="ssA" min="2" max="9" step="0.5" value="6"><span id="ssAv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="ssSvg" viewBox="0 0 560 340" width="560" height="340"></svg>
+  <div class="stepbar"><button class="btn" id="ssBack">◀ Back</button><button class="btn primary" id="ssNext">Next ▶</button><button class="btn" id="ssRestart">Start again</button><span class="stepcount" id="ssCount"></span></div>
+  <div class="steptext" id="ssText"></div>
+  <div class="msg" id="ssRead"></div>
+</div>
+
+<p><strong>Why it works:</strong> C is on the first arc, so it is exactly AC away from A. It is also on the second arc, so it is exactly BC away from B. Only the crossing point is on both. (There is a second crossing below the line too; it gives the same triangle flipped over.)</p>
+<div class="callout">
+  <p><strong>When the arcs won't meet.</strong> Try AB = 9, AC = 3, BC = 4. The two short sides together (3 + 4 = 7) can't reach across 9 cm, so the arcs never cross and no triangle exists. For any triangle, <em>the two shorter sides must add up to more than the longest side</em>.</p>
+</div>
+
+<h2>3 · Triangles with a protractor (SAS and ASA)</h2>
+<p>Sometimes you are given an angle instead of a side. A <strong>protractor</strong> measures angles in degrees (°). Put its centre cross exactly on the corner, line its 0° line up along the side you have drawn, and count up from 0 <em>on the scale that starts at your line</em>. There are two common cases:</p>
+<ul>
+  <li><strong>SAS</strong> (side, angle, side): two sides and the angle <em>between</em> them.</li>
+  <li><strong>ASA</strong> (angle, side, angle): one side and the angles at <em>both ends</em> of it.</li>
+</ul>
+
+<div class="lab">
+  <div class="controls">
+    <label>type <select id="prMode"><option value="sas">SAS: AB, angle A, AC</option><option value="asa">ASA: angle A, AB, angle B</option></select></label>
+    <label>AB <input type="range" id="prC" min="3" max="9" step="0.5" value="6"><span id="prCv" style="font-family:var(--mono)"></span></label>
+    <label>angle A <input type="range" id="prAl" min="20" max="140" step="5" value="50"><span id="prAlv" style="font-family:var(--mono)"></span></label>
+    <label id="prBWrap">AC <input type="range" id="prB" min="2" max="8" step="0.5" value="4"><span id="prBv" style="font-family:var(--mono)"></span></label>
+    <label id="prBeWrap" hidden>angle B <input type="range" id="prBe" min="20" max="140" step="5" value="60"><span id="prBev" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="prSvg" viewBox="0 0 560 360" width="560" height="360"></svg>
+  <div class="stepbar"><button class="btn" id="prBack">◀ Back</button><button class="btn primary" id="prNext">Next ▶</button><button class="btn" id="prRestart">Start again</button><span class="stepcount" id="prCount"></span></div>
+  <div class="steptext" id="prText"></div>
+  <div class="msg" id="prRead"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Protractor mistakes to avoid.</strong> Reading the wrong scale (you get 180° − the angle you wanted: 130° instead of 50°); not putting the centre cross exactly on the corner; and in ASA, picking two angles that add up to 180° or more, because then the two lines never meet.</p>
+</div>
+
+<h2>4 · The perpendicular bisector of a line</h2>
+<p>The <strong>perpendicular bisector</strong> of a line segment AB is the line that cuts AB exactly in half (<em>bisects</em> it) and crosses it at 90° (is <em>perpendicular</em> to it). You can construct it without measuring anything. Step through, then drag A and B: it works for every line.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>compass width <input type="range" id="pbW" min="30" max="100" step="1" value="70"><span id="pbWv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="pbMis"> mistake: change the width before the second arc</label>
+  </div>
+  <svg id="pbSvg" viewBox="0 0 560 360" width="560" height="360"></svg>
+  <div class="stepbar"><button class="btn" id="pbBack">◀ Back</button><button class="btn primary" id="pbNext">Next ▶</button><button class="btn" id="pbRestart">Start again</button><span class="stepcount" id="pbCount"></span></div>
+  <div class="steptext" id="pbText"></div>
+  <div class="msg" id="pbRead"></div>
+</div>
+
+<p><strong>Why it works:</strong> P is on an arc from A and an arc from B with the same width, so <strong>PA = PB</strong>: P is <em>equidistant</em> from A and B. The same is true of Q. So the four lengths PA, PB, QA, QB are all equal, and APBQ is a <strong>rhombus</strong> (a four-sided shape with all sides equal, like a pushed-over square). The diagonals of a rhombus always cut each other in half at right angles. So PQ cuts AB in half, at 90°.</p>
+<div class="callout">
+  <p><strong>Common mistakes.</strong></p>
+  <ul>
+    <li><strong>Arcs too small:</strong> the width must be <em>more than half</em> of AB, or the arcs never meet. Drag the width slider below 50% to see this.</li>
+    <li><strong>Changing the width between arcs:</strong> tick the "mistake" box. The line is still at 90° but no longer goes through the middle, because PA ≠ PB.</li>
+    <li><strong>Tiny arcs:</strong> draw them long enough to cross clearly, above <em>and</em> below the line.</li>
+  </ul>
+</div>
+
+<h2>5 · Bisecting an angle</h2>
+<p>An <strong>angle bisector</strong> splits an angle into two equal angles. The point where the two arms of the angle meet is the <strong>vertex</strong>, here called O. Step through, then drag O, A or B to change the angle.</p>
+
+<div class="lab">
+  <svg id="abSvg" viewBox="0 0 560 360" width="560" height="360"></svg>
+  <div class="stepbar"><button class="btn" id="abBack">◀ Back</button><button class="btn primary" id="abNext">Next ▶</button><button class="btn" id="abRestart">Start again</button><span class="stepcount" id="abCount"></span></div>
+  <div class="steptext" id="abText"></div>
+  <div class="msg" id="abRead"></div>
+</div>
+
+<p><strong>Why it works:</strong> the first arc makes <strong>OP = OQ</strong>. The next two arcs, with the same width as each other, make <strong>PR = QR</strong>. A four-sided shape with two pairs of equal sides next to each other is a <strong>kite</strong> (here OPRQ; if all four widths happen to be equal it's a rhombus, a special kite). A kite is symmetrical about the diagonal OR, so OR splits the angle at O exactly in half. Another way to see it: triangles OPR and OQR have all three sides the same (OP = OQ, PR = QR, OR shared), so they are identical by SSS, and their angles at O must be equal.</p>
+
+<h2>6 · Perpendiculars from a point and at a point</h2>
+<p>Two more 90° constructions, both close cousins of the perpendicular bisector. Choose which one:</p>
+<ul>
+  <li><strong>From a point to a line:</strong> P is <em>off</em> the line. The perpendicular from P gives the <strong>shortest distance</strong> from P to the line.</li>
+  <li><strong>At a point on a line:</strong> P is <em>on</em> the line and you want a 90° line through it.</li>
+</ul>
+
+<div class="lab">
+  <div class="controls">
+    <label>construction <select id="ppMode"><option value="from">from a point to a line</option><option value="at">at a point on a line</option></select></label>
+  </div>
+  <svg id="ppSvg" viewBox="0 0 560 360" width="560" height="360"></svg>
+  <div class="stepbar"><button class="btn" id="ppBack">◀ Back</button><button class="btn primary" id="ppNext">Next ▶</button><button class="btn" id="ppRestart">Start again</button><span class="stepcount" id="ppCount"></span></div>
+  <div class="steptext" id="ppText"></div>
+  <div class="msg" id="ppRead"></div>
+</div>
+
+<p><strong>Why they work:</strong> in both, the first arc makes two points A and B on the line that are the same distance from P. Then the arcs from A and B (with equal widths) find another point Q that is equidistant from A and B. Both P and Q are equidistant from A and B, so the line PQ is the <em>perpendicular bisector of AB</em>, which we already know is at 90°. "From a point" is section 4 with A and B chosen for you by the first arc.</p>
+<div class="callout">
+  <p><strong>Shortest distance.</strong> Of all the paths from P to the line, the perpendicular one is the shortest. Any slanted path is the long side (hypotenuse) of a right-angled triangle, so it is longer. When a question asks for "the distance from a point to a line", it means this perpendicular distance.</p>
+</div>
+
+<h2>7 · Constructing 60°, 30°, 90° and 45°</h2>
+<p>Some angles can be built with compasses alone, with no protractor at all. <strong>60°</strong> comes from an equilateral triangle (all three sides equal, all three angles 60°). <strong>90°</strong> is the perpendicular at a point. Bisect them and you get <strong>30°</strong> and <strong>45°</strong>. Pick one and step through. Drag A or B to turn the starting line.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>angle <select id="saMode"><option value="60">60°</option><option value="30">30° (60° bisected)</option><option value="90">90°</option><option value="45">45° (90° bisected)</option></select></label>
+  </div>
+  <svg id="saSvg" viewBox="0 0 560 360" width="560" height="360"></svg>
+  <div class="stepbar"><button class="btn" id="saBack">◀ Back</button><button class="btn primary" id="saNext">Next ▶</button><button class="btn" id="saRestart">Start again</button><span class="stepcount" id="saCount"></span></div>
+  <div class="steptext" id="saText"></div>
+  <div class="msg" id="saRead"></div>
+</div>
+
+<p><strong>Why 60° works:</strong> AP is a radius of the first arc. AQ is a radius of the same arc, and PQ is a radius of the second arc, which used the <em>same width</em>. So AP = AQ = PQ: triangle APQ is equilateral, and every angle in an equilateral triangle is 180° ÷ 3 = 60°. You can keep going, too: bisect 30° to get 15°, or put 60° next to 90° to make 150°.</p>
+
+<h2>8 · Loci: constructions with a purpose</h2>
+<p>A <strong>locus</strong> is the set of <em>all</em> the points that obey a rule. You've already met one: the points that are 3 cm from a point O make a circle of radius 3 cm (section 1). The constructions on this page draw two more:</p>
+<ul>
+  <li>Points <strong>equidistant from two points</strong> A and B lie on the <span class="M">perpendicular bisector</span> of AB.</li>
+  <li>Points <strong>equidistant from two lines</strong> that cross lie on the <span class="M">angle bisectors</span> of the angles between them.</li>
+</ul>
+<p>Discover it yourself: drag the point X around. Whenever it is (almost exactly) the same distance from both, it turns green and leaves a dot. Do the dots make a pattern? Then tick "show the locus".</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>rule <select id="loMode"><option value="pts">equidistant from two points</option><option value="lines">equidistant from two lines</option></select></label>
+    <label><input type="checkbox" id="loShow"> show the locus</label>
+    <button class="btn" id="loClear">Clear dots</button>
+  </div>
+  <svg id="loSvg" viewBox="0 0 560 360" width="560" height="360"></svg>
+  <div class="readout">
+    <div class="t"><b id="loLA">Distance to A</b><span id="loDA"></span></div>
+    <div class="p"><b id="loLB">Distance to B</b><span id="loDB"></span></div>
+  </div>
+  <div class="msg" id="loMsg"></div>
+</div>
+
+<div class="grid2">
+  <div class="use"><h3>Where to put the mast?</h3>
+    <p>A phone mast must be the same distance from two villages: anywhere on the perpendicular bisector of the line joining them.</p></div>
+  <div class="use"><h3>Mowing the middle</h3>
+    <p>A path across a field that stays the same distance from two hedges that meet at a corner runs along the angle bisector.</p></div>
+  <div class="use"><h3>"Within 2 km of"</h3>
+    <p>All the places within 2 km of a radio transmitter fill a circle of radius 2 km (to scale): compasses again.</p></div>
+  <div class="use"><h3>Closer to A than B</h3>
+    <p>The perpendicular bisector splits the page: everything on A's side is closer to A. Shading regions like this is a typical loci exam question.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Construct triangle ABC with AB = 7 cm, AC = 5 cm and BC = 6 cm</summary>
+  <div class="step"><strong>Base:</strong> with a ruler, draw AB = 7 cm. Label the ends A and B. (Using the longest side as the base keeps the triangle on the page.)</div>
+  <div class="step"><strong>First arc:</strong> open the compasses to 5 cm by measuring the gap against your ruler. Point on A, draw an arc above AB.</div>
+  <div class="step"><strong>Second arc:</strong> open the compasses to 6 cm. Point on B, draw an arc that crosses the first.</div>
+  <div class="step"><strong>Finish:</strong> the crossing is C. Join AC and BC with a ruler. Leave both arcs showing.</div>
+  <div class="step"><strong>Check:</strong> measure AC and BC: 5 cm and 6 cm. If you measure angle A with a protractor it should be about 57°.</div>
+</details>
+<details>
+  <summary>Construct the perpendicular bisector of a line AB that is 8 cm long</summary>
+  <div class="step"><strong>Choose a width:</strong> it must be more than half of 8 cm, so more than 4 cm. Use 5 cm.</div>
+  <div class="step"><strong>Arcs from A:</strong> point on A, draw an arc above AB and one below (or one long arc).</div>
+  <div class="step"><strong>Arcs from B:</strong> <em>without changing the width</em>, point on B, draw arcs that cross the first ones. Call the crossings P (above) and Q (below).</div>
+  <div class="step"><strong>Draw the line:</strong> join P and Q with a ruler, extending past both. It crosses AB at its midpoint M.</div>
+  <div class="step"><strong>Check:</strong> AM = MB = 4 cm and the angle at M is 90°. Bonus: PM = 3 cm, because triangle AMP has sides 4 and 5 and right-angled triangles with legs 3 and 4 have hypotenuse 5.</div>
+</details>
+<details>
+  <summary>Bisect an angle of 70°</summary>
+  <div class="step"><strong>First arc:</strong> point on the vertex O, any sensible width (say 4 cm). Draw an arc crossing both arms at P and Q.</div>
+  <div class="step"><strong>Middle arcs:</strong> point on P, draw an arc inside the angle. Keep the same width, point on Q, draw an arc that crosses it at R.</div>
+  <div class="step"><strong>Bisector:</strong> join O to R with a ruler.</div>
+  <div class="step"><strong>Check:</strong> each half measures 70° ÷ 2 = <strong>35°</strong>.</div>
+</details>
+<details>
+  <summary>Construct an angle of 30° without a protractor</summary>
+  <div class="step"><strong>Start:</strong> draw a line and mark the point A on it where the angle will be.</div>
+  <div class="step"><strong>60° first:</strong> point on A, draw a long arc crossing the line at P. Same width, point on P, arc crossing the first arc at Q. Join AQ: angle QAP = 60° (triangle APQ is equilateral).</div>
+  <div class="step"><strong>Bisect:</strong> same width again, arcs from P and from Q crossing at R between them. Join AR.</div>
+  <div class="step"><strong>Answer:</strong> angle RAP = 60° ÷ 2 = <strong>30°</strong>. Leave all four arcs showing.</div>
+</details>
+<details>
+  <summary>Construct triangle ABC with AB = 6 cm, angle A = 50° and AC = 4 cm (SAS)</summary>
+  <div class="step"><strong>Base:</strong> draw AB = 6 cm.</div>
+  <div class="step"><strong>Angle:</strong> protractor centre on A, 0° line along AB. Count up from 0 on that scale to 50° and make a dot. Remove the protractor and rule a line from A through the dot.</div>
+  <div class="step"><strong>Second side:</strong> measure 4 cm along that line from A (with the ruler or compasses set to 4 cm). That's C.</div>
+  <div class="step"><strong>Finish:</strong> join C to B. BC should measure about <strong>4.6 cm</strong>.</div>
+</details>
+<details>
+  <summary>Exam-style loci: two trees A and B are 6 cm apart on a map. Treasure is buried the same distance from both trees, and 4 cm from tree A. Find where it could be.</summary>
+  <div class="step"><strong>"Same distance from both trees"</strong> → construct the perpendicular bisector of AB.</div>
+  <div class="step"><strong>"4 cm from A"</strong> → set the compasses to 4 cm, point on A, draw a circle (or the arcs that cross the bisector).</div>
+  <div class="step"><strong>Both rules</strong> → the treasure is where the circle meets the bisector: <strong>two possible places</strong>, one each side of AB.</div>
+  <div class="step"><strong>Check:</strong> the midpoint M is 3 cm from A, so each place is √(4² − 3²) = √7 ≈ 2.6 cm from M along the bisector.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A pair of compasses draws points that are all the <strong>same distance</strong> from the centre: a circle, or part of one (an arc). Every construction uses this one idea.</li>
+  <li>Leave construction arcs showing: they are your working.</li>
+  <li><strong>SSS triangle:</strong> draw one side, then arcs of the other two lengths from its ends. The crossing is the third corner. The two shorter sides must add to more than the longest.</li>
+  <li><strong>SAS and ASA triangles:</strong> use a protractor for the angles, centred on the corner, reading from 0° on your line.</li>
+  <li><strong>Perpendicular bisector:</strong> same width (more than half AB) from both ends; join the crossings. It works because the crossings are equidistant from A and B (a rhombus).</li>
+  <li><strong>Angle bisector:</strong> arc from the vertex, then equal arcs from where it cuts the arms; join the vertex to the crossing (a kite).</li>
+  <li><strong>Perpendicular from / at a point:</strong> make two points on the line equidistant from P, then find another point equidistant from those two. The perpendicular from a point is the shortest distance to the line.</li>
+  <li><strong>60°</strong> comes from an equilateral triangle, <strong>90°</strong> from a perpendicular; bisect them for <strong>30°</strong> and <strong>45°</strong>.</li>
+  <li><strong>Loci:</strong> equidistant from two points → perpendicular bisector; equidistant from two crossing lines → angle bisector; a fixed distance from a point → circle.</li>
+  <li>Biggest mistakes: changing the compass width when it must stay the same, arcs too small to cross, and rubbing out arcs.</li>
+</ul>
+
+<footer>Made for KS3 students. Ruler and compass constructions, and the perpendicular distance from a point to a line, are in the England national curriculum at key stage 3 under Geometry and measures. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const fmt=(v,d=1)=>isFinite(v)?parseFloat(v.toFixed(d)).toString():'—';
+const U=40; // px per cm on the measured diagrams
+const PI=Math.PI;
+const reduced=()=>window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* vector helpers (SVG coordinates: x right, y down) */
+const add=(a,b)=>[a[0]+b[0],a[1]+b[1]],sub=(a,b)=>[a[0]-b[0],a[1]-b[1]],mul=(a,k)=>[a[0]*k,a[1]*k];
+const dot=(a,b)=>a[0]*b[0]+a[1]*b[1],cross=(a,b)=>a[0]*b[1]-a[1]*b[0];
+const len=a=>Math.hypot(a[0],a[1]),dist=(a,b)=>len(sub(a,b));
+const unit=a=>{const l=len(a);return l<1e-9?[1,0]:[a[0]/l,a[1]/l];};
+const perp=a=>[a[1],-a[0]]; // rotate 90° anticlockwise on screen
+const ang=v=>Math.atan2(v[1],v[0]);
+const nrm=a=>{while(a<=-PI)a+=2*PI;while(a>PI)a-=2*PI;return a;};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const mid=(a,b)=>mul(add(a,b),.5);
+const off=(p,ref,k=17)=>mul(unit(sub(p,ref)),k);
+const angDeg=(u,v)=>Math.acos(clamp(dot(unit(u),unit(v)),-1,1))*180/PI;
+const P=p=>`${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+
+/* circle–circle intersection: [] or two points (first is to the left of c1→c2 on screen) */
+function cci(c1,r1,c2,r2){const d=dist(c1,c2);if(d<1e-9||d>r1+r2+1e-9||d<Math.abs(r1-r2)-1e-9)return [];
+  const u=unit(sub(c2,c1)),a=(r1*r1-r2*r2+d*d)/(2*d),h=Math.sqrt(Math.max(0,r1*r1-a*a)),m=add(c1,mul(u,a)),n=perp(u);
+  return [add(m,mul(n,h)),add(m,mul(n,-h))];}
+/* angular range [a0,a1] of an arc centred c that covers the given points, with padding */
+function arcSpan(c,pts,pad){const base=ang(sub(pts[0],c));let lo=0,hi=0;pts.forEach(p=>{const r=nrm(ang(sub(p,c))-base);lo=Math.min(lo,r);hi=Math.max(hi,r);});return [base+lo-pad,base+hi+pad];}
+const padFor=r=>clamp(34/r,.18,.6);
+function arcD(c,r,a0,a1){const pt=a=>P([c[0]+r*Math.cos(a),c[1]+r*Math.sin(a)]);const R=r.toFixed(1);
+  if(a1-a0>=2*PI-1e-6)return `M${pt(a0)}A${R} ${R} 0 1 1 ${pt(a0+PI)}A${R} ${R} 0 1 1 ${pt(a0+2*PI-1e-3)}`;
+  return `M${pt(a0)}A${R} ${R} 0 ${a1-a0>PI?1:0} 1 ${pt(a1)}`;}
+/* clip infinite line p + t·u to the viewBox; returns [t0,t1] or null */
+function clipT(p,u,W,H){let t0=-1e9,t1=1e9;for(const [pc,uc,mx] of [[p[0],u[0],W],[p[1],u[1],H]]){if(Math.abs(uc)<1e-12){if(pc<0||pc>mx)return null;continue;}let a=-pc/uc,b=(mx-pc)/uc;if(a>b)[a,b]=[b,a];t0=Math.max(t0,a);t1=Math.min(t1,b);}return t0<t1?[t0,t1]:null;}
+
+/* item builders */
+const ARC=(c,r,span,o={})=>Object.assign({t:'arc',c,r,a0:span[0],a1:span[1],col:'--hi',w:1.8,compass:true},o);
+const SEG=(a,b,o={})=>Object.assign({t:'seg',a,b},o);
+const PT=(p,label,lo,col='--two')=>({t:'pt',p,label,lo,col});
+
+function compassSvg(it,anim,d){const r=it.r,L=Math.max(r*.5+46,r*.72),h=Math.sqrt(Math.max(L*L-r*r/4,400));
+  const a=anim?it.a0:it.a1,dir=[Math.cos(a),Math.sin(a)],pen=add(it.c,mul(dir,r)),hinge=add(add(it.c,mul(dir,r/2)),mul(perp(dir),h));
+  const g=`<line x1="${it.c[0]}" y1="${it.c[1]}" x2="${hinge[0]}" y2="${hinge[1]}" stroke="${css('--muted')}" stroke-width="3.5" stroke-linecap="round"/><line x1="${hinge[0]}" y1="${hinge[1]}" x2="${pen[0]}" y2="${pen[1]}" stroke="${css('--hi')}" stroke-width="3.5" stroke-linecap="round"/><circle cx="${hinge[0]}" cy="${hinge[1]}" r="6" fill="${css('--muted')}"/><circle cx="${it.c[0]}" cy="${it.c[1]}" r="2.5" fill="${css('--fg')}"/>`;
+  if(!anim)return `<g opacity=".6" pointer-events="none">${g}</g>`;
+  const deg=(it.a1-it.a0)*180/PI;
+  return `<g opacity=".6" pointer-events="none" class="fd" style="animation-delay:${d}s"><g>${g}<animateTransform attributeName="transform" type="rotate" from="0 ${it.c[0]} ${it.c[1]}" to="${deg.toFixed(2)} ${it.c[0]} ${it.c[1]}" dur="0.8s" begin="indefinite" fill="freeze" data-d="${d}"/></g></g>`;}
+
+const DRAWN=new Set(['seg','line','ray','arc','circ']),SEQ=new Set(['seg','line','ray','arc','circ','pt','prot']);
+function render(items,W,H){const f=`font-family="${css('--mono')}"`;let s='',comp='',j=0,d=0;
+  for(const it of items){
+    if(it.nw&&SEQ.has(it.t)){d=j*.6;j++;}
+    const fd=it.nw?` class="fd" style="animation-delay:${d}s"`:'';
+    const sty=it.nw?(DRAWN.has(it.t)&&!it.dash?` pathLength="1" class="nw" style="animation-delay:${d}s"`:fd):'';
+    const c=css(it.col||'--fg');
+    const st=`fill="none" stroke="${c}" stroke-width="${it.w||2}" stroke-linecap="round"${it.dash?' stroke-dasharray="6 5"':''}${it.op?` opacity="${it.op}"`:''}`;
+    const txt=(p,str,o={})=>`<text x="${p[0].toFixed(1)}" y="${p[1].toFixed(1)}" text-anchor="${o.anchor||'middle'}" dominant-baseline="middle" font-size="${o.size||13}" font-weight="${o.wt||600}" fill="${o.col||c}" ${f}>${str}</text>`;
+    switch(it.t){
+      case 'seg':s+=`<path d="M${P(it.a)}L${P(it.b)}" ${st}${sty}/>`;break;
+      case 'line':case 'ray':{const u=unit(sub(it.b,it.a)),tt=clipT(it.a,u,W,H);if(!tt)break;const t0=it.t==='ray'?Math.max(0,tt[0]):tt[0];if(t0>=tt[1])break;
+        s+=`<path d="M${P(add(it.a,mul(u,t0)))}L${P(add(it.a,mul(u,tt[1])))}" ${st}${sty}/>`;break;}
+      case 'arc':s+=`<path d="${arcD(it.c,it.r,it.a0,it.a1)}" ${st}${sty}/>`;if(it.cur&&it.compass&&!comp)comp=compassSvg(it,!!it.nw,d);break;
+      case 'circ':s+=`<path d="${arcD(it.c,it.r,0,2*PI)}" ${st}${sty}/>`;break;
+      case 'pt':s+=`<g${fd}><circle cx="${it.p[0].toFixed(1)}" cy="${it.p[1].toFixed(1)}" r="${it.r||5}" fill="${c}"/>${it.label?txt(add(it.p,it.lo||[11,-11]),it.label,{size:14}):''}</g>`;break;
+      case 'txt':s+=`<g${fd}>${txt(it.p,it.s,{anchor:it.anchor,size:it.size||12,wt:it.wt||500})}</g>`;break;
+      case 'ang':{const r=it.r||30,a1=ang(sub(it.p1,it.c)),dd=nrm(ang(sub(it.p2,it.c))-a1);const s0=dd<0?a1+dd:a1,s1=dd<0?a1:a1+dd,m=(s0+s1)/2;
+        s+=`<g${fd}><path d="${arcD(it.c,r,s0,s1)}" fill="none" stroke="${c}" stroke-width="1.6"/>${it.label?txt(add(it.c,[(r+17)*Math.cos(m),(r+17)*Math.sin(m)]),it.label,{size:12}):''}</g>`;break;}
+      case 'ra':{const k=it.s||12,u1=unit(sub(it.p1,it.c)),u2=unit(sub(it.p2,it.c));s+=`<path d="M${P(add(it.c,mul(u1,k)))}L${P(add(add(it.c,mul(u1,k)),mul(u2,k)))}L${P(add(it.c,mul(u2,k)))}" fill="none" stroke="${c}" stroke-width="1.6"${fd}/>`;break;}
+      case 'tick':{const u=unit(sub(it.b,it.a)),n=perp(u),m=mid(it.a,it.b);let g='';for(let i=0;i<(it.n||1);i++){const q=add(m,mul(u,(i-((it.n||1)-1)/2)*5));g+=`<path d="M${P(add(q,mul(n,6)))}L${P(add(q,mul(n,-6)))}" stroke="${c}" stroke-width="1.6"/>`;}s+=`<g${fd}>${g}</g>`;break;}
+      case 'prot':{const R=it.R||62,pa=t=>add(it.c,[R*Math.cos(it.phi+it.s*t),R*Math.sin(it.phi+it.s*t)]),q=t=>[it.c[0]+Math.cos(it.phi+it.s*t),it.c[1]+Math.sin(it.phi+it.s*t)];
+        let g=`<path d="M${P(pa(0))}${Array.from({length:37},(_,i)=>'L'+P(pa(i*PI/36))).join('')}Z" fill="${css('--muted')}" fill-opacity=".1" stroke="${css('--muted')}" stroke-width="1.2"/>`;
+        for(let k=0;k<=18;k++){const t=k*PI/18,dir=sub(q(t),it.c),l=k%3===0?9:5;g+=`<path d="M${P(add(it.c,mul(dir,R)))}L${P(add(it.c,mul(dir,R-l)))}" stroke="${css('--muted')}" stroke-width="1"/>`;}
+        [0,90,180].forEach(v=>{const dir=sub(q(v*PI/180),it.c);g+=txt(add(it.c,mul(dir,R-18)),v,{size:9,wt:500,col:css('--muted')});});
+        const mk=it.mark*PI/180,dir=sub(q(mk),it.c);g+=`<path d="M${P(it.c)}L${P(add(it.c,mul(dir,R)))}" stroke="${css('--hi')}" stroke-width="1.2" stroke-dasharray="3 3"/>`+txt(add(it.c,mul(dir,R+16)),it.mark+'°',{size:12,col:css('--hi')})+`<circle cx="${it.c[0]}" cy="${it.c[1]}" r="2.5" fill="${css('--muted')}"/>`;
+        s+=`<g${fd}>${g}</g>`;break;}
+    }
+  }
+  return s+comp;}
+const ring=p=>`<circle class="hd" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="15" fill="${css('--two')}" fill-opacity=".07" stroke="${css('--muted')}" stroke-width="1.3" stroke-dasharray="3 3"/>`;
+function startAnims(svg){svg.querySelectorAll('animateTransform').forEach(a=>{try{a.beginElementAt(parseFloat(a.getAttribute('data-d'))||0);}catch(e){}});}
+
+/* pointer dragging (mouse, pen and touch) */
+function makeDrag(svg,W,H,getH,onMove){let act=null;
+  const toS=e=>{const b=svg.getBoundingClientRect();return [(e.clientX-b.left)/b.width*W,(e.clientY-b.top)/b.height*H];};
+  svg.addEventListener('pointerdown',e=>{const p=toS(e);let best=null,bd=36;getH().forEach(h=>{const dd=dist(p,h.get());if(dd<bd){bd=dd;best=h;}});if(!best)return;act=best;try{svg.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(!act)return;const p=toS(e);act.set([clamp(p[0],14,W-14),clamp(p[1],14,H-14)]);onMove();});
+  const end=()=>{act=null;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);}
+const H=(obj,key,setter)=>({get:()=>obj[key],set:setter||(p=>{obj[key]=p;})});
+
+/* step-through engine: build() returns {base:[items], steps:[{t:text, items:[...]}], after?} */
+function Stepper(o){const svg=$(o.pre+'Svg'),W=o.W||560,Hh=o.H||360;let k=0;
+  function draw(anim){const b=o.build();const n=b.steps.length;if(k>n-1)k=n-1;anim=anim&&!reduced();
+    const items=[...(b.base||[])];
+    b.steps.slice(0,k+1).forEach((st,i)=>st.items.forEach(it=>{const cur=i===k;if(it.only&&!cur)return;items.push(Object.assign({},it,{cur,nw:anim&&cur}));}));
+    const hs=o.handles?o.handles():[];
+    svg.innerHTML=render(items,W,Hh)+hs.map(h=>ring(h.get())).join('');
+    if(anim)startAnims(svg);
+    $(o.pre+'Text').innerHTML=b.steps[k].t;
+    $(o.pre+'Count').textContent=k===0?(n>1?`Start · ${n-1} steps`:''):`Step ${k} of ${n-1}`;
+    $(o.pre+'Back').disabled=k===0;$(o.pre+'Next').disabled=k>=n-1;
+    const rd=$(o.pre+'Read');if(rd){rd.className='msg'+(b.cls?' '+b.cls:'');rd.innerHTML=b.read?b.read(k,n):'';}}
+  $(o.pre+'Next').addEventListener('click',()=>{k++;draw(true);});
+  $(o.pre+'Back').addEventListener('click',()=>{k=Math.max(0,k-1);draw(false);});
+  $(o.pre+'Restart').addEventListener('click',()=>{k=0;draw(false);});
+  if(o.handles)makeDrag(svg,W,Hh,o.handles,()=>draw(false));
+  draw(false);
+  return {draw:()=>draw(false),reset:()=>{k=0;draw(false);}};}
+
+/* 1. what compasses do */
+const cpSvg=$('cpSvg'),cpLock=$('cpLock');const cp={O:[280,165],r:100,th:-.6,trace:[],full:false,spinning:false};
+const cpPen=()=>add(cp.O,[cp.r*Math.cos(cp.th),cp.r*Math.sin(cp.th)]);
+function cpPush(nt){if(cp.full){cp.th=nt;return;}let prev=cp.trace.length?cp.trace[cp.trace.length-1]:cp.th;if(!cp.trace.length)cp.trace.push(prev);
+  const target=prev+nrm(nt-prev),steps=Math.ceil(Math.abs(target-prev)/.04);for(let i=1;i<=steps;i++)cp.trace.push(prev+(target-prev)*i/steps);cp.th=nt;
+  const lo=Math.min(...cp.trace),hi=Math.max(...cp.trace);if(hi-lo>=2*PI-.02){cp.full=true;cp.trace=[];}}
+function drawCP(){const g=css('--grid');let s='';for(let x=0;x<=560;x+=U)s+=`<line x1="${x}" y1="0" x2="${x}" y2="320" stroke="${g}"/>`;for(let y=0;y<=320;y+=U)s+=`<line x1="0" y1="${y}" x2="560" y2="${y}" stroke="${g}"/>`;
+  const items=[];let span=0;
+  if(cp.full){items.push({t:'circ',c:cp.O,r:cp.r,col:'--hi',w:2.5});span=360;}
+  else if(cp.trace.length>1){const lo=Math.min(...cp.trace),hi=Math.max(...cp.trace);span=(hi-lo)*180/PI;s+=`<polyline points="${cp.trace.map(a=>P(add(cp.O,[cp.r*Math.cos(a),cp.r*Math.sin(a)]))).join(' ')}" fill="none" stroke="${css('--hi')}" stroke-width="2.5" stroke-linecap="round"/>`;}
+  // spokes: sample points on what has been drawn, all the same length
+  const samp=cp.full?[0,1,2,3,4,5].map(i=>i*PI/3+.3):(cp.trace.length>8?[0,.25,.5,.75,1].map(q=>cp.trace[Math.round(q*(cp.trace.length-1))]):[]);
+  samp.forEach(a=>{const q=add(cp.O,[cp.r*Math.cos(a),cp.r*Math.sin(a)]);items.push(SEG(cp.O,q,{col:'--muted',w:1.3,dash:true}),{t:'pt',p:q,col:'--two',r:3.5});});
+  const pen=cpPen();items.push(SEG(cp.O,pen,{col:'--accent',w:2}),{t:'txt',p:add(mid(cp.O,pen),mul(perp(unit(sub(pen,cp.O))),14)),s:`${fmt(cp.r/U,2)} cm`,col:'--accent',wt:600},PT(cp.O,'O',[0,20],'--fg'),PT(pen,'P',off(pen,cp.O,18),'--hi'));
+  s+=render(items,560,320)+compassSvg({c:cp.O,r:cp.r,a0:cp.th,a1:cp.th},false,0)+ring(cp.O)+ring(pen);cpSvg.innerHTML=s;
+  $('cpR').textContent=`${fmt(cp.r/U,2)} cm`;$('cpTurn').textContent=`${Math.round(span)}°`;
+  const M=$('cpMsg');M.className='msg';
+  M.innerHTML=cp.full?`A full circle. Every point on it is exactly ${fmt(cp.r/U,2)} cm from O: the dashed spokes are all the same length.`:span>2?`That curve is an <strong>arc</strong>, part of a circle. Every point on it is ${fmt(cp.r/U,2)} cm from O. Keep going to close the circle.`:cpLock.checked?'Drag the pencil P round the point O (or press Spin). The width is locked, so P can only move on a circle.':'Width unlocked: drag P closer to or further from O to change the width, then lock it again and draw.';}
+makeDrag(cpSvg,560,320,()=>[H(cp,'O'),{get:cpPen,set:p=>{const nt=ang(sub(p,cp.O));if(cpLock.checked)cpPush(nt);else{cp.r=clamp(dist(p,cp.O),24,150);cp.th=nt;cp.trace=[];cp.full=false;}}}],drawCP);
+cpLock.addEventListener('change',drawCP);
+$('cpClear').addEventListener('click',()=>{cp.trace=[];cp.full=false;drawCP();});
+$('cpSpin').addEventListener('click',()=>{if(cp.spinning)return;cp.trace=[];cp.full=false;
+  if(reduced()){cp.full=true;drawCP();return;}cp.spinning=true;const t0=performance.now(),a0=cp.th;
+  const tick=now=>{const q=Math.min(1,(now-t0)/1600);cpPush(nrm(a0+q*2*PI));if(q>=1)cp.full=true;drawCP();if(q<1)requestAnimationFrame(tick);else cp.spinning=false;};requestAnimationFrame(tick);});
+drawCP();
+
+/* 2. SSS triangle */
+const ssA=$('ssA'),ssB=$('ssB'),ssC=$('ssC');
+function ssBuild(){const a=+ssA.value,b=+ssB.value,c=+ssC.value;$('ssAv').textContent=` ${fmt(a)} cm`;$('ssBv').textContent=` ${fmt(b)} cm`;$('ssCv').textContent=` ${fmt(c)} cm`;
+  const ok=a+b>c&&a+c>b&&b+c>a;let cx=0,cy=0;if(ok){cx=(b*b-a*a+c*c)/(2*c);cy=Math.sqrt(Math.max(0,b*b-cx*cx));}
+  const minX=Math.min(0,ok?cx:0),maxX=Math.max(c,ok?cx:c),maxY=ok?cy:Math.max(a,b);
+  const S=Math.min(U,265/(maxY+.6),480/(maxX-minX+.8)),ox=(560-(maxX-minX)*S)/2-minX*S,oy=310;
+  const T=(x,y)=>[ox+x*S,oy-y*S],A=T(0,0),B=T(c,0),C=ok?T(cx,cy):null;
+  const rb=b*S,ra=a*S;
+  const arcA=ok?arcSpan(A,[C],padFor(rb)):[-PI/3-.5,-PI/3+.5],arcB=ok?arcSpan(B,[C],padFor(ra)):[-2*PI/3-.5,-2*PI/3+.5];
+  const L=[[a,'BC'],[b,'AC'],[c,'AB']].sort((x,y)=>y[0]-x[0]);
+  const steps=[
+    {t:`<strong>Goal:</strong> triangle ABC with AB = ${fmt(c)} cm, AC = ${fmt(b)} cm and BC = ${fmt(a)} cm. You need a sharp pencil, a ruler and a pair of compasses. Press <strong>Next</strong>.`,items:[]},
+    {t:`Use the ruler to draw the base <strong>AB = ${fmt(c)} cm</strong>. Label the ends A and B.`,items:[SEG(A,B,{w:2.5}),PT(A,'A',[-14,14],'--fg'),PT(B,'B',[14,14],'--fg'),{t:'txt',p:add(mid(A,B),[0,20]),s:`${fmt(c)} cm`,col:'--muted'}]},
+    {t:`Open the compasses to <strong>${fmt(b)} cm</strong> (measure the gap against your ruler). Put the point on <strong>A</strong> and draw an <span class="C">arc</span> above the line. Every point on this arc is ${fmt(b)} cm from A.`,items:[ARC(A,rb,arcA)]},
+    {t:ok?`Now open the compasses to <strong>${fmt(a)} cm</strong>. Put the point on <strong>B</strong> and draw an <span class="C">arc</span> that crosses the first one. Every point on this arc is ${fmt(a)} cm from B.`
+        :`Now open the compasses to <strong>${fmt(a)} cm</strong>, point on B, and draw an arc. <strong>The arcs don't meet!</strong> ${L[1][1]} + ${L[2][1]} = ${fmt(L[1][0]+L[2][0])} cm, which is not more than ${L[0][1]} = ${fmt(L[0][0])} cm, so the two shorter sides can't reach each other. No triangle is possible.`,items:[ARC(B,ra,arcB)]}];
+  if(ok)steps.push({t:`The arcs cross at <span class="P">C</span>: the one point (above AB) that is ${fmt(b)} cm from A <em>and</em> ${fmt(a)} cm from B. Join C to A and to B with the ruler. <strong>Leave the arcs showing</strong> — they are your working.`,
+    items:[PT(C,'C',[0,-17]),SEG(A,C,{col:'--accent',w:2.5}),SEG(B,C,{col:'--accent',w:2.5}),SEG(A,B,{col:'--accent',w:2.5}),{t:'txt',p:add(mid(A,C),mul(unit(perp(sub(C,A))),15)),s:`${fmt(b)}`,col:'--accent'},{t:'txt',p:add(mid(B,C),mul(unit(perp(sub(B,C))),15)),s:`${fmt(a)}`,col:'--accent'}]});
+  const angA=ok?Math.acos(clamp((b*b+c*c-a*a)/(2*b*c),-1,1))*180/PI:0,angB=ok?Math.acos(clamp((a*a+c*c-b*b)/(2*a*c),-1,1))*180/PI:0;
+  return {steps,cls:ok?'':'bad',read:(k,n)=>!ok?`Not a triangle: ${L[1][1]} + ${L[2][1]} must be more than ${L[0][1]}.`:k===n-1?`Check with a protractor: angle A ≈ ${Math.round(angA)}°, angle B ≈ ${Math.round(angB)}°, angle C ≈ ${Math.round(180-angA-angB)}°.`:''};}
+const ss=Stepper({pre:'ss',H:340,build:ssBuild});[ssA,ssB,ssC].forEach(e=>e.addEventListener('input',ss.draw));
+
+/* 3. SAS / ASA with a protractor */
+const prMode=$('prMode'),prC=$('prC'),prAl=$('prAl'),prB=$('prB'),prBe=$('prBe');
+function prBuild(){const mode=prMode.value,c=+prC.value,al=+prAl.value,b=+prB.value,be=+prBe.value;
+  $('prCv').textContent=` ${fmt(c)} cm`;$('prAlv').textContent=` ${al}°`;$('prBv').textContent=` ${fmt(b)} cm`;$('prBev').textContent=` ${be}°`;
+  $('prBWrap').hidden=mode!=='sas';$('prBeWrap').hidden=mode!=='asa';
+  const ra=al*PI/180,rb=be*PI/180,ok=mode==='sas'||al+be<180;
+  const AC=mode==='sas'?b:(ok?c*Math.sin(rb)/Math.sin(ra+rb):0),BC=mode==='sas'?Math.sqrt(b*b+c*c-2*b*c*Math.cos(ra)):(ok?c*Math.sin(ra)/Math.sin(ra+rb):0);
+  const Ccm=ok?[AC*Math.cos(ra),AC*Math.sin(ra)]:null;
+  const LA=ok?AC+1.2:c*1.3,LB=ok?BC+1.2:c*1.3;
+  const eA=[LA*Math.cos(ra),LA*Math.sin(ra)],eB=[c-LB*Math.cos(rb),LB*Math.sin(rb)];
+  const xs=[0,c,eA[0]].concat(mode==='asa'?[eB[0]]:[]),ys=[eA[1]].concat(mode==='asa'?[eB[1]]:[]);
+  const minX=Math.min(...xs),maxX=Math.max(...xs),maxY=Math.max(...ys,1);
+  const S=Math.min(U,255/(maxY+.2),470/(maxX-minX+.8)),ox=(560-(maxX-minX)*S)/2-minX*S,oy=320;
+  const T=q=>[ox+q[0]*S,oy-q[1]*S],A=T([0,0]),B=T([c,0]),C=ok?T(Ccm):null;
+  const dA=[Math.cos(ra),-Math.sin(ra)],dB=[-Math.cos(rb),-Math.sin(rb)],Rp=62;
+  const dotA=add(A,mul(dA,Rp)),dotB=add(B,mul(dB,Rp));
+  const base=[{t:'seg',a:A,b:B,w:2.5}];
+  const st=[{t:mode==='sas'?`<strong>Goal (SAS):</strong> AB = ${fmt(c)} cm, angle A = ${al}°, AC = ${fmt(b)} cm. The angle is <em>between</em> the two sides. Press <strong>Next</strong>.`:`<strong>Goal (ASA):</strong> AB = ${fmt(c)} cm with angle A = ${al}° and angle B = ${be}° at its two ends. Press <strong>Next</strong>.`,items:[]},
+    {t:`Draw <strong>AB = ${fmt(c)} cm</strong> with a ruler and label the ends.`,items:[PT(A,'A',[-14,14],'--fg'),PT(B,'B',[14,14],'--fg'),{t:'txt',p:add(mid(A,B),[0,20]),s:`${fmt(c)} cm`,col:'--muted'}]},
+    {t:`Put the protractor's centre cross <strong>exactly on A</strong>, with its 0° line along AB. Count up from 0° on the scale that starts at AB to <strong>${al}°</strong>, and make a small dot.`,items:[{t:'prot',c:A,phi:0,s:-1,mark:al,R:Rp,only:true},{t:'pt',p:dotA,r:3,col:'--fg'}]},
+    {t:`Take the protractor away. Use the ruler to draw a line from A through your dot.`,items:[SEG(A,T(eA),{w:1.5,col:'--muted'})]}];
+  if(mode==='sas'){
+    st.push({t:`Open the compasses to <strong>${fmt(b)} cm</strong>, point on A, and make an <span class="C">arc</span> across the line (or measure ${fmt(b)} cm with the ruler). Where it crosses is <span class="P">C</span>.`,items:[ARC(A,b*S,arcSpan(A,[C],padFor(b*S))),PT(C,'C',[0,-17])]});
+    st.push({t:`Join C to B. <span class="M">Done.</span> Two sides and the angle between them fix exactly one triangle.`,items:[SEG(A,C,{col:'--accent',w:2.5}),SEG(C,B,{col:'--accent',w:2.5}),SEG(A,B,{col:'--accent',w:2.5}),{t:'ang',c:A,p1:B,p2:C,r:26,label:al+'°',col:'--accent'}]});
+  }else{
+    st.push({t:`Now the protractor goes on <strong>B</strong>, 0° line along BA. Count up from 0° on the scale that starts at BA to <strong>${be}°</strong> and make a dot.`,items:[{t:'prot',c:B,phi:PI,s:1,mark:be,R:Rp,only:true},{t:'pt',p:dotB,r:3,col:'--fg'}]});
+    st.push({t:ok?`Remove the protractor and draw a line from B through the dot. The two lines cross at <span class="P">C</span>.`:`Draw a line from B through the dot. <strong>These lines never meet</strong> above AB: ${al}° + ${be}° = ${al+be}°, and the angles in a triangle add up to 180°, so two of them must add to <em>less</em> than 180°.`,items:[SEG(B,T(eB),{w:1.5,col:'--muted'})].concat(ok?[PT(C,'C',[0,-17])]:[])});
+    if(ok)st.push({t:`Go over the triangle ABC. <span class="M">Done.</span> One side and the angles at both ends fix exactly one triangle.`,items:[SEG(A,C,{col:'--accent',w:2.5}),SEG(C,B,{col:'--accent',w:2.5}),SEG(A,B,{col:'--accent',w:2.5}),{t:'ang',c:A,p1:B,p2:C,r:26,label:al+'°',col:'--accent'},{t:'ang',c:B,p1:A,p2:C,r:26,label:be+'°',col:'--accent'}]});
+  }
+  const angB=mode==='sas'?Math.acos(clamp((BC*BC+c*c-b*b)/(2*BC*c),-1,1))*180/PI:be;
+  return {base,steps:st,cls:ok?'':'bad',read:(k,n)=>!ok?`Angles A + B = ${al+be}° — no triangle possible.`:k===n-1?(mode==='sas'?`Measure to check: BC ≈ ${fmt(BC)} cm, angle B ≈ ${Math.round(angB)}°.`:`Measure to check: AC ≈ ${fmt(AC)} cm, BC ≈ ${fmt(BC)} cm, angle C = 180° − ${al}° − ${be}° = ${180-al-be}°.`):''};}
+const pr=Stepper({pre:'pr',build:prBuild});[prC,prAl,prB,prBe].forEach(e=>e.addEventListener('input',pr.draw));prMode.addEventListener('change',pr.reset);
+
+/* 4. perpendicular bisector */
+const pbW=$('pbW'),pbMis=$('pbMis');const pb={A:[140,215],B:[420,165]};
+function pbBuild(){const f=+pbW.value/100,mis=pbMis.checked,A=pb.A,B=pb.B,d=dist(A,B);
+  const base=[SEG(A,B,{w:2.5}),PT(A,'A',off(A,B),'--fg'),PT(B,'B',off(B,A),'--fg')];
+  $('pbWv').textContent=` ${fmt(f*d/U)} cm (${Math.round(f*100)}% of AB)`;
+  if(d<60)return {base,steps:[{t:'Drag A and B further apart to give yourself room.',items:[]}]};
+  const r1=f*d,r2=mis?r1*.8:r1,X=cci(A,r1,B,r2),u=unit(sub(B,A)),a0=ang(u);
+  const spA=X.length?arcSpan(A,X,.3):[a0-1.1,a0+1.1],spB=X.length?arcSpan(B,X,.3):[a0+PI-1.1,a0+PI+1.1];
+  const steps=[{t:`This is a <strong>line segment</strong> AB, ${fmt(d/U)} cm long. We want the line that cuts it in half at 90°. Press <strong>Next</strong>. (You can drag A and B at any time.)`,items:[]},
+    {t:`Open the compasses to <strong>more than half</strong> of AB (here ${fmt(r1/U)} cm; half of AB is ${fmt(d/2/U)} cm). Put the point on <strong>A</strong> and draw an <span class="C">arc</span> above and below the line.`,items:[ARC(A,r1,spA)]},
+    {t:mis?`<strong>Mistake:</strong> the width has been changed to ${fmt(r2/U)} cm before drawing from B. Put the point on B and draw the arc.`:`<strong>Don't change the width.</strong> Put the point on <strong>B</strong> and draw an <span class="C">arc</span> that crosses the first one above and below.`,items:[ARC(B,r2,spB)]}];
+  if(!X.length){steps[2].t+=` <strong>The arcs don't meet.</strong> The width (${fmt(r1/U)} cm) is not more than half of AB (${fmt(d/2/U)} cm), so the two arcs can't reach each other. Make the width bigger.`;
+    return {base,steps,cls:'bad',read:()=>`Compass width ${fmt(r1/U)} cm is too small: it must be more than ${fmt(d/2/U)} cm.`};}
+  const [Pp,Q]=X,Mp=add(A,mul(u,(r1*r1-r2*r2+d*d)/(2*d)));
+  steps.push({t:`Mark the two crossing points <span class="P">P</span> and <span class="P">Q</span>. P is on both arcs, so it is the same distance from A as from B${mis?' — or it would be, if the width had not changed':''}.`,items:[PT(Pp,'P',add(mul(u,-16),off(Pp,Mp,6))),PT(Q,'Q',add(mul(u,-16),off(Q,Mp,6)))]});
+  const fin=[{t:'line',a:Pp,b:Q,col:'--accent',w:2.5},PT(Mp,'M',add(mul(u,14),mul(perp(u),-14)),'--accent'),{t:'ra',c:Mp,p1:B,p2:Pp,col:'--accent'}];
+  if(!mis)fin.push({t:'tick',a:A,b:Mp,n:1,col:'--accent'},{t:'tick',a:Mp,b:B,n:1,col:'--accent'});
+  steps.push({t:mis?`Joining P and Q gives a line that is still at 90° to AB, but it <strong>misses the midpoint</strong>: AM = ${fmt(dist(A,Mp)/U)} cm but MB = ${fmt(dist(Mp,B)/U)} cm. Changing the width spoiled it.`:`Use the ruler to draw a line through P and Q. This is the <span class="M">perpendicular bisector</span> of AB. It crosses AB at the midpoint M, at 90°.`,items:fin});
+  return {base,steps,cls:mis?'bad':'',read:(k,n)=>k<3?'':mis?`PA = ${fmt(r1/U)} cm, PB = ${fmt(r2/U)} cm: not equal, so P is not equidistant from A and B.`:`PA = PB = QA = QB = ${fmt(r1/U)} cm (a rhombus). ${k===n-1?`AM = MB = ${fmt(d/2/U)} cm, angle at M = 90°.`:''}`};}
+const pbS=Stepper({pre:'pb',build:pbBuild,handles:()=>[H(pb,'A'),H(pb,'B')]});pbW.addEventListener('input',pbS.draw);pbMis.addEventListener('change',pbS.draw);
+
+/* 5. angle bisector */
+const ab={O:[110,290],A:[500,260],B:[330,50]};
+function abBuild(){const O=ab.O,A=ab.A,B=ab.B,uA=unit(sub(A,O)),uB=unit(sub(B,O)),deg=angDeg(uA,uB);
+  const base=[{t:'ray',a:O,b:A,w:2.5},{t:'ray',a:O,b:B,w:2.5},PT(O,'O',mul(unit(add(uA,uB)),-18),'--fg'),PT(A,'A',add(mul(perp(uA),-15),[0,0]),'--fg'),PT(B,'B',mul(perp(uB),15),'--fg')];
+  const lo=Math.min(dist(O,A),dist(O,B));
+  if(deg<10||deg>170||lo<70)return {base,steps:[{t:lo<70?'Drag A and B further from O to give the arcs room.':`This angle is ${Math.round(deg)}°. Drag A or B to make an angle between 10° and 170° so the arcs are easy to see.`,items:[]}]};
+  const r1=clamp(.45*lo,40,150),Pp=add(O,mul(uA,r1)),Q=add(O,mul(uB,r1)),r2=Math.max(r1,.62*dist(Pp,Q));
+  const X=cci(Pp,r2,Q,r2),R=X.length?(dist(X[0],O)>dist(X[1],O)?X[0]:X[1]):add(O,mul(unit(add(uA,uB)),r1*1.8));
+  const D=Math.round(deg);
+  const steps=[{t:`Here is angle AOB, about ${Math.round(deg)}°. O is the <strong>vertex</strong> (corner). We want the line that splits it into two equal angles. Press <strong>Next</strong>.`,items:[]},
+    {t:`Put the compass point on the vertex <strong>O</strong>. Draw an <span class="C">arc</span> that crosses <em>both</em> arms of the angle.`,items:[ARC(O,r1,arcSpan(O,[Pp,Q],.22))]},
+    {t:`Mark where the arc crosses the arms: <span class="P">P</span> and <span class="P">Q</span>. They are both ${fmt(r1/U)} cm from O, so <strong>OP = OQ</strong>.`,items:[PT(Pp,'P',mul(perp(uA),16)),PT(Q,'Q',mul(perp(uB),-16))]},
+    {t:`Put the point on <strong>P</strong> (width ${fmt(r2/U)} cm) and draw an <span class="C">arc</span> inside the angle.`,items:[ARC(Pp,r2,arcSpan(Pp,[R],padFor(r2)))]},
+    {t:`<strong>Keep the same width.</strong> Point on <strong>Q</strong>, draw an <span class="C">arc</span> crossing the last one at <span class="P">R</span>. So <strong>PR = QR</strong>.`,items:[ARC(Q,r2,arcSpan(Q,[R],padFor(r2))),PT(R,'R',add(mul(perp(unit(sub(R,O))),16),[0,0]))]},
+    {t:`Join O to R with a ruler (and carry on past R). This is the <span class="M">angle bisector</span>: the two angles are equal.`,items:[{t:'ray',a:O,b:R,col:'--accent',w:2.5},{t:'ang',c:O,p1:A,p2:R,r:r1*.55,label:fmt(D/2)+'°',col:'--accent'},{t:'ang',c:O,p1:R,p2:B,r:r1*.55+6,label:fmt(D/2)+'°',col:'--accent'}]}];
+  return {base,steps,read:(k,n)=>k===n-1?`Angle AOB ≈ ${D}°. Each half = ${D}° ÷ 2 = ${fmt(D/2)}°. OPRQ is a kite: OP = OQ = ${fmt(r1/U)} cm, PR = QR = ${fmt(r2/U)} cm.`:''};}
+const abS=Stepper({pre:'ab',build:abBuild,handles:()=>[H(ab,'O'),H(ab,'A'),H(ab,'B')]});
+
+/* 6. perpendicular from / at a point */
+const ppMode=$('ppMode');const pp={L1:[50,250],L2:[510,205],P:[290,80]};
+const ppProj=p=>{const u=unit(sub(pp.L2,pp.L1));return add(pp.L1,mul(u,dot(sub(p,pp.L1),u)));};
+function ppBuild(){const mode=ppMode.value,L1=pp.L1,L2=pp.L2;
+  const base=[{t:'line',a:L1,b:L2,w:2.5},{t:'pt',p:L1,r:3.5,col:'--fg'},{t:'pt',p:L2,r:3.5,col:'--fg'}];
+  if(dist(L1,L2)<40)return {base,steps:[{t:'Drag the two line handles further apart.',items:[]}]};
+  const u=unit(sub(L2,L1));
+  if(mode==='at'){pp.P=ppProj(pp.P);}
+  const Pp=pp.P,F=ppProj(Pp),dP=dist(Pp,F);base.push(PT(Pp,'P',mode==='at'?add(mul(perp(u),-16),mul(u,-12)):add(mul(u,-20),off(Pp,F,4)),'--fg'));
+  if(mode==='from'){
+    if(dP<20)return {base,steps:[{t:'P is (almost) on the line. Drag P away from the line, or choose "at a point on a line".',items:[]}]};
+    const r=Math.max(dP*1.4,dP+40),s=Math.sqrt(r*r-dP*dP),A=add(F,mul(u,-s)),B=add(F,mul(u,s)),Q=add(F,sub(F,Pp));
+    const steps=[{t:`P is a point <em>off</em> the line. We want the line from P that meets it at 90°. Press <strong>Next</strong>. (Drag P or the line.)`,items:[]},
+      {t:`Put the compass point on <strong>P</strong>. Open it wide enough to reach past the line, and draw an <span class="C">arc</span> that crosses the line <em>twice</em>.`,items:[ARC(Pp,r,arcSpan(Pp,[A,B],.22))]},
+      {t:`Mark the crossings <span class="P">A</span> and <span class="P">B</span>. PA = PB, because both are on the same arc.`,items:[PT(A,'A',mul(perp(u),-16)),PT(B,'B',mul(perp(u),-16))]},
+      {t:`Keep the same width. Point on <strong>A</strong>, draw an <span class="C">arc</span> on the <em>other</em> side of the line from P.`,items:[ARC(A,r,arcSpan(A,[Q],padFor(r)))]},
+      {t:`Same width again. Point on <strong>B</strong>, draw an <span class="C">arc</span> crossing the last one at <span class="P">Q</span>.`,items:[ARC(B,r,arcSpan(B,[Q],padFor(r))),PT(Q,'Q',add(mul(u,17),off(Q,F,4)))]},
+      {t:`Line the ruler up with P and Q and draw the line. It meets the original line at 90°. The distance from P to the foot F is the <span class="M">shortest distance</span> from P to the line.`,items:[SEG(Pp,Q,{col:'--accent',w:2.5}),{t:'ra',c:F,p1:B,p2:Pp,col:'--accent'},PT(F,'F',add(mul(u,16),mul(perp(u),-14)),'--accent')]}];
+    return {base,steps,read:(k,n)=>k===n-1?`PF = ${fmt(dP/U)} cm. Any other path from P to the line, like PA = ${fmt(r/U)} cm, is longer.`:''};}
+  let n=perp(u);const cen=[280,180];if(dot(n,sub(cen,Pp))<-1||(Math.abs(dot(n,sub(cen,Pp)))<=1&&n[1]>0))n=mul(n,-1);
+  const r1=70,A=add(Pp,mul(u,-r1)),B=add(Pp,mul(u,r1)),r2=1.6*r1,Q=add(Pp,mul(n,Math.sqrt(r2*r2-r1*r1)));
+  const steps=[{t:`P is a point <em>on</em> the line. We want a line through P at 90°. Press <strong>Next</strong>. (Drag P along the line, or move the line.)`,items:[]},
+    {t:`Point on <strong>P</strong>, any small width. Draw short <span class="C">arcs</span> that cut the line on both sides of P.`,items:[ARC(Pp,r1,arcSpan(Pp,[A],.3)),ARC(Pp,r1,arcSpan(Pp,[B],.3),{compass:false})]},
+    {t:`Call the cuts <span class="P">A</span> and <span class="P">B</span>. PA = PB, so P is the midpoint of AB.`,items:[PT(A,'A',mul(n,-16)),PT(B,'B',mul(n,-16))]},
+    {t:`Open the compasses <strong>wider</strong> (more than PA). Point on <strong>A</strong>, draw an <span class="C">arc</span> above P.`,items:[ARC(A,r2,arcSpan(A,[Q],padFor(r2)))]},
+    {t:`Same width. Point on <strong>B</strong>, draw an <span class="C">arc</span> crossing the last one at <span class="P">Q</span>.`,items:[ARC(B,r2,arcSpan(B,[Q],padFor(r2))),PT(Q,'Q',add(mul(u,16),mul(n,6)))]},
+    {t:`Join P to Q. It is <span class="M">perpendicular</span> to the line at P: Q and P are both equidistant from A and B.`,items:[{t:'ray',a:Pp,b:Q,col:'--accent',w:2.5},{t:'ra',c:Pp,p1:B,p2:Q,col:'--accent'}]}];
+  return {base,steps,read:(k,n)=>k===n-1?`PA = PB = ${fmt(r1/U)} cm; QA = QB = ${fmt(r2/U)} cm. Angle at P = 90°.`:''};}
+const ppS=Stepper({pre:'pp',build:ppBuild,handles:()=>[H(pp,'L1'),H(pp,'L2'),H(pp,'P',p=>{pp.P=ppMode.value==='at'?ppProj(p):p;})]});
+ppMode.addEventListener('change',()=>{if(ppMode.value==='from'){const F=ppProj(pp.P);let n=perp(unit(sub(pp.L2,pp.L1)));if(n[1]>0)n=mul(n,-1);pp.P=add(F,mul(n,110));}ppS.reset();});
+
+/* 7. special angles */
+const saMode=$('saMode');const sa={A:[220,285],B:[480,285]};
+function saBuild(){const mode=saMode.value,A=sa.A,B=sa.B;
+  const u=unit(sub(B,A)),n=perp(u),r=105,au=ang(u),pAt=t=>add(A,add(mul(u,r*Math.cos(t)),mul(n,r*Math.sin(t))));
+  const is60=mode==='60'||mode==='30';
+  const base=[{t:is60?'ray':'line',a:A,b:B,w:2.5},PT(A,'A',add(mul(u,-14),mul(n,-14)),'--fg'),{t:'pt',p:B,r:3.5,col:'--fg'}];
+  if(dist(A,B)<50)return {base,steps:[{t:'Drag B further from A.',items:[]}]};
+  if(is60){const Pp=pAt(0),Q=pAt(PI/3),R=add(Pp,sub(Q,A));
+    const steps=[{t:`Start with a line from A. We want ${mode==='60'?'a 60° angle':'a 30° angle (60° first, then bisect it)'} at A, with no protractor. Press <strong>Next</strong>.`,items:[]},
+      {t:`Point on <strong>A</strong>, any sensible width. Draw a long <span class="C">arc</span> that crosses the line and curves up and over.`,items:[ARC(A,r,[au-1.35,au+.15])]},
+      {t:`Mark <span class="P">P</span>, where the arc crosses the line.`,items:[PT(Pp,'P',add(mul(n,-15),mul(u,10)))]},
+      {t:`<strong>Same width.</strong> Point on <strong>P</strong>, draw an <span class="C">arc</span> that crosses the first arc at <span class="P">Q</span>.`,items:[ARC(Pp,r,arcSpan(Pp,[Q],.3)),PT(Q,'Q',add(mul(n,16),mul(u,6)))]},
+      {t:`Join A to Q. Angle QAP = <span class="M">60°</span>, because AP = AQ = PQ (all ${fmt(r/U)} cm, the same width): APQ is an <strong>equilateral triangle</strong>.`,items:[{t:'ray',a:A,b:Q,col:mode==='60'?'--accent':'--muted',w:mode==='60'?2.5:1.6},SEG(Pp,Q,{col:'--muted',w:1.3,dash:true}),{t:'tick',a:A,b:Pp,col:'--muted'},{t:'tick',a:A,b:Q,col:'--muted'},{t:'tick',a:Pp,b:Q,col:'--muted'},{t:'ang',c:A,p1:Pp,p2:Q,r:32,label:'60°',col:mode==='60'?'--accent':'--muted'}]}];
+    if(mode==='30')steps.push(
+      {t:`Now bisect angle QAP. Same width, point on <strong>P</strong>: draw an <span class="C">arc</span> between the two lines.`,items:[ARC(Pp,r,arcSpan(Pp,[R],.3))]},
+      {t:`Same width, point on <strong>Q</strong>: an <span class="C">arc</span> crossing the last one at <span class="P">R</span>.`,items:[ARC(Q,r,arcSpan(Q,[R],.3)),PT(R,'R',mul(perp(unit(sub(R,A))),16))]},
+      {t:`Join A to R. Angle RAP = 60° ÷ 2 = <span class="M">30°</span>. (APRQ is a rhombus, and its diagonal AR halves the angle.)`,items:[{t:'ray',a:A,b:R,col:'--accent',w:2.5},{t:'ang',c:A,p1:Pp,p2:R,r:55,label:'30°',col:'--accent'}]});
+    return {base,steps,read:(k,n)=>k===n-1?(mode==='60'?'Equilateral triangle → every angle 180° ÷ 3 = 60°.':'60° bisected → 30°.'):''};}
+  const P1=add(A,mul(u,-r)),P2=add(A,mul(u,r)),r2=1.8*r,Rq=add(A,mul(n,Math.sqrt(r2*r2-r*r))),Sp=add(A,mul(n,r)),T=add(P2,sub(Sp,A));
+  const steps=[{t:`Start with a line and a point A on it. We want ${mode==='90'?'a 90° angle':'a 45° angle (90° first, then bisect it)'} at A. Press <strong>Next</strong>.`,items:[]},
+    {t:`Point on <strong>A</strong>. Draw a big <span class="C">arc</span> that cuts the line on both sides of A.`,items:[ARC(A,r,[au-PI-.15,au+.15])]},
+    {t:`Mark the cuts <span class="P">P</span> and <span class="P">Q</span>. AP = AQ.`,items:[PT(P1,'P',add(mul(n,-15),mul(u,-6))),PT(P2,'Q',add(mul(n,-15),mul(u,6)))]},
+    {t:`Open the compasses <strong>wider</strong>. Point on <strong>P</strong>, draw an <span class="C">arc</span> above A.`,items:[ARC(P1,r2,arcSpan(P1,[Rq],padFor(r2)))]},
+    {t:`Same width. Point on <strong>Q</strong>, draw an <span class="C">arc</span> crossing the last one at <span class="P">R</span>.`,items:[ARC(P2,r2,arcSpan(P2,[Rq],padFor(r2))),PT(Rq,'R',add(mul(n,10),mul(u,14)))]},
+    {t:`Join A to R. Angle RAQ = <span class="M">90°</span>: AR is the perpendicular bisector of PQ.`,items:[{t:'ray',a:A,b:Rq,col:mode==='90'?'--accent':'--muted',w:mode==='90'?2.5:1.6},{t:'ra',c:A,p1:P2,p2:Rq,col:mode==='90'?'--accent':'--muted'}]}];
+  if(mode==='45')steps.push(
+    {t:`Mark <span class="P">S</span>, where AR crosses the first big arc. AS = AQ (same arc).`,items:[PT(Sp,'S',add(mul(u,-14),mul(n,-2)))]},
+    {t:`Width back to AQ (the first width). Point on <strong>Q</strong>, draw an <span class="C">arc</span> inside the right angle.`,items:[ARC(P2,r,arcSpan(P2,[T],.3))]},
+    {t:`Same width, point on <strong>S</strong>: an <span class="C">arc</span> crossing the last one at <span class="P">T</span>.`,items:[ARC(Sp,r,arcSpan(Sp,[T],.3)),PT(T,'T',mul(perp(unit(sub(T,A))),-16))]},
+    {t:`Join A to T. Angle TAQ = 90° ÷ 2 = <span class="M">45°</span>.`,items:[{t:'ray',a:A,b:T,col:'--accent',w:2.5},{t:'ang',c:A,p1:P2,p2:T,r:45,label:'45°',col:'--accent'}]});
+  return {base,steps,read:(k,n)=>k===n-1?(mode==='90'?'Perpendicular at a point → 90°.':'90° bisected → 45°.'):''};}
+const saS=Stepper({pre:'sa',build:saBuild,handles:()=>[H(sa,'A'),H(sa,'B')]});saMode.addEventListener('change',saS.reset);
+
+/* 8. loci explorer */
+const loSvg=$('loSvg'),loMode=$('loMode'),loShow=$('loShow');const lo={A:[180,200],B:[390,160],X:[300,70],L1:[520,110],L2:[520,300],O:[260,200],dots:[]};
+function drawLO(){const mode=loMode.value,X=lo.X,items=[];let d1,d2;
+  if(mode==='pts'){const A=lo.A,B=lo.B;d1=dist(X,A);d2=dist(X,B);
+    if(loShow.checked&&dist(A,B)>5){const M=mid(A,B);items.push({t:'line',a:M,b:add(M,perp(unit(sub(B,A)))),col:'--accent',w:2.5,op:.8});}
+    items.push(PT(A,'A',off(A,B),'--fg'),PT(B,'B',off(B,A),'--fg'),SEG(X,A,{col:'--muted',w:1.4,dash:true}),SEG(X,B,{col:'--muted',w:1.4,dash:true}),
+      {t:'txt',p:add(mid(X,A),[0,-10]),s:fmt(d1/U)+' cm',col:'--hi',wt:600},{t:'txt',p:add(mid(X,B),[0,-10]),s:fmt(d2/U)+' cm',col:'--two',wt:600});
+  }else{const O=lo.O,u1=unit(sub(lo.L1,O)),u2=unit(sub(lo.L2,O));d1=Math.abs(cross(sub(X,O),u1));d2=Math.abs(cross(sub(X,O),u2));
+    const F1=add(O,mul(u1,dot(sub(X,O),u1))),F2=add(O,mul(u2,dot(sub(X,O),u2)));
+    if(loShow.checked&&len(add(u1,u2))>1e-3&&len(sub(u1,u2))>1e-3){items.push({t:'line',a:O,b:add(O,unit(add(u1,u2))),col:'--accent',w:2.5,op:.8},{t:'line',a:O,b:add(O,unit(sub(u1,u2))),col:'--accent',w:2.5,op:.8});}
+    items.push({t:'line',a:O,b:lo.L1,w:2.5},{t:'line',a:O,b:lo.L2,w:2.5},{t:'txt',p:add(lo.L1,[0,-22]),s:'line 1',col:'--hi',wt:600},{t:'txt',p:add(lo.L2,[0,22]),s:'line 2',col:'--two',wt:600},
+      SEG(X,F1,{col:'--hi',w:1.4,dash:true}),SEG(X,F2,{col:'--two',w:1.4,dash:true}));
+    if(d1>14)items.push({t:'ra',c:F1,p1:X,p2:add(F1,u1),s:9,col:'--hi'});if(d2>14)items.push({t:'ra',c:F2,p1:X,p2:add(F2,u2),s:9,col:'--two'});}
+  const eq=Math.abs(d1-d2)<3.5;
+  if(eq&&!lo.dots.some(q=>dist(q,X)<7))lo.dots.push(X.slice());
+  lo.dots.forEach(q=>items.push({t:'pt',p:q,r:4,col:'--good'}));
+  items.push(PT(X,'X',[0,-20],eq?'--good':'--two'));
+  const hs=mode==='pts'?[lo.A,lo.B,lo.X]:[lo.L1,lo.L2,lo.X];
+  loSvg.innerHTML=render(items,560,360)+hs.map(ring).join('');
+  $('loLA').textContent=mode==='pts'?'Distance to A':'Distance to line 1';$('loLB').textContent=mode==='pts'?'Distance to B':'Distance to line 2';
+  $('loDA').textContent=fmt(d1/U)+' cm';$('loDB').textContent=fmt(d2/U)+' cm';
+  const M=$('loMsg');M.className='msg'+(eq?' good':'');
+  M.textContent=eq?`Equal! X is equidistant from ${mode==='pts'?'A and B':'both lines'}. ${lo.dots.length} dot${lo.dots.length===1?'':'s'} so far.`:(lo.dots.length>=4&&!loShow.checked?`The green dots seem to line up… tick "show the locus" to check.`:`Drag X until the two distances are equal.`);}
+const loMove=key=>p=>{lo[key]=p;lo.dots=[];};
+makeDrag(loSvg,560,360,()=>loMode.value==='pts'?[H(lo,'A',loMove('A')),H(lo,'B',loMove('B')),H(lo,'X')]:[{get:()=>lo.L1,set:p=>{if(dist(p,lo.O)>30)loMove('L1')(p);}},{get:()=>lo.L2,set:p=>{if(dist(p,lo.O)>30)loMove('L2')(p);}},H(lo,'X')],drawLO);
+loMode.addEventListener('change',()=>{lo.dots=[];lo.X=[300,70];drawLO();});loShow.addEventListener('change',drawLO);$('loClear').addEventListener('click',()=>{lo.dots=[];drawLO();});
+drawLO();
+
+const redrawAll=()=>{drawCP();ss.draw();pr.draw();pbS.draw();abS.draw();ppS.draw();saS.draw();drawLO();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'A pair of compasses draws a circle because every point on it is…',opts:['the same distance from the centre','the same distance from the edge of the paper','in a straight line','at 90° to the centre'],a:0,fb:'The point stays still and the width is fixed, so the pencil is always the same distance from the centre.'},
+  {q:'Why should you leave construction arcs on your diagram?',opts:['They show your method, like working in a calculation','They make the diagram look neater','They are needed to measure angles later','You shouldn\'t: always rub them out'],a:0,fb:'The arcs prove you constructed the shape. Rubbing them out can lose marks.'},
+  {q:'You have drawn the 6 cm base of a triangle with sides 4 cm, 5 cm and 6 cm. What do you do next?',opts:['Arcs of 4 cm from one end and 5 cm from the other','Arcs of 6 cm from both ends','Arcs of 3 cm from both ends','Measure a 60° angle at each end'],a:0,fb:'The third corner must be 4 cm from one end and 5 cm from the other: it is where those arcs cross.'},
+  {q:'Can you construct a triangle with sides 3 cm, 4 cm and 8 cm?',opts:['No: 3 + 4 is less than 8, so the arcs never meet','Yes, it is right-angled','Yes, any three lengths work','Only with a protractor'],a:0,fb:'The two shorter sides must add up to more than the longest. 3 + 4 = 7, which is less than 8.'},
+  {q:'Every point on the perpendicular bisector of AB is…',opts:['the same distance from A and from B','closer to A than to B','on the line AB','exactly AB away from A'],a:0,fb:'That is what makes it work: P and Q are both equidistant from A and B, and so is every point on the line through them.'},
+  {q:'To construct the perpendicular bisector of an 8 cm line, the compass width must be…',opts:['more than 4 cm','exactly 4 cm','less than 4 cm','exactly 2 cm'],a:0,fb:'More than half the line. At exactly 4 cm the arcs only touch at the midpoint; any less and they don\'t meet.'},
+  {q:'You bisect an angle of 84°. Each new angle is…',opts:['42°','84°','168°','21°'],a:0,fb:'Bisect means cut into two equal halves: 84° ÷ 2 = 42°.'},
+  {q:'In the 60° construction, why is the angle exactly 60°?',opts:['The three points make an equilateral triangle','The compasses are set to 60 mm','A protractor is used to check it','It is half of a right angle'],a:0,fb:'AP, AQ and PQ were all drawn with the same width, so APQ is equilateral and each angle is 180° ÷ 3 = 60°.'},
+  {q:'How can you construct 45° with only a ruler and compasses?',opts:['Construct 90°, then bisect it','Construct 60°, then bisect it','Construct 60°, then subtract 15°','Set the compasses to 45 mm'],a:0,fb:'90° ÷ 2 = 45°. Bisecting 60° would give 30°.'},
+  {q:'The locus of points that are equidistant from two lines that cross is…',opts:['the bisectors of the angles between the lines','the perpendicular bisector of the lines','a circle around the crossing point','a line parallel to both lines'],a:0,fb:'Points the same distance from both lines lie on the angle bisectors: there are two of them, at right angles to each other.'}
+];
+const qz=$('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Bounds and Error Intervals</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive SVG number line drawn from JS (a sliding true value, a zoomable error interval, rounding versus truncation bands, the four bound combinations of a calculation, rounding cells for choosing an accuracy) with sliders, presets or "try it" boxes. Graph-paper neutrals. Colours on this page: teal = the lower bound (and the minimum of a calculation), orange = the upper bound (and the maximum), plum = the rounded or truncated value you were given and the band of true values behind it. A filled circle means the end is included (≤); a hollow circle means it is not (<). Green/red are only used for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+a{color:var(--accent)}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.3rem;position:relative;top:-.15em}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.S{color:var(--hi);font-weight:600}.K{color:var(--two);font-weight:600}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.25;margin:0 .15em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .2em}
+.fr>span:last-child{padding:0 .2em}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.btn:disabled{opacity:.45;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem;font-family:var(--mono)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}.work .g{color:var(--good)}
+.work .dim{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}
+.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.controls label{flex-wrap:wrap;max-width:100%}
+.controls select{max-width:100%}
+.LB{color:var(--accent);font-weight:600}.UB{color:var(--hi);font-weight:600}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.88rem}
+.vt td,.vt th{text-align:right;padding:.35rem .4rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .68rem var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left}
+.vt td.mx{color:var(--hi);font-weight:700}.vt td.mn{color:var(--accent);font-weight:700}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Number</div>
+  <h1>Bounds and Error Intervals</h1>
+  <p class="lede">A ruler says a pencil is 7 cm long, to the nearest centimetre. It isn't <em>exactly</em> 7 cm: it could be 6.8 cm, or 7.4 cm. Every rounded measurement hides a range of possible true values. This page shows how to write that range down, and then (Higher) how to work out the biggest and smallest possible answers when you calculate with rounded numbers.</p>
+  <span class="gcse">DfE GCSE subject content (Number): round numbers and measures to an appropriate degree of accuracy; use inequality notation to specify simple error intervals due to truncation or rounding; apply and interpret limits of accuracy; Higher tier: including upper and lower bounds</span>
+</header>
+
+<div class="recap">
+  <p><strong>What you need from KS3</strong></p>
+  <ul>
+    <li><strong>Rounding</strong> to the nearest 10, 100, whole number, to a number of <strong>decimal places</strong> (d.p.) and to a number of <strong>significant figures</strong> (s.f.). A 5 or more in the deciding digit rounds up. Recap on <a href="../ks3-interactive/rounding-and-estimation.html">rounding and estimation</a>.</li>
+    <li><strong>Inequality symbols</strong>: &lt; means "less than", ≤ means "less than or equal to". 3 ≤ x &lt; 5 means x is at least 3 but less than 5.</li>
+    <li><strong>Number lines</strong>: a filled circle includes its end point, a hollow circle doesn't.</li>
+  </ul>
+</div>
+
+<h2>1 · Rounding hides a range</h2>
+<p>Slide the true length of the pencil and watch what it rounds to. Notice that a whole <strong>band</strong> of true values all round to the same answer.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>true length <input type="range" id="rdX" min="5" max="8.99" step="0.01" value="7.23"><span id="rdXv" style="font-family:var(--mono)"></span> cm</label>
+  </div>
+  <svg id="rdSvg" viewBox="0 0 420 150" width="420" height="150" aria-label="Number line showing a value and what it rounds to"></svg>
+  <div class="msg" id="rdMsg"></div>
+</div>
+
+<p>Every length from 6.5 cm up to (but not including) 7.5 cm rounds to 7 cm. The band goes <strong>half a unit</strong> either side of the rounded value, because "nearest centimetre" means "closer to 7 than to 6 or 8", and the halfway points are 6.5 and 7.5.</p>
+<ul>
+  <li>The smallest possible true value is the <strong class="LB">lower bound</strong>: 6.5 cm.</li>
+  <li>The value at the top end is the <strong class="UB">upper bound</strong>: 7.5 cm. Strictly, 7.5 itself rounds <em>up</em> to 8, so the length is less than 7.5; but 7.5 is still called the upper bound.</li>
+</ul>
+
+<h2>2 · Error intervals</h2>
+<p>An <strong>error interval</strong> uses inequalities to say exactly which true values are possible. For the pencil:</p>
+<p class="big"><span class="LB">6.5</span> ≤ l &lt; <span class="UB">7.5</span></p>
+<p>Use <strong>≤ on the left</strong>, because 6.5 rounds up to 7, so it's included; and <strong>&lt; on the right</strong>, because 7.5 would round to 8. The recipe for any accuracy:</p>
+<ol>
+  <li>Work out the <strong>unit</strong> you rounded to (nearest 10 → 10; 1 d.p. → 0.1; 2 s.f. on 4700 → 100).</li>
+  <li>Halve it.</li>
+  <li>Lower bound = value − half a unit; upper bound = value + half a unit.</li>
+</ol>
+
+<div class="lab">
+  <div class="controls">
+    <label>value <input type="text" id="eiV" value="3.4" inputmode="decimal" style="width:6em"></label>
+    <label>rounded to <select id="eiA">
+      <option value="u1000">nearest 1000</option><option value="u100">nearest 100</option><option value="u10">nearest 10</option><option value="u1">nearest whole number</option><option value="d1" selected>1 d.p.</option><option value="d2">2 d.p.</option><option value="s1">1 s.f.</option><option value="s2">2 s.f.</option><option value="s3">3 s.f.</option>
+    </select></label>
+  </div>
+  <div class="chips" id="eiChips"></div>
+  <svg id="eiSvg" viewBox="0 0 420 140" width="420" height="140" aria-label="Error interval on a number line"></svg>
+  <div class="work" id="eiWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Significant figures:</strong> find the unit from the place value of the last significant figure. 4700 to 2 s.f.: the 7 is in the hundreds column, so the unit is 100 and the interval is 4650 ≤ x &lt; 4750. 0.36 to 2 s.f.: the 6 is in the hundredths column, so 0.355 ≤ x &lt; 0.365.</p>
+</div>
+
+<h3>Try it</h3>
+<div class="lab">
+  <p class="pq" id="tqQ"></p>
+  <div class="controls">
+    <label><input type="text" id="tqL" inputmode="decimal" style="width:6em" aria-label="lower bound"> ≤ x &lt; <input type="text" id="tqU" inputmode="decimal" style="width:6em" aria-label="upper bound"></label>
+    <button class="btn primary" id="tqGo">Check</button>
+    <button class="btn" id="tqNew">New question</button>
+  </div>
+  <div class="msg" id="tqMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes with error intervals</strong></p>
+  <ul>
+    <li><strong>Going a whole unit either side.</strong> 7 to the nearest whole number is 6.5 ≤ x &lt; 7.5, not 6 ≤ x &lt; 8.</li>
+    <li><strong>Writing 7.49 or 7.4999 for the upper bound.</strong> The upper bound is 7.5 exactly; the &lt; sign does the job of leaving it out.</li>
+    <li><strong>Using ≤ at both ends</strong>, or &lt; at the lower end. It is always ≤ … &lt; for rounding.</li>
+  </ul>
+</div>
+
+<h2>3 · Truncation intervals</h2>
+<p><strong>Truncating</strong> means chopping off digits without rounding: 7.86 truncated to a whole number is 7, and truncated to 1 d.p. is 7.8. Ages work like this (you're 15 right up until your 16th birthday), and so do many calculator and computer displays.</p>
+<p>So if a number has been truncated to 7, the true value could be anything from 7 up to (not including) 8: <span class="m">7 ≤ x &lt; 8</span>. The interval starts <em>at</em> the value and goes a <strong>whole unit</strong> up, instead of half a unit each way. Compare the two:</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>accuracy <select id="trA"><option value="1">whole number</option><option value="0.1">1 d.p.</option></select></label>
+    <label>true value <input type="range" id="trX" min="0" max="1000" value="680"><span id="trXv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="trSvg" viewBox="0 0 420 190" width="420" height="190" aria-label="Rounding and truncation bands compared"></svg>
+  <div class="work" id="trWork"></div>
+</div>
+
+<h2>4 · Bounds in calculations <span class="tag g">Higher</span></h2>
+<p>A rectangle measures 12 cm by 8 cm, both to the nearest cm. Its area is "about 96 cm²", but how big could it really be? Each length has its own interval: 11.5 ≤ length &lt; 12.5 and 7.5 ≤ width &lt; 8.5. The largest area comes from the two <strong>largest</strong> lengths: 12.5 × 8.5 = 106.25 cm². The smallest from the two smallest: 11.5 × 7.5 = 86.25 cm².</p>
+<p>Adding and multiplying are straightforward like that. Subtracting and dividing are the traps: to make a − b as <em>big</em> as possible you want a big a but a <em>small</em> b. Explore all four combinations of bounds below; the table always shows the true <span class="UB">maximum</span> and <span class="LB">minimum</span>.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>situation <select id="bcP"></select></label>
+    <label>operation <select id="bcOp"><option value="+">a + b</option><option value="-">a − b</option><option value="*">a × b</option><option value="/">a ÷ b</option></select></label>
+  </div>
+  <svg id="bcSvg" viewBox="0 0 420 200" width="420" height="200" aria-label="The four combinations of bounds on a number line"></svg>
+  <div class="tbl"><table class="vt" id="bcTable"></table></div>
+  <div class="work" id="bcWork"></div>
+</div>
+
+<div class="tbl"><table>
+  <tr><th>To find</th><th>Maximum</th><th>Minimum</th></tr>
+  <tr><td class="mono">a + b</td><td class="mono"><span class="UB">UB</span> + <span class="UB">UB</span></td><td class="mono"><span class="LB">LB</span> + <span class="LB">LB</span></td></tr>
+  <tr><td class="mono">a − b</td><td class="mono"><span class="UB">UB</span> − <span class="LB">LB</span></td><td class="mono"><span class="LB">LB</span> − <span class="UB">UB</span></td></tr>
+  <tr><td class="mono">a × b</td><td class="mono"><span class="UB">UB</span> × <span class="UB">UB</span></td><td class="mono"><span class="LB">LB</span> × <span class="LB">LB</span></td></tr>
+  <tr><td class="mono">a ÷ b</td><td class="mono"><span class="UB">UB</span> ÷ <span class="LB">LB</span></td><td class="mono"><span class="LB">LB</span> ÷ <span class="UB">UB</span></td></tr>
+</table></div>
+
+<div class="callout">
+  <p><strong>Exam traps:</strong> using UB ÷ UB for the maximum of a division (dividing by a <em>bigger</em> number makes the answer <em>smaller</em>), and using the rounded values themselves. In context, think about what makes the answer big: the fastest speed = longest distance ÷ shortest time.</p>
+</div>
+
+<h2>5 · Choosing a suitable degree of accuracy <span class="tag g">Higher</span></h2>
+<p>Once you have a lower and upper bound for an answer, how accurately can you honestly state it? Round both bounds to the same accuracy. If they agree, you can trust the answer to that accuracy. Try more and more significant figures until they stop agreeing; the last accuracy where they agree is the one to use.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>calculation <select id="saP"></select></label>
+    <label>s.f. <input type="range" id="saS" min="1" max="4" value="1"><span id="saSv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="saSvg" viewBox="0 0 420 150" width="420" height="150" aria-label="Rounding cells with the lower and upper bound"></svg>
+  <div class="tbl"><table class="vt" id="saTable"></table></div>
+  <div class="msg" id="saMsg"></div>
+</div>
+
+<p>On the number line, the dashed lines are where rounding changes. If a dashed line falls between the two bounds, they round to different values, so that accuracy claims more than you know.</p>
+
+<h2>6 · Practice</h2>
+<p>New questions each time. Bounds-in-calculation questions are Higher tier. Give answers exactly, or to 3 s.f. if they don't terminate.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>question type <select id="prType">
+      <option value="mix">mixed</option><option value="ei">error interval (rounding)</option><option value="et">error interval (truncation)</option><option value="ub">bounds in a calculation (Higher)</option>
+    </select></label>
+  </div>
+  <p class="pq" id="prQ"></p>
+  <div class="controls" id="prPI"><label><input type="text" id="prL" inputmode="decimal" style="width:6em" aria-label="lower bound"> ≤ x &lt; <input type="text" id="prU" inputmode="decimal" style="width:6em" aria-label="upper bound"></label></div>
+  <div class="controls" id="prPN"><label>answer <input type="text" id="prA" inputmode="decimal" style="width:7em"></label></div>
+  <div class="controls">
+    <button class="btn primary" id="prGo">Check</button>
+    <button class="btn" id="prShow">Show working</button>
+    <button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+  <div class="msg" id="prScore"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>A pencil is 7 cm long to the nearest cm. Write the error interval for its length l.</summary>
+  <div class="step"><strong>Unit:</strong> nearest cm → 1 cm. <strong>Half a unit:</strong> 0.5 cm.</div>
+  <div class="step"><strong>Bounds:</strong> 7 − 0.5 = 6.5 and 7 + 0.5 = 7.5.</div>
+  <div class="step"><strong>Error interval:</strong> <strong>6.5 ≤ l &lt; 7.5</strong>.</div>
+</details>
+<details>
+  <summary>The population of a village is 4700, correct to 2 s.f. Write the error interval.</summary>
+  <div class="step"><strong>Unit:</strong> the second significant figure (7) is in the hundreds column, so the unit is 100. Half a unit is 50.</div>
+  <div class="step"><strong>Bounds:</strong> 4700 − 50 = 4650 and 4700 + 50 = 4750.</div>
+  <div class="step"><strong>Error interval:</strong> <strong>4650 ≤ p &lt; 4750</strong>. (A population must be a whole number, so in practice 4650 ≤ p ≤ 4749, but the GCSE form is fine.)</div>
+</details>
+<details>
+  <summary>x = 5.2, truncated to 1 d.p. Write the error interval for x.</summary>
+  <div class="step"><strong>Truncation chops</strong>, so any number from 5.2 up to just below 5.3 truncates to 5.2: 5.29 → 5.2, but 5.3 → 5.3.</div>
+  <div class="step"><strong>Error interval:</strong> <strong>5.2 ≤ x &lt; 5.3</strong>. (Rounding would have given 5.15 ≤ x &lt; 5.25.)</div>
+</details>
+<details>
+  <summary>A rectangle is 12 cm by 8 cm, each to the nearest cm. Find the upper and lower bounds of its area. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Bounds of each side:</strong> 11.5 ≤ length &lt; 12.5 and 7.5 ≤ width &lt; 8.5.</div>
+  <div class="step"><strong>Upper bound of area</strong> = UB × UB = 12.5 × 8.5 = <strong>106.25 cm²</strong>.</div>
+  <div class="step"><strong>Lower bound of area</strong> = LB × LB = 11.5 × 7.5 = <strong>86.25 cm²</strong>.</div>
+</details>
+<details>
+  <summary>Two masses are 54 kg and 31 kg, each to the nearest kg. Find the greatest possible difference. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Bounds:</strong> 53.5 ≤ a &lt; 54.5 and 30.5 ≤ b &lt; 31.5.</div>
+  <div class="step"><strong>Biggest difference:</strong> biggest a minus <em>smallest</em> b = 54.5 − 30.5 = <strong>24 kg</strong>.</div>
+  <div class="step"><strong>Trap:</strong> UB − UB = 54.5 − 31.5 = 23 kg is not the maximum.</div>
+</details>
+<details>
+  <summary>A runner covers 100 m (to the nearest m) in 12.3 s (to 1 d.p.). Find her speed to a suitable degree of accuracy. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Bounds:</strong> 99.5 ≤ d &lt; 100.5 and 12.25 ≤ t &lt; 12.35.</div>
+  <div class="step"><strong>Upper bound of speed</strong> = UB(d) ÷ LB(t) = 100.5 ÷ 12.25 = 8.2040… m/s.</div>
+  <div class="step"><strong>Lower bound of speed</strong> = LB(d) ÷ UB(t) = 99.5 ÷ 12.35 = 8.0566… m/s.</div>
+  <div class="step"><strong>Compare roundings:</strong> to 2 s.f. they give 8.2 and 8.1 (different); to 1 s.f. both give 8.</div>
+  <div class="step"><strong>Answer:</strong> speed = <strong>8 m/s</strong> (to 1 s.f.), because both bounds agree to 1 s.f. but not to 2 s.f.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A rounded value stands for a whole <strong>interval</strong> of possible true values.</li>
+  <li>For <strong>rounding</strong>, go half a unit either side: value − ½ unit ≤ x &lt; value + ½ unit. Use ≤ at the lower bound and &lt; at the upper bound.</li>
+  <li>Find the unit from the accuracy: nearest 10 → 10, 1 d.p. → 0.1, and for s.f. the place value of the last significant figure.</li>
+  <li>For <strong>truncation</strong>, the interval starts at the value and goes a whole unit up: value ≤ x &lt; value + 1 unit.</li>
+  <li>(Higher) For the maximum of a calculation: <strong>+ and ×</strong> use UB with UB; <strong>− and ÷</strong> use UB with LB (big first number, small second). Swap everything for the minimum.</li>
+  <li>(Higher) A <strong>suitable degree of accuracy</strong> is the most accurate rounding on which the upper and lower bounds agree.</li>
+</ul>
+
+<footer>Made for GCSE students. Error intervals from rounding and truncation, and (Higher tier) upper and lower bounds, are in the DfE GCSE mathematics subject content under Number. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE mathematics subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const F = () => `font-family="${css('--mono')}"`;
+const neg = s => String(s).replace(/-/g,'−');
+const fm = v => neg(parseFloat(v.toFixed(9)).toString());
+const sf = (v,n) => { if(v===0) return '0'; const r=Number(v.toPrecision(n)), d=n-1-Math.floor(Math.log10(Math.abs(r))+1e-12); return neg(d>0 ? r.toFixed(d) : String(r)); };
+const endDot = s => /\.$/.test(s) ? s : s+'.';
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const num = s => { const v=parseFloat(String(s).replace(/−/g,'-').replace(/,/g,'').trim()); return isFinite(v)?v:NaN; };
+const close = (a,b) => Math.abs(a-b) < 1e-9*Math.max(1,Math.abs(b));
+const exactish = v => Math.abs(v*1e6-Math.round(v*1e6)) < 1e-4;
+const T = (x,y,txt,col,size=13,anchor='middle',weight=400) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" ${F()} fill="${col}">${txt}</text>`;
+const dotC = (x,y,col,filled) => `<circle cx="${x}" cy="${y}" r="6" fill="${filled?col:css('--panel')}" stroke="${col}" stroke-width="2.5"/>`;
+// unit for an accuracy code given the value
+function unitOf(code,v){ const k=code[0], n=+code.slice(1); if(k==='u') return n; if(k==='d') return Math.pow(10,-n); if(v===0) return NaN; return Math.pow(10, Math.floor(Math.log10(Math.abs(v))+1e-12)-n+1); }
+const accName = code => ({u1000:'the nearest 1000',u100:'the nearest 100',u10:'the nearest 10',u1:'the nearest whole number',d1:'1 d.p.',d2:'2 d.p.',s1:'1 s.f.',s2:'2 s.f.',s3:'3 s.f.'})[code];
+
+/* 1. sliding true value */
+const rdX=$('rdX');
+function drawRD(){
+  const x=+rdX.value, r=Math.round(x+1e-9), x0=30, x1=390, lo=5, hi=9, X=v=>x0+(v-lo)/(hi-lo)*(x1-x0), y=95;
+  const ac=css('--accent'), hc=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg');
+  $('rdXv').textContent=' '+x.toFixed(2);
+  let s=`<rect x="${X(Math.max(lo,r-0.5))}" y="${y-14}" width="${X(Math.min(hi,r+0.5))-X(Math.max(lo,r-0.5))}" height="28" fill="${tw}" fill-opacity=".14"/>`;
+  s+=`<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${mu}" stroke-width="1.5"/>`;
+  for(let i=0;i<=40;i++){ const v=lo+i/10, big=i%10===0, half=i%5===0; s+=`<line x1="${X(v)}" y1="${y-(big?9:half?6:3)}" x2="${X(v)}" y2="${y+(big?9:half?6:3)}" stroke="${mu}"/>`; if(big) s+=T(X(v),y+28,v,mu,13); else if(half) s+=T(X(v),y+24,v.toFixed(1),mu,9); }
+  if(r-0.5>=lo) s+=dotC(X(r-0.5),y,ac,true); if(r+0.5<=hi) s+=dotC(X(r+0.5),y,hc,false);
+  s+=`<line x1="${X(x)}" y1="${y-40}" x2="${X(x)}" y2="${y-8}" stroke="${fg}" stroke-width="2"/><circle cx="${X(x)}" cy="${y}" r="5" fill="${fg}"/>`+T(X(x),y-46,`${x.toFixed(2)} cm`,fg,13,'middle',700);
+  s+=`<circle cx="${X(r)}" cy="${y}" r="4" fill="${tw}"/>`+T(Math.min(Math.max(X(r),40),380),20,`rounds to ${r} cm`,tw,13,'middle',700);
+  $('rdSvg').innerHTML=s;
+  $('rdMsg').innerHTML=`${x.toFixed(2)} is nearer to ${r} than to ${x<r?r-1:r+1}${Math.abs(x-(r-0.5))<1e-9?' (exactly halfway, and halves round up)':''}. Every value in the shaded band, from <span class="LB">${r-0.5}</span> up to but not including <span class="UB">${r+0.5}</span>, rounds to ${r}.`;
+}
+rdX.addEventListener('input',drawRD); drawRD();
+
+/* 2. error interval explorer */
+const eiV=$('eiV'), eiA=$('eiA');
+const EIP=[['7','u1'],['3.4','d1'],['250','u10'],['4700','s2'],['0.36','s2'],['2.07','d2'],['600','s1'],['8000','u1000']];
+$('eiChips').innerHTML=EIP.map(([v,c],i)=>`<button class="btn" data-i="${i}">${v}, ${accName(c).replace('the ','')}</button>`).join('');
+$('eiChips').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ const [v,c]=EIP[+b.dataset.i]; eiV.value=v; eiA.value=c; drawEI(); }));
+function drawEI(){
+  const v=num(eiV.value), code=eiA.value, W=$('eiWork'), ac=css('--accent'), hc=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg');
+  if(!isFinite(v)||v<=0){ W.textContent='Type a positive number.'; $('eiSvg').innerHTML=''; return; }
+  const u=unitOf(code,v), h=u/2, L=v-h, U=v+h, ok=Math.abs(v/u-Math.round(v/u))<1e-6;
+  const x0=30, x1=390, lo=v-1.6*u, hi=v+1.6*u, X=t=>x0+(t-lo)/(hi-lo)*(x1-x0), y=80;
+  let s=`<rect x="${X(L)}" y="${y-12}" width="${X(U)-X(L)}" height="24" fill="${tw}" fill-opacity=".14"/><line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${mu}" stroke-width="1.5"/>`;
+  for(let k=-3;k<=3;k++){ const t=v+k*h, main=k%2===0; s+=`<line x1="${X(t)}" y1="${y-(main?8:5)}" x2="${X(t)}" y2="${y+(main?8:5)}" stroke="${mu}"/>`; if(main&&k!==0) s+=T(X(t),y+28,fm(t),mu,11); }
+  s+=dotC(X(L),y,ac,true)+dotC(X(U),y,hc,false)+`<circle cx="${X(v)}" cy="${y}" r="4" fill="${tw}"/>`;
+  s+=T(X(L),y-22,fm(L),ac,13,'middle',700)+T(X(U),y-22,fm(U),hc,13,'middle',700)+T(X(v),y+28,fm(v),tw,13,'middle',700);
+  s+=T(X(L)+ (X(U)-X(L))/2, y-44, `half a unit = ${fm(h)} each side`, mu, 11);
+  $('eiSvg').innerHTML=s;
+  W.innerHTML=`${fm(v)} to ${accName(code)}: unit = ${fm(u)}, half a unit = ${fm(h)}<br><span class="a">lower bound</span> = ${fm(v)} − ${fm(h)} = <span class="a">${fm(L)}</span>; <span class="b">upper bound</span> = ${fm(v)} + ${fm(h)} = <span class="b">${fm(U)}</span><br><strong><span class="a">${fm(L)}</span> ≤ x &lt; <span class="b">${fm(U)}</span></strong>`+(ok?'':`<br><span class="x">Careful: ${fm(v)} isn't a possible answer when rounding to ${accName(code)}. Check the value and the accuracy match.</span>`);
+}
+[eiV,eiA].forEach(e=>e.addEventListener('input',drawEI)); drawEI();
+
+/* 2b. try it */
+function genEI(){
+  const t=pick(['u1','u10','u100','d1','d2','s1','s2','s2']); let v;
+  if(t==='u1') v=rnd(2,99); else if(t==='u10') v=rnd(3,99)*10; else if(t==='u100') v=rnd(2,49)*100;
+  else if(t==='d1'){ do{ v=rnd(11,199)/10; }while(Number.isInteger(v)); } else if(t==='d2'){ do{ v=rnd(101,999)/100; }while(Math.round(v*100)%10===0); }
+  else if(t==='s1') v=pick([3,4,6,7,8,9])*Math.pow(10,pick([-2,-1,1,2,3]));
+  else { v=rnd(11,99); if(v%10===0) v++; v=v*Math.pow(10,pick([-3,-2,1,2])); }
+  v=parseFloat(v.toPrecision(6)); const u=unitOf(t,v); return {v,t,u,L:v-u/2,U:v+u/2};
+}
+let TQ=null;
+function tqNew(){ TQ=genEI(); $('tqQ').textContent=`A number x is ${fm(TQ.v)}, rounded to ${endDot(accName(TQ.t))} Write its error interval.`; $('tqL').value=''; $('tqU').value=''; $('tqMsg').textContent=''; $('tqMsg').className='msg'; }
+function diagEI(Q,l,u,trunc){
+  if(trunc){ if(close(l,Q.L)&&close(u,Q.U)) return [true,`Correct: ${fm(Q.L)} ≤ x < ${fm(Q.U)}.`];
+    if(close(l,Q.v-Q.u/2)&&close(u,Q.v+Q.u/2)) return [false,'That is the rounding interval. Truncation chops, so the interval starts at the value and goes a whole unit up.'];
+  } else { if(close(l,Q.L)&&close(u,Q.U)) return [true,`Correct: ${fm(Q.L)} ≤ x < ${fm(Q.U)}. Half of ${fm(Q.u)} each side.`];
+    if(close(l,Q.v-Q.u)&&close(u,Q.v+Q.u)) return [false,`You went a whole unit either side. Go half a unit: ${fm(Q.u)} ÷ 2 = ${fm(Q.u/2)}.`];
+    if(close(l,Q.v)&&close(u,Q.v+Q.u)) return [false,'That is a truncation interval. For rounding, go half a unit below and half a unit above.'];
+  }
+  if(close(l,Q.U)&&close(u,Q.L)) return [false,'The two bounds are the wrong way round: the smaller number goes on the left.'];
+  if(close(l,Q.L)&&!close(u,Q.U)&&Math.abs(u-Q.U)<Q.u/5) return [false,`Lower bound right. The upper bound is exactly ${fm(Q.U)}: the < sign already says x can't equal it, so don't write ${fm(u)}.`];
+  if(close(l,Q.L)) return [false,`Lower bound right; check the upper bound. The unit here is ${fm(Q.u)}.`];
+  if(close(u,Q.U)) return [false,`Upper bound right; check the lower bound. The unit here is ${fm(Q.u)}.`];
+  return [false,`Not quite. Find the unit first (${accName(Q.t)} → ${fm(Q.u)}), then ${trunc?'add one whole unit':'add and subtract half of it'}.`];
+}
+$('tqGo').addEventListener('click',()=>{ const l=num($('tqL').value), u=num($('tqU').value), M=$('tqMsg'); if(isNaN(l)||isNaN(u)){ M.className='msg bad'; M.textContent='Fill in both bounds.'; return; } const [ok,msg]=diagEI(TQ,l,u,false); M.className='msg '+(ok?'good':'bad'); M.textContent=msg; });
+$('tqNew').addEventListener('click',tqNew); tqNew();
+
+/* 3. rounding vs truncation */
+const trA=$('trA'), trX=$('trX');
+function drawTR(){
+  const u=+trA.value, f=+trX.value/1000, lo=u===1?5:7.0, hi=u===1?9:7.4, x=u===1? lo+f*(hi-lo-0.01) : 7.05+f*0.3;
+  const dp=u===1?2:3, xs=x.toFixed(dp), r=Math.round(x/u+1e-9)*u, t=Math.floor(x/u+1e-9)*u;
+  const ac=css('--accent'), hc=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg');
+  $('trXv').textContent=' '+xs;
+  const x0=30, x1=390, X=v=>x0+(v-lo)/(hi-lo)*(x1-x0);
+  const axis=y=>{ let s=`<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${mu}" stroke-width="1.5"/>`; const n=Math.round((hi-lo)/u*10); for(let i=0;i<=n;i++){ const v=lo+i*u/10, big=i%10===0, half=i%5===0; s+=`<line x1="${X(v)}" y1="${y-(big?8:half?5:3)}" x2="${X(v)}" y2="${y+(big?8:half?5:3)}" stroke="${mu}"/>`; if(big) s+=T(X(v),y+22,fm(v),mu,11); } return s; };
+  const band=(a,b,y)=>{ const A=Math.max(a,lo), B=Math.min(b,hi); return `<rect x="${X(A)}" y="${y-11}" width="${X(B)-X(A)}" height="22" fill="${tw}" fill-opacity=".16"/>`+(a>=lo?dotC(X(a),y,ac,true):'')+(b<=hi?dotC(X(b),y,hc,false):''); };
+  let s=T(8,30,'rounding',tw,13,'start',700)+T(412,30,`→ ${fm(r)}`,tw,13,'end',700)+band(r-u/2,r+u/2,55)+axis(55);
+  s+=T(8,115,'truncation',tw,13,'start',700)+T(412,115,`→ ${fm(t)}`,tw,13,'end',700)+band(t,t+u,140)+axis(140);
+  s+=`<line x1="${X(x)}" y1="40" x2="${X(x)}" y2="150" stroke="${fg}" stroke-width="1.5" stroke-dasharray="3 3"/><circle cx="${X(x)}" cy="55" r="4" fill="${fg}"/><circle cx="${X(x)}" cy="140" r="4" fill="${fg}"/>`+T(Math.min(Math.max(X(x),50),370),185,`true value ${xs}`,fg,12,'middle',600);
+  $('trSvg').innerHTML=s;
+  $('trWork').innerHTML=`${xs} rounds to <strong>${fm(r)}</strong>, interval <span class="a">${fm(r-u/2)}</span> ≤ x &lt; <span class="b">${fm(r+u/2)}</span><br>${xs} truncates to <strong>${fm(t)}</strong>, interval <span class="a">${fm(t)}</span> ≤ x &lt; <span class="b">${fm(t+u)}</span>${fm(r)!==fm(t)?'<br><span class="dim">Different answers: truncating never rounds up.</span>':''}`;
+}
+[trA,trX].forEach(e=>e.addEventListener('input',drawTR)); drawTR();
+
+/* 4. bounds in calculations */
+const BC=[
+  {name:'rectangle: 12 cm × 8 cm',a:12,ua:1,b:8,ub:1,op:'*',an:'length',bn:'width',unit:'cm'},
+  {name:'speed: 100 m in 12.3 s',a:100,ua:1,b:12.3,ub:0.1,op:'/',an:'distance',bn:'time',unit:''},
+  {name:'masses: 54 kg and 31 kg',a:54,ua:1,b:31,ub:1,op:'-',an:'mass a',bn:'mass b',unit:'kg'},
+  {name:'lengths: 2.4 m and 3.7 m',a:2.4,ua:0.1,b:3.7,ub:0.1,op:'+',an:'length a',bn:'length b',unit:'m'},
+  {name:'density: 250 g in 32 cm³',a:250,ua:10,b:32,ub:1,op:'/',an:'mass',bn:'volume',unit:''}
+];
+const bcP=$('bcP'), bcOp=$('bcOp');
+bcP.innerHTML=BC.map((p,i)=>`<option value="${i}">${p.name}</option>`).join('');
+const OPF={'+':(x,y)=>x+y,'-':(x,y)=>x-y,'*':(x,y)=>x*y,'/':(x,y)=>x/y}, OPS={'+':'+','-':'−','*':'×','/':'÷'};
+const show6 = v => sf(v,7).length>9 ? sf(v,5)+'…' : sf(v,7);
+function bcData(){ const P=BC[+bcP.value], op=bcOp.value, aL=P.a-P.ua/2, aU=P.a+P.ua/2, bL=P.b-P.ub/2, bU=P.b+P.ub/2;
+  const combos=[['LB','LB',aL,bL],['LB','UB',aL,bU],['UB','LB',aU,bL],['UB','UB',aU,bU]].map(([p,q,x,y])=>({p,q,x,y,v:OPF[op](x,y)}));
+  const vs=combos.map(c=>c.v), mx=Math.max(...vs), mn=Math.min(...vs); return {P,op,aL,aU,bL,bU,combos,mx,mn,nom:OPF[op](P.a,P.b)}; }
+function drawBC(){
+  const D=bcData(), {P,op,combos,mx,mn,nom}=D, ac=css('--accent'), hc=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg');
+  const pad=(mx-mn)*0.15||1, lo=mn-pad, hi=mx+pad, x0=30, x1=390, X=v=>x0+(v-lo)/(hi-lo)*(x1-x0), y=120;
+  let s=T(210,20,`${P.an} ${fm(D.aL)} to ${fm(D.aU)},  ${P.bn} ${fm(D.bL)} to ${fm(D.bU)}`,mu,11);
+  s+=`<rect x="${X(mn)}" y="${y-10}" width="${X(mx)-X(mn)}" height="20" fill="${tw}" fill-opacity=".12"/><line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${mu}" stroke-width="1.5"/>`;
+  combos.forEach((c,i)=>{ const isMx=close(c.v,mx), isMn=close(c.v,mn), col=isMx?hc:isMn?ac:mu, yy=i%2? y+34 : y-34;
+    s+=`<line x1="${X(c.v)}" y1="${y}" x2="${X(c.v)}" y2="${yy+(i%2?-10:4)}" stroke="${col}" stroke-dasharray="2 2"/><circle cx="${X(c.v)}" cy="${y}" r="${isMx||isMn?6:4}" fill="${col}"/>`;
+    s+=T(Math.min(Math.max(X(c.v),55),365),yy+(i%2?4:0),`${c.p} ${OPS[op]} ${c.q}`,col,11,'middle',isMx||isMn?700:400); });
+  s+=`<path d="M${X(nom)},${y-62} l-5,-8 h10z" fill="${tw}"/>`+T(Math.min(Math.max(X(nom),60),360),y-74,`rounded values give ${show6(nom)}`,tw,11,'middle',600);
+  s+=T(X(mn),y+70,`min ${show6(mn)}`,ac,12,'middle',700)+T(X(mx),y+70,`max ${show6(mx)}`,hc,12,'middle',700);
+  $('bcSvg').innerHTML=s;
+  $('bcTable').innerHTML=`<tr><th>${P.an}</th><th>${P.bn}</th><th>a ${OPS[op]} b</th></tr>`+combos.map(c=>`<tr><td>${c.p} ${fm(c.x)}</td><td>${c.q} ${fm(c.y)}</td><td class="${close(c.v,mx)?'mx':close(c.v,mn)?'mn':''}">${show6(c.v)}</td></tr>`).join('');
+  const rule={'+':['UB + UB','LB + LB'],'-':['UB − LB','LB − UB'],'*':['UB × UB','LB × LB'],'/':['UB ÷ LB','LB ÷ UB']}[op];
+  $('bcWork').innerHTML=`<span class="b">maximum</span> = ${rule[0]} = ${show6(mx)}<br><span class="a">minimum</span> = ${rule[1]} = ${show6(mn)}${op==='-'||op==='/'?`<br><span class="dim">For ${op==='-'?'subtraction':'division'} the maximum pairs a big first number with a small second number.</span>`:''}`;
+}
+[bcP,bcOp].forEach(e=>e.addEventListener('input',()=>{ if(e===bcP) bcOp.value=BC[+bcP.value].op; drawBC(); }));
+bcOp.value=BC[0].op; drawBC();
+
+/* 5. suitable degree of accuracy */
+const SA=[
+  {name:'speed: 100 m (nearest m) ÷ 12.3 s (1 d.p.)',L:99.5/12.35,U:100.5/12.25},
+  {name:'area = 7.6 cm × 3.2 cm (both 1 d.p.)',L:7.55*3.15,U:7.65*3.25},
+  {name:'45.3 (1 d.p.) ÷ 6.21 (2 d.p.)',L:45.25/6.215,U:45.35/6.205},
+  {name:'12.36 + 8.74 (both 2 d.p.)',L:12.355+8.735,U:12.365+8.745}
+];
+const saP=$('saP'), saS=$('saS');
+saP.innerHTML=SA.map((p,i)=>`<option value="${i}">${p.name}</option>`).join('');
+function drawSA(){
+  const P=SA[+saP.value], n=+saS.value, L=P.L, U=P.U, ac=css('--accent'), hc=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg'), good=css('--good'), bad=css('--bad');
+  $('saSv').textContent=' '+n;
+  const u=Math.pow(10,Math.floor(Math.log10(L))-n+1), mid=(L+U)/2, span=Math.max(U-L,u)*1.8, lo=mid-span/2, hi=mid+span/2, x0=20, x1=400, X=v=>x0+(v-lo)/(hi-lo)*(x1-x0), y=80;
+  let s=`<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${mu}" stroke-width="1.5"/>`;
+  const k0=Math.ceil(lo/u-0.5), k1=Math.floor(hi/u-0.5);
+  const cells=k1-k0+1;
+  if(cells<=40){ for(let k=k0;k<=k1;k++){ const b=(k+0.5)*u; s+=`<line x1="${X(b)}" y1="${y-34}" x2="${X(b)}" y2="${y+34}" stroke="${tw}" stroke-dasharray="4 3"/>`; }
+    for(let k=Math.ceil(lo/u);k<=Math.floor(hi/u);k++){ if(cells<=14) s+=T(X(k*u),y+50,sf(k*u,n+1),tw,10); } }
+  s+=`<rect x="${X(L)}" y="${y-8}" width="${X(U)-X(L)}" height="16" fill="${fg}" fill-opacity=".1"/>`+dotC(X(L),y,ac,true)+dotC(X(U),y,hc,false);
+  s+=T(X(L),y-42,`LB ${sf(L,6)}`,ac,11,'end',700)+T(X(U),y-42,`UB ${sf(U,6)}`,hc,11,'start',700);
+  const same=sf(L,n)===sf(U,n);
+  s+=T(210,16,same?`both round to ${sf(L,n)} (${n} s.f.)`:`${sf(L,n)} ≠ ${sf(U,n)} at ${n} s.f.`,same?good:bad,13,'middle',700);
+  $('saSvg').innerHTML=s;
+  let best=0; const rows=[1,2,3,4].map(k=>{ const a=sf(L,k), b=sf(U,k), ok=a===b; if(ok&&best===k-1) best=k; return `<tr><td>${k} s.f.</td><td>${a}</td><td>${b}</td><td style="color:var(--${ok?'good':'bad'})">${ok?'agree':'differ'}</td></tr>`; });
+  $('saTable').innerHTML=`<tr><th>accuracy</th><th>LB rounds to</th><th>UB rounds to</th><th></th></tr>`+rows.join('');
+  $('saMsg').innerHTML = best ? `The bounds agree up to <strong>${best} s.f.</strong>, so the answer to a suitable degree of accuracy is <strong>${sf(L,best)}</strong>.` : 'The bounds don\'t even agree to 1 s.f.; you can only quote the interval.';
+}
+[saP,saS].forEach(e=>e.addEventListener('input',drawSA)); drawSA();
+
+/* 6. practice */
+const UBQ=[
+  ()=>({a:rnd(5,20),ua:1,b:rnd(2,9),ub:1,an:'a',bn:'b',acc:'each to the nearest whole number'}),
+  ()=>({a:rnd(21,89)/10,ua:0.1,b:rnd(11,49)/10,ub:0.1,an:'a',bn:'b',acc:'each to 1 d.p.',dp:1}),
+  ()=>({a:rnd(3,30)*10,ua:10,b:rnd(3,12),ub:1,an:'a',bn:'b',acc:'a to the nearest 10 and b to the nearest whole number'})
+];
+const GEN={
+  ei:()=>{ const Q=genEI(); return {kind:'I', Q, trunc:false, q:`A number x is ${fm(Q.v)}, rounded to ${endDot(accName(Q.t))} Write the error interval for x.`, work:[`unit = ${fm(Q.u)}, half a unit = ${fm(Q.u/2)}`,`${fm(Q.v)} − ${fm(Q.u/2)} = ${fm(Q.L)}; ${fm(Q.v)} + ${fm(Q.u/2)} = ${fm(Q.U)}`,`${fm(Q.L)} ≤ x < ${fm(Q.U)}`]}; },
+  et:()=>{ const d=pick([0,1,1,2]), u=Math.pow(10,-d), v=parseFloat((rnd(10,999)*u).toFixed(d)); const Q={v,u,L:v,U:v+u,t:d===0?'u1':'d'+d};
+    return {kind:'I', Q, trunc:true, q:`A number x is truncated to ${d===0?'a whole number.':d+' d.p.'} The result is ${fm(v)}. Write the error interval for x.`, work:[`truncation chops: everything from ${fm(v)} up to just below ${fm(v+u)} gives ${fm(v)}`,`${fm(v)} ≤ x < ${fm(v+u)}`]}; },
+  ub:()=>{ const B=pick(UBQ)(), op=pick(['+','-','*','/']), which=pick(['upper','lower']); if(op==='-'&&B.a<B.b){ const t=B.a; B.a=B.b; B.b=t; }
+    const aL=B.a-B.ua/2, aU=B.a+B.ua/2, bL=B.b-B.ub/2, bU=B.b+B.ub/2;
+    const combos={'LB,LB':OPF[op](aL,bL),'LB,UB':OPF[op](aL,bU),'UB,LB':OPF[op](aU,bL),'UB,UB':OPF[op](aU,bU)};
+    const vals=Object.values(combos), ans= which==='upper'?Math.max(...vals):Math.min(...vals);
+    const key=Object.keys(combos).find(k=>close(combos[k],ans)).split(',');
+    return {kind:'N', ans, combos, nom:OPF[op](B.a,B.b), which, op, q:`a = ${B.dp?B.a.toFixed(1):fm(B.a)} and b = ${B.dp?B.b.toFixed(1):fm(B.b)}, ${endDot(B.acc)} Find the ${which} bound of a ${OPS[op]} b. <span class="tag g">Higher</span>`,
+      work:[`${fm(aL)} ≤ a < ${fm(aU)} and ${fm(bL)} ≤ b < ${fm(bU)}`,`${which} bound of a ${OPS[op]} b uses ${key[0]} of a and ${key[1]} of b`,`${fm(key[0]==='UB'?aU:aL)} ${OPS[op]} ${fm(key[1]==='UB'?bU:bL)} = ${exactish(ans)?fm(ans):sf(ans,3)+' (3 s.f.)'}`]}; }
+};
+let PQ=null, prDone=false, prRight=0, prTried=0;
+function prNew(){ const t=$('prType').value, k=t==='mix'?pick(Object.keys(GEN)):t; PQ=GEN[k](); prDone=false;
+  $('prQ').innerHTML=PQ.q; $('prPI').hidden=PQ.kind!=='I'; $('prPN').hidden=PQ.kind!=='N';
+  ['prL','prU','prA'].forEach(i=>$(i).value=''); $('prMsg').textContent=''; $('prMsg').className='msg'; $('prWork').hidden=true; }
+$('prGo').addEventListener('click',()=>{ if(!PQ) return; const M=$('prMsg'); let ok=false, msg='';
+  if(PQ.kind==='I'){ const l=num($('prL').value), u=num($('prU').value); if(isNaN(l)||isNaN(u)){ M.className='msg bad'; M.textContent='Fill in both bounds.'; return; } [ok,msg]=diagEI(PQ.Q,l,u,PQ.trunc); }
+  else { const a=num($('prA').value); if(isNaN(a)){ M.className='msg bad'; M.textContent='Type a number.'; return; }
+    ok = close(a,PQ.ans) || sf(a,3)===sf(PQ.ans,3) && a===parseFloat(sf(PQ.ans,3).replace('−','-'));
+    if(ok) msg=`Correct: ${exactish(PQ.ans)?fm(PQ.ans):sf(PQ.ans,6)+'…'}.`;
+    else { const hit=Object.keys(PQ.combos).find(k=>close(a,PQ.combos[k])||parseFloat(sf(PQ.combos[k],3).replace('−','-'))===a);
+      if(close(a,PQ.nom)) msg='You used the rounded values. Use the bounds of a and b instead.';
+      else if(hit){ const [p,q]=hit.split(','); msg=`You used ${p} of a and ${q} of b. ${PQ.op==='-'||PQ.op==='/'?`For ${PQ.op==='-'?'subtraction':'division'}, the ${PQ.which} bound needs ${PQ.which==='upper'?'a big a and a small b':'a small a and a big b'}.`:`For ${PQ.op==='+'?'addition':'multiplication'}, the ${PQ.which} bound uses the ${PQ.which} bounds of both.`}`; }
+      else msg='Not quite. Write the interval for a and for b, then choose which bound of each makes the answer as '+(PQ.which==='upper'?'big':'small')+' as possible.'; } }
+  if(!prDone) prTried++; if(ok&&!prDone){ prRight++; prDone=true; }
+  M.className='msg '+(ok?'good':'bad'); M.textContent=msg; $('prScore').textContent=`Score: ${prRight} out of ${prTried} questions`; });
+$('prShow').addEventListener('click',()=>{ if(!PQ) return; $('prWork').innerHTML=PQ.work.map(x=>`<div>${x}</div>`).join(''); $('prWork').hidden=false; prDone=true; });
+$('prNew').addEventListener('click',prNew); $('prType').addEventListener('change',prNew); prNew();
+
+function redrawAll(){ drawRD(); drawEI(); drawTR(); drawBC(); drawSA(); }
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll); }
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'A length is 8 cm to the nearest cm. Its error interval is…',opts:['7.5 ≤ x < 8.5','7.5 < x ≤ 8.5','7 ≤ x < 9','7.5 ≤ x ≤ 8.5'],a:0,fb:'Half a unit (0.5 cm) either side; ≤ at the lower end, < at the upper end.'},
+  {q:'x = 2.6, rounded to 1 d.p. The error interval is…',opts:['2.55 ≤ x < 2.65','2.5 ≤ x < 2.7','2.59 ≤ x < 2.61','2.55 ≤ x ≤ 2.64'],a:0,fb:'The unit is 0.1, so half a unit is 0.05: 2.6 − 0.05 = 2.55 and 2.6 + 0.05 = 2.65.'},
+  {q:'y = 300, rounded to 1 s.f. The error interval is…',opts:['250 ≤ y < 350','295 ≤ y < 305','299.5 ≤ y < 300.5','200 ≤ y < 400'],a:0,fb:'The 3 is in the hundreds column, so the unit is 100 and half a unit is 50.'},
+  {q:'A number is truncated to a whole number, giving 9. Its error interval is…',opts:['9 ≤ x < 10','8.5 ≤ x < 9.5','8 < x ≤ 9','9 ≤ x ≤ 9.9'],a:0,fb:'Truncation chops off the decimals, so anything from 9 up to just below 10 gives 9.'},
+  {q:'Why does an error interval use < at the upper bound?',opts:['The upper bound itself would round up to the next value','Because it is the bigger number','To make the interval look tidy','Because the true value is never more than the rounded value'],a:0,fb:'7.5 rounds to 8, not 7, so it isn\'t in the interval for 7, though everything just below it is.'},
+  {q:'a = 5 and b = 3, each to the nearest whole number. The upper bound of a + b is…',opts:['9','8.5','8','9.5'],a:0,fb:'UB + UB = 5.5 + 3.5 = 9.'},
+  {q:'a = 5 and b = 3, each to the nearest whole number. The upper bound of a − b is…',opts:['3','2','2.5','1'],a:0,fb:'Big a minus small b: 5.5 − 2.5 = 3.'},
+  {q:'a = 20 to the nearest 10 and b = 4 to the nearest whole number. The upper bound of a ÷ b is…',opts:['25 ÷ 3.5','25 ÷ 4.5','15 ÷ 4.5','24.5 ÷ 3.5'],a:0,fb:'a is between 15 and 25; b between 3.5 and 4.5. Largest a ÷ smallest b = 25 ÷ 3.5.'},
+  {q:'A square has side 6 cm to the nearest cm. The lower bound of its area is…',opts:['30.25 cm²','36 cm²','25 cm²','35.75 cm²'],a:0,fb:'LB of the side is 5.5 cm, and 5.5² = 30.25 cm².'},
+  {q:'An answer has lower bound 4.237 and upper bound 4.284. A suitable value to give is…',opts:['4','4.2','4.3','4.26'],a:0,fb:'To 2 s.f. the bounds give 4.2 and 4.3 (they differ); to 1 s.f. both give 4. So 4 (1 s.f.).'}
+];
+const qz=$('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

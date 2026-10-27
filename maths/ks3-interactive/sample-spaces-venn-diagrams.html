@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Sample Spaces and Venn Diagrams</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one or more interactive panels (SVG drawn from JS, plus an HTML two-way table with typed inputs). Graph-paper neutrals. Colours on this page: teal = the first thing (the first item in a listing, Dice 1, set/circle A); plum = the second thing (the second item, Dice 2, set/circle B); orange = the outcomes or region you have picked, i.e. the event whose probability is being found (highlighted tiles, highlighted grid cells, shaded Venn regions, orange dots in the two-way table picture). Muted grey = everything else in the sample space or ξ. Green/red are only used for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.A{color:var(--accent);font-weight:600}.B{color:var(--two);font-weight:600}.E{color:var(--hi);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none}
+.tap g[data-i]{cursor:pointer}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+input.good{border-color:var(--good);box-shadow:0 0 0 1px var(--good)}
+input.bad{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad)}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--hi);background:var(--hi-soft);color:var(--hi);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout>div{min-width:0;overflow-wrap:anywhere}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.05rem;font-weight:500;margin:.4rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:.95rem;line-height:1.8;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+table.tw{font-family:var(--mono);table-layout:fixed}
+table.tw th,table.tw td{text-align:center;padding:.35rem .15rem;vertical-align:middle}
+table.tw th{font:600 .7rem var(--body);letter-spacing:.04em}
+table.tw th:first-child{text-align:left;width:22%}
+table.tw td.tot{font-weight:600;background:var(--bg)}
+table.tw input{width:100%;max-width:3.6em;padding:.2rem .2rem;text-align:center;font-size:.95rem}
+.fq{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr));gap:.5rem 1rem;margin-top:.8rem}
+.fq label{display:flex;flex-direction:column;gap:.2rem;font-size:.88rem;color:var(--muted)}
+.fq input{width:5em}
+.tq{border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem}
+.tq p{margin:.2rem 0 .4rem}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a,main a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Probability · KS3</div>
+  <h1>Sample Spaces and Venn Diagrams</h1>
+  <p class="lede">Before you can work out a probability, you need to know <em>everything that could happen</em>. This page shows you how to list outcomes so you never miss one, how to use grids for two dice, how to read and complete two-way tables, and how to sort things into Venn diagrams, then turn all of them into probabilities.</p>
+  <span class="gcse">National curriculum KS3: enumerate sets and combinations of sets systematically, using tables, grids and Venn diagrams; generate theoretical sample spaces for single and combined events with equally likely, mutually exclusive outcomes and use these to calculate theoretical probabilities</span>
+</header>
+
+<h2>1 · Outcomes, events and sample spaces</h2>
+<p>Flip a coin. What could happen? It could land heads or tails. That's it. Each possible result is called an <strong>outcome</strong>. Doing the thing once (one flip, one roll, one spin) is called a <strong>trial</strong>.</p>
+<p>The list of <em>every</em> possible outcome is called the <strong>sample space</strong>. We often write it inside curly brackets: for a coin it is <span class="m">{ H, T }</span>, and for an ordinary six-sided dice it is <span class="m">{ 1, 2, 3, 4, 5, 6 }</span>.</p>
+<p>An <strong>event</strong> is the thing you're interested in: "roll an even number", for example. An event is made of one or more outcomes; "even" is the outcomes 2, 4 and 6. When all the outcomes are <strong>equally likely</strong> (a fair coin, a fair dice), the probability of an event is</p>
+<p class="big">P(event) = <span class="E">outcomes in the event</span> ÷ all outcomes</p>
+<p>You met this on the <a href="probability-scale.html">probability scale page</a>. The whole point of a sample space is to get the bottom number right. Pick an experiment below, then tap outcomes (or use a ready-made event) to see the probability.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>experiment <select id="seX">
+      <option value="coin">flip a coin</option><option value="dice">roll a dice</option><option value="spin">spin a 4-colour spinner</option><option value="month">pick a month at random</option>
+    </select></label>
+  </div>
+  <svg id="seSvg" class="tap" viewBox="0 0 400 66" width="400" height="66" aria-label="The sample space as tiles"></svg>
+  <div class="chips" id="seChips"></div>
+  <div class="readout">
+    <div><b>Sample space</b><span id="seS"></span><br><span id="seN" style="color:var(--muted)"></span></div>
+    <div class="t"><b>Event</b><span id="seE"></span></div>
+    <div class="t"><b>Probability</b><span id="seP"></span></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Two key words.</strong> An event with no outcomes in it (like "roll a 7") is <em>impossible</em>: P = 0. An event containing every outcome (like "roll less than 7") is <em>certain</em>: P = 1.</p>
+</div>
+
+<h2>2 · Listing outcomes for two things at once</h2>
+<p>Now flip a coin <em>and</em> roll a dice. An outcome is now a <strong>pair</strong>, like (H, 3): heads on the coin and 3 on the dice. How many pairs are there? If you write them down in a random order you'll almost certainly miss some or write some twice. The trick is to be <strong>systematic</strong> (work in a fixed order):</p>
+<ol>
+  <li>Fix the <span class="A">first</span> thing at its first outcome (H).</li>
+  <li>Run through <em>every</em> outcome of the <span class="B">second</span> thing: (H, 1), (H, 2), …, (H, 6).</li>
+  <li>Move the first thing on (T) and run through the second thing again.</li>
+</ol>
+<p>Choose two items and press <strong>Next outcome</strong> to build the list one step at a time. Each row of the grid is one outcome of the first item.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>1st <select id="lsA"><option value="coin">coin (H, T)</option><option value="dice">dice (1–6)</option><option value="sp3">spinner R, B, G</option><option value="sp4">spinner 1–4</option></select></label>
+    <label>2nd <select id="lsB"><option value="coin">coin (H, T)</option><option value="dice" selected>dice (1–6)</option><option value="sp3">spinner R, B, G</option><option value="sp4">spinner 1–4</option></select></label>
+  </div>
+  <svg id="lsSvg" viewBox="0 0 400 150" width="400" height="150" aria-label="Systematic list of outcomes"></svg>
+  <div class="controls">
+    <button class="btn primary" id="lsNext">Next outcome</button>
+    <button class="btn" id="lsFill">Fill the rest</button>
+    <button class="btn" id="lsReset">Start again</button>
+  </div>
+  <div class="work" id="lsWork"></div>
+</div>
+
+<p>Notice the pattern: a coin has 2 outcomes and a dice has 6, and the grid has 2 rows of 6, so there are <strong>2 × 6 = 12</strong> outcomes. In general, <strong>multiply</strong> the numbers of outcomes (don't add them). Try two coins: you get HH, HT, TH and TT. HT and TH are <em>different</em> outcomes, because "first coin heads, second tails" is not the same as the other way round. Imagine one coin is a 10p and the other a 2p and it's obvious.</p>
+
+<div class="lab">
+  <p class="pq" id="lqQ"></p>
+  <div class="controls">
+    <label>number of outcomes <input type="text" id="lqA" inputmode="numeric" autocomplete="off"></label>
+    <button class="btn primary" id="lqGo">Check</button>
+    <button class="btn" id="lqNew">New question</button>
+  </div>
+  <div class="msg" id="lqMsg"></div>
+</div>
+
+<h2>3 · Sample space diagrams: two dice</h2>
+<p>Roll two dice. Listing 36 pairs is slow, so we draw a <strong>sample space diagram</strong>: a grid with <span class="A">Dice 1</span> down the side and <span class="B">Dice 2</span> along the top. Each of the 36 cells is one equally likely outcome. In each cell we write whatever we care about: the <strong>sum</strong> (add), the <strong>difference</strong> (bigger take away smaller) or the <strong>product</strong> (multiply).</p>
+<p>To find a probability, count the cells in your event and put that number over 36. Tap any cell to highlight every cell with the same value, or build an event with the menus.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>write the <select id="ddOp"><option value="sum">sum (+)</option><option value="diff">difference (−)</option><option value="prod">product (×)</option></select></label>
+    <label>event: it <select id="ddCond"><option value="eq">is equal to</option><option value="gt">is more than</option><option value="lt">is less than</option><option value="even">is even</option><option value="odd">is odd</option></select></label>
+    <label><input type="number" id="ddN" value="7" step="1" style="width:4.5em"></label>
+  </div>
+  <svg id="ddSvg" viewBox="0 0 400 400" width="400" height="400" aria-label="Two dice sample space grid"></svg>
+  <div class="readout">
+    <div class="t"><b>Event</b><span id="ddEv"></span></div>
+    <div><b>Cells</b><span id="ddCt"></span></div>
+    <div class="t"><b>Probability</b><span id="ddP"></span></div>
+  </div>
+  <div class="work" id="ddWork"></div>
+  <div class="controls">
+    <button class="btn primary" id="ddChal">Challenge me</button>
+    <button class="btn" id="ddCheck" hidden>Check</button>
+    <button class="btn" id="ddExp" hidden>Back to exploring</button>
+  </div>
+  <div class="msg" id="ddMsg"></div>
+</div>
+
+<p>Look at the sums: 7 appears 6 times (a whole diagonal) but 2 and 12 appear only once each. That's why 7 is the most common total with two dice. There are 11 different <em>totals</em>, but they are <strong>not</strong> equally likely, so P(total is 7) is <em>not</em> 1/11. Always count the 36 cells.</p>
+
+<h2>4 · Two-way tables</h2>
+<p>A <strong>two-way table</strong> sorts a group of people (or things) in two different ways at once: one way across the rows, the other down the columns. Here, a group of students is split by <em>boys and girls</em> (rows) and by <em>how they get to school</em> (columns). The <strong>Total</strong> row and column add things up:</p>
+<ul>
+  <li>each row adds across to its row total;</li>
+  <li>each column adds down to its column total;</li>
+  <li>the bottom-right corner is the <strong>grand total</strong>: everyone.</li>
+</ul>
+<p>So if one number in a row or column is missing and you know all the others, you can always find it by adding or subtracting. Fill in the gaps below and press <strong>Check</strong>. If you're stuck, the feedback points you to a row or column with just one gap.</p>
+
+<div class="lab">
+  <table class="tw" id="twTable"></table>
+  <div class="controls">
+    <button class="btn primary" id="twGo">Check</button>
+    <button class="btn" id="twNew">New table</button>
+  </div>
+  <div class="msg" id="twMsg"></div>
+  <svg id="twSvg" viewBox="0 0 400 108" width="400" height="108" aria-label="Every student as a dot"></svg>
+  <div class="msg" id="twCap"></div>
+  <div id="twProb" hidden></div>
+</div>
+
+<p>When a question says "a student is picked at random from the group", the bottom of the fraction is the grand total. When it says "a <em>girl</em> is picked at random", you are only choosing from the girls, so the bottom is the girls' total. Read who is being picked! (If the table came from a survey, these probabilities are really estimates: see <a href="theoretical-experimental-probability.html">theoretical and experimental probability</a>.)</p>
+
+<h2>5 · Venn diagrams: ξ, ∩, ∪ and ′</h2>
+<p>A <strong>set</strong> is a collection of things, called its <strong>elements</strong>, written in curly brackets. For example, if A is "even numbers up to 10" then A = {2, 4, 6, 8, 10}. We write <span class="m">n(A)</span> for <em>how many</em> elements are in A, so n(A) = 5.</p>
+<p>A <strong>Venn diagram</strong> draws sets as circles inside a rectangle. The rectangle is the <strong>universal set</strong>, written <strong>ξ</strong> (the Greek letter "xi", said "ksy"): everything we are talking about. Here ξ = {1, 2, 3, …, 20}. Each number goes in exactly one region:</p>
+<div class="tbl"><table>
+  <tr><th>Symbol</th><th>Say it</th><th>Means</th></tr>
+  <tr><td class="mono">A ∩ B</td><td>A intersection B</td><td>in A <strong>and</strong> in B: the overlap in the middle</td></tr>
+  <tr><td class="mono">A ∪ B</td><td>A union B</td><td>in A <strong>or</strong> B or both: anywhere inside the circles</td></tr>
+  <tr><td class="mono">A′</td><td>A complement / not A</td><td><strong>not</strong> in A: everything outside circle A, including outside both circles</td></tr>
+</table></div>
+<p>A memory trick: ∩ looks like a bridge between the circles ("and"); ∪ is a cup that holds everything ("or"). Drag each number into the region where it belongs. If you put one in the wrong place, you'll be told why. Then tap a button (or a region) to shade it and see its probability if one of the 20 numbers is picked at random.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><span class="A">A</span> = <select id="vnA"></select></label>
+    <label><span class="B">B</span> = <select id="vnB"></select></label>
+  </div>
+  <svg id="vnSvg" class="drag" viewBox="0 0 400 400" width="400" height="400" aria-label="Venn diagram sorter for the numbers 1 to 20"></svg>
+  <div class="msg" id="vnMsg"></div>
+  <div class="controls">
+    <button class="btn primary" id="vnAuto">Sort them all for me</button>
+    <button class="btn" id="vnReset">Empty the diagram</button>
+  </div>
+  <div class="chips" id="vnChips"></div>
+  <div class="readout">
+    <div class="t"><b>Region</b><span id="vnName"></span></div>
+    <div><b>Elements</b><span id="vnSet"></span></div>
+    <div class="t"><b>Probability</b><span id="vnP"></span></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Not A, A′, includes the outside.</strong> Numbers outside both circles are still in ξ, so they belong to A′. Also, every number is either in A or in A′, never both, so P(A) + P(A′) = 1. That idea is the main topic of <a href="mutually-exclusive-outcomes.html">mutually exclusive outcomes</a>.</p>
+</div>
+
+<h2>6 · Filling in a Venn diagram from numbers</h2>
+<p>Often you aren't given the elements, just how many there are, like this: "30 students: 18 play football, 12 play tennis, 5 play both." Now each region holds a <strong>frequency</strong> (a count). The golden rule is <strong>start in the middle</strong>:</p>
+<ol>
+  <li>Put the "both" number in the overlap.</li>
+  <li>The 18 football players <em>include</em> the 5 who play both, so football only = 18 − 5 = 13.</li>
+  <li>Tennis only = 12 − 5 = 7.</li>
+  <li>Outside both = 30 − (13 + 5 + 7) = 30 − 25 = 5. Don't forget this region!</li>
+</ol>
+<p>Your turn. Fill in all four regions and press Check, or press <strong>Show me step by step</strong> to watch it done.</p>
+
+<div class="lab">
+  <p class="pq" id="fqQ"></p>
+  <svg id="fqSvg" viewBox="0 0 400 260" width="400" height="260" aria-label="Venn diagram with frequencies"></svg>
+  <div class="fq">
+    <label>middle (both) <input type="text" id="fqAB" inputmode="numeric" autocomplete="off"></label>
+    <label><span><span id="fqLA"></span> only</span> <input type="text" id="fqA" inputmode="numeric" autocomplete="off"></label>
+    <label><span><span id="fqLB"></span> only</span> <input type="text" id="fqB" inputmode="numeric" autocomplete="off"></label>
+    <label>outside (neither) <input type="text" id="fqO" inputmode="numeric" autocomplete="off"></label>
+  </div>
+  <div class="controls">
+    <button class="btn primary" id="fqGo">Check</button>
+    <button class="btn" id="fqStep">Show me step by step</button>
+    <button class="btn" id="fqNew">New puzzle</button>
+  </div>
+  <div class="msg" id="fqMsg"></div>
+  <div class="work" id="fqWork" hidden></div>
+  <div id="fqPBox" hidden>
+    <p class="pq" id="fqPQ"></p>
+    <div class="controls">
+      <label>P = <input type="text" id="fqPA" autocomplete="off" style="width:6em"></label>
+      <button class="btn primary" id="fqPGo">Check</button>
+      <button class="btn" id="fqPNew">Another question</button>
+    </div>
+    <div class="msg" id="fqPMsg"></div>
+  </div>
+</div>
+
+<p>Once the diagram is full, probabilities are easy: <strong>add up the regions you want</strong> and divide by the total in ξ. For "or" (∪) add all three regions inside the circles once each; for "not" (′) remember the region outside both circles.</p>
+
+<h2>7 · Spot the mistake</h2>
+<p>Each of these students has made one of the classic mistakes. Read their work and pick what went wrong.</p>
+
+<div class="lab">
+  <p class="pq" id="smQ"></p>
+  <svg id="smSvg" viewBox="0 0 400 140" width="400" height="140" aria-label="A student's working"></svg>
+  <div class="work" id="smWork"></div>
+  <div class="chips" id="smOpts"></div>
+  <div class="msg" id="smMsg"></div>
+  <div class="controls"><button class="btn" id="smNext">Next case</button><span id="smCount" style="color:var(--muted);font-size:.9rem"></span></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes to avoid</strong></p>
+  <ul>
+    <li><strong>Missing outcomes</strong>: list systematically (fix the first thing, run through the second). Check the count is the product, e.g. 2 × 6 = 12.</li>
+    <li><strong>Double-counting outcomes</strong>: a random-order list often repeats one. Again, a fixed order prevents it.</li>
+    <li><strong>Treating (1, 2) and (2, 1) as the same</strong>: with two dice or two coins they are different outcomes.</li>
+    <li><strong>Using outcomes that are not equally likely</strong>, like the 11 dice totals. Use the 36-cell grid.</li>
+    <li><strong>Counting the overlap twice</strong>: "18 play football" includes those who play both. Start in the middle and subtract.</li>
+    <li><strong>Forgetting the region outside both circles</strong>: it's part of ξ, and part of A′ and B′.</li>
+  </ul>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>A spinner (red, blue, green) is spun and a coin is flipped. List the outcomes and find P(blue and heads).</summary>
+  <div class="step"><strong>Fix the spinner, run through the coin:</strong> (R, H), (R, T), then (B, H), (B, T), then (G, H), (G, T).</div>
+  <div class="step"><strong>Count:</strong> 6 outcomes. Check: 3 spinner outcomes × 2 coin outcomes = 6 ✓.</div>
+  <div class="step"><strong>Event "blue and heads":</strong> only (B, H), so 1 outcome.</div>
+  <div class="step"><strong>Probability:</strong> P(blue and heads) = 1/6.</div>
+  <div class="step"><strong>Bonus:</strong> P(heads) = 3/6 = 1/2, since (R, H), (B, H) and (G, H) all have heads.</div>
+</details>
+<details>
+  <summary>Two dice are rolled and the scores added. Find P(sum is 8), P(sum more than 9) and P(a double).</summary>
+  <div class="step"><strong>Sample space:</strong> 6 × 6 = 36 equally likely cells.</div>
+  <div class="step"><strong>Sum is 8:</strong> (2, 6), (3, 5), (4, 4), (5, 3), (6, 2) → 5 cells. P = <strong>5/36</strong>.</div>
+  <div class="step"><strong>Sum more than 9</strong> means 10, 11 or 12. Sum 10: (4, 6), (5, 5), (6, 4) → 3. Sum 11: (5, 6), (6, 5) → 2. Sum 12: (6, 6) → 1. Total 3 + 2 + 1 = 6 cells. P = 6/36 = <strong>1/6</strong>.</div>
+  <div class="step"><strong>A double:</strong> (1, 1), (2, 2), …, (6, 6) → 6 cells (the diagonal). P = 6/36 = <strong>1/6</strong>.</div>
+</details>
+<details>
+  <summary>Complete the two-way table, then find some probabilities.</summary>
+  <div class="tbl"><table class="tw">
+    <tr><th></th><th>Walk</th><th>Bus</th><th>Car</th><th>Total</th></tr>
+    <tr><th>Boys</th><td>12</td><td>?</td><td>8</td><td class="tot">28</td></tr>
+    <tr><th>Girls</th><td>?</td><td>9</td><td>?</td><td class="tot">?</td></tr>
+    <tr><th>Total</th><td class="tot">25</td><td class="tot">?</td><td class="tot">18</td><td class="tot">60</td></tr>
+  </table></div>
+  <div class="step"><strong>Boys row:</strong> 12 + ? + 8 = 28, so boys by bus = 28 − 12 − 8 = <strong>8</strong>.</div>
+  <div class="step"><strong>Walk column:</strong> 12 + ? = 25, so girls who walk = 25 − 12 = <strong>13</strong>.</div>
+  <div class="step"><strong>Car column:</strong> 8 + ? = 18, so girls by car = 18 − 8 = <strong>10</strong>.</div>
+  <div class="step"><strong>Total column:</strong> 28 + ? = 60, so girls' total = 60 − 28 = <strong>32</strong>. Check the girls' row: 13 + 9 + 10 = 32 ✓.</div>
+  <div class="step"><strong>Bus column:</strong> 8 + 9 = <strong>17</strong>. Check the totals row: 25 + 17 + 18 = 60 ✓.</div>
+  <div class="step"><strong>A student is picked at random.</strong> P(a girl who walks) = 13/60. P(comes by bus) = 17/60.</div>
+  <div class="step"><strong>A girl is picked at random.</strong> Now we choose only from the 32 girls: P(she comes by car) = 10/32 = <strong>5/16</strong>.</div>
+</details>
+<details>
+  <summary>30 students: 18 play football (F), 12 play tennis (T), 5 play both. Draw the Venn diagram and find P(neither), P(F ∪ T) and P(exactly one sport).</summary>
+  <div class="step"><strong>Middle first:</strong> F ∩ T = 5.</div>
+  <div class="step"><strong>F only:</strong> 18 − 5 = 13. <strong>T only:</strong> 12 − 5 = 7.</div>
+  <div class="step"><strong>Outside:</strong> 13 + 5 + 7 = 25 are inside the circles, so 30 − 25 = 5 play neither.</div>
+  <div class="step"><strong>P(neither)</strong> = 5/30 = <strong>1/6</strong>.</div>
+  <div class="step"><strong>P(F ∪ T)</strong> = (13 + 5 + 7)/30 = 25/30 = <strong>5/6</strong>. (Not (18 + 12)/30: that counts the 5 twice.)</div>
+  <div class="step"><strong>P(exactly one sport)</strong> = (13 + 7)/30 = 20/30 = <strong>2/3</strong>.</div>
+</details>
+<details>
+  <summary>ξ = {1, 2, …, 12}, A = multiples of 2, B = multiples of 3. Find A ∩ B, A ∪ B, A′ and their probabilities.</summary>
+  <div class="step"><strong>List the sets:</strong> A = {2, 4, 6, 8, 10, 12}, B = {3, 6, 9, 12}.</div>
+  <div class="step"><strong>A ∩ B</strong> (in both) = {6, 12}. P(A ∩ B) = 2/12 = <strong>1/6</strong>.</div>
+  <div class="step"><strong>A ∪ B</strong> (in either) = {2, 3, 4, 6, 8, 9, 10, 12}, 8 numbers. P(A ∪ B) = 8/12 = <strong>2/3</strong>. Check: 6 + 4 − 2 = 8, because 6 and 12 would otherwise be counted twice ✓.</div>
+  <div class="step"><strong>A′</strong> (not in A) = {1, 3, 5, 7, 9, 11}. P(A′) = 6/12 = <strong>1/2</strong>. Check: P(A) + P(A′) = 6/12 + 6/12 = 1 ✓.</div>
+  <div class="step"><strong>Outside both circles:</strong> {1, 5, 7, 11}. These are in A′ and in B′.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>An <strong>outcome</strong> is one possible result; the <strong>sample space</strong> is the list of all of them; an <strong>event</strong> is a group of outcomes.</li>
+  <li>With equally likely outcomes, P(event) = outcomes in the event ÷ total outcomes.</li>
+  <li>List two events <strong>systematically</strong>: fix the first, run through the second. The number of outcomes is the <strong>product</strong>, e.g. coin and dice: 2 × 6 = 12.</li>
+  <li>For two dice use a 6 × 6 <strong>sample space diagram</strong> (sum, difference or product in each cell) and count cells out of 36. (2, 5) and (5, 2) are different cells.</li>
+  <li>In a <strong>two-way table</strong> rows add to row totals and columns add to column totals; fill gaps using a row or column with only one gap. The bottom of a probability is the total of the group being picked from.</li>
+  <li>In a <strong>Venn diagram</strong>, ξ is everything; <strong>A ∩ B</strong> is "and" (the overlap), <strong>A ∪ B</strong> is "or" (anywhere in the circles), <strong>A′</strong> is "not A" (including outside both circles).</li>
+  <li>To fill a Venn diagram from counts, <strong>start in the middle</strong>, subtract it from each circle total, then find the outside from the total.</li>
+  <li>Watch for missing or repeated outcomes, counting the overlap twice and forgetting the outside region.</li>
+</ul>
+
+<footer>Made for KS3 students. Sample spaces, two-way tables and Venn diagrams are in the England national curriculum at key stage 3 under Probability. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const F = () => `font-family="${css('--mono')}"`;
+const gcd = (a,b) => b ? gcd(b,a%b) : Math.abs(a);
+const frac = (n,d) => { if(n===0) return '0'; if(n===d) return '1'; const g=gcd(n,d); return `${n/g}/${d/g}`; };
+const fracW = (n,d) => { const s=frac(n,d); return s===`${n}/${d}` ? s : `${n}/${d} = ${s}`; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { const b=a.slice(); for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; };
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const svgPt = (svg,e,W,H) => { const r=svg.getBoundingClientRect(); return [(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H]; };
+function parseFrac(s){
+  s=String(s).trim().replace(/−/g,'-').replace(/\s+/g,'');
+  const m=s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
+  if(m){ const d=+m[2]; return d ? {v:+m[1]/d,n:+m[1],d:d,f:true} : null; }
+  if(/^-?(\d+\.?\d*|\.\d+)$/.test(s)) return {v:+s,f:false};
+  return null;
+}
+function judge(str,n,d,wrongs){
+  const p=parseFrac(str);
+  if(!p) return {ok:false,msg:'Type a fraction such as 3/20.'};
+  if(Math.abs(p.v-n/d)<1e-9){ const s=frac(n,d); return {ok:true,msg:(p.f&&`${p.n}/${p.d}`!==s)?`Correct. ${p.n}/${p.d} simplifies to ${s}.`:`Correct: ${s}.`}; }
+  if(p.v>1) return {ok:false,msg:'Not quite. A probability can never be more than 1: the top counts the outcomes you want, the bottom counts all of them.'};
+  for(const [wn,wd,m] of (wrongs||[])){ if(wd && Math.abs(wn/wd-n/d)>1e-9 && Math.abs(p.v-wn/wd)<1e-9) return {ok:false,msg:'Not quite. '+m}; }
+  return {ok:false,msg:'Not quite. Count the outcomes you want (top) and the total you are choosing from (bottom).'};
+}
+
+/* shared Venn helpers */
+function vShade(p,g,keys){
+  const col=css('--hi'), A=`cx="${g.ax}" cy="${g.ay}" r="${g.r}"`, B=`cx="${g.bx}" cy="${g.by}" r="${g.r}"`, R=`x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}"`;
+  let s=`<defs><clipPath id="${p}cb"><circle ${B}/></clipPath>`+
+    `<mask id="${p}ma" maskUnits="userSpaceOnUse" ${R}><rect ${R} fill="black"/><circle ${A} fill="white"/><circle ${B} fill="black"/></mask>`+
+    `<mask id="${p}mb" maskUnits="userSpaceOnUse" ${R}><rect ${R} fill="black"/><circle ${B} fill="white"/><circle ${A} fill="black"/></mask>`+
+    `<mask id="${p}mo" maskUnits="userSpaceOnUse" ${R}><rect ${R} fill="white"/><circle ${A} fill="black"/><circle ${B} fill="black"/></mask></defs>`;
+  if(keys.has('a')) s+=`<rect ${R} fill="${col}" fill-opacity=".3" mask="url(#${p}ma)"/>`;
+  if(keys.has('b')) s+=`<rect ${R} fill="${col}" fill-opacity=".3" mask="url(#${p}mb)"/>`;
+  if(keys.has('o')) s+=`<rect ${R} fill="${col}" fill-opacity=".3" mask="url(#${p}mo)"/>`;
+  if(keys.has('ab')) s+=`<circle ${A} fill="${col}" fill-opacity=".3" clip-path="url(#${p}cb)"/>`;
+  return s;
+}
+function vFrame(g,la,lb,xi){
+  const ac=css('--accent'), tw=css('--two');
+  return `<rect x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" rx="6" fill="none" stroke="${css('--muted')}" stroke-width="1.5"/>`+
+    `<text x="${g.x+10}" y="${g.y+22}" font-size="16" font-weight="600" ${F()} fill="${css('--muted')}">ξ${xi||''}</text>`+
+    `<circle cx="${g.ax}" cy="${g.ay}" r="${g.r}" fill="none" stroke="${ac}" stroke-width="3"/><circle cx="${g.bx}" cy="${g.by}" r="${g.r}" fill="none" stroke="${tw}" stroke-width="3"/>`+
+    `<text x="${g.ax-g.r*0.95}" y="${g.ay-g.r*0.82}" text-anchor="middle" font-size="17" font-weight="700" ${F()} fill="${ac}">${la}</text>`+
+    `<text x="${g.bx+g.r*0.95}" y="${g.by-g.r*0.82}" text-anchor="middle" font-size="17" font-weight="700" ${F()} fill="${tw}">${lb}</text>`;
+}
+const GV={ax:155,ay:137,bx:245,by:137,r:88,x:10,y:12,w:380,h:236};
+function vennCounts(p,la,lb,v,xi,shade){
+  const fg=css('--fg');
+  const t=(x,y,s,anchor)=>`<text x="${x}" y="${y}" text-anchor="${anchor||'middle'}" font-size="20" font-weight="700" ${F()} fill="${fg}">${s}</text>`;
+  return vShade(p,GV,shade||new Set())+vFrame(GV,la,lb,xi)+t(110,144,v.a)+t(200,144,v.ab)+t(290,144,v.b)+t(374,238,v.o,'end');
+}
+
+/* 1. one event */
+const SE={
+  coin:{out:['H','T'],ev:[['heads',o=>o==='H'],['tails',o=>o==='T']]},
+  dice:{out:['1','2','3','4','5','6'],ev:[['an even number',o=>+o%2===0],['more than 4',o=>+o>4],['a prime number',o=>[2,3,5].includes(+o)],['a factor of 6',o=>6%(+o)===0],['a 7',()=>false],['less than 7',o=>+o<7]]},
+  spin:{out:['red','blue','green','yellow'],ev:[['red',o=>o==='red'],['not red',o=>o!=='red'],['blue or green',o=>o==='blue'||o==='green']]},
+  month:{out:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],ev:[['starts with J',o=>o[0]==='J'],['has 31 days',o=>['Jan','Mar','May','Jul','Aug','Oct','Dec'].includes(o)],['ends in “ber”',o=>['Sep','Oct','Nov','Dec'].includes(o)]]}
+};
+const seX=$('seX'), seSvg=$('seSvg'); let seSel=new Set(), seName='';
+function seApply(nm,f){ const E=SE[seX.value]; seSel=new Set(E.out.map((o,i)=>f(o)?i:-1).filter(i=>i>=0)); seName=nm; }
+function seChips(){
+  const E=SE[seX.value], box=$('seChips'); box.innerHTML='';
+  E.ev.forEach(([nm,f])=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=nm; b.dataset.nm=nm;
+    b.addEventListener('click',()=>{ seApply(nm,f); drawSE(); }); box.appendChild(b); });
+  seApply(E.ev[0][0],E.ev[0][1]);
+}
+function drawSE(){
+  const E=SE[seX.value], n=E.out.length, cols=Math.min(n,6), rows=Math.ceil(n/cols), tw=58, th=46, g=6;
+  const W=400, H=rows*(th+g)+8, x0=(W-(cols*(tw+g)-g))/2;
+  seSvg.setAttribute('viewBox',`0 0 ${W} ${H}`); seSvg.setAttribute('height',H);
+  let s='';
+  E.out.forEach((o,i)=>{ const x=x0+(i%cols)*(tw+g), y=4+Math.floor(i/cols)*(th+g), on=seSel.has(i);
+    s+=`<g data-i="${i}"><rect x="${x}" y="${y}" width="${tw}" height="${th}" rx="8" fill="${on?css('--hi-soft'):css('--bg')}" stroke="${on?css('--hi'):css('--line')}" stroke-width="${on?2.5:1.5}"/><text x="${x+tw/2}" y="${y+th/2+5}" text-anchor="middle" font-size="14" font-weight="${on?700:400}" ${F()} fill="${on?css('--hi'):css('--fg')}">${o}</text></g>`; });
+  seSvg.innerHTML=s;
+  const k=seSel.size, list=[...seSel].sort((a,b)=>a-b).map(i=>E.out[i]), nm=seName||'E';
+  $('seS').textContent=`{ ${E.out.join(', ')} }`;
+  $('seN').textContent=`${n} equally likely outcomes`;
+  $('seE').textContent=`${seName?seName:'E (your choice)'} = { ${list.join(', ')} }`;
+  $('seP').textContent=`P(${nm}) = ${k} ÷ ${n} = ${frac(k,n)}`+(k===0?' (impossible)':k===n?' (certain)':'');
+  $('seChips').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.nm===seName));
+}
+seSvg.addEventListener('pointerdown',e=>{ const g=e.target.closest&&e.target.closest('[data-i]'); if(!g) return; const i=+g.dataset.i; if(seSel.has(i)) seSel.delete(i); else seSel.add(i); seName=''; drawSE(); });
+seX.addEventListener('input',()=>{ seChips(); drawSE(); });
+seChips(); drawSE();
+
+/* 2. systematic listing */
+const LI={coin:{n:'coin',o:['H','T']},dice:{n:'dice',o:['1','2','3','4','5','6']},sp3:{n:'colour spinner',o:['R','B','G']},sp4:{n:'number spinner',o:['1','2','3','4']}};
+const lsA=$('lsA'), lsB=$('lsB'), lsSvg=$('lsSvg'); let lsK=0, lsTimer=null;
+const lsStop=()=>{ if(lsTimer){ clearInterval(lsTimer); lsTimer=null; } };
+function drawLS(){
+  const A=LI[lsA.value], B=LI[lsB.value], ra=A.o.length, cb=B.o.length, tot=ra*cb, k=Math.min(lsK,tot);
+  const cw=48, ch=32, gx=52, gy=38, x0=72, y0=62, W=400, H=y0+ra*gy+4;
+  lsSvg.setAttribute('viewBox',`0 0 ${W} ${H}`); lsSvg.setAttribute('height',H);
+  const ac=css('--accent'), tw=css('--two'), hi=css('--hi');
+  let s=`<text x="8" y="16" font-size="12" font-weight="600" ${F()} fill="${ac}">1st: ${A.n} (down the side)</text><text x="8" y="34" font-size="12" font-weight="600" ${F()} fill="${tw}">2nd: ${B.n} (along the top)</text>`;
+  B.o.forEach((o,j)=>s+=`<text x="${x0+j*gx+cw/2}" y="${y0-8}" text-anchor="middle" font-size="14" font-weight="600" ${F()} fill="${tw}">${o}</text>`);
+  A.o.forEach((o,i)=>{
+    s+=`<text x="${x0-16}" y="${y0+i*gy+ch/2+5}" text-anchor="end" font-size="14" font-weight="600" ${F()} fill="${ac}">${o}</text>`;
+    B.o.forEach((p,j)=>{ const idx=i*cb+j, x=x0+j*gx, y=y0+i*gy, shown=idx<k, last=idx===k-1;
+      s+=`<rect x="${x}" y="${y}" width="${cw}" height="${ch}" rx="6" fill="${shown?css('--bg'):'none'}" stroke="${last?hi:css('--line')}" stroke-width="${last?2.5:1.2}" ${shown?'':'stroke-dasharray="4 3"'}/>`;
+      if(shown) s+=`<text x="${x+cw/2}" y="${y+ch/2+4}" text-anchor="middle" font-size="11.5" ${F()} fill="${css('--fg')}">(<tspan fill="${ac}">${o}</tspan>, <tspan fill="${tw}">${p}</tspan>)</text>`; });
+  });
+  lsSvg.innerHTML=s;
+  let w='';
+  A.o.forEach((o,i)=>{ const items=[]; B.o.forEach((p,j)=>{ if(i*cb+j<k) items.push(`(<span class="a">${o}</span>, <span class="c">${p}</span>)`); }); if(items.length) w+=`<span class="a">${o}</span> → ${items.join(', ')}<br>`; });
+  if(k===0) w='Press “Next outcome” to start the list.';
+  else if(k<tot) w+=`${k} of ${tot} listed so far`;
+  else { w+=`<span class="b">${ra} outcomes for the ${A.n} × ${cb} outcomes for the ${B.n} = <strong>${tot} outcomes</strong></span>`;
+    if(lsA.value===lsB.value) w+=`<br>Look for pairs like (${A.o[0]}, ${A.o[1]}) and (${A.o[1]}, ${A.o[0]}): they are different outcomes, so both are listed.`; }
+  $('lsWork').innerHTML=w;
+}
+function lsTot(){ return LI[lsA.value].o.length*LI[lsB.value].o.length; }
+$('lsNext').addEventListener('click',()=>{ lsStop(); lsK=Math.min(lsK+1,lsTot()); drawLS(); });
+$('lsFill').addEventListener('click',()=>{ lsStop(); if(reduceMotion){ lsK=lsTot(); drawLS(); return; } lsTimer=setInterval(()=>{ lsK++; if(lsK>=lsTot()){ lsK=lsTot(); lsStop(); } drawLS(); },110); });
+$('lsReset').addEventListener('click',()=>{ lsStop(); lsK=0; drawLS(); });
+[lsA,lsB].forEach(e=>e.addEventListener('input',()=>{ lsStop(); lsK=0; drawLS(); }));
+drawLS();
+
+const LQ=[['a coin',2],['a dice',6],['a spinner numbered 1 to 4',4],['a spinner coloured red, blue and green',3],['a letter picked from the word MATHS',5],['a day of the week picked at random',7],['a card suit (♠ ♥ ♦ ♣) picked at random',4]];
+let lq=null;
+function lqNew(){ const i=rnd(0,LQ.length-1); let j; do{ j=rnd(0,LQ.length-1); }while(j===i); lq=[LQ[i],LQ[j]];
+  $('lqQ').textContent=`Try it: how many outcomes are there for ${lq[0][0]} and ${lq[1][0]}?`; $('lqA').value=''; $('lqMsg').className='msg'; $('lqMsg').textContent=''; }
+function lqCheck(){ const v=parseInt($('lqA').value,10), a=lq[0][1], b=lq[1][1], M=$('lqMsg');
+  if(isNaN(v)){ M.className='msg bad'; M.textContent='Type a whole number.'; return; }
+  if(v===a*b){ M.className='msg good'; M.textContent=`Correct: ${a} × ${b} = ${a*b}. Each of the ${a} outcomes pairs up with each of the ${b}.`; }
+  else if(v===a+b){ M.className='msg bad'; M.textContent=`Not quite. You added. Picture the grid: ${a} rows and ${b} columns. Every row has ${b} outcomes, so multiply.`; }
+  else { M.className='msg bad'; M.textContent=`Not quite. The first thing has ${a} outcomes, and each one pairs with all ${b} outcomes of the second thing.`; } }
+$('lqGo').addEventListener('click',lqCheck); $('lqA').addEventListener('keydown',e=>{ if(e.key==='Enter') lqCheck(); }); $('lqNew').addEventListener('click',lqNew); lqNew();
+
+/* 3. two dice grid */
+const ddOp=$('ddOp'), ddCond=$('ddCond'), ddN=$('ddN'), ddSvg=$('ddSvg');
+const OPS={sum:{w:'sum',s:'+',f:(a,b)=>a+b},diff:{w:'difference',s:'−',f:(a,b)=>Math.abs(a-b)},prod:{w:'product',s:'×',f:(a,b)=>a*b}};
+const ddTest=(cond,N,v)=>cond==='eq'?v===N:cond==='gt'?v>N:cond==='lt'?v<N:cond==='even'?v%2===0:v%2===1;
+const ddDesc=(op,cond,N)=>`the ${OPS[op].w} ${cond==='eq'?'is '+N:cond==='gt'?'is more than '+N:cond==='lt'?'is less than '+N:cond==='even'?'is even':'is odd'}`;
+const ddSet=(op,cond,N)=>{ const s=new Set(); for(let a=1;a<=6;a++) for(let b=1;b<=6;b++) if(ddTest(cond,N,OPS[op].f(a,b))) s.add(a+','+b); return s; };
+const ddCalc=(op,a,b)=>op==='sum'?`${a} + ${b} = ${a+b}`:op==='prod'?`${a} × ${b} = ${a*b}`:`${Math.max(a,b)} − ${Math.min(a,b)} = ${Math.abs(a-b)}`;
+let dd={mode:'ex',sel:new Set(),t:null,extra:new Set(),miss:new Set()};
+const DX=64, DC=54;
+function ddN0(){ const v=parseInt(ddN.value,10); return isNaN(v)?0:v; }
+function drawDD(){
+  const op=ddOp.value, ac=css('--accent'), tw=css('--two'), hi=css('--hi'), mu=css('--muted'), bad=css('--bad');
+  ddN.disabled=dd.mode==='ch'||ddCond.value==='even'||ddCond.value==='odd'; ddOp.disabled=ddCond.disabled=dd.mode==='ch';
+  if(dd.mode==='ex') dd.sel=ddSet(op,ddCond.value,ddN0());
+  let s=`<text x="${DX+3*DC}" y="18" text-anchor="middle" font-size="14" font-weight="600" ${F()} fill="${tw}">Dice 2</text>`;
+  s+=`<text transform="rotate(-90)" x="${-(DX+3*DC)}" y="20" text-anchor="middle" font-size="14" font-weight="600" ${F()} fill="${ac}">Dice 1</text>`;
+  s+=`<text x="${DX-22}" y="${DX-14}" text-anchor="middle" font-size="20" font-weight="700" ${F()} fill="${mu}">${OPS[op].s}</text>`;
+  for(let j=0;j<6;j++) s+=`<text x="${DX+j*DC+DC/2}" y="${DX-12}" text-anchor="middle" font-size="16" font-weight="700" ${F()} fill="${tw}">${j+1}</text>`;
+  for(let i=0;i<6;i++){
+    s+=`<text x="${DX-22}" y="${DX+i*DC+DC/2+6}" text-anchor="middle" font-size="16" font-weight="700" ${F()} fill="${ac}">${i+1}</text>`;
+    for(let j=0;j<6;j++){ const k=(i+1)+','+(j+1), on=dd.sel.has(k), ex=dd.extra.has(k), mi=dd.miss.has(k), v=OPS[op].f(i+1,j+1);
+      s+=`<rect x="${DX+j*DC+2}" y="${DX+i*DC+2}" width="${DC-4}" height="${DC-4}" rx="6" fill="${on?css('--hi-soft'):css('--bg')}" stroke="${ex||mi?bad:on?hi:css('--line')}" stroke-width="${ex||mi||on?2.5:1.2}" ${mi?'stroke-dasharray="5 3"':''}/>`;
+      s+=`<text x="${DX+j*DC+DC/2}" y="${DX+i*DC+DC/2+6}" text-anchor="middle" font-size="17" font-weight="${on?700:400}" ${F()} fill="${on?hi:css('--fg')}">${v}</text>`; }
+  }
+  ddSvg.innerHTML=s;
+  const k=dd.sel.size;
+  if(dd.mode==='ex'){
+    $('ddEv').textContent=ddDesc(op,ddCond.value,ddN0());
+    $('ddCt').textContent=`${k} of the 36 cells`;
+    $('ddP').textContent=`P = ${fracW(k,36)}`;
+    const L=[...dd.sel].map(x=>x.split(',').map(Number)).sort((p,q)=>p[0]-q[0]||p[1]-q[1]);
+    $('ddWork').innerHTML=k===0?'No cells fit, so this event is impossible: P = 0.':L.slice(0,12).map(([a,b])=>`(<span class="a">${a}</span>, <span class="c">${b}</span>): ${ddCalc(op,a,b)}`).join('<br>')+(k>12?`<br>… and ${k-12} more`:'')+`<br><span class="b">${k} cells out of 36 → P = ${fracW(k,36)}</span>`;
+  } else {
+    $('ddEv').textContent=ddDesc(dd.t.op,dd.t.cond,dd.t.N);
+    $('ddCt').textContent=`${k} selected`;
+    if(!$('ddMsg').classList.contains('good')) $('ddP').textContent='tap cells, then Check';
+    $('ddWork').textContent=`Challenge: tap every cell where ${ddDesc(dd.t.op,dd.t.cond,dd.t.N)}. Tap again to unselect.`;
+  }
+}
+function ddChal(){
+  let t,k; do{ const op=pick(['sum','diff','prod']), cond=pick(['eq','eq','gt','lt','even','odd']);
+    const N=op==='sum'?rnd(2,12):op==='diff'?rnd(0,5):pick([1,2,3,4,5,6,8,9,10,12,15,16,18,20,24,30,36]);
+    t={op,cond,N}; k=ddSet(op,cond,N).size; }while(k<1||k>15);
+  dd={mode:'ch',sel:new Set(),t,extra:new Set(),miss:new Set()}; ddOp.value=t.op;
+  $('ddMsg').className='msg'; $('ddMsg').textContent=''; $('ddCheck').hidden=false; $('ddExp').hidden=false; drawDD();
+}
+function ddCheck(){
+  const t=dd.t, want=ddSet(t.op,t.cond,t.N), extra=[...dd.sel].filter(x=>!want.has(x)), miss=[...want].filter(x=>!dd.sel.has(x)), M=$('ddMsg');
+  dd.extra=new Set(extra); dd.miss=new Set(miss);
+  if(!extra.length&&!miss.length){ M.className='msg good'; M.textContent=`All ${want.size} found. P(${ddDesc(t.op,t.cond,t.N)}) = ${fracW(want.size,36)}.`; $('ddP').textContent=`P = ${fracW(want.size,36)}`; drawDD(); return; }
+  let m='Not quite. ';
+  if(extra.length){ const [a,b]=extra[0].split(',').map(Number); m+=`${extra.length} of your cells ${extra.length>1?"don't":"doesn't"} fit (red outline): e.g. (${a}, ${b}) gives ${ddCalc(t.op,a,b)}. `; }
+  if(miss.length){ const [a,b]=miss[0].split(',').map(Number); m+=`You've missed ${miss.length} (dashed red). Look along the row for Dice 1 = ${a}.`+(a!==b&&dd.sel.has(b+','+a)?` Remember (${b}, ${a}) and (${a}, ${b}) are different outcomes.`:''); }
+  M.className='msg bad'; M.textContent=m; drawDD();
+}
+ddSvg.addEventListener('pointerdown',e=>{
+  const [x,y]=svgPt(ddSvg,e,400,400), j=Math.floor((x-DX)/DC), i=Math.floor((y-DX)/DC);
+  if(i<0||i>5||j<0||j>5) return;
+  if(dd.mode==='ex'){ ddCond.value='eq'; ddN.value=OPS[ddOp.value].f(i+1,j+1); drawDD(); }
+  else { const k=(i+1)+','+(j+1); if(dd.sel.has(k)) dd.sel.delete(k); else dd.sel.add(k); dd.extra=new Set(); dd.miss=new Set(); $('ddMsg').className='msg'; $('ddMsg').textContent=''; drawDD(); }
+});
+[ddOp,ddCond,ddN].forEach(e=>e.addEventListener('input',drawDD));
+$('ddChal').addEventListener('click',ddChal);
+$('ddCheck').addEventListener('click',ddCheck);
+$('ddExp').addEventListener('click',()=>{ dd={mode:'ex',sel:new Set(),t:null,extra:new Set(),miss:new Set()}; $('ddCheck').hidden=true; $('ddExp').hidden=true; $('ddMsg').className='msg'; $('ddMsg').textContent=''; drawDD(); });
+drawDD();
+
+/* 4. two-way table */
+const TW={rows:['Boys','Girls'],cols:['Walk','Bus','Car'],rw:['boy','girl'],pr:['he','she'],cp:['walks','comes by bus','comes by car']};
+let tw=null;
+function twLines(){ const L=[]; for(let r=0;r<3;r++) L.push({name:(r<2?TW.rows[r]:'Total')+' row',cells:[[r,0],[r,1],[r,2]],tot:[r,3]}); for(let c=0;c<4;c++) L.push({name:(c<3?TW.cols[c]:'Total')+' column',cells:[[0,c],[1,c]],tot:[2,c]}); return L; }
+function twSolvable(hid){ const known=new Set(); for(let r=0;r<3;r++) for(let c=0;c<4;c++) if(!hid.has(r+','+c)) known.add(r+','+c);
+  let ch=true; while(ch){ ch=false; for(const L of twLines()){ const unk=[...L.cells,L.tot].map(p=>p.join(',')).filter(k=>!known.has(k)); if(unk.length===1){ known.add(unk[0]); ch=true; } } } return known.size===12; }
+function twNew(){
+  const T=[[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+  for(let r=0;r<2;r++){ for(let c=0;c<3;c++) T[r][c]=rnd(3,20); T[r][3]=T[r][0]+T[r][1]+T[r][2]; }
+  for(let c=0;c<4;c++) T[2][c]=T[0][c]+T[1][c];
+  const all=[]; for(let r=0;r<3;r++) for(let c=0;c<4;c++) all.push(r+','+c);
+  let hid; do{ hid=new Set(shuffle(all).slice(0,rnd(5,6))); }while(!twSolvable(hid));
+  tw={T,hid,solved:false,qs:[],focus:-1};
+  let h='<tr><th></th>'+TW.cols.map(c=>`<th>${c}</th>`).join('')+'<th>Total</th></tr>';
+  for(let r=0;r<3;r++){ h+=`<tr><th>${r<2?TW.rows[r]:'Total'}</th>`;
+    for(let c=0;c<4;c++){ const k=r+','+c; h+=`<td class="${r===2||c===3?'tot':''}">`+(hid.has(k)?`<input type="text" inputmode="numeric" autocomplete="off" data-k="${k}" aria-label="${r<2?TW.rows[r]:'Total'}, ${c<3?TW.cols[c]:'Total'}">`:T[r][c])+'</td>'; }
+    h+='</tr>'; }
+  $('twTable').innerHTML=h; $('twMsg').className='msg'; $('twMsg').textContent=`Fill in the ${hid.size} gaps.`; $('twProb').hidden=true; $('twProb').innerHTML='';
+  drawTWsvg();
+}
+function twCheck(){
+  const T=tw.T, inputs=[...$('twTable').querySelectorAll('input')], known=new Set(), typed={};
+  for(let r=0;r<3;r++) for(let c=0;c<4;c++) if(!tw.hid.has(r+','+c)) known.add(r+','+c);
+  inputs.forEach(inp=>{ const [r,c]=inp.dataset.k.split(',').map(Number); inp.classList.remove('good','bad'); if(inp.value.trim()==='') return;
+    const v=parseInt(inp.value.replace('−','-'),10); typed[inp.dataset.k]=v; if(v===T[r][c]){ inp.classList.add('good'); known.add(inp.dataset.k); } else inp.classList.add('bad'); });
+  const todo=inputs.filter(i=>!known.has(i.dataset.k)), M=$('twMsg');
+  if(!todo.length){ M.className='msg good'; M.textContent='All correct. Every row and column adds up. Now use the table for some probabilities.'; twSolved(); return; }
+  const right=tw.hid.size-todo.length;
+  for(const inp of todo){ const k=inp.dataset.k;
+    for(const L of twLines()){ const cells=[...L.cells,L.tot].map(p=>p.join(',')); if(!cells.includes(k)||!cells.every(x=>x===k||known.has(x))) continue;
+      const val=p=>p.join(',')===k?'?':T[p[0]][p[1]];
+      const eq=L.cells.map(val).join(' + ')+' = '+val(L.tot);
+      const isTot=L.tot.join(',')===k;
+      const how=isTot?'so add them up':`so ? = ${val(L.tot)} − ${L.cells.filter(p=>p.join(',')!==k).map(val).join(' − ')}`;
+      M.className='msg bad'; M.textContent=(k in typed?`Not quite: ${typed[k]} doesn't fit. `:'')+`${right} of ${tw.hid.size} right so far. Look at the ${L.name}: ${eq}, ${how}.`; return; } }
+  M.className='msg bad'; M.textContent=`${right} of ${tw.hid.size} right so far. Find a row or column with only one gap and start there.`;
+}
+function twSolved(){
+  tw.solved=true; const T=tw.T, N=T[2][3];
+  const r1=rnd(0,1), c1=rnd(0,2), c2=rnd(0,2), r3=1-r1, c3=rnd(0,2);
+  tw.qs=[
+    {t:`A student is picked at random from all ${N}. Find P(a ${TW.rw[r1]} who ${TW.cp[c1]}).`,n:T[r1][c1],d:N,
+     wr:[[T[r1][c1],T[r1][3],`That divides by the ${TW.rows[r1].toLowerCase()}' total. The student is picked from everyone, so divide by the grand total, ${N}.`],[T[r1][c1],T[2][c1],`That divides by the column total. The student is picked from everyone, so divide by ${N}.`]],
+     fav:(r,c)=>r===r1&&c===c1,grp:()=>true,who:`all ${N} students`},
+    {t:`A student is picked at random. Find the probability that the student ${TW.cp[c2]}.`,n:T[2][c2],d:N,
+     wr:[[T[0][c2],N,'That only counts the boys. Use the column total, which counts boys and girls.'],[T[1][c2],N,'That only counts the girls. Use the column total, which counts boys and girls.']],
+     fav:(r,c)=>c===c2,grp:()=>true,who:`all ${N} students`},
+    {t:`A ${TW.rw[r3]} is picked at random. Find the probability that ${TW.pr[r3]} ${TW.cp[c3]}.`,n:T[r3][c3],d:T[r3][3],
+     wr:[[T[r3][c3],N,`Only ${TW.rows[r3].toLowerCase()} are being picked from, so divide by the ${TW.rows[r3].toLowerCase()}' total, not by everyone.`],[T[r3][c3],T[2][c3],`That divides by the column total. Only ${TW.rows[r3].toLowerCase()} are being picked from: use their row total.`]],
+     fav:(r,c)=>r===r3&&c===c3,grp:r=>r===r3,who:`the ${T[r3][3]} ${TW.rows[r3].toLowerCase()} only`}
+  ];
+  tw.focus=0;
+  $('twProb').innerHTML=tw.qs.map((q,i)=>`<div class="tq"><p>${i+1}. ${q.t}</p><div class="controls" style="margin-top:0"><label>P = <input type="text" data-q="${i}" autocomplete="off" style="width:6em"></label><button class="btn primary" type="button" data-q="${i}">Check</button></div><div class="msg" data-m="${i}"></div></div>`).join('');
+  $('twProb').hidden=false; drawTWsvg();
+}
+$('twProb').addEventListener('click',e=>{ const b=e.target.closest('button[data-q]'); if(!b) return; const i=+b.dataset.q, q=tw.qs[i];
+  const r=judge($('twProb').querySelector(`input[data-q="${i}"]`).value,q.n,q.d,q.wr), M=$('twProb').querySelector(`[data-m="${i}"]`);
+  M.className='msg '+(r.ok?'good':'bad'); M.textContent=r.msg; tw.focus=i; drawTWsvg(); });
+$('twProb').addEventListener('focusin',e=>{ const t=e.target.closest('[data-q]'); if(t){ tw.focus=+t.dataset.q; drawTWsvg(); } });
+function drawTWsvg(){
+  const svg=$('twSvg'), mu=css('--muted');
+  if(!tw.solved){ svg.innerHTML=`<text x="200" y="58" text-anchor="middle" font-size="13" ${F()} fill="${mu}">Complete the table to see every student as a dot.</text>`; $('twCap').textContent=''; return; }
+  const T=tw.T, q=tw.qs[tw.focus]; let s='';
+  TW.cols.forEach((c,j)=>s+=`<text x="${70+j*110+48}" y="14" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${mu}">${c}</text>`);
+  for(let r=0;r<2;r++){ const y0=26+r*42; s+=`<text x="2" y="${y0+14}" font-size="12" font-weight="600" ${F()} fill="${mu}">${TW.rows[r]}</text>`;
+    for(let c=0;c<3;c++) for(let k=0;k<T[r][c];k++){ const x=70+c*110+(k%10)*10+5, y=y0+Math.floor(k/10)*10+5;
+      const col=!q?mu:q.fav(r,c)?css('--hi'):q.grp(r)?mu:css('--line'); s+=`<circle cx="${x}" cy="${y}" r="3.6" fill="${col}"/>`; } }
+  svg.innerHTML=s;
+  $('twCap').textContent=q?`Question ${tw.focus+1}: orange dots are the students you want; you are choosing from ${q.who} (grey and orange). Faint dots are left out.`:'';
+}
+$('twGo').addEventListener('click',twCheck);
+$('twTable').addEventListener('keydown',e=>{ if(e.key==='Enter') twCheck(); });
+$('twNew').addEventListener('click',twNew);
+twNew();
+
+/* 5. Venn sorter */
+const RULES={
+  even:{set:'even numbers',is:'even',f:n=>n%2===0}, odd:{set:'odd numbers',is:'odd',f:n=>n%2===1},
+  m3:{set:'multiples of 3',is:'a multiple of 3',f:n=>n%3===0}, m4:{set:'multiples of 4',is:'a multiple of 4',f:n=>n%4===0},
+  m5:{set:'multiples of 5',is:'a multiple of 5',f:n=>n%5===0}, prime:{set:'prime numbers',is:'prime',f:n=>[2,3,5,7,11,13,17,19].includes(n)},
+  sq:{set:'square numbers',is:'a square number',f:n=>[1,4,9,16].includes(n)}, f20:{set:'factors of 20',is:'a factor of 20',f:n=>20%n===0},
+  gt12:{set:'numbers more than 12',is:'more than 12',f:n=>n>12}
+};
+const vnA=$('vnA'), vnB=$('vnB'), vnSvg=$('vnSvg');
+Object.keys(RULES).forEach(k=>{ vnA.add(new Option(RULES[k].set,k)); vnB.add(new Option(RULES[k].set,k)); });
+vnA.value='even'; vnB.value='m3';
+const VG={ax:150,ay:157,bx:250,by:157,r:100,x:8,y:26,w:384,h:262};
+const vReg=(x,y)=>{ const a=Math.hypot(x-VG.ax,y-VG.ay)<VG.r, b=Math.hypot(x-VG.bx,y-VG.by)<VG.r; return a?(b?'ab':'a'):(b?'b':'o'); };
+const SLOTS={a:[],ab:[],b:[],o:[]};
+(function(){ const c={a:[95,157],ab:[200,157],b:[305,157],o:[200,157]};
+  for(let y=42;y<=276;y+=22) for(let x=24;x<=376;x+=26){
+    const dA=Math.hypot(x-VG.ax,y-VG.ay), dB=Math.hypot(x-VG.bx,y-VG.by);
+    if(Math.abs(dA-VG.r)<14||Math.abs(dB-VG.r)<14) continue; if(x<52&&y<62) continue;
+    if(Math.hypot(x-55,y-68)<18||Math.hypot(x-345,y-68)<18) continue;
+    SLOTS[vReg(x,y)].push([x,y]); }
+  Object.keys(SLOTS).forEach(k=>{ const [cx,cy]=c[k]; SLOTS[k].sort((p,q)=>k==='o'?Math.hypot(q[0]-cx,q[1]-cy)-Math.hypot(p[0]-cx,p[1]-cy):Math.hypot(p[0]-cx,p[1]-cy)-Math.hypot(q[0]-cx,q[1]-cy)); });
+})();
+let vn={place:{},lists:{a:[],ab:[],b:[],o:[]},sel:'ab',drag:null};
+const vTrue=n=>{ const a=RULES[vnA.value].f(n), b=RULES[vnB.value].f(n); return a?(b?'ab':'a'):(b?'b':'o'); };
+const vWhere={ab:'in the overlap (A ∩ B)',a:'in A only',b:'in B only',o:'outside both circles (but still inside ξ)'};
+const vWhy=n=>{ const A=RULES[vnA.value], B=RULES[vnB.value]; return `${n} ${A.f(n)?'is':'is not'} ${A.is} and ${B.f(n)?'is':'is not'} ${B.is}, so it goes ${vWhere[vTrue(n)]}.`; };
+const TRAY=n=>[20+((n-1)%10)*37+16, 322+Math.floor((n-1)/10)*40];
+const VSEL={
+  A:{name:'A',keys:['a','ab'],w:()=>`in A: ${RULES[vnA.value].is}`},
+  B:{name:'B',keys:['b','ab'],w:()=>`in B: ${RULES[vnB.value].is}`},
+  ab:{name:'A ∩ B',keys:['ab'],w:()=>`in A and B: ${RULES[vnA.value].is} and ${RULES[vnB.value].is}`},
+  u:{name:'A ∪ B',keys:['a','ab','b'],w:()=>`in A or B or both: ${RULES[vnA.value].is} or ${RULES[vnB.value].is}`},
+  An:{name:'A′',keys:['b','o'],w:()=>`not in A: not ${RULES[vnA.value].is}`},
+  Bn:{name:'B′',keys:['a','o'],w:()=>`not in B: not ${RULES[vnB.value].is}`},
+  a:{name:'A ∩ B′',keys:['a'],w:()=>'in A but not in B (A only)'},
+  b:{name:'A′ ∩ B',keys:['b'],w:()=>'in B but not in A (B only)'},
+  o:{name:'(A ∪ B)′',keys:['o'],w:()=>'in neither circle'}
+};
+['A','B','ab','u','An','Bn','a','o'].forEach(k=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=VSEL[k].name; b.dataset.k=k; b.addEventListener('click',()=>{ vn.sel=k; drawVN(); }); $('vnChips').appendChild(b); });
+function vnPlace(n){ const k=vTrue(n); vn.place[n]=k; vn.lists[k].push(n); }
+function drawVN(){
+  const keys=new Set(VSEL[vn.sel].keys), fg=css('--fg'), hi=css('--hi');
+  let s=vShade('vn',VG,keys)+vFrame(VG,'A','B','');
+  s+=`<line x1="8" y1="300" x2="392" y2="300" stroke="${css('--line')}" stroke-dasharray="4 4"/>`;
+  if(Object.keys(vn.place).length<20) s+=`<text x="392" y="296" text-anchor="end" font-size="11" ${F()} fill="${css('--muted')}">drag from here ↓</text>`;
+  for(let n=1;n<=20;n++){
+    const k=vn.place[n];
+    if(k){ const L=SLOTS[k], p=L[Math.min(vn.lists[k].indexOf(n),L.length-1)], on=keys.has(k);
+      s+=`<text x="${p[0]}" y="${p[1]+5}" text-anchor="middle" font-size="15" font-weight="${on?700:500}" ${F()} fill="${on?hi:fg}">${n}</text>`; }
+    else { const [x,y]=TRAY(n); s+=`<g data-n="${n}" transform="translate(${x},${y})" style="cursor:grab"><rect x="-16" y="-15" width="32" height="30" rx="6" fill="${css('--bg')}" stroke="${css('--muted')}" stroke-width="1.5"/><text y="5" text-anchor="middle" font-size="15" font-weight="600" ${F()} fill="${fg}">${n}</text></g>`; }
+  }
+  vnSvg.innerHTML=s;
+  const mem=[]; for(let n=1;n<=20;n++) if(keys.has(vTrue(n))) mem.push(n);
+  $('vnName').textContent=`${VSEL[vn.sel].name}: ${VSEL[vn.sel].w()}`;
+  $('vnSet').textContent=`{ ${mem.join(', ')} }, n = ${mem.length}`;
+  $('vnP').textContent=`P(${VSEL[vn.sel].name}) = ${fracW(mem.length,20)}`;
+  $('vnChips').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===vn.sel));
+}
+vnSvg.addEventListener('pointerdown',e=>{
+  const g=e.target.closest&&e.target.closest('[data-n]');
+  if(g){ const n=+g.dataset.n; vn.drag={n,g,moved:false,x0:e.clientX,y0:e.clientY}; try{ vnSvg.setPointerCapture(e.pointerId); }catch(_){} e.preventDefault(); return; }
+  const [x,y]=svgPt(vnSvg,e,400,400); if(y<VG.y||y>VG.y+VG.h||x<VG.x||x>VG.x+VG.w) return;
+  vn.sel=vReg(x,y); drawVN();
+});
+vnSvg.addEventListener('pointermove',e=>{ if(!vn.drag) return; if(Math.hypot(e.clientX-vn.drag.x0,e.clientY-vn.drag.y0)>4) vn.drag.moved=true; const [x,y]=svgPt(vnSvg,e,400,400); vn.drag.g.setAttribute('transform',`translate(${x},${y})`); });
+function vnDrop(e){
+  if(!vn.drag) return; const d=vn.drag; vn.drag=null; const M=$('vnMsg');
+  const [x,y]=svgPt(vnSvg,e,400,400);
+  if(!d.moved||y>VG.y+VG.h||y<VG.y||x<VG.x||x>VG.x+VG.w){ if(!d.moved){ M.className='msg'; M.textContent=`Drag ${d.n} into the diagram. Ask yourself: is it ${RULES[vnA.value].is}? Is it ${RULES[vnB.value].is}?`; } drawVN(); return; }
+  const k=vReg(x,y), want=vTrue(d.n);
+  if(k===want){ vnPlace(d.n); M.className='msg good'; M.textContent='✓ '+vWhy(d.n)+(Object.keys(vn.place).length===20?' All 20 sorted!':''); }
+  else { M.className='msg bad'; M.textContent=`Not ${vWhere[k]}. `+vWhy(d.n); }
+  drawVN();
+}
+vnSvg.addEventListener('pointerup',vnDrop);
+vnSvg.addEventListener('pointercancel',()=>{ vn.drag=null; drawVN(); });
+$('vnAuto').addEventListener('click',()=>{ for(let n=1;n<=20;n++) if(!vn.place[n]) vnPlace(n); $('vnMsg').className='msg'; $('vnMsg').textContent='All sorted. Tap a button or a region to shade it.'; drawVN(); });
+function vnEmpty(){ vn.place={}; vn.lists={a:[],ab:[],b:[],o:[]}; $('vnMsg').className='msg'; $('vnMsg').textContent='Drag each number from the tray into its region.'; drawVN(); }
+$('vnReset').addEventListener('click',vnEmpty);
+[vnA,vnB].forEach(e=>e.addEventListener('input',vnEmpty));
+vnEmpty();
+
+/* 6. Venn from frequencies */
+const FQC=[
+  {who:'students in a class',A:'have a dog',B:'have a cat',la:'D',lb:'C',both:'have both'},
+  {who:'students in Year 8',A:'play football',B:'play tennis',la:'F',lb:'T',both:'play both'},
+  {who:'people in a café',A:'ordered a drink',B:'ordered a cake',la:'D',lb:'C',both:'ordered both'},
+  {who:'pupils',A:'study French',B:'study Spanish',la:'F',lb:'S',both:'study both'}
+];
+let fq=null;
+const fqIn=()=>({ab:$('fqAB'),a:$('fqA'),b:$('fqB'),o:$('fqO')});
+function fqNew(){
+  const ctx=pick(FQC), v={a:rnd(3,12),ab:rnd(2,8),b:rnd(2,10),o:rnd(1,8)};
+  const N=v.a+v.ab+v.b+v.o; fq={ctx,v,N,nA:v.a+v.ab,nB:v.b+v.ab,step:0,done:false,pq:null};
+  $('fqQ').textContent=`${N} ${ctx.who} were asked. ${fq.nA} ${ctx.A} (${ctx.la}), ${fq.nB} ${ctx.B} (${ctx.lb}) and ${v.ab} ${ctx.both}.`;
+  $('fqLA').textContent=ctx.la; $('fqLB').textContent=ctx.lb;
+  Object.values(fqIn()).forEach(i=>{ i.value=''; i.classList.remove('good','bad'); });
+  $('fqMsg').className='msg'; $('fqMsg').textContent='Start in the middle!'; $('fqWork').hidden=true; $('fqWork').innerHTML=''; $('fqPBox').hidden=true;
+  drawFQ();
+}
+function drawFQ(){
+  const I=fqIn(), show={}, order=['ab','a','b','o'];
+  order.forEach((k,i)=>{ show[k]=i<fq.step?String(fq.v[k]):(I[k].value.trim()||'?'); });
+  const shade=new Set(fq.step>0&&fq.step<=4?[order[fq.step-1]]:[]);
+  $('fqSvg').innerHTML=vennCounts('fq',fq.ctx.la,fq.ctx.lb,show,' = '+fq.N,shade);
+}
+function fqCheck(){
+  const I=fqIn(), v=fq.v, c=fq.ctx, M=$('fqMsg'); let msg='';
+  const val=k=>parseInt(I[k].value,10);
+  ['ab','a','b','o'].forEach(k=>{ I[k].classList.remove('good','bad'); if(I[k].value.trim()!=='') I[k].classList.add(val(k)===v[k]?'good':'bad'); });
+  const f=k=>val(k)===v[k];
+  if(!f('ab')) msg=`The middle is the number in both groups. Read it straight from the question: ${v.ab} ${c.both}.`;
+  else if(!f('a')) msg=val('a')===fq.nA?`${fq.nA} counts everyone in ${c.la}, including the ${v.ab} in the middle. ${c.la} only = ${fq.nA} − ${v.ab}.`:`${c.la} only = (number in ${c.la}) − (middle) = ${fq.nA} − ${v.ab}.`;
+  else if(!f('b')) msg=val('b')===fq.nB?`${fq.nB} counts everyone in ${c.lb}, including the ${v.ab} in the middle. ${c.lb} only = ${fq.nB} − ${v.ab}.`:`${c.lb} only = (number in ${c.lb}) − (middle) = ${fq.nB} − ${v.ab}.`;
+  else if(!f('o')) msg=val('o')===fq.N-fq.nA-fq.nB?`You took away both circle totals, so the middle was subtracted twice. Add the three numbers inside the circles, then take that from ${fq.N}.`:`Outside = total − everything inside the circles = ${fq.N} − (${v.a} + ${v.ab} + ${v.b}).`;
+  drawFQ();
+  if(msg){ M.className='msg bad'; M.textContent='Not quite. '+msg; return; }
+  M.className='msg good'; M.textContent=`All four correct. Check: ${v.a} + ${v.ab} + ${v.b} + ${v.o} = ${fq.N} ✓`; fqProb();
+}
+function fqStep(){
+  const v=fq.v, c=fq.ctx; fq.step=Math.min(fq.step+1,4); const W=$('fqWork'); W.hidden=false;
+  const L=[`<span class="b">1. Middle:</span> ${c.la} ∩ ${c.lb} = ${v.ab}`,
+    `<span class="a">2. ${c.la} only</span> = ${fq.nA} − ${v.ab} = ${v.a}`,
+    `<span class="c">3. ${c.lb} only</span> = ${fq.nB} − ${v.ab} = ${v.b}`,
+    `4. Outside = ${fq.N} − (${v.a} + ${v.ab} + ${v.b}) = ${fq.N} − ${v.a+v.ab+v.b} = ${v.o}`];
+  W.innerHTML=L.slice(0,fq.step).join('<br>')+(fq.step===4?`<br>Check: ${v.a} + ${v.ab} + ${v.b} + ${v.o} = ${fq.N} ✓`:'');
+  $('fqStep').textContent=fq.step<4?'Next step':'Show me step by step';
+  drawFQ();
+  if(fq.step===4){ fqProb(); }
+}
+function fqProb(){
+  const v=fq.v, c=fq.ctx, N=fq.N, la=c.la, lb=c.lb;
+  const Q=[
+    {t:`P(${la} ∩ ${lb}): the probability they ${c.both}`,n:v.ab,d:N,wr:[]},
+    {t:`P(${la} ∪ ${lb}): the probability they are in ${la} or ${lb} (or both)`,n:v.a+v.ab+v.b,d:N,wr:[[fq.nA+fq.nB,N,`That adds the two circle totals, so the middle is counted twice. Add the three regions inside the circles once each.`],[v.a+v.b,N,'Or includes both: add the middle too.']]},
+    {t:`P((${la} ∪ ${lb})′): the probability they are in neither`,n:v.o,d:N,wr:[]},
+    {t:`P(${la}′): the probability they are not in ${la}`,n:v.b+v.o,d:N,wr:[[v.b,N,`Don't forget the region outside both circles: those are not in ${la} either.`],[v.o,N,`${lb} only is outside the ${la} circle too.`]]},
+    {t:`P(${la} ∩ ${lb}′): the probability they are in ${la} only`,n:v.a,d:N,wr:[[fq.nA,N,`That's everyone in ${la}, including the middle. "Only" means take the middle out.`]]},
+    {t:`P(exactly one): the probability they are in just one of ${la} or ${lb}`,n:v.a+v.b,d:N,wr:[[v.a+v.ab+v.b,N,'Exactly one means leave out the middle.']]}
+  ];
+  let q; do{ q=pick(Q); }while(fq.pq&&Q.length>1&&q.t===fq.pq.t);
+  fq.pq=q; $('fqPBox').hidden=false; $('fqPQ').textContent=`One is picked at random from the ${N}. Find ${q.t}.`; $('fqPA').value=''; $('fqPMsg').className='msg'; $('fqPMsg').textContent='';
+}
+$('fqGo').addEventListener('click',fqCheck);
+$('fqStep').addEventListener('click',fqStep);
+$('fqNew').addEventListener('click',()=>{ $('fqStep').textContent='Show me step by step'; fqNew(); });
+Object.values(fqIn()).forEach(i=>{ i.addEventListener('input',drawFQ); i.addEventListener('keydown',e=>{ if(e.key==='Enter') fqCheck(); }); });
+$('fqPGo').addEventListener('click',()=>{ const q=fq.pq, r=judge($('fqPA').value,q.n,q.d,q.wr), M=$('fqPMsg'); M.className='msg '+(r.ok?'good':'bad'); M.textContent=r.msg; });
+$('fqPA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('fqPGo').click(); });
+$('fqPNew').addEventListener('click',fqProb);
+fqNew();
+
+/* 7. spot the mistake */
+const SMO=['They missed an outcome','They counted an outcome twice','They counted the overlap twice','They forgot the region outside the circles','The outcomes they counted are not equally likely'];
+const SM=[
+  {q:'A coin is flipped and a dice is rolled. Sam lists the outcomes:',tiles:['H1','H2','H3','H4','H5','H6','T1','T2','T4','T5','T6'],work:'“There are 11 outcomes, so P(tails and a 3) = 0.”',a:0,hint:'Count them. How many should there be for a coin and a dice?',fb:'T3 is missing. Listing in order (heads with 1 to 6, then tails with 1 to 6) makes a gap easy to spot. There should be 2 × 6 = 12 outcomes, and P(tails and a 3) = 1/12.'},
+  {q:'Two coins are flipped. Priya lists the outcomes:',tiles:['HH','HT','TT'],work:'“3 outcomes, so P(one head and one tail) = 1/3.”',a:0,hint:'Imagine the coins are a 10p and a 2p.',fb:'TH is missing. Heads on the first coin and tails on the second (HT) is different from tails then heads (TH). There are 2 × 2 = 4 outcomes, so P(one of each) = 2/4 = 1/2.'},
+  {q:'Two dice are rolled and the scores added. Leo says:',tiles:['2','3','4','5','6','7','8','9','10','11','12'],work:'“There are 11 possible totals, so P(total is 7) = 1/11.”',a:4,hint:'Can every total be made in the same number of ways?',fb:'The 11 totals are not equally likely: 7 can be made 6 ways but 2 only one way (1 + 1). Use the 36 equally likely cells of the grid: P(7) = 6/36 = 1/6.'},
+  {q:'A spinner (R, B, G) is spun and a coin is flipped. Mia lists:',tiles:['RH','RT','BH','BT','GH','RT','GT'],work:'“7 outcomes, so P(red and tails) = 2/7.”',a:1,hint:'Read the list slowly. Does anything appear more than once?',fb:'RT appears twice. A spinner with 3 outcomes and a coin with 2 give 3 × 2 = 6 outcomes, so P(red and tails) = 1/6.'},
+  {q:'30 students: 18 play football (F), 12 play tennis (T), 5 play both. Josh draws:',venn:{a:'18',ab:'5',b:'12',o:'?'},work:'“18 + 5 + 12 = 35. But there are only 30 students?!”',a:2,hint:'Where are the 5 who play both counted?',fb:'The 18 football players include the 5 who play both, so F only is 18 − 5 = 13, and T only is 12 − 5 = 7. Then 13 + 5 + 7 = 25, leaving 5 outside.'},
+  {q:'The correct diagram for the same 30 students is below. Ava works out P(not football):',venn:{a:'13',ab:'5',b:'7',o:'5'},work:'“Not football is T only, so P(F′) = 7/30.”',a:3,hint:'Is everyone inside a circle?',fb:'F′ is everywhere outside the F circle: T only (7) and outside both (5). P(F′) = 12/30 = 2/5. Check: P(F) + P(F′) = 18/30 + 12/30 = 1 ✓.'}
+];
+let smI=0, smDone=false;
+function drawSM(){
+  const C=SM[smI], svg=$('smSvg');
+  $('smQ').textContent=C.q; $('smWork').textContent=C.work; $('smCount').textContent=`Case ${smI+1} of ${SM.length}`;
+  if(C.venn){ svg.setAttribute('viewBox','0 0 400 260'); svg.setAttribute('height',260); svg.innerHTML=vennCounts('sm','F','T',C.venn,' = 30',new Set()); }
+  else { const n=C.tiles.length, cols=Math.min(n,6), rows=Math.ceil(n/cols), tw=56, th=40, g=6, x0=(400-(cols*(tw+g)-g))/2, H=rows*(th+g)+6;
+    svg.setAttribute('viewBox',`0 0 400 ${H}`); svg.setAttribute('height',H);
+    svg.innerHTML=C.tiles.map((t,i)=>{ const x=x0+(i%cols)*(tw+g), y=3+Math.floor(i/cols)*(th+g); return `<rect x="${x}" y="${y}" width="${tw}" height="${th}" rx="7" fill="${css('--bg')}" stroke="${css('--line')}" stroke-width="1.5"/><text x="${x+tw/2}" y="${y+th/2+5}" text-anchor="middle" font-size="15" ${F()} fill="${css('--fg')}">${t}</text>`; }).join(''); }
+}
+function smShow(){
+  const box=$('smOpts'); box.innerHTML=''; smDone=false; $('smMsg').className='msg'; $('smMsg').textContent='What went wrong?';
+  SMO.forEach((o,i)=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=o;
+    b.addEventListener('click',()=>{ if(smDone) return; const C=SM[smI], M=$('smMsg');
+      if(i===C.a){ smDone=true; b.classList.add('on'); M.className='msg good'; M.textContent='Yes. '+C.fb; }
+      else { M.className='msg bad'; M.textContent='Not quite. Look again: '+C.hint; } });
+    box.appendChild(b); });
+  drawSM();
+}
+$('smNext').addEventListener('click',()=>{ smI=(smI+1)%SM.length; smShow(); });
+smShow();
+
+const redrawAll=()=>{ drawSE(); drawLS(); drawDD(); drawTWsvg(); drawVN(); drawFQ(); drawSM(); };
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll); }
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'A coin is flipped and a dice is rolled. How many outcomes are there?',opts:['12','8','6','2'],a:0,fb:'2 coin outcomes × 6 dice outcomes = 12. Adding (2 + 6 = 8) is the classic mistake.'},
+  {q:'Two dice are rolled and the scores added. P(sum is 7) = ?',opts:['1/6','1/11','7/36','1/12'],a:0,fb:'6 of the 36 cells make 7: (1, 6), (2, 5), (3, 4), (4, 3), (5, 2), (6, 1). 6/36 = 1/6. The 11 totals are not equally likely, so 1/11 is wrong.'},
+  {q:'Two dice are rolled and the scores multiplied. P(product is 12) = ?',opts:['1/9','1/12','1/18','1/3'],a:0,fb:'(2, 6), (6, 2), (3, 4), (4, 3): 4 cells out of 36. 4/36 = 1/9.'},
+  {q:'In a Venn diagram, A ∩ B means…',opts:['in A and in B','in A or B or both','not in A','in A but not B'],a:0,fb:'∩ (intersection) is the overlap: the elements in both A and B.'},
+  {q:'ξ = {1, 2, …, 10} and A = {even numbers}. What is A′?',opts:['{1, 3, 5, 7, 9}','{2, 4, 6, 8, 10}','{ }','{1, 2, …, 10}'],a:0,fb:'A′ is everything in ξ that is not in A: the odd numbers.'},
+  {q:'A Venn diagram has 7 in A only, 3 in A ∩ B, 5 in B only and 5 outside both. What is n(A)?',opts:['10','7','15','3'],a:0,fb:'n(A) counts everything inside circle A: A only plus the overlap, 7 + 3 = 10.'},
+  {q:'Same diagram (7, 3, 5 and 5 outside; 20 in total). P(A ∪ B) = ?',opts:['3/4','3/5','1/4','3/20'],a:0,fb:'A ∪ B is everything inside the circles: 7 + 3 + 5 = 15. 15/20 = 3/4. (3/5 = 12/20 forgets the middle.)'},
+  {q:'Same diagram. P(B′) = ?',opts:['3/5','1/4','2/5','7/20'],a:0,fb:'Not in B: A only (7) plus outside (5) = 12. 12/20 = 3/5. 7/20 forgets the region outside both circles.'},
+  {q:'30 people: 18 like football, 12 like tennis, 5 like both. How many like neither?',opts:['5','0','10','25'],a:0,fb:'Middle 5; football only 13; tennis only 7. Inside the circles: 13 + 5 + 7 = 25, so 30 − 25 = 5 like neither. (0 comes from 30 − 18 − 12, which counts the 5 twice.)'},
+  {q:'A class of 30 has 16 girls. 9 girls and 3 boys wear glasses. A pupil is picked at random. P(wears glasses) = ?',opts:['2/5','9/16','3/14','3/5'],a:0,fb:'Glasses: 9 + 3 = 12 out of everyone (30). 12/30 = 2/5. 9/16 is only the girls; 3/14 is only the boys (30 − 16 = 14 boys).'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

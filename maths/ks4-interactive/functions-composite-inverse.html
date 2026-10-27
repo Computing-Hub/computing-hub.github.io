@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Functions: Composite and Inverse</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive panel (function machines drawn as SVG boxes and arrows from JS, selects and inputs, step-through working, a graph of a function and its inverse). Colours on this page: teal = the function f (its machine boxes, its graph), orange = the second function g in a composite, and values flowing between machines, plum = the inverse f⁻¹ (reversed machine, its graph) and the mirror line y = x. Green/red are only for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.ca{color:var(--accent);font-weight:600}.ch{color:var(--hi);font-weight:600}.ct{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+a{color:var(--accent)}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.15rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:.35em;margin-left:.35rem;line-height:1.4}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+h3 .tag,summary .tag{vertical-align:.15em}
+.lab svg.drag{touch-action:none}
+.lab svg.drag [data-h]{cursor:grab}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.callout.trap{background:var(--two-soft)}
+.work .s{display:block}
+.work .s[hidden]{display:none}
+.work .note{color:var(--muted);font-family:var(--body);font-size:.9rem}
+.next{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;background:var(--panel)}
+@media (max-width:560px){
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block;width:100%}
+  table.stack tr:first-child{display:none}
+  table.stack tr{border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{border:0;padding:.15rem .3rem}
+}
+.controls label{flex-wrap:wrap}
+.readout b.nt,th.nt{text-transform:none;letter-spacing:.02em}
+.vt.sm td,.vt.sm th{padding:.3rem .25rem;font-size:.82rem}
+.vt th{text-transform:none;letter-spacing:.02em;font-size:.8rem}
+.controls label{max-width:100%}.controls select{min-width:0;max-width:100%}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Algebra</div>
+  <h1>Functions: Composite and Inverse <span class="tag g">Higher</span></h1>
+  <p class="lede">A <strong>function</strong> is a rule that turns each input into exactly one output, like a machine. Join two machines end to end and you get a <strong>composite function</strong>. Run a machine backwards and you get its <strong>inverse</strong>. This page builds both ideas from function machines and then does them with algebra.</p>
+  <span class="gcse">GCSE subject content: interpret simple expressions as functions with inputs and outputs; <strong>Higher:</strong> interpret the reverse process as the "inverse function" and the succession of two functions as a "composite function"; use function notation f(x), fg(x), f⁻¹(x)</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start.</strong> You'll need substitution (putting numbers into expressions; see <a href="../ks3-interactive/substitution.html">Substitution</a>), expanding brackets (<a href="double-brackets-factorising-quadratics.html">Double brackets</a>) and rearranging formulae to change the subject (<a href="../ks3-interactive/rearranging-formulae.html">Rearranging formulae</a>). Inverse operations undo each other: + and −, × and ÷, squaring and square-rooting.</p>
+</div>
+
+<h2>1 · Function machines</h2>
+<p>A function machine applies operations in order. Put x in, and the machine builds an expression step by step. Build your own machine below: add operations one at a time, then slide the input and watch the number flow through. Notice where brackets appear: "add 3 then multiply by 2" gives 2(x + 3), not 2x + 3.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>operation <select id="mOp"><option value="+">add</option><option value="−">subtract</option><option value="×">multiply by</option><option value="÷">divide by</option><option value="sq">square</option></select></label>
+    <label><input type="number" id="mK" value="3" style="width:4em"></label>
+    <button class="btn primary" id="mAdd">Add to machine</button><button class="btn" id="mUndo">Remove last</button><button class="btn" id="mClr">Clear</button>
+  </div>
+  <div class="controls"><label>input x = <input type="range" id="mX" min="-5" max="5" step="1" value="2"><span id="mXv" style="font-family:var(--mono)"></span></label></div>
+  <svg id="mSvg" viewBox="0 0 400 130" width="400" height="130" aria-label="Function machine"></svg>
+  <div class="work" id="mWork"></div>
+</div>
+
+<h2>2 · Function notation: f(x)</h2>
+<p>Instead of drawing the machine, we give the function a name, usually f, and write <span class="m">f(x) = 3x − 5</span>. Read "f of x". Then <span class="m">f(4)</span> means "the output when the input is 4": replace every x with 4. Questions also ask you to <strong>solve</strong> f(x) = 13: that means "which input gives output 13?", an ordinary equation.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>f(x) = <select id="nF"><option value="0">3x − 5</option><option value="1">x² + 1</option><option value="2">2x² − x</option><option value="3">(x + 4)/2</option><option value="4">10 − x</option></select></label>
+    <label>find f( <input type="number" id="nX" value="4" style="width:4em"> )</label>
+  </div>
+  <div class="work" id="nWork"></div>
+</div>
+
+<div class="lab">
+  <p class="pq" id="ntQ"></p>
+  <div class="controls">
+    <label>answer <input type="text" id="ntA" inputmode="decimal" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="ntGo">Check</button><button class="btn" id="ntNew">New question</button>
+  </div>
+  <div class="msg" id="ntMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>f(x) is not f × x.</strong> The brackets show the input, they don't mean multiply. And with negatives use brackets when you substitute: if f(x) = x² + 1 then f(−3) = (−3)² + 1 = 10, not −9 + 1.</p>
+</div>
+
+<h2>3 · Composite functions: fg(x) <span class="tag g">Higher</span></h2>
+<p>A <strong>composite function</strong> joins two machines: the output of the first becomes the input of the second. <span class="m">fg(x)</span> means f(g(x)): <strong>do g first, then f</strong>. Read it from the inside out, the function nearest the x goes first. The order matters: fg(x) and gf(x) are usually different. Compare them below.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>f(x) = <select id="cF"></select></label>
+    <label>g(x) = <select id="cG"></select></label>
+    <label>x = <input type="range" id="cX" min="-4" max="4" step="1" value="3"><span id="cXv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="cSvg" viewBox="0 0 400 210" width="400" height="210" aria-label="Composite function machines"></svg>
+  <div class="work" id="cWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes.</strong> Doing f first in fg(x). Multiplying: fg(3) is not f(3) × g(3). And when you substitute an expression, put it in a bracket: if f(x) = 2x + 1 and g(x) = x − 3, then fg(x) = 2<strong>(</strong>x − 3<strong>)</strong> + 1 = 2x − 5.</p>
+</div>
+
+<h2>4 · ff(x), and equations with composites <span class="tag g">Higher</span></h2>
+<p><span class="m">ff(x)</span> means put x through f twice: f(f(x)). Questions also ask you to solve an equation like fg(x) = 51: find fg(x) as an expression first, then solve. Try these; the feedback spots the order mistake.</p>
+
+<div class="lab">
+  <p class="pq" id="cqQ"></p>
+  <div class="controls">
+    <label>answer <input type="text" id="cqA" inputmode="decimal" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="cqGo">Check</button><button class="btn" id="cqShow">Show working</button><button class="btn" id="cqNew">New question</button>
+  </div>
+  <div class="msg" id="cqMsg"></div>
+  <div class="work" id="cqWork" hidden></div>
+  <div class="msg" id="cqScore"></div>
+</div>
+
+<h2>5 · Inverse functions: run the machine backwards <span class="tag g">Higher</span></h2>
+<p>The <strong>inverse function</strong> <span class="m">f⁻¹(x)</span> undoes f: if f turns 4 into 7, then f⁻¹ turns 7 back into 4. To build it, reverse the machine: do the <strong>inverse operations</strong> in the <strong>reverse order</strong>, like taking off your shoes before your socks. (The ⁻¹ is a label, not a power: f⁻¹(x) does not mean 1 ÷ f(x).)</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>f is <select id="iM">
+      <option value="×3,−5">× 3, then − 5</option><option value="+4,÷2">+ 4, then ÷ 2</option><option value="×2,+1,÷4">× 2, then + 1, then ÷ 4</option><option value="−1,×5,+2">− 1, then × 5, then + 2</option><option value="cube,+2">cube, then + 2</option>
+    </select></label>
+    <label>input x = <input type="range" id="iX" min="-4" max="6" step="1" value="4"><span id="iXv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="iSvg" viewBox="0 0 400 220" width="400" height="220" aria-label="Machine and reversed machine"></svg>
+  <div class="work" id="iWork"></div>
+</div>
+
+<h2>6 · Finding f⁻¹(x) algebraically <span class="tag g">Higher</span></h2>
+<p>For any function you can find the inverse with algebra: write <span class="m">y = f(x)</span>, <strong>swap</strong> x and y, then <strong>rearrange</strong> to make y the subject. (Swapping x and y is exactly why the graph of y = f⁻¹(x) is the reflection of y = f(x) in the line y = x.) Always check: f⁻¹(f(a)) should give back a.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>f(x) = <select id="aE"><option value="0">3x − 5</option><option value="1">(2x + 1)/4</option><option value="2">5 − 2x</option><option value="3">x³ + 2</option><option value="4">3/(x − 1)</option></select></label>
+    <button class="btn primary" id="aNext">Next step</button><button class="btn" id="aAll">Show all</button><button class="btn" id="aReset">Reset</button>
+  </div>
+  <div class="twin" style="margin-top:.6rem">
+    <div class="work" id="aWork" style="margin-top:0"></div>
+    <svg id="aSvg" viewBox="0 0 400 400" width="400" height="400" aria-label="Graph of f and its inverse"></svg>
+  </div>
+</div>
+
+<div class="lab">
+  <p class="pq" id="ivQ"></p>
+  <div class="controls">
+    <label>answer <input type="text" id="ivA" inputmode="decimal" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="ivGo">Check</button><button class="btn" id="ivNew">New question</button>
+  </div>
+  <div class="msg" id="ivMsg"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>f(x) = 3x − 5. Find f(4), f(−2), and solve f(x) = 13.</summary>
+  <div class="step"><strong>f(4)</strong> = 3 × 4 − 5 = <strong>7</strong>.</div>
+  <div class="step"><strong>f(−2)</strong> = 3 × (−2) − 5 = −6 − 5 = <strong>−11</strong>.</div>
+  <div class="step"><strong>f(x) = 13:</strong> 3x − 5 = 13, 3x = 18, <strong>x = 6</strong>. Check: f(6) = 13 ✓</div>
+</details>
+<details>
+  <summary>f(x) = 2x + 1 and g(x) = x². Find fg(3) and gf(3). <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>fg(3): g first.</strong> g(3) = 9. Then f(9) = 2 × 9 + 1 = <strong>19</strong>.</div>
+  <div class="step"><strong>gf(3): f first.</strong> f(3) = 7. Then g(7) = 49. So gf(3) = <strong>49</strong>.</div>
+  <div class="step"><strong>Different answers:</strong> the order matters.</div>
+</details>
+<details>
+  <summary>With the same f and g, find fg(x) and gf(x) <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>fg(x) = f(g(x)) = f(x²)</strong>: replace the x in 2x + 1 by x²: <strong>2x² + 1</strong>.</div>
+  <div class="step"><strong>gf(x) = g(f(x)) = g(2x + 1)</strong>: square the whole thing: (2x + 1)² = <strong>4x² + 4x + 1</strong>.</div>
+  <div class="step"><strong>Check with x = 3:</strong> 2(9) + 1 = 19 ✓ and 36 + 12 + 1 = 49 ✓</div>
+</details>
+<details>
+  <summary>f(x) = 2x + 1 and g(x) = x². Solve fg(x) = 51. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Expression:</strong> fg(x) = 2x² + 1.</div>
+  <div class="step"><strong>Solve:</strong> 2x² + 1 = 51 → 2x² = 50 → x² = 25 → <strong>x = 5 or x = −5</strong>.</div>
+</details>
+<details>
+  <summary>f(x) = 2x + 1. Find ff(x). <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>f(f(x)) = f(2x + 1)</strong> = 2(2x + 1) + 1 = 4x + 2 + 1 = <strong>4x + 3</strong>.</div>
+</details>
+<details>
+  <summary>f(x) = (2x + 1)/4. Find f⁻¹(x). <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Write y =:</strong> y = (2x + 1)/4.</div>
+  <div class="step"><strong>Swap x and y:</strong> x = (2y + 1)/4.</div>
+  <div class="step"><strong>Rearrange:</strong> × 4: 4x = 2y + 1; − 1: 4x − 1 = 2y; ÷ 2: y = (4x − 1)/2.</div>
+  <div class="step"><strong>Answer:</strong> <strong>f⁻¹(x) = (4x − 1)/2</strong>. Check: f(3) = 7/4 and f⁻¹(7/4) = (7 − 1)/2 = 3 ✓</div>
+</details>
+<details>
+  <summary>f(x) = 3/(x − 1). Find f⁻¹(x). <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Swap:</strong> x = 3/(y − 1).</div>
+  <div class="step"><strong>Multiply by (y − 1):</strong> x(y − 1) = 3. <strong>Divide by x:</strong> y − 1 = 3/x.</div>
+  <div class="step"><strong>Answer:</strong> <strong>f⁻¹(x) = 3/x + 1</strong>. Check: f(4) = 1, and f⁻¹(1) = 3 + 1 = 4 ✓</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A function turns each input into one output. f(4) means "substitute 4 for x"; solving f(x) = k means finding the input that gives k.</li>
+  <li><span class="tag g">Higher</span> <strong>fg(x) = f(g(x))</strong>: do g first (the one nearest x), then f. Order matters. Substitute whole expressions in brackets.</li>
+  <li><span class="tag g">Higher</span> <strong>ff(x)</strong> applies f twice.</li>
+  <li><span class="tag g">Higher</span> <strong>f⁻¹(x)</strong> undoes f: reverse the machine (inverse operations, reverse order), or write y = f(x), swap x and y, and make y the subject. f⁻¹ is not 1/f.</li>
+  <li><span class="tag g">Higher</span> The graph of y = f⁻¹(x) is the reflection of y = f(x) in the line y = x.</li>
+</ul>
+
+<footer>Made for GCSE students. Functions are in the DfE GCSE mathematics subject content under Algebra; composite and inverse functions are Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">Subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => { if(!isFinite(v)) return '—'; let r=parseFloat((+v).toFixed(d)); if(Object.is(r,-0)) r=0; return minus(String(r)); };
+const fix = (v,d) => { if(!isFinite(v)) return '—'; let s=(+v).toFixed(d); if(/^-0(\.0*)?$/.test(s)) s=s.slice(1); return minus(s); };
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(v===0) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); return fix(r,Math.max(0,n-1-e)); };
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v=parseFloat(String(el.value).replace(/−/g,'-').replace(/\s/g,'')); return isFinite(v)?v:NaN; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a; };
+const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const sup = n => String(n).split('').map(c=>{const i='0123456789'.indexOf(c);return i>=0?'⁰¹²³⁴⁵⁶⁷⁸⁹'[i]:(c==='-'?'⁻':c);}).join('');
+/* polynomial from coefficients, highest power first: polyStr([1,-5,6]) = "x² − 5x + 6" */
+const polyStr = (cs,v='x') => { const n=cs.length-1; let s=''; cs.forEach((c,i)=>{ const p=n-i; if(Math.abs(c)<1e-12) return; const a=Math.abs(c); const body=p===0?fmt(a,4):((Math.abs(a-1)<1e-12?'':fmt(a,4))+v+(p>1?sup(p):'')); s+= s===''?(c<0?'−':'')+body:(c<0?' − ':' + ')+body; }); return s||'0'; };
+const xpm = (k,v='x') => Math.abs(k)<1e-12 ? v : `${v} ${k<0?'−':'+'} ${fmt(Math.abs(k),4)}`;
+const br = v => v<0 ? `(${fmt(v,4)})` : fmt(v,4);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const DRAW = [];
+const reg = f => { DRAW.push(f); f(); };
+function Plot(o){
+  const P=Object.assign({W:400,H:400,pad:26,gx:1,gy:1,lx:2,ly:2,xl:'x',yl:'y',xf:null,yf:null},o);
+  const W=P.W,H=P.H,pad=P.pad;
+  P.sx=x=>pad+(x-P.x0)/(P.x1-P.x0)*(W-2*pad);
+  P.sy=y=>H-pad-(y-P.y0)/(P.y1-P.y0)*(H-2*pad);
+  P.ix=px=>P.x0+(px-pad)/(W-2*pad)*(P.x1-P.x0);
+  P.iy=py=>P.y0+(H-pad-py)/(H-2*pad)*(P.y1-P.y0);
+  P.world=(svg,ev)=>{const r=svg.getBoundingClientRect();return [P.ix((ev.clientX-r.left)/r.width*W),P.iy((ev.clientY-r.top)/r.height*H)];};
+  const ticks=(a,b,st)=>{const out=[];for(let k=Math.ceil(a/st-1e-9);k*st<=b+1e-9;k++)out.push(Math.round(k*st*1e6)/1e6);return out;};
+  P.grid=()=>{const g=css('--grid'),mu=css('--muted'),f=F();let s='';
+    ticks(P.x0,P.x1,P.gx).forEach(x=>s+=`<line x1="${P.sx(x)}" y1="${P.sy(P.y0)}" x2="${P.sx(x)}" y2="${P.sy(P.y1)}" stroke="${g}"/>`);
+    ticks(P.y0,P.y1,P.gy).forEach(y=>s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(y)}" x2="${P.sx(P.x1)}" y2="${P.sy(y)}" stroke="${g}"/>`);
+    const ay=(P.y0<=0&&P.y1>=0)?0:P.y0, ax=(P.x0<=0&&P.x1>=0)?0:P.x0;
+    s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(ay)}" x2="${P.sx(P.x1)}" y2="${P.sy(ay)}" stroke="${mu}" stroke-width="1.5"/><line x1="${P.sx(ax)}" y1="${P.sy(P.y0)}" x2="${P.sx(ax)}" y2="${P.sy(P.y1)}" stroke="${mu}" stroke-width="1.5"/>`;
+    ticks(P.x0,P.x1,P.lx).forEach(x=>{if(Math.abs(x-ax)<1e-9&&ax===0)return;s+=`<text x="${P.sx(x)}" y="${P.sy(ay)+13}" text-anchor="middle" font-size="10" fill="${mu}" ${f}>${P.xf?P.xf(x):fmt(x)}</text>`;});
+    ticks(P.y0,P.y1,P.ly).forEach(y=>{if(Math.abs(y-ay)<1e-9&&ay===0)return;s+=`<text x="${P.sx(ax)-5}" y="${P.sy(y)+3}" text-anchor="end" font-size="10" fill="${mu}" ${f}>${P.yf?P.yf(y):fmt(y)}</text>`;});
+    if(ax===0&&ay===0)s+=`<text x="${P.sx(0)-5}" y="${P.sy(0)+13}" text-anchor="end" font-size="10" fill="${mu}" ${f}>0</text>`;
+    s+=`<text x="${P.sx(P.x1)-3}" y="${P.sy(ay)-5}" text-anchor="end" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.xl}</text><text x="${P.sx(ax)+6}" y="${P.sy(P.y1)+10}" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.yl}</text>`;
+    return s;};
+  P.clip=(svg,inner,over='')=>{svg.innerHTML=`<defs><clipPath id="cp${svg.id}"><rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${H-2*pad}"/></clipPath></defs>`+P.grid()+`<g clip-path="url(#cp${svg.id})">${inner}</g>`+over;};
+  P.path=(f,col,w=2.5,dash,a=P.x0,b=P.x1,n=400)=>{let d='',pen=false,prev=null;const span=P.y1-P.y0,mid=(P.y0+P.y1)/2;
+    for(let i=0;i<=n;i++){const x=a+(b-a)*i/n,y=f(x);
+      if(!isFinite(y)||Math.abs(y-mid)>span*3){pen=false;prev=null;continue;}
+      if(pen&&prev!==null&&Math.abs(y-prev)>span*1.5)pen=false;
+      d+=(pen?'L':'M')+P.sx(x).toFixed(1)+','+P.sy(y).toFixed(1);pen=true;prev=y;}
+    return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linejoin="round" stroke-linecap="round"/>`;};
+  P.seg=(x1,y1,x2,y2,col,w=2,dash)=>`<line x1="${P.sx(x1)}" y1="${P.sy(y1)}" x2="${P.sx(x2)}" y2="${P.sy(y2)}" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linecap="round"/>`;
+  P.dot=(x,y,col,r=5,label,dx=8,dy=-8,anchor='start')=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${col}"/>`+(label?`<text x="${P.sx(x)+dx}" y="${P.sy(y)+dy}" font-size="12" font-weight="600" fill="${col}" text-anchor="${anchor}" ${F()}>${label}</text>`:'');
+  P.ring=(x,y,col,r=5)=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${css('--panel')}" stroke="${col}" stroke-width="2.5"/>`;
+  P.text=(x,y,t,col,anchor='start',size=12,weight=600)=>`<text x="${P.sx(x)}" y="${P.sy(y)}" font-size="${size}" font-weight="${weight}" fill="${col}" text-anchor="${anchor}" ${F()}>${t}</text>`;
+  return P;
+}
+/* drag helper: calls onMove(ev) while a pointer is down on svg (or on an element with data-h) */
+function dragOn(svg,onMove,onDown){let on=false;
+  svg.addEventListener('pointerdown',e=>{if(onDown&&onDown(e)===false)return;on=true;try{svg.setPointerCapture(e.pointerId);}catch(_){}onMove(e);e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(on)onMove(e);});
+  const end=()=>{on=false;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);}
+/* step-through: lines is an array of html strings */
+function stepper(boxId,nextId,allId,resetId,onShow){const box=$(boxId);let lines=[],k=0;
+  const show=()=>{box.innerHTML=lines.map((l,i)=>`<span class="s"${i<k?'':' hidden'}>${l}</span>`).join('')+(k<lines.length?`<span class="s note">${k===0?'Press “Next step” to begin.':'…'}</span>`:'');if(nextId)$(nextId).disabled=k>=lines.length;if(onShow)onShow(k);};
+  if(nextId)$(nextId).addEventListener('click',()=>{if(k<lines.length)k++;show();});
+  if(allId)$(allId).addEventListener('click',()=>{k=lines.length;show();});
+  if(resetId)$(resetId).addEventListener('click',()=>{k=0;show();});
+  return {set(ls,start=0){lines=ls;k=start;show();},get k(){return k;}};}
+
+/* ---- machine expression builder ---- */
+const OPN={'+':'+','−':'−','×':'×','÷':'÷'};
+function applyOp(st,op){ const {t,k}=op, ks=fmt(k);
+  if(t==='+') return {s:`${st.s} + ${ks}`,kind:'sum'};
+  if(t==='−') return {s:`${st.s} − ${ks}`,kind:'sum'};
+  if(t==='×'){ if(st.kind==='atom') return {s:`${ks}${st.s}`,kind:'prod'}; const m=st.s.match(/^(\d+(?:\.\d+)?)x$/); if(m) return {s:`${fmt(+m[1]*k)}x`,kind:'prod'}; if(st.kind==='pow'&&!st.s.startsWith('(')) return {s:`${ks}${st.s}`,kind:'prod'}; return {s:`${ks}(${st.s})`,kind:'prod'}; }
+  if(t==='÷') return st.kind==='sum'||st.kind==='frac'?{s:`(${st.s})/${ks}`,kind:'frac'}:{s:`${st.s}/${ks}`,kind:'frac'};
+  if(t==='sq') return st.kind==='atom'?{s:`${st.s}²`,kind:'pow'}:{s:`(${st.s})²`,kind:'pow'};
+  if(t==='cube') return st.kind==='atom'?{s:`${st.s}³`,kind:'pow'}:{s:`(${st.s})³`,kind:'pow'};
+  if(t==='sqrt') return st.kind==='atom'?{s:`√${st.s}`,kind:'pow'}:{s:`√(${st.s})`,kind:'pow'};
+  if(t==='cbrt') return st.kind==='atom'?{s:`∛${st.s}`,kind:'pow'}:{s:`∛(${st.s})`,kind:'pow'}; }
+const evalOp=(v,{t,k})=>t==='+'?v+k:t==='−'?v-k:t==='×'?v*k:t==='÷'?v/k:t==='sq'?v*v:t==='cube'?v*v*v:t==='sqrt'?Math.sqrt(v):Math.cbrt(v);
+const opLabel=({t,k})=>t==='sq'?'square':t==='cube'?'cube':t==='sqrt'?'√':t==='cbrt'?'∛':`${OPN[t]} ${fmt(k)}`;
+const invOp=({t,k})=>t==='+'?{t:'−',k}:t==='−'?{t:'+',k}:t==='×'?{t:'÷',k}:t==='÷'?{t:'×',k}:t==='sq'?{t:'sqrt'}:t==='cube'?{t:'cbrt'}:t==='sqrt'?{t:'sq'}:{t:'cube'};
+/* draw a row of machine boxes at height y; vals = values between boxes */
+function machineRow(ops,vals,y,col,label){ const n=ops.length, W=400, bw=Math.min(78,(W-60)/Math.max(n,1)-22), gap=(W-20-n*bw)/(n+1); const mu=css('--muted'),hi=css('--hi'),fg=css('--fg');
+  let s=label?`<text x="4" y="${y-30}" font-size="11" fill="${col}" ${F()}>${label}</text>`:'';
+  for(let i=0;i<=n;i++){ const x1=10+i*(gap+bw), x2=x1+gap; s+=`<line x1="${x1}" y1="${y}" x2="${x2-4}" y2="${y}" stroke="${mu}" stroke-width="1.5"/><path d="M${x2-4},${y-4} L${x2},${y} L${x2-4},${y+4}" fill="${mu}"/>`;
+    if(vals&&vals[i]!==undefined) s+=`<text x="${(x1+x2)/2}" y="${y-8}" text-anchor="middle" font-size="12" font-weight="600" fill="${hi}" ${F()}>${vals[i]}</text>`;
+    if(i<n){ const bx=x2; s+=`<rect x="${bx}" y="${y-18}" width="${bw}" height="36" rx="6" fill="${col}" fill-opacity=".15" stroke="${col}" stroke-width="2"/><text x="${bx+bw/2}" y="${y+5}" text-anchor="middle" font-size="13" font-weight="600" fill="${col}" ${F()}>${opLabel(ops[i])}</text>`; } }
+  return s; }
+const nice=v=>isFinite(v)?fmt(v,3):'—';
+
+/* 1. machine builder */
+let MOPS=[{t:'+',k:3},{t:'×',k:2}];
+function drawM(){ const x=+$('mX').value; $('mXv').textContent=' '+minus(x); const ac=css('--accent');
+  const vals=[x]; MOPS.forEach(o=>vals.push(evalOp(vals[vals.length-1],o)));
+  $('mSvg').innerHTML=MOPS.length?machineRow(MOPS,vals.map(nice),70,ac,''):`<text x="200" y="70" text-anchor="middle" font-size="13" fill="${css('--muted')}" ${F()}>add an operation to start</text>`;
+  let st={s:'x',kind:'atom'}; const steps=['x']; MOPS.forEach(o=>{st=applyOp(st,o);steps.push(st.s);});
+  $('mWork').innerHTML=`<span class="a">${steps.join(' → ')}</span><br>so the machine is <strong>f(x) = ${st.s}</strong><br><span class="b">with x = ${minus(x)}: ${vals.map(nice).join(' → ')}</span>`; }
+$('mAdd').addEventListener('click',()=>{ const t=$('mOp').value, k=num($('mK')); if(t!=='sq'&&(!isFinite(k)||(t==='÷'&&k===0)))return; if(MOPS.length>=4){drawM();$('mWork').innerHTML+='<br><span class="x">Four steps is the most this machine holds.</span>';return;} MOPS.push(t==='sq'?{t}:{t,k}); drawM(); });
+$('mUndo').addEventListener('click',()=>{MOPS.pop();drawM();}); $('mClr').addEventListener('click',()=>{MOPS=[];drawM();});
+$('mOp').addEventListener('change',()=>{$('mK').disabled=$('mOp').value==='sq';});
+$('mX').addEventListener('input',drawM); reg(drawM);
+
+/* 2. notation */
+const NF=[
+ {s:'3x − 5',f:x=>3*x-5,sub:v=>`3 × ${br(v)} − 5`,solve:k=>`3x − 5 = ${minus(k)} → 3x = ${minus(k+5)} → x = ${fmt((k+5)/3)}`,inv:k=>(k+5)/3},
+ {s:'x² + 1',f:x=>x*x+1,sub:v=>`${br(v)}² + 1`,bad:v=>-v*v+1},
+ {s:'2x² − x',f:x=>2*x*x-x,sub:v=>`2 × ${br(v)}² − ${br(v)}`,bad:v=>-2*v*v-v},
+ {s:'(x + 4)/2',f:x=>(x+4)/2,sub:v=>`(${minus(v)} + 4)/2`,solve:k=>`(x + 4)/2 = ${minus(k)} → x + 4 = ${minus(2*k)} → x = ${fmt(2*k-4)}`,inv:k=>2*k-4},
+ {s:'10 − x',f:x=>10-x,sub:v=>`10 − ${br(v)}`,solve:k=>`10 − x = ${minus(k)} → x = 10 − ${br(k)} = ${fmt(10-k)}`,inv:k=>10-k}
+];
+function drawN(){ const F0=NF[+$('nF').value], v=num($('nX')); if(!isFinite(v)){$('nWork').textContent='Type an input.';return;}
+  $('nWork').innerHTML=`f(x) = ${F0.s}<br>f(${minus(v)}) = ${F0.sub(v)} = <strong>${fmt(F0.f(v),4)}</strong><br><span class="note">every x is replaced by ${minus(v)}${v<0?', in brackets because it is negative':''}</span>`; }
+['nF','nX'].forEach(i=>$(i).addEventListener('input',drawN)); reg(drawN);
+let NT=null;
+function ntNew(){ const i=pick([0,1,3,4,0,2]), F0=NF[i]; if(F0.solve&&Math.random()<.45){ let k; do{k=F0.f(rnd(-4,8));}while(!Number.isInteger(F0.inv(k))); NT={type:'solve',F0,k,ans:F0.inv(k)}; $('ntQ').innerHTML=`f(x) = ${F0.s}. Solve <span class="m">f(x) = ${minus(k)}</span>.`; }
+  else { const v=rnd(-4,6); NT={type:'eval',F0,v,ans:F0.f(v)}; $('ntQ').innerHTML=`f(x) = ${F0.s}. Find <span class="m">f(${minus(v)})</span>.`; }
+  $('ntA').value=''; $('ntMsg').className='msg'; $('ntMsg').textContent=''; }
+$('ntGo').addEventListener('click',()=>{ const u=num($('ntA')),M=$('ntMsg'); if(isNaN(u)){M.className='msg bad';M.textContent='Type a number.';return;} const ok=Math.abs(u-NT.ans)<1e-9; M.className='msg '+(ok?'good':'bad');
+  if(NT.type==='eval'){ if(ok) M.textContent=`Correct: f(${minus(NT.v)}) = ${NT.F0.sub(NT.v)} = ${fmt(NT.ans)}.`; else if(NT.v<0&&NT.F0.bad&&Math.abs(u-NT.F0.bad(NT.v))<1e-9) M.textContent='Not quite. A negative number squared is positive: use brackets, (−a)².'; else if(Math.abs(u-NT.F0.f(NT.v))>1e-9&&NT.F0.inv&&Math.abs(u-NT.F0.inv(NT.v))<1e-9) M.textContent=`Not quite. You solved f(x) = ${minus(NT.v)}. f(${minus(NT.v)}) means put ${minus(NT.v)} IN: ${NT.F0.sub(NT.v)}.`; else M.textContent=`Not quite. Replace every x with ${minus(NT.v)}: ${NT.F0.sub(NT.v)}.`; }
+  else { if(ok) M.textContent=`Correct: ${NT.F0.solve(NT.k)}.`; else if(Math.abs(u-NT.F0.f(NT.k))<1e-9) M.textContent=`Not quite. That's f(${minus(NT.k)}). Solving f(x) = ${minus(NT.k)} asks which input gives ${minus(NT.k)} out: set ${NT.F0.s} = ${minus(NT.k)}.`; else M.textContent=`Not quite. Set ${NT.F0.s} = ${minus(NT.k)} and solve.`; } });
+$('ntNew').addEventListener('click',ntNew); ntNew();
+
+/* ---- polynomial helpers (lowest power first) ---- */
+const padd=(a,b)=>{const r=[];for(let i=0;i<Math.max(a.length,b.length);i++)r.push((a[i]||0)+(b[i]||0));return r;};
+const pmul=(a,b)=>{const r=Array(a.length+b.length-1).fill(0);a.forEach((x,i)=>b.forEach((y,j)=>r[i+j]+=x*y));return r;};
+const pcomp=(p,q)=>{let r=[0],pw=[1];p.forEach(c=>{r=padd(r,pw.map(v=>v*c));pw=pmul(pw,q);});return r;};
+const pstr=p=>{const a=p.slice();while(a.length>1&&a[a.length-1]===0)a.pop();return polyStr(a.slice().reverse());};
+const CF=[
+ {s:'2x + 1',p:[1,2],sub:e=>`2(${e}) + 1`},{s:'x²',p:[0,0,1],sub:e=>`(${e})²`},{s:'x − 3',p:[-3,1],sub:e=>`(${e}) − 3`},{s:'3x',p:[0,3],sub:e=>`3(${e})`},{s:'x² + 1',p:[1,0,1],sub:e=>`(${e})² + 1`},{s:'5 − x',p:[5,-1],sub:e=>`5 − (${e})`}
+];
+const pval=(p,x)=>p.reduce((s,c,i)=>s+c*Math.pow(x,i),0);
+['cF','cG'].forEach((id,j)=>{$(id).innerHTML=CF.map((c,i)=>`<option value="${i}">${c.s}</option>`).join(''); $(id).value=j?1:0;});
+
+/* 3. composite */
+function drawC(){ const f=CF[+$('cF').value], g=CF[+$('cG').value], x=+$('cX').value; $('cXv').textContent=' '+minus(x); const ac=css('--accent'),hi=css('--hi'),fg=css('--fg'),mu=css('--muted');
+  const gx=pval(g.p,x), fgx=pval(f.p,gx), fx=pval(f.p,x), gfx=pval(g.p,fx);
+  const box=(x0,y,w,col,lab)=>`<rect x="${x0}" y="${y-18}" width="${w}" height="36" rx="6" fill="${col}" fill-opacity=".15" stroke="${col}" stroke-width="2"/><text x="${x0+w/2}" y="${y+5}" text-anchor="middle" font-size="12" font-weight="600" fill="${col}" ${F()}>${lab}</text>`;
+  const arr=(x1,x2,y,v)=>`<line x1="${x1}" y1="${y}" x2="${x2-4}" y2="${y}" stroke="${mu}" stroke-width="1.5"/><path d="M${x2-4},${y-4} L${x2},${y} L${x2-4},${y+4}" fill="${mu}"/><text x="${(x1+x2)/2}" y="${y-8}" text-anchor="middle" font-size="12" font-weight="600" fill="${fg}" ${F()}>${minus(v)}</text>`;
+  let s=`<text x="4" y="22" font-size="12" font-weight="600" fill="${fg}" ${F()}>fg(${minus(x)}): g first</text>`+arr(10,70,62,x)+box(70,62,110,hi,'g: '+g.s)+arr(180,240,62,gx)+box(240,62,110,ac,'f: '+f.s)+arr(350,396,62,fgx);
+  s+=`<text x="4" y="122" font-size="12" font-weight="600" fill="${fg}" ${F()}>gf(${minus(x)}): f first</text>`+arr(10,70,162,x)+box(70,162,110,ac,'f: '+f.s)+arr(180,240,162,fx)+box(240,162,110,hi,'g: '+g.s)+arr(350,396,162,gfx);
+  $('cSvg').innerHTML=s;
+  const fgP=pcomp(f.p,g.p), gfP=pcomp(g.p,f.p);
+  $('cWork').innerHTML=`<span class="b">fg(${minus(x)}) = f(g(${minus(x)})) = f(${minus(gx)}) = <strong>${minus(fgx)}</strong></span><br><span class="a">gf(${minus(x)}) = g(f(${minus(x)})) = g(${minus(fx)}) = <strong>${minus(gfx)}</strong></span><br>fg(x) = f(${g.s}) = ${f.sub(g.s)} = <strong>${pstr(fgP)}</strong><br>gf(x) = g(${f.s}) = ${g.sub(f.s)} = <strong>${pstr(gfP)}</strong>${pstr(fgP)===pstr(gfP)?'<br><span class="note">(these two happen to be the same: unusual!)</span>':''}`; }
+['cF','cG','cX'].forEach(i=>$(i).addEventListener('input',drawC)); reg(drawC);
+
+/* 4. composite questions */
+let CQ=null,cqDone=false,cqR=0,cqT=0;
+function cqNew(){ let i,j; do{i=rnd(0,5);j=rnd(0,5);}while(i===j); const f=CF[i],g=CF[j], typ=pick(['fg','gf','ff','fg','solve']), x=rnd(-3,4); let q,ans,work,alt=[];
+  if(typ==='fg'){ const gx=pval(g.p,x); ans=pval(f.p,gx); q=`fg(${minus(x)})`; work=`g(${minus(x)}) = ${minus(gx)}, then f(${minus(gx)}) = ${minus(ans)}`; alt=[[pval(g.p,pval(f.p,x)),'You did f first. In fg(x), g is nearest the x, so g goes first.'],[pval(f.p,x)*pval(g.p,x),'fg doesn\'t mean multiply f(x) by g(x): feed the output of g into f.']]; }
+  else if(typ==='gf'){ const fx=pval(f.p,x); ans=pval(g.p,fx); q=`gf(${minus(x)})`; work=`f(${minus(x)}) = ${minus(fx)}, then g(${minus(fx)}) = ${minus(ans)}`; alt=[[pval(f.p,pval(g.p,x)),'You did g first. In gf(x), f is nearest the x, so f goes first.'],[pval(f.p,x)*pval(g.p,x),'gf doesn\'t mean multiply: feed the output of f into g.']]; }
+  else if(typ==='ff'){ const fx=pval(f.p,x); ans=pval(f.p,fx); q=`ff(${minus(x)})`; work=`f(${minus(x)}) = ${minus(fx)}, then f(${minus(fx)}) = ${minus(ans)}`; alt=[[fx*fx,'ff(x) means f(f(x)), not f(x) squared.'],[fx,'That\'s only one pass through f. Do it again.']]; }
+  else { const f2=CF[pick([0,2,3,5])], gg=CF[pick([1,4])], P=pcomp(f2.p,gg.p), r=rnd(1,5), k=pval(P,r);
+    ans=r; q=null; work=`fg(x) = ${f2.sub(gg.s)} = ${pstr(P)}<br>${pstr(P)} = ${minus(k)} → x² = ${r*r} → x = ±${r}; the positive solution is ${r}`;
+    alt=[[pval(f2.p,pval(gg.p,k)),'That is fg of the number. Solving means finding the x that makes fg(x) equal it: write fg(x) as an expression first.']];
+    CQ={q:`f(x) = ${f2.s} and g(x) = ${gg.s}. Solve <span class="m">fg(x) = ${minus(k)}</span>. Give the positive solution.`,ans,work,alt,hint:'Write fg(x) as an expression in x, set it equal to the number, then solve.'}; }
+  if(typ!=='solve') CQ={q:`f(x) = ${f.s} and g(x) = ${g.s}. Find <span class="m">${q}</span>.`,ans,work,alt};
+  cqDone=false; $('cqQ').innerHTML=CQ.q; $('cqA').value=''; $('cqMsg').className='msg'; $('cqMsg').textContent=''; $('cqWork').hidden=true; $('cqWork').innerHTML=CQ.work; }
+$('cqGo').addEventListener('click',()=>{ const u=num($('cqA')),M=$('cqMsg'); if(isNaN(u)){M.className='msg bad';M.textContent='Type a number.';return;} const ok=Math.abs(u-CQ.ans)<1e-9; let m=ok?'Correct.':'';
+  if(!ok){ const hit=CQ.alt.find(([v])=>Math.abs(u-v)<1e-9&&Math.abs(v-CQ.ans)>1e-9); m='Not quite. '+(hit?hit[1]:CQ.hint||'Work from the inside out, one function at a time.'); }
+  if(!cqDone){cqT++;if(ok)cqR++;} cqDone=true; M.className='msg '+(ok?'good':'bad'); M.textContent=m; if(ok)$('cqWork').hidden=false; $('cqScore').textContent=`Score: ${cqR} right first time out of ${cqT}.`; });
+$('cqShow').addEventListener('click',()=>{$('cqWork').hidden=!$('cqWork').hidden;}); $('cqNew').addEventListener('click',cqNew); cqNew();
+
+/* 5. reversed machine */
+const parseOps=s=>s.split(',').map(t=>t==='cube'?{t:'cube'}:{t:t[0],k:+t.slice(1)});
+function drawI(){ const ops=parseOps($('iM').value), x=+$('iX').value; $('iXv').textContent=' '+minus(x); const ac=css('--accent'),tw=css('--two');
+  const vals=[x]; ops.forEach(o=>vals.push(evalOp(vals[vals.length-1],o))); const y=vals[vals.length-1];
+  const inv=ops.slice().reverse().map(invOp); const iv=[y]; inv.forEach(o=>iv.push(evalOp(iv[iv.length-1],o)));
+  $('iSvg').innerHTML=machineRow(ops,vals.map(nice),70,ac,'f: forwards')+machineRow(inv,iv.map(nice),175,tw,'f⁻¹: inverse operations, reverse order');
+  let st={s:'x',kind:'atom'}; ops.forEach(o=>st=applyOp(st,o)); let it={s:'x',kind:'atom'}; inv.forEach(o=>it=applyOp(it,o));
+  $('iWork').innerHTML=`<span class="a">f(x) = ${st.s}</span><br><span class="c">f⁻¹(x) = ${it.s}</span><br>f(${minus(x)}) = ${nice(y)} and f⁻¹(${nice(y)}) = ${nice(iv[iv.length-1])}: back where we started ✓`; }
+['iM','iX'].forEach(i=>$(i).addEventListener('input',drawI)); reg(drawI);
+
+/* 6. algebraic inverse with graph */
+const AI=[
+ {f:x=>3*x-5,g:x=>(x+5)/3,L:['y = 3x − 5','Swap x and y: x = 3y − 5','Add 5: x + 5 = 3y','Divide by 3: y = (x + 5)/3','<strong>f⁻¹(x) = (x + 5)/3</strong> &nbsp;check: f(2) = 1, f⁻¹(1) = 6/3 = 2 ✓']},
+ {f:x=>(2*x+1)/4,g:x=>(4*x-1)/2,L:['y = (2x + 1)/4','Swap: x = (2y + 1)/4','Multiply by 4: 4x = 2y + 1','Subtract 1: 4x − 1 = 2y','<strong>f⁻¹(x) = (4x − 1)/2</strong> &nbsp;check: f(3) = 7/4, f⁻¹(7/4) = 6/2 = 3 ✓']},
+ {f:x=>5-2*x,g:x=>(5-x)/2,L:['y = 5 − 2x','Swap: x = 5 − 2y','Add 2y and subtract x: 2y = 5 − x','Divide by 2: y = (5 − x)/2','<strong>f⁻¹(x) = (5 − x)/2</strong> &nbsp;check: f(1) = 3, f⁻¹(3) = 2/2 = 1 ✓']},
+ {f:x=>x*x*x+2,g:x=>Math.cbrt(x-2),L:['y = x³ + 2','Swap: x = y³ + 2','Subtract 2: x − 2 = y³','Cube root: y = ∛(x − 2)','<strong>f⁻¹(x) = ∛(x − 2)</strong> &nbsp;check: f(2) = 10, f⁻¹(10) = ∛8 = 2 ✓']},
+ {f:x=>3/(x-1),g:x=>3/x+1,L:['y = 3/(x − 1)','Swap: x = 3/(y − 1)','Multiply by (y − 1): x(y − 1) = 3','Divide by x: y − 1 = 3/x','<strong>f⁻¹(x) = 3/x + 1</strong> &nbsp;check: f(4) = 1, f⁻¹(1) = 4 ✓']}
+];
+const PA=Plot({x0:-6,x1:6,y0:-6,y1:6});
+function drawA(k){ const A=AI[+$('aE').value], ac=css('--accent'),tw=css('--two'),mu=css('--muted');
+  let s=PA.path(x=>x,mu,1.5,'5 4')+PA.path(A.f,ac,3,false,-6,6,800); if(k>=A.L.length) s+=PA.path(A.g,tw,3,false,-6,6,800);
+  PA.clip($('aSvg'),s,PA.text(5.8,5.3,'y = x',mu,'end',11,400)); }
+const aStep=stepper('aWork','aNext','aAll','aReset',k=>drawA(k));
+const aLoad=()=>aStep.set(AI[+$('aE').value].L,1); $('aE').addEventListener('change',aLoad); DRAW.push(()=>drawA(aStep.k)); aLoad();
+
+/* 6b. inverse values */
+let IV=null;
+function ivNew(){ const a=rnd(2,6), b=rnd(-9,9)||4, x=rnd(-3,6); const y=a*x+b; IV={a,b,x,y}; $('ivQ').innerHTML=`f(x) = ${polyStr([a,b])}. Find <span class="m">f⁻¹(${minus(y)})</span>.`; $('ivA').value=''; $('ivMsg').className='msg'; $('ivMsg').textContent=''; }
+$('ivGo').addEventListener('click',()=>{ const u=num($('ivA')),M=$('ivMsg'),{a,b,x,y}=IV; if(isNaN(u)){M.className='msg bad';M.textContent='Type a number.';return;} const ok=Math.abs(u-x)<1e-9; M.className='msg '+(ok?'good':'bad');
+  if(ok){M.textContent=`Correct: f⁻¹(x) = (x ${b<0?'+':'−'} ${Math.abs(b)})/${a}, so f⁻¹(${minus(y)}) = ${minus(x)}. Check: f(${minus(x)}) = ${minus(y)} ✓`;return;}
+  if(Math.abs(u-(a*y+b))<1e-9) M.textContent=`Not quite. That's f(${minus(y)}). f⁻¹(${minus(y)}) asks: which input gives ${minus(y)}?`;
+  else if(y!==0&&Math.abs(u-1/(a*y+b))<1e-6) M.textContent='Not quite. f⁻¹ does not mean 1 ÷ f. It undoes f.';
+  else if(Math.abs(u-(y/a-b))<1e-9) M.textContent=`Not quite. Undo in reverse order: first ${b<0?'add':'subtract'} ${Math.abs(b)}, then divide by ${a}.`;
+  else M.textContent=`Not quite. Solve ${polyStr([a,b])} = ${minus(y)}.`; });
+$('ivNew').addEventListener('click',ivNew); ivNew();
+
+const QS=[
+  {q:'f(x) = 4x − 1. Find f(3).',opts:['11','12','13','7'],a:0,fb:'4 × 3 − 1 = 11.'},
+  {q:'f(x) = x² − 2. Find f(−3).',opts:['7','−11','11','−7'],a:0,fb:'(−3)² − 2 = 9 − 2 = 7. A negative squared is positive.'},
+  {q:'f(x) = 2x + 3. Solve f(x) = 11.',opts:['x = 4','x = 25','x = 7','x = 5.5'],a:0,fb:'2x + 3 = 11, 2x = 8, x = 4. (25 is f(11).)'},
+  {q:'Higher: f(x) = x + 5 and g(x) = 3x. Find fg(2).',opts:['11','21','42','13'],a:0,fb:'g first: g(2) = 6, then f(6) = 11. (21 is gf(2); 42 multiplies f(2) by g(2).)'},
+  {q:'Higher: in fg(x), which function is applied first?',opts:['g','f','either','both at once'],a:0,fb:'fg(x) = f(g(x)): g is nearest the x, so it acts first.'},
+  {q:'Higher: f(x) = x² and g(x) = x − 1. gf(x) is…',opts:['x² − 1','(x − 1)²','x² − x','x³ − x²'],a:0,fb:'f first: x², then g subtracts 1: x² − 1. (fg(x) would be (x − 1)².)'},
+  {q:'Higher: f(x) = 2x + 1. ff(x) is…',opts:['4x + 3','4x + 1','4x² + 4x + 1','2x + 2'],a:0,fb:'f(2x + 1) = 2(2x + 1) + 1 = 4x + 3.'},
+  {q:'Higher: f(x) = 5x − 2. f⁻¹(x) is…',opts:['(x + 2)/5','x/5 + 2','1/(5x − 2)','5x + 2'],a:0,fb:'Undo in reverse order: add 2, then divide by 5. Or swap and rearrange: x = 5y − 2 → y = (x + 2)/5.'},
+  {q:'Higher: f(x) = 3x + 4. Find f⁻¹(10).',opts:['2','34','1/34','14/3'],a:0,fb:'Which input gives 10? 3x + 4 = 10, x = 2.'},
+  {q:'Higher: the graph of y = f⁻¹(x) is the graph of y = f(x)…',opts:['reflected in the line y = x','reflected in the x-axis','reflected in the y-axis','rotated 90°'],a:0,fb:'Swapping x and y reflects every point in y = x.'}
+];
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>DRAW.forEach(f=>f()));}
+new MutationObserver(()=>DRAW.forEach(f=>f())).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

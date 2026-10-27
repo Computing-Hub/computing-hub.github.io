@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Arcs, Sectors and Segments</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each section has an SVG circle or sector drawn from JS with sliders. Colours on this page: teal = radii and sector areas (soft teal shading); orange = arcs and anything curved (the arc length, the unrolled circumference bar); plum = chords, straight edges and the triangle that is cut out of a sector in segment problems; the segment itself is shaded soft orange. Green/red = right/wrong feedback only. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.D{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.parts-svg [data-part]{cursor:pointer}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.12rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.45rem;position:relative;top:-.12em;white-space:nowrap}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+summary .tag{font-size:.6rem}
+.grp{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.lab svg.drag{touch-action:none;cursor:grab}
+.lab svg.drag:active{cursor:grabbing}
+.hint{font-size:.85rem;color:var(--muted);margin:.4rem 0 0}
+.formula{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.7rem 1rem;margin:1.2rem 0;font-family:var(--mono);font-size:1.05rem;line-height:1.8}
+.formula b{font-family:var(--body)}
+.A{color:var(--accent);font-weight:600}.H{color:var(--hi);font-weight:600}.T{color:var(--two);font-weight:600}
+sup,sub{line-height:0}
+@media (max-width:540px){
+  table.stack tr:first-child{display:none}
+  table.stack tr{display:block;border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{display:block;border:0;padding:.15rem .3rem}
+  table.stack td[data-h]::before{content:attr(data-h) ": ";font:600 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+}
+.fracbar{display:flex;height:18px;border-radius:4px;overflow:hidden;margin-top:.6rem;border:1px solid var(--line)}
+.fracbar div{height:100%}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Geometry and measures</div>
+  <h1>Arcs, Sectors and Segments</h1>
+  <p class="lede">A slice of pizza is a sector; its crust is an arc. Both are simply a fraction of the whole circle, and the fraction is the angle out of 360°. Once you see that, every formula on this page writes itself, including how to work backwards to the angle or radius, and (at Higher) how to find the area of a segment, the piece left when you cut a straight line across a circle.</p>
+  <span class="gcse">GCSE subject content G17: calculate perimeters of 2D shapes, including circles, and areas of circles and composite shapes. G18: calculate arc lengths, angles and areas of sectors of circles. G23 (Higher): Area = ½ab sin C, used here for the area of a segment.</span>
+</header>
+
+<h2>1 · Recap: the whole circle</h2>
+<p>From the KS3 page <a href="../ks3-interactive/circles.html">Circles</a>: the distance round a circle of radius r is the <strong>circumference</strong> C = 2πr (or πd), and the space inside is the <strong>area</strong> A = πr². Leaving π as a symbol gives an <strong>exact</strong> answer "in terms of π", like 10π; pressing the π button gives a rounded decimal.</p>
+<div class="lab">
+  <div class="controls"><label>radius r <input type="range" id="rcR" min="1" max="12" value="5"><span id="rcRv" style="font-family:var(--mono)"></span></label></div>
+  <svg id="rcSvg" viewBox="0 0 400 220" width="400" height="220"></svg>
+  <div class="readout">
+    <div class="t"><b>Circumference 2πr</b><span id="rcC"></span></div>
+    <div class="f"><b>Area πr²</b><span id="rcA"></span></div>
+  </div>
+</div>
+
+<h2>2 · Arc length: a fraction of the circumference</h2>
+<p>An <strong>arc</strong> is part of the circumference. A <strong>sector</strong> is the slice between two radii, and its angle at the centre is θ. A full turn is 360°, so a sector with angle θ is the fraction <span class="m">θ/360</span> of the circle. A 90° sector is ¼ of the circle, so its arc is ¼ of the circumference. In general:</p>
+<div class="formula"><b>Arc length</b> = θ/360 × 2πr</div>
+<div class="lab">
+  <div class="controls">
+    <label>θ <input type="range" id="alT" min="5" max="360" step="5" value="72"><span id="alTv" style="font-family:var(--mono)"></span></label>
+    <label>r <input type="range" id="alR" min="1" max="12" value="10"><span id="alRv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="alSvg" viewBox="0 0 400 260" width="400" height="260"></svg>
+  <div class="fracbar" id="alBar" aria-hidden="true"></div>
+  <p class="hint">The bar is the whole circumference unrolled; the orange part is the arc.</p>
+  <div class="work" id="alWork"></div>
+</div>
+
+<h2>3 · Sector area: a fraction of the area</h2>
+<p>The same fraction applies to area. A 60° sector is 60/360 = ⅙ of the circle, so its area is ⅙ of πr². Six of them fit together to make the whole circle.</p>
+<div class="formula"><b>Sector area</b> = θ/360 × πr²</div>
+<div class="lab">
+  <div class="controls">
+    <label>θ <input type="range" id="saT" min="5" max="360" step="5" value="60"><span id="saTv" style="font-family:var(--mono)"></span></label>
+    <label>r <input type="range" id="saR" min="1" max="12" value="6"><span id="saRv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="saSvg" viewBox="0 0 400 260" width="400" height="260"></svg>
+  <div class="work" id="saWork"></div>
+</div>
+<div class="callout">
+  <p><strong>Common mistakes:</strong> using the diameter in πr²; mixing up the two formulas (arc is a length, from 2πr; sector is an area, from πr²); and using θ/180 or θ/100 instead of θ/360.</p>
+</div>
+
+<h2>4 · Perimeter of a sector</h2>
+<p>The <strong>perimeter</strong> is the whole way round the outside of the slice: along one radius, round the arc, and back along the other radius. Forgetting the two straight radii is the most common lost mark. Walk round the edge:</p>
+<div class="formula"><b>Perimeter of a sector</b> = arc length + 2r</div>
+<div class="lab">
+  <div class="controls">
+    <label>θ <input type="range" id="peT" min="10" max="350" step="10" value="50"><span id="peTv" style="font-family:var(--mono)"></span></label>
+    <label>r <input type="range" id="peR" min="1" max="12" value="9"><span id="peRv" style="font-family:var(--mono)"></span></label>
+    <label>walk <input type="range" id="peW" min="0" max="100" value="100"></label>
+  </div>
+  <svg id="peSvg" viewBox="0 0 400 260" width="400" height="260"></svg>
+  <div class="work" id="peWork"></div>
+</div>
+
+<h2>5 · Answers in terms of π</h2>
+<p>"Give your answer in terms of π" means: don't press the π button. Work out the number that multiplies π, simplify any fraction, and leave π as a letter. The trick is to simplify θ/360 first, then multiply by r² (for area) or 2r (for arc).</p>
+<div class="lab">
+  <div class="controls">
+    <label>θ <input type="range" id="tpT" min="10" max="350" step="10" value="40"><span id="tpTv" style="font-family:var(--mono)"></span></label>
+    <label>r <input type="range" id="tpR" min="1" max="12" value="6"><span id="tpRv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="work" id="tpWork"></div>
+</div>
+<p>A perimeter in terms of π has two parts that can't be combined: for example <span class="m">4π/3 + 12</span> cm. (You can't add π's and plain numbers, just like you can't simplify x + 12.)</p>
+
+<h2>6 · Working backwards and practice</h2>
+<p>If you know the arc length or the area, write the formula, substitute what you know, and solve for the unknown. For the <strong>angle</strong>: find what fraction of the circle you have, then multiply by 360. For the <strong>radius</strong>: rearrange; if it came from r², take a square root at the end.</p>
+<div class="formula">θ = arc ÷ (2πr) × 360<br>θ = area ÷ (πr²) × 360<br>r = arc × 360 ÷ (2πθ)<br>r = √(area × 360 ÷ (πθ))</div>
+<div class="lab">
+  <div class="controls"><label>question type <select id="prT"><option value="mix">mixed</option><option value="arc">arc length</option><option value="area">sector area</option><option value="per">perimeter</option><option value="pi">in terms of π</option><option value="ang">find the angle</option><option value="rad">find the radius</option></select></label></div>
+  <p class="pq" id="prQ"></p>
+  <svg id="prSvg" viewBox="0 0 400 230" width="400" height="230"></svg>
+  <div class="controls">
+    <label>answer <input type="text" id="prA" inputmode="decimal" autocomplete="off" style="width:6em"> <span id="prU"></span></label>
+    <button class="btn primary" id="prGo">Check</button>
+    <button class="btn" id="prShow">Show working</button>
+    <button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+</div>
+
+<h2>7 · Area of a segment <span class="tag g">Higher</span></h2>
+<p>A <strong>segment</strong> is the region between a chord and an arc. A chord AB cuts the sector OAB into two pieces: the triangle OAB and the segment. So</p>
+<div class="formula"><b>Segment</b> = sector − triangle = θ/360 × πr² − ½r² sin θ</div>
+<p>The triangle has two sides equal to r with the angle θ between them, so its area is <span class="m">½ × r × r × sin θ</span> (from area = ½ab sin C; see <a href="sine-cosine-rules.html">Sine and cosine rules</a>). Slide θ past 180°: the major segment is the sector <em>plus</em> a triangle, and the formula still works because sin θ is negative then.</p>
+<div class="lab">
+  <div class="controls">
+    <label>θ <input type="range" id="sgT" min="10" max="350" step="5" value="70"><span id="sgTv" style="font-family:var(--mono)"></span></label>
+    <label>r <input type="range" id="sgR" min="1" max="12" value="10"><span id="sgRv" style="font-family:var(--mono)"></span></label>
+    <label>show <select id="sgShow"><option value="all">all three</option><option value="sec">sector</option><option value="tri">triangle</option><option value="seg">segment</option></select></label>
+  </div>
+  <svg id="sgSvg" viewBox="0 0 400 270" width="400" height="270"></svg>
+  <div class="work" id="sgWork"></div>
+</div>
+<h3>Try it <span class="tag g">Higher</span></h3>
+<div class="lab">
+  <p class="pq" id="sqQ"></p>
+  <div class="controls">
+    <label>segment area = <input type="text" id="sqA" inputmode="decimal" autocomplete="off" style="width:6em"> cm²</label>
+    <button class="btn primary" id="sqGo">Check</button>
+    <button class="btn" id="sqShow">Show working</button>
+    <button class="btn" id="sqNew">New question</button>
+  </div>
+  <div class="msg" id="sqMsg"></div>
+  <div class="work" id="sqWork" hidden></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Find the arc length of a sector with angle 72° and radius 10 cm, to 1 d.p.</summary>
+  <div class="step"><strong>Fraction:</strong> 72/360 = 1/5.</div>
+  <div class="step"><strong>Arc</strong> = 1/5 × 2 × π × 10 = 1/5 × 20π = 4π = 12.566… cm.</div>
+  <div class="step"><strong>Answer:</strong> <strong>12.6 cm</strong> (1 d.p.), or exactly 4π cm.</div>
+</details>
+<details>
+  <summary>Find the area of a sector with angle 135° and radius 8 cm, in terms of π.</summary>
+  <div class="step"><strong>Fraction:</strong> 135/360 = 3/8 (divide top and bottom by 45).</div>
+  <div class="step"><strong>Area</strong> = 3/8 × π × 8² = 3/8 × 64π = 24π.</div>
+  <div class="step"><strong>Answer:</strong> <strong>24π cm²</strong> (= 75.4 cm² to 1 d.p.).</div>
+</details>
+<details>
+  <summary>Find the perimeter of a sector with angle 50° and radius 9 cm, to 1 d.p.</summary>
+  <div class="step"><strong>Arc</strong> = 50/360 × 2 × π × 9 = 5/36 × 18π = 2.5π = 7.853… cm.</div>
+  <div class="step"><strong>Add both radii:</strong> perimeter = 7.853… + 9 + 9 = 25.853… cm.</div>
+  <div class="step"><strong>Answer:</strong> <strong>25.9 cm</strong>. (Just the arc, 7.9 cm, is the classic wrong answer.)</div>
+</details>
+<details>
+  <summary>A sector has angle 40° and radius 6 cm. Find its area and perimeter in terms of π.</summary>
+  <div class="step"><strong>Fraction:</strong> 40/360 = 1/9.</div>
+  <div class="step"><strong>Area</strong> = 1/9 × 36π = <strong>4π cm²</strong>.</div>
+  <div class="step"><strong>Arc</strong> = 1/9 × 12π = 12π/9 = 4π/3. <strong>Perimeter</strong> = <strong>4π/3 + 12 cm</strong>. (Leave it as two terms.)</div>
+</details>
+<details>
+  <summary>Working backwards: a sector of radius 10 cm has area 60 cm². Find its angle to 1 d.p.</summary>
+  <div class="step"><strong>Formula:</strong> θ/360 × π × 10² = 60, so θ/360 × 100π = 60.</div>
+  <div class="step"><strong>Fraction of the circle:</strong> θ/360 = 60 ÷ 100π = 0.19098…</div>
+  <div class="step">θ = 0.19098… × 360 = 68.754… → <strong>68.8°</strong>.</div>
+</details>
+<details>
+  <summary>Working backwards: a sector with angle 80° has area 50 cm². Find the radius to 3 s.f.</summary>
+  <div class="step">80/360 × πr² = 50.</div>
+  <div class="step">r² = 50 × 360 ÷ (80π) = 71.619…</div>
+  <div class="step">r = √71.619… = 8.4628… → <strong>8.46 cm</strong>. (71.6 is r²: don't forget the square root.)</div>
+</details>
+<details>
+  <summary>Segment: a chord cuts off a segment from a circle of radius 10 cm, with the chord subtending 70° at the centre. Find the area of the minor segment to 3 s.f. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Sector</strong> = 70/360 × π × 10² = 61.086… cm².</div>
+  <div class="step"><strong>Triangle</strong> = ½ × 10 × 10 × sin 70° = 50 × 0.93969… = 46.984… cm².</div>
+  <div class="step"><strong>Segment</strong> = 61.086… − 46.984… = 14.101… → <strong>14.1 cm²</strong>.</div>
+  <div class="step"><strong>Trap:</strong> using ½ × 10 × 10 = 50 for the triangle (forgetting sin 70°) gives 11.1 cm²: that's the area of a right-angled triangle, and this one isn't right-angled.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A sector with angle θ is the fraction θ/360 of the whole circle.</li>
+  <li>Arc length = θ/360 × 2πr (a length). Sector area = θ/360 × πr² (an area).</li>
+  <li>Perimeter of a sector = arc + 2r: don't forget the two radii.</li>
+  <li>In terms of π: simplify θ/360 first, multiply by 2r or r², and leave π as a symbol.</li>
+  <li>Working backwards: find the fraction of the circle, × 360 for the angle; rearrange for r, with a square root if it came from r².</li>
+  <li>Higher: segment = sector − triangle = θ/360 × πr² − ½r² sin θ.</li>
+</ul>
+
+<footer>Made for GCSE students. Arc lengths, sector areas and circle perimeters are in the DfE GCSE mathematics subject content under Geometry and measures; segment areas using ½ab sin C are Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const PI = Math.PI, RAD = PI/180;
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat((+v).toFixed(d)).toString()) : '—';
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(Math.abs(v)<1e-12) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); if(e>=n-1) return minus(String(Math.round(r))); return minus(r.toFixed(n-1-e)); };
+const long = v => isFinite(v) ? minus((Math.trunc(v*1000+(v<0?-1e-9:1e-9))/1000).toFixed(3)) + '…' : '—';
+const dp1 = v => isFinite(v) ? minus((+v).toFixed(1)) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v = parseFloat(String(el.value).replace(/−/g,'-').replace(/,/g,'')); return isFinite(v) ? v : NaN; };
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T = (x,y,s,col,o={}) => `<text x="${x}" y="${y}" font-size="${o.fs||13}" ${o.w?`font-weight="${o.w}"`:''} text-anchor="${o.a||'middle'}" fill="${col}" ${F()} ${o.extra||''}>${s}</text>`;
+const L = (x1,y1,x2,y2,col,w=2,dash) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+const C = (x,y,r,fill,stroke='none',w=0) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${w}"/>`;
+const poly = (pts,fill,stroke='none',w=0,op=1,dash) => `<polygon points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="${fill}" fill-opacity="${op}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+/* angle arc at vertex V between directions to A and B (screen coords), radius r */
+function angArc(V,A,B,r,col,w=1.6){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]), a2=Math.atan2(B[1]-V[1],B[0]-V[0]); let d=a2-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const p1=[V[0]+r*Math.cos(a1),V[1]+r*Math.sin(a1)], p2=[V[0]+r*Math.cos(a1+d),V[1]+r*Math.sin(a1+d)]; return `<path d="M${p1[0]},${p1[1]} A${r},${r} 0 0 ${d>0?1:0} ${p2[0]},${p2[1]}" fill="none" stroke="${col}" stroke-width="${w}"/>`; }
+function angLabelPos(V,A,B,r){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]); let d=Math.atan2(B[1]-V[1],B[0]-V[0])-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const m=a1+d/2; return [V[0]+r*Math.cos(m), V[1]+r*Math.sin(m)+4]; }
+/* right-angle square at V between A and B */
+function rightMark(V,A,B,s,col){ const u=[A[0]-V[0],A[1]-V[1]],v=[B[0]-V[0],B[1]-V[1]]; const lu=Math.hypot(...u)||1, lv=Math.hypot(...v)||1; const p=[V[0]+u[0]/lu*s,V[1]+u[1]/lu*s], q=[V[0]+v[0]/lv*s,V[1]+v[1]/lv*s], r=[p[0]+v[0]/lv*s,p[1]+v[1]/lv*s]; return `<polyline points="${p[0]},${p[1]} ${r[0]},${r[1]} ${q[0]},${q[1]}" fill="none" stroke="${col}" stroke-width="1.5"/>`; }
+const svgXY = (svg,ev) => { const vb=svg.viewBox.baseVal, r=svg.getBoundingClientRect(); const k=Math.min(r.width/vb.width, r.height/vb.height); const ox=(r.width-vb.width*k)/2, oy=(r.height-vb.height*k)/2; return [vb.x+(ev.clientX-r.left-ox)/k, vb.y+(ev.clientY-r.top-oy)/k]; };
+/* generic drag: pick(p) returns a handle key or null; move(key,p) updates */
+function dragger(svg,pick,move,end){ let key=null; svg.addEventListener('pointerdown',e=>{ const p=svgXY(svg,e); const k=pick(p); if(k===null||k===undefined) return; key=k; try{svg.setPointerCapture(e.pointerId);}catch(_){} e.preventDefault(); move(key,p); }); svg.addEventListener('pointermove',e=>{ if(key===null) return; e.preventDefault(); move(key,svgXY(svg,e)); }); const up=()=>{ if(key!==null&&end) end(key); key=null; }; svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',up); }
+const nearest = (p,pts,maxd) => { let best=null,bd=maxd; pts.forEach((q,i)=>{ const d=Math.hypot(p[0]-q[0],p[1]-q[1]); if(d<bd){bd=d;best=i;} }); return best; };
+const REDRAW=[]; const reg = f => { REDRAW.push(f); f(); return f; };
+const feedback = (el,ok,msg) => { el.className='msg '+(ok?'good':'bad'); el.textContent=msg; };
+
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;};
+const frac=(n,d)=>{const g=gcd(n,d);n/=g;d/=g;return d===1?String(n):n+'/'+d;};
+/* coefficient of π given as fraction n/d, shown nicely */
+const piK=(n,d)=>{const g=gcd(n,d);n/=g;d/=g;if(d===1)return (n===1?'':n)+'π';let dd=d;while(dd%2===0)dd/=2;while(dd%5===0)dd/=5;if(dd===1){const v=n/d;return fmt(v,4)+'π';}return (n===1?'':n)+'π/'+d;};
+const TE=()=>css('--accent'),OR=()=>css('--hi'),PL=()=>css('--two'),FG=()=>css('--fg'),MU=()=>css('--muted');
+const P2=(cx,cy,r,a)=>[cx+r*Math.cos(a*RAD),cy-r*Math.sin(a*RAD)];
+/* sector from angle a0 ccw through th degrees */
+function sectorPath(cx,cy,r,a0,th){if(th>=359.999)return `M${cx+r},${cy} A${r},${r} 0 1 0 ${cx-r},${cy} A${r},${r} 0 1 0 ${cx+r},${cy} Z`;const p0=P2(cx,cy,r,a0),p1=P2(cx,cy,r,a0+th);return `M${cx},${cy} L${p0[0]},${p0[1]} A${r},${r} 0 ${th>180?1:0} 0 ${p1[0]},${p1[1]} Z`;}
+function arcP(cx,cy,r,a0,th){if(th>=359.999)return `M${cx+r},${cy} A${r},${r} 0 1 0 ${cx-r},${cy} A${r},${r} 0 1 0 ${cx+r},${cy}`;const p0=P2(cx,cy,r,a0),p1=P2(cx,cy,r,a0+th);return `M${p0[0]},${p0[1]} A${r},${r} 0 ${th>180?1:0} 0 ${p1[0]},${p1[1]}`;}
+/* draw a sector diagram: angle th, radius label, centred */
+function sectorSVG(th,rLab,o={}){
+  const cx=o.cx||200,cy=o.cy||(o.H?o.H/2:130),R=o.R||100,a0=90-th/2+(o.rot||0);
+  let s=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${css('--line')}" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  s+=`<path d="${sectorPath(cx,cy,R,a0,th)}" fill="${TE()}" fill-opacity="${o.fillOp??.22}"/>`;
+  s+=`<path d="${arcP(cx,cy,R,a0,th)}" fill="none" stroke="${OR()}" stroke-width="5"/>`;
+  if(th<359.999){const p0=P2(cx,cy,R,a0),p1=P2(cx,cy,R,a0+th);s+=L(cx,cy,p0[0],p0[1],TE(),3)+L(cx,cy,p1[0],p1[1],TE(),3);
+    const ar=Math.min(30,R*0.3);s+=`<path d="${arcP(cx,cy,ar,a0,th)}" fill="none" stroke="${FG()}" stroke-width="1.5"/>`;const lp=P2(cx,cy,ar+18,a0+th/2);s+=T(lp[0],lp[1]+4,o.thLab||th+'°',FG(),{fs:12,w:700});
+    const mr=P2(cx,cy,R/2,a0);s+=T(mr[0]+(Math.cos(a0*RAD)>0?0:-8),mr[1]+(Math.sin(a0*RAD)>0?18:-8)+4,rLab,TE(),{fs:12,w:700});}
+  s+=C(cx,cy,3.5,FG());
+  return s;
+}
+
+/* 1. recap */
+const rcR=$('rcR');
+function drawRC(){const r=+rcR.value;$('rcRv').textContent=' '+r+' cm';const R=12+r*7.5;
+  $('rcSvg').innerHTML=`<circle cx="200" cy="110" r="${R}" fill="${TE()}" fill-opacity=".18" stroke="${OR()}" stroke-width="4"/>`+L(200,110,200+R,110,TE(),3)+T(200+R/2,104,'r = '+r,TE(),{fs:12,w:700})+C(200,110,3.5,FG());
+  $('rcC').textContent=`2 × π × ${r} = ${2*r}π ≈ ${dp1(2*PI*r)} cm`; $('rcA').textContent=`π × ${r}² = ${r*r}π ≈ ${dp1(PI*r*r)} cm²`;}
+rcR.addEventListener('input',drawRC); reg(drawRC);
+
+/* 2. arc length */
+const alT=$('alT'),alR=$('alR');
+function drawAL(){const th=+alT.value,r=+alR.value;$('alTv').textContent=' '+th+'°';$('alRv').textContent=' '+r+' cm';
+  $('alSvg').innerHTML=sectorSVG(th,'r = '+r,{fillOp:.08});
+  $('alBar').innerHTML=`<div style="width:${th/360*100}%;background:${OR()}"></div><div style="flex:1;background:${css('--grid')}"></div>`;
+  $('alWork').innerHTML=`fraction of the circle = ${th}/360 = <strong>${frac(th,360)}</strong><br>circumference = 2 × π × ${r} = ${2*r}π<br><span class="b">arc = ${frac(th,360)} × ${2*r}π = ${piK(th*2*r,360)} = ${long(th/360*2*PI*r)} ≈ <strong>${dp1(th/360*2*PI*r)} cm</strong></span>`;}
+[alT,alR].forEach(e=>e.addEventListener('input',drawAL)); reg(drawAL);
+
+/* 3. sector area */
+const saT=$('saT'),saR=$('saR');
+function drawSA(){const th=+saT.value,r=+saR.value;$('saTv').textContent=' '+th+'°';$('saRv').textContent=' '+r+' cm';
+  let s=sectorSVG(th,'r = '+r,{fillOp:.4});
+  const n=360/th; if(Number.isInteger(n)&&n>1&&n<=36){for(let i=1;i<n;i++){const p=P2(200,130,100,90-th/2+i*th);s+=L(200,130,p[0],p[1],css('--line'),1);}}
+  $('saSvg').innerHTML=s;
+  $('saWork').innerHTML=`fraction = ${th}/360 = <strong>${frac(th,360)}</strong>${Number.isInteger(n)&&n>1?` (${n} of these sectors make a full circle)`:''}<br>whole circle = π × ${r}² = ${r*r}π<br><span class="a">sector = ${frac(th,360)} × ${r*r}π = ${piK(th*r*r,360)} = ${long(th/360*PI*r*r)} ≈ <strong>${dp1(th/360*PI*r*r)} cm²</strong></span><br><span class="x">✗ with the diameter: ${frac(th,360)} × π × ${2*r}² ≈ ${dp1(th/360*PI*4*r*r)} (4 times too big)</span>`;}
+[saT,saR].forEach(e=>e.addEventListener('input',drawSA)); reg(drawSA);
+
+/* 4. perimeter walk */
+const peT=$('peT'),peR=$('peR'),peW=$('peW');
+function drawPE(){const th=+peT.value,r=+peR.value,w=+peW.value/100;$('peTv').textContent=' '+th+'°';$('peRv').textContent=' '+r+' cm';
+  const cx=200,cy=130,R=100,a0=90-th/2,arc=th/360*2*PI*r,tot=arc+2*r,d=w*tot;
+  let s=`<path d="${sectorPath(cx,cy,R,a0,th)}" fill="${TE()}" fill-opacity=".12"/>`;
+  const p0=P2(cx,cy,R,a0),p1=P2(cx,cy,R,a0+th);
+  s+=L(cx,cy,p0[0],p0[1],css('--line'),2)+L(cx,cy,p1[0],p1[1],css('--line'),2)+`<path d="${arcP(cx,cy,R,a0,th)}" fill="none" stroke="${css('--line')}" stroke-width="2"/>`;
+  // walked part
+  let pos;
+  const d1=Math.min(d,r); const q1=[cx+(p0[0]-cx)*d1/r,cy+(p0[1]-cy)*d1/r]; s+=L(cx,cy,q1[0],q1[1],PL(),5); pos=q1;
+  if(d>r){const fa=Math.min(1,(d-r)/arc);s+=`<path d="${arcP(cx,cy,R,a0,th*fa)}" fill="none" stroke="${OR()}" stroke-width="5"/>`;pos=P2(cx,cy,R,a0+th*fa);}
+  if(d>r+arc){const f=(d-r-arc)/r;const q=[p1[0]+(cx-p1[0])*f,p1[1]+(cy-p1[1])*f];s+=L(p1[0],p1[1],q[0],q[1],PL(),5);pos=q;}
+  s+=C(pos[0],pos[1],7,FG(),css('--panel'),2)+T(p0[0]/2+cx/2+(Math.cos(a0*RAD)>0?14:-14),(p0[1]+cy)/2+18,r+' cm',PL(),{fs:12,w:700})+T(p1[0]/2+cx/2-(Math.cos(a0*RAD)>0?14:-14),(p1[1]+cy)/2-6,r+' cm',PL(),{fs:12,w:700});
+  const lp=P2(cx,cy,R+18,a0+th/2); s+=T(lp[0],lp[1]+4,'arc',OR(),{fs:12,w:700});
+  $('peSvg').innerHTML=s;
+  $('peWork').innerHTML=`walked so far: ${fmt(d,2)} cm<br><span class="c">radius ${r}</span> + <span class="b">arc ${th}/360 × 2π × ${r} = ${piK(th*2*r,360)} ≈ ${fmt(arc,3)}</span> + <span class="c">radius ${r}</span><br>perimeter = ${piK(th*2*r,360)} + ${2*r} = ${long(tot)} ≈ <strong>${dp1(tot)} cm</strong><br><span class="x">✗ arc only: ${dp1(arc)} cm</span>`;}
+[peT,peR,peW].forEach(e=>e.addEventListener('input',drawPE)); reg(drawPE);
+
+/* 5. in terms of pi */
+const tpT=$('tpT'),tpR=$('tpR');
+function drawTP(){const th=+tpT.value,r=+tpR.value;$('tpTv').textContent=' '+th+'°';$('tpRv').textContent=' '+r+' cm';const f=frac(th,360);
+  $('tpWork').innerHTML=`Step 1: simplify the fraction: ${th}/360 = <strong>${f}</strong><br><span class="a">Area</span> = ${f} × π × ${r}² = ${f} × ${r*r}π = <strong>${piK(th*r*r,360)} cm²</strong><br><span class="b">Arc</span> = ${f} × 2 × π × ${r} = ${f} × ${2*r}π = <strong>${piK(th*2*r,360)} cm</strong><br><span class="c">Perimeter</span> = <strong>${piK(th*2*r,360)} + ${2*r} cm</strong><br><span class="x">✗ "${dp1(th/360*PI*r*r)}" is the decimal: not in terms of π</span>`;}
+[tpT,tpR].forEach(e=>e.addEventListener('input',drawTP)); drawTP();
+
+/* 6. practice */
+const ANG=[30,36,40,45,60,72,80,90,100,120,135,150,160,200,210,225,240,270,300];
+let PQ=null;
+const parseAns=s=>{s=String(s).replace(/−/g,'-').replace(/π|pi/gi,'').replace(/\s/g,'');const m=s.match(/^(-?\d*\.?\d+)\/(\d*\.?\d+)$/);if(m)return parseFloat(m[1])/parseFloat(m[2]);return parseFloat(s.replace(/[^0-9.\-]/g,''));};
+function prNew(){
+  const sel=$('prT').value; const t=sel==='mix'?pick(['arc','area','per','pi','ang','rad']):sel;
+  const th=pick(ANG), r=rnd(3,15), f=frac(th,360);
+  const arc=th/360*2*PI*r, area=th/360*PI*r*r;
+  let q,ans,unit,wrong=[],work,mode='dp1',lab={r:r+' cm',th:th+'°'};
+  if(t==='arc'){q=`Find the arc length of a sector with angle ${th}° and radius ${r} cm. Give your answer to 1 d.p.`;ans=arc;unit='cm';
+    wrong=[[area,'That is the sector area (θ/360 × πr²). Arc length uses 2πr.'],[th/360*PI*r,'You used πr instead of 2πr: that\'s half the arc.'],[th/360*2*PI*2*r,'You used the diameter in 2πr.'],[arc+2*r,'That is the perimeter. The question only wants the curved arc.'],[th/180*2*PI*r,'Use θ/360, not θ/180.']];
+    work=`${th}/360 = ${f}<br>arc = ${f} × 2 × π × ${r} = ${piK(th*2*r,360)} = ${long(arc)}<br>arc = <strong>${dp1(arc)} cm</strong>`;}
+  if(t==='area'){q=`Find the area of a sector with angle ${th}° and radius ${r} cm. Give your answer to 1 d.p.`;ans=area;unit='cm²';
+    wrong=[[arc,'That is the arc length. Area uses πr².'],[th/360*PI*4*r*r,'You used the diameter. Square the radius.'],[th/360*PI*r,'You forgot to square the radius.'],[th/360*(PI*r)**2,'Only r is squared, not π × r.'],[th/180*PI*r*r,'Use θ/360, not θ/180.']];
+    work=`${th}/360 = ${f}<br>area = ${f} × π × ${r}² = ${f} × ${r*r}π = ${piK(th*r*r,360)} = ${long(area)}<br>area = <strong>${dp1(area)} cm²</strong>`;}
+  if(t==='per'){q=`Find the perimeter of a sector with angle ${th}° and radius ${r} cm. Give your answer to 1 d.p.`;ans=arc+2*r;unit='cm';
+    wrong=[[arc,'That is just the arc. Add the two straight radii: + 2 × '+r+'.'],[arc+r,'A sector has two radii as straight edges: add 2 × '+r+'.'],[area+2*r,'You used the area formula for the curved part. The arc is θ/360 × 2πr.'],[area,'That is the area. Perimeter is a length: arc + 2r.']];
+    work=`arc = ${f} × 2π × ${r} = ${long(arc)}<br>perimeter = ${long(arc)} + ${r} + ${r} = ${long(arc+2*r)}<br>perimeter = <strong>${dp1(arc+2*r)} cm</strong>`;}
+  if(t==='pi'){const which=pick(['area','arc']);ans=which==='area'?th*r*r/360:th*2*r/360;mode='pi';unit='π '+(which==='area'?'cm²':'cm');
+    q=`Find the ${which==='area'?'area':'arc length'} of a sector with angle ${th}° and radius ${r} cm. Give your answer in terms of π (type the number in front of π, e.g. 4 or 9/2).`;
+    wrong=which==='area'?[[th*2*r/360,'That is the arc. Area uses r²: '+f+' × '+r*r+'.'],[th*4*r*r/360,'You used the diameter.'],[area,'That is the decimal value. Leave π out of the calculation and type just the number in front of π.']]:[[th*r*r/360,'That is the area. Arc uses 2r: '+f+' × '+2*r+'.'],[th*r/360,'2πr, not πr: multiply by 2 × '+r+'.'],[arc,'That is the decimal value. Type just the number in front of π.']];
+    work=which==='area'?`${f} × π × ${r}² = ${f} × ${r*r}π = <strong>${piK(th*r*r,360)} cm²</strong>`:`${f} × 2 × π × ${r} = ${f} × ${2*r}π = <strong>${piK(th*2*r,360)} cm</strong>`;}
+  if(t==='ang'){const which=pick(['arc','area']);mode='ang1';lab={r:r+' cm',th:'θ'};
+    if(which==='arc'){const g=+arc.toFixed(1);ans=g/(2*PI*r)*360;q=`A sector has radius ${r} cm and arc length ${fmt(g,1)} cm. Find its angle θ to 1 d.p.`;unit='°';
+      wrong=[[g/(2*PI*r),'That\'s the fraction of the circle. Multiply by 360 to get the angle.'],[g/(PI*r)*360,'Circumference is 2πr, not πr.'],[g/(PI*r*r)*360,'You used the area formula. Arc length comes from 2πr.']];
+      work=`fraction = arc ÷ circumference = ${fmt(g,1)} ÷ (2π × ${r}) = ${long(g/(2*PI*r))}<br>θ = ${long(g/(2*PI*r))} × 360 = <strong>${ans.toFixed(1)}°</strong>`;}
+    else{const g=+area.toFixed(1);ans=g/(PI*r*r)*360;q=`A sector has radius ${r} cm and area ${fmt(g,1)} cm². Find its angle θ to 1 d.p.`;unit='°';
+      wrong=[[g/(PI*r*r),'That\'s the fraction of the circle. Multiply by 360.'],[g/(2*PI*r)*360,'You used the circumference. Area of the circle is πr².'],[g/(PI*r)*360,'Square the radius: the circle\'s area is π × '+r+'².']];
+      work=`fraction = area ÷ circle = ${fmt(g,1)} ÷ (π × ${r}²) = ${long(g/(PI*r*r))}<br>θ = ${long(g/(PI*r*r))} × 360 = <strong>${ans.toFixed(1)}°</strong>`;}}
+  if(t==='rad'){const which=pick(['arc','area']);mode='sf3';lab={r:'r',th:th+'°'};
+    if(which==='arc'){const g=+arc.toFixed(1);ans=g*360/(2*PI*th);q=`A sector has angle ${th}° and arc length ${fmt(g,1)} cm. Find the radius to 3 s.f.`;unit='cm';
+      wrong=[[g*360/(PI*th),'That\'s the diameter. Halve it (circumference is 2πr).'],[Math.sqrt(g*360/(PI*th)),'No square root here: arc length uses r, not r².']];
+      work=`${th}/360 × 2πr = ${fmt(g,1)}<br>r = ${fmt(g,1)} × 360 ÷ (2π × ${th}) = ${long(ans)}<br>r = <strong>${sf(ans)} cm</strong>`;}
+    else{const g=+area.toFixed(1);ans=Math.sqrt(g*360/(PI*th));q=`A sector has angle ${th}° and area ${fmt(g,1)} cm². Find the radius to 3 s.f.`;unit='cm';
+      wrong=[[g*360/(PI*th),'That is r². Take the square root.'],[g*360/(2*PI*th),'You used the arc formula. Area uses πr².']];
+      work=`${th}/360 × πr² = ${fmt(g,1)}<br>r² = ${fmt(g,1)} × 360 ÷ (π × ${th}) = ${long(ans*ans)}<br>r = √${fmt(ans*ans,3)} = <strong>${sf(ans)} cm</strong>`;}}
+  PQ={q,ans,unit,wrong,work,mode,th,lab};
+  $('prQ').textContent=q; $('prU').textContent=unit; $('prA').value=''; $('prMsg').className='msg'; $('prMsg').textContent=''; $('prWork').hidden=true; $('prWork').innerHTML=work;
+  drawPR();
+}
+function drawPR(){if(!PQ)return;$('prSvg').innerHTML=sectorSVG(PQ.th,PQ.lab.r,{cy:115,R:90,thLab:PQ.lab.th,fillOp:.2});}
+const ok=(u,v,mode)=>{if(!isFinite(v))return false;if(mode==='pi')return Math.abs(u-v)<1e-3;if(mode==='dp1'||mode==='ang1')return Math.abs(u-v)<=0.05+1e-9;const e=Math.floor(Math.log10(Math.abs(v)));return Math.abs(u-v)<=0.5*10**(e-2)+1e-9;};
+function prCheck(){const u=parseAns($('prA').value),M=$('prMsg');if(!isFinite(u)){feedback(M,false,'Type a number.');return;}
+  if(ok(u,PQ.ans,PQ.mode)){feedback(M,true,'Correct.');$('prWork').hidden=false;return;}
+  if(PQ.mode==='pi'&&Math.abs(u-PQ.ans*PI)<0.06){feedback(M,false,'Not quite. That is the decimal value. "In terms of π" means type just the number in front of π.');return;}
+  for(const [v,m] of PQ.wrong){if(Math.abs(v-PQ.ans)<1e-9)continue;if(ok(u,v,PQ.mode==='pi'?'pi':PQ.mode)||Math.abs(u-v)<=Math.abs(v)*0.004){feedback(M,false,'Not quite. '+m);return;}}
+  feedback(M,false,Math.abs(u-PQ.ans)<=Math.abs(PQ.ans)*0.02?'Very close: check your rounding.':'Not quite. Start with the fraction θ/360, then the right formula. "Show working" has the steps.');}
+$('prGo').addEventListener('click',prCheck); $('prA').addEventListener('keydown',e=>{if(e.key==='Enter')prCheck();});
+$('prShow').addEventListener('click',()=>{$('prWork').hidden=!$('prWork').hidden;}); $('prNew').addEventListener('click',prNew); $('prT').addEventListener('change',prNew); prNew(); REDRAW.push(drawPR);
+
+/* 7. segment */
+const sgT=$('sgT'),sgR=$('sgR'),sgShow=$('sgShow');
+function drawSG(){const th=+sgT.value,r=+sgR.value,sh=sgShow.value;$('sgTv').textContent=' '+th+'°';$('sgRv').textContent=' '+r+' cm';
+  const cx=200,cy=135,R=105,a0=90-th/2,p0=P2(cx,cy,R,a0),p1=P2(cx,cy,R,a0+th);
+  let s=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${css('--line')}" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  if(sh==='all'||sh==='sec')s+=`<path d="${sectorPath(cx,cy,R,a0,th)}" fill="${TE()}" fill-opacity="${sh==='sec'?.35:.12}"/>`;
+  if(sh==='all'||sh==='tri')s+=poly([[cx,cy],p0,p1],PL(),'none',0,sh==='tri'?.35:.18);
+  if(sh==='all'||sh==='seg')s+=`<path d="M${p0[0]},${p0[1]} A${R},${R} 0 ${th>180?1:0} 0 ${p1[0]},${p1[1]} Z" fill="${OR()}" fill-opacity=".4"/>`;
+  s+=`<path d="${arcP(cx,cy,R,a0,th)}" fill="none" stroke="${OR()}" stroke-width="3.5"/>`+L(cx,cy,p0[0],p0[1],TE(),3)+L(cx,cy,p1[0],p1[1],TE(),3)+L(p0[0],p0[1],p1[0],p1[1],PL(),3);
+  s+=`<path d="${arcP(cx,cy,24,a0,th)}" fill="none" stroke="${FG()}" stroke-width="1.5"/>`;const lp=P2(cx,cy,42,a0+th/2);s+=T(lp[0],lp[1]+4,th+'°',FG(),{fs:12,w:700})+C(cx,cy,3.5,FG());
+  const sl=P2(cx,cy,R+16,a0+th/2); s+=T(sl[0],sl[1]+4,'segment',OR(),{fs:12,w:700});
+  $('sgSvg').innerHTML=s;
+  const sec=th/360*PI*r*r, tri=0.5*r*r*sinD(th), seg=sec-tri;
+  $('sgWork').innerHTML=`<span class="a">sector</span> = ${th}/360 × π × ${r}² = ${fmt(sec,3)}<br><span class="c">triangle</span> = ½ × ${r} × ${r} × sin ${th}° = ${fmt(tri,3)}${th>180?' (negative: sin θ < 0 when θ > 180°)':''}<br><span class="b">segment = ${fmt(sec,3)} − ${th>180?'('+fmt(tri,3)+')':fmt(tri,3)} = <strong>${sf(seg)} cm²</strong></span>`+(th===180?'<br>θ = 180°: the chord is a diameter, the triangle is flat (area 0) and the segment is a semicircle.':th>180?'<br>This is a <strong>major</strong> segment: the sector plus the triangle.':'');}
+const sinD=t=>Math.sin(t*RAD);
+[sgT,sgR,sgShow].forEach(e=>e.addEventListener('input',drawSG)); reg(drawSG);
+
+/* 7b. segment practice */
+let SQ=null;
+function sqNew(){const th=pick([40,50,60,70,80,100,110,120,130,140,150]),r=rnd(4,15);const sec=th/360*PI*r*r,tri=0.5*r*r*sinD(th),ans=sec-tri;
+  SQ={ans,wrong:[[sec-0.5*r*r,'The triangle isn\'t right-angled: its area is ½r² sin θ, not ½r².'],[sec,'That is the whole sector. Subtract the triangle.'],[tri,'That is the triangle. Segment = sector − triangle.'],[sec-0.5*r*r*Math.cos(th*RAD),'Use sin θ in ½ab sin C, not cos θ.'],[sec-0.5*r*r*Math.sin(th),'Your calculator is in radians for sin. Switch to degrees.'],[sec+tri,'Subtract the triangle, don\'t add it (this is the minor segment).']]};
+  $('sqQ').textContent=`A chord AB subtends an angle of ${th}° at the centre of a circle of radius ${r} cm. Find the area of the minor segment to 3 s.f.`;
+  $('sqA').value='';$('sqMsg').className='msg';$('sqMsg').textContent='';$('sqWork').hidden=true;
+  $('sqWork').innerHTML=`sector = ${th}/360 × π × ${r}² = ${long(sec)}<br>triangle = ½ × ${r}² × sin ${th}° = ${long(tri)}<br>segment = ${long(ans)} = <strong>${sf(ans)} cm²</strong>`;}
+function sqCheck(){const u=parseFloat($('sqA').value.replace(/−/g,'-').replace(/[^0-9.\-]/g,'')),M=$('sqMsg');if(!isFinite(u)){feedback(M,false,'Type a number.');return;}
+  const w=(u,v)=>{const e=Math.floor(Math.log10(Math.abs(v)));return Math.abs(u-v)<=0.5*10**(e-2)+1e-9;};
+  if(w(u,SQ.ans)){feedback(M,true,'Correct: '+sf(SQ.ans)+' cm².');$('sqWork').hidden=false;return;}
+  for(const [v,m] of SQ.wrong){if(w(u,v)||Math.abs(u-v)<=Math.abs(v)*0.004){feedback(M,false,'Not quite. '+m);return;}}
+  feedback(M,false,'Not quite. Segment = sector − triangle, with triangle = ½r² sin θ.');}
+$('sqGo').addEventListener('click',sqCheck);$('sqA').addEventListener('keydown',e=>{if(e.key==='Enter')sqCheck();});$('sqShow').addEventListener('click',()=>{$('sqWork').hidden=!$('sqWork').hidden;});$('sqNew').addEventListener('click',sqNew);sqNew();
+
+/* quiz */
+const QS=[
+  {q:'The arc length of a sector with angle θ and radius r is…',opts:['θ/360 × 2πr','θ/360 × πr²','θ/180 × πr','θ × 2πr'],a:0,fb:'The arc is the fraction θ/360 of the circumference 2πr.'},
+  {q:'Arc length of a 90° sector with radius 4 cm, in terms of π?',opts:['2π cm','4π cm','8π cm','π cm'],a:0,fb:'¼ × 2π × 4 = ¼ × 8π = 2π cm.'},
+  {q:'Area of a 60° sector with radius 6 cm, in terms of π?',opts:['6π cm²','2π cm²','36π cm²','12π cm²'],a:0,fb:'60/360 = 1/6, and 1/6 × 36π = 6π cm². (2π cm is the arc.)'},
+  {q:'Perimeter of a 90° sector with radius 10 cm, to 1 d.p.?',opts:['35.7 cm','15.7 cm','25.7 cm','78.5 cm'],a:0,fb:'Arc = ¼ × 20π = 5π = 15.707…, plus 2 × 10: 35.707… = 35.7 cm. 15.7 forgets the radii.'},
+  {q:'Area of a 120° sector with radius 3 cm?',opts:['3π cm²','2π cm²','9π cm²','6π cm²'],a:0,fb:'120/360 = 1/3; 1/3 × 9π = 3π cm².'},
+  {q:'A sector of radius 6 cm has arc length 4π cm. Its angle is…',opts:['120°','60°','240°','40°'],a:0,fb:'Circumference = 12π. 4π ÷ 12π = 1/3 of the circle, and 1/3 × 360° = 120°.'},
+  {q:'A 90° sector has area 25π cm². Its radius is…',opts:['10 cm','5 cm','100 cm','√25π cm'],a:0,fb:'¼ × πr² = 25π, so r² = 100 and r = 10 cm.'},
+  {q:'Higher: the area of a segment is…',opts:['sector − ½r² sin θ','sector + ½r²','½r² sin θ','sector − ½r²'],a:0,fb:'Segment = sector − triangle, and the triangle has area ½ × r × r × sin θ.'},
+  {q:'Higher: segment cut off by a 90° angle in a circle of radius 6 cm, to 1 d.p.?',opts:['10.3 cm²','28.3 cm²','18.0 cm²','46.3 cm²'],a:0,fb:'Sector = 9π = 28.274…; triangle = ½ × 36 × sin 90° = 18; segment = 10.274… = 10.3 cm².'},
+  {q:'The fraction 135/360 simplifies to…',opts:['3/8','3/4','2/3','1/3'],a:0,fb:'Divide top and bottom by 45: 135 ÷ 45 = 3, 360 ÷ 45 = 8.'}
+];
+const redrawAll=()=>REDRAW.forEach(f=>f());
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Loci and Constructions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each section has an SVG with draggable points (and in the last section a field where you combine conditions). Colours on this page: teal = loci measured from a point (circles, and the region within a distance of a point); orange = loci measured from a line or line segment (the stadium shape, distances to lines); plum = equidistance loci (perpendicular bisectors and angle bisectors); grey arcs = compass construction marks; the final region in the region builder is filled with a strong plum tint. Solid boundaries are included in a region, dashed ones are not. Green/red = right/wrong feedback only. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.D{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.parts-svg [data-part]{cursor:pointer}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.12rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.45rem;position:relative;top:-.12em;white-space:nowrap}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+summary .tag{font-size:.6rem}
+.grp{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.lab svg.drag{touch-action:none;cursor:grab}
+.lab svg.drag:active{cursor:grabbing}
+.hint{font-size:.85rem;color:var(--muted);margin:.4rem 0 0}
+.formula{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.7rem 1rem;margin:1.2rem 0;font-family:var(--mono);font-size:1.05rem;line-height:1.8}
+.formula b{font-family:var(--body)}
+.A{color:var(--accent);font-weight:600}.H{color:var(--hi);font-weight:600}.T{color:var(--two);font-weight:600}
+sup,sub{line-height:0}
+@media (max-width:540px){
+  table.stack tr:first-child{display:none}
+  table.stack tr{display:block;border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{display:block;border:0;padding:.15rem .3rem}
+  table.stack td[data-h]::before{content:attr(data-h) ": ";font:600 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+}
+.conds{display:grid;gap:.45rem;margin-top:.7rem}
+.conds label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--fg)}
+.conds input[type=range]{width:120px}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Geometry and measures</div>
+  <h1>Loci and Constructions</h1>
+  <p class="lede">A goat is tied to a post with a 5 m rope: where can it graze? A phone mast reaches 30 km: which villages get a signal? A <strong>locus</strong> (plural <strong>loci</strong>, said "low-sigh") is the set of all points that obey a rule. Four basic loci, drawn with a ruler and compasses, combine to answer questions like these.</p>
+  <span class="gcse">GCSE subject content G2: use the standard ruler and compass constructions (perpendicular bisector of a line segment, constructing a perpendicular to a given line from/at a given point, bisecting a given angle); use these to construct given figures and solve loci problems; know that the perpendicular distance from a point to a line is the shortest distance to the line.</span>
+</header>
+
+<h2>1 · Recap: the two key constructions</h2>
+<p>The KS3 page <a href="../ks3-interactive/constructions.html">Constructions</a> shows every construction step by step. Two of them are loci in disguise, so here's a quick reminder. Leave your compass arcs showing: in an exam they are the evidence that you constructed rather than measured.</p>
+<div class="lab">
+  <div class="controls"><span class="grp"><button class="btn on" id="rcPB">Perpendicular bisector</button><button class="btn" id="rcAB">Angle bisector</button></span></div>
+  <svg id="rcSvg" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <div class="controls">
+    <button class="btn" id="rcPrev">◀ Back</button>
+    <button class="btn primary" id="rcNext">Next step ▶</button>
+    <span class="hint" id="rcStep"></span>
+  </div>
+  <div class="work" id="rcWork"></div>
+</div>
+
+<h2>2 · A fixed distance from a point: a circle</h2>
+<p>All the points exactly 3 cm from a point P form a <strong>circle</strong> with centre P and radius 3 cm. Points <em>less than</em> 3 cm away are inside it; that region is the locus "within 3 cm of P". Tap anywhere to test a point.</p>
+<div class="lab">
+  <div class="controls">
+    <label>distance <input type="range" id="ptD" min="1" max="5" step="0.5" value="3"><span id="ptDv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="ptFill" checked> shade "within"</label>
+  </div>
+  <svg id="ptSvg" class="drag" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <p class="hint">1 grid square = 1 cm. Drag P; tap elsewhere to drop a test point.</p>
+  <div class="msg" id="ptMsg"></div>
+</div>
+
+<h2>3 · A fixed distance from a line segment: a stadium</h2>
+<p>For points a fixed distance d from a line segment AB, the shortest distance to the segment is measured <strong>at right angles</strong> to it (the perpendicular distance), except beyond the ends, where the nearest point of the segment is A or B itself. So the locus is two straight lines parallel to AB, joined by two semicircles centred on A and B: a <strong>stadium</strong> (or running-track) shape. A common mistake is to draw a rectangle with square corners.</p>
+<div class="lab">
+  <div class="controls"><label>d <input type="range" id="sgD" min="0.5" max="4" step="0.5" value="2"><span id="sgDv" style="font-family:var(--mono)"></span></label></div>
+  <svg id="sgSvg" class="drag" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <p class="hint">Drag A, B or the test point T.</p>
+  <div class="msg" id="sgMsg"></div>
+</div>
+
+<h2>4 · Equidistant from two points: the perpendicular bisector</h2>
+<p>Points that are the same distance from A as from B lie on the <strong>perpendicular bisector</strong> of AB: the line through the midpoint of AB at 90° to it. Everything on A's side of it is closer to A. Drag P and watch the two distances.</p>
+<div class="lab">
+  <svg id="pbSvg" class="drag" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <div class="readout">
+    <div class="f"><b>PA</b><span id="pbA"></span></div>
+    <div class="t"><b>PB</b><span id="pbB"></span></div>
+    <div><b>P is</b><span id="pbK"></span></div>
+  </div>
+</div>
+
+<h2>5 · Equidistant from two lines: the angle bisector</h2>
+<p>The distance from a point to a line is the <strong>perpendicular</strong> distance (the shortest one). Points the same distance from two lines that meet at an angle lie on the <strong>angle bisector</strong>, the line that cuts the angle in half. Drag Q.</p>
+<div class="lab">
+  <svg id="abSvg" class="drag" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <div class="readout">
+    <div class="t"><b>Distance to line 1</b><span id="ab1"></span></div>
+    <div class="t"><b>Distance to line 2</b><span id="ab2"></span></div>
+    <div><b>Q is</b><span id="abK"></span></div>
+  </div>
+  <p class="hint">Drag the ends of the lines to change the angle, or drag Q.</p>
+</div>
+
+<h2>6 · Combining loci: regions</h2>
+<p>Real questions combine several rules. Draw each locus, decide which side of it you want, and shade the region where <strong>all</strong> the rules are true at once. The rectangular field is 12 m by 8 m. Tick the rules, adjust them, and tap the field to test a point.</p>
+<div class="lab">
+  <div class="chips" id="rbPre"></div>
+  <div class="conds">
+    <label><input type="checkbox" id="rb1" checked> within <input type="range" id="rb1d" min="1" max="10" step="0.5" value="5"><span id="rb1v" style="font-family:var(--mono)"></span> of post A</label>
+    <label><input type="checkbox" id="rb2"> more than <input type="range" id="rb2d" min="1" max="8" step="0.5" value="3"><span id="rb2v" style="font-family:var(--mono)"></span> from tree B</label>
+    <label><input type="checkbox" id="rb3"> closer to A than to B</label>
+    <label><input type="checkbox" id="rb4"> within <input type="range" id="rb4d" min="0.5" max="4" step="0.5" value="2"><span id="rb4v" style="font-family:var(--mono)"></span> of the rail CD</label>
+    <label><input type="checkbox" id="rb5"> closer to the bottom fence than to the left fence</label>
+  </div>
+  <svg id="rbSvg" class="drag" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <p class="hint">Drag A and B. Tap the field to test a point.</p>
+  <div class="msg" id="rbMsg"></div>
+  <div class="work" id="rbWork"></div>
+</div>
+<div class="callout"><p><strong>Exam tips:</strong> use a sharp pencil and keep compass arcs visible; draw "within" boundaries solid and "more than" boundaries dashed if asked; check whether "closer to A" means A's side of the bisector; and always check the scale (e.g. 1 cm = 10 km) before setting your compasses.</p></div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Construct the perpendicular bisector of a line AB 8 cm long.</summary>
+  <div class="step">Open the compasses to more than half of AB (say 5 cm).</div>
+  <div class="step">With the point on A, draw arcs above and below AB. Without changing the compasses, repeat from B so the arcs cross at two points.</div>
+  <div class="step">Join the two crossing points with a ruler. This line crosses AB at its midpoint (4 cm from each end) at 90°. Every point on it is the same distance from A and from B.</div>
+</details>
+<details>
+  <summary>Bisect an angle of 70°.</summary>
+  <div class="step">With the compass point on the vertex, draw an arc crossing both arms.</div>
+  <div class="step">From each crossing point, draw arcs (same radius) that cross between the arms.</div>
+  <div class="step">Join the vertex to that crossing point. Each half is 35°; every point on the line is equidistant from the two arms.</div>
+</details>
+<details>
+  <summary>Find the area of the region within 2 cm of a line segment 6 cm long. Give your answer in terms of π and to 3 s.f.</summary>
+  <div class="step">The region is a stadium: a 6 cm × 4 cm rectangle (2 cm each side of the segment) plus two semicircles of radius 2 cm at the ends.</div>
+  <div class="step">Rectangle = 6 × 4 = 24 cm². Two semicircles = one circle = π × 2² = 4π cm².</div>
+  <div class="step">Area = <strong>24 + 4π cm²</strong> = 36.566… = <strong>36.6 cm²</strong>. (Its perimeter is 6 + 6 + 2π × 2 = 12 + 4π cm.)</div>
+</details>
+<details>
+  <summary>A goat is tied to a post in the corner of a rectangular field with a 5 m rope. Find the area it can graze.</summary>
+  <div class="step">The locus "within 5 m of the post" is a circle, but the fences cut it off: only the quarter inside the field (the corner is 90°) is available.</div>
+  <div class="step">Area = ¼ × π × 5² = 6.25π = 19.634… = <strong>19.6 m²</strong>.</div>
+</details>
+<details>
+  <summary>A goat is tied with a 4 m rope to a ring that slides along a straight 10 m rail fixed to the ground in the middle of a field. Describe and find the grazing area.</summary>
+  <div class="step">The goat can reach any point within 4 m of the rail: a stadium shape.</div>
+  <div class="step">Rectangle 10 × 8 = 80 m² plus a full circle π × 4² = 16π = 50.265… m².</div>
+  <div class="step">Total = 80 + 16π = 130.265… = <strong>130 m²</strong> (3 s.f.).</div>
+</details>
+<details>
+  <summary>On a map with scale 1 cm : 10 km, a mast at M has a range of 30 km. Shade the places within range that are closer to town A than to town B.</summary>
+  <div class="step">30 km ÷ 10 = 3 cm on the map: draw a circle of radius 3 cm centred on M. Inside it is in range.</div>
+  <div class="step">Construct the perpendicular bisector of AB. A's side is closer to A.</div>
+  <div class="step">Shade the part of the circle on A's side of the bisector (where both rules are true).</div>
+</details>
+<details>
+  <summary>Why is the distance from a point to a line measured at right angles?</summary>
+  <div class="step">Drop a perpendicular from point P to the line, meeting it at F. Any other point G on the line makes a right-angled triangle PFG with PG as the hypotenuse.</div>
+  <div class="step">The hypotenuse is the longest side, so PG &gt; PF. The perpendicular PF is therefore the <strong>shortest</strong> distance.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A locus is the set of points obeying a rule.</li>
+  <li>Fixed distance from a point: a circle. Within that distance: the inside of the circle.</li>
+  <li>Fixed distance from a line segment: a stadium (parallel lines with semicircular ends), not a rectangle.</li>
+  <li>Equidistant from two points: the perpendicular bisector. Equidistant from two lines: the angle bisector.</li>
+  <li>The shortest distance from a point to a line is the perpendicular distance.</li>
+  <li>For combined loci, draw each one, choose the correct side, and shade where all the conditions hold. Keep construction arcs visible and use the scale.</li>
+</ul>
+
+<footer>Made for GCSE students. Ruler and compass constructions and loci are in the DfE GCSE mathematics subject content under Geometry and measures. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const PI = Math.PI, RAD = PI/180;
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat((+v).toFixed(d)).toString()) : '—';
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(Math.abs(v)<1e-12) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); if(e>=n-1) return minus(String(Math.round(r))); return minus(r.toFixed(n-1-e)); };
+const long = v => isFinite(v) ? minus((Math.trunc(v*1000+(v<0?-1e-9:1e-9))/1000).toFixed(3)) + '…' : '—';
+const dp1 = v => isFinite(v) ? minus((+v).toFixed(1)) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v = parseFloat(String(el.value).replace(/−/g,'-').replace(/,/g,'')); return isFinite(v) ? v : NaN; };
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T = (x,y,s,col,o={}) => `<text x="${x}" y="${y}" font-size="${o.fs||13}" ${o.w?`font-weight="${o.w}"`:''} text-anchor="${o.a||'middle'}" fill="${col}" ${F()} ${o.extra||''}>${s}</text>`;
+const L = (x1,y1,x2,y2,col,w=2,dash) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+const C = (x,y,r,fill,stroke='none',w=0) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${w}"/>`;
+const poly = (pts,fill,stroke='none',w=0,op=1,dash) => `<polygon points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="${fill}" fill-opacity="${op}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+/* angle arc at vertex V between directions to A and B (screen coords), radius r */
+function angArc(V,A,B,r,col,w=1.6){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]), a2=Math.atan2(B[1]-V[1],B[0]-V[0]); let d=a2-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const p1=[V[0]+r*Math.cos(a1),V[1]+r*Math.sin(a1)], p2=[V[0]+r*Math.cos(a1+d),V[1]+r*Math.sin(a1+d)]; return `<path d="M${p1[0]},${p1[1]} A${r},${r} 0 0 ${d>0?1:0} ${p2[0]},${p2[1]}" fill="none" stroke="${col}" stroke-width="${w}"/>`; }
+function angLabelPos(V,A,B,r){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]); let d=Math.atan2(B[1]-V[1],B[0]-V[0])-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const m=a1+d/2; return [V[0]+r*Math.cos(m), V[1]+r*Math.sin(m)+4]; }
+/* right-angle square at V between A and B */
+function rightMark(V,A,B,s,col){ const u=[A[0]-V[0],A[1]-V[1]],v=[B[0]-V[0],B[1]-V[1]]; const lu=Math.hypot(...u)||1, lv=Math.hypot(...v)||1; const p=[V[0]+u[0]/lu*s,V[1]+u[1]/lu*s], q=[V[0]+v[0]/lv*s,V[1]+v[1]/lv*s], r=[p[0]+v[0]/lv*s,p[1]+v[1]/lv*s]; return `<polyline points="${p[0]},${p[1]} ${r[0]},${r[1]} ${q[0]},${q[1]}" fill="none" stroke="${col}" stroke-width="1.5"/>`; }
+const svgXY = (svg,ev) => { const vb=svg.viewBox.baseVal, r=svg.getBoundingClientRect(); const k=Math.min(r.width/vb.width, r.height/vb.height); const ox=(r.width-vb.width*k)/2, oy=(r.height-vb.height*k)/2; return [vb.x+(ev.clientX-r.left-ox)/k, vb.y+(ev.clientY-r.top-oy)/k]; };
+/* generic drag: pick(p) returns a handle key or null; move(key,p) updates */
+function dragger(svg,pick,move,end){ let key=null; svg.addEventListener('pointerdown',e=>{ const p=svgXY(svg,e); const k=pick(p); if(k===null||k===undefined) return; key=k; try{svg.setPointerCapture(e.pointerId);}catch(_){} e.preventDefault(); move(key,p); }); svg.addEventListener('pointermove',e=>{ if(key===null) return; e.preventDefault(); move(key,svgXY(svg,e)); }); const up=()=>{ if(key!==null&&end) end(key); key=null; }; svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',up); }
+const nearest = (p,pts,maxd) => { let best=null,bd=maxd; pts.forEach((q,i)=>{ const d=Math.hypot(p[0]-q[0],p[1]-q[1]); if(d<bd){bd=d;best=i;} }); return best; };
+const REDRAW=[]; const reg = f => { REDRAW.push(f); f(); return f; };
+const feedback = (el,ok,msg) => { el.className='msg '+(ok?'good':'bad'); el.textContent=msg; };
+
+const TE=()=>css('--accent'),OR=()=>css('--hi'),PL=()=>css('--two'),FG=()=>css('--fg'),MU=()=>css('--muted');
+const dist=(P,Q)=>Math.hypot(P[0]-Q[0],P[1]-Q[1]);
+const U=30; // px per unit (cm or m)
+const segDist=(P,A,B)=>{const ux=B[0]-A[0],uy=B[1]-A[1],l2=ux*ux+uy*uy;let t=l2?((P[0]-A[0])*ux+(P[1]-A[1])*uy)/l2:0;t=Math.max(0,Math.min(1,t));const F=[A[0]+t*ux,A[1]+t*uy];return [dist(P,F),F,t];};
+const lineFoot=(P,A,B)=>{const ux=B[0]-A[0],uy=B[1]-A[1],l2=ux*ux+uy*uy;const t=((P[0]-A[0])*ux+(P[1]-A[1])*uy)/l2;return [A[0]+t*ux,A[1]+t*uy];};
+function gridPx(W,H){let s='';for(let x=0;x<=W;x+=U)s+=L(x,0,x,H,css('--grid'),1);for(let y=0;y<=H;y+=U)s+=L(0,y,W,y,css('--grid'),1);return s;}
+const hnd=(P,col,lab)=>C(P[0],P[1],7,col||FG(),css('--panel'),2)+(lab?T(P[0]+11,P[1]-9,lab,col||FG(),{w:700,fs:13,a:'start'}):'');
+const stadium=(A,B,d)=>{const ux=B[0]-A[0],uy=B[1]-A[1],l=Math.hypot(ux,uy)||1e-9;const a0=Math.atan2(uy,ux);const pts=[];
+  for(let i=0;i<=30;i++){const t=a0-Math.PI/2+Math.PI*i/30;pts.push([B[0]+d*Math.cos(t),B[1]+d*Math.sin(t)]);}
+  for(let i=0;i<=30;i++){const t=a0+Math.PI/2+Math.PI*i/30;pts.push([A[0]+d*Math.cos(t),A[1]+d*Math.sin(t)]);}return pts;};
+const ptsAttr=pts=>pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+function freeDrag(svg,obj,keys,draw,o={}){let key=null;
+  svg.addEventListener('pointerdown',e=>{const p=svgXY(svg,e);let best=null,bd=24;keys.forEach(k=>{const d=dist(p,obj[k]);if(d<bd){bd=d;best=k;}});
+    if(best===null){if(o.tap)o.tap(p);return;}key=best;try{svg.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(key===null)return;e.preventDefault();const p=svgXY(svg,e);const vb=svg.viewBox.baseVal;let q=[Math.max(10,Math.min(vb.width-10,p[0])),Math.max(10,Math.min(vb.height-10,p[1]))];if(o.snap)q=q.map(v=>Math.round(v/(U/2))*(U/2));if(o.ok&&!o.ok(key,q))return;obj[key]=q;draw();});
+  const up=()=>{key=null;};svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);}
+
+/* 1. constructions recap */
+let rcMode='pb',rcS=0;
+const RCN={pb:4,ab:4};
+function drawRC(){const mu=MU(),fg=FG();let s='',w='';
+  if(rcMode==='pb'){const A=[90,170],B=[330,170],r=150,M=[(A[0]+B[0])/2,170],h=Math.sqrt(r*r-((B[0]-A[0])/2)**2);const X1=[M[0],170-h],X2=[M[0],170+h];
+    s+=L(A[0],A[1],B[0],B[1],fg,2.5)+C(A[0],A[1],4,fg)+C(B[0],B[1],4,fg)+T(A[0]-12,A[1]+5,'A',fg,{w:700})+T(B[0]+12,B[1]+5,'B',fg,{w:700});
+    const arc=(c,a0,a1)=>{const p0=[c[0]+r*Math.cos(a0),c[1]+r*Math.sin(a0)],p1=[c[0]+r*Math.cos(a1),c[1]+r*Math.sin(a1)];return `<path d="M${p0[0]},${p0[1]} A${r},${r} 0 0 1 ${p1[0]},${p1[1]}" fill="none" stroke="${mu}" stroke-width="1.5"/>`;};
+    const ang=Math.acos((M[0]-A[0])/r);
+    if(rcS>=1)s+=arc(A,-ang-0.25,-ang+0.25)+arc(A,ang-0.25,ang+0.25);
+    if(rcS>=2)s+=arc(B,Math.PI-ang-0.25,Math.PI-ang+0.25)+arc(B,Math.PI+ang-0.25,Math.PI+ang+0.25);
+    if(rcS>=3)s+=L(X1[0],X1[1]-20,X2[0],X2[1]+20,PL(),3)+rightMark(M,B,X1,10,mu)+T(M[0]+8,M[1]+18,'midpoint',PL(),{fs:11,a:'start'});
+    w=['Line segment AB.','Open the compasses to more than half of AB. From A, draw arcs above and below the line.','Keep the same radius. From B, draw arcs that cross the first two.','Join the two crossing points: the perpendicular bisector. It meets AB at its midpoint at 90°, and every point on it is equidistant from A and B.'][rcS];}
+  else{const V=[70,240],a1=0,a2=-55*RAD,len=300,r=110;const P1=[V[0]+len*Math.cos(a1),V[1]+len*Math.sin(a1)],P2=[V[0]+len*Math.cos(a2),V[1]+len*Math.sin(a2)];
+    s+=L(V[0],V[1],P1[0],P1[1],fg,2.5)+L(V[0],V[1],P2[0],P2[1],fg,2.5)+C(V[0],V[1],4,fg);
+    const X=[V[0]+r*Math.cos(a1),V[1]+r*Math.sin(a1)],Y=[V[0]+r*Math.cos(a2),V[1]+r*Math.sin(a2)];
+    if(rcS>=1)s+=`<path d="M${X[0]},${X[1]+20} A${r},${r} 0 0 0 ${Y[0]+15},${Y[1]-10}" fill="none" stroke="${mu}" stroke-width="1.5"/>`+C(X[0],X[1],3.5,mu)+C(Y[0],Y[1],3.5,mu);
+    const r2=90,bis=(a1+a2)/2,dXY=dist(X,Y),hh=Math.sqrt(r2*r2-(dXY/2)**2),Mxy=[(X[0]+Y[0])/2,(X[1]+Y[1])/2],Z=[Mxy[0]+hh*Math.cos(bis),Mxy[1]+hh*Math.sin(bis)];
+    const sarc=(c)=>{const a=Math.atan2(Z[1]-c[1],Z[0]-c[0]);const p0=[c[0]+r2*Math.cos(a-0.25),c[1]+r2*Math.sin(a-0.25)],p1=[c[0]+r2*Math.cos(a+0.25),c[1]+r2*Math.sin(a+0.25)];return `<path d="M${p0[0]},${p0[1]} A${r2},${r2} 0 0 1 ${p1[0]},${p1[1]}" fill="none" stroke="${mu}" stroke-width="1.5"/>`;};
+    if(rcS>=2)s+=sarc(X)+sarc(Y);
+    if(rcS>=3){const E=[V[0]+340*Math.cos(bis),V[1]+340*Math.sin(bis)];s+=L(V[0],V[1],E[0],E[1],PL(),3)+angArc(V,P1,Z,40,PL(),1.5)+angArc(V,Z,P2,52,PL(),1.5);}
+    w=['An angle with its vertex on the left.','Compass point on the vertex: draw an arc crossing both arms.','From each crossing point (same radius both times), draw arcs that cross between the arms.','Join the vertex to where those arcs cross: the angle bisector. It splits the angle into two equal halves, and every point on it is equidistant from the two arms.'][rcS];}
+  $('rcSvg').innerHTML=s; $('rcWork').innerHTML=w; $('rcStep').textContent=`step ${rcS+1} of ${RCN[rcMode]}`;
+  $('rcPB').classList.toggle('on',rcMode==='pb'); $('rcAB').classList.toggle('on',rcMode==='ab');}
+$('rcPB').addEventListener('click',()=>{rcMode='pb';rcS=0;drawRC();}); $('rcAB').addEventListener('click',()=>{rcMode='ab';rcS=0;drawRC();});
+$('rcNext').addEventListener('click',()=>{rcS=Math.min(RCN[rcMode]-1,rcS+1);drawRC();}); $('rcPrev').addEventListener('click',()=>{rcS=Math.max(0,rcS-1);drawRC();}); reg(drawRC);
+
+/* 2. point */
+const PT={P:[210,150]}; let ptTest=null; const ptD=$('ptD'),ptFill=$('ptFill');
+function drawPT(){const d=+ptD.value*U;$('ptDv').textContent=' '+fmt(+ptD.value)+' cm';let s=gridPx(420,300);
+  s+=`<circle cx="${PT.P[0]}" cy="${PT.P[1]}" r="${d}" fill="${TE()}" fill-opacity="${ptFill.checked?.18:0}" stroke="${TE()}" stroke-width="3"/>`;
+  if(ptTest){const dd=dist(ptTest,PT.P)/U;s+=L(PT.P[0],PT.P[1],ptTest[0],ptTest[1],MU(),1.5,'4 4')+C(ptTest[0],ptTest[1],5,FG())+T(ptTest[0]+8,ptTest[1]-8,fmt(dd,2)+' cm',FG(),{fs:11,a:'start'});
+    const on=Math.abs(dd-+ptD.value)<0.08;feedback($('ptMsg'),true,on?`${fmt(dd,2)} cm from P: on the locus (the circle).`:dd<+ptD.value?`${fmt(dd,2)} cm from P: inside, so within ${fmt(+ptD.value)} cm.`:`${fmt(dd,2)} cm from P: outside the circle, more than ${fmt(+ptD.value)} cm away.`);$('ptMsg').className='msg';}
+  s+=hnd(PT.P,TE(),'P');$('ptSvg').innerHTML=s;}
+freeDrag($('ptSvg'),PT,['P'],drawPT,{tap:p=>{ptTest=p;drawPT();}}); [ptD,ptFill].forEach(e=>e.addEventListener('input',drawPT)); reg(drawPT);
+
+/* 3. segment */
+const SG={A:[120,150],B:[300,150],T:[330,60]}; const sgD=$('sgD');
+function drawSG(){const d=+sgD.value*U;$('sgDv').textContent=' '+fmt(+sgD.value)+' cm';let s=gridPx(420,300);
+  const st=stadium(SG.A,SG.B,d);s+=`<polygon points="${ptsAttr(st)}" fill="${OR()}" fill-opacity=".15" stroke="${OR()}" stroke-width="3"/>`;
+  s+=C(SG.A[0],SG.A[1],d,'none',MU(),1).replace('fill="none"','fill="none" stroke-dasharray="3 4"')+C(SG.B[0],SG.B[1],d,'none',MU(),1).replace('fill="none"','fill="none" stroke-dasharray="3 4"');
+  s+=L(SG.A[0],SG.A[1],SG.B[0],SG.B[1],FG(),3.5);
+  const [dd,F,t]=segDist(SG.T,SG.A,SG.B);s+=L(SG.T[0],SG.T[1],F[0],F[1],TE(),2,'5 4')+(t>0&&t<1?rightMark(F,SG.B,SG.T,9,MU()):'');
+  s+=hnd(SG.A,FG(),'A')+hnd(SG.B,FG(),'B')+hnd(SG.T,TE(),'T');$('sgSvg').innerHTML=s;
+  const ddu=dd/U,on=Math.abs(ddu-+sgD.value)<0.1;
+  $('sgMsg').className='msg';$('sgMsg').textContent=`T is ${fmt(ddu,2)} cm from the segment, measured ${t<=0?'to the end A (beyond the segment, so the nearest point is A itself)':t>=1?'to the end B (beyond the segment, so the nearest point is B itself)':'at right angles to AB'}. ${on?'It is on the locus.':ddu<+sgD.value?'Inside the stadium.':'Outside the stadium.'}`;}
+freeDrag($('sgSvg'),SG,['A','B','T'],drawSG,{ok:(k,q)=>k==='T'||dist(q,k==='A'?SG.B:SG.A)>40}); sgD.addEventListener('input',drawSG); reg(drawSG);
+
+/* 4. perpendicular bisector */
+const PB={A:[130,170],B:[290,130],P:[200,60]};
+function drawPB(){let s=gridPx(420,300);const A=PB.A,B=PB.B,M=[(A[0]+B[0])/2,(A[1]+B[1])/2],u=[B[0]-A[0],B[1]-A[1]],l=Math.hypot(...u),n=[-u[1]/l,u[0]/l];
+  const E1=[M[0]+n[0]*600,M[1]+n[1]*600],E2=[M[0]-n[0]*600,M[1]-n[1]*600];
+  const toA=[-u[0]/l*900,-u[1]/l*900];
+  s+=poly([E1,E2,[E2[0]+toA[0],E2[1]+toA[1]],[E1[0]+toA[0],E1[1]+toA[1]]],TE(),'none',0,.1);
+  s+=L(E1[0],E1[1],E2[0],E2[1],PL(),3)+L(A[0],A[1],B[0],B[1],MU(),1.5,'4 4')+rightMark(M,B,E1,9,MU());
+  const pa=dist(PB.P,A)/U,pb=dist(PB.P,B)/U;
+  s+=L(PB.P[0],PB.P[1],A[0],A[1],TE(),2)+L(PB.P[0],PB.P[1],B[0],B[1],OR(),2);
+  s+=hnd(A,TE(),'A')+hnd(B,OR(),'B')+hnd(PB.P,FG(),'P')+T(20,20,'closer to A',TE(),{fs:11,a:'start'});
+  $('pbSvg').innerHTML=s;$('pbA').textContent=fmt(pa,2)+' cm';$('pbB').textContent=fmt(pb,2)+' cm';
+  $('pbK').textContent=Math.abs(pa-pb)<0.06?'equidistant: on the bisector':pa<pb?'closer to A':'closer to B';}
+freeDrag($('pbSvg'),PB,['A','B','P'],drawPB,{ok:(k,q)=>k==='P'||dist(q,k==='A'?PB.B:PB.A)>40}); reg(drawPB);
+
+/* 5. angle bisector */
+const AB={V:[60,250],P1:[350,250],P2:[280,40],Q:[260,180]};
+function drawAB(){let s=gridPx(420,300);const V=AB.V;const a1=Math.atan2(AB.P1[1]-V[1],AB.P1[0]-V[0]),a2=Math.atan2(AB.P2[1]-V[1],AB.P2[0]-V[0]);
+  const ext=(a)=>[V[0]+600*Math.cos(a),V[1]+600*Math.sin(a)];
+  s+=L(V[0],V[1],ext(a1)[0],ext(a1)[1],FG(),3)+L(V[0],V[1],ext(a2)[0],ext(a2)[1],FG(),3);
+  let d=a2-a1;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const bis=a1+d/2;const Eb=ext(bis);
+  s+=L(V[0],V[1],Eb[0],Eb[1],PL(),3);
+  const F1=lineFoot(AB.Q,V,AB.P1),F2=lineFoot(AB.Q,V,AB.P2);const d1=dist(AB.Q,F1)/U,d2=dist(AB.Q,F2)/U;
+  s+=L(AB.Q[0],AB.Q[1],F1[0],F1[1],OR(),2,'5 4')+L(AB.Q[0],AB.Q[1],F2[0],F2[1],OR(),2,'5 4')+rightMark(F1,V,AB.Q,8,MU())+rightMark(F2,V,AB.Q,8,MU());
+  s+=angArc(V,AB.P1,Eb,40,PL(),1.5)+angArc(V,Eb,AB.P2,52,PL(),1.5);
+  s+=hnd(V,FG())+hnd(AB.P1,FG(),'line 1')+hnd(AB.P2,FG(),'line 2')+hnd(AB.Q,OR(),'Q');
+  $('abSvg').innerHTML=s;$('ab1').textContent=fmt(d1,2)+' cm';$('ab2').textContent=fmt(d2,2)+' cm';
+  $('abK').textContent=Math.abs(d1-d2)<0.06?'equidistant: on the bisector':d1<d2?'closer to line 1':'closer to line 2';}
+freeDrag($('abSvg'),AB,['V','P1','P2','Q'],drawAB,{ok:(k,q)=>{if(k==='Q')return true;const o=Object.assign({},AB,{[k]:q});const a=Math.atan2(o.P1[1]-o.V[1],o.P1[0]-o.V[0]),b=Math.atan2(o.P2[1]-o.V[1],o.P2[0]-o.V[0]);let d=Math.abs(a-b);if(d>Math.PI)d=2*Math.PI-d;return dist(o.V,o.P1)>40&&dist(o.V,o.P2)>40&&d>0.2&&d<Math.PI-0.2;}}); reg(drawAB);
+
+/* 6. region builder: field 12 m × 8 m, 1 m = 30 px, origin bottom-left at (30,270) */
+const FX=30,FY=270,FW=12,FH=8; const fp=(x,y)=>[FX+x*U,FY-y*U]; const pf=p=>[(p[0]-FX)/U,(FY-p[1])/U];
+const RB={A:fp(0,0),B:fp(8,6)}; const RAIL=[[2,6],[6,6]]; let rbTest=null;
+const rb=i=>$('rb'+i);
+const PRE=[['Goat in the corner',()=>{RB.A=fp(0,0);set([1],{1:5});}],['Goat on a rail',()=>{set([4],{4:3});}],['Mast: in range and closer to A',()=>{RB.A=fp(3,3);RB.B=fp(10,5);set([1,3],{1:6});}],['Exam style',()=>{RB.A=fp(2,2);RB.B=fp(9,4);set([1,2,5],{1:7,2:3});}]];
+function set(on,vals){[1,2,3,4,5].forEach(i=>rb(i).checked=on.includes(i));Object.keys(vals).forEach(k=>$('rb'+k+'d').value=vals[k]);rbTest=null;drawRB();}
+PRE.forEach(([n,f])=>{const b=document.createElement('button');b.className='btn';b.textContent=n;b.addEventListener('click',f);$('rbPre').appendChild(b);});
+function conds(pm){ // pm in metres
+  const A=pf(RB.A),B=pf(RB.B),out=[];
+  if(rb(1).checked)out.push(['within '+fmt(+$('rb1d').value)+' m of A',Math.hypot(pm[0]-A[0],pm[1]-A[1])<=+$('rb1d').value+1e-9]);
+  if(rb(2).checked)out.push(['more than '+fmt(+$('rb2d').value)+' m from B',Math.hypot(pm[0]-B[0],pm[1]-B[1])>+$('rb2d').value]);
+  if(rb(3).checked)out.push(['closer to A than to B',Math.hypot(pm[0]-A[0],pm[1]-A[1])<Math.hypot(pm[0]-B[0],pm[1]-B[1])]);
+  if(rb(4).checked)out.push(['within '+fmt(+$('rb4d').value)+' m of the rail',segDist(pm,RAIL[0],RAIL[1])[0]<=+$('rb4d').value+1e-9]);
+  if(rb(5).checked)out.push(['closer to the bottom fence than the left fence',pm[1]<pm[0]]);
+  return out;}
+function drawRB(){[1,2,4].forEach(i=>$('rb'+i+'v').textContent=' '+fmt(+$('rb'+i+'d').value)+' m');
+  const A=RB.A,B=RB.B,big=2000;let defs='',open='',close='';let n=0;
+  const mask=(id,inside,shape)=>`<mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="420" height="300"><rect x="0" y="0" width="420" height="300" fill="${inside?'black':'white'}"/>${shape.replace(/FILL/g,inside?'white':'black')}</mask>`;
+  const wrap=(id)=>{open+=`<g mask="url(#${id})">`;close+='</g>';};
+  let lines='';
+  if(rb(1).checked){const r=+$('rb1d').value*U;defs+=mask('mk1',true,`<circle cx="${A[0]}" cy="${A[1]}" r="${r}" fill="FILL"/>`);wrap('mk1');lines+=`<circle cx="${A[0]}" cy="${A[1]}" r="${r}" fill="none" stroke="${TE()}" stroke-width="2.5"/>`;}
+  if(rb(2).checked){const r=+$('rb2d').value*U;defs+=mask('mk2',false,`<circle cx="${B[0]}" cy="${B[1]}" r="${r}" fill="FILL"/>`);wrap('mk2');lines+=`<circle cx="${B[0]}" cy="${B[1]}" r="${r}" fill="none" stroke="${TE()}" stroke-width="2.5" stroke-dasharray="7 5"/>`;}
+  if(rb(3).checked){const M=[(A[0]+B[0])/2,(A[1]+B[1])/2],u=[B[0]-A[0],B[1]-A[1]],l=Math.hypot(...u)||1,nn=[-u[1]/l,u[0]/l];const E1=[M[0]+nn[0]*big,M[1]+nn[1]*big],E2=[M[0]-nn[0]*big,M[1]-nn[1]*big],toA=[-u[0]/l*big,-u[1]/l*big];
+    defs+=mask('mk3',true,`<polygon points="${ptsAttr([E1,E2,[E2[0]+toA[0],E2[1]+toA[1]],[E1[0]+toA[0],E1[1]+toA[1]]])}" fill="FILL"/>`);wrap('mk3');lines+=L(E1[0],E1[1],E2[0],E2[1],PL(),2.5,'7 5');}
+  if(rb(4).checked){const d=+$('rb4d').value*U;const st=stadium(fp(...RAIL[0]),fp(...RAIL[1]),d);defs+=mask('mk4',true,`<polygon points="${ptsAttr(st)}" fill="FILL"/>`);wrap('mk4');lines+=`<polygon points="${ptsAttr(st)}" fill="none" stroke="${OR()}" stroke-width="2.5"/>`;}
+  if(rb(5).checked){const S=fp(0,0),E=fp(20,20);defs+=mask('mk5',true,`<polygon points="${ptsAttr([S,E,[S[0]+big,S[1]+big],[S[0]+big,S[1]]])}" fill="FILL"/>`);wrap('mk5');lines+=L(S[0],S[1],fp(8,8)[0],fp(8,8)[1],PL(),2.5,'7 5');}
+  const F0=fp(0,FH);
+  let s=`<defs>${defs}<clipPath id="fieldClip"><rect x="${F0[0]}" y="${F0[1]}" width="${FW*U}" height="${FH*U}"/></clipPath></defs>`;
+  s+=gridPx(420,300)+`<rect x="${F0[0]}" y="${F0[1]}" width="${FW*U}" height="${FH*U}" fill="none" stroke="${FG()}" stroke-width="3"/>`;
+  s+=`<g clip-path="url(#fieldClip)">${open}<rect x="0" y="0" width="420" height="300" fill="${PL()}" fill-opacity=".4"/>${close}${lines}</g>`;
+  const r0=fp(...RAIL[0]),r1=fp(...RAIL[1]);s+=L(r0[0],r0[1],r1[0],r1[1],OR(),4)+T(r0[0]-4,r0[1]-8,'C',OR(),{fs:12,w:700,a:'end'})+T(r1[0]+4,r1[1]-8,'D',OR(),{fs:12,w:700,a:'start'});
+  s+=hnd(A,TE(),'A')+hnd(B,TE(),'B')+T(FX+FW*U/2,FY+20,'12 m',MU(),{fs:11})+T(FX-6,FY-FH*U/2,'8 m',MU(),{fs:11,a:'end'});
+  if(rbTest){s+=C(rbTest[0],rbTest[1],6,FG(),css('--panel'),2);}
+  $('rbSvg').innerHTML=s;
+  const active=conds([0,0]).length;
+  $('rbWork').innerHTML=active?'Shaded (plum) = where every ticked rule is true, inside the field. Solid boundaries are included; dashed ones are not.':'Tick at least one rule.';
+  if(rbTest){const pm=pf(rbTest);if(pm[0]<0||pm[0]>FW||pm[1]<0||pm[1]>FH){feedback($('rbMsg'),false,'That point is outside the field.');}else{const cs=conds(pm);const all=cs.every(c=>c[1]);$('rbMsg').className='msg '+(all?'good':'bad');$('rbMsg').textContent=`Point (${fmt(pm[0],1)} m, ${fmt(pm[1],1)} m): `+cs.map(c=>(c[1]?'✓ ':'✗ ')+c[0]).join('; ')+(cs.length?(all?'. In the region.':'. Not in the region.'):'');}}}
+freeDrag($('rbSvg'),RB,['A','B'],drawRB,{tap:p=>{rbTest=p;drawRB();},ok:(k,q)=>{const m=pf(q);return m[0]>=0&&m[0]<=FW&&m[1]>=0&&m[1]<=FH&&dist(q,k==='A'?RB.B:RB.A)>20;}});
+[1,2,3,4,5].forEach(i=>{rb(i).addEventListener('input',drawRB);const r=$('rb'+i+'d');if(r)r.addEventListener('input',drawRB);}); reg(drawRB);
+
+/* quiz */
+const QS=[
+  {q:'The locus of points exactly 4 cm from a point P is…',opts:['a circle of radius 4 cm, centre P','a square of side 4 cm','a line 4 cm long','a circle of diameter 4 cm'],a:0,fb:'Every point on a circle is the same distance (the radius) from the centre.'},
+  {q:'The locus of points equidistant from two points A and B is…',opts:['the perpendicular bisector of AB','the angle bisector','a circle through A and B','the line AB'],a:0,fb:'Points the same distance from A and B lie on the perpendicular bisector of AB.'},
+  {q:'The locus of points equidistant from two intersecting lines is…',opts:['the angle bisector','the perpendicular bisector','a circle','a parallel line'],a:0,fb:'The angle bisector is the same perpendicular distance from both arms.'},
+  {q:'The locus of points 2 cm from a line segment is…',opts:['a stadium shape (parallel lines with semicircular ends)','a rectangle','a circle','two parallel lines only'],a:0,fb:'Beyond the ends, the nearest point is the endpoint itself, which gives semicircles.'},
+  {q:'The shortest distance from a point to a line is…',opts:['the perpendicular distance','the distance to the nearest end','along a 45° line','any straight line'],a:0,fb:'Any other line to the line is the hypotenuse of a right-angled triangle, so it is longer.'},
+  {q:'A goat is tied at the corner of a rectangular field with a 6 m rope. The grazing area is…',opts:['9π m²','36π m²','18π m²','12π m²'],a:0,fb:'A quarter circle: ¼ × π × 6² = 9π m².'},
+  {q:'On a map with scale 1 cm : 20 km, a 50 km range is drawn as a circle of radius…',opts:['2.5 cm','50 cm','25 cm','5 cm'],a:0,fb:'50 ÷ 20 = 2.5 cm.'},
+  {q:'"Closer to A than to B" is the region…',opts:['on A\'s side of the perpendicular bisector of AB','inside a circle around A','on B\'s side of the bisector','on the line AB'],a:0,fb:'The perpendicular bisector splits the plane: A\'s side is closer to A.'},
+  {q:'When constructing a perpendicular bisector, the compass radius must be…',opts:['more than half of AB','exactly half of AB','less than half of AB','equal to AB'],a:0,fb:'If it is half or less, the arcs from A and B won\'t cross twice.'},
+  {q:'Area within 1 cm of a 5 cm line segment, in terms of π?',opts:['10 + π cm²','5 + π cm²','10 + 2π cm²','10 cm²'],a:0,fb:'Rectangle 5 × 2 = 10, plus two semicircles of radius 1 = π: 10 + π cm².'}
+];
+const redrawAll=()=>REDRAW.forEach(f=>f());
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

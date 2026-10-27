@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Scale Factors and Drawings</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive panels; graph-paper neutrals, teal = the quantity, orange = the conversion factor, plum = compound result. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ladder{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;justify-content:center;font-family:var(--mono);margin-top:.8rem}
+.ladder .u{padding:.5rem .8rem;border-radius:8px;border:2px solid var(--line);background:var(--bg);font-weight:600;min-width:3.6em;text-align:center}
+.ladder .u.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ladder .u.to{border-color:var(--two);background:var(--two-soft);color:var(--two)}
+.ladder .k{font-size:.8rem;color:var(--hi);display:flex;flex-direction:column;align-items:center;min-width:3.4em}
+.tri{display:grid;grid-template-columns:1fr 1fr;width:220px;margin:.8rem auto;font-family:var(--mono);font-size:1.2rem;text-align:center}
+.tri div{padding:.5rem;border:1px solid var(--line)}
+.tri .top{grid-column:1/-1;background:var(--accent-soft);color:var(--accent);font-weight:600;border-radius:8px 8px 0 0}
+.tri .bl{background:var(--hi-soft);color:var(--hi);font-weight:600;border-radius:0 0 0 8px}
+.tri .br{background:var(--two-soft);color:var(--two);font-weight:600;border-radius:0 0 8px 0}
+.tri .cover{opacity:.25;text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<style>
+.lab svg{touch-action:none}
+.sq{display:grid;gap:2px;margin-top:.5rem}
+.sq i{display:block;background:var(--accent);border-radius:2px;aspect-ratio:1}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Ratio, proportion and rates of change · KS3</div>
+  <h1>Scale Factors and Drawings</h1>
+  <p class="lede">A map, a model railway, a phone photo and an architect's plan all show something at the wrong size on purpose. The <strong>scale factor</strong> says how wrong, and once you know it every length converts the same way. Areas and volumes, though, change by more than you'd expect.</p>
+  <span class="gcse">National curriculum KS3: use scale factors, scale diagrams and maps; identify and construct congruent and similar shapes, including enlargement with a given scale factor</span>
+</header>
+
+<h2>1 · Enlargement: every length times k</h2>
+<p>To enlarge a shape by scale factor k, multiply <em>every</em> length by k. The angles don't change, so the shape keeps its shape: the two are <strong>similar</strong>. Drag k and watch the lengths. A scale factor between 0 and 1 makes it smaller, but it is still called an enlargement.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>scale factor k = <input type="range" id="enK" min="0.5" max="3" step="0.5" value="2"><span id="enKv" style="font-family:var(--mono)"></span></label>
+    <label>shape <select id="enS"><option value="rect">rectangle 3 × 2</option><option value="tri">right triangle 4, 3</option><option value="L">L-shape</option></select></label>
+  </div>
+  <svg id="enSvg" viewBox="0 0 560 300" width="560" height="300"></svg>
+  <div class="readout">
+    <div class="f"><b>Each length</b><span id="enLen"></span></div>
+    <div class="t"><b>Perimeter</b><span id="enPer"></span></div>
+    <div class="p"><b>Area</b><span id="enArea"></span></div>
+  </div>
+</div>
+
+<h2>2 · Area grows by k², volume by k³</h2>
+<p>Double the sides of a square and you can fit four of the original inside, not two. Area has two dimensions, so it picks up the factor twice. A cube's volume picks it up three times. This is the same squared-and-cubed idea as converting m² to cm², and it trips people up for the same reason.</p>
+
+<div class="lab">
+  <div class="controls"><label>k = <input type="range" id="akK" min="1" max="5" step="1" value="2"><span id="akKv" style="font-family:var(--mono)"></span></label></div>
+  <div style="display:flex;flex-wrap:wrap;gap:2rem;align-items:flex-end">
+    <div><div style="font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">original 1 × 1</div><div class="sq" style="grid-template-columns:repeat(1,22px)"><i></i></div></div>
+    <div><div style="font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">enlarged k × k</div><div class="sq" id="akGrid"></div></div>
+  </div>
+  <div class="work" id="akWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Why a model boat floats differently.</strong> Scale a boat down by 10: lengths ÷ 10, hull area ÷ 100, but volume and weight ÷ 1000. That's why a mouse can fall off a table unharmed and an elephant can't: strength goes with area (k²) while weight goes with volume (k³). Scaling is not neutral.</p>
+</div>
+
+<h2>3 · Reading a scale</h2>
+<p>A scale like <span class="m">1 : 25 000</span> means 1 unit on the map is 25 000 of the same units in real life. Measure in cm on the map, multiply, then convert the answer to something sensible (25 000 cm = 250 m). Scales also appear as "1 cm represents 2 km", which is 1 : 200 000 once both sides are in cm.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>scale 1 : <input type="number" id="scN" value="25000" step="any"></label>
+    <label>map distance <input type="number" id="scM" value="6.4" step="any"> cm</label>
+    <label>or real distance <input type="number" id="scR" placeholder="e.g. 1200" step="any"> m</label>
+  </div>
+  <svg id="scSvg" viewBox="0 0 560 120" width="560" height="120"></svg>
+  <div class="work" id="scWork"></div>
+</div>
+
+<div class="tbl"><table>
+  <tr><th>Scale</th><th>1 cm represents</th><th>Typical use</th></tr>
+  <tr><td class="mono">1 : 100</td><td>1 m</td><td>House floor plan</td></tr>
+  <tr><td class="mono">1 : 1 250</td><td>12.5 m</td><td>Site plan for planning permission</td></tr>
+  <tr><td class="mono">1 : 25 000</td><td>250 m</td><td>OS Explorer walking map (Jersey's official map is 1 : 25 000)</td></tr>
+  <tr><td class="mono">1 : 50 000</td><td>500 m</td><td>OS Landranger</td></tr>
+  <tr><td class="mono">1 : 1 000 000</td><td>10 km</td><td>Road atlas</td></tr>
+  <tr><td class="mono">1 : 76</td><td>0.76 m</td><td>OO gauge model railway</td></tr>
+</table></div>
+
+<h2>4 · Make a scale drawing</h2>
+<p>Going the other way: a real room is too big for paper, so choose a scale that fits. Divide every real length by the scale factor. Pick a room and a scale; the plan redraws, and the drawn lengths are labelled so you can check your own.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>room <select id="sdR"><option value="4.5,3.6,bedroom">bedroom 4.5 m × 3.6 m</option><option value="8,6,classroom">classroom 8 m × 6 m</option><option value="25,12.5,pool">pool 25 m × 12.5 m</option><option value="100,64,pitch">football pitch 100 m × 64 m</option></select></label>
+    <label>scale 1 : <select id="sdK"><option>50</option><option selected>100</option><option>200</option><option>500</option><option>1000</option></select></label>
+  </div>
+  <svg id="sdSvg" viewBox="0 0 560 300" width="560" height="300"></svg>
+  <div class="work" id="sdWork"></div>
+</div>
+
+<h2>5 · Similar shapes: find the missing length</h2>
+<p>Two shapes are <strong>similar</strong> if one is an enlargement of the other. Then every pair of matching sides is in the same ratio. To find a missing side: find the scale factor from a pair you know, then apply it. Choose which way round to divide by asking "is the answer bigger or smaller?"</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>small triangle sides <input type="number" id="smA" value="4" step="any"> and <input type="number" id="smB" value="6" step="any"></label>
+    <label>large triangle matching side <input type="number" id="smC" value="10" step="any"></label>
+  </div>
+  <svg id="smSvg" viewBox="0 0 560 200" width="560" height="200"></svg>
+  <div class="work" id="smWork"></div>
+</div>
+
+<h2>6 · Where scale shows up</h2>
+<div class="grid2">
+  <div class="use"><h3>Maps and GPS</h3>
+    <p>Pinch-zooming a phone map changes the scale continuously; the little scale bar in the corner redraws so you can still judge distance.</p></div>
+  <div class="use"><h3>Architecture and engineering</h3>
+    <p>Plans at 1 : 100, details at 1 : 5. A builder reads 35 mm on the plan as 3.5 m on site. Misreading the scale is a famously expensive mistake.</p></div>
+  <div class="use"><h3>Models and miniatures</h3>
+    <p>Lego minifigures are about 1 : 40; a 1 : 18 model car is 18 times shorter, 324 times less surface, 5832 times less volume than the real one.</p></div>
+  <div class="use"><h3>Photos and screens</h3>
+    <p>Resizing an image by 50% keeps it similar; stretching only the width doesn't, and faces look wrong. "Maintain aspect ratio" means "use one scale factor".</p></div>
+  <div class="use"><h3>Biology</h3>
+    <p>Magnification = image size ÷ actual size, the same formula as a scale factor. A ×400 microscope image of a 0.02 mm cell is 8 mm across.</p></div>
+  <div class="use"><h3>Computing</h3>
+    <p>Vector graphics store shapes, so they scale by any k without blurring; bitmaps store pixels, so enlarging by k means inventing k² − 1 new pixels per original.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>A map has scale 1 : 50 000. Two villages are 7 cm apart on it. How far apart are they really?</summary>
+  <div class="step"><strong>Multiply:</strong> 7 × 50 000 = 350 000 cm.</div>
+  <div class="step"><strong>Convert:</strong> ÷ 100 → 3500 m → <strong>3.5 km</strong>.</div>
+</details>
+<details>
+  <summary>A photo 15 cm by 10 cm is enlarged so the long side is 45 cm. Find the new short side and the new area.</summary>
+  <div class="step"><strong>Scale factor:</strong> 45 ÷ 15 = 3.</div>
+  <div class="step"><strong>Short side:</strong> 10 × 3 = <strong>30 cm</strong>.</div>
+  <div class="step"><strong>Area:</strong> original 150 cm². New area = 150 × 3² = <strong>1350 cm²</strong> (check: 45 × 30 = 1350 ✓). Nine times, not three.</div>
+</details>
+<details>
+  <summary>Draw a 12 m × 9 m garden at a scale of 1 : 150</summary>
+  <div class="step"><strong>Divide real lengths by 150:</strong> 1200 cm ÷ 150 = 8 cm; 900 ÷ 150 = 6 cm.</div>
+  <div class="step"><strong>Draw an 8 cm × 6 cm rectangle</strong> and write "Scale 1 : 150" underneath. A 3 m wide patio would be 2 cm on the plan.</div>
+</details>
+<details>
+  <summary>Exam-style: triangles ABC and PQR are similar. AB = 6 cm, PQ = 9 cm, BC = 8 cm. Find QR.</summary>
+  <div class="step"><strong>Scale factor small → large:</strong> 9 ÷ 6 = 1.5.</div>
+  <div class="step"><strong>QR matches BC, and is on the larger triangle:</strong> 8 × 1.5 = <strong>12 cm</strong>.</div>
+  <div class="step"><strong>Sense check:</strong> the answer should be bigger than 8, and it is. If you'd divided, you'd get 5.3, which is smaller: the wrong way round.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>A scale factor multiplies every length; angles stay the same, so the shapes are similar. Area scales by k² and volume by k³. A map scale 1 : n means multiply map lengths by n and then convert units to something sensible; a scale drawing divides real lengths by n. For similar shapes, find the scale factor from a known pair of sides, then multiply or divide, checking whether the answer should come out bigger or smaller.</p>
+
+<footer>Made for KS3 students. Scale factors, diagrams and maps are in the England national curriculum at key stage 3 under Ratio, proportion and rates of change. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(v,d=3)=>isFinite(v)?parseFloat(v.toFixed(d)).toLocaleString('en-GB',{maximumFractionDigits:d}):'—';
+const F=()=>`font-family="${css('--mono')}"`;
+
+/* 1. enlargement */
+const SH={rect:{pts:[[0,0],[3,0],[3,2],[0,2]],per:10,area:6,lens:'3 and 2'},tri:{pts:[[0,0],[4,0],[0,3]],per:12,area:6,lens:'4, 3 and 5'},L:{pts:[[0,0],[3,0],[3,1],[1,1],[1,3],[0,3]],per:12,area:5,lens:'3, 1, 2, 2, 3, 1'}};
+const enK=document.getElementById('enK'),enS=document.getElementById('enS');
+function drawEN(){const k=+enK.value,S=SH[enS.value];document.getElementById('enKv').textContent=' '+k;const u=26;const ox=30,oy=260;
+  const poly=(pts,scale,x0,col)=>`<polygon points="${pts.map(p=>`${x0+p[0]*u*scale},${oy-p[1]*u*scale}`).join(' ')}" fill="${col}" fill-opacity=".25" stroke="${col}" stroke-width="2.5"/>`;
+  let s='';for(let i=0;i<=20;i++){s+=`<line x1="${ox+i*u}" y1="20" x2="${ox+i*u}" y2="${oy}" stroke="${css('--grid')}"/>`;}for(let j=0;j<=9;j++)s+=`<line x1="${ox}" y1="${oy-j*u}" x2="${ox+20*u}" y2="${oy-j*u}" stroke="${css('--grid')}"/>`;
+  s+=poly(S.pts,1,ox,css('--accent'))+poly(S.pts,k,ox+5*u,css('--two'));
+  s+=`<text x="${ox+10}" y="40" font-size="13" ${F()} fill="${css('--accent')}">original</text><text x="${ox+5*u+10}" y="40" font-size="13" ${F()} fill="${css('--two')}">× ${k}</text>`;
+  document.getElementById('enSvg').innerHTML=s;
+  document.getElementById('enLen').textContent=`${S.lens} → each × ${k}`;document.getElementById('enPer').textContent=`${S.per} → ${fmt(S.per*k)}  (× ${k})`;document.getElementById('enArea').textContent=`${S.area} → ${fmt(S.area*k*k)}  (× ${k}² = ${fmt(k*k)})`;}
+enK.addEventListener('input',drawEN);enS.addEventListener('change',drawEN);drawEN();
+
+/* 2. k² */
+const akK=document.getElementById('akK');
+function drawAK(){const k=+akK.value;document.getElementById('akKv').textContent=' '+k;const g=document.getElementById('akGrid');g.style.gridTemplateColumns=`repeat(${k},22px)`;g.innerHTML=Array(k*k).fill('<i></i>').join('');
+  document.getElementById('akWork').innerHTML=`k = ${k}: the enlarged square holds <strong>${k}² = ${k*k}</strong> copies of the original. Area × ${k*k}.<br>A cube enlarged by ${k} would hold ${k}³ = <strong>${k**3}</strong> original cubes. Volume × ${k**3}.<br><span class="c">Lengths × ${k}, areas × ${k*k}, volumes × ${k**3}.</span>`;}
+akK.addEventListener('input',drawAK);drawAK();
+
+/* 3. map scale */
+const scN=document.getElementById('scN'),scM=document.getElementById('scM'),scR=document.getElementById('scR');let scLast='m';
+scM.addEventListener('input',()=>{scLast='m';drawSC();});scR.addEventListener('input',()=>{scLast='r';drawSC();});scN.addEventListener('input',drawSC);
+function nice(cm){if(cm>=100000)return fmt(cm/100000)+' km';if(cm>=100)return fmt(cm/100)+' m';return fmt(cm)+' cm';}
+function drawSC(){const n=parseFloat(scN.value)||1;let m,r;if(scLast==='m'){m=parseFloat(scM.value)||0;r=m*n;scR.value='';}else{const rm=parseFloat(scR.value)||0;r=rm*100;m=r/n;scM.value=fmt(m,2);}
+  const W=document.getElementById('scWork');
+  W.innerHTML=scLast==='m'?`map ${fmt(m)} cm × ${fmt(n)} = ${fmt(r)} cm real<br>= <strong>${nice(r)}</strong>   (cm → m ÷ 100, m → km ÷ 1000)`:`real ${nice(r)} = ${fmt(r)} cm.  ÷ ${fmt(n)} = <strong>${fmt(m,2)} cm on the map</strong>`;
+  const px=Math.max(10,Math.min(500,m*40));document.getElementById('scSvg').innerHTML=`<line x1="30" y1="40" x2="${30+px}" y2="40" stroke="${css('--accent')}" stroke-width="4"/><line x1="30" y1="30" x2="30" y2="50" stroke="${css('--accent')}" stroke-width="2"/><line x1="${30+px}" y1="30" x2="${30+px}" y2="50" stroke="${css('--accent')}" stroke-width="2"/><text x="${30+px/2}" y="24" text-anchor="middle" font-size="12" ${F()} fill="${css('--accent')}">${fmt(m,2)} cm on the map</text><text x="${30+px/2}" y="70" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${css('--two')}">${nice(r)} in real life</text><text x="30" y="100" font-size="11" ${F()} fill="${css('--muted')}">scale 1 : ${fmt(n)} — 1 cm represents ${nice(n)}</text>`;}
+drawSC();
+
+/* 4. scale drawing */
+const sdR=document.getElementById('sdR'),sdK=document.getElementById('sdK');
+function drawSD(){const [L,Wd,name]=sdR.value.split(',');const l=+L,w=+Wd,k=+sdK.value;const lc=l*100/k,wc=w*100/k;
+  const maxPx=480,scale=Math.min(maxPx/Math.max(lc,wc),40);const pw=lc*scale,ph=wc*scale;const ok=lc<=29.7&&wc<=21;
+  document.getElementById('sdSvg').innerHTML=`<rect x="40" y="30" width="${Math.min(pw,500)}" height="${Math.min(ph,220)}" fill="${css('--accent')}" fill-opacity=".15" stroke="${css('--accent')}" stroke-width="2"/><text x="${40+Math.min(pw,500)/2}" y="22" text-anchor="middle" font-size="12" ${F()} fill="${css('--accent')}">${fmt(lc,1)} cm (real ${l} m)</text><text x="${40+Math.min(pw,500)+8}" y="${30+Math.min(ph,220)/2}" font-size="12" ${F()} fill="${css('--accent')}">${fmt(wc,1)} cm (real ${w} m)</text><text x="40" y="${60+Math.min(ph,220)}" font-size="12" ${F()} fill="${css('--muted')}">${name}, scale 1 : ${k}</text>`;
+  document.getElementById('sdWork').innerHTML=`${l} m = ${l*100} cm. ÷ ${k} = <strong>${fmt(lc,2)} cm</strong>.   ${w} m = ${w*100} cm. ÷ ${k} = <strong>${fmt(wc,2)} cm</strong>.<br><span class="${ok?'a':'b'}">${ok?'Fits on A4 (29.7 × 21 cm). Good choice of scale.':'Too big for A4 at this scale: choose a larger number after the colon.'}</span>${lc<2||wc<2?' <span class="b">But it\'s tiny: a smaller number after the colon would show more detail.</span>':''}`;}
+sdR.addEventListener('change',drawSD);sdK.addEventListener('change',drawSD);drawSD();
+
+/* 5. similar */
+const smA=document.getElementById('smA'),smB=document.getElementById('smB'),smC=document.getElementById('smC');
+function drawSM(){const a=parseFloat(smA.value)||1,b=parseFloat(smB.value)||1,c=parseFloat(smC.value)||1;const k=c/a,d=b*k;
+  const u=12;const tri=(x0,A,B,col,la,lb)=>`<polygon points="${x0},170 ${x0+A*u},170 ${x0},${170-B*u}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-width="2.5"/><text x="${x0+A*u/2}" y="188" text-anchor="middle" font-size="12" ${F()} fill="${col}">${la}</text><text x="${x0-6}" y="${170-B*u/2}" text-anchor="end" font-size="12" ${F()} fill="${col}">${lb}</text>`;
+  document.getElementById('smSvg').innerHTML=tri(40,a,b,css('--accent'),fmt(a),fmt(b))+tri(260,c,d,css('--two'),fmt(c),'?');
+  document.getElementById('smWork').innerHTML=`Matching sides ${fmt(a)} and ${fmt(c)}: scale factor = ${fmt(c)} ÷ ${fmt(a)} = <strong>${fmt(k)}</strong><br>Missing side matches ${fmt(b)}, on the ${k>1?'larger':'smaller'} triangle: ${fmt(b)} × ${fmt(k)} = <strong>${fmt(d)}</strong><br><span class="c">Sense check: ${k>1?'bigger than':'smaller than'} ${fmt(b)} ✓</span>`;}
+[smA,smB,smC].forEach(e=>e.addEventListener('input',drawSM));drawSM();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawEN();drawSC();drawSD();drawSM();});}
+new MutationObserver(()=>{drawEN();drawSC();drawSD();drawSM();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const QS=[
+  {q:'A shape is enlarged by scale factor 3. Its perimeter is multiplied by…',opts:['3','9','6','27'],a:0,fb:'Perimeter is a length, so × 3. Area would be × 9.'},
+  {q:'A 5 cm × 4 cm rectangle is enlarged by scale factor 2. New area?',opts:['80 cm²','40 cm²','20 cm²','160 cm²'],a:0,fb:'10 × 8 = 80, which is 20 × 2².'},
+  {q:'Map scale 1 : 20 000. 4 cm on the map is…',opts:['800 m','80 m','8 km','80 km'],a:0,fb:'4 × 20 000 = 80 000 cm = 800 m.'},
+  {q:'A 6 m wall drawn at 1 : 50 is…',opts:['12 cm','3 cm','30 cm','1.2 cm'],a:0,fb:'600 cm ÷ 50 = 12 cm.'},
+  {q:'Similar triangles: sides 3 and 5 on the small, 9 on the large matches the 3. The side matching 5 is…',opts:['15','7','11','1.67'],a:0,fb:'Scale factor 3, so 5 × 3 = 15.'},
+  {q:'"1 cm represents 5 km" as a ratio scale is…',opts:['1 : 500 000','1 : 5000','1 : 50 000','1 : 5'],a:0,fb:'5 km = 500 000 cm.'},
+  {q:'A model is 1 : 20. The real car\'s volume is how many times the model\'s?',opts:['8000','20','400','60'],a:0,fb:'Volume scales by k³ = 20³ = 8000.'},
+  {q:'Enlarging by scale factor ½…',opts:['halves every length','doubles every length','halves the area','is impossible'],a:0,fb:'A fractional scale factor shrinks the shape; it\'s still called an enlargement. Area is quartered.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);const div=document.createElement('div');div.className='q';div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});opts.appendChild(b);});qz.appendChild(div);});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

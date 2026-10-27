@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Simple Interest</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive panels; graph-paper neutrals, teal = the quantity, orange = the conversion factor, plum = compound result. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ladder{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;justify-content:center;font-family:var(--mono);margin-top:.8rem}
+.ladder .u{padding:.5rem .8rem;border-radius:8px;border:2px solid var(--line);background:var(--bg);font-weight:600;min-width:3.6em;text-align:center}
+.ladder .u.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ladder .u.to{border-color:var(--two);background:var(--two-soft);color:var(--two)}
+.ladder .k{font-size:.8rem;color:var(--hi);display:flex;flex-direction:column;align-items:center;min-width:3.4em}
+.tri{display:grid;grid-template-columns:1fr 1fr;width:220px;margin:.8rem auto;font-family:var(--mono);font-size:1.2rem;text-align:center}
+.tri div{padding:.5rem;border:1px solid var(--line)}
+.tri .top{grid-column:1/-1;background:var(--accent-soft);color:var(--accent);font-weight:600;border-radius:8px 8px 0 0}
+.tri .bl{background:var(--hi-soft);color:var(--hi);font-weight:600;border-radius:0 0 0 8px}
+.tri .br{background:var(--two-soft);color:var(--two);font-weight:600;border-radius:0 0 8px 0}
+.tri .cover{opacity:.25;text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<style>
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse}
+.vt td,.vt th{text-align:center;padding:.4rem .5rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left}
+.vt td.k{color:var(--two);font-weight:600}
+.tri{display:grid;grid-template-columns:1fr 1fr 1fr;width:260px;margin:.8rem auto;font-family:var(--mono);font-size:1.1rem;text-align:center}
+.tri div{padding:.5rem;border:1px solid var(--line)}
+.tri .top{grid-column:1/-1;background:var(--accent-soft);color:var(--accent);font-weight:600;border-radius:8px 8px 0 0}
+.tri .b1{background:var(--hi-soft);color:var(--hi);font-weight:600;border-radius:0 0 0 8px}
+.tri .b2{background:var(--two-soft);color:var(--two);font-weight:600}
+.tri .b3{background:var(--grid);color:var(--fg);font-weight:600;border-radius:0 0 8px 0}
+.tri .cover{opacity:.25;text-decoration:line-through}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.twin .h{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Ratio, proportion and rates of change · KS3</div>
+  <h1>Simple Interest</h1>
+  <p class="lede">Lend money and you get paid for it; borrow it and you pay. <strong>Interest</strong> is that payment, worked out as a percentage of the amount per year. With <em>simple</em> interest the same amount is added every year, so the balance climbs in a straight line, and one formula covers everything.</p>
+  <span class="gcse">National curriculum KS3: solve problems involving percentage change, including simple interest in financial mathematics. GCSE adds compound interest.</span>
+</header>
+
+<h2>1 · The same amount every year</h2>
+<p>Put £500 in an account paying 4% simple interest per year. Each year the bank adds 4% of the <em>original</em> £500, which is £20, and it's always £20: the interest already earned doesn't earn anything itself. After 1 year, £520; after 2, £540; after 10, £700. Drag the years and watch the bars grow by equal steps.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>principal £<input type="number" id="siP" value="500" step="any" style="width:6.5em"></label>
+    <label>rate <input type="range" id="siR" min="0.5" max="12" step="0.5" value="4"><span id="siRv" style="font-family:var(--mono)"></span>% per year</label>
+    <label>years <input type="range" id="siT" min="1" max="10" value="5"><span id="siTv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="siSvg" viewBox="0 0 560 240" width="560" height="240"></svg>
+  <table class="vt" id="siTable"></table>
+  <div class="work" id="siWork"></div>
+</div>
+
+<h2>2 · The formula</h2>
+<p>Interest each year is P × R ÷ 100. For T years, multiply by T. That's the whole formula; the letters are the standard ones.</p>
+
+<div class="big" style="font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.8rem 0">I = <span style="display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.1"><span style="border-bottom:1.5px solid currentColor;padding:0 .3em">P × R × T</span><span>100</span></span></div>
+
+<div class="tbl"><table>
+  <tr><th>Letter</th><th>Stands for</th><th>Unit</th><th>Watch out</th></tr>
+  <tr><td class="mono">I</td><td>Interest earned (or charged)</td><td>£</td><td>The <em>extra</em>, not the total. Total = P + I.</td></tr>
+  <tr><td class="mono">P</td><td>Principal: the amount you start with</td><td>£</td><td></td></tr>
+  <tr><td class="mono">R</td><td>Rate of interest per year</td><td>% per year</td><td>Use the percentage number (4), the ÷ 100 is in the formula.</td></tr>
+  <tr><td class="mono">T</td><td>Time</td><td>years</td><td>6 months is 0.5, not 6. Match the rate's unit.</td></tr>
+</table></div>
+
+<p>Any of the four can be the unknown. Cover the one you want and rearrange (see the rearranging formulae page): the other three tell you what to do.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>find <select id="fmF"><option value="I">I (interest)</option><option value="P">P (principal)</option><option value="R">R (rate)</option><option value="T">T (time)</option></select></label>
+    <label>P £<input type="number" id="fmP" value="800" step="any" style="width:6em"></label>
+    <label>R <input type="number" id="fmR" value="3" step="any" style="width:4.5em">%</label>
+    <label>T <input type="number" id="fmT" value="4" step="any" style="width:4.5em"> yr</label>
+    <label>I £<input type="number" id="fmI" value="96" step="any" style="width:6em"></label>
+  </div>
+  <div class="work" id="fmWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Interest or total?</strong> Read the question twice. "How much interest does she earn?" wants I. "How much is in the account?" wants P + I. "How much does the loan cost him?" wants I. "How much does he pay back?" wants P + I. Half the marks lost on this topic are from answering the other question.</p>
+</div>
+
+<h2>3 · It's a straight line</h2>
+<p>Because the same interest is added each year, total against time is a linear graph: y = mx + c with the principal as the intercept and the yearly interest as the gradient. Everything from the linear graphs page applies. Steeper line, higher rate.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>account A: £<input type="number" id="lnP1" value="1000" step="any" style="width:6em"> at <input type="number" id="lnR1" value="3" step="any" style="width:4em">%</label>
+    <label>account B: £<input type="number" id="lnP2" value="800" step="any" style="width:6em"> at <input type="number" id="lnR2" value="5" step="any" style="width:4em">%</label>
+  </div>
+  <svg id="lnSvg" viewBox="0 0 560 260" width="560" height="260"></svg>
+  <div class="work" id="lnWork"></div>
+</div>
+
+<h2>4 · Simple versus compound (a preview)</h2>
+<p>Real savings accounts mostly pay <strong>compound</strong> interest: each year's interest is added to the balance, and next year's interest is a percentage of that bigger balance. Simple interest adds the same £20 every year; compound adds 4% of a growing number. Over a few years the gap is small; over decades it's enormous. The repeated-percentage-change idea from the previous page is exactly compound interest.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>£<input type="number" id="cpP" value="1000" step="any" style="width:6em"> at <input type="number" id="cpR" value="5" step="any" style="width:4.5em">% for <input type="range" id="cpT" min="1" max="30" value="10"><span id="cpTv" style="font-family:var(--mono)"></span> years</label>
+  </div>
+  <svg id="cpSvg" viewBox="0 0 560 260" width="560" height="260"></svg>
+  <div class="twin">
+    <div><div class="h">Simple: I = PRT/100</div><div class="work" id="cpS"></div></div>
+    <div><div class="h">Compound (GCSE): P × (1 + R/100)ᵀ</div><div class="work" id="cpC"></div></div>
+  </div>
+</div>
+
+<h2>5 · Where simple interest is used</h2>
+<div class="grid2">
+  <div class="use"><h3>Short-term loans</h3>
+    <p>Car finance and some personal loans quote a flat (simple) rate: borrow £6000 at 7% flat over 3 years and the interest is 6000 × 7 × 3 ÷ 100 = £1260, paid in equal instalments.</p></div>
+  <div class="use"><h3>Bonds and savings certificates</h3>
+    <p>A bond paying a fixed coupon each year is simple interest from the holder's point of view: same payment every year, principal back at the end.</p></div>
+  <div class="use"><h3>Late payments</h3>
+    <p>Statutory interest on an overdue invoice is charged as a daily simple rate: amount × rate × days ÷ 365. T doesn't have to be whole years.</p></div>
+  <div class="use"><h3>Hire purchase</h3>
+    <p>"£20 a month for 24 months" on a £400 item: you pay £480, so interest is £80 on £400 over 2 years: a simple rate of 10% a year. Working the rate out backwards is the R-unknown case.</p></div>
+  <div class="use"><h3>Comparing offers</h3>
+    <p>Two lenders, two rates, two terms: compute I for each and compare. The one with the lower rate isn't always cheaper if it runs for longer.</p></div>
+  <div class="use"><h3>Spreadsheets</h3>
+    <p><code>=P*R*T/100</code> in one cell, with P, R and T in their own cells, lets you change any input and watch the interest update: the formula as a live tool.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>£1200 is invested at 3.5% simple interest for 4 years. Find the interest and the final amount.</summary>
+  <div class="step"><strong>I = PRT/100</strong> = 1200 × 3.5 × 4 ÷ 100 = <strong>£168</strong>.</div>
+  <div class="step"><strong>Final amount</strong> = 1200 + 168 = <strong>£1368</strong>.</div>
+</details>
+<details>
+  <summary>How long does £2000 take to earn £300 at 5% simple interest?</summary>
+  <div class="step"><strong>Rearrange for T:</strong> T = 100 I ÷ (P R) = 100 × 300 ÷ (2000 × 5) = 30 000 ÷ 10 000 = <strong>3 years</strong>.</div>
+  <div class="step"><strong>Check:</strong> 2000 × 5 × 3 ÷ 100 = 300 ✓</div>
+</details>
+<details>
+  <summary>A loan of £4500 costs £540 in interest over 2 years. What is the simple interest rate?</summary>
+  <div class="step"><strong>Rearrange for R:</strong> R = 100 I ÷ (P T) = 100 × 540 ÷ (4500 × 2) = 54 000 ÷ 9000 = <strong>6% per year</strong>.</div>
+</details>
+<details>
+  <summary>Exam-style: Priya invests £600 at 4% simple interest. Sam invests £600 at 4% compound interest. How much more does Sam have after 3 years?</summary>
+  <div class="step"><strong>Priya (simple):</strong> I = 600 × 4 × 3 ÷ 100 = £72. Total £672.</div>
+  <div class="step"><strong>Sam (compound):</strong> 600 × 1.04³ = 600 × 1.124864 = £674.92.</div>
+  <div class="step"><strong>Difference:</strong> £674.92 − £672 = <strong>£2.92</strong>. Small after 3 years; after 30 years it would be about £1226 versus £1320, a gap of nearly £100.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>Simple interest adds the same amount every year: a fixed percentage of the original principal. I = PRT/100 gives the interest; the total is P + I. Any of the four letters can be the unknown, and rearranging finds it. Time must be in years to match a yearly rate. Plotted against time, simple interest is a straight line whose gradient is the yearly interest; compound interest, which you'll meet at GCSE, curves upward because each year's interest is a percentage of a growing balance.</p>
+
+<footer>Made for KS3 students. Simple interest in financial mathematics is in the England national curriculum at key stage 3 under Ratio, proportion and rates of change. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(v,d=2)=>isFinite(v)?parseFloat(v.toFixed(d)).toLocaleString('en-GB',{maximumFractionDigits:d}):'—';
+const money=v=>isFinite(v)?'£'+v.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+const F=()=>`font-family="${css('--mono')}"`;
+
+/* 1 bars */
+const siP=document.getElementById('siP'),siR=document.getElementById('siR'),siT=document.getElementById('siT');
+function drawSI(){const P=parseFloat(siP.value)||0,R=+siR.value,T=+siT.value;document.getElementById('siRv').textContent=' '+R;document.getElementById('siTv').textContent=' '+T;const yr=P*R/100;
+  const W=560,H=240,pl=56,pb=28;const bw=(W-pl-20)/(T+1);const mx=(P+yr*T)*1.1||1;const sy=v=>H-pb-v/mx*(H-pb-20);let s='';
+  for(let i=0;i<=T;i++){const x=pl+i*bw+4;s+=`<rect x="${x}" y="${sy(P)}" width="${bw-8}" height="${H-pb-sy(P)}" fill="${css('--accent')}" rx="3"/>`;for(let k=0;k<i;k++)s+=`<rect x="${x}" y="${sy(P+(k+1)*yr)}" width="${bw-8}" height="${Math.max(1,sy(P+k*yr)-sy(P+(k+1)*yr)-1)}" fill="${css('--two')}" opacity=".85" rx="2"/>`;
+    s+=`<text x="${x+(bw-8)/2}" y="${sy(P+i*yr)-5}" text-anchor="middle" font-size="10" ${F()} fill="${css('--fg')}">${fmt(P+i*yr,0)}</text><text x="${x+(bw-8)/2}" y="${H-10}" text-anchor="middle" font-size="10" ${F()} fill="${css('--muted')}">yr ${i}</text>`;}
+  document.getElementById('siSvg').innerHTML=s;
+  const yrs=[];for(let i=0;i<=Math.min(T,6);i++)yrs.push(i);if(T>6)yrs.push(T);
+  document.getElementById('siTable').innerHTML=`<tr><th>year</th>${yrs.map(i=>`<td>${i}</td>`).join('')}</tr><tr><th>interest so far</th>${yrs.map(i=>`<td class="k">${fmt(i*yr)}</td>`).join('')}</tr><tr><th>total</th>${yrs.map(i=>`<td>${fmt(P+i*yr)}</td>`).join('')}</tr>`;
+  document.getElementById('siWork').innerHTML=`Each year: ${R}% of ${money(P)} = <span class="c">${money(yr)}</span>, always the same.<br>After ${T} years: interest ${T} × ${money(yr)} = <strong>${money(yr*T)}</strong>; total ${money(P)} + ${money(yr*T)} = <strong>${money(P+yr*T)}</strong>.`;}
+[siP,siR,siT].forEach(e=>e.addEventListener('input',drawSI));drawSI();
+
+/* 2 formula */
+const fmF=document.getElementById('fmF'),fmP=document.getElementById('fmP'),fmR=document.getElementById('fmR'),fmT=document.getElementById('fmT'),fmI=document.getElementById('fmI');
+function drawFM(){const f=fmF.value;const P=parseFloat(fmP.value),R=parseFloat(fmR.value),T=parseFloat(fmT.value),I=parseFloat(fmI.value);[fmP,fmR,fmT,fmI].forEach(e=>e.disabled=false);({P:fmP,R:fmR,T:fmT,I:fmI})[f].disabled=true;let w='';
+  if(f==='I'){const v=P*R*T/100;w=`I = P × R × T ÷ 100 = ${fmt(P)} × ${fmt(R)} × ${fmt(T)} ÷ 100 = <strong>${money(v)}</strong><br>total in the account: ${money(P)} + ${money(v)} = ${money(P+v)}`;}
+  else if(f==='P'){const v=100*I/(R*T);w=`rearrange: P = 100 I ÷ (R T) = 100 × ${fmt(I)} ÷ (${fmt(R)} × ${fmt(T)}) = ${fmt(100*I)} ÷ ${fmt(R*T)} = <strong>${money(v)}</strong><br>check: ${fmt(v)} × ${fmt(R)} × ${fmt(T)} ÷ 100 = ${fmt(v*R*T/100)} ✓`;}
+  else if(f==='R'){const v=100*I/(P*T);w=`rearrange: R = 100 I ÷ (P T) = 100 × ${fmt(I)} ÷ (${fmt(P)} × ${fmt(T)}) = ${fmt(100*I)} ÷ ${fmt(P*T)} = <strong>${fmt(v)}% per year</strong>`;}
+  else{const v=100*I/(P*R);w=`rearrange: T = 100 I ÷ (P R) = 100 × ${fmt(I)} ÷ (${fmt(P)} × ${fmt(R)}) = ${fmt(100*I)} ÷ ${fmt(P*R)} = <strong>${fmt(v)} years</strong>${!Number.isInteger(v)?` (${Math.floor(v)} years ${Math.round((v-Math.floor(v))*12)} months)`:''}`;}
+  document.getElementById('fmWork').innerHTML=w;}
+[fmF,fmP,fmR,fmT,fmI].forEach(e=>e.addEventListener('input',drawFM));drawFM();
+
+/* 3 lines */
+const lnIds=['lnP1','lnR1','lnP2','lnR2'].map(i=>document.getElementById(i));
+function drawLN(){const [P1,R1,P2,R2]=lnIds.map(e=>parseFloat(e.value)||0);const g1=P1*R1/100,g2=P2*R2/100;const T=12;const mx=Math.max(P1+g1*T,P2+g2*T)*1.08||1;
+  const W=560,H=260,pl=64,pb=28;const sx=t=>pl+t/T*(W-pl-20),sy=v=>H-pb-v/mx*(H-pb-20);let s='';
+  for(let t=0;t<=T;t+=2)s+=`<line x1="${sx(t)}" y1="20" x2="${sx(t)}" y2="${H-pb}" stroke="${css('--grid')}"/><text x="${sx(t)}" y="${H-pb+14}" text-anchor="middle" font-size="10" ${F()} fill="${css('--muted')}">${t}</text>`;
+  const step=Math.pow(10,Math.floor(Math.log10(mx)))/2;for(let v=0;v<=mx;v+=step)s+=`<line x1="${pl}" y1="${sy(v)}" x2="${W-20}" y2="${sy(v)}" stroke="${css('--grid')}"/><text x="${pl-5}" y="${sy(v)+3}" text-anchor="end" font-size="10" ${F()} fill="${css('--muted')}">${fmt(v,0)}</text>`;
+  s+=`<line x1="${pl}" y1="${H-pb}" x2="${W-20}" y2="${H-pb}" stroke="${css('--muted')}" stroke-width="1.5"/><line x1="${pl}" y1="20" x2="${pl}" y2="${H-pb}" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  s+=`<line x1="${sx(0)}" y1="${sy(P1)}" x2="${sx(T)}" y2="${sy(P1+g1*T)}" stroke="${css('--accent')}" stroke-width="2.5"/><line x1="${sx(0)}" y1="${sy(P2)}" x2="${sx(T)}" y2="${sy(P2+g2*T)}" stroke="${css('--hi')}" stroke-width="2.5"/>`;
+  s+=`<text x="${sx(T)}" y="${sy(P1+g1*T)-6}" text-anchor="end" font-size="11" ${F()} fill="${css('--accent')}">A</text><text x="${sx(T)}" y="${sy(P2+g2*T)-6}" text-anchor="end" font-size="11" ${F()} fill="${css('--hi')}">B</text><text x="${W-20}" y="${H-2}" text-anchor="end" font-size="10" ${F()} fill="${css('--muted')}">years</text>`;
+  let cross='';if(g1!==g2){const t=(P2-P1)/(g1-g2);if(t>0&&t<=T){s+=`<circle cx="${sx(t)}" cy="${sy(P1+g1*t)}" r="6" fill="${css('--two')}"/>`;cross=`<br><span class="c">The lines cross after ${fmt(t,1)} years: before that A is worth more, after it B is.</span>`;}}
+  document.getElementById('lnSvg').innerHTML=s;
+  document.getElementById('lnWork').innerHTML=`<span class="a">A: total = ${fmt(g1)}t + ${fmt(P1)}</span> — gradient ${money(g1)} per year, intercept ${money(P1)}<br><span class="b">B: total = ${fmt(g2)}t + ${fmt(P2)}</span> — gradient ${money(g2)} per year, intercept ${money(P2)}${cross}`;}
+lnIds.forEach(e=>e.addEventListener('input',drawLN));drawLN();
+
+/* 4 compound preview */
+const cpP=document.getElementById('cpP'),cpR=document.getElementById('cpR'),cpT=document.getElementById('cpT');
+function drawCP(){const P=parseFloat(cpP.value)||0,R=parseFloat(cpR.value)||0,T=+cpT.value;document.getElementById('cpTv').textContent=' '+T;const m=1+R/100;const simp=t=>P+P*R*t/100,comp=t=>P*Math.pow(m,t);const mx=Math.max(simp(T),comp(T))*1.08||1;
+  const W=560,H=260,pl=64,pb=28;const sx=t=>pl+t/T*(W-pl-20),sy=v=>H-pb-v/mx*(H-pb-20);let s='';
+  const xs=Math.max(1,Math.ceil(T/10));for(let t=0;t<=T;t+=xs)s+=`<line x1="${sx(t)}" y1="20" x2="${sx(t)}" y2="${H-pb}" stroke="${css('--grid')}"/><text x="${sx(t)}" y="${H-pb+14}" text-anchor="middle" font-size="10" ${F()} fill="${css('--muted')}">${t}</text>`;
+  s+=`<line x1="${pl}" y1="${H-pb}" x2="${W-20}" y2="${H-pb}" stroke="${css('--muted')}" stroke-width="1.5"/><line x1="${pl}" y1="20" x2="${pl}" y2="${H-pb}" stroke="${css('--muted')}" stroke-width="1.5"/><text x="${pl-5}" y="${sy(P)+3}" text-anchor="end" font-size="10" ${F()} fill="${css('--muted')}">${fmt(P,0)}</text><text x="${pl-5}" y="${sy(mx/1.08)+3}" text-anchor="end" font-size="10" ${F()} fill="${css('--muted')}">${fmt(mx/1.08,0)}</text>`;
+  s+=`<line x1="${sx(0)}" y1="${sy(P)}" x2="${sx(T)}" y2="${sy(simp(T))}" stroke="${css('--accent')}" stroke-width="2.5"/>`;let d='';for(let i=0;i<=60;i++){const t=T*i/60;d+=(i?'L':'M')+sx(t)+','+sy(comp(t));}s+=`<path d="${d}" fill="none" stroke="${css('--two')}" stroke-width="2.5"/>`;
+  s+=`<text x="${sx(T)}" y="${sy(simp(T))+14}" text-anchor="end" font-size="11" ${F()} fill="${css('--accent')}">simple ${fmt(simp(T),0)}</text><text x="${sx(T)}" y="${sy(comp(T))-6}" text-anchor="end" font-size="11" ${F()} fill="${css('--two')}">compound ${fmt(comp(T),0)}</text>`;
+  document.getElementById('cpSvg').innerHTML=s;
+  document.getElementById('cpS').innerHTML=`I = ${fmt(P)} × ${fmt(R)} × ${T} ÷ 100 = ${money(P*R*T/100)}<br>total <strong>${money(simp(T))}</strong><br>same ${money(P*R/100)} every year: straight line`;
+  document.getElementById('cpC').innerHTML=`${fmt(P)} × ${fmt(m,4)}<sup>${T}</sup> = ${fmt(P)} × ${fmt(Math.pow(m,T),4)}<br>total <strong>${money(comp(T))}</strong><br>${money(comp(T)-simp(T))} more than simple: the curve pulls away`;}
+[cpP,cpR,cpT].forEach(e=>e.addEventListener('input',drawCP));drawCP();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawSI();drawLN();drawCP();});}
+new MutationObserver(()=>{drawSI();drawLN();drawCP();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const QS=[
+  {q:'£400 at 5% simple interest for 3 years earns…',opts:['£60','£20','£460','£63.05'],a:0,fb:'400 × 5 × 3 ÷ 100 = 60. (£63.05 would be compound.)'},
+  {q:'…and the total in the account is',opts:['£460','£60','£400','£415'],a:0,fb:'Principal plus interest: 400 + 60.'},
+  {q:'In I = PRT/100, T for 18 months is…',opts:['1.5','18','1.8','0.18'],a:0,fb:'Time in years to match a yearly rate: 18 ÷ 12 = 1.5.'},
+  {q:'£2500 earns £300 in 4 years. The simple rate is…',opts:['3%','12%','7.5%','1.2%'],a:0,fb:'R = 100 × 300 ÷ (2500 × 4) = 3.'},
+  {q:'How long for £1500 to earn £180 at 4%?',opts:['3 years','4 years','2 years','12 years'],a:0,fb:'T = 100 × 180 ÷ (1500 × 4) = 3.'},
+  {q:'A graph of total vs time for simple interest is…',opts:['a straight line starting at the principal','a curve getting steeper','a straight line through the origin','a horizontal line'],a:0,fb:'Same interest each year: constant gradient, intercept = principal.'},
+  {q:'A loan of £900 is repaid as £1026 after 2 years. The simple interest rate was…',opts:['7%','14%','12.6%','6.3%'],a:0,fb:'Interest 126; R = 100 × 126 ÷ (900 × 2) = 7.'},
+  {q:'Which pays more over 10 years on £1000 at 5%?',opts:['compound (£1628.89 vs £1500)','simple (£1500 vs £1628.89)','they are equal','compound only after 20 years'],a:0,fb:'Compound: 1000 × 1.05¹⁰ = 1628.89. Simple: 1000 + 500.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);const div=document.createElement('div');div.className='q';div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});opts.appendChild(b);});qz.appendChild(div);});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

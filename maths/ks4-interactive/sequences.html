@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Sequences</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive panel (term tables, SVG dot patterns and bar charts drawn from JS, inputs with targeted feedback, a step-through for quadratic nth terms). Colours on this page: teal = the terms of the sequence (bars, dots, table cells), orange = first differences (what you add each time), plum = the rule itself (common ratio, second differences, the nth-term formula). Green/red are only for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.ca{color:var(--accent);font-weight:600}.ch{color:var(--hi);font-weight:600}.ct{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+a{color:var(--accent)}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.15rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:.35em;margin-left:.35rem;line-height:1.4}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+h3 .tag,summary .tag{vertical-align:.15em}
+.lab svg.drag{touch-action:none}
+.lab svg.drag [data-h]{cursor:grab}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.callout.trap{background:var(--two-soft)}
+.work .s{display:block}
+.work .s[hidden]{display:none}
+.work .note{color:var(--muted);font-family:var(--body);font-size:.9rem}
+.next{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;background:var(--panel)}
+@media (max-width:560px){
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block;width:100%}
+  table.stack tr:first-child{display:none}
+  table.stack tr{border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{border:0;padding:.15rem .3rem}
+}
+.controls label{flex-wrap:wrap}
+.readout b.nt,th.nt{text-transform:none;letter-spacing:.02em}
+.vt.sm td,.vt.sm th{padding:.3rem .25rem;font-size:.82rem}
+.vt th{text-transform:none;letter-spacing:.02em;font-size:.8rem}
+.controls label{max-width:100%}.controls select{min-width:0;max-width:100%}
+.seq{display:flex;flex-wrap:wrap;gap:.35rem;margin:.6rem 0;font-family:var(--mono)}
+.seq span{background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:.25rem .55rem;font-weight:600}
+.dtab{font-family:var(--mono);border-collapse:collapse;margin:.6rem auto;font-variant-numeric:tabular-nums;font-size:.92rem}
+.dtab td{padding:.15rem .1rem;text-align:center;min-width:1.2em}
+.dtab td.l{text-align:right;color:var(--muted);font-family:var(--body);font-size:.78rem;padding-right:.5rem;min-width:0}
+.dtab .t{color:var(--accent);font-weight:600}.dtab .d1{color:var(--hi)}.dtab .d2{color:var(--two);font-weight:600}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Algebra</div>
+  <h1>Sequences</h1>
+  <p class="lede">A <strong>sequence</strong> is a list of numbers that follows a rule, like 3, 7, 11, 15, … Each number is a <strong>term</strong>. Some sequences add the same amount each time, some multiply, some add the previous two terms together, and some grow by a changing amount. Find the rule and you can predict any term, even the millionth.</p>
+  <span class="gcse">GCSE subject content: generate terms from term-to-term and position-to-term rules; recognise triangular, square and cube numbers, arithmetic progressions, Fibonacci-type sequences, quadratic sequences and simple geometric progressions; find the nth term of linear sequences; <strong>Higher:</strong> geometric progressions with a surd ratio; the nth term of quadratic sequences</span>
+</header>
+
+<div class="recap">
+  <p><strong>Recap from KS3.</strong> In a <strong>linear</strong> (arithmetic) sequence the gap between terms is always the same. Its nth term is <span class="m">dn + c</span>, where d is that gap. If that's new to you, start with <a href="../ks3-interactive/linear-sequences.html">Linear sequences</a>. Here we recap it quickly and then go further.</p>
+</div>
+
+<h2>1 · Two kinds of rule</h2>
+<p>A <strong>term-to-term rule</strong> tells you how to get from one term to the next: "start at 3 and add 4". A <strong>position-to-term rule</strong> (the <strong>nth term</strong>) tells you how to get any term straight from its position n: "4n − 1". The first is easy to continue; the second lets you jump straight to the 100th term. Here are both rules for the same sequence, side by side.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>start at <input type="number" id="r1S" value="3" style="width:4em"></label>
+    <label>then <select id="r1Op"><option value="+">add</option><option value="×">multiply by</option></select></label>
+    <label><input type="number" id="r1K" value="4" style="width:4em"></label>
+    <label>show term number n = <input type="number" id="r1N" value="10" min="1" max="1000" style="width:5em"></label>
+  </div>
+  <div class="seq" id="r1Seq"></div>
+  <div class="work" id="r1Work"></div>
+</div>
+
+<h2>2 · Linear sequences and the nth term</h2>
+<p>For a linear sequence, the <strong>common difference</strong> d (the amount added each time) is the number in front of n. Why? Because "dn" goes up by d every step, just like the sequence. Then compare the sequence with the d times table to find the adjustment c. For 3, 7, 11, 15: d = 4; the 4 times table is 4, 8, 12, 16; the sequence is 1 less every time, so the nth term is <span class="m">4n − 1</span>.</p>
+
+<div class="lab">
+  <p class="pq">Find the nth term of:</p>
+  <div class="seq" id="lnSeq"></div>
+  <div class="controls">
+    <label>nth term = <input type="text" id="lnD" inputmode="numeric" autocomplete="off" style="width:4em">n + <input type="text" id="lnC" inputmode="numeric" autocomplete="off" style="width:4em"></label>
+    <button class="btn primary" id="lnGo">Check</button><button class="btn" id="lnHint">Show the times-table row</button><button class="btn" id="lnNew">New sequence</button>
+  </div>
+  <div class="work" id="lnWork" hidden></div>
+  <div class="msg" id="lnMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes.</strong> Using the first term as c: for 3, 7, 11, … the nth term is not 4n + 3 (that gives 7 when n = 1). Using the difference with the wrong sign: for 20, 17, 14, … d = −3, so it's −3n + 23 (or 23 − 3n). To test whether a number is in the sequence, set the nth term equal to it and solve: if n is a whole number, it's in.</p>
+</div>
+
+<h2>3 · Geometric sequences</h2>
+<p>In a <strong>geometric</strong> sequence you <em>multiply</em> by the same number each time. That number is the <strong>common ratio</strong> r, found by dividing any term by the one before: r = term ÷ previous term. If r &gt; 1 the terms grow (fast!); if r is a fraction between 0 and 1 they shrink towards zero. (Higher) r can even be a surd like √2: then every other term is a whole number.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>first term <input type="number" id="geA" value="3" style="width:4em"></label>
+    <label>ratio r = <select id="geR"><option value="2">2</option><option value="3">3</option><option value="0.5">½</option><option value="1.5">³⁄₂</option><option value="s2">√2 (Higher)</option><option value="s3">√3 (Higher)</option></select></label>
+  </div>
+  <div class="seq" id="geSeq"></div>
+  <svg id="geSvg" viewBox="0 0 400 200" width="400" height="200" aria-label="Bar chart of geometric terms"></svg>
+  <div class="work" id="geWork"></div>
+</div>
+
+<div class="lab">
+  <p class="pq" id="gqQ"></p>
+  <div class="controls">
+    <label>ratio r = <input type="text" id="gqR" autocomplete="off" style="width:5em"></label>
+    <label>next term = <input type="text" id="gqN" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="gqGo">Check</button><button class="btn" id="gqNew">New one</button>
+  </div>
+  <div class="msg" id="gqMsg"></div>
+</div>
+
+<h2>4 · Fibonacci-type sequences</h2>
+<p>In a <strong>Fibonacci-type</strong> sequence each term is the <strong>sum of the two before it</strong>. The famous Fibonacci sequence starts 1, 1, 2, 3, 5, 8, 13, … but you can start with any two numbers. With letters, if the first two terms are a and b, the sequence is a, b, a + b, a + 2b, 2a + 3b, … Exam questions give you two of the later terms and ask you to work back to a and b with simultaneous equations.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>a = <input type="range" id="fbA" min="-5" max="10" step="1" value="2"><span id="fbAv" style="font-family:var(--mono)"></span></label>
+    <label>b = <input type="range" id="fbB" min="-5" max="10" step="1" value="5"><span id="fbBv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="tbl"><table class="vt sm" id="fbTab"></table></div>
+  <div class="work" id="fbWork"></div>
+</div>
+
+<h2>5 · Triangular, square and cube numbers</h2>
+<p>Some sequences are named after the shapes they make. <strong>Square numbers</strong> 1, 4, 9, 16, … are n². <strong>Cube numbers</strong> 1, 8, 27, 64, … are n³. <strong>Triangular numbers</strong> 1, 3, 6, 10, 15, … are the number of dots in a triangle with n rows: add 1 + 2 + 3 + … + n. Two copies of a triangle fit together into an n by (n + 1) rectangle, so the nth triangular number is <span class="m">n(n + 1)/2</span>.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>n = <input type="range" id="shN" min="1" max="8" step="1" value="4"><span id="shNv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="shTwo"> show two triangles make a rectangle</label>
+  </div>
+  <svg id="shSvg" viewBox="0 0 400 210" width="400" height="210" aria-label="Triangular, square and cube numbers"></svg>
+  <div class="work" id="shWork"></div>
+</div>
+
+<h2>6 · Quadratic sequences and their nth term <span class="tag g">Higher</span></h2>
+<p>In 4, 9, 18, 31, 48, … the gaps (5, 9, 13, 17) are not constant, but the gaps between the gaps are: 4, 4, 4. When the <strong>second differences</strong> are constant, the sequence is <strong>quadratic</strong>: its nth term is <span class="m">an² + bn + c</span>. Why? For n², the terms 1, 4, 9, 16, 25 have first differences 3, 5, 7, 9 and second differences 2: so an² always has second difference 2a.</p>
+<p><strong>Method:</strong> (1) second difference ÷ 2 = a; (2) subtract an² from each term; (3) what's left is linear: find its nth term bn + c; (4) add them.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Sequence <select id="qsE">
+      <option value="2,-1,3">4, 9, 18, 31, 48, …</option><option value="1,2,1">4, 9, 16, 25, 36, …</option><option value="3,1,-2">2, 12, 28, 50, 78, …</option><option value="1,-3,5">3, 3, 5, 9, 15, …</option><option value="-1,10,0">9, 16, 21, 24, 25, …</option>
+    </select></label>
+    <button class="btn" id="qsRand">Random</button>
+  </div>
+  <div class="controls"><button class="btn primary" id="qsNext">Next step</button><button class="btn" id="qsAll">Show all</button><button class="btn" id="qsReset">Reset</button></div>
+  <div class="tbl" id="qsTab"></div>
+  <div class="work" id="qsWork"></div>
+</div>
+
+<div class="lab">
+  <p class="pq">Your turn: find the nth term of <span id="qtSeq" class="m"></span></p>
+  <div class="controls">
+    <label><input type="text" id="qtA" inputmode="numeric" autocomplete="off" style="width:3.5em">n² + <input type="text" id="qtB" inputmode="numeric" autocomplete="off" style="width:3.5em">n + <input type="text" id="qtC" inputmode="numeric" autocomplete="off" style="width:3.5em"></label>
+    <button class="btn primary" id="qtGo">Check</button><button class="btn" id="qtNew">New one</button>
+  </div>
+  <div class="msg" id="qtMsg"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Find the nth term of 5, 8, 11, 14, … and the 100th term</summary>
+  <div class="step"><strong>Common difference:</strong> +3, so the nth term starts 3n.</div>
+  <div class="step"><strong>Compare with 3n:</strong> 3, 6, 9, 12. The sequence is 2 more each time.</div>
+  <div class="step"><strong>nth term:</strong> <strong>3n + 2</strong>. Check n = 1: 5 ✓.</div>
+  <div class="step"><strong>100th term:</strong> 3 × 100 + 2 = <strong>302</strong>.</div>
+</details>
+<details>
+  <summary>Is 100 a term of the sequence 3n + 2?</summary>
+  <div class="step"><strong>Set equal:</strong> 3n + 2 = 100, so 3n = 98, n = 32.67…</div>
+  <div class="step"><strong>Not a whole number,</strong> so <strong>100 is not in the sequence</strong>. (The 32nd term is 98 and the 33rd is 101.)</div>
+</details>
+<details>
+  <summary>48, 24, 12, 6, … Find the next two terms.</summary>
+  <div class="step"><strong>Ratio:</strong> 24 ÷ 48 = ½ (and 12 ÷ 24 = ½ ✓). It's geometric with r = ½.</div>
+  <div class="step"><strong>Next terms:</strong> 6 × ½ = <strong>3</strong>, then 3 × ½ = <strong>1.5</strong>.</div>
+</details>
+<details>
+  <summary>2, 2√3, 6, 6√3, … Find the next term. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Ratio:</strong> 2√3 ÷ 2 = √3.</div>
+  <div class="step"><strong>Next term:</strong> 6√3 × √3 = 6 × 3 = <strong>18</strong> (because √3 × √3 = 3).</div>
+</details>
+<details>
+  <summary>A Fibonacci-type sequence has 3rd term 7 and 5th term 19. Find the first two terms.</summary>
+  <div class="step"><strong>Letters:</strong> a, b, a + b, a + 2b, 2a + 3b.</div>
+  <div class="step"><strong>Equations:</strong> a + b = 7 and 2a + 3b = 19.</div>
+  <div class="step"><strong>Solve:</strong> double the first: 2a + 2b = 14. Subtract from the second: b = 5. Then a = 2.</div>
+  <div class="step"><strong>Check:</strong> 2, 5, 7, 12, 19 ✓</div>
+</details>
+<details>
+  <summary>Find the nth term of 4, 9, 18, 31, 48, … <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>First differences:</strong> 5, 9, 13, 17. <strong>Second differences:</strong> 4, 4, 4: quadratic.</div>
+  <div class="step"><strong>a = 4 ÷ 2 = 2</strong>, so the nth term starts 2n². 2n² gives 2, 8, 18, 32, 50.</div>
+  <div class="step"><strong>Subtract:</strong> 4 − 2 = 2, 9 − 8 = 1, 18 − 18 = 0, 31 − 32 = −1, 48 − 50 = −2. This linear sequence is −n + 3.</div>
+  <div class="step"><strong>nth term:</strong> <strong>2n² − n + 3</strong>. Check n = 4: 32 − 4 + 3 = 31 ✓</div>
+</details>
+<details>
+  <summary>What is the 10th triangular number?</summary>
+  <div class="step"><strong>Formula:</strong> n(n + 1)/2 = 10 × 11 ÷ 2 = <strong>55</strong>.</div>
+  <div class="step"><strong>Check by adding:</strong> 1 + 2 + … + 10 = 55 ✓ (pair 1 + 10, 2 + 9, … five pairs of 11).</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A <strong>term-to-term</strong> rule gets the next term from the previous one; a <strong>position-to-term</strong> rule (nth term) gets any term from its position.</li>
+  <li><strong>Linear:</strong> constant difference d; nth term dn + c. To test whether a number is a term, solve nth term = number and see if n is a whole number.</li>
+  <li><strong>Geometric:</strong> constant ratio r = term ÷ previous term; it can be a fraction, or (Higher) a surd.</li>
+  <li><strong>Fibonacci-type:</strong> each term is the sum of the previous two: a, b, a + b, a + 2b, 2a + 3b, …</li>
+  <li><strong>Square</strong> n², <strong>cube</strong> n³, <strong>triangular</strong> n(n + 1)/2.</li>
+  <li><span class="tag g">Higher</span> <strong>Quadratic:</strong> constant second difference 2a. Find a, subtract an², then find the linear nth term of what's left.</li>
+</ul>
+
+<footer>Made for GCSE students. Sequences are in the DfE GCSE mathematics subject content under Algebra; geometric sequences with surd ratios and the nth term of quadratic sequences are Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">Subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => { if(!isFinite(v)) return '—'; let r=parseFloat((+v).toFixed(d)); if(Object.is(r,-0)) r=0; return minus(String(r)); };
+const fix = (v,d) => { if(!isFinite(v)) return '—'; let s=(+v).toFixed(d); if(/^-0(\.0*)?$/.test(s)) s=s.slice(1); return minus(s); };
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(v===0) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); return fix(r,Math.max(0,n-1-e)); };
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v=parseFloat(String(el.value).replace(/−/g,'-').replace(/\s/g,'')); return isFinite(v)?v:NaN; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a; };
+const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const sup = n => String(n).split('').map(c=>{const i='0123456789'.indexOf(c);return i>=0?'⁰¹²³⁴⁵⁶⁷⁸⁹'[i]:(c==='-'?'⁻':c);}).join('');
+/* polynomial from coefficients, highest power first: polyStr([1,-5,6]) = "x² − 5x + 6" */
+const polyStr = (cs,v='x') => { const n=cs.length-1; let s=''; cs.forEach((c,i)=>{ const p=n-i; if(Math.abs(c)<1e-12) return; const a=Math.abs(c); const body=p===0?fmt(a,4):((Math.abs(a-1)<1e-12?'':fmt(a,4))+v+(p>1?sup(p):'')); s+= s===''?(c<0?'−':'')+body:(c<0?' − ':' + ')+body; }); return s||'0'; };
+const xpm = (k,v='x') => Math.abs(k)<1e-12 ? v : `${v} ${k<0?'−':'+'} ${fmt(Math.abs(k),4)}`;
+const br = v => v<0 ? `(${fmt(v,4)})` : fmt(v,4);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const DRAW = [];
+const reg = f => { DRAW.push(f); f(); };
+function Plot(o){
+  const P=Object.assign({W:400,H:400,pad:26,gx:1,gy:1,lx:2,ly:2,xl:'x',yl:'y',xf:null,yf:null},o);
+  const W=P.W,H=P.H,pad=P.pad;
+  P.sx=x=>pad+(x-P.x0)/(P.x1-P.x0)*(W-2*pad);
+  P.sy=y=>H-pad-(y-P.y0)/(P.y1-P.y0)*(H-2*pad);
+  P.ix=px=>P.x0+(px-pad)/(W-2*pad)*(P.x1-P.x0);
+  P.iy=py=>P.y0+(H-pad-py)/(H-2*pad)*(P.y1-P.y0);
+  P.world=(svg,ev)=>{const r=svg.getBoundingClientRect();return [P.ix((ev.clientX-r.left)/r.width*W),P.iy((ev.clientY-r.top)/r.height*H)];};
+  const ticks=(a,b,st)=>{const out=[];for(let k=Math.ceil(a/st-1e-9);k*st<=b+1e-9;k++)out.push(Math.round(k*st*1e6)/1e6);return out;};
+  P.grid=()=>{const g=css('--grid'),mu=css('--muted'),f=F();let s='';
+    ticks(P.x0,P.x1,P.gx).forEach(x=>s+=`<line x1="${P.sx(x)}" y1="${P.sy(P.y0)}" x2="${P.sx(x)}" y2="${P.sy(P.y1)}" stroke="${g}"/>`);
+    ticks(P.y0,P.y1,P.gy).forEach(y=>s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(y)}" x2="${P.sx(P.x1)}" y2="${P.sy(y)}" stroke="${g}"/>`);
+    const ay=(P.y0<=0&&P.y1>=0)?0:P.y0, ax=(P.x0<=0&&P.x1>=0)?0:P.x0;
+    s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(ay)}" x2="${P.sx(P.x1)}" y2="${P.sy(ay)}" stroke="${mu}" stroke-width="1.5"/><line x1="${P.sx(ax)}" y1="${P.sy(P.y0)}" x2="${P.sx(ax)}" y2="${P.sy(P.y1)}" stroke="${mu}" stroke-width="1.5"/>`;
+    ticks(P.x0,P.x1,P.lx).forEach(x=>{if(Math.abs(x-ax)<1e-9&&ax===0)return;s+=`<text x="${P.sx(x)}" y="${P.sy(ay)+13}" text-anchor="middle" font-size="10" fill="${mu}" ${f}>${P.xf?P.xf(x):fmt(x)}</text>`;});
+    ticks(P.y0,P.y1,P.ly).forEach(y=>{if(Math.abs(y-ay)<1e-9&&ay===0)return;s+=`<text x="${P.sx(ax)-5}" y="${P.sy(y)+3}" text-anchor="end" font-size="10" fill="${mu}" ${f}>${P.yf?P.yf(y):fmt(y)}</text>`;});
+    if(ax===0&&ay===0)s+=`<text x="${P.sx(0)-5}" y="${P.sy(0)+13}" text-anchor="end" font-size="10" fill="${mu}" ${f}>0</text>`;
+    s+=`<text x="${P.sx(P.x1)-3}" y="${P.sy(ay)-5}" text-anchor="end" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.xl}</text><text x="${P.sx(ax)+6}" y="${P.sy(P.y1)+10}" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.yl}</text>`;
+    return s;};
+  P.clip=(svg,inner,over='')=>{svg.innerHTML=`<defs><clipPath id="cp${svg.id}"><rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${H-2*pad}"/></clipPath></defs>`+P.grid()+`<g clip-path="url(#cp${svg.id})">${inner}</g>`+over;};
+  P.path=(f,col,w=2.5,dash,a=P.x0,b=P.x1,n=400)=>{let d='',pen=false,prev=null;const span=P.y1-P.y0,mid=(P.y0+P.y1)/2;
+    for(let i=0;i<=n;i++){const x=a+(b-a)*i/n,y=f(x);
+      if(!isFinite(y)||Math.abs(y-mid)>span*3){pen=false;prev=null;continue;}
+      if(pen&&prev!==null&&Math.abs(y-prev)>span*1.5)pen=false;
+      d+=(pen?'L':'M')+P.sx(x).toFixed(1)+','+P.sy(y).toFixed(1);pen=true;prev=y;}
+    return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linejoin="round" stroke-linecap="round"/>`;};
+  P.seg=(x1,y1,x2,y2,col,w=2,dash)=>`<line x1="${P.sx(x1)}" y1="${P.sy(y1)}" x2="${P.sx(x2)}" y2="${P.sy(y2)}" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linecap="round"/>`;
+  P.dot=(x,y,col,r=5,label,dx=8,dy=-8,anchor='start')=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${col}"/>`+(label?`<text x="${P.sx(x)+dx}" y="${P.sy(y)+dy}" font-size="12" font-weight="600" fill="${col}" text-anchor="${anchor}" ${F()}>${label}</text>`:'');
+  P.ring=(x,y,col,r=5)=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${css('--panel')}" stroke="${col}" stroke-width="2.5"/>`;
+  P.text=(x,y,t,col,anchor='start',size=12,weight=600)=>`<text x="${P.sx(x)}" y="${P.sy(y)}" font-size="${size}" font-weight="${weight}" fill="${col}" text-anchor="${anchor}" ${F()}>${t}</text>`;
+  return P;
+}
+/* drag helper: calls onMove(ev) while a pointer is down on svg (or on an element with data-h) */
+function dragOn(svg,onMove,onDown){let on=false;
+  svg.addEventListener('pointerdown',e=>{if(onDown&&onDown(e)===false)return;on=true;try{svg.setPointerCapture(e.pointerId);}catch(_){}onMove(e);e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(on)onMove(e);});
+  const end=()=>{on=false;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);}
+/* step-through: lines is an array of html strings */
+function stepper(boxId,nextId,allId,resetId,onShow){const box=$(boxId);let lines=[],k=0;
+  const show=()=>{box.innerHTML=lines.map((l,i)=>`<span class="s"${i<k?'':' hidden'}>${l}</span>`).join('')+(k<lines.length?`<span class="s note">${k===0?'Press “Next step” to begin.':'…'}</span>`:'');if(nextId)$(nextId).disabled=k>=lines.length;if(onShow)onShow(k);};
+  if(nextId)$(nextId).addEventListener('click',()=>{if(k<lines.length)k++;show();});
+  if(allId)$(allId).addEventListener('click',()=>{k=lines.length;show();});
+  if(resetId)$(resetId).addEventListener('click',()=>{k=0;show();});
+  return {set(ls,start=0){lines=ls;k=start;show();},get k(){return k;}};}
+
+const seqHTML = a => a.map(v=>`<span>${v}</span>`).join('')+'<span style="background:none;color:var(--muted)">…</span>';
+const lin = (d,c) => polyStr([d,c],'n');
+
+/* 1. two rules */
+function draw1(){ const s=num($('r1S')),k=num($('r1K')),op=$('r1Op').value; let N=Math.round(num($('r1N'))); const W=$('r1Work');
+  if(![s,k,N].every(isFinite)){W.textContent='Fill in all the boxes.';return;} N=Math.max(1,Math.min(1000,N));
+  const t=[s]; for(let i=1;i<6;i++) t.push(op==='+'?t[i-1]+k:t[i-1]*k); $('r1Seq').innerHTML=seqHTML(t.map(v=>fmt(v,4)));
+  let h=`<span class="b">term-to-term: start at ${fmt(s)}, then ${op==='+'?'add':'multiply by'} ${fmt(k)} each time</span><br>`;
+  if(op==='+'){ const c=s-k; h+=`<span class="c">position-to-term: nth term = ${lin(k,c)}</span> (${fmt(k)} × position, then ${c<0?'subtract '+fmt(-c):'add '+fmt(c)})<br>term ${N} = ${fmt(k)} × ${N} ${c<0?'−':'+'} ${fmt(Math.abs(c))} = <strong>${fmt(k*N+c)}</strong><br><span class="note">with the term-to-term rule you'd need ${N-1} additions to get there</span>`; }
+  else { const v=s*Math.pow(k,N-1); h+=`<span class="c">position-to-term: nth term = ${fmt(s)} × ${fmt(k)}ⁿ⁻¹</span><br>term ${N} = ${fmt(s)} × ${fmt(k)}${sup(N-1)} = <strong>${Math.abs(v)<1e15?fmt(v,4):v.toExponential(3).replace('e+',' × 10^')}</strong>`; }
+  W.innerHTML=h; }
+['r1S','r1Op','r1K','r1N'].forEach(i=>$(i).addEventListener('input',draw1)); reg(draw1);
+
+/* 2. linear nth term */
+let LN=null;
+function lnNew(){ let d,c; do{ d=rnd(-6,9); c=rnd(-10,12);}while(d===0||(LN&&d===LN.d&&c===LN.c)); LN={d,c,t:[1,2,3,4,5].map(n=>d*n+c)};
+  $('lnSeq').innerHTML=seqHTML(LN.t); ['lnD','lnC'].forEach(i=>$(i).value=''); $('lnMsg').className='msg'; $('lnMsg').textContent=''; $('lnWork').hidden=true;
+  const {d:D,c:C,t}=LN; $('lnWork').innerHTML=`<table class="dtab"><tr><td class="l">n</td>${[1,2,3,4,5].map(n=>`<td>${n}</td>`).join('')}</tr><tr><td class="l">term</td>${t.map(v=>`<td class="t">${minus(v)}</td>`).join('')}</tr><tr><td class="l">${minus(D)}n</td>${[1,2,3,4,5].map(n=>`<td class="d2">${minus(D*n)}</td>`).join('')}</tr></table>difference ${minus(D)}, so compare with ${minus(D)}n: the terms are ${C<0?minus(-C)+' less':C+' more'} each time.`; }
+$('lnGo').addEventListener('click',()=>{ const d=num($('lnD')),c=num($('lnC')),M=$('lnMsg'); if(isNaN(d)||isNaN(c)){M.className='msg bad';M.textContent='Fill in both boxes (type 0 if there is no number term).';return;}
+  const {d:D,c:C,t}=LN, ok=d===D&&c===C; M.className='msg '+(ok?'good':'bad');
+  if(ok){M.textContent=`Correct: nth term = ${lin(D,C)}. Check n = 1: ${minus(D)} ${C<0?'−':'+'} ${Math.abs(C)} = ${minus(t[0])} ✓`;return;}
+  let m='Not quite. ';
+  if(d===D&&c===t[0]) m+=`You used the first term as c. Then n = 1 would give ${minus(D+t[0])}, not ${minus(t[0])}. Compare with the ${minus(D)} times table instead.`;
+  else if(d===-D) m+=`Check the sign of the difference: the terms go ${D>0?'up':'down'} by ${Math.abs(D)}, so d = ${minus(D)}.`;
+  else if(d!==D) m+=`The number in front of n is the common difference: ${minus(t[1])} − ${minus(t[0])} = ${minus(D)}.`;
+  else m+=`d = ${minus(D)} is right. ${minus(D)} × 1 = ${minus(D)}, and the first term is ${minus(t[0])}, so c = ${minus(t[0])} − ${br(D)} = ${minus(C)}.`;
+  M.textContent=m; });
+$('lnHint').addEventListener('click',()=>{$('lnWork').hidden=!$('lnWork').hidden;}); $('lnNew').addEventListener('click',lnNew); lnNew();
+
+/* 3. geometric */
+/* exact term for surd ratios: a × (√k)^(i) = a × k^(floor(i/2)) × (√k if odd) */
+function geTerms(a,R){ const out=[]; for(let i=0;i<7;i++){ if(R[0]==='s'){ const k=+R[1], w=a*Math.pow(k,Math.floor(i/2)); out.push({v:a*Math.pow(Math.sqrt(k),i),s:i%2?`${w===1?'':fmt(w)}√${k}`:fmt(w)}); } else { const v=a*Math.pow(+R,i); out.push({v,s:fmt(v,6)}); } } return out; }
+function drawGE(){ const a=num($('geA')),R=$('geR').value,W=$('geWork'); if(!isFinite(a)||a===0){W.textContent='Choose a non-zero first term.';return;}
+  const T=geTerms(a,R); $('geSeq').innerHTML=seqHTML(T.map(t=>t.s));
+  const mx=Math.max(...T.map(t=>Math.abs(t.v))), ac=css('--accent'),mu=css('--muted'); let s='';
+  T.forEach((t,i)=>{ const h=Math.abs(t.v)/mx*150, x=20+i*54; s+=`<rect x="${x}" y="${170-h}" width="40" height="${h}" fill="${ac}" fill-opacity=".55"/><text x="${x+20}" y="188" text-anchor="middle" font-size="11" fill="${mu}" ${F()}>${i+1}</text>`; if(i>0) s+=`<text x="${x-7}" y="${168-Math.max(h,Math.abs(T[i-1].v)/mx*150)-6}" text-anchor="middle" font-size="10" fill="${css('--two')}" ${F()}>×${R[0]==='s'?'√'+R[1]:fmt(+R)}</text>`; });
+  $('geSvg').innerHTML=s;
+  const rs=R[0]==='s'?'√'+R[1]:fmt(+R);
+  W.innerHTML=`<span class="c">common ratio r = ${T[1].s} ÷ ${T[0].s} = ${rs}</span><br>${R[0]==='s'?`every two steps multiply by ${rs} × ${rs} = ${R[1]}, so every other term is a whole number`:+R<1?'r is between 0 and 1: the terms shrink towards 0 but never reach it':'r > 1: the terms grow faster and faster'}<br>nth term = ${fmt(a)} × ${R[0]==='s'?'('+rs+')':rs}ⁿ⁻¹`; }
+['geA','geR'].forEach(i=>$(i).addEventListener('input',drawGE)); reg(drawGE);
+
+/* 3b. geometric quiz */
+let GQ=null;
+const parseR=s=>{ s=String(s).replace(/\s/g,'').replace(/−/g,'-'); let m; if((m=s.match(/^(-?\d+)\/(\d+)$/))) return +m[1]/+m[2]; if((m=s.match(/^(\d*)√(\d+)$/))) return (m[1]?+m[1]:1)*Math.sqrt(+m[2]); const v=parseFloat(s); return isFinite(v)&&/^-?[\d.]+$/.test(s)?v:NaN; };
+function gqNew(){ const opts=[{a:rnd(1,5),r:2},{a:rnd(1,4),r:3},{a:pick([64,128,96,48,80]),r:0.5},{a:pick([81,162,243]),r:1/3},{a:pick([8,16,32]),r:1.5}]; const o=pick(opts); const t=[]; for(let i=0;i<5;i++) t.push(o.a*Math.pow(o.r,i)); GQ={r:o.r,t};
+  $('gqQ').innerHTML=`Geometric sequence: <span class="m">${t.slice(0,4).map(v=>fmt(v,4)).join(', ')}, …</span> Find the common ratio and the next term. (Type fractions like 1/3.)`; ['gqR','gqN'].forEach(i=>$(i).value=''); $('gqMsg').className='msg'; $('gqMsg').textContent=''; }
+$('gqGo').addEventListener('click',()=>{ const r=parseR($('gqR').value), n=parseR($('gqN').value), M=$('gqMsg'), {r:R,t}=GQ; if(isNaN(r)||isNaN(n)){M.className='msg bad';M.textContent='Type the ratio (e.g. 3 or 1/2) and the next term.';return;}
+  const okR=Math.abs(r-R)<1e-9, okN=Math.abs(n-t[4])<1e-6; M.className='msg '+(okR&&okN?'good':'bad');
+  if(okR&&okN){M.textContent=`Correct: r = ${R===0.5?'½':Math.abs(R-1/3)<1e-9?'⅓':fmt(R)}, next term ${fmt(t[4],4)}.`;return;}
+  let m='Not quite. '; if(!okR){ if(Math.abs(r-1/R)<1e-9) m+=`Divide each term by the one <em>before</em> it: ${fmt(t[1],4)} ÷ ${fmt(t[0],4)}, not the other way round. `; else if(Math.abs(r-(t[1]-t[0]))<1e-9) m+=`That's the difference. Geometric sequences multiply, so divide: ${fmt(t[1],4)} ÷ ${fmt(t[0],4)}. `; else m+=`r = ${fmt(t[1],4)} ÷ ${fmt(t[0],4)}. `; }
+  if(!okN){ if(Math.abs(n-(t[3]+(t[3]-t[2])))<1e-9) m+='You added the difference; multiply by r instead.'; else m+=`Next term = ${fmt(t[3],4)} × r.`; }
+  M.innerHTML=m; });
+$('gqNew').addEventListener('click',gqNew); gqNew();
+
+/* 4. Fibonacci-type */
+function drawFB(){ const a=+$('fbA').value,b=+$('fbB').value; $('fbAv').textContent=' '+minus(a); $('fbBv').textContent=' '+minus(b);
+  const C=[[1,0],[0,1]]; for(let i=2;i<8;i++) C.push([C[i-1][0]+C[i-2][0],C[i-1][1]+C[i-2][1]]);
+  const ex=([p,q])=>{ const t=[]; if(p) t.push((p===1?'':p)+'a'); if(q) t.push((q===1?'':q)+'b'); return t.join(' + '); };
+  $('fbTab').innerHTML=`<tr><th>term</th>${C.map((_,i)=>`<td>${i+1}</td>`).join('')}</tr><tr><th>in a, b</th>${C.map(c=>`<td style="font-size:.75rem">${ex(c)}</td>`).join('')}</tr><tr><th>value</th>${C.map(([p,q])=>`<td class="on">${minus(p*a+q*b)}</td>`).join('')}</tr>`;
+  const v=C.map(([p,q])=>p*a+q*b);
+  $('fbWork').innerHTML=`${minus(v[0])}, ${minus(v[1])}, then ${minus(v[0])} + ${br(v[1])} = ${minus(v[2])}, ${minus(v[1])} + ${br(v[2])} = ${minus(v[3])}, …<br><span class="c">exam pattern: if the 3rd term is ${minus(v[2])} and the 5th is ${minus(v[4])}, solve a + b = ${minus(v[2])} and 2a + 3b = ${minus(v[4])} to get a = ${minus(a)}, b = ${minus(b)}</span>`; }
+['fbA','fbB'].forEach(i=>$(i).addEventListener('input',drawFB)); reg(drawFB);
+
+/* 5. shapes */
+function drawSH(){ const n=+$('shN').value, two=$('shTwo').checked; $('shNv').textContent=' '+n; const ac=css('--accent'),hi=css('--hi'),tw=css('--two'),mu=css('--muted'),fg=css('--fg');
+  let s=''; const r=Math.min(7,60/n), g=Math.min(18,130/n);
+  // triangle (and its partner)
+  for(let row=0;row<n;row++) for(let k=0;k<=row;k++) s+=`<circle cx="${20+k*g}" cy="${30+row*g}" r="${r}" fill="${ac}"/>`;
+  if(two) for(let row=0;row<n;row++) for(let k=row+1;k<=n;k++) s+=`<circle cx="${20+k*g}" cy="${30+row*g}" r="${r}" fill="${hi}"/>`;
+  s+=`<text x="20" y="200" font-size="12" fill="${fg}" ${F()}>T = ${n*(n+1)/2}</text>`;
+  // square
+  const ox=175; for(let i=0;i<n;i++) for(let j=0;j<n;j++) s+=`<circle cx="${ox+j*g}" cy="${30+i*g}" r="${r}" fill="${tw}"/>`;
+  s+=`<text x="${ox}" y="200" font-size="12" fill="${fg}" ${F()}>${n}² = ${n*n}</text>`;
+  // cube (isometric outline with grid on visible faces)
+  const cx=330, cy=95, u=Math.min(11,70/n), L=n*u, P=(x,y,z)=>[cx+(x-y)*0.87*u, cy+(x+y)*0.5*u - z*u];
+  const poly=(pts,fill)=>`<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="${fill}" fill-opacity=".35" stroke="${mu}" stroke-width=".8"/>`;
+  for(let i=0;i<n;i++) for(let j=0;j<n;j++){ s+=poly([P(i,j,n),P(i+1,j,n),P(i+1,j+1,n),P(i,j+1,n)],tw); s+=poly([P(n,i,j),P(n,i+1,j),P(n,i+1,j+1),P(n,i,j+1)],ac); s+=poly([P(i,n,j),P(i+1,n,j),P(i+1,n,j+1),P(i,n,j+1)],hi); }
+  s+=`<text x="${cx-30}" y="200" font-size="12" fill="${fg}" ${F()}>${n}³ = ${n**3}</text>`;
+  $('shSvg').innerHTML=s;
+  const T=[],Q=[],Cu=[]; for(let k=1;k<=8;k++){T.push(k*(k+1)/2);Q.push(k*k);Cu.push(k**3);}
+  $('shWork').innerHTML=`<span class="a">triangular: ${T.join(', ')}, …  (nth = n(n + 1)/2)</span><br><span class="c">square: ${Q.join(', ')}, …</span><br>cube: ${Cu.join(', ')}, …${two?`<br><span class="b">two triangles of ${n*(n+1)/2} make a ${n} × ${n+1} rectangle of ${n*(n+1)}, so one triangle is ${n} × ${n+1} ÷ 2</span>`:''}`; }
+['shN','shTwo'].forEach(i=>$(i).addEventListener('input',drawSH)); reg(drawSH);
+
+/* 6. quadratic nth term */
+let QS6=null;
+function qsBuild(a,b,c){ const N=[1,2,3,4,5], t=N.map(n=>a*n*n+b*n+c), d1=t.slice(1).map((v,i)=>v-t[i]), d2=d1.slice(1).map((v,i)=>v-d1[i]), an=N.map(n=>a*n*n), r=t.map((v,i)=>v-an[i]);
+  const L=[`<span class="a">terms: ${t.map(minus).join(', ')}</span>`,
+   `<span class="b">first differences: ${d1.map(minus).join(', ')}</span> — not constant, so not linear`,
+   `<span class="c">second differences: ${d2.map(minus).join(', ')}</span> — constant, so quadratic`,
+   `a = ${minus(d2[0])} ÷ 2 = <strong>${minus(a)}</strong>, so the nth term starts ${polyStr([a,0,0],'n')}`,
+   `${polyStr([a,0,0],'n')}: ${an.map(minus).join(', ')}<br>${a<0?'term + '+polyStr([-a,0,0],'n'):'term − '+polyStr([a,0,0],'n')}: ${r.map(minus).join(', ')}`,
+   r.every(v=>v===r[0])?`what's left is constant: ${minus(r[0])}`:`what's left goes ${b<0?'down':'up'} by ${Math.abs(b)} each time: its nth term is ${lin(b,c)}`,
+   `<strong>nth term = ${polyStr([a,b,c],'n')}</strong> &nbsp;<span class="a">check n = 3: ${polyStr([a,b,c],'n').replace(/n/g,'(3)')} = ${minus(a*9+b*3+c)} ✓</span>`];
+  return {a,b,c,t,d1,d2,an,r,L}; }
+function qsTable(k){ if(!QS6) return; const {t,d1,d2,an,r}=QS6, row=(lab,arr,cls,off)=>`<tr><td class="l">${lab}</td>${off?'<td></td>':''}${arr.map(v=>`<td class="${cls}"${off?' colspan="2"':''}>${minus(v)}</td>`).join('')}</tr>`;
+  let h=`<table class="dtab"><tr><td class="l">n</td>${[1,2,3,4,5].map(n=>`<td colspan="2">${n}</td>`).join('')}</tr>`+row('term',t,'t',false).replace(/<td class="t">/g,'<td class="t" colspan="2">');
+  if(k>=2) h+=`<tr><td class="l">1st diff</td><td></td>${d1.map(v=>`<td class="d1" colspan="2">${minus(v)}</td>`).join('')}<td></td></tr>`;
+  if(k>=3) h+=`<tr><td class="l">2nd diff</td><td></td><td></td>${d2.map(v=>`<td class="d2" colspan="2">${minus(v)}</td>`).join('')}<td></td><td></td></tr>`;
+  if(k>=5) h+=`<tr><td class="l">${polyStr([QS6.a,0,0],'n')}</td>${an.map(v=>`<td colspan="2">${minus(v)}</td>`).join('')}</tr><tr><td class="l">${QS6.a<0?'term + '+polyStr([-QS6.a,0,0],'n'):'term − '+polyStr([QS6.a,0,0],'n')}</td>${r.map(v=>`<td class="d2" colspan="2">${minus(v)}</td>`).join('')}</tr>`;
+  $('qsTab').innerHTML=h+'</table>'; }
+const qsStep=stepper('qsWork','qsNext','qsAll','qsReset',k=>qsTable(k));
+function qsLoad(a,b,c){ QS6=qsBuild(a,b,c); qsStep.set(QS6.L,1); }
+$('qsE').addEventListener('change',()=>qsLoad(...$('qsE').value.split(',').map(Number)));
+$('qsRand').addEventListener('click',()=>{ let a,b,c; do{a=rnd(-3,3);b=rnd(-6,6);c=rnd(-6,8);}while(a===0); qsLoad(a,b,c); });
+qsLoad(2,-1,3);
+
+/* 6b. try it */
+let QT=null;
+function qtNew(){ let a,b,c; do{a=pick([1,2,3,-1,0.5]);b=rnd(-5,5);c=rnd(-6,6);}while(QT&&a===QT.a&&b===QT.b); const t=[1,2,3,4,5].map(n=>a*n*n+b*n+c); if(t.some(v=>!Number.isInteger(v))) return qtNew(); QT={a,b,c,t}; $('qtSeq').textContent=t.map(minus).join(', ')+', …'; ['qtA','qtB','qtC'].forEach(i=>$(i).value=''); $('qtMsg').className='msg'; $('qtMsg').textContent=''; }
+$('qtGo').addEventListener('click',()=>{ const A=parseR($('qtA').value),B=num($('qtB')),C=num($('qtC')),M=$('qtMsg'); if([A,B,C].some(isNaN)){M.className='msg bad';M.textContent='Fill in all three boxes (0 if a term is missing; ½ can be typed as 1/2 or 0.5).';return;}
+  const {a,b,c,t}=QT, ok=Math.abs(A-a)<1e-9&&B===b&&C===c; M.className='msg '+(ok?'good':'bad');
+  if(ok){M.textContent=`Correct: ${polyStr([a,b,c],'n')}.`;return;}
+  const d2=(t[2]-t[1])-(t[1]-t[0]);
+  if(Math.abs(A-d2)<1e-9&&d2!==a) M.textContent=`Not quite. Halve the second difference: a = ${minus(d2)} ÷ 2 = ${fmt(a)}.`;
+  else if(Math.abs(A-a)>1e-9) M.textContent=`Not quite. Second difference = ${minus(d2)}, so a = ${fmt(a)}.`;
+  else { const r=t.map((v,i)=>v-a*(i+1)**2); M.textContent=`Not quite. a = ${fmt(a)} is right. Now subtract ${polyStr([a,0,0],'n')}: ${r.map(minus).join(', ')}. Find the nth term of that linear sequence.`; } });
+$('qtNew').addEventListener('click',qtNew); qtNew();
+
+const QS=[
+  {q:'The term-to-term rule for 7, 11, 15, 19, … is…',opts:['add 4','4n + 3','multiply by 2','add 7'],a:0,fb:'Each term is 4 more than the one before. (4n + 3 is the position-to-term rule.)'},
+  {q:'The nth term of 7, 11, 15, 19, … is…',opts:['4n + 3','4n + 7','n + 4','7n + 4'],a:0,fb:'Difference 4, so 4n: 4, 8, 12, 16. The sequence is 3 more: 4n + 3.'},
+  {q:'What is the 20th term of the sequence with nth term 6n − 1?',opts:['119','121','61','125'],a:0,fb:'6 × 20 − 1 = 119.'},
+  {q:'Next term of the geometric sequence 3, 6, 12, 24, …?',opts:['48','30','36','27'],a:0,fb:'Ratio 2: 24 × 2 = 48. (30 adds the last difference, which is wrong for geometric.)'},
+  {q:'The common ratio of 81, 27, 9, 3, … is…',opts:['1/3','3','−54','1/9'],a:0,fb:'27 ÷ 81 = 1/3.'},
+  {q:'Next term of the Fibonacci-type sequence 2, 3, 5, 8, …?',opts:['13','11','16','10'],a:0,fb:'5 + 8 = 13.'},
+  {q:'The 6th triangular number is…',opts:['21','36','15','28'],a:0,fb:'6 × 7 ÷ 2 = 21 (1 + 2 + 3 + 4 + 5 + 6).'},
+  {q:'Which of these is a cube number?',opts:['27','36','49','81'],a:0,fb:'27 = 3 × 3 × 3 = 3³. The others are square numbers.'},
+  {q:'Higher: the nth term of 3, 9, 19, 33, 51, … is…',opts:['2n² + 1','4n² − 1','n² + 2','6n − 3'],a:0,fb:'Second difference 4, so a = 2. 2n²: 2, 8, 18, 32, 50; what\'s left is 1 every time: 2n² + 1.'},
+  {q:'Higher: next term of √2, 2, 2√2, 4, …?',opts:['4√2','6','8','4 + √2'],a:0,fb:'The ratio is √2: 4 × √2 = 4√2.'}
+];
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>DRAW.forEach(f=>f()));}
+new MutationObserver(()=>DRAW.forEach(f=>f())).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

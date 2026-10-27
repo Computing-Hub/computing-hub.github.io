@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Statistical Charts</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one or more interactive SVG charts drawn from JS (pictograms, bar charts, pie charts, scatter graphs). Graph-paper neutrals for axes and gridlines. Colours on this page: the five category colours teal (--accent), orange (--hi), plum (--two), blue (--c4) and pink (--c5) each stand for one category (one fruit, one way of travelling, one pet…), and the same category keeps the same colour in every picture of the same data. In the dual bar chart teal = Year 7 and orange = Year 8. Pictogram symbols are teal squares. Scatter-graph points are plum, labelled with the pupil's letter. In the two-pie comparison teal = "walk" and grey = everyone else. Every bar, slice and row is also labelled with words, so colour is never the only cue. Green/red are only used for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --c4:#2563eb; --c5:#be185d;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171;
+  --c4:#6ea8ff; --c5:#f17bb3; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171;
+  --c4:#6ea8ff; --c5:#f17bb3; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+main a{color:var(--accent)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:manipulation}
+.lab svg.drag{touch-action:none;cursor:pointer}
+.ct{font-family:var(--display);font-size:1.02rem;font-weight:600;margin:.2rem 0 .3rem;text-align:center}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);flex-wrap:wrap}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.btn:disabled{opacity:.4;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:.95rem;line-height:1.85;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}.work .g{color:var(--good)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem}
+.data{display:flex;flex-wrap:wrap;gap:.35rem .5rem;font-family:var(--mono);font-size:.92rem;margin:.2rem 0 .6rem}
+.data span{border:1px solid var(--line);border-radius:6px;padding:.15rem .5rem;background:var(--bg)}
+.sw{display:inline-block;width:.8em;height:.8em;border-radius:2px;margin-right:.4em;vertical-align:-.05em}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.92rem}
+.vt td,.vt th{text-align:left;padding:.35rem .45rem;border-bottom:1px solid var(--line);vertical-align:middle}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child{font-family:var(--body)}
+.vt tr.on td{background:var(--two-soft);color:var(--two);font-weight:600}
+.vt tr.done td{color:var(--muted)}
+.pm{white-space:nowrap}
+.pm button{font:inherit;font-family:var(--mono);width:2.1em;height:2.1em;padding:0;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;vertical-align:middle}
+.pm button:hover{border-color:var(--accent)}
+.pm span{display:inline-block;min-width:2.2em;text-align:center;font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+@media (max-width:520px){
+  .stack table,.stack tbody,.stack tr,.stack td{display:block;width:100%}
+  .stack tr:first-child{display:none}
+  .stack tr{border-bottom:1px solid var(--line);padding:.4rem 0}
+  .stack td{border:0;padding:.15rem 0}
+  .stack td:first-child{font-weight:600}
+}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left;max-width:100%}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Statistics · KS3</div>
+  <h1>Statistical Charts</h1>
+  <p class="lede">A list of numbers is hard to take in at a glance; a picture is easy. In this page you'll learn to draw and read the four most common statistical pictures: <strong>pictograms</strong>, <strong>bar charts</strong>, <strong>pie charts</strong> and <strong>scatter graphs</strong>. You'll also learn which one to pick for which job, and how to spot a chart that is trying to trick you.</p>
+  <span class="gcse">National curriculum KS3: construct and interpret appropriate tables, charts and diagrams, including frequency tables, bar charts, pie charts and pictograms for categorical data, and scatter graphs for bivariate data</span>
+</header>
+
+<h2>1 · One set of data, three pictures</h2>
+<p>Imagine your teacher asks everyone in the class, "What is your favourite fruit?" The answers are your <strong>data</strong>: the information you collected. Each answer belongs to one <strong>category</strong> (a group with a name, such as "Apple" or "Banana"). Data like this, where the answers are names rather than measurements, is called <strong>categorical data</strong>.</p>
+<p>You count how many people chose each fruit. That count is the <strong>frequency</strong>: how often something happens. Putting the frequencies in a table gives a <strong>frequency table</strong> (there's a whole page on building those, with tallies: see <a href="frequency-tables.html">frequency tables</a>).</p>
+<p>A table is accurate but dull. A chart lets you <em>see</em> the answers. Below, the same table is drawn three different ways. Press <strong>+</strong> and <strong>−</strong> to change the class's answers and watch all three pictures change together.</p>
+
+<div class="lab">
+  <div class="tbl"><table class="vt" id="fsTable"></table></div>
+  <div class="twin" style="margin-top:1rem">
+    <div><div class="ct">Pictogram</div><svg id="fsPic" viewBox="0 0 340 230" width="340" height="230" aria-label="Pictogram of favourite fruit"></svg></div>
+    <div><div class="ct">Bar chart</div><svg id="fsBar" viewBox="0 0 340 240" width="340" height="240" aria-label="Bar chart of favourite fruit"></svg></div>
+  </div>
+  <div class="ct" style="margin-top:1rem">Pie chart</div>
+  <svg id="fsPie" viewBox="0 0 400 250" width="400" height="250" aria-label="Pie chart of favourite fruit"></svg>
+  <div class="work" id="fsWork"></div>
+</div>
+
+<p>Notice what each picture is good at. The <strong>pictogram</strong> is friendly and easy to count. The <strong>bar chart</strong> makes it easy to read exact numbers and to see which is biggest. The <strong>pie chart</strong> shows what <em>share</em> (fraction) of the whole class chose each fruit. The rest of this page takes each one in turn.</p>
+
+<h2>2 · Pictograms</h2>
+<p>A <strong>pictogram</strong> uses little pictures, called <strong>symbols</strong>, to show frequencies. Each row is one category. The most important part of a pictogram is the <strong>key</strong>: it tells you how many things one symbol stands for. Without the key a pictogram is meaningless.</p>
+<p>If the key says <span class="m">■ = 4 cars</span>, then two symbols mean 8 cars, and half a symbol means half of 4, which is 2 cars. A quarter of a symbol means 1 car. So:</p>
+<p class="big">frequency = number of symbols × key</p>
+<p>When you <em>draw</em> one, go the other way: number of symbols = frequency ÷ key. Try changing the key below. The data (cars passing the school gate in a 5-minute survey) stays the same; only the picture changes.</p>
+
+<div class="lab">
+  <div class="chips" id="pkKeys"></div>
+  <svg id="pkSvg" viewBox="0 0 400 236" width="400" height="236" aria-label="Pictogram of cars passing school"></svg>
+  <div class="work" id="pkWork"></div>
+</div>
+
+<p>Choosing the key is your job when you draw a pictogram. A good key makes every row a whole number of symbols, or an easy fraction like ½ or ¼. Too small a key and the rows get very long; too big and you end up drawing 0.6 of a symbol, which nobody can read.</p>
+
+<h3>Try it: read a pictogram row</h3>
+<div class="lab">
+  <p class="pq" id="pkQ"></p>
+  <svg id="pkQSvg" viewBox="0 0 400 110" width="400" height="110" aria-label="One pictogram row"></svg>
+  <div class="controls">
+    <label>answer <input type="text" id="pkA" inputmode="numeric" autocomplete="off"></label>
+    <button class="btn primary" id="pkGo">Check</button>
+    <button class="btn" id="pkNew">New row</button>
+  </div>
+  <div class="msg" id="pkMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common pictogram mistakes</strong></p>
+  <ul>
+    <li><strong>Counting symbols instead of using the key.</strong> 3 symbols with a key of 4 is 12, not 3.</li>
+    <li><strong>Ignoring the part-symbol.</strong> Look carefully at the end of each row: a half or quarter symbol still counts.</li>
+    <li><strong>Unequal symbols.</strong> Every symbol must be the same size and evenly spaced, or a row can look bigger than it really is (see section 7).</li>
+  </ul>
+</div>
+
+<h2>3 · Bar charts</h2>
+<p>A <strong>bar chart</strong> shows each frequency as the height of a bar. It has two <strong>axes</strong> (the plural of axis), the two lines the chart is built on:</p>
+<ul>
+  <li>The <strong>horizontal axis</strong> (across the bottom) lists the categories. Give it a label saying what they are, e.g. "Pet".</li>
+  <li>The <strong>vertical axis</strong> (up the side) is the <strong>frequency scale</strong>. It must start at 0 and go up in equal steps (0, 2, 4, 6…). Label it "Frequency" or "Number of pupils".</li>
+  <li>Every bar is the <strong>same width</strong>, and there are <strong>equal gaps</strong> between the bars. The gaps show that the categories are separate things: there is nothing "between" Dog and Cat.</li>
+  <li>Give the chart a <strong>title</strong> so a reader knows what it shows.</li>
+</ul>
+<p>Reading the scale is the skill people rush. Before reading any bar, work out what <em>one</em> small gridline is worth. If the labels go 0, 2, 4, 6 and there is one line between each, every line is 1.</p>
+
+<h3>Try it: draw the bar chart</h3>
+<p>Drag (or tap) inside each column to set the height of the bar so it matches the table. Every gridline is 1 pet owner. Then press Check.</p>
+<div class="lab">
+  <div class="pq">Pets owned by pupils in class 8B</div>
+  <div class="data" id="bdData"></div>
+  <svg id="bdSvg" class="drag" viewBox="0 0 400 290" width="400" height="290" aria-label="Bar chart to draw"></svg>
+  <div class="controls">
+    <button class="btn primary" id="bdGo">Check</button>
+    <button class="btn" id="bdNew">New data</button>
+  </div>
+  <div class="msg" id="bdMsg"></div>
+</div>
+
+<h3>Comparing two groups: dual and composite bar charts</h3>
+<p>Sometimes you want to compare two groups, such as Year 7 and Year 8. There are two ways to do it.</p>
+<ul>
+  <li>A <strong>dual bar chart</strong> puts the two groups' bars side by side for each category, with a <strong>key</strong> (legend) saying which colour is which group. It is best for comparing the groups category by category.</li>
+  <li>A <strong>composite bar chart</strong> (also called a stacked bar chart) draws one tall bar per group, split into sections, one for each category. It is best for comparing the <em>totals</em> and seeing how each total is made up. To read a section, subtract: top of the section − bottom of the section.</li>
+</ul>
+<div class="lab">
+  <div class="chips">
+    <button class="btn on" id="dcDual">Dual bar chart</button>
+    <button class="btn" id="dcComp">Composite bar chart</button>
+  </div>
+  <svg id="dcSvg" viewBox="0 0 400 290" width="400" height="290" aria-label="How Year 7 and Year 8 travel to school"></svg>
+  <div class="info" id="dcInfo"></div>
+  <div class="controls">
+    <label>How many Year 8 pupils travel by car? <input type="text" id="dcA" inputmode="numeric" autocomplete="off"></label>
+    <button class="btn primary" id="dcGo">Check</button>
+  </div>
+  <div class="msg" id="dcMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common bar chart mistakes</strong></p>
+  <ul>
+    <li>Bars of different widths, or no gaps between bars for categories.</li>
+    <li>An uneven scale (0, 5, 10, 20, 50…) or a scale that does not start at 0.</li>
+    <li>Missing axis labels or title, so nobody knows what is being counted.</li>
+    <li>Reading a composite bar's section from the top only: always subtract the bottom of the section.</li>
+  </ul>
+</div>
+
+<h2>4 · Drawing a pie chart</h2>
+<p>A <strong>pie chart</strong> is a circle cut into slices, called <strong>sectors</strong>. The whole circle stands for everybody in the survey; each sector shows one category's share. Think of a pizza shared out: whoever gets more votes gets a bigger slice.</p>
+<p>The key fact: <strong>a full turn is 360°</strong>. So we share the 360° out fairly between everyone in the survey. Let's do it with concrete numbers first. Suppose 36 people were asked.</p>
+<ul>
+  <li>360° shared between 36 people is 360 ÷ 36 = <strong>10° per person</strong>.</li>
+  <li>If 9 people said "Walk", Walk gets 9 × 10° = <strong>90°</strong> (a quarter of the circle, which makes sense: 9 is a quarter of 36).</li>
+</ul>
+<p>That's the "degrees per person" method. Writing it as one formula:</p>
+<p class="big">angle = frequency ÷ total × 360°</p>
+<p>Both methods give the same answer: 9 ÷ 36 × 360° = 90°. Use degrees per person when 360 ÷ total is a nice number, and the formula otherwise. Always <strong>check that your angles add up to 360°</strong>.</p>
+<p><strong>Drawing it:</strong> draw a circle with compasses and mark the centre. Draw one radius straight up from the centre. Put your protractor on that line, measure the first angle and draw the next radius. Then measure the second angle <em>from the line you just drew</em>, and so on round the circle. Label each sector.</p>
+
+<h3>Try it: draw the pie chart</h3>
+<p>Work out each angle first. Then drag the round handles round the edge so each sector has the right angle. The marks round the outside act like a protractor, every 10°, with numbers every 30°. You're allowed to be within 2°.</p>
+<div class="lab">
+  <div class="pq" id="pdQ"></div>
+  <div class="data" id="pdData"></div>
+  <svg id="pdSvg" class="drag" viewBox="0 0 400 340" width="400" height="340" aria-label="Pie chart to draw"></svg>
+  <div class="controls">
+    <button class="btn primary" id="pdGo">Check</button>
+    <button class="btn" id="pdShow">Show working</button>
+    <button class="btn" id="pdNew">New data</button>
+  </div>
+  <div class="msg" id="pdMsg"></div>
+  <div class="work" id="pdWork" hidden></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common pie chart mistakes</strong></p>
+  <ul>
+    <li><strong>Using the frequency as the angle.</strong> 9 people does not mean 9°. Multiply by the degrees per person.</li>
+    <li><strong>Dividing the wrong way:</strong> it's 360 ÷ total, not total ÷ 360.</li>
+    <li><strong>Measuring every angle from the start line</strong> instead of from the previous line. (Or add them up as you go: the slider handles above sit at the running totals.)</li>
+    <li><strong>Not checking the total is 360°.</strong> If it isn't, something is wrong.</li>
+  </ul>
+</div>
+
+<h2>5 · Reading a pie chart, and what it can't tell you</h2>
+<p>To go backwards, from an angle to a frequency, undo the steps. You need to know the total number of people.</p>
+<p class="big">frequency = angle ÷ 360° × total</p>
+<p>Example: a pie chart shows 60 people. A sector of 120° is 120/360 = ⅓ of the circle, so it is ⅓ of 60 = 20 people. Or with degrees per person: 360 ÷ 60 = 6° each, and 120 ÷ 6 = 20 people.</p>
+<p>If you don't know the total but you know one sector's frequency, you can still find it. If a 90° sector stands for 15 people, then 90° is a quarter of the circle, so the total is 4 × 15 = 60.</p>
+
+<h3>Pie charts show proportion, not size</h3>
+<p>A pie chart shows <strong>proportions</strong>: what fraction of the group is in each category. It does <em>not</em> show how many people that is. Every pie chart is the same size whether it shows 10 people or 10 000. So you <strong>cannot compare two pie charts by slice size</strong> unless they have the same total. Try it: change the sizes of the two schools.</p>
+<div class="lab">
+  <div class="controls">
+    <label>School A pupils <input type="range" id="twAT" min="10" max="200" step="10" value="30"><span id="twATv" style="font-family:var(--mono)"></span></label>
+    <label>walkers <input type="range" id="twAW" min="0" max="30" step="1" value="15"><span id="twAWv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="controls">
+    <label>School B pupils <input type="range" id="twBT" min="10" max="200" step="10" value="200"><span id="twBTv" style="font-family:var(--mono)"></span></label>
+    <label>walkers <input type="range" id="twBW" min="0" max="200" step="1" value="50"><span id="twBWv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="twSvg" viewBox="0 0 400 290" width="400" height="290" aria-label="Two pie charts compared"></svg>
+  <div class="info" id="twInfo"></div>
+</div>
+
+<h3>Try it: read the chart</h3>
+<p>A mix of questions on bar charts, pictograms and pie charts. Each one is new.</p>
+<div class="lab">
+  <p class="pq" id="rcQ"></p>
+  <svg id="rcSvg" viewBox="0 0 400 270" width="400" height="270" aria-label="Chart to read"></svg>
+  <div class="controls">
+    <label>answer <input type="text" id="rcA" inputmode="numeric" autocomplete="off"></label>
+    <button class="btn primary" id="rcGo">Check</button>
+    <button class="btn" id="rcShow">Show working</button>
+    <button class="btn" id="rcNew">New question</button>
+  </div>
+  <div class="msg" id="rcMsg"></div>
+  <div class="work" id="rcWork" hidden></div>
+  <div class="msg" id="rcScore"></div>
+</div>
+
+<h2>6 · Scatter graphs</h2>
+<p>All the charts so far count <em>one</em> thing about each person (their favourite fruit, their pet). Sometimes we measure <strong>two</strong> things about each person, because we want to know if they are connected. Does revising for longer go with higher test scores? Do taller people have bigger feet? Data in pairs like this is called <strong>bivariate data</strong> ("bi" means two, "variate" means variable: a quantity that varies).</p>
+<p>A <strong>scatter graph</strong> plots each pair as a single point, exactly like plotting coordinates. <strong>Each point is one person</strong> (or one thing): how far across shows their first value, how far up shows their second. You don't join the points up.</p>
+<p><strong>Choosing the axes:</strong> put the variable you think might <em>affect</em> the other on the horizontal x-axis, and the one that might be affected on the vertical y-axis. Revising might affect the score, so hours go across and score goes up. Each axis needs its own sensible scale and a label with units.</p>
+
+<div class="lab">
+  <div class="twin">
+    <svg id="scSvg" viewBox="0 0 400 340" width="400" height="340" aria-label="Scatter graph to plot"></svg>
+    <div><div class="tbl"><table class="vt" id="scTable"></table></div></div>
+  </div>
+  <div class="msg" id="scMsg"></div>
+  <div class="controls">
+    <button class="btn" id="scAll">Plot the rest for me</button>
+    <button class="btn" id="scReset">Start again</button>
+  </div>
+</div>
+
+<p>Once the points are plotted, look at the overall shape. Here the points drift upwards from left to right: pupils who revised more <em>tended</em> to score more. A pattern like that is called <strong>correlation</strong>. Describing correlation and drawing a line of best fit are covered on the <a href="distributions-correlation.html">distributions and correlation</a> page.</p>
+
+<div class="callout">
+  <p><strong>Common scatter graph mistakes</strong></p>
+  <ul>
+    <li>Swapping x and y: always go <em>across</em> first, then <em>up</em>.</li>
+    <li>Misreading the scale: here each gridline up is 5 marks, not 1.</li>
+    <li>Joining the points with lines. A scatter graph is just dots.</li>
+  </ul>
+</div>
+
+<h2>7 · Choosing a chart, and spotting misleading ones</h2>
+<div class="tbl stack"><table>
+  <tr><th>Chart</th><th>Best for</th><th>Not good for</th></tr>
+  <tr><td>Pictogram</td><td>Simple counts of a few categories, especially for young readers or posters.</td><td>Exact or awkward values (0.3 of a symbol).</td></tr>
+  <tr><td>Bar chart</td><td>Comparing frequencies of categories; reading exact values.</td><td>Showing what fraction of the whole each category is.</td></tr>
+  <tr><td>Dual / composite bar chart</td><td>Comparing two or more groups across the same categories.</td><td>Lots of groups: it gets crowded.</td></tr>
+  <tr><td>Pie chart</td><td>Showing proportions: what share of the whole each category is.</td><td>Many small categories, or comparing groups of different sizes.</td></tr>
+  <tr><td>Scatter graph</td><td>Pairs of numbers, to see if two variables are linked.</td><td>Categorical data like favourite colour.</td></tr>
+</table></div>
+
+<h3>Try it: which chart?</h3>
+<div class="lab">
+  <p class="pq" id="chQ"></p>
+  <div class="chips" id="chBtns"></div>
+  <div class="msg" id="chMsg"></div>
+  <div class="controls"><button class="btn" id="chNext">Next situation</button></div>
+</div>
+
+<h3>Spot the misleading chart</h3>
+<p>Charts can be drawn to give the wrong impression, sometimes by accident and sometimes on purpose (adverts, news headlines). Three classic tricks are below. For each one, decide what looks true, then press the button to see the honest version.</p>
+<div class="lab">
+  <div class="chips" id="mlTabs"></div>
+  <svg id="mlSvg" viewBox="0 0 400 270" width="400" height="270" aria-label="Possibly misleading chart"></svg>
+  <div class="controls"><button class="btn primary" id="mlToggle"></button></div>
+  <div class="info" id="mlInfo"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Questions to ask about any chart</strong></p>
+  <ul>
+    <li>Does the vertical axis start at 0? Are the steps on the scale equal?</li>
+    <li>Are all the symbols or bars the same width?</li>
+    <li>Is it 3D or tilted? 3D effects make nearer slices look bigger.</li>
+    <li>Is there a key, a title, and labels? Do pie-chart angles add up to 360°?</li>
+    <li>If comparing two pie charts, are the totals the same?</li>
+  </ul>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Draw a pie chart: Walk 9, Bus 12, Car 10, Bike 5</summary>
+  <div class="step"><strong>Total:</strong> 9 + 12 + 10 + 5 = 36 pupils.</div>
+  <div class="step"><strong>Degrees per pupil:</strong> 360° ÷ 36 = 10°.</div>
+  <div class="step"><strong>Angles:</strong> Walk 9 × 10° = 90°; Bus 12 × 10° = 120°; Car 10 × 10° = 100°; Bike 5 × 10° = 50°.</div>
+  <div class="step"><strong>Check:</strong> 90° + 120° + 100° + 50° = 360° ✓</div>
+  <div class="step"><strong>Draw:</strong> circle, radius straight up, then measure 90° and draw a line; from that line measure 120°; from the new line measure 100°; the last sector should be 50° automatically (measure it to check). Label each sector with its name.</div>
+</details>
+<details>
+  <summary>Pie chart angles using the formula: Dog 7, Cat 5, Fish 3, None 5</summary>
+  <div class="step"><strong>Total:</strong> 7 + 5 + 3 + 5 = 20.</div>
+  <div class="step"><strong>Dog:</strong> 7 ÷ 20 × 360° = 0.35 × 360° = 126°.</div>
+  <div class="step"><strong>Cat:</strong> 5 ÷ 20 × 360° = 0.25 × 360° = 90°.</div>
+  <div class="step"><strong>Fish:</strong> 3 ÷ 20 × 360° = 0.15 × 360° = 54°.</div>
+  <div class="step"><strong>None:</strong> 5 ÷ 20 × 360° = 90°.</div>
+  <div class="step"><strong>Check:</strong> 126° + 90° + 54° + 90° = 360° ✓ (Degrees per pet owner would be 360 ÷ 20 = 18°, and 7 × 18° = 126° too.)</div>
+</details>
+<details>
+  <summary>Read a pie chart: 120 people; Pop 150°, Rock 90°, Classical 30°, Other 90°</summary>
+  <div class="step"><strong>Degrees per person:</strong> 360° ÷ 120 = 3° each.</div>
+  <div class="step"><strong>Pop:</strong> 150 ÷ 3 = 50 people. <strong>Rock:</strong> 90 ÷ 3 = 30. <strong>Classical:</strong> 30 ÷ 3 = 10. <strong>Other:</strong> 90 ÷ 3 = 30.</div>
+  <div class="step"><strong>Check:</strong> 50 + 30 + 10 + 30 = 120 ✓</div>
+  <div class="step"><strong>Or with the formula:</strong> Pop = 150 ÷ 360 × 120 = 50.</div>
+</details>
+<details>
+  <summary>Pictogram: key ■ = 4 ice creams. Saturday shows 5½ symbols. Sunday sold 18.</summary>
+  <div class="step"><strong>Reading Saturday:</strong> 5 whole symbols = 5 × 4 = 20; half a symbol = ½ × 4 = 2. Total 20 + 2 = <strong>22 ice creams</strong>. (Or 5.5 × 4 = 22.)</div>
+  <div class="step"><strong>Drawing Sunday:</strong> 18 ÷ 4 = 4.5, so draw <strong>4½ symbols</strong>: four whole ones and a half.</div>
+  <div class="step"><strong>Watch out:</strong> answering "5½" for Saturday counts symbols, not ice creams.</div>
+</details>
+<details>
+  <summary>Composite bar chart: Year 7's bar has Walk 0 to 12, Bus 12 to 21, Car 21 to 27, Bike 27 to 30</summary>
+  <div class="step"><strong>Each section = top − bottom.</strong> Walk 12 − 0 = 12; Bus 21 − 12 = 9; Car 27 − 21 = 6; Bike 30 − 27 = 3.</div>
+  <div class="step"><strong>Total:</strong> the top of the whole bar, 30 (and 12 + 9 + 6 + 3 = 30 ✓).</div>
+  <div class="step"><strong>Watch out:</strong> reading Bus as 21 uses the top of the section only.</div>
+</details>
+<details>
+  <summary>Misleading axis: "Membership has shot up!" Bars show 92 and 98, but the axis starts at 90.</summary>
+  <div class="step"><strong>What the picture shows:</strong> only the parts above 90 are drawn, 92 − 90 = 2 and 98 − 90 = 8, so the second bar looks 8 ÷ 2 = 4 times as tall.</div>
+  <div class="step"><strong>The truth:</strong> 98 − 92 = 6 more members. As a fraction of 92 that's 6 ÷ 92 ≈ 0.065, about a 7% rise. Not 4 times as many!</div>
+  <div class="step"><strong>Fix:</strong> start the axis at 0, where the bars look almost the same height, which is honest.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li><strong>Categorical data</strong> has named categories; the <strong>frequency</strong> is how many are in each.</li>
+  <li><strong>Pictograms</strong> need a <strong>key</strong>: frequency = symbols × key, and symbols = frequency ÷ key. Part-symbols count, and all symbols must be the same size.</li>
+  <li><strong>Bar charts</strong> have labelled axes, a frequency scale starting at 0 in equal steps, equal-width bars and gaps between categories. Work out what one gridline is worth before reading.</li>
+  <li><strong>Dual bar charts</strong> compare groups category by category; <strong>composite bar charts</strong> compare totals, and each section is top − bottom.</li>
+  <li><strong>Pie charts</strong> share 360°: angle = frequency ÷ total × 360°, or frequency × degrees per person. Angles must add to 360°. Reading back: frequency = angle ÷ 360° × total.</li>
+  <li>Pie charts show <strong>proportion, not size</strong>: don't compare slices of pies with different totals.</li>
+  <li><strong>Scatter graphs</strong> plot pairs of values; each point is one person or thing. The possible cause goes on the x-axis. Patterns are called correlation (see <a href="distributions-correlation.html">distributions and correlation</a>).</li>
+  <li>Watch for <strong>misleading charts</strong>: axes not starting at 0, unequal symbols, 3D pies, missing labels.</li>
+  <li>To summarise data with a single number instead of a picture, see <a href="averages-and-range.html">averages and range</a>.</li>
+</ul>
+
+<footer>Made for KS3 students. Bar charts, pie charts, pictograms and scatter graphs are in the England national curriculum at key stage 3 under Statistics. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat(v.toFixed(d)).toString()) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const CAT = ['--accent','--hi','--two','--c4','--c5'];
+const col = i => css(CAT[i%CAT.length]);
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { const b=a.slice(); for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; };
+const num = el => { const v=parseFloat(String(el.value).replace(/−/g,'-').replace(/[^0-9.\-]/g,'')); return isFinite(v)?v:NaN; };
+const PT = (cx,cy,r,a) => [cx+r*Math.sin(a*Math.PI/180), cy-r*Math.cos(a*Math.PI/180)];
+function sectorD(cx,cy,r,a0,a1){
+  if(a1-a0>=359.999) return `M${cx},${cy-r} A${r},${r} 0 1 1 ${cx},${cy+r} A${r},${r} 0 1 1 ${cx},${cy-r} Z`;
+  const [x0,y0]=PT(cx,cy,r,a0),[x1,y1]=PT(cx,cy,r,a1);
+  return `M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${(a1-a0)>180?1:0} 1 ${x1},${y1} Z`;
+}
+function T(x,y,s,o={}){
+  const halo=o.halo?`stroke="${css('--panel')}" stroke-width="3.5" paint-order="stroke" stroke-linejoin="round"`:'';
+  return `<text x="${x}" y="${y}" font-size="${o.size||12}" font-weight="${o.weight||400}" text-anchor="${o.anchor||'start'}" fill="${o.fill||css('--fg')}" ${halo} ${F()}${o.extra?' '+o.extra:''}>${s}</text>`;
+}
+function svgPt(svg,ev){ const vb=svg.viewBox.baseVal, r=svg.getBoundingClientRect(); return [(ev.clientX-r.left)/r.width*vb.width,(ev.clientY-r.top)/r.height*vb.height]; }
+
+/* generic bar chart */
+function barChart(o){
+  const L=48,R=12,T0=14,B=46, w=o.W-L-R, h=o.H-T0-B, ymin=o.ymin||0;
+  const Y=v=>T0+h-(v-ymin)/(o.ymax-ymin)*h;
+  const g=css('--grid'), mu=css('--muted'), fg=css('--fg');
+  let s='';
+  const ms=o.minor||o.step;
+  for(let v=ymin; v<=o.ymax+1e-9; v+=ms) s+=`<line x1="${L}" y1="${Y(v)}" x2="${L+w}" y2="${Y(v)}" stroke="${g}" stroke-width="${Math.abs((v-ymin)/o.step-Math.round((v-ymin)/o.step))<1e-9?1.4:0.8}"/>`;
+  for(let v=ymin; v<=o.ymax+1e-9; v+=o.step) s+=T(L-6,Y(v)+4,fmt(v),{size:11,anchor:'end',fill:mu});
+  const n=o.cats.length, slot=w/n, bw=slot*(o.bw||0.6);
+  const X=i=>L+i*slot+(slot-bw)/2;
+  (o.vals||[]).forEach((v,i)=>{ if(v>ymin){ const y=Y(Math.min(v,o.ymax)); s+=`<rect x="${X(i)}" y="${y}" width="${bw}" height="${Y(ymin)-y}" fill="${o.cols?o.cols[i]:col(i)}"/>`; } });
+  s+=`<line x1="${L}" y1="${Y(ymin)}" x2="${L+w}" y2="${Y(ymin)}" stroke="${fg}" stroke-width="1.5"/><line x1="${L}" y1="${T0}" x2="${L}" y2="${Y(ymin)}" stroke="${fg}" stroke-width="1.5"/>`;
+  o.cats.forEach((c,i)=>{ s+=T(L+i*slot+slot/2,T0+h+16,c,{size:11,anchor:'middle'}); });
+  if(o.xLab) s+=T(L+w/2,o.H-6,o.xLab,{size:11,anchor:'middle',fill:mu});
+  if(o.yLab) s+=T(0,0,o.yLab,{size:11,anchor:'middle',fill:mu,extra:`transform="translate(13,${T0+h/2}) rotate(-90)"`});
+  return {s,Y,X,L,T:T0,w,h,slot,bw};
+}
+/* pictogram symbol: rounded square, part-symbol cut vertically so a half is exactly half */
+function sym(x,y,size,fill,frac,id){
+  if(frac>=0.999) return `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="3" fill="${fill}"/>`;
+  return `<clipPath id="${id}"><rect x="${x}" y="${y-1}" width="${size*frac}" height="${size+2}"/></clipPath><rect x="${x}" y="${y}" width="${size}" height="${size}" rx="3" fill="${fill}" clip-path="url(#${id})"/>`;
+}
+function symRow(x0,y,n,size,gap,fill,idp){
+  let s=''; const full=Math.floor(n+1e-9), fr=n-full;
+  for(let k=0;k<full;k++) s+=sym(x0+k*(size+gap),y,size,fill,1);
+  if(fr>1e-6) s+=sym(x0+full*(size+gap),y,size,fill,fr,idp);
+  return s;
+}
+/* pie with angle labels inside and names outside */
+function pie(cx,cy,r,angles,names,o={}){
+  let s='', a=0; const total=angles.reduce((p,q)=>p+q,0);
+  angles.forEach((ang,i)=>{ if(ang<=0)return; s+=`<path d="${sectorD(cx,cy,r,a,a+ang)}" fill="${o.cols?o.cols[i]:col(i)}" fill-opacity="${o.op||0.8}" stroke="${css('--panel')}" stroke-width="2"/>`; a+=ang; });
+  a=0;
+  angles.forEach((ang,i)=>{ if(ang<=0)return; const m=a+ang/2; a+=ang;
+    if(o.inside!==false && ang>=14){ const [ix,iy]=PT(cx,cy,r*0.62,m); s+=T(ix,iy+4,o.inLab?o.inLab(i,ang):fmt(ang,1)+'°',{size:11,anchor:'middle',weight:600,halo:true}); }
+    if(o.names!==false){ const [lx,ly]=PT(cx,cy,r+10,m), sn=Math.sin(m*Math.PI/180), cs=Math.cos(m*Math.PI/180);
+      const anchor=sn>0.2?'start':sn<-0.2?'end':'middle'; const dy=cs>0.6?-2:cs<-0.6?12:4;
+      s+=T(lx,ly+dy,names[i],{size:12,anchor,fill:o.cols?o.cols[i]:col(i),weight:600}); }
+  });
+  return s;
+}
+
+/* 1. shared data: one table, three pictures */
+const FS={names:['Apple','Banana','Orange','Grapes','Kiwi'],f:[6,4,3,5,6]};
+const fsCells=[], fsAng=[];
+(function buildFS(){
+  const tb=$('fsTable');
+  tb.innerHTML='<tr><th>Fruit</th><th>Frequency</th><th>Pie angle</th></tr>';
+  FS.names.forEach((n,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="sw" style="background:var(${CAT[i]})"></span>${n}</td><td class="pm"><button type="button" aria-label="one fewer ${n}">−</button><span></span><button type="button" aria-label="one more ${n}">+</button></td><td class="mono"></td>`;
+    const [bm,bp]=tr.querySelectorAll('button');
+    bm.addEventListener('click',()=>{if(FS.f[i]>0){FS.f[i]--;drawFS();}});
+    bp.addEventListener('click',()=>{if(FS.f[i]<20){FS.f[i]++;drawFS();}});
+    fsCells.push(tr.querySelector('.pm span')); fsAng.push(tr.querySelector('td.mono'));
+    tb.appendChild(tr);
+  });
+})();
+function drawFS(){
+  const f=FS.f, tot=f.reduce((a,b)=>a+b,0), mu=css('--muted');
+  const per=tot?360/tot:0, nice=tot&&Math.abs(per-Math.round(per*10)/10)<1e-9;
+  const ang=f.map(v=>tot?v/tot*360:0);
+  f.forEach((v,i)=>{fsCells[i].textContent=v; fsAng[i].textContent=tot?fmt(ang[i],1)+'°':'—';});
+  // pictogram, key 1 symbol = 2
+  let p='';
+  FS.names.forEach((n,i)=>{ const y=10+i*38; p+=T(8,y+16,n,{size:12,fill:col(i),weight:600})+symRow(78,y,f[i]/2,22,3,col(i),'fsP'+i); });
+  p+=`<line x1="8" y1="200" x2="332" y2="200" stroke="${css('--line')}"/>`+sym(8,207,16,mu,1)+T(30,220,'= 2 pupils (Key)',{size:12,fill:mu});
+  $('fsPic').innerHTML=p;
+  // bar chart
+  const mx=Math.max(...f), ymax=Math.max(6,Math.ceil(mx/2)*2);
+  $('fsBar').innerHTML=barChart({W:340,H:240,cats:FS.names,vals:f,ymax,step:2,minor:1,xLab:'Fruit',yLab:'Frequency'}).s;
+  // pie
+  $('fsPie').innerHTML=tot?pie(200,125,92,ang,FS.names):T(200,125,'No answers yet: press +',{anchor:'middle',fill:mu});
+  // working
+  const W=$('fsWork');
+  if(!tot){W.innerHTML='Total = 0. Nobody has answered, so there is nothing to share out.';return;}
+  let h=`<span class="c">Total = ${f.join(' + ')} = ${tot} pupils</span><br>`;
+  h+= nice?`A full circle is 360°, so each pupil gets <span class="b">360° ÷ ${tot} = ${fmt(per,1)}°</span><br>`:`360 ÷ ${tot} = ${fmt(per,4)}… is not a neat number, so use <span class="b">angle = frequency ÷ ${tot} × 360°</span><br>`;
+  FS.names.forEach((n,i)=>{ h+= nice?`${n}: ${f[i]} × ${fmt(per,1)}° = <strong>${fmt(ang[i],1)}°</strong><br>`:`${n}: ${f[i]} ÷ ${tot} × 360° = ${fmt(ang[i],4)}… ≈ <strong>${fmt(ang[i],1)}°</strong><br>`; });
+  const rs=ang.map(a=>Math.round(a*10)/10), sum=rs.reduce((a,b)=>a+b,0);
+  h+=`<span class="a">Check: ${rs.map(a=>fmt(a,1)+'°').join(' + ')} = ${fmt(sum,1)}°${Math.abs(sum-360)<0.05?' ✓':' (not exactly 360° only because of rounding to 1 d.p.)'}</span>`;
+  W.innerHTML=h;
+}
+drawFS();
+
+/* 2. pictogram key changer */
+const PK={days:['Mon','Tue','Wed','Thu','Fri'],v:[16,10,20,6,24],keys:[2,4,5,10],key:4};
+PK.keys.forEach(k=>{const b=document.createElement('button');b.className='btn';b.type='button';b.textContent=`■ = ${k} cars`;b.dataset.k=k;b.addEventListener('click',()=>{PK.key=k;drawPK();});$('pkKeys').appendChild(b);});
+function drawPK(){
+  const k=PK.key, ac=css('--accent'), mu=css('--muted');
+  $('pkKeys').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.k===k));
+  let s='', n=PK.v.map(v=>v/k);
+  const maxN=Math.max(...n), size=Math.min(22,Math.floor(330/Math.ceil(maxN))-4), gap=4;
+  PK.days.forEach((d,i)=>{const y=10+i*38; s+=T(8,y+16,d,{size:12,weight:600})+symRow(56,y+(22-size)/2,n[i],size,gap,ac,'pkS'+i);});
+  s+=`<line x1="8" y1="200" x2="392" y2="200" stroke="${css('--line')}"/>`+sym(8,208,16,ac,1)+T(30,221,`= ${k} cars (Key)`,{size:12,fill:mu});
+  $('pkSvg').innerHTML=s;
+  const okFrac=n.every(x=>Math.abs(x*4-Math.round(x*4))<1e-9);
+  let h=PK.days.map((d,i)=>`${d}: ${PK.v[i]} ÷ ${k} = ${fmt(n[i],2)} symbol${n[i]===1?'':'s'}`).join('<br>');
+  h+='<br>'+(okFrac?(maxN>10?`<span class="b">Every row is whole or half symbols, but Friday needs ${fmt(maxN)} symbols: the rows are long. A bigger key would be neater.</span>`:`<span class="g">Every row is a whole number of symbols, or a half or quarter: a good key.</span>`):`<span class="x">Some rows need awkward parts like ${fmt(n.find(x=>Math.abs(x*4-Math.round(x*4))>1e-9),2)} of a symbol, which can't be drawn or read accurately. Choose a different key.</span>`);
+  $('pkWork').innerHTML=h;
+}
+drawPK();
+
+/* 2b. read a pictogram row */
+let PQ=null;
+function pkNew(){
+  const k=pick([2,4,10]); const n=k===4?rnd(4,26)/4:rnd(2,14)/2;
+  const thing=pick(['books Ella read this term','goals scored by Year 8 this season','emails Sam got today','cakes sold at the bake sale']);
+  PQ={k,n,ans:n*k,thing};
+  $('pkQ').textContent=`Key: ■ = ${k}. This row shows the number of ${thing}. How many is that?`;
+  $('pkA').value=''; $('pkMsg').className='msg'; $('pkMsg').textContent='';
+  drawPKQ();
+}
+function drawPKQ(){
+  if(!PQ)return; const ac=css('--accent'), mu=css('--muted');
+  let s=symRow(10,14,PQ.n,24,4,ac,'pkQs');
+  s+=sym(10,72,16,mu,1)+T(32,85,`= ${PQ.k} (Key)`,{size:12,fill:mu});
+  $('pkQSvg').innerHTML=s;
+}
+$('pkGo').addEventListener('click',()=>{
+  if(!PQ)return; const u=num($('pkA')), M=$('pkMsg'); const {k,n,ans}=PQ, full=Math.floor(n), fr=n-full;
+  const work=`${full} whole symbol${full===1?'':'s'} × ${k} = ${full*k}`+(fr?`, plus ${fmt(fr)} of a symbol = ${fmt(fr)} × ${k} = ${fmt(fr*k)}; total ${fmt(ans)}`:'');
+  if(!isFinite(u)){M.className='msg bad';M.textContent='Type a number.';return;}
+  if(Math.abs(u-ans)<1e-9){M.className='msg good';M.textContent=`Correct: ${work}.`;return;}
+  M.className='msg bad';
+  if(Math.abs(u-n)<1e-9) M.textContent=`Not quite. ${fmt(n)} is the number of symbols. Each symbol stands for ${k}, so multiply by ${k}.`;
+  else if(fr&&Math.abs(u-full*k)<1e-9) M.textContent=`Not quite. You've counted the whole symbols but missed the part-symbol at the end (${fmt(fr)} of a symbol).`;
+  else if(fr&&Math.abs(u-(full+1)*k)<1e-9) M.textContent=`Not quite. The last symbol is only ${fmt(fr)} of a symbol, so it's worth ${fmt(fr*k)}, not ${k}.`;
+  else M.textContent=`Not quite. ${work}.`;
+});
+$('pkA').addEventListener('keydown',e=>{if(e.key==='Enter')$('pkGo').click();});
+$('pkNew').addEventListener('click',pkNew); pkNew();
+
+/* 3. draw the bar chart */
+const BD={cats:['Dog','Cat','Fish','Rabbit','None'],t:[],u:[],checked:false};
+const bdSvg=$('bdSvg'); const BDW=400,BDH=290,BDMAX=16; let bdDrag=-1, bdGeo=null;
+function bdNew(){ BD.t=BD.cats.map(()=>rnd(1,15)); BD.u=BD.cats.map(()=>0); BD.checked=false;
+  $('bdData').innerHTML=BD.cats.map((c,i)=>`<span><span class="sw" style="background:var(${CAT[i]})"></span>${c} ${BD.t[i]}</span>`).join('');
+  $('bdMsg').className='msg'; $('bdMsg').textContent=''; drawBD(); }
+function drawBD(){
+  const g=barChart({W:BDW,H:BDH,cats:BD.cats,vals:BD.u,ymax:BDMAX,step:2,minor:1,xLab:'Pet',yLab:'Number of pupils'}); bdGeo=g;
+  let s=g.s;
+  BD.u.forEach((v,i)=>{ const x=g.X(i), y=g.Y(v);
+    s+=`<rect x="${x}" y="${y-3}" width="${g.bw}" height="6" rx="2" fill="${css('--fg')}" opacity=".55"/>`;
+    if(BD.checked){ const ok=v===BD.t[i]; s+=T(x+g.bw/2,y-8,ok?'✓':'✗',{size:15,anchor:'middle',weight:700,fill:css(ok?'--good':'--bad')}); }
+  });
+  bdSvg.innerHTML=s;
+}
+function bdSet(ev){ const [x,y]=svgPt(bdSvg,ev), g=bdGeo; if(bdDrag<0)return; const v=Math.max(0,Math.min(BDMAX,Math.round((g.Y(0)-y)/g.h*BDMAX))); if(BD.u[bdDrag]!==v){BD.u[bdDrag]=v;BD.checked=false;drawBD();} }
+bdSvg.addEventListener('pointerdown',ev=>{ const [x]=svgPt(bdSvg,ev), g=bdGeo; const i=Math.floor((x-g.L)/g.slot); if(i<0||i>=BD.cats.length)return; bdDrag=i; try{bdSvg.setPointerCapture(ev.pointerId);}catch(e){} bdSet(ev); ev.preventDefault(); });
+bdSvg.addEventListener('pointermove',ev=>{ if(bdDrag>=0)bdSet(ev); });
+['pointerup','pointercancel'].forEach(t=>bdSvg.addEventListener(t,()=>{bdDrag=-1;}));
+$('bdGo').addEventListener('click',()=>{ BD.checked=true; drawBD(); const M=$('bdMsg');
+  const wrong=BD.cats.map((c,i)=>[c,i]).filter(([c,i])=>BD.u[i]!==BD.t[i]);
+  if(!wrong.length){M.className='msg good';M.textContent='All five bars are the right height. Equal widths and equal gaps are built in, so this is a properly drawn bar chart.';return;}
+  M.className='msg bad'; M.textContent='Not quite. '+wrong.map(([c,i])=>`${c}: yours reaches ${BD.u[i]}, it should reach ${BD.t[i]}.`).join(' ')+' Each gridline is 1, and the numbered lines go up in 2s.'; });
+$('bdNew').addEventListener('click',bdNew); bdNew();
+
+/* 3b. dual and composite bar charts */
+const DC={modes:['Walk','Bus','Car','Bike'],y7:[12,9,6,3],y8:[8,14,5,3],mode:'dual'};
+function drawDC(){
+  const W=400,H=290, mu=css('--muted'), fg=css('--fg');
+  $('dcDual').classList.toggle('on',DC.mode==='dual'); $('dcComp').classList.toggle('on',DC.mode==='comp');
+  let s='';
+  if(DC.mode==='dual'){
+    const g=barChart({W,H,cats:DC.modes,vals:[],ymax:16,step:2,minor:1,xLab:'Way of travelling to school',yLab:'Number of pupils'});
+    s=g.s; const bw=g.slot*0.32;
+    DC.modes.forEach((m,i)=>{ const x0=g.L+i*g.slot+g.slot/2-bw;
+      [[DC.y7[i],'--accent'],[DC.y8[i],'--hi']].forEach(([v,c],j)=>{ const y=g.Y(v); s+=`<rect x="${x0+j*bw}" y="${y}" width="${bw-1}" height="${g.Y(0)-y}" fill="${css(c)}"/>`; });
+    });
+    s+=`<rect x="${W-118}" y="16" width="108" height="42" rx="4" fill="${css('--panel')}" stroke="${css('--line')}"/>`+`<rect x="${W-110}" y="23" width="12" height="12" fill="${css('--accent')}"/>`+T(W-92,33,'Year 7',{size:12})+`<rect x="${W-110}" y="40" width="12" height="12" fill="${css('--hi')}"/>`+T(W-92,50,'Year 8',{size:12});
+    $('dcInfo').innerHTML='<strong>Dual bar chart.</strong> For each way of travelling, the Year 7 and Year 8 bars stand next to each other, so comparing is easy: for Bus, Year 8 has 14 and Year 7 has 9, so 5 more Year 8 pupils come by bus. The key says which colour is which year. Harder to see: the totals.';
+  } else {
+    const g=barChart({W,H,cats:['Year 7','Year 8'],vals:[],ymax:30,step:5,minor:1,bw:0.42,xLab:'Year group',yLab:'Number of pupils'});
+    s=g.s;
+    [DC.y7,DC.y8].forEach((arr,j)=>{ let base=0; const x=g.X(j);
+      arr.forEach((v,i)=>{ const yt=g.Y(base+v), yb=g.Y(base); s+=`<rect x="${x}" y="${yt}" width="${g.bw}" height="${yb-yt}" fill="${col(i)}" stroke="${css('--panel')}" stroke-width="1.5"/>`;
+        s+=T(x+g.bw/2,(yt+yb)/2+4,DC.modes[i],{size:11,anchor:'middle',weight:600,halo:true}); base+=v; });
+    });
+    $('dcInfo').innerHTML='<strong>Composite bar chart.</strong> One bar per year group, split into sections. The height of the whole bar is the total (30 pupils in each year here), and you can see how each total is made up. To read a section, subtract: Year 7 Bus runs from 12 up to 21, so 21 − 12 = 9 pupils.';
+  }
+  $('dcSvg').innerHTML=s;
+}
+$('dcDual').addEventListener('click',()=>{DC.mode='dual';drawDC();});
+$('dcComp').addEventListener('click',()=>{DC.mode='comp';drawDC();});
+$('dcGo').addEventListener('click',()=>{ const u=num($('dcA')), M=$('dcMsg');
+  if(!isFinite(u)){M.className='msg bad';M.textContent='Type a number.';return;}
+  if(u===5){M.className='msg good';M.textContent='Correct: 5. On the dual chart the orange Car bar reaches 5; on the composite chart the Car section runs from 22 to 27, and 27 − 22 = 5.';return;}
+  M.className='msg bad';
+  M.textContent=u===27?'Not quite. 27 is where the Car section ends on the composite chart. Subtract where it starts: 27 − 22 = 5.':u===22?'Not quite. 22 is where the Car section starts. It ends at 27, so it is 27 − 22 = 5 pupils.':u===6?'Not quite. 6 is the Year 7 car bar (teal). Year 8 is orange.':'Not quite. Find Year 8 (orange on the dual chart). Switch to the composite chart and check: Car runs from 22 to 27.';
+});
+$('dcA').addEventListener('keydown',e=>{if(e.key==='Enter')$('dcGo').click();});
+drawDC();
+
+/* 4. draw the pie chart */
+const PD_CTX=[{t:'How pupils in a class get to school',c:['Walk','Bus','Car','Bike'],w:'pupils'},{t:'Favourite type of film',c:['Comedy','Action','Cartoon','Horror'],w:'people'},{t:'Pets owned by a youth club',c:['Dog','Cat','Fish','None'],w:'members'},{t:'Favourite sport',c:['Football','Netball','Tennis','Swim'],w:'pupils'}];
+const pdSvg=$('pdSvg'); let PD=null, pdDrag=0;
+const PDC={cx:200,cy:170,r:125};
+function pdNew(){
+  const ctx=pick(PD_CTX), N=pick([12,18,20,24,30,36,40,45,60]), per=360/N, mn=Math.max(1,Math.ceil(24/per));
+  let f;
+  for(let t=0;t<500;t++){ const cuts=new Set(); while(cuts.size<3)cuts.add(rnd(1,N-1)); const c=[0,...[...cuts].sort((a,b)=>a-b),N]; f=[0,1,2,3].map(i=>c[i+1]-c[i]); if(f.every(x=>x>=mn)&&!f.every(x=>x*per===90))break; }
+  PD={ctx,N,per,f,b:[0,90,180,270],checked:false};
+  $('pdQ').textContent=`${ctx.t}: ${N} ${ctx.w} were asked.`;
+  $('pdData').innerHTML=ctx.c.map((c,i)=>`<span><span class="sw" style="background:var(${CAT[i]})"></span>${c} ${f[i]}</span>`).join('')+`<span>Total ${N}</span>`;
+  $('pdMsg').className='msg'; $('pdMsg').textContent=''; $('pdWork').hidden=true;
+  const ang=f.map(x=>x*per); let cum=0; const cs=ang.slice(0,3).map(a=>cum+=a);
+  $('pdWork').innerHTML=`<span class="c">Total = ${f.join(' + ')} = ${N}</span><br><span class="b">Degrees per ${ctx.w.replace(/s$/,'')}: 360° ÷ ${N} = ${fmt(per)}°</span><br>`+ctx.c.map((c,i)=>`${c}: ${f[i]} × ${fmt(per)}° = <strong>${fmt(ang[i])}°</strong>`).join('<br>')+`<br><span class="a">Check: ${ang.map(a=>fmt(a)+'°').join(' + ')} = 360° ✓</span><br>Running totals, where the handles go: ${cs.map(a=>fmt(a)+'°').join(', ')}`;
+  drawPD();
+}
+function drawPD(){
+  if(!PD)return; const {cx,cy,r}=PDC, mu=css('--muted'), fg=css('--fg'); let s='';
+  for(let a=0;a<360;a+=10){ const L=a%30===0?10:5; const [x1,y1]=PT(cx,cy,r,a),[x2,y2]=PT(cx,cy,r+L,a); s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${mu}" stroke-width="1"/>`; if(a%30===0){const [tx,ty]=PT(cx,cy,r+21,a); s+=T(tx,ty+4,a+'°',{size:10,anchor:'middle',fill:mu});} }
+  const b=PD.b.concat(360);
+  for(let i=0;i<4;i++) s+=`<path d="${sectorD(cx,cy,r,b[i],b[i+1])}" fill="${col(i)}" fill-opacity=".45" stroke="${fg}" stroke-width="1.5"/>`;
+  for(let i=0;i<4;i++){ const a0=b[i],a1=b[i+1],m=(a0+a1)/2, ang=a1-a0; const [x,y]=PT(cx,cy,r*0.62,m);
+    const ok=PD.checked?(Math.abs(ang-PD.f[i]*PD.per)<=2):null; const mark=ok===null?'':ok?' ✓':' ✗';
+    if(ang>=30){ s+=T(x,y-2,PD.ctx.c[i],{size:12,anchor:'middle',weight:600,halo:true})+T(x,y+13,ang+'°'+mark,{size:12,anchor:'middle',halo:true,fill:ok===null?fg:css(ok?'--good':'--bad')}); }
+    else s+=T(x,y+4,ang+'°'+mark,{size:11,anchor:'middle',halo:true,fill:ok===null?fg:css(ok?'--good':'--bad')});
+  }
+  s+=`<line x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy-r}" stroke="${fg}" stroke-width="3"/><circle cx="${cx}" cy="${cy}" r="3.5" fill="${fg}"/>`;
+  for(let i=1;i<4;i++){ const [hx,hy]=PT(cx,cy,r,b[i]); s+=`<circle cx="${hx}" cy="${hy}" r="11" fill="${css('--panel')}" stroke="${fg}" stroke-width="2.5"/><circle cx="${hx}" cy="${hy}" r="3.5" fill="${fg}"/>`; }
+  pdSvg.innerHTML=s;
+}
+const pdAngle=ev=>{ const [x,y]=svgPt(pdSvg,ev); let a=Math.atan2(x-PDC.cx,-(y-PDC.cy))*180/Math.PI; if(a<0)a+=360; return a; };
+function pdMove(ev){ if(!pdDrag||!PD)return; const i=pdDrag, a=pdAngle(ev), cur=PD.b[i]; const d=((a-cur+540)%360)-180; let nv=Math.round(cur+d); const lo=PD.b[i-1]+1, hi=(i<3?PD.b[i+1]:360)-1; nv=Math.max(lo,Math.min(hi,nv)); if(nv!==cur){PD.b[i]=nv;PD.checked=false;drawPD();} }
+pdSvg.addEventListener('pointerdown',ev=>{ if(!PD)return; const a=pdAngle(ev); let best=1,bd=1e9; for(let i=1;i<4;i++){const d=Math.abs(((a-PD.b[i]+540)%360)-180); if(d<bd){bd=d;best=i;}} pdDrag=best; try{pdSvg.setPointerCapture(ev.pointerId);}catch(e){} pdMove(ev); ev.preventDefault(); });
+pdSvg.addEventListener('pointermove',pdMove);
+['pointerup','pointercancel'].forEach(t=>pdSvg.addEventListener(t,()=>{pdDrag=0;}));
+$('pdGo').addEventListener('click',()=>{ if(!PD)return; PD.checked=true; drawPD(); const b=PD.b.concat(360), M=$('pdMsg');
+  const wrong=PD.ctx.c.map((c,i)=>({c,i,got:b[i+1]-b[i],want:PD.f[i]*PD.per})).filter(o=>Math.abs(o.got-o.want)>2);
+  if(!wrong.length){M.className='msg good';M.textContent='All four sectors are within 2° of the right angle. Well drawn!';return;}
+  let cum=0; const cs=PD.f.slice(0,3).map(x=>cum+=x*PD.per);
+  M.className='msg bad'; M.textContent='Not quite. '+wrong.map(o=>`${o.c} should be ${PD.f[o.i]} × ${fmt(PD.per)}° = ${fmt(o.want)}°, yours is ${o.got}°.`).join(' ')+` Tip: the handles should sit at the running totals ${cs.map(a=>fmt(a)+'°').join(', ')}.`;
+});
+$('pdShow').addEventListener('click',()=>{$('pdWork').hidden=!$('pdWork').hidden;});
+$('pdNew').addEventListener('click',pdNew); pdNew();
+
+/* 5a. two pies with different totals */
+const tw={AT:$('twAT'),AW:$('twAW'),BT:$('twBT'),BW:$('twBW')};
+function drawTW(){
+  [['AT','AW'],['BT','BW']].forEach(([t,w])=>{ tw[w].max=tw[t].value; if(+tw[w].value>+tw[t].value)tw[w].value=tw[t].value; });
+  const aT=+tw.AT.value,aW=+tw.AW.value,bT=+tw.BT.value,bW=+tw.BW.value;
+  $('twATv').textContent=' '+aT; $('twAWv').textContent=' '+aW; $('twBTv').textContent=' '+bT; $('twBWv').textContent=' '+bW;
+  const ac=css('--accent'), gr=css('--muted'), mu=css('--muted');
+  const angA=aW/aT*360, angB=bW/bT*360;
+  let s='';
+  [[100,angA,aT,aW,'School A'],[300,angB,bT,bW,'School B']].forEach(([cx,ang,t,w,nm])=>{
+    s+=pie(cx,95,68,[ang,360-ang],['',''],{cols:[ac,gr],op:0.7,names:false,inLab:(i,a)=>i===0?'walk '+fmt(a,0)+'°':'other'});
+    s+=T(cx,184,`${nm}: ${t} pupils`,{size:12,anchor:'middle',weight:600});
+  });
+  const mx=Math.max(aW,bW,1), bl=250;
+  s+=T(10,212,'Actual number of walkers',{size:11,fill:mu});
+  [[aW,'A'],[bW,'B']].forEach(([v,n],j)=>{ const y=222+j*28; s+=T(10,y+15,n,{size:12,weight:600})+`<rect x="30" y="${y}" width="${v/mx*bl}" height="20" fill="${ac}"/>`+T(36+v/mx*bl,y+15,v+' walk',{size:12}); });
+  $('twSvg').innerHTML=s;
+  let verdict;
+  const pA=aW/aT, pB=bW/bT;
+  if(Math.abs(angA-angB)<0.5) verdict='The slices are the same size, so the same <em>proportion</em> walks in each school.';
+  else verdict=`School ${angA>angB?'A':'B'} has the bigger walk slice (${fmt(Math.max(angA,angB),0)}° against ${fmt(Math.min(angA,angB),0)}°), so a bigger <em>proportion</em> of its pupils walk.`;
+  const who=aW===bW?'Both schools have the same number of walkers':`But School ${aW>bW?'A':'B'} has more walkers: ${Math.max(aW,bW)} against ${Math.min(aW,bW)}`;
+  const twist=((angA>angB+0.5)&&bW>aW)||((angB>angA+0.5)&&aW>bW);
+  $('twInfo').innerHTML=`School A: ${aW} ÷ ${aT} × 360° = ${fmt(angA,1)}°. School B: ${bW} ÷ ${bT} × 360° = ${fmt(angB,1)}°.<br>${verdict} ${who}.${twist?' <strong>The smaller slice is actually more people</strong>, because School B is a different size. That is why you can\'t compare pie charts with different totals by slice size.':''}`;
+}
+Object.values(tw).forEach(e=>e.addEventListener('input',drawTW)); drawTW();
+
+/* 5b. read the chart practice */
+let RC=null, rcDone=false, rcRight=0, rcTried=0;
+const partition=(N,k,mn)=>{ for(let t=0;t<500;t++){ const cuts=new Set(); while(cuts.size<k-1)cuts.add(rnd(1,N-1)); const c=[0,...[...cuts].sort((a,b)=>a-b),N]; const f=[]; for(let i=0;i<k;i++)f.push(c[i+1]-c[i]); if(f.every(x=>x>=mn))return f; } return Array(k).fill(N/k); };
+const RCGEN={
+  pieF:()=>{ const N=pick([24,30,36,40,60,72,90,120]), per=360/N, cats=['Football','Netball','Tennis','Swim'], f=partition(N,4,Math.ceil(30/per)), i=rnd(0,3), ang=f[i]*per;
+    return {type:'pie',f,per,N,cats,q:`The pie chart shows the favourite sport of ${N} pupils. How many pupils chose ${cats[i]}?`,ans:f[i],
+      work:[`${N} pupils share 360°, so each pupil gets 360 ÷ ${N} = ${fmt(per)}°`,`${cats[i]}: ${fmt(ang)}° ÷ ${fmt(per)}° = ${f[i]} pupils`,`(or ${fmt(ang)} ÷ 360 × ${N} = ${f[i]})`],
+      wrong:[[ang,'That is the angle, not the number of pupils. Use angle ÷ 360 × total.'],[ang*N/36,'Divide by 360, not 36.']]}; },
+  pieN:()=>{ const N=pick([24,30,36,40,60,72,90,120]), per=360/N, cats=['Walk','Bus','Car','Bike'], f=partition(N,4,Math.ceil(30/per)), i=rnd(0,3), ang=f[i]*per;
+    return {type:'pie',f,per,N,cats,q:`This pie chart shows how some pupils travel to school. The ${cats[i]} sector stands for ${f[i]} pupils. How many pupils were asked altogether?`,ans:N,
+      work:[`${fmt(ang)}° stands for ${f[i]} pupils`,`so 1 pupil = ${fmt(ang)} ÷ ${f[i]} = ${fmt(per)}°`,`total = 360 ÷ ${fmt(per)} = ${N} pupils`],
+      wrong:[[f[i],'That is just the '+cats[i]+' group. The whole circle (360°) is everybody.'],[ang,'That is the angle. Work out how many degrees one pupil gets, then 360 ÷ that.']]}; },
+  barV:()=>{ const cats=['Mon','Tue','Wed','Thu','Fri'], v=cats.map(()=>2*rnd(2,19)), i=rnd(0,4);
+    return {type:'bar',cats,v,q:`The bar chart shows library visitors each day. How many visitors were there on ${cats[i]}?`,ans:v[i],
+      work:['The numbered lines go up in 10s, with 5 small steps between them, so each gridline is 10 ÷ 5 = 2',`${cats[i]}'s bar reaches ${v[i]}`],
+      wrong:[[v[i]/2,'You counted gridlines. Each gridline is worth 2, not 1.']]}; },
+  barD:()=>{ const cats=['Mon','Tue','Wed','Thu','Fri']; let v,i,j; do{ v=cats.map(()=>2*rnd(2,19)); i=rnd(0,4); j=rnd(0,4);}while(i===j||v[i]===v[j]); if(v[i]<v[j])[i,j]=[j,i];
+    return {type:'bar',cats,v,q:`The bar chart shows library visitors each day. How many more visitors were there on ${cats[i]} than on ${cats[j]}?`,ans:v[i]-v[j],
+      work:['Each gridline is 2',`${cats[i]} = ${v[i]}, ${cats[j]} = ${v[j]}`,`${v[i]} − ${v[j]} = ${v[i]-v[j]}`],
+      wrong:[[v[i],'That is just '+cats[i]+'. "How many more" means subtract.'],[v[i]+v[j],'You added. "How many more" means subtract.'],[(v[i]-v[j])/2,'Each gridline is worth 2: double the number of gridlines.']]}; },
+  pic:()=>{ const days=['Thu','Fri','Sat','Sun']; let n,i,j; do{ n=days.map(()=>rnd(4,26)/4); i=rnd(0,3); j=rnd(0,3);}while(i===j||n[i]===n[j]); if(n[i]<n[j])[i,j]=[j,i];
+    return {type:'pic',days,n,k:4,q:`Key: ■ = 4 ice creams. How many more ice creams were sold on ${days[i]} than on ${days[j]}?`,ans:(n[i]-n[j])*4,
+      work:[`${days[i]}: ${fmt(n[i])} symbols × 4 = ${fmt(n[i]*4)}`,`${days[j]}: ${fmt(n[j])} symbols × 4 = ${fmt(n[j]*4)}`,`${fmt(n[i]*4)} − ${fmt(n[j]*4)} = ${fmt((n[i]-n[j])*4)}`],
+      wrong:[[n[i]-n[j],'That is the difference in symbols. Multiply by the key (4).'],[n[i]*4,'That is just '+days[i]+'. Subtract '+days[j]+'.']]}; }
+};
+function drawRC(){
+  if(!RC)return; let s='';
+  if(RC.type==='pie') s=pie(200,128,95,RC.f.map(x=>x*RC.per),RC.cats);
+  else if(RC.type==='bar') s=barChart({W:400,H:270,cats:RC.cats,vals:RC.v,ymax:40,step:10,minor:2,xLab:'Day',yLab:'Visitors'}).s;
+  else { const ac=css('--accent'), mu=css('--muted'); RC.days.forEach((d,i)=>{const y=12+i*44; s+=T(8,y+18,d,{size:12,weight:600})+symRow(56,y,RC.n[i],24,4,ac,'rcS'+i);}); s+=`<line x1="8" y1="196" x2="392" y2="196" stroke="${css('--line')}"/>`+sym(8,206,16,mu,1)+T(30,219,'= 4 ice creams (Key)',{size:12,fill:mu}); }
+  $('rcSvg').innerHTML=s;
+}
+function rcNew(){ const keys=Object.keys(RCGEN); let k; do{k=pick(keys);}while(RC&&k===RC.key); RC=RCGEN[k](); RC.key=k; rcDone=false;
+  $('rcQ').textContent=RC.q; $('rcA').value=''; $('rcMsg').className='msg'; $('rcMsg').textContent=''; $('rcWork').hidden=true; $('rcWork').innerHTML=RC.work.join('<br>'); drawRC(); }
+function rcCheck(){ if(!RC)return; const u=num($('rcA')), M=$('rcMsg');
+  if(!isFinite(u)){M.className='msg bad';M.textContent='Type a number.';return;}
+  const ok=Math.abs(u-RC.ans)<1e-9; let msg='';
+  if(!ok){ for(const [v,m] of RC.wrong){ if(Math.abs(v-RC.ans)>1e-9&&Math.abs(u-v)<1e-9){msg=m;break;} } if(!msg)msg='Press "Show working" to see each step.'; }
+  if(!rcDone){rcTried++; if(ok)rcRight++;} rcDone=true;
+  M.className='msg '+(ok?'good':'bad'); M.textContent=ok?`Correct: ${fmt(RC.ans)}.`:'Not quite. '+msg; if(ok)$('rcWork').hidden=false;
+  $('rcScore').textContent=`Score: ${rcRight} right first time out of ${rcTried}.`; }
+$('rcGo').addEventListener('click',rcCheck); $('rcA').addEventListener('keydown',e=>{if(e.key==='Enter')rcCheck();});
+$('rcShow').addEventListener('click',()=>{$('rcWork').hidden=!$('rcWork').hidden;});
+$('rcNew').addEventListener('click',rcNew); rcNew();
+
+/* 6. scatter graph plotter */
+const SC=[['A',2,15],['B',5,30],['C',1,10],['D',7,40],['E',4,25],['F',8,45],['G',3,25],['H',6,30]];
+const scSvg=$('scSvg'); const SG={L:52,R:16,T:16,B:50,W:400,H:340}; SG.w=SG.W-SG.L-SG.R; SG.h=SG.H-SG.T-SG.B;
+const sX=x=>SG.L+x/10*SG.w, sY=y=>SG.T+SG.h-y/50*SG.h;
+let scK=0, scBad=null;
+const scRows=[];
+(function(){ const tb=$('scTable'); tb.innerHTML='<tr><th>Pupil</th><th>Hours revising</th><th>Score</th></tr>'; SC.forEach(p=>{const tr=document.createElement('tr'); tr.innerHTML=`<td>${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td>`; tb.appendChild(tr); scRows.push(tr);}); })();
+function drawSC(){
+  const g=css('--grid'), mu=css('--muted'), fg=css('--fg'), tw=css('--two'); let s='';
+  for(let x=0;x<=10;x++) s+=`<line x1="${sX(x)}" y1="${sY(0)}" x2="${sX(x)}" y2="${sY(50)}" stroke="${g}"/>`+T(sX(x),sY(0)+16,x,{size:11,anchor:'middle',fill:mu});
+  for(let y=0;y<=50;y+=5) s+=`<line x1="${sX(0)}" y1="${sY(y)}" x2="${sX(10)}" y2="${sY(y)}" stroke="${g}"/>`+T(sX(0)-6,sY(y)+4,y,{size:11,anchor:'end',fill:mu});
+  s+=`<line x1="${sX(0)}" y1="${sY(0)}" x2="${sX(10)}" y2="${sY(0)}" stroke="${fg}" stroke-width="1.5"/><line x1="${sX(0)}" y1="${sY(0)}" x2="${sX(0)}" y2="${sY(50)}" stroke="${fg}" stroke-width="1.5"/>`;
+  s+=T(SG.L+SG.w/2,SG.H-8,'Hours spent revising (x)',{size:11,anchor:'middle',fill:mu})+T(0,0,'Test score out of 50 (y)',{size:11,anchor:'middle',fill:mu,extra:`transform="translate(14,${SG.T+SG.h/2}) rotate(-90)"`});
+  SC.slice(0,scK).forEach(p=>{ s+=`<path d="M${sX(p[1])-6},${sY(p[2])-6} l12,12 M${sX(p[1])+6},${sY(p[2])-6} l-12,12" stroke="${tw}" stroke-width="2.5"/>`+T(sX(p[1])+8,sY(p[2])-7,p[0],{size:12,weight:700,fill:tw,halo:true}); });
+  if(scBad){ s+=`<circle cx="${sX(scBad[0])}" cy="${sY(scBad[1])}" r="7" fill="none" stroke="${css('--bad')}" stroke-width="2" stroke-dasharray="3 2"/>`; }
+  scSvg.innerHTML=s;
+  scRows.forEach((tr,i)=>{tr.classList.toggle('on',i===scK); tr.classList.toggle('done',i<scK);});
+}
+function scPrompt(){ const M=$('scMsg'); if(scK>=SC.length){M.className='msg good';M.innerHTML='All 8 pupils plotted. Each cross is one pupil. The crosses drift upwards from left to right: more revising tends to go with higher scores. That is called positive correlation: see <a href="distributions-correlation.html">distributions and correlation</a>.';return;}
+  const p=SC[scK]; M.className='msg'; M.textContent=`Plot pupil ${p[0]}: go across to ${p[1]} hours, then up to ${p[2]} marks, and tap there.`; }
+scSvg.addEventListener('pointerdown',ev=>{ if(scK>=SC.length)return; const [x,y]=svgPt(scSvg,ev); const gx=Math.round((x-SG.L)/SG.w*10), gy=Math.round((sY(0)-y)/SG.h*50/5)*5;
+  if(gx<0||gx>10||gy<0||gy>50)return; const p=SC[scK], M=$('scMsg');
+  if(gx===p[1]&&gy===p[2]){ scK++; scBad=null; drawSC(); if(scK<SC.length){ M.className='msg good'; M.textContent=`✓ Pupil ${p[0]} is at (${p[1]}, ${p[2]}). Next: pupil ${SC[scK][0]}, ${SC[scK][1]} hours and ${SC[scK][2]} marks.`; } else scPrompt(); return; }
+  scBad=[gx,gy]; drawSC(); M.className='msg bad';
+  if(gx!==p[1]&&gy===p[2]) M.textContent=`Not quite. The height is right (${p[2]} marks), but pupil ${p[0]} revised ${p[1]} hours: go across to ${p[1]} on the x-axis. You tapped ${gx}.`;
+  else if(gx===p[1]) M.textContent=`Not quite. Right column (${p[1]} hours). Now go up to ${p[2]} marks; you tapped ${gy}. Each gridline up is 5 marks.`;
+  else if(gx*5===p[2]&&gy===p[1]*5) M.textContent=`Not quite. It looks like you swapped x and y. Hours (${p[1]}) go across, score (${p[2]}) goes up.`;
+  else M.textContent=`Not quite. Pupil ${p[0]}: across to ${p[1]} hours first, then up to ${p[2]} marks. You tapped (${gx}, ${gy}).`;
+});
+$('scAll').addEventListener('click',()=>{scK=SC.length;scBad=null;drawSC();scPrompt();});
+$('scReset').addEventListener('click',()=>{scK=0;scBad=null;drawSC();scPrompt();});
+drawSC(); scPrompt();
+
+/* 7a. which chart? */
+const CH_OPTS=['Pictogram','Bar chart','Dual bar chart','Pie chart','Scatter graph'];
+const CH=[
+  {s:'You asked 30 pupils their favourite crisp flavour and want to show what fraction of the class chose each flavour.',ans:['Pie chart'],fb:'"What fraction of the whole" is a proportion question: a pie chart shows each share of the circle.'},
+  {s:'You measured the height and the arm span of 20 pupils and want to see if taller people have longer arm spans.',ans:['Scatter graph'],fb:'Two measurements for each person, looking for a link: plot the pairs on a scatter graph.'},
+  {s:'You want to compare how boys and girls in Year 9 voted for their favourite sport.',ans:['Dual bar chart'],fb:'Two groups across the same categories: a dual bar chart puts boys and girls side by side for each sport.'},
+  {s:'A poster for a primary school showing how many books each of 5 classes read in a week.',ans:['Pictogram','Bar chart'],fb:'Simple counts for young readers: a pictogram is friendly, and a bar chart works too.'},
+  {s:'Which day of the week the library had the most visitors, with exact numbers easy to read.',ans:['Bar chart'],fb:'Comparing counts of categories and reading exact values: a bar chart.'},
+  {s:'The temperature each day in June and the number of ice creams a shop sold that day.',ans:['Scatter graph'],fb:'Each day gives a pair (temperature, sales). To see if hotter days sell more, use a scatter graph.'},
+  {s:'How a family\'s monthly spending is split between rent, food, travel and fun.',ans:['Pie chart'],fb:'"How the whole is split up" is about proportions: a pie chart.'},
+  {s:'Comparing the number of goals scored by the Year 7 and Year 8 teams in each month.',ans:['Dual bar chart'],fb:'Two teams, same months: a dual bar chart compares them month by month.'}
+];
+let chI=-1;
+function chNew(){ let i; do{i=rnd(0,CH.length-1);}while(i===chI); chI=i; $('chQ').textContent=CH[i].s; $('chMsg').className='msg'; $('chMsg').textContent='';
+  const box=$('chBtns'); box.innerHTML=''; CH_OPTS.forEach(o=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=o;
+    b.addEventListener('click',()=>{ const ok=CH[chI].ans.includes(o), M=$('chMsg'); M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'Yes. ':'Not the best choice. ')+CH[chI].fb; if(ok)b.classList.add('on'); }); box.appendChild(b); }); }
+$('chNext').addEventListener('click',chNew); chNew();
+
+/* 7b. misleading charts */
+const ML={tab:0,honest:false,tabs:['Axis not starting at 0','Unequal symbols','3D pie chart']};
+ML.tabs.forEach((t,i)=>{const b=document.createElement('button');b.className='btn';b.type='button';b.textContent=t;b.addEventListener('click',()=>{ML.tab=i;ML.honest=false;drawML();});$('mlTabs').appendChild(b);});
+function pie3d(){
+  const cx=200,cy=115,R=150,tilt=0.42,k=0.22,depth=26;
+  const data=[['Dog',-54,54],['Fish',54,126],['Cat',126,216],['Other',216,306]];
+  const map=(th,rr=1)=>{const x=Math.sin(th*Math.PI/180)*rr, y=-Math.cos(th*Math.PI/180)*rr; return [cx+R*x*(1+k*y), cy+R*tilt*y];};
+  const arcPts=(a0,a1,dy=0)=>{const p=[]; const n=Math.max(2,Math.ceil((a1-a0)/2)); for(let j=0;j<=n;j++){const [x,y]=map(a0+(a1-a0)*j/n); p.push([x,y+dy]);} return p;};
+  let s='';
+  data.forEach(([n,a0,a1],i)=>{ const s0=Math.max(a0,90), s1=Math.min(a1,270); if(s1>s0){ const top=arcPts(s0,s1), bot=arcPts(s0,s1,depth).reverse(); const d='M'+top.concat(bot).map(p=>p.join(',')).join(' L')+' Z'; s+=`<path d="${d}" fill="${col(i)}"/><path d="${d}" fill="${css('--fg')}" fill-opacity=".2" stroke="${css('--panel')}" stroke-width="1"/>`; } });
+  data.forEach(([n,a0,a1],i)=>{ const d=`M${cx},${cy} L`+arcPts(a0,a1).map(p=>p.join(',')).join(' L')+' Z'; s+=`<path d="${d}" fill="${col(i)}" stroke="${css('--panel')}" stroke-width="2"/>`; });
+  data.forEach(([n,a0,a1],i)=>{ const [x,y]=map((a0+a1)/2,0.6); s+=T(x,y+4,n,{size:13,anchor:'middle',weight:700,halo:true}); });
+  return s;
+}
+function drawML(){
+  $('mlTabs').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',i===ML.tab));
+  $('mlToggle').textContent=ML.honest?'Show the misleading version':'Show the honest version';
+  const mu=css('--muted'), ac=css('--accent'); let s='', info='';
+  if(ML.tab===0){
+    const o=ML.honest?{ymin:0,ymax:100,step:20,minor:10}:{ymin:90,ymax:100,step:2,minor:1};
+    s=barChart(Object.assign({W:400,H:270,cats:['Last year','This year'],vals:[92,98],cols:[css('--accent'),css('--hi')],xLab:'Sports club',yLab:'Members',bw:0.5},o)).s;
+    info=ML.honest?'<strong>Honest version:</strong> the axis starts at 0. The bars are almost the same height, because 98 is only 6 more than 92 (about a 7% rise).':'<strong>"Membership has shot up!"</strong> The second bar looks 4 times as tall as the first. Look at the axis: it starts at 90, so only the parts above 90 are drawn (2 and 8). What happens if the axis starts at 0?';
+  } else if(ML.tab===1){
+    const rows=[['Sat',5],['Sun',4]];
+    rows.forEach(([d,n],i)=>{ const y=40+i*80; const big=!ML.honest&&i===1; const size=big?40:24, gap=big?12:6; s+=T(10,y+(big?26:18),d,{size:13,weight:600})+symRow(60,y-(big?8:0),n,size,gap,ac); });
+    s+=`<line x1="8" y1="210" x2="392" y2="210" stroke="${css('--line')}"/>`+sym(10,220,18,mu,1)+T(36,234,'= 10 ice creams (Key)',{size:12,fill:mu});
+    info=ML.honest?'<strong>Honest version:</strong> all symbols the same size and spacing. Saturday (5 symbols = 50) is clearly more than Sunday (4 symbols = 40).':'<strong>Which day sold more?</strong> Sunday\'s row looks bigger and longer, but count the symbols: Saturday has 5 (50 ice creams) and Sunday only 4 (40). Sunday\'s symbols have been drawn bigger and further apart.';
+  } else {
+    if(ML.honest){ s=pie(200,128,95,[108,72,90,90],['Dog 30%','Fish 20%','Cat 25%','Other 25%']); }
+    else s=pie3d();
+    info=ML.honest?'<strong>Honest version:</strong> a flat pie chart with the percentages labelled. Dog (30%) is the biggest slice; Cat is only 25%.':'<strong>Favourite pets: which slice looks biggest?</strong> Most people say Cat. The 3D tilt stretches the slice nearest you and adds a side wall, while the Dog slice at the back is squashed. Show the honest version to see the real shares.';
+  }
+  $('mlSvg').innerHTML=s; $('mlInfo').innerHTML=info;
+}
+$('mlToggle').addEventListener('click',()=>{ML.honest=!ML.honest;drawML();});
+drawML();
+
+const redrawAll=()=>{drawFS();drawPK();drawPKQ();drawBD();drawDC();drawPD();drawTW();drawRC();drawSC();drawML();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'In a pictogram the key is ■ = 4 pupils. A row shows 3½ symbols. How many pupils is that?',opts:['14','3.5','12','16'],a:0,fb:'3 whole symbols = 12, half a symbol = 2, so 12 + 2 = 14. (3.5 × 4 = 14.)'},
+  {q:'A pie chart shows 40 people. How many degrees does each person get?',opts:['9°','40°','4°','90°'],a:0,fb:'360° ÷ 40 = 9° per person.'},
+  {q:'12 out of 30 pupils come by bus. What angle is the Bus sector?',opts:['144°','12°','120°','43.2°'],a:0,fb:'12 ÷ 30 × 360° = 0.4 × 360° = 144°. (Or 360 ÷ 30 = 12° each, and 12 × 12° = 144°.)'},
+  {q:'A pie chart shows 60 people. One sector is 72°. How many people does it represent?',opts:['12','72','6','20'],a:0,fb:'72 ÷ 360 × 60 = 12. (Each person is 360 ÷ 60 = 6°, and 72 ÷ 6 = 12.)'},
+  {q:'Why does a bar chart of favourite colours have gaps between the bars?',opts:['The categories are separate, with nothing in between','To save ink','Because the frequencies are small','So the bars can be different widths'],a:0,fb:'Colours are separate categories, so the bars are drawn apart. All bars are the same width.'},
+  {q:'School A has 20 pupils and its "walk" sector is 180°. School B has 200 pupils and its "walk" sector is 90°. Which school has more pupils who walk?',opts:['School B: 50 against 10','School A, because its slice is bigger','They are the same','You can\'t ever tell from pie charts'],a:0,fb:'A: 180 ÷ 360 × 20 = 10. B: 90 ÷ 360 × 200 = 50. Pie charts show proportion, not size: a bigger slice of a smaller pie can be fewer people.'},
+  {q:'Which chart is best for finding out if there is a link between height and shoe size?',opts:['Scatter graph','Pie chart','Pictogram','Composite bar chart'],a:0,fb:'Each person gives a pair of measurements; plotting the pairs on a scatter graph shows whether they are linked.'},
+  {q:'On a scatter graph, each point represents…',opts:['one person\'s pair of values','the total frequency','one category','the average'],a:0,fb:'Each point is one person (or thing): across for one value, up for the other.'},
+  {q:'A bar chart\'s vertical axis starts at 90. The bars show 95 and 100. How many times as tall does the 100 bar look?',opts:['2 times','1.05 times','10 times','5 times'],a:0,fb:'Only the parts above 90 are drawn: 5 and 10, so it looks twice as tall. Really 100 is only 5 more than 95, about 5% more.'},
+  {q:'In a composite bar chart, Year 7\'s Bus section runs from 12 up to 21. How many Year 7 pupils take the bus?',opts:['9','21','12','33'],a:0,fb:'Top − bottom: 21 − 12 = 9. 21 is just where the section ends.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

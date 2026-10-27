@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KS3 Interactive Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f3f6fa;--fg:#15202b;--muted:#5b6b7c;--panel:#ffffff;--line:#d4dde7;--accent:#0b6e6e;--accent-soft:#d9efee;--hi:#c2410c;--two:#6d28d9;
+  --display:"Fraunces",Georgia,serif;--body:"IBM Plex Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#0f161d;--fg:#e6edf3;--muted:#94a3b4;--panel:#16202b;--line:#26323f;--accent:#3fbcb0;--accent-soft:#143634;--hi:#f0894f;--two:#b794f6;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding:0 max(16px,env(safe-area-inset-left)) 64px max(16px,env(safe-area-inset-right))}
+main{max-width:860px;margin:0 auto}
+h1,h2{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.6rem;font-weight:600;margin-top:2.8rem;padding-bottom:.4rem;border-bottom:2px solid var(--accent)}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.lede{font-size:1.15rem;color:var(--muted);max-width:62ch;margin:.8rem 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.9rem;margin-top:1.1rem}
+a.card{display:block;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;text-decoration:none;color:inherit;min-width:0;transition:border-color .15s,transform .15s}
+a.card:hover,a.card:focus-visible{border-color:var(--accent);transform:translateY(-1px);outline:none}
+a.card b{display:block;font-family:var(--display);font-size:1.1rem;font-weight:600;color:var(--accent);margin-bottom:.2rem}
+a.card span{font-size:.9rem;color:var(--muted)}
+a.card .tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-bottom:.4rem}
+a.card .tag.g{background:#fde8dc;color:var(--hi)}
+@media (prefers-color-scheme:dark){a.card .tag.g{background:#3a2314}}
+footer{margin-top:3.5rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Computing Hub · Mathematics</div>
+  <h1>KS3 Interactive Maths</h1>
+  <p class="lede">Self-contained interactive pages, one per topic, following the England national curriculum for Key Stage 3 (with some GCSE extensions). Every page has live visuals to drag and change, worked examples, and a quick quiz. No sign-in, no data collected. Moving on to GCSE? See the <a href="../ks4-interactive/index.html" style="color:var(--accent)">KS4 pages</a>.</p>
+</header>
+
+<h2>Number</h2>
+<div class="grid">
+  <a class="card" href="prime-factorisation.html"><span class="tag">KS3</span><b>Prime Factorisation</b><span>Sieve, factor trees (binary trees), index form, HCF and LCM by Venn diagram.</span></a>
+  <a class="card" href="powers-and-roots.html"><span class="tag">KS3</span><b>Powers and Roots</b><span>Squares and cubes as shapes, roots, index notation, zero and negative powers.</span></a>
+  <a class="card" href="index-laws.html"><span class="tag">KS3</span><b>Index Laws</b><span>Each law by counting blocks; zero, negative and fractional indices; spot the error.</span></a>
+  <a class="card" href="standard-form.html"><span class="tag">KS3</span><b>Standard Form</b><span>Moving decimal point, converter, scale of the universe, calculating with powers of ten.</span></a>
+  <a class="card" href="rounding-and-estimation.html"><span class="tag">KS3</span><b>Rounding and Estimation</b><span>Number line, significant figures vs decimal places, 1 s.f. estimates, error intervals and bounds.</span></a>
+  <a class="card" href="fractions-decimals-percentages.html"><span class="tag">KS3</span><b>Fractions, Decimals, Percentages</b><span>100-square, six conversion routes, recurring decimals by long division, ordering.</span></a>
+</div>
+
+<h2>Algebra</h2>
+<div class="grid">
+  <a class="card" href="algebraic-notation.html"><span class="tag">KS3</span><b>Algebraic Notation</b><span>Function machines, conventions and a translator, algebra tiles for 2x vs x², like terms.</span></a>
+  <a class="card" href="substitution.html"><span class="tag">KS3</span><b>Substitution</b><span>Copy, replace with brackets, calculate; BIDMAS; negative-number traps; formulae with units.</span></a>
+  <a class="card" href="expanding-factorising.html"><span class="tag">KS3</span><b>Simplify, Expand, Factorise</b><span>Like terms as tiles, the area model for single brackets, HCF factorising with checks.</span></a>
+  <a class="card" href="linear-equations.html"><span class="tag">KS3</span><b>Linear Equations</b><span>Balance scale you operate, inverse operations, unknowns on both sides, brackets and fractions.</span></a>
+  <a class="card" href="rearranging-formulae.html"><span class="tag">KS3</span><b>Rearranging Formulae</b><span>Onion-peeling layers, balance with letters, a checker for your own rearrangement.</span></a>
+  <a class="card" href="coordinates.html"><span class="tag">KS3</span><b>Coordinates</b><span>Four quadrants, plot and read games with targeted feedback, midpoints and reflections.</span></a>
+  <a class="card" href="linear-graphs.html"><span class="tag">KS3</span><b>Linear Graphs</b><span>Table of values to line, gradient triangles, m and c sliders, sketching and reading equations.</span></a>
+  <a class="card" href="linear-sequences.html"><span class="tag">KS3</span><b>Linear Sequences</b><span>Growing patterns, zeroth term, nth term as a straight line, is-it-in-the-sequence.</span></a>
+  <a class="card" href="quadratic-graphs.html"><span class="tag">KS3</span><b>Quadratic Graphs</b><span>Build the parabola, the (−3)² trap, symmetry and turning point, stretches and shifts.</span></a>
+  <a class="card" href="simultaneous-equations.html"><span class="tag">KS3</span><b>Simultaneous Equations</b><span>Crossing lines, shopping-bill elimination, step-through elimination and substitution.</span></a>
+  <a class="card" href="solving-quadratics-factorising.html"><span class="tag g">GCSE</span><b>Solving Quadratics by Factorising</b><span>Zero-product rule, factor hunting, roots as x-intercepts, splitting the middle term.</span></a>
+</div>
+
+<h2>Ratio, Proportion and Rates of Change</h2>
+<div class="grid">
+  <a class="card" href="unit-conversion.html"><span class="tag">KS3</span><b>Units and Compound Units</b><span>Metric ladder, m² and m³ traps, speed and density triangles, m/s ↔ km/h, best buys.</span></a>
+  <a class="card" href="scale-factors.html"><span class="tag">KS3</span><b>Scale Factors and Drawings</b><span>Enlargement, k² and k³, map scales both ways, scale drawings, similar shapes.</span></a>
+  <a class="card" href="dividing-in-a-ratio.html"><span class="tag">KS3</span><b>Dividing in a Ratio</b><span>Simplifying, bar-model sharing, ratio vs fraction, working back from a part or difference.</span></a>
+  <a class="card" href="direct-inverse-proportion.html"><span class="tag">KS3</span><b>Direct and Inverse Proportion</b><span>Constant ratio vs constant product, unitary method, graphs, recipes.</span></a>
+  <a class="card" href="percentage-change.html"><span class="tag">KS3</span><b>Percentage Change</b><span>Multipliers, percentage change over the original, reverse percentages, repeated changes.</span></a>
+  <a class="card" href="simple-interest.html"><span class="tag">KS3</span><b>Simple Interest</b><span>Equal yearly steps, I = PRT/100 with any unknown, straight-line graphs, compound preview.</span></a>
+</div>
+
+<h2>Geometry and Measures</h2>
+<div class="grid">
+  <a class="card" href="perimeter-area-volume.html"><span class="tag">KS3</span><b>Perimeter, Area and Volume</b><span>Counting squares and cubes, area formulas by cutting and rearranging, composite shapes, prisms.</span></a>
+  <a class="card" href="angle-facts.html"><span class="tag">KS3</span><b>Angle Facts</b><span>Angles at a point and on a line, triangles, parallel lines, interior and exterior angles of polygons.</span></a>
+  <a class="card" href="triangles-quadrilaterals.html"><span class="tag">KS3</span><b>Triangles and Quadrilaterals</b><span>Drag shapes to discover their properties: sides, angles, diagonals, symmetry, the quadrilateral family.</span></a>
+  <a class="card" href="constructions.html"><span class="tag">KS3</span><b>Constructions</b><span>Step-by-step ruler and compasses: triangles, bisectors, perpendiculars, loci, and why each one works.</span></a>
+  <a class="card" href="transformations.html"><span class="tag">KS3</span><b>Transformations</b><span>Translation by vectors, reflection, rotation and enlargement on a grid; describing them fully.</span></a>
+  <a class="card" href="congruence-similarity.html"><span class="tag">KS3</span><b>Congruence and Similarity</b><span>Same shape and size vs same shape; SSS, SAS, ASA, RHS; scale factors and missing sides.</span></a>
+  <a class="card" href="pythagoras.html"><span class="tag">KS3</span><b>Pythagoras’ Theorem</b><span>Squares on the sides, a visual proof, hypotenuse vs shorter side, distance between points.</span></a>
+  <a class="card" href="trigonometry.html"><span class="tag">KS3</span><b>Trigonometric Ratios</b><span>Opposite, adjacent, hypotenuse; SOH CAH TOA from similar triangles; missing sides and angles.</span></a>
+  <a class="card" href="3d-shapes-plans-elevations.html"><span class="tag">KS3</span><b>3D Shapes, Plans and Elevations</b><span>Rotate solids, faces, edges and vertices, fold nets, build cube stacks and see their views.</span></a>
+  <a class="card" href="circles.html"><span class="tag">KS3</span><b>Circles</b><span>Parts of a circle, discovering π, circumference, area as πr² by rearranging sectors.</span></a>
+</div>
+
+<h2>Probability</h2>
+<div class="grid">
+  <a class="card" href="probability-scale.html"><span class="tag">KS3</span><b>The Probability Scale</b><span>Impossible to certain on a 0–1 line, equally likely outcomes, P = favourable ÷ total.</span></a>
+  <a class="card" href="theoretical-experimental-probability.html"><span class="tag">KS3</span><b>Theoretical and Experimental Probability</b><span>Flip and roll simulators, relative frequency settling down, fair or biased, expected frequency.</span></a>
+  <a class="card" href="sample-spaces-venn-diagrams.html"><span class="tag">KS3</span><b>Sample Spaces, Venn Diagrams and Tables</b><span>Listing outcomes systematically, two-dice grids, two-way tables, ∩, ∪ and A′ in Venn diagrams.</span></a>
+  <a class="card" href="mutually-exclusive-outcomes.html"><span class="tag">KS3</span><b>Mutually Exclusive Outcomes</b><span>Probabilities that add up to 1, P(not A) = 1 − P(A), missing values in tables, the OR rule.</span></a>
+</div>
+
+<h2>Statistics</h2>
+<div class="grid">
+  <a class="card" href="averages-and-range.html"><span class="tag">KS3</span><b>Mean, Median, Mode and Range</b><span>Levelling towers for the mean, ordering for the median, outliers, choosing and comparing.</span></a>
+  <a class="card" href="frequency-tables.html"><span class="tag">KS3</span><b>Frequency Tables</b><span>Tally charts, averages from a table with an f × x column, grouped data and estimated means.</span></a>
+  <a class="card" href="statistical-charts.html"><span class="tag">KS3</span><b>Charts and Graphs</b><span>One data set as pictogram, bar chart and pie chart; pie angles; scatter graphs; misleading charts.</span></a>
+  <a class="card" href="distributions-correlation.html"><span class="tag">KS3</span><b>Distributions and Correlation</b><span>Shape, centre and spread; comparing groups; correlation, lines of best fit, correlation vs causation.</span></a>
+</div>
+
+<h2>Calculus (A-level preview)</h2>
+<div class="grid">
+  <a class="card" href="derivatives.html"><span class="tag g">KS5</span><b>Derivatives</b><span>From gradient of a line to the limit of the secant; tangent explorer; rules; optimisation.</span></a>
+  <a class="card" href="integration.html"><span class="tag g">KS5</span><b>Integration</b><span>Riemann rectangles, the long S notation, reverse power rule, definite integrals and area.</span></a>
+</div>
+
+<footer>Built with the England national curriculum programmes of study for <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study" target="_blank" rel="noopener">mathematics</a>. Each page works offline as a single HTML file; the only external resource is the Google Fonts stylesheet, and the pages fall back to system fonts without it.</footer>
+</main>
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

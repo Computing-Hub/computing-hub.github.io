@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Units and Compound Units</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive panels; graph-paper neutrals, teal = the quantity, orange = the conversion factor, plum = compound result. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ladder{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;justify-content:center;font-family:var(--mono);margin-top:.8rem}
+.ladder .u{padding:.5rem .8rem;border-radius:8px;border:2px solid var(--line);background:var(--bg);font-weight:600;min-width:3.6em;text-align:center}
+.ladder .u.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ladder .u.to{border-color:var(--two);background:var(--two-soft);color:var(--two)}
+.ladder .k{font-size:.8rem;color:var(--hi);display:flex;flex-direction:column;align-items:center;min-width:3.4em}
+.tri{display:grid;grid-template-columns:1fr 1fr;width:220px;margin:.8rem auto;font-family:var(--mono);font-size:1.2rem;text-align:center}
+.tri div{padding:.5rem;border:1px solid var(--line)}
+.tri .top{grid-column:1/-1;background:var(--accent-soft);color:var(--accent);font-weight:600;border-radius:8px 8px 0 0}
+.tri .bl{background:var(--hi-soft);color:var(--hi);font-weight:600;border-radius:0 0 0 8px}
+.tri .br{background:var(--two-soft);color:var(--two);font-weight:600;border-radius:0 0 8px 0}
+.tri .cover{opacity:.25;text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Ratio, proportion and rates of change · KS3</div>
+  <h1>Units and Compound Units</h1>
+  <p class="lede">Every measurement is a number <em>and</em> a unit, and the unit is half the information. Converting between units is multiplying or dividing by the right factor; compound units like km/h and g/cm³ are two measurements divided, and they convert in two steps.</p>
+  <span class="gcse">National curriculum KS3: change freely between related standard units (time, length, area, volume/capacity, mass) and compound units (speed, rates of pay, prices, density) in numerical contexts</span>
+</header>
+
+<h2>1 · The metric ladder</h2>
+<p>Metric units step by powers of ten: 10 mm in a cm, 100 cm in a m, 1000 m in a km. Converting is moving along the ladder. Going to a <strong>smaller</strong> unit you need <strong>more</strong> of them, so multiply; going to a bigger unit, divide. Pick a value and two units; the ladder lights up the path.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Quantity <select id="lQ"><option value="len">length</option><option value="mass">mass</option><option value="cap">capacity</option><option value="time">time</option></select></label>
+    <label>value <input type="number" id="lV" value="3.5" step="any"></label>
+    <label>from <select id="lFrom"></select></label>
+    <label>to <select id="lTo"></select></label>
+  </div>
+  <div class="ladder" id="ladder"></div>
+  <div class="work" id="lWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Time is the odd one out.</strong> 60 seconds in a minute, 60 minutes in an hour, 24 hours in a day. So 2.5 hours is 2 h 30 min, not 2 h 50 min, and 1 h 45 min is 1.75 h. Convert minutes to a decimal by dividing by 60 before using them in a speed calculation.</p>
+</div>
+
+<h2>2 · Area and volume units: the trap</h2>
+<p>1 m = 100 cm, so surely 1 m² = 100 cm²? No. A square metre is 100 cm by 100 cm, which is 10 000 cm². And a cubic metre is 100 × 100 × 100 = 1 000 000 cm³. The conversion factor gets squared for area and cubed for volume. The picture makes it hard to forget.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Show <select id="avK"><option value="2">area: 1 m² in cm²</option><option value="2b">area: 1 cm² in mm²</option><option value="3">volume: 1 m³ in cm³ (= litres × 1000)</option><option value="3b">volume: 1 cm³ in mm³</option></select></label>
+  </div>
+  <svg id="avSvg" viewBox="0 0 520 260" width="520" height="260"></svg>
+  <div class="work" id="avWork"></div>
+</div>
+
+<div class="tbl"><table>
+  <tr><th>Length factor</th><th>Area factor</th><th>Volume factor</th></tr>
+  <tr><td class="mono">1 cm = 10 mm</td><td class="mono">1 cm² = 100 mm²</td><td class="mono">1 cm³ = 1000 mm³</td></tr>
+  <tr><td class="mono">1 m = 100 cm</td><td class="mono">1 m² = 10 000 cm²</td><td class="mono">1 m³ = 1 000 000 cm³</td></tr>
+  <tr><td class="mono">1 km = 1000 m</td><td class="mono">1 km² = 1 000 000 m²</td><td class="mono">1 litre = 1000 cm³ = 1000 ml</td></tr>
+</table></div>
+
+<h2>3 · Speed: a compound unit</h2>
+<p>Speed is distance divided by time, so its unit is a distance unit <em>per</em> a time unit: m/s, km/h, mph. "Per" means "divided by". The three quantities sit in a triangle: cover the one you want and what's left tells you the calculation.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>distance <input type="number" id="spD" value="150" step="any"> km</label>
+    <label>time <input type="number" id="spT" value="2.5" step="any"> h</label>
+    <label>find <select id="spF"><option value="s">speed</option><option value="d">distance</option><option value="t">time</option></select></label>
+    <label>speed <input type="number" id="spS" value="60" step="any"> km/h</label>
+  </div>
+  <div class="tri" id="spTri"><div class="top">D</div><div class="bl">S</div><div class="br">T</div></div>
+  <svg id="spSvg" viewBox="0 0 520 90" width="520" height="90"></svg>
+  <div class="work" id="spWork"></div>
+</div>
+
+<h3>Converting a speed: two steps</h3>
+<p>To change m/s into km/h you have to convert <em>both</em> units: metres to kilometres (÷ 1000) and seconds to hours (there are 3600 s in an hour, so × 3600). The combined effect is × 3.6. Going the other way, ÷ 3.6. Watch each step happen separately so the 3.6 isn't magic.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>speed <input type="number" id="cvV" value="20" step="any"></label>
+    <select id="cvDir"><option value="ms">m/s → km/h</option><option value="kmh">km/h → m/s</option></select>
+  </div>
+  <div class="work" id="cvWork"></div>
+</div>
+
+<h2>4 · Density: another compound unit</h2>
+<p>Density is mass divided by volume: how much stuff is packed into each cubic centimetre. Water is 1 g/cm³; iron about 7.9; cork about 0.24. Same triangle, different letters. Below, each cube is 1 cm³; the mass is shared out equally among the cubes, and the density is what one cube weighs.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>material <select id="dnM"><option value="7.9,iron">iron (7.9 g/cm³)</option><option value="2.7,aluminium">aluminium (2.7 g/cm³)</option><option value="1,water">water (1 g/cm³)</option><option value="0.9,ice">ice (0.92 g/cm³)</option><option value="0.24,cork">cork (0.24 g/cm³)</option><option value="19.3,gold">gold (19.3 g/cm³)</option></select></label>
+    <label>volume <input type="range" id="dnV" min="1" max="12" value="4"><span id="dnVv" style="font-family:var(--mono)"></span> cm³</label>
+  </div>
+  <div class="tri"><div class="top">M</div><div class="bl">D</div><div class="br">V</div></div>
+  <svg id="dnSvg" viewBox="0 0 520 110" width="520" height="110"></svg>
+  <div class="work" id="dnWork"></div>
+</div>
+
+<h2>5 · Other rates you already use</h2>
+<div class="tbl"><table>
+  <tr><th>Rate</th><th>Unit</th><th>Means</th><th>Triangle</th></tr>
+  <tr><td>Pay</td><td class="mono">£/h</td><td>pounds earned per hour</td><td class="mono">pay = rate × hours</td></tr>
+  <tr><td>Price</td><td class="mono">£/kg, p/100 g</td><td>cost per kilogram (how supermarkets compare)</td><td class="mono">cost = price × mass</td></tr>
+  <tr><td>Fuel economy</td><td class="mono">mpg, l/100 km</td><td>miles per gallon; note the second is "per 100 km", inverted</td><td class="mono">distance = mpg × gallons</td></tr>
+  <tr><td>Population density</td><td class="mono">people/km²</td><td>Jersey ≈ 900 people per km², among the densest in Europe</td><td class="mono">people = density × area</td></tr>
+  <tr><td>Flow</td><td class="mono">l/min</td><td>litres per minute from a tap</td><td class="mono">volume = flow × time</td></tr>
+  <tr><td>Data</td><td class="mono">Mbit/s</td><td>megabits per second; divide by 8 for megabytes</td><td class="mono">size = rate × time</td></tr>
+</table></div>
+
+<p>Every one of these is "something per something", and every one converts the same two-step way. Best-buy questions are just comparing two rates in the same unit.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Offer A: <input type="number" id="bbA1" value="400" step="any"> g for £<input type="number" id="bbA2" value="1.80" step="any"></label>
+    <label>Offer B: <input type="number" id="bbB1" value="1.5" step="any"> kg for £<input type="number" id="bbB2" value="6.30" step="any"></label>
+  </div>
+  <div class="work" id="bbWork"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Convert 2.4 km to cm</summary>
+  <div class="step"><strong>km → m:</strong> × 1000 → 2400 m.</div>
+  <div class="step"><strong>m → cm:</strong> × 100 → <strong>240 000 cm</strong>. Smaller unit, bigger number: sensible.</div>
+</details>
+<details>
+  <summary>A car travels 180 km in 2 h 15 min. Find its average speed in km/h.</summary>
+  <div class="step"><strong>Time as a decimal:</strong> 15 min = 15/60 = 0.25 h, so 2.25 h.</div>
+  <div class="step"><strong>Speed = distance ÷ time:</strong> 180 ÷ 2.25 = <strong>80 km/h</strong>. (Using 2.15 would give 83.7, the classic slip.)</div>
+</details>
+<details>
+  <summary>A block has mass 540 g and volume 200 cm³. Find its density and decide if it floats.</summary>
+  <div class="step"><strong>Density = mass ÷ volume:</strong> 540 ÷ 200 = <strong>2.7 g/cm³</strong>.</div>
+  <div class="step"><strong>Compare with water (1 g/cm³):</strong> denser, so it sinks. (It's aluminium.)</div>
+</details>
+<details>
+  <summary>Exam-style: convert 54 km/h to m/s</summary>
+  <div class="step"><strong>km → m:</strong> 54 km = 54 000 m. So 54 000 m per hour.</div>
+  <div class="step"><strong>per hour → per second:</strong> ÷ 3600 → 54 000 ÷ 3600 = <strong>15 m/s</strong>.</div>
+  <div class="step"><strong>Shortcut check:</strong> 54 ÷ 3.6 = 15 ✓. A sprinter does about 10 m/s, so 15 m/s is a fast cyclist or a slow car. Sensible.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>Metric conversions move along a ladder of powers of ten: multiply towards smaller units, divide towards larger. Area factors are the length factor squared and volume factors cubed, which is why 1 m² is 10 000 cm². Compound units are one quantity per another; speed, density, pay and price all sit in the same triangle and all convert in two steps, one for each unit. Time needs care because it isn't decimal.</p>
+
+<footer>Made for KS3 students. Standard and compound units are in the England national curriculum at key stage 3 under Ratio, proportion and rates of change. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(v,d=4)=>{if(!isFinite(v))return '—';const s=parseFloat(v.toFixed(d));return Math.abs(s)>=1e6||(Math.abs(s)<1e-4&&s!==0)?s.toExponential(2):s.toLocaleString('en-GB',{maximumFractionDigits:d});};
+
+/* 1. ladder */
+const UNITS={
+  len:[['mm',1],['cm',10],['m',1000],['km',1e6]],
+  mass:[['mg',1],['g',1000],['kg',1e6],['t',1e9]],
+  cap:[['ml',1],['cl',10],['l',1000]],
+  time:[['s',1],['min',60],['h',3600],['day',86400]]
+};
+const lQ=document.getElementById('lQ'),lV=document.getElementById('lV'),lFrom=document.getElementById('lFrom'),lTo=document.getElementById('lTo');
+function fillUnits(){const U=UNITS[lQ.value];[lFrom,lTo].forEach(s=>{s.innerHTML=U.map((u,i)=>`<option value="${i}">${u[0]}</option>`).join('');});lFrom.value=U.length-2;lTo.value=0;drawL();}
+function drawL(){const U=UNITS[lQ.value],v=parseFloat(lV.value)||0,a=+lFrom.value,b=+lTo.value;
+  let h='';U.forEach((u,i)=>{h+=`<div class="u ${i===a?'on':i===b?'to':''}">${u[0]}</div>`;if(i<U.length-1){const k=U[i+1][1]/U[i][1];h+=`<div class="k"><span>× ${k} →</span><span>← ÷ ${k}</span></div>`;}});
+  document.getElementById('ladder').innerHTML=h;
+  const factor=U[a][1]/U[b][1];const res=v*factor;
+  let steps=[];if(a<b){for(let i=a;i<b;i++)steps.push(`÷ ${U[i+1][1]/U[i][1]}`);}else{for(let i=a;i>b;i--)steps.push(`× ${U[i][1]/U[i-1][1]}`);}
+  document.getElementById('lWork').innerHTML=a===b?`Same unit: ${fmt(v)} ${U[a][0]}.`:`${fmt(v)} ${U[a][0]} → ${U[b][0]}: ${a<b?'bigger unit, so fewer of them: divide':'smaller unit, so more of them: multiply'}<br><span class="b">${steps.join(', then ')}</span>  (overall ${a<b?'÷':'×'} ${fmt(a<b?1/factor:factor)})<br>= <strong>${fmt(res)} ${U[b][0]}</strong>`;}
+lQ.addEventListener('change',fillUnits);[lV,lFrom,lTo].forEach(e=>e.addEventListener('input',drawL));fillUnits();
+
+/* 2. area/volume */
+const avK=document.getElementById('avK');
+function drawAV(){const k=avK.value;const svg=document.getElementById('avSvg');const f=`font-family="${css('--mono')}"`;let s='',w='';
+  if(k==='2'||k==='2b'){const big=k==='2'?'1 m':'1 cm',small=k==='2'?'cm':'mm',n=k==='2'?100:10,shown=10;const size=200,ox=40,oy=20,c=size/shown;
+    for(let i=0;i<shown;i++)for(let j=0;j<shown;j++)s+=`<rect x="${ox+i*c}" y="${oy+j*c}" width="${c}" height="${c}" fill="${(i+j)%2?css('--accent-soft'):css('--panel')}" stroke="${css('--line')}"/>`;
+    s+=`<rect x="${ox}" y="${oy}" width="${size}" height="${size}" fill="none" stroke="${css('--accent')}" stroke-width="3"/><text x="${ox+size/2}" y="${oy+size+22}" text-anchor="middle" font-size="14" ${f} fill="${css('--accent')}">${big} = ${n} ${small}</text><text x="${ox-8}" y="${oy+size/2}" text-anchor="end" font-size="14" ${f} fill="${css('--accent')}">${n} ${small}</text>`;
+    s+=`<text x="300" y="80" font-size="15" ${f} fill="${css('--fg')}">${n} along × ${n} up</text><text x="300" y="110" font-size="15" ${f} fill="${css('--fg')}">= ${n} × ${n} small squares</text><text x="300" y="150" font-size="20" font-weight="600" ${f} fill="${css('--two')}">1 ${k==='2'?'m':'cm'}² = ${(n*n).toLocaleString('en-GB')} ${small}²</text><text x="300" y="185" font-size="12" ${f} fill="${css('--muted')}">(grid shows ${shown} × ${shown}; imagine ${n} × ${n})</text>`;
+    w=`Length factor ${n}. Area has two dimensions, so the factor is ${n}² = <strong>${(n*n).toLocaleString('en-GB')}</strong>.<br>Example: 3 ${k==='2'?'m':'cm'}² = 3 × ${(n*n).toLocaleString('en-GB')} = ${(3*n*n).toLocaleString('en-GB')} ${small}².`;}
+  else{const n=k==='3'?100:10,big=k==='3'?'m':'cm',small=k==='3'?'cm':'mm';const u=14,m=6,ox=60,oy=30;const px=(x,y,z)=>[ox+(x-y)*u*0.87+60,oy+(x+y)*u*0.5-z*u+60];
+    const face=(pts,col)=>`<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="${col}" stroke="${css('--panel')}" stroke-width=".8"/>`;
+    for(let z=0;z<m;z++)for(let y=m-1;y>=0;y--)for(let x=0;x<m;x++){s+=face([px(x,y,z+1),px(x+1,y,z+1),px(x+1,y+1,z+1),px(x,y+1,z+1)],css('--hi'));s+=face([px(x,y+1,z),px(x+1,y+1,z),px(x+1,y+1,z+1),px(x,y+1,z+1)],css('--accent'));s+=face([px(x+1,y,z),px(x+1,y+1,z),px(x+1,y+1,z+1),px(x+1,y,z+1)],css('--two'));}
+    s+=`<text x="300" y="70" font-size="15" ${f} fill="${css('--fg')}">${n} along × ${n} back × ${n} up</text><text x="300" y="100" font-size="15" ${f} fill="${css('--fg')}">= ${n}³ small cubes</text><text x="300" y="140" font-size="20" font-weight="600" ${f} fill="${css('--two')}">1 ${big}³ = ${(n**3).toLocaleString('en-GB')} ${small}³</text>${k==='3'?`<text x="300" y="170" font-size="13" ${f} fill="${css('--muted')}">= 1000 litres (1 litre = 1000 cm³)</text>`:''}<text x="300" y="200" font-size="12" ${f} fill="${css('--muted')}">(drawing shows 6 × 6 × 6)</text>`;
+    w=`Length factor ${n}. Volume has three dimensions: ${n}³ = <strong>${(n**3).toLocaleString('en-GB')}</strong>.<br>Example: 0.5 ${big}³ = 0.5 × ${(n**3).toLocaleString('en-GB')} = ${(0.5*n**3).toLocaleString('en-GB')} ${small}³.`;}
+  svg.innerHTML=s;document.getElementById('avWork').innerHTML=w;}
+avK.addEventListener('change',drawAV);drawAV();
+
+/* 3. speed */
+const spD=document.getElementById('spD'),spT=document.getElementById('spT'),spF=document.getElementById('spF'),spS=document.getElementById('spS');
+function drawSP(){const f=spF.value;let d=parseFloat(spD.value),t=parseFloat(spT.value),s=parseFloat(spS.value);
+  const tri=document.getElementById('spTri');tri.querySelector('.top').className='top'+(f==='d'?' cover':'');tri.querySelector('.bl').className='bl'+(f==='s'?' cover':'');tri.querySelector('.br').className='br'+(f==='t'?' cover':'');
+  let w='';if(f==='s'){s=d/t;w=`cover S: left with D over T → speed = distance ÷ time<br>= ${fmt(d)} ÷ ${fmt(t)} = <strong>${fmt(s)} km/h</strong>`;}
+  else if(f==='d'){d=s*t;w=`cover D: left with S beside T → distance = speed × time<br>= ${fmt(s)} × ${fmt(t)} = <strong>${fmt(d)} km</strong>`;}
+  else{t=d/s;const h=Math.floor(t),m=Math.round((t-h)*60);w=`cover T: left with D over S → time = distance ÷ speed<br>= ${fmt(d)} ÷ ${fmt(s)} = <strong>${fmt(t)} h</strong> = ${h} h ${m} min`;}
+  document.getElementById('spWork').innerHTML=w;
+  // simple strip: car position after each hour
+  const W=520,x0=30,x1=490;const sx=k=>x0+(x1-x0)*k;let g=`<line x1="${x0}" y1="50" x2="${x1}" y2="50" stroke="${css('--muted')}" stroke-width="2"/>`;const hrs=Math.max(1,Math.ceil(t));
+  for(let k=0;k<=hrs;k++){const x=sx(Math.min(1,k/t));g+=`<line x1="${x}" y1="42" x2="${x}" y2="58" stroke="${css('--muted')}"/><text x="${x}" y="76" text-anchor="middle" font-size="11" font-family="${css('--mono')}" fill="${css('--muted')}">${k} h</text>`;if(k>0&&k<=t)g+=`<text x="${x}" y="30" text-anchor="middle" font-size="11" font-family="${css('--mono')}" fill="${css('--accent')}">${fmt(s*k,1)} km</text>`;}
+  g+=`<rect x="${sx(1)-14}" y="40" width="28" height="14" rx="4" fill="${css('--hi')}"/><text x="${sx(1)}" y="30" text-anchor="middle" font-size="11" font-weight="600" font-family="${css('--mono')}" fill="${css('--hi')}">${fmt(d,1)} km</text>`;
+  document.getElementById('spSvg').innerHTML=g;}
+[spD,spT,spF,spS].forEach(e=>e.addEventListener('input',drawSP));drawSP();
+
+/* convert speed */
+const cvV=document.getElementById('cvV'),cvDir=document.getElementById('cvDir');
+function drawCV(){const v=parseFloat(cvV.value)||0;const W=document.getElementById('cvWork');
+  if(cvDir.value==='ms')W.innerHTML=`${fmt(v)} m/s means ${fmt(v)} metres every second.<br><span class="a">metres → km:</span> ÷ 1000 → ${fmt(v/1000)} km every second<br><span class="b">per second → per hour:</span> there are 3600 seconds in an hour, so × 3600 → ${fmt(v/1000*3600)} km every hour<br>= <strong>${fmt(v*3.6)} km/h</strong>      (shortcut: × 3.6, because 3600 ÷ 1000 = 3.6)`;
+  else W.innerHTML=`${fmt(v)} km/h means ${fmt(v)} kilometres every hour.<br><span class="a">km → metres:</span> × 1000 → ${fmt(v*1000)} m every hour<br><span class="b">per hour → per second:</span> ÷ 3600 → ${fmt(v*1000/3600)} m every second<br>= <strong>${fmt(v/3.6)} m/s</strong>      (shortcut: ÷ 3.6)`;}
+cvV.addEventListener('input',drawCV);cvDir.addEventListener('change',drawCV);drawCV();
+
+/* 4. density */
+const dnM=document.getElementById('dnM'),dnV=document.getElementById('dnV');
+function drawDN(){const [dens,name]=dnM.value.split(',');const d=parseFloat(dens),v=+dnV.value;document.getElementById('dnVv').textContent=' '+v;const m=d*v;
+  let g='';const u=30,ox=30;for(let i=0;i<v;i++){g+=`<rect x="${ox+i*(u+6)}" y="30" width="${u}" height="${u}" rx="4" fill="${css('--accent')}" opacity="${0.35+0.65*Math.min(1,d/8)}"/><text x="${ox+i*(u+6)+u/2}" y="80" text-anchor="middle" font-size="10" font-family="${css('--mono')}" fill="${css('--muted')}">${fmt(d)} g</text>`;}
+  document.getElementById('dnSvg').innerHTML=g;
+  document.getElementById('dnWork').innerHTML=`${v} cm³ of ${name}, total mass ${fmt(m)} g.<br>density = mass ÷ volume = ${fmt(m)} ÷ ${v} = <strong>${fmt(d)} g/cm³</strong>: each 1 cm³ cube weighs ${fmt(d)} g.<br><span class="c">${d>1?'Denser than water (1 g/cm³): sinks.':d<1?'Less dense than water: floats.':'Same as water.'}</span>  In kg/m³ that's × 1000: ${fmt(d*1000)} kg/m³.`;}
+dnM.addEventListener('change',drawDN);dnV.addEventListener('input',drawDN);drawDN();
+
+/* best buy */
+const bb=['bbA1','bbA2','bbB1','bbB2'].map(i=>document.getElementById(i));
+function drawBB(){const [a1,a2,b1,b2]=bb.map(e=>parseFloat(e.value)||0);const aKg=a1/1000;const pa=a2/aKg,pb=b2/b1;
+  document.getElementById('bbWork').innerHTML=`Put both in the same unit: £ per kg.<br><span class="a">A:</span> ${fmt(a1)} g = ${fmt(aKg)} kg. £${fmt(a2)} ÷ ${fmt(aKg)} = <strong>£${fmt(pa,2)} per kg</strong><br><span class="b">B:</span> £${fmt(b2)} ÷ ${fmt(b1)} = <strong>£${fmt(pb,2)} per kg</strong><br><span class="c">${pa<pb?'A is the better buy.':pb<pa?'B is the better buy.':'Same price per kg.'}</span> (Or compare price per 100 g: A ${fmt(pa/10,2)}, B ${fmt(pb/10,2)}.)`;}
+bb.forEach(e=>e.addEventListener('input',drawBB));drawBB();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawAV();drawSP();drawDN();});}
+new MutationObserver(()=>{drawAV();drawSP();drawDN();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'3.2 km in metres?',opts:['3200 m','320 m','32 000 m','0.0032 m'],a:0,fb:'km → m is × 1000.'},
+  {q:'450 g in kg?',opts:['0.45 kg','4.5 kg','45 kg','0.045 kg'],a:0,fb:'g → kg is ÷ 1000: a bigger unit, a smaller number.'},
+  {q:'2 m² in cm²?',opts:['20 000 cm²','200 cm²','2000 cm²','40 000 cm²'],a:0,fb:'1 m² = 100 × 100 = 10 000 cm², so 2 m² = 20 000 cm².'},
+  {q:'A cyclist covers 36 km in 1 h 30 min. Average speed?',opts:['24 km/h','27.7 km/h','36 km/h','18 km/h'],a:0,fb:'1 h 30 min = 1.5 h. 36 ÷ 1.5 = 24. (Using 1.3 h is the trap.)'},
+  {q:'72 km/h in m/s?',opts:['20 m/s','259 m/s','7.2 m/s','72 000 m/s'],a:0,fb:'72 ÷ 3.6 = 20. Or 72 000 m ÷ 3600 s.'},
+  {q:'A metal block: mass 400 g, volume 50 cm³. Density?',opts:['8 g/cm³','0.125 g/cm³','450 g/cm³','20 000 g/cm³'],a:0,fb:'Density = mass ÷ volume = 400 ÷ 50 = 8 g/cm³.'},
+  {q:'Which is the better buy: 250 g for £2 or 1 kg for £7?',opts:['1 kg for £7','250 g for £2','they are the same','cannot tell'],a:0,fb:'250 g for £2 is £8/kg; 1 kg for £7 is £7/kg.'},
+  {q:'How many cm³ in 2.5 litres?',opts:['2500','250','25 000','0.0025'],a:0,fb:'1 litre = 1000 cm³.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

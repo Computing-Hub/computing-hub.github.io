@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Percentage Change</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive panels; graph-paper neutrals, teal = the quantity, orange = the conversion factor, plum = compound result. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ladder{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;justify-content:center;font-family:var(--mono);margin-top:.8rem}
+.ladder .u{padding:.5rem .8rem;border-radius:8px;border:2px solid var(--line);background:var(--bg);font-weight:600;min-width:3.6em;text-align:center}
+.ladder .u.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ladder .u.to{border-color:var(--two);background:var(--two-soft);color:var(--two)}
+.ladder .k{font-size:.8rem;color:var(--hi);display:flex;flex-direction:column;align-items:center;min-width:3.4em}
+.tri{display:grid;grid-template-columns:1fr 1fr;width:220px;margin:.8rem auto;font-family:var(--mono);font-size:1.2rem;text-align:center}
+.tri div{padding:.5rem;border:1px solid var(--line)}
+.tri .top{grid-column:1/-1;background:var(--accent-soft);color:var(--accent);font-weight:600;border-radius:8px 8px 0 0}
+.tri .bl{background:var(--hi-soft);color:var(--hi);font-weight:600;border-radius:0 0 0 8px}
+.tri .br{background:var(--two-soft);color:var(--two);font-weight:600;border-radius:0 0 8px 0}
+.tri .cover{opacity:.25;text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<style>
+.pbar{position:relative;height:40px;margin-top:.8rem;border-radius:6px;overflow:visible}
+.pbar .base{position:absolute;left:0;top:0;height:100%;background:var(--accent);border-radius:6px 0 0 6px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--mono);font-size:.85rem;font-weight:600}
+.pbar .delta{position:absolute;top:0;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--mono);font-size:.8rem;font-weight:600;border-radius:0 6px 6px 0}
+.pbar .delta.up{background:var(--two)}.pbar .delta.down{background:var(--hi);opacity:.55;border:2px dashed var(--hi);color:var(--hi)}
+.pbar .tick{position:absolute;top:-18px;font:600 .7rem var(--mono);color:var(--muted);transform:translateX(-50%)}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.twin .h{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+.chips button{font:inherit;font-family:var(--mono);font-size:.9rem;padding:.3rem .7rem;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);cursor:pointer}
+.chips button:hover{border-color:var(--accent)}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Ratio, proportion and rates of change · KS3</div>
+  <h1>Percentage Change</h1>
+  <p class="lede">"20% off", "prices up 5%", "a 150% increase". Every percentage change is a <strong>multiplier</strong>: one number that takes you from old to new in a single step. Learn to find it and every increase, decrease, reverse and repeated change becomes the same calculation.</p>
+  <span class="gcse">National curriculum KS3: solve problems involving percentage change, including percentage increase/decrease and original value problems, and simple interest in financial mathematics; use multipliers</span>
+</header>
+
+<h2>1 · Percentage of an amount: the 100-bar</h2>
+<p>The original amount is 100%, whatever its actual value. 1% is one hundredth of it; 25% is a quarter; 150% is one-and-a-half times. Slide the percentage and watch the bar: the number changes, the idea doesn't.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>amount <input type="number" id="poA" value="80" step="any" style="width:6em"></label>
+    <label>percentage <input type="range" id="poP" min="0" max="200" step="5" value="35"><span id="poPv" style="font-family:var(--mono)"></span>%</label>
+  </div>
+  <div class="pbar" id="poBar"></div>
+  <div class="work" id="poWork"></div>
+  <div class="chips">mental shortcuts: <button data-p="10">10%: ÷ 10</button><button data-p="5">5%: half of 10%</button><button data-p="1">1%: ÷ 100</button><button data-p="25">25%: ÷ 4</button><button data-p="50">50%: ÷ 2</button><button data-p="35">35% = 25% + 10%</button></div>
+</div>
+
+<h2>2 · Increase and decrease: one multiplier</h2>
+<p>To increase by 20%, you end up with 100% + 20% = 120% of the original. 120% as a decimal is 1.2, so <strong>multiply by 1.2</strong>. To decrease by 20%, you keep 80%: multiply by 0.8. One multiplication, no adding step, and it reverses cleanly. The bar shows the original (teal) and what's added or removed.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>original <input type="number" id="icA" value="250" step="any" style="width:6em"></label>
+    <label><select id="icD"><option value="1">increase</option><option value="-1">decrease</option></select> by <input type="range" id="icP" min="1" max="100" step="1" value="20"><span id="icPv" style="font-family:var(--mono)"></span>%</label>
+  </div>
+  <div class="pbar" id="icBar"></div>
+  <div class="twin">
+    <div><div class="h">Two-step method</div><div class="work" id="icTwo"></div></div>
+    <div><div class="h">Multiplier method</div><div class="work" id="icOne"></div></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Multipliers at a glance.</strong> Up 5% → × 1.05. Up 50% → × 1.5. Up 100% → × 2 (doubling). Down 5% → × 0.95. Down 35% → × 0.65. Down 100% → × 0: nothing left. A decrease can't go beyond 100%, but an increase can: "up 250%" is × 3.5.</p>
+</div>
+
+<h2>3 · Finding the percentage change</h2>
+<p>A price went from £40 to £46. What percentage increase is that? Find the <em>change</em> (£6), then ask what percentage of the <strong>original</strong> it is: 6 ÷ 40 = 0.15 = 15%. Always divide by the original, never the new value. The same change counts as a different percentage depending on where you started.</p>
+
+<div class="big" style="font-family:var(--mono);font-size:1.1rem;text-align:center;margin:.8rem 0">percentage change = <span style="display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.1"><span style="border-bottom:1.5px solid currentColor;padding:0 .3em">new − original</span><span>original</span></span> × 100</div>
+
+<div class="lab">
+  <div class="controls">
+    <label>original <input type="number" id="pcO" value="40" step="any" style="width:6em"></label>
+    <label>new <input type="number" id="pcN" value="46" step="any" style="width:6em"></label>
+  </div>
+  <div class="pbar" id="pcBar"></div>
+  <div class="work" id="pcWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Up 25% then down 25% is not back where you started.</strong> £100 → £125 → £93.75. The 25% off is taken from a bigger number than the 25% on was added to. Multipliers show it instantly: 1.25 × 0.75 = 0.9375, a 6.25% loss overall. Same reason a shop's "50% off, then another 50% off" is 75% off, not 100%.</p>
+</div>
+
+<h2>4 · Reverse percentages: finding the original</h2>
+<p>A jacket costs £54 in a 10%-off sale. What was the full price? The trap is to add 10% back on to £54 (giving £59.40, wrong). The £54 is 90% of the original, not 100% of it. So divide: £54 ÷ 0.9 = £60. In general, <strong>new ÷ multiplier = original</strong>. Divide by the multiplier you'd have multiplied by.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>after a <select id="rvD"><option value="-1">decrease</option><option value="1">increase</option></select> of <input type="number" id="rvP" value="10" min="1" max="100" style="width:4.5em">%</label>
+    <label>the new value is <input type="number" id="rvN" value="54" step="any" style="width:6em"></label>
+  </div>
+  <div class="pbar" id="rvBar"></div>
+  <div class="twin">
+    <div><div class="h">Wrong: add it back on</div><div class="work" id="rvWrong"></div></div>
+    <div><div class="h">Right: divide by the multiplier</div><div class="work" id="rvRight"></div></div>
+  </div>
+</div>
+
+<h2>5 · Repeated changes</h2>
+<p>A population grows 3% a year for 5 years. Not 15%: each year's 3% is taken of a bigger number. Multiply by 1.03 five times, which is × 1.03⁵. This is where percentage change meets the index laws, and it's the engine of compound interest (next page).</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>start <input type="number" id="rpA" value="1000" step="any" style="width:6em"></label>
+    <label><select id="rpD"><option value="1">up</option><option value="-1">down</option></select> <input type="number" id="rpP" value="3" step="any" min="0" max="100" style="width:4.5em">% each time</label>
+    <label>repeats <input type="range" id="rpN" min="1" max="10" value="5"><span id="rpNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="rpSvg" viewBox="0 0 560 220" width="560" height="220"></svg>
+  <div class="work" id="rpWork"></div>
+</div>
+
+<h2>6 · Where percentage change lives</h2>
+<div class="grid2">
+  <div class="use"><h3>Shopping</h3>
+    <p>Sales, VAT (20%, × 1.2), tips, service charges. "Was £80, now £60" is a 25% reduction; the shop will call it "save 25%", never "pay 75%".</p></div>
+  <div class="use"><h3>Pay and prices</h3>
+    <p>A 4% pay rise with 6% inflation is a real-terms cut: 1.04 ÷ 1.06 ≈ 0.98. Comparing two percentages means multiplying or dividing their multipliers.</p></div>
+  <div class="use"><h3>Science</h3>
+    <p>Percentage error, percentage yield in chemistry, percentage change in mass in osmosis practicals: all (new − original) ÷ original × 100.</p></div>
+  <div class="use"><h3>Statistics and news</h3>
+    <p>"Crime up 50%" from 2 cases to 3 is true and nearly meaningless. Always ask: 50% of what? A percentage change hides the original.</p></div>
+  <div class="use"><h3>Computing</h3>
+    <p>Progress bars, battery percentages, CPU load. A file compressed to 40% of its size is a 60% reduction; the multiplier is 0.4.</p></div>
+  <div class="use"><h3>Finance</h3>
+    <p>Interest, depreciation (a car losing 15% a year: × 0.85ⁿ), investment returns. The next page does simple interest; GCSE does compound.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Increase 360 by 15%</summary>
+  <div class="step"><strong>Multiplier:</strong> 100% + 15% = 115% = 1.15.</div>
+  <div class="step"><strong>Multiply:</strong> 360 × 1.15 = <strong>414</strong>. (Two-step check: 10% is 36, 5% is 18, so 15% is 54; 360 + 54 = 414 ✓)</div>
+</details>
+<details>
+  <summary>A phone drops from £320 to £272. Percentage decrease?</summary>
+  <div class="step"><strong>Change:</strong> 320 − 272 = 48.</div>
+  <div class="step"><strong>As a fraction of the original:</strong> 48 ÷ 320 = 0.15 → <strong>15% decrease</strong>.</div>
+</details>
+<details>
+  <summary>After a 20% rise, a rent is £900 a month. What was it before?</summary>
+  <div class="step"><strong>£900 is 120%</strong> of the original, so the multiplier was 1.2.</div>
+  <div class="step"><strong>Divide:</strong> 900 ÷ 1.2 = <strong>£750</strong>. Check: 750 × 1.2 = 900 ✓. (Taking 20% off £900 gives £720: wrong.)</div>
+</details>
+<details>
+  <summary>Exam-style: a car worth £12 000 loses 15% of its value each year. What is it worth after 3 years?</summary>
+  <div class="step"><strong>Multiplier each year:</strong> 0.85.</div>
+  <div class="step"><strong>Three years:</strong> 12 000 × 0.85³ = 12 000 × 0.614125 = <strong>£7369.50</strong>.</div>
+  <div class="step"><strong>Not</strong> 12 000 × 0.55 = £6600 (taking 45% off once). The losses shrink each year because each is 15% of a smaller number.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>The original is always 100%. An increase of p% means a multiplier of 1 + p/100; a decrease, 1 − p/100. New = original × multiplier, so original = new ÷ multiplier, which is how reverse-percentage questions are solved without the add-it-back trap. Percentage change is (new − original) ÷ original × 100, always over the original. Repeated changes multiply their multipliers, so n changes of p% is a power, not n × p%.</p>
+
+<footer>Made for KS3 students. Percentage change and original-value problems are in the England national curriculum at key stage 3 under Ratio, proportion and rates of change. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(v,d=2)=>isFinite(v)?parseFloat(v.toFixed(d)).toLocaleString('en-GB',{maximumFractionDigits:d}):'—';
+const money=v=>'£'+v.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+function pbar(el,basePct,deltaPct,labelBase,labelDelta){ // widths in % of the 100%-bar; container shows up to 200%
+  const scale=100/Math.max(100,basePct+Math.max(0,deltaPct))*0.98; // keep inside
+  const bw=basePct*scale;const dw=Math.abs(deltaPct)*scale;const up=deltaPct>=0;
+  el.innerHTML=`<div class="base" style="width:${bw}%">${labelBase}</div>`+(deltaPct!==0?`<div class="delta ${up?'up':'down'}" style="left:${up?bw:bw-dw}%;width:${dw}%">${labelDelta}</div>`:'')+`<span class="tick" style="left:0">0%</span><span class="tick" style="left:${100*scale}%">100%</span>`+(basePct+deltaPct!==100&&basePct+deltaPct>0?`<span class="tick" style="left:${(basePct+Math.max(0,deltaPct))*scale}%;color:var(--two)">${fmt(basePct+deltaPct,1)}%</span>`:'');}
+
+/* 1 */
+const poA=document.getElementById('poA'),poP=document.getElementById('poP');
+function drawPO(){const A=parseFloat(poA.value)||0,p=+poP.value;document.getElementById('poPv').textContent=' '+p;
+  pbar(document.getElementById('poBar'),Math.min(p,100),Math.max(0,p-100),p<=100?`${p}% = ${fmt(A*p/100)}`:'100% = '+fmt(A),p>100?`+${p-100}%`:'');
+  const parts=[];let left=p;if(p>=100){parts.push(`100% = ${fmt(A)}`);left-=100;}while(left>=50){parts.push(`50% = ${fmt(A/2)}`);left-=50;}while(left>=25){parts.push(`25% = ${fmt(A/4)}`);left-=25;}while(left>=10){parts.push(`10% = ${fmt(A/10)}`);left-=10;}while(left>=5){parts.push(`5% = ${fmt(A/20)}`);left-=5;}while(left>=1){parts.push(`1% = ${fmt(A/100)}`);left-=1;}
+  document.getElementById('poWork').innerHTML=`${p}% of ${fmt(A)}:<br><span class="a">decimal method:</span> ${p}% = ${p/100}, so ${p/100} × ${fmt(A)} = <strong>${fmt(A*p/100)}</strong><br><span class="b">build-up method:</span> ${parts.join(' + ')||'0'} = <strong>${fmt(A*p/100)}</strong>`;}
+poA.addEventListener('input',drawPO);poP.addEventListener('input',drawPO);document.querySelectorAll('.chips button').forEach(b=>b.addEventListener('click',()=>{poP.value=b.dataset.p;drawPO();}));drawPO();
+
+/* 2 */
+const icA=document.getElementById('icA'),icD=document.getElementById('icD'),icP=document.getElementById('icP');
+function drawIC(){const A=parseFloat(icA.value)||0,d=+icD.value,p=+icP.value;document.getElementById('icPv').textContent=' '+p;const m=1+d*p/100;const ch=A*p/100;
+  pbar(document.getElementById('icBar'),100,d*p,`original ${fmt(A)}`,`${d>0?'+':'−'}${p}%`);
+  document.getElementById('icTwo').innerHTML=`${p}% of ${fmt(A)} = ${fmt(ch)}<br>${fmt(A)} ${d>0?'+':'−'} ${fmt(ch)} = <strong>${fmt(A*m)}</strong>`;
+  document.getElementById('icOne').innerHTML=`100% ${d>0?'+':'−'} ${p}% = ${100+d*p}% = <span class="c">× ${fmt(m,4)}</span><br>${fmt(A)} × ${fmt(m,4)} = <strong>${fmt(A*m)}</strong>`;}
+[icA,icD,icP].forEach(e=>e.addEventListener('input',drawIC));drawIC();
+
+/* 3 */
+const pcO=document.getElementById('pcO'),pcN=document.getElementById('pcN');
+function drawPC(){const o=parseFloat(pcO.value)||0,n=parseFloat(pcN.value)||0;if(!o){document.getElementById('pcWork').textContent='Original must not be 0.';return;}const ch=n-o,p=ch/o*100;
+  pbar(document.getElementById('pcBar'),100,p,`original ${fmt(o)}`,`${ch>=0?'+':'−'}${fmt(Math.abs(p),1)}%`);
+  document.getElementById('pcWork').innerHTML=`change = ${fmt(n)} − ${fmt(o)} = ${fmt(ch)}<br>${fmt(ch)} ÷ <span class="b">${fmt(o)} (the original)</span> = ${fmt(ch/o,4)}<br>× 100 = <strong>${fmt(Math.abs(p))}% ${ch>=0?'increase':'decrease'}</strong>   (multiplier ${fmt(n/o,4)})<br><span class="c">Dividing by the new value instead would give ${fmt(Math.abs(ch/n*100))}%: wrong.</span>`;}
+pcO.addEventListener('input',drawPC);pcN.addEventListener('input',drawPC);drawPC();
+
+/* 4 */
+const rvD=document.getElementById('rvD'),rvP=document.getElementById('rvP'),rvN=document.getElementById('rvN');
+function drawRV(){const d=+rvD.value,p=parseFloat(rvP.value)||0,n=parseFloat(rvN.value)||0;const m=1+d*p/100;const orig=n/m;
+  pbar(document.getElementById('rvBar'),100,d*p,`original = ? (100%)`,`${d>0?'+':'−'}${p}%`);
+  document.getElementById('rvWrong').innerHTML=`${fmt(n)} ${d>0?'−':'+'} ${p}% of ${fmt(n)}<br>= ${fmt(n)} ${d>0?'−':'+'} ${fmt(n*p/100)} = <s>${fmt(n*(1-d*p/100))}</s><br><span class="b">Wrong: that takes ${p}% of the new value, not the original.</span>`;
+  document.getElementById('rvRight').innerHTML=`${fmt(n)} is ${100+d*p}% of the original<br>multiplier was × ${fmt(m,4)}, so divide:<br>${fmt(n)} ÷ ${fmt(m,4)} = <strong>${fmt(orig)}</strong><br><span class="a">check: ${fmt(orig)} × ${fmt(m,4)} = ${fmt(orig*m)} ✓</span>`;}
+[rvD,rvP,rvN].forEach(e=>e.addEventListener('input',drawRV));drawRV();
+
+/* 5 repeated */
+const rpA=document.getElementById('rpA'),rpD=document.getElementById('rpD'),rpP=document.getElementById('rpP'),rpN=document.getElementById('rpN');
+function drawRP(){const A=parseFloat(rpA.value)||0,d=+rpD.value,p=parseFloat(rpP.value)||0,n=+rpN.value;document.getElementById('rpNv').textContent=' '+n;const m=1+d*p/100;
+  const vals=[];for(let i=0;i<=n;i++)vals.push(A*Math.pow(m,i));const naive=A*(1+d*p*n/100);const mx=Math.max(...vals,naive,A)*1.1;
+  const W=560,H=220,pl=60,pb=28;const bw=(W-pl-20)/(n+1);const sy=v=>H-pb-v/mx*(H-pb-20);let s='';
+  vals.forEach((v,i)=>{s+=`<rect x="${pl+i*bw+4}" y="${sy(v)}" width="${bw-8}" height="${H-pb-sy(v)}" fill="${i===0?css('--accent'):css('--two')}" opacity=".85" rx="3"/><text x="${pl+i*bw+bw/2}" y="${sy(v)-5}" text-anchor="middle" font-size="10" font-family="${css('--mono')}" fill="${css('--fg')}">${fmt(v,0)}</text><text x="${pl+i*bw+bw/2}" y="${H-10}" text-anchor="middle" font-size="10" font-family="${css('--mono')}" fill="${css('--muted')}">${i}</text>`;});
+  s+=`<line x1="${pl}" y1="${sy(naive)}" x2="${W-20}" y2="${sy(naive)}" stroke="${css('--hi')}" stroke-width="1.5" stroke-dasharray="5 4"/><text x="${W-20}" y="${sy(naive)-5}" text-anchor="end" font-size="10" font-family="${css('--mono')}" fill="${css('--hi')}">"${n} × ${p}%" would give ${fmt(naive,0)}</text>`;
+  document.getElementById('rpSvg').innerHTML=s;
+  document.getElementById('rpWork').innerHTML=`Each change: × ${fmt(m,4)}.  ${n} changes: × ${fmt(m,4)}<sup>${n}</sup> = × ${fmt(Math.pow(m,n),4)}<br>${fmt(A)} × ${fmt(Math.pow(m,n),4)} = <strong>${fmt(vals[n])}</strong>, an overall ${fmt(Math.abs(Math.pow(m,n)-1)*100,2)}% ${m>=1?'increase':'decrease'}.<br><span class="b">Not ${n} × ${p}% = ${n*p}%</span>, which would give ${fmt(naive)}. The difference grows with every repeat.`;}
+[rpA,rpD,rpP,rpN].forEach(e=>e.addEventListener('input',drawRP));drawRP();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',drawRP);}
+new MutationObserver(drawRP).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const QS=[
+  {q:'Multiplier for a 35% increase?',opts:['1.35','0.35','1.65','0.65'],a:0,fb:'100% + 35% = 135% = 1.35.'},
+  {q:'Multiplier for a 12% decrease?',opts:['0.88','0.12','1.12','0.78'],a:0,fb:'100% − 12% = 88% = 0.88.'},
+  {q:'Increase 60 by 25%.',opts:['75','85','15','45'],a:0,fb:'60 × 1.25 = 75.'},
+  {q:'From 50 to 42 is a…',opts:['16% decrease','8% decrease','19% decrease','16% increase'],a:0,fb:'Change 8; 8 ÷ 50 = 0.16.'},
+  {q:'After 20% off, a coat is £48. Original price?',opts:['£60','£57.60','£38.40','£68'],a:0,fb:'£48 is 80%: 48 ÷ 0.8 = 60. (Adding 20% to £48 gives £57.60, the trap.)'},
+  {q:'Up 10% then down 10% leaves you with…',opts:['99% of the start','100% of the start','90%','101%'],a:0,fb:'1.1 × 0.9 = 0.99.'},
+  {q:'£500 grows 4% a year for 3 years. Value?',opts:['£562.43','£560','£512','£620'],a:0,fb:'500 × 1.04³ = 562.43. Not 500 × 1.12.'},
+  {q:'VAT is 20%. A price of £90 including VAT was, before VAT…',opts:['£75','£72','£108','£70'],a:0,fb:'£90 is 120%: 90 ÷ 1.2 = 75.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);const div=document.createElement('div');div.className='q';div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});opts.appendChild(b);});qz.appendChild(div);});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

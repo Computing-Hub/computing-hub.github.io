@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Rates of Change Graphs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive SVG graph drawn from JS (draggable gradient triangles, an animated journey with a road strip, a velocity–time builder, containers filling with water, draggable chord and tangent points). Graph-paper neutrals. Colours on this page: teal = the graph itself (the real-life data: distance, velocity, depth, cost…) and soft teal = area under a velocity–time graph; orange = gradients as rates of change (rise/run triangles, accelerations, tangents giving instantaneous rates); plum = averages and "where we are now" (chords, average-speed lines, the moving cursor, the moving traveller and the draggable points). Water in the containers is soft teal. Green/red are only used for right/wrong feedback. The orange "Higher" pill marks Higher-tier-only content. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+a{color:var(--accent)}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.G{color:var(--accent);font-weight:600}.R{color:var(--hi);font-weight:600}.A{color:var(--two);font-weight:600}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;line-height:1.5}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none;cursor:pointer}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);max-width:100%;min-width:0}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn:disabled{opacity:.5;cursor:default}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--two);background:var(--two-soft);color:var(--two);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:clamp(1.15rem,4.5vw,1.6rem);text-align:center;margin:.6rem 0}
+.pq{font-size:1.05rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:.95rem;line-height:1.85;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;max-width:100%;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}
+.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Ratio, proportion and rates of change</div>
+  <h1>Rates of Change Graphs</h1>
+  <p class="lede">A <strong>rate of change</strong> tells you how fast one quantity changes compared with another: kilometres per hour, litres per minute, pounds per hour, °C per minute. On a graph, the rate of change is the <strong>gradient</strong>. This page is about reading real-life graphs and saying what their gradients (and, for velocity, their areas) mean.</p>
+  <span class="gcse">GCSE subject content: interpret the gradient of a straight-line graph as a rate of change; plot and interpret graphs in real contexts, including simple kinematic problems involving distance, speed and acceleration; (Higher) interpret the gradient at a point on a curve as the instantaneous rate of change; apply the concepts of average and instantaneous rate of change (gradients of chords and tangents); interpret areas under velocity–time graphs</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start: a quick recap</strong></p>
+  <ul>
+    <li><strong>Gradient</strong> = rise ÷ run: how far the graph goes up for each 1 across. Uphill is positive, downhill negative, flat is 0. Revise it on <a href="../ks3-interactive/linear-graphs.html">Linear Graphs</a>.</li>
+    <li><strong>Speed = distance ÷ time.</strong> Units come from the division: km ÷ hours = km/h, metres ÷ seconds = m/s.</li>
+    <li><strong>Time conversions:</strong> 30 minutes = 0.5 hours, 15 minutes = 0.25 hours, 20 minutes = ⅓ hour. Divide minutes by 60 to get hours (see <a href="../ks3-interactive/unit-conversion.html">Unit Conversion</a>).</li>
+    <li>The <em>method</em> for drawing tangents and estimating areas under curves is on the companion page <a href="gradients-tangents-area-under-graphs.html">Gradients, Tangents and Area under Graphs</a>. This page focuses on what the answers <em>mean</em> in real life.</li>
+  </ul>
+</div>
+
+<h2>1 · Gradient means "per"</h2>
+<p>A graph of cost against miles, volume against minutes or pay against hours has a gradient with <strong>units</strong>: the y-units <em>per</em> x-unit. That's the rate of change. Pick a situation, then drag the two plum points along the line to draw the gradient triangle anywhere. The answer is always the same, because the line is straight: the rate is <strong>constant</strong>.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>situation <select id="g1C"><option value="0">taxi fare</option><option value="1">filling a bath</option><option value="2">phone battery</option><option value="3">wages</option></select></label>
+  </div>
+  <svg id="g1Svg" class="drag" viewBox="0 0 560 330" width="560" height="330" aria-label="Straight-line graph with a draggable gradient triangle"></svg>
+  <div class="readout">
+    <div class="t"><b>Gradient (the rate)</b><span id="g1Rate"></span></div>
+    <div class="f"><b>y-intercept</b><span id="g1Int"></span></div>
+  </div>
+  <div class="work" id="g1Work"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Say what it means, with units.</strong> "The gradient is 1.8" scores less than "the cost goes up by £1.80 per mile". A negative gradient means the quantity is going <em>down</em>: −12.5 % per hour means the battery loses 12.5% every hour. The y-intercept usually means the starting value (a fixed charge, the water already in the tank, the battery at the start).</p>
+</div>
+
+<h2>2 · Distance–time graphs</h2>
+<p>A <strong>distance–time graph</strong> shows how far someone is from their starting point as time goes on. The gradient is distance ÷ time, which is <strong>speed</strong>. Press play and watch the cyclist on the road above the graph.</p>
+<ul>
+  <li><strong>Steeper</strong> line = faster.</li>
+  <li><strong>Horizontal</strong> line = not moving (stationary): time passes but the distance stays the same.</li>
+  <li><strong>Line going down</strong> = coming back towards the start (a return journey).</li>
+</ul>
+
+<div class="lab">
+  <svg id="jSvg" class="drag" viewBox="0 0 560 390" width="560" height="390" aria-label="Distance–time graph of a journey with a moving cyclist"></svg>
+  <div class="controls">
+    <button class="btn primary" id="jPlay">Play</button>
+    <label>time <input type="range" id="jT" min="0" max="120" step="1" value="0"><span id="jTv" style="font-family:var(--mono)"></span></label>
+    <button class="btn" id="jNew">New journey</button>
+  </div>
+  <div class="chips" id="jChips"></div>
+  <div class="work" id="jWork"></div>
+</div>
+
+<h3>Try it: read a speed</h3>
+<div class="lab">
+  <p class="pq" id="jQ"></p>
+  <div class="controls">
+    <label>speed <input type="text" id="jA" inputmode="decimal" autocomplete="off"> km/h</label>
+    <button class="btn primary" id="jGo">Check</button>
+    <button class="btn" id="jNext">Another section</button>
+  </div>
+  <div class="msg" id="jMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Exam trap: minutes on the time axis.</strong> If the time axis is in minutes and the question wants km/h, convert the time to hours first. 9 km in 30 minutes is 9 ÷ 0.5 = 18 km/h, not 9 ÷ 30 = 0.3. Also read the <em>change</em> in distance for that section only, not the distance from home.</p>
+</div>
+
+<h2>3 · Average speed for a whole journey</h2>
+<p>The <strong>average speed</strong> for a journey is the <em>total</em> distance divided by the <em>total</em> time. On a distance–time graph it's the gradient of the straight line from the start to the end (the plum dashed line). It is <strong>not</strong> the average of the speeds, because you usually spend longer on the slower part.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>leg 1: <input type="range" id="avD1" min="10" max="60" step="10" value="30"><span id="avD1v" style="font-family:var(--mono)"></span> at <input type="range" id="avS1" min="20" max="80" step="10" value="60"><span id="avS1v" style="font-family:var(--mono)"></span></label>
+    <label>leg 2: <input type="range" id="avD2" min="10" max="60" step="10" value="30"><span id="avD2v" style="font-family:var(--mono)"></span> at <input type="range" id="avS2" min="20" max="80" step="10" value="30"><span id="avS2v" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="avSvg" viewBox="0 0 560 300" width="560" height="300" aria-label="Two-leg journey with the average-speed line"></svg>
+  <div class="work" id="avWork"></div>
+</div>
+
+<h2>4 · Velocity–time graphs</h2>
+<p>A <strong>velocity–time graph</strong> shows how fast something is going at each moment. (Velocity is speed in a particular direction; at GCSE you can treat it as speed.) Now the gradient is velocity ÷ time, which is the <strong>acceleration</strong>: how quickly the speed changes, in metres per second <em>per second</em>, written m/s².</p>
+<ul>
+  <li><strong>Sloping up</strong>: speeding up (positive acceleration).</li>
+  <li><strong>Horizontal</strong>: constant speed (acceleration 0). <em>Not</em> stopped! Stopped is a horizontal line along the time axis, at velocity 0.</li>
+  <li><strong>Sloping down</strong>: slowing down (deceleration, a negative acceleration).</li>
+</ul>
+<p>Build a car journey: it speeds up, cruises, then brakes to a stop.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>top speed <input type="range" id="vtV" min="4" max="30" step="1" value="20"><span id="vtVv" style="font-family:var(--mono)"></span></label>
+    <label>speeding up for <input type="range" id="vtT1" min="2" max="20" step="1" value="8"><span id="vtT1v" style="font-family:var(--mono)"></span></label>
+    <label>cruising for <input type="range" id="vtT2" min="0" max="30" step="1" value="10"><span id="vtT2v" style="font-family:var(--mono)"></span></label>
+    <label>braking for <input type="range" id="vtT3" min="2" max="20" step="1" value="5"><span id="vtT3v" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="vtArea"> shade the area (Higher)</label>
+  </div>
+  <svg id="vtSvg" viewBox="0 0 560 320" width="560" height="320" aria-label="Velocity–time graph with acceleration triangles"></svg>
+  <div class="readout">
+    <div class="t"><b>Acceleration</b><span id="vtA1"></span></div>
+    <div class="t"><b>Braking</b><span id="vtA3"></span></div>
+    <div class="f"><b>Distance travelled</b><span id="vtD"></span></div>
+  </div>
+  <div class="work" id="vtWork"></div>
+</div>
+
+<h3>Distance is the area under the graph <span class="tag g">Higher</span></h3>
+<p>If you travel at a constant 20 m/s for 10 s, you go 20 × 10 = 200 m. On the velocity–time graph that's a rectangle 10 wide and 20 tall: its <strong>area</strong> is the distance. The same is true for any shape: the area between the graph and the time axis is the distance travelled. For straight-line graphs, split the area into rectangles and triangles (area of a triangle = ½ × base × height), or use one trapezium. Tick "shade the area" above to see it split up. For curved velocity–time graphs you estimate the area with strips: that method is on <a href="gradients-tangents-area-under-graphs.html">Gradients, Tangents and Area under Graphs</a>.</p>
+
+<div class="callout">
+  <p><strong>Don't mix the two graphs up.</strong> On a <em>distance</em>–time graph, the gradient is speed and a flat line means stopped. On a <em>velocity</em>–time graph, the gradient is acceleration, a flat line means constant speed, and (Higher) the area is the distance. Always read the label on the y-axis first.</p>
+</div>
+
+<h2>5 · Filling containers: rates in other units</h2>
+<p>Water flows into each container at a <strong>constant rate</strong> (the same number of cm³ every second). How fast does the <em>depth</em> rise? In a narrow part, a little water makes the level shoot up: the depth–time graph is steep. In a wide part, the same water spreads out and the level creeps up: the graph is shallow. Where the width changes gradually, the gradient changes gradually, so the graph is a curve.</p>
+<p>Choose a container. Before you press play, predict the shape of its graph.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>container <select id="ctS"><option value="cyl">cylinder</option><option value="bowl">widens upwards (bowl)</option><option value="cone">narrows upwards (cone)</option><option value="step">wide base, narrow neck</option><option value="vase">vase (bulges in the middle)</option></select></label>
+  </div>
+  <div class="controls">
+    <label>my prediction <select id="ctP"><option value="">choose…</option><option value="straight">a straight line</option><option value="less">a curve getting less steep</option><option value="more">a curve getting steeper</option><option value="two">two straight lines, the second steeper</option><option value="sfs">steep, then less steep, then steeper again</option></select></label>
+    <button class="btn" id="ctGo">Check prediction</button>
+  </div>
+  <div class="msg" id="ctMsg"></div>
+  <svg id="ctSvg" viewBox="0 0 560 300" width="560" height="300" aria-label="A container filling with water next to its depth–time graph"></svg>
+  <div class="controls">
+    <button class="btn primary" id="ctPlay">Play</button>
+    <label>time <input type="range" id="ctT" min="0" max="60" step="0.5" value="0"><span id="ctTv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="work" id="ctWork"></div>
+</div>
+
+<div class="grid2">
+  <div class="use"><h3>Litres per minute</h3><p>A volume–time graph for a tank: gradient = litres per minute. Positive while it fills, negative while it drains, zero when the tap is off.</p></div>
+  <div class="use"><h3>Pounds per hour</h3><p>Pay against hours worked: the gradient is the hourly rate. A steeper section part-way along could be overtime at a higher rate.</p></div>
+  <div class="use"><h3>Conversion graphs</h3><p>Euros against pounds: the gradient is the exchange rate, euros per pound. A straight line through the origin is direct proportion.</p></div>
+</div>
+
+<h2>6 · Average rate: the gradient of a chord <span class="tag g">Higher</span></h2>
+<p>Many real graphs are curves: the rate keeps changing. A car pulling away goes faster and faster; a cup of tea cools quickly at first, then more slowly. The <strong>average rate of change</strong> between two times is the gradient of the straight line joining those two points on the curve. That line is called a <strong>chord</strong>. It's exactly the "average speed" line from section 3: total change ÷ total time.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>situation <select id="chC"><option value="0">car pulling away</option><option value="1">cup of tea cooling</option><option value="2">bacteria growing</option></select></label>
+  </div>
+  <svg id="chSvg" class="drag" viewBox="0 0 560 330" width="560" height="330" aria-label="Curve with a draggable chord"></svg>
+  <div class="readout">
+    <div class="p"><b>Gradient of chord</b><span id="chRate"></span></div>
+  </div>
+  <div class="work" id="chWork"></div>
+</div>
+
+<h2>7 · Instantaneous rate: the gradient of a tangent <span class="tag g">Higher</span></h2>
+<p>What is the car's speed <em>at exactly</em> t = 6 seconds? Not on average over a time interval, but at that instant: the speedometer reading. That's the <strong>instantaneous rate of change</strong>. On the graph it's the gradient of the <strong>tangent</strong>: the straight line that just touches the curve at that point, going in the same direction as the curve there.</p>
+<p>Why does that work? Make the chord shorter and shorter. Slide "chord width" towards 0: the plum chord swings round until it lies along the orange tangent, and the average rate over a tiny interval becomes the rate at that instant. Drag the point to move along the curve.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>situation <select id="tgC"><option value="0">car pulling away</option><option value="1">cup of tea cooling</option><option value="2">bacteria growing</option></select></label>
+    <label>chord width <input type="range" id="tgH" min="0" max="100" step="1" value="60"><span id="tgHv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="tgSvg" class="drag" viewBox="0 0 560 330" width="560" height="330" aria-label="Curve with a tangent and a shrinking chord"></svg>
+  <div class="readout">
+    <div class="t"><b>Tangent gradient</b><span id="tgTan"></span></div>
+    <div class="p"><b>Chord gradient</b><span id="tgCh"></span></div>
+  </div>
+  <div class="work" id="tgWork"></div>
+</div>
+
+<h3>Try it: read an instantaneous rate from a tangent</h3>
+<p>In an exam you draw the tangent with a ruler by eye, then pick two points far apart on <em>your tangent</em> (not on the curve) and work out rise ÷ run. Here the tangent is drawn for you and two points on it are marked.</p>
+<div class="lab">
+  <p class="pq" id="trQ"></p>
+  <svg id="trSvg" viewBox="0 0 560 330" width="560" height="330" aria-label="Curve with a drawn tangent and two marked points"></svg>
+  <div class="controls">
+    <label>answer <input type="text" id="trA" inputmode="decimal" autocomplete="off"> <span id="trU"></span></label>
+    <button class="btn primary" id="trGo">Check</button>
+    <button class="btn" id="trNew">New question</button>
+  </div>
+  <div class="msg" id="trMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes with curves</strong></p>
+  <ul>
+    <li><strong>Using the curve instead of the tangent.</strong> Rise ÷ run between two points on the <em>curve</em> gives an average rate (a chord), not the rate at one instant.</li>
+    <li><strong>Dividing y by x at the point.</strong> At t = 6 the car has gone 21.6 m, and 21.6 ÷ 6 = 3.6 m/s is its average speed since the start, not its speed at t = 6 (which is 7.2 m/s).</li>
+    <li><strong>A short triangle.</strong> Choose two points far apart on the tangent: small reading errors matter less.</li>
+    <li><strong>Forgetting the sign and units.</strong> A cooling curve has a negative gradient: "−2.1 °C per minute" means the temperature is falling by 2.1 °C each minute.</li>
+  </ul>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>A taxi fare graph is a straight line from (0, 3) to (10, 21), with miles across and £ up. Interpret the gradient and the intercept.</summary>
+  <div class="step"><strong>Gradient:</strong> rise ÷ run = (21 − 3) ÷ (10 − 0) = 18 ÷ 10 = 1.8.</div>
+  <div class="step"><strong>Units:</strong> £ per mile. So the fare goes up by <strong>£1.80 for every mile</strong> travelled.</div>
+  <div class="step"><strong>Intercept:</strong> £3 when the distance is 0: a <strong>fixed charge of £3</strong> before the taxi moves.</div>
+</details>
+<details>
+  <summary>Amir cycles 9 km from home in the first 30 minutes, stops for 15 minutes, then cycles home in 45 minutes. Find his speed on each moving section in km/h.</summary>
+  <div class="step"><strong>Out:</strong> 9 km in 30 min = 0.5 h. Speed = 9 ÷ 0.5 = <strong>18 km/h</strong>.</div>
+  <div class="step"><strong>Stopped:</strong> horizontal line, speed 0.</div>
+  <div class="step"><strong>Home:</strong> 9 km in 45 min = 0.75 h. Speed = 9 ÷ 0.75 = <strong>12 km/h</strong>. The line slopes down because he's getting closer to home.</div>
+  <div class="step"><strong>Trap:</strong> 9 ÷ 30 = 0.3 is in km per <em>minute</em>. Multiply by 60 to get km/h: 0.3 × 60 = 18 ✓</div>
+</details>
+<details>
+  <summary>A driver goes 30 km at 60 km/h, then 30 km at 30 km/h. Find the average speed for the whole journey.</summary>
+  <div class="step"><strong>Time for each leg:</strong> 30 ÷ 60 = 0.5 h; 30 ÷ 30 = 1 h.</div>
+  <div class="step"><strong>Totals:</strong> distance 60 km, time 1.5 h.</div>
+  <div class="step"><strong>Average speed</strong> = 60 ÷ 1.5 = <strong>40 km/h</strong>.</div>
+  <div class="step"><strong>Not 45 km/h!</strong> (60 + 30) ÷ 2 = 45 ignores that the driver spent twice as long going slowly.</div>
+</details>
+<details>
+  <summary>A car accelerates from rest to 20 m/s in 8 s, travels at 20 m/s for 10 s, then brakes to rest in 5 s. Find its acceleration and deceleration.</summary>
+  <div class="step"><strong>Speeding up:</strong> gradient = (20 − 0) ÷ 8 = <strong>2.5 m/s²</strong>. Its speed goes up 2.5 m/s every second.</div>
+  <div class="step"><strong>Cruising:</strong> horizontal line, acceleration 0 (constant speed, not stopped).</div>
+  <div class="step"><strong>Braking:</strong> gradient = (0 − 20) ÷ 5 = −4 m/s². A <strong>deceleration of 4 m/s²</strong>.</div>
+</details>
+<details>
+  <summary><span class="tag g">Higher</span> For the same car, find the total distance travelled.</summary>
+  <div class="step"><strong>Distance = area under the velocity–time graph.</strong> Split it into three shapes.</div>
+  <div class="step"><strong>Triangle (speeding up):</strong> ½ × 8 × 20 = 80 m.</div>
+  <div class="step"><strong>Rectangle (cruising):</strong> 10 × 20 = 200 m.</div>
+  <div class="step"><strong>Triangle (braking):</strong> ½ × 5 × 20 = 50 m.</div>
+  <div class="step"><strong>Total:</strong> 80 + 200 + 50 = <strong>330 m</strong>. (Or as one trapezium: ½ × (23 + 10) × 20 = 330 m ✓)</div>
+</details>
+<details>
+  <summary>Water is poured at a constant rate into a container that is wide at the bottom and narrow at the top. Describe the depth–time graph.</summary>
+  <div class="step"><strong>Bottom (wide):</strong> the water spreads out, so the depth rises slowly: a shallow gradient.</div>
+  <div class="step"><strong>Top (narrow):</strong> the same volume each second makes a bigger rise in depth: a steeper gradient.</div>
+  <div class="step"><strong>Answer:</strong> the graph starts shallow and gets <strong>steeper</strong>. If the width changes gradually (a cone) it's a smooth curve; if it changes suddenly (a wide cylinder with a narrow neck) it's two straight lines with a corner.</div>
+</details>
+<details>
+  <summary><span class="tag g">Higher</span> A car's distance is d = 0.6t² metres after t seconds. Find its average speed between t = 2 and t = 6, and estimate its speed at t = 5 using the tangent shown through (2.5, 0) and (10, 45).</summary>
+  <div class="step"><strong>Average speed (chord):</strong> d(2) = 0.6 × 4 = 2.4 m; d(6) = 0.6 × 36 = 21.6 m. Gradient = (21.6 − 2.4) ÷ (6 − 2) = 19.2 ÷ 4 = <strong>4.8 m/s</strong>.</div>
+  <div class="step"><strong>Instantaneous speed (tangent):</strong> two points on the tangent are (2.5, 0) and (10, 45).</div>
+  <div class="step">Gradient = (45 − 0) ÷ (10 − 2.5) = 45 ÷ 7.5 = <strong>6 m/s</strong> at t = 5.</div>
+  <div class="step"><strong>Interpret:</strong> at the instant t = 5 s the car is travelling at 6 m/s. The units are m/s because the gradient is metres per second.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>The gradient of a real-life graph is a <strong>rate of change</strong>, measured in y-units per x-unit (£ per mile, litres per minute, km/h). A straight line means a constant rate; a negative gradient means the quantity is decreasing. The y-intercept is usually the starting value.</li>
+  <li><strong>Distance–time graphs:</strong> gradient = speed; horizontal = stationary; sloping down = returning. Convert minutes to hours for km/h.</li>
+  <li><strong>Average speed</strong> = total distance ÷ total time, the gradient of the line from start to finish. It is not the mean of the speeds.</li>
+  <li><strong>Velocity–time graphs:</strong> gradient = acceleration (m/s²); horizontal = constant speed; sloping down = decelerating. Higher: the area under the graph = distance travelled.</li>
+  <li><strong>Filling containers</strong> at a constant rate: narrow parts give steep sections, wide parts give shallow sections; gradual changes in width give curves.</li>
+  <li>Higher: on a curve, the <strong>average rate</strong> between two points is the gradient of the chord; the <strong>instantaneous rate</strong> at a point is the gradient of the tangent there. Interpret both with units.</li>
+</ul>
+
+<footer>Made for GCSE students. Interpreting gradients as rates of change, distance–time and velocity–time graphs, and average and instantaneous rates of change are in the DfE GCSE mathematics subject content under Ratio, proportion and rates of change. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">Subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat(v.toFixed(d)).toString()) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const txt = (x,y,s,col,size=11,anchor='middle',weight=400) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" fill="${col}" ${F()}>${s}</text>`;
+const num = el => { const s=String(el.value).trim().replace(/[−–]/g,'-').replace(/\s/g,''); const v=parseFloat(s); return isFinite(v)&&/^-?\d*\.?\d+$/.test(s)?v:NaN; };
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const near = (u,v,t) => Math.abs(u-v) <= t;
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function niceStep(max,target){ const raw=max/target, p=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/p; return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p; }
+function axes(o){ const {L,R,T,B,xMax,yMax}=o, xMin=o.xMin||0; const X=x=>L+(R-L)*(x-xMin)/(xMax-xMin), Y=y=>B-(B-T)*y/yMax;
+  const xs=o.xStep||niceStep(xMax-xMin,6), ys=o.yStep||niceStep(yMax,5), mu=css('--muted'), gr=css('--grid'); let s='';
+  for(let x=xMin;x<=xMax+1e-9;x+=xs) s+=`<line x1="${X(x)}" y1="${T}" x2="${X(x)}" y2="${B}" stroke="${gr}"/>`+txt(X(x),B+14,fmt(x),mu,10);
+  for(let y=0;y<=yMax+1e-9;y+=ys) s+=`<line x1="${L}" y1="${Y(y)}" x2="${R}" y2="${Y(y)}" stroke="${gr}"/>`+txt(L-5,Y(y)+4,fmt(y),mu,10,'end');
+  s+=`<line x1="${L}" y1="${B}" x2="${R}" y2="${B}" stroke="${mu}" stroke-width="1.5"/><line x1="${L}" y1="${T}" x2="${L}" y2="${B}" stroke="${mu}" stroke-width="1.5"/>`;
+  if(o.xl) s+=txt((L+R)/2,B+30,o.xl,mu,11); if(o.yl) s+=txt(L-4,T-8,o.yl,mu,11,'start');
+  return {s,X,Y}; }
+function poly(f,x0,x1,X,Y,col,w=3,dash,n=240){ let p=[]; for(let i=0;i<=n;i++){const x=x0+(x1-x0)*i/n;p.push(`${X(x)},${Y(f(x))}`);} return `<polyline points="${p.join(' ')}" fill="none" stroke="${col}" stroke-width="${w}" ${dash?'stroke-dasharray="7 5"':''} stroke-linejoin="round"/>`; }
+const seg=(x1,y1,x2,y2,col,w=2,dash)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" ${dash?'stroke-dasharray="5 4"':''}/>`;
+const dot=(x,y,col,r=7)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${col}" stroke="${css('--panel')}" stroke-width="2"/>`;
+const svgPt=(svg,e,W)=>{const r=svg.getBoundingClientRect();return [(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.width*W];};
+function dragOn(svg,down,move){ let on=false; svg.addEventListener('pointerdown',e=>{on=true;svg.setPointerCapture(e.pointerId);down(e);}); svg.addEventListener('pointermove',e=>{if(on)move(e);}); svg.addEventListener('pointerup',()=>{on=false;}); svg.addEventListener('pointercancel',()=>{on=false;}); }
+const hm = h => { const tot=Math.round(h*60); const H=Math.floor(tot/60), M=tot%60; return H?`${H} h${M?' '+M+' min':''}`:`${M} min`; };
+
+/* 1. gradient as a rate */
+const G1=[
+  {xl:'distance (miles)',yl:'cost (£)',xMax:10,yMax:25,m:1.8,c:3,u:'£ per mile',rate:m=>`the cost goes up by £${m.toFixed(2)} for every mile`,ic:'£3: a fixed charge before the taxi moves',yu:'£',xu:'miles'},
+  {xl:'time (minutes)',yl:'volume (litres)',xMax:10,yMax:140,m:12,c:0,u:'litres per minute',rate:m=>`${fmt(m)} litres flow into the bath every minute`,ic:'0 litres: the bath starts empty',yu:'litres',xu:'minutes'},
+  {xl:'time (hours)',yl:'battery charge (%)',xMax:8,yMax:100,m:-12.5,c:100,u:'% per hour',rate:m=>`the battery loses ${fmt(-m)}% of its charge every hour`,ic:'100%: fully charged at the start',yu:'%',xu:'hours'},
+  {xl:'time worked (hours)',yl:'pay (£)',xMax:8,yMax:120,m:12.5,c:0,u:'£ per hour',rate:m=>`the pay is £${m.toFixed(2)} for every hour worked`,ic:'£0: no pay for no work',yu:'£',xu:'hours'}
+];
+const g1Svg=$('g1Svg'), g1C=$('g1C'); let g1=[2,6], g1Drag=0;
+const G1B={L:60,R:545,T:24,B:290};
+function drawG1(){
+  const c=G1[+g1C.value], f=x=>c.c+c.m*x; const A=axes({...G1B,xMax:c.xMax,yMax:c.yMax,xStep:1,xl:c.xl,yl:c.yl});
+  const ac=css('--accent'), hi=css('--hi'), tw=css('--two');
+  let s=A.s+poly(f,0,c.xMax,A.X,A.Y,ac,3.5);
+  const [xa,xb]=g1, ya=f(xa), yb=f(xb);
+  s+=seg(A.X(xa),A.Y(ya),A.X(xb),A.Y(ya),hi,2.5,true)+seg(A.X(xb),A.Y(ya),A.X(xb),A.Y(yb),hi,2.5,true);
+  if(xb!==xa){ s+=txt((A.X(xa)+A.X(xb))/2,A.Y(ya)+(c.m>0?16:-8),`run ${fmt(xb-xa)}`,hi,12,'middle',600)+txt(A.X(xb)+(xb>xa?6:-6),(A.Y(ya)+A.Y(yb))/2+4,`rise ${fmt(yb-ya)}`,hi,12,xb>xa?'start':'end',600); }
+  s+=dot(A.X(xa),A.Y(ya),tw,8)+dot(A.X(xb),A.Y(yb),tw,8);
+  g1Svg.innerHTML=s;
+  $('g1Rate').textContent=`${fmt(c.m)} ${c.u}`; $('g1Int').textContent=c.ic.split(':')[0];
+  $('g1Work').innerHTML=xb===xa?'Drag the points apart to make a triangle.':`points (${fmt(xa)}, ${fmt(ya)}) and (${fmt(xb)}, ${fmt(yb)})<br><span class="b">gradient = rise ÷ run = ${fmt(yb-ya)} ÷ ${fmt(xb-xa)} = ${fmt(c.m)} ${c.u}</span><br>Meaning: ${c.rate(c.m)}.<br><span class="a">y-intercept ${c.ic}.</span>`;
+}
+dragOn(g1Svg,e=>{const c=G1[+g1C.value];const [px]=svgPt(g1Svg,e,560);const x=(px-G1B.L)/(G1B.R-G1B.L)*c.xMax;g1Drag=Math.abs(x-g1[0])<=Math.abs(x-g1[1])?0:1;g1Move(e);},e=>g1Move(e));
+function g1Move(e){const c=G1[+g1C.value];const [px]=svgPt(g1Svg,e,560);g1[g1Drag]=Math.max(0,Math.min(c.xMax,Math.round((px-G1B.L)/(G1B.R-G1B.L)*c.xMax*2)/2));drawG1();}
+g1C.addEventListener('input',()=>{const c=G1[+g1C.value];g1=[2,Math.min(6,c.xMax)];drawG1();}); drawG1();
+
+/* 2. journey */
+let JR=[], jT=0, jAnim=null, jSel=0, jQi=1;
+const jSvg=$('jSvg'), jTs=$('jT');
+const JB={L:56,R:545,T:96,B:350};
+function jMake(fixed){
+  if(fixed){ JR=[[0,0],[30,9],[45,9],[60,15],[90,0]]; }
+  else { for(let tries=0;tries<500;tries++){ const t1=pick([15,20,30,40]), s1=pick([12,15,18,24]), d1=s1*t1/60, t2=pick([10,15,20]), t3=pick([15,20,30]), s3=pick([12,18,24,30]), d3=s3*t3/60, D=d1+d3;
+      const s4=pick([12,15,18,20,24,30,36]), t4=D/s4*60;
+      if(d1*2%1||d3*2%1||t4%5||t1+t2+t3+t4>150||D>20)continue; JR=[[0,0],[t1,d1],[t1+t2,d1],[t1+t2+t3,D],[t1+t2+t3+t4,0]]; break; } }
+  jTs.max=JR[4][0]; jT=0; jTs.value=0; jSel=0; jQi=pick([0,1,2,3]); drawJ(); jAsk();
+}
+const jSegInfo=i=>{ const [t0,d0]=JR[i],[t1,d1]=JR[i+1]; const dt=t1-t0, dd=d1-d0, sp=Math.abs(dd)/(dt/60); return {t0,t1,d0,d1,dt,dd,sp}; };
+const jName=i=>'ABCD'[i];
+function jDist(t){ for(let i=0;i<4;i++){const [a,da]=JR[i],[b,db]=JR[i+1]; if(t<=b) return da+(db-da)*(t-a)/(b-a);} return 0; }
+function drawJ(){
+  const tMax=Math.ceil(JR[4][0]/30)*30, dMax=Math.max(5,Math.ceil((JR[3][1]+1)/5)*5);
+  const A=axes({...JB,xMax:tMax,yMax:dMax,xStep:tMax>120?30:15,yStep:dMax>10?5:1,xl:'time (minutes)',yl:'distance from home (km)'});
+  const ac=css('--accent'), tw=css('--two'), hi=css('--hi'), mu=css('--muted'), fg=css('--fg');
+  let s=A.s;
+  for(let i=0;i<4;i++){ const [a,da]=JR[i],[b,db]=JR[i+1]; s+=seg(A.X(a),A.Y(da),A.X(b),A.Y(db),i===jSel?hi:ac,i===jSel?4.5:3.5);
+    s+=txt((A.X(a)+A.X(b))/2+(db===da?0:(db>da?-10:10)),(A.Y(da)+A.Y(db))/2-10,jName(i),i===jSel?hi:mu,13,'middle',700); }
+  // road strip
+  const RX=x=>JB.L+(JB.R-JB.L)*x/dMax, ry=40;
+  s+=seg(JB.L,ry,JB.R,ry,mu,6)+txt(JB.L,ry+22,'home',mu,11,'start')+txt(JB.R,ry+22,dMax+' km',mu,11,'end');
+  const d=jDist(jT);
+  s+=`<circle cx="${RX(d)}" cy="${ry}" r="9" fill="${tw}"/>`+txt(RX(d),ry-14,fmt(d,2)+' km',tw,11,'middle',600);
+  s+=seg(A.X(jT),JB.T,A.X(jT),JB.B,tw,1.5,true)+dot(A.X(jT),A.Y(d),tw,7);
+  jSvg.innerHTML=s; $('jTv').textContent=` ${jT} min`;
+  $('jChips').innerHTML=[0,1,2,3].map(i=>`<button class="btn ${i===jSel?'on':''}" data-i="${i}">section ${jName(i)}</button>`).join('');
+  const g=jSegInfo(jSel);
+  const kind=g.dd>0?'moving away from home':g.dd<0?'coming back towards home':'stationary (not moving)';
+  $('jWork').innerHTML=`<span class="b">Section ${jName(jSel)}: ${g.t0} to ${g.t1} minutes, ${kind}</span><br>`+(g.dd===0?`distance stays at ${fmt(g.d0)} km for ${g.dt} minutes → speed = <strong>0 km/h</strong>`:
+    `distance changes by ${fmt(Math.abs(g.dd))} km in ${g.dt} minutes = ${fmt(g.dt/60,4)} hours<br>speed = ${fmt(Math.abs(g.dd))} ÷ ${fmt(g.dt/60,4)} = <strong>${fmt(g.sp)} km/h</strong>`)+`<br><span class="c">at ${jT} min the cyclist is ${fmt(d,2)} km from home</span>`;
+}
+$('jChips').addEventListener('click',e=>{const b=e.target.closest('button');if(b){jSel=+b.dataset.i;drawJ();}});
+dragOn(jSvg,e=>jPick(e),e=>jPick(e));
+function jPick(e){ const tMax=Math.ceil(JR[4][0]/30)*30; const [px]=svgPt(jSvg,e,560); let t=Math.round((px-JB.L)/(JB.R-JB.L)*tMax); t=Math.max(0,Math.min(JR[4][0],t)); jT=t; jTs.value=t; for(let i=0;i<4;i++){if(t<=JR[i+1][0]){jSel=i;break;}} if(jAnim){cancelAnimationFrame(jAnim);jAnim=null;} drawJ(); }
+jTs.addEventListener('input',()=>{jT=+jTs.value;if(jAnim){cancelAnimationFrame(jAnim);jAnim=null;}for(let i=0;i<4;i++){if(jT<=JR[i+1][0]){jSel=i;break;}}drawJ();});
+$('jPlay').addEventListener('click',()=>{ if(jAnim)cancelAnimationFrame(jAnim); const T=JR[4][0]; if(reduceMotion){jT=T;jTs.value=T;drawJ();return;} const t0=performance.now();
+  const step=now=>{const f=Math.min(1,(now-t0)/6000); jT=Math.round(f*T); jTs.value=jT; for(let i=0;i<4;i++){if(jT<=JR[i+1][0]){jSel=i;break;}} drawJ(); jAnim=f<1?requestAnimationFrame(step):null;}; jAnim=requestAnimationFrame(step); });
+$('jNew').addEventListener('click',()=>jMake(false));
+function jAsk(){ const g=jSegInfo(jQi); $('jQ').textContent=`Using the graph above, what is the cyclist's speed in section ${jName(jQi)} (from ${g.t0} to ${g.t1} minutes)?`; $('jA').value=''; $('jMsg').className='msg'; $('jMsg').textContent=''; }
+function jCheck(){ const u=num($('jA')), M=$('jMsg'), g=jSegInfo(jQi); if(!isFinite(u)){M.className='msg bad';M.textContent='Type a number of km/h.';return;}
+  let ok=false, t='';
+  if(near(u,g.sp,0.01)){ok=true;t=g.dd===0?'Correct: a horizontal section means the cyclist is stationary, 0 km/h.':`Correct: ${fmt(Math.abs(g.dd))} km ÷ ${fmt(g.dt/60,4)} h = ${fmt(g.sp)} km/h.`;}
+  else if(g.dd<0&&near(u,-g.sp,0.01)) t=`Speed is just how fast, so it's ${fmt(g.sp)} km/h. The downward slope tells you the direction (back home), not a negative speed.`;
+  else if(g.dd!==0&&near(u,Math.abs(g.dd)/g.dt,0.005)) t=`That's km per minute (${fmt(Math.abs(g.dd))} ÷ ${g.dt}). Convert ${g.dt} minutes to hours first: ${fmt(g.dt/60,4)} h.`;
+  else if(g.dd!==0&&near(u,Math.abs(g.dd)*g.dt/60,0.01)) t=`You multiplied. Speed = distance ÷ time.`;
+  else if(near(u,g.d1/(g.t1/60),0.01)&&g.t0>0) t=`You used the distance from home ÷ the time since the start. Use only the change during section ${jName(jQi)}.`;
+  else if(g.dd===0) t='Look at the shape: the distance doesn\'t change in this section.';
+  else t=`Find the change in distance (${'km'}) and the time taken (in hours) for section ${jName(jQi)} only, then divide.`;
+  M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'':'Not quite. ')+t; }
+$('jGo').addEventListener('click',jCheck); $('jA').addEventListener('keydown',e=>{if(e.key==='Enter')jCheck();});
+$('jNext').addEventListener('click',()=>{jQi=(jQi+1+Math.floor(Math.random()*3))%4;jAsk();});
+jMake(true);
+
+/* 3. average speed */
+const AV=['avD1','avS1','avD2','avS2'].map(i=>$(i));
+function drawAV(){
+  const [d1,s1,d2,s2]=AV.map(e=>+e.value); $('avD1v').textContent=` ${d1} km`; $('avS1v').textContent=` ${s1} km/h`; $('avD2v').textContent=` ${d2} km`; $('avS2v').textContent=` ${s2} km/h`;
+  const t1=d1/s1, t2=d2/s2, T=t1+t2, D=d1+d2, av=D/T, wrong=(s1+s2)/2;
+  const tMax=Math.ceil(T*2)/2, A=axes({L:56,R:545,T:24,B:258,xMax:tMax,yMax:Math.ceil(D/20)*20,xStep:tMax>4?1:0.5,yStep:20,xl:'time (hours)',yl:'distance (km)'});
+  const ac=css('--accent'), tw=css('--two'), mu=css('--muted');
+  let s=A.s+seg(A.X(0),A.Y(0),A.X(t1),A.Y(d1),ac,4)+seg(A.X(t1),A.Y(d1),A.X(T),A.Y(D),ac,4);
+  s+=seg(A.X(0),A.Y(0),A.X(T),A.Y(D),tw,2.5,true)+dot(A.X(t1),A.Y(d1),ac,5)+dot(A.X(T),A.Y(D),tw,6);
+  s+=txt(A.X(t1/2)+6,A.Y(d1/2)-8,`${s1} km/h`,ac,11,'end',600)+txt(A.X(t1+t2/2)-4,A.Y(d1+d2/2)-10,`${s2} km/h`,ac,11,'end',600);
+  s+=txt(A.X(T/2)+8,A.Y(D/2)+18,`average ${fmt(av)} km/h`,tw,12,'start',700);
+  $('avSvg').innerHTML=s;
+  $('avWork').innerHTML=`leg 1: ${d1} ÷ ${s1} = ${fmt(t1,4)} h (${hm(t1)}) &nbsp; leg 2: ${d2} ÷ ${s2} = ${fmt(t2,4)} h (${hm(t2)})<br>total distance ${D} km, total time ${fmt(T,4)} h<br><span class="c">average speed = ${D} ÷ ${fmt(T,4)} = <strong>${fmt(av)} km/h</strong></span><br><span class="x">✗ (${s1} + ${s2}) ÷ 2 = ${fmt(wrong)} km/h${near(wrong,av,1e-9)?' (only right here because both legs take the same time)':''}</span>`;
+}
+AV.forEach(e=>e.addEventListener('input',drawAV)); drawAV();
+
+/* 4. velocity-time */
+const VT=['vtV','vtT1','vtT2','vtT3'].map(i=>$(i)), vtArea=$('vtArea');
+function drawVT(){
+  const [V,t1,t2,t3]=VT.map(e=>+e.value); $('vtVv').textContent=` ${V} m/s`; $('vtT1v').textContent=` ${t1} s`; $('vtT2v').textContent=` ${t2} s`; $('vtT3v').textContent=` ${t3} s`;
+  const T=t1+t2+t3, tMax=Math.ceil(T/10)*10, A=axes({L:56,R:545,T:24,B:278,xMax:tMax,yMax:35,xStep:tMax>40?10:5,yStep:5,xl:'time (s)',yl:'velocity (m/s)'});
+  const ac=css('--accent'), hi=css('--hi'), as=css('--accent-soft'), fg=css('--fg');
+  const P=[[0,0],[t1,V],[t1+t2,V],[T,0]];
+  let s=A.s;
+  if(vtArea.checked){ const pts=P.map(p=>`${A.X(p[0])},${A.Y(p[1])}`).join(' '); s+=`<polygon points="${pts}" fill="${ac}" fill-opacity=".22"/>`;
+    s+=seg(A.X(t1),A.Y(0),A.X(t1),A.Y(V),ac,1.5,true)+(t2>0?seg(A.X(t1+t2),A.Y(0),A.X(t1+t2),A.Y(V),ac,1.5,true):'');
+    s+=txt(A.X(t1*2/3),A.Y(V/3)+4,fmt(0.5*t1*V),fg,12,'middle',700)+(t2>0?txt(A.X(t1+t2/2),A.Y(V/2)+4,fmt(t2*V),fg,12,'middle',700):'')+txt(A.X(t1+t2+t3/3),A.Y(V/3)+4,fmt(0.5*t3*V),fg,12,'middle',700); }
+  s+=`<polyline points="${P.map(p=>`${A.X(p[0])},${A.Y(p[1])}`).join(' ')}" fill="none" stroke="${ac}" stroke-width="3.5" stroke-linejoin="round"/>`;
+  if(!vtArea.checked){ s+=seg(A.X(0),A.Y(0),A.X(t1),A.Y(0),hi,2.5,true)+seg(A.X(t1),A.Y(0),A.X(t1),A.Y(V),hi,2.5,true);
+    s+=txt(A.X(t1)+6,A.Y(V/2)+4,`+${V}`,hi,12,'start',600)+txt(A.X(t1/2),A.Y(0)-6,`${t1} s`,hi,11,'middle',600);
+    s+=seg(A.X(t1+t2),A.Y(V),A.X(t1+t2),A.Y(0),hi,2.5,true)+txt(A.X(t1+t2)-6,A.Y(V/2)+4,`−${V}`,hi,12,'end',600)+txt(A.X(t1+t2+t3/2),A.Y(0)-6,`${t3} s`,hi,11,'middle',600); }
+  $('vtSvg').innerHTML=s;
+  const a1=V/t1, a3=-V/t3, D=0.5*t1*V+t2*V+0.5*t3*V;
+  $('vtA1').textContent=`${fmt(a1)} m/s²`; $('vtA3').textContent=`${fmt(a3)} m/s²`; $('vtD').textContent=vtArea.checked?`${fmt(D)} m`:'tick "shade the area"';
+  $('vtWork').innerHTML=`<span class="b">speeding up: gradient = (${V} − 0) ÷ ${t1} = ${fmt(a1)} m/s²</span> (speed rises ${fmt(a1)} m/s every second)<br>cruising: gradient 0, constant speed ${V} m/s${t2===0?' (no cruising here)':''}<br><span class="b">braking: gradient = (0 − ${V}) ÷ ${t3} = ${fmt(a3)} m/s²</span>, a deceleration of ${fmt(-a3)} m/s²`+
+    (vtArea.checked?`<br><span class="a">Higher: distance = area = ½ × ${t1} × ${V} + ${t2} × ${V} + ½ × ${t3} × ${V} = ${fmt(0.5*t1*V)} + ${fmt(t2*V)} + ${fmt(0.5*t3*V)} = <strong>${fmt(D)} m</strong></span>`:'');
+}
+[...VT,vtArea].forEach(e=>e.addEventListener('input',drawVT)); drawVT();
+
+/* 5. containers */
+const CT={cyl:h=>3, bowl:h=>1.2+0.33*h, cone:h=>4.5-0.33*h, step:h=>h<5?4.2:1.6, vase:h=>1.6+2.2*Math.sin(Math.PI*h/10)};
+const CTans={cyl:'straight',bowl:'less',cone:'more',step:'two',vase:'sfs'};
+const CTtxt={straight:'a straight line',less:'a curve getting less steep',more:'a curve getting steeper',two:'two straight lines, the second steeper',sfs:'steep, then less steep, then steeper again'};
+const CTwhy={cyl:'The cylinder is the same width all the way up, so each second the depth rises by the same amount: a constant rate, a straight line.',
+  bowl:'It gets wider as it fills, so each second the same volume spreads over a bigger area and the depth rises more slowly: the graph gets less steep.',
+  cone:'It gets narrower as it fills, so each second the depth rises faster: the graph gets steeper.',
+  step:'The wide base fills slowly at a constant rate (shallow straight line); the narrow neck fills fast at a constant rate (steeper straight line).',
+  vase:'Narrow at the bottom (fast), wide in the middle (slow), narrow at the top (fast again): steep, then shallow, then steep.'};
+let ctCum=[], ctT=0, ctAnim=null; const ctS=$('ctS'), ctTs=$('ctT'), CTN=400, CTH=10;
+function ctPrep(){ const r=CT[ctS.value]; ctCum=[0]; for(let i=1;i<=CTN;i++){const h=(i-0.5)*CTH/CTN; ctCum.push(ctCum[i-1]+Math.PI*r(h)*r(h)*CTH/CTN);} }
+const ctDepth=t=>{ const V=t/60*ctCum[CTN]; let lo=0,hi=CTN; while(hi-lo>1){const m=(lo+hi)>>1; if(ctCum[m]<V)lo=m; else hi=m;} const f=(V-ctCum[lo])/((ctCum[hi]-ctCum[lo])||1); return (lo+f)*CTH/CTN; };
+function drawCT(){
+  const r=CT[ctS.value], ac=css('--accent'), fg=css('--fg'), tw=css('--two'), mu=css('--muted');
+  const cx=110, base=270, sc=24, rs=17; let s='';
+  const h=ctDepth(ctT);
+  // water
+  let wp=[]; const n=60; for(let i=0;i<=n;i++){const y=h*i/n; wp.push(`${cx+r(y)*rs},${base-y*sc}`);} for(let i=n;i>=0;i--){const y=h*i/n; wp.push(`${cx-r(y)*rs},${base-y*sc}`);}
+  if(h>0.001) s+=`<polygon points="${wp.join(' ')}" fill="${ac}" fill-opacity=".35"/>`;
+  let L=[],R=[]; for(let i=0;i<=200;i++){const y=CTH*i/200; L.push(`${cx-r(y)*rs},${base-y*sc}`); R.push(`${cx+r(y)*rs},${base-y*sc}`);}
+  s+=`<polyline points="${L.join(' ')}" fill="none" stroke="${fg}" stroke-width="2.5"/><polyline points="${R.join(' ')}" fill="none" stroke="${fg}" stroke-width="2.5"/>`+seg(cx-r(0)*rs,base,cx+r(0)*rs,base,fg,2.5);
+  s+=seg(cx,base-CTH*sc-20,cx,base-h*sc,ac,ctT>0&&ctT<60?3:0)+txt(cx,base-CTH*sc-24,'constant flow',mu,10);
+  const A=axes({L:262,R:548,T:24,B:260,xMax:60,yMax:10,xStep:10,yStep:2,xl:'time (s)',yl:'depth (cm)'});
+  s+=A.s; let gp=[]; for(let i=0;i<=240;i++){const t=ctT*i/240; gp.push(`${A.X(t)},${A.Y(ctDepth(t))}`);}
+  if(ctT>0) s+=`<polyline points="${gp.join(' ')}" fill="none" stroke="${ac}" stroke-width="3.5" stroke-linejoin="round"/>`;
+  s+=seg(A.X(ctT),24,A.X(ctT),260,tw,1.5,true)+dot(A.X(ctT),A.Y(h),tw,6);
+  $('ctSvg').innerHTML=s; $('ctTv').textContent=` ${fmt(ctT,1)} s`;
+  $('ctWork').innerHTML=`time ${fmt(ctT,1)} s: depth ${fmt(h,1)} cm`+(ctT>=60?`<br><span class="a">${CTwhy[ctS.value]}</span>`:'<br>Press play (or drag the slider) to fill it.');
+}
+ctS.addEventListener('input',()=>{ctPrep();ctT=0;ctTs.value=0;$('ctP').value='';$('ctMsg').textContent='';drawCT();});
+ctTs.addEventListener('input',()=>{ctT=+ctTs.value;if(ctAnim){cancelAnimationFrame(ctAnim);ctAnim=null;}drawCT();});
+$('ctPlay').addEventListener('click',()=>{ if(ctAnim)cancelAnimationFrame(ctAnim); if(reduceMotion){ctT=60;ctTs.value=60;drawCT();return;} const t0=performance.now(); const step=now=>{const f=Math.min(1,(now-t0)/5000); ctT=Math.round(f*120)/2; ctTs.value=ctT; drawCT(); ctAnim=f<1?requestAnimationFrame(step):null;}; ctAnim=requestAnimationFrame(step); });
+$('ctGo').addEventListener('click',()=>{ const v=$('ctP').value, M=$('ctMsg'), a=CTans[ctS.value]; if(!v){M.className='msg bad';M.textContent='Choose a prediction first.';return;}
+  M.className='msg '+(v===a?'good':'bad'); M.textContent=v===a?`Correct: ${CTtxt[a]}. Press play to see it.`:`Not quite. ${v==='straight'?'A straight line needs the same width all the way up.':v==='more'&&a==='less'?'Steeper means the level rises faster, which happens where it gets narrower.':v==='less'&&a==='more'?'Less steep means the level rises more slowly, which happens where it gets wider.':'Think about where it is narrow (depth rises fast, steep) and where it is wide (slow, shallow).'} Press play and watch.`; });
+ctPrep(); drawCT();
+
+/* 6 & 7. curves */
+const CV=[
+  {f:t=>0.6*t*t, xMax:10, yMax:60, xs:1, ys:10, xl:'time (s)', yl:'distance (m)', ru:'m/s', yu:'m', xu:'s', avg:(a,b,g)=>`between t = ${fmt(a,1)} s and t = ${fmt(b,1)} s the car's average speed is ${fmt(g)} m/s`, inst:(t,g)=>`at t = ${fmt(t,1)} s the car's speed is ${fmt(g)} m/s (what the speedometer shows)`},
+  {f:t=>20+70*Math.pow(0.92,t), xMax:30, yMax:100, xs:5, ys:20, xl:'time (minutes)', yl:'temperature (°C)', ru:'°C per minute', yu:'°C', xu:'min', avg:(a,b,g)=>`between ${fmt(a,1)} and ${fmt(b,1)} minutes the tea cools by an average of ${fmt(-g)} °C per minute`, inst:(t,g)=>`at ${fmt(t,1)} minutes the tea is cooling at ${fmt(-g)} °C per minute`},
+  {f:t=>200*Math.pow(1.25,t), xMax:10, yMax:2000, xs:1, ys:400, xl:'time (hours)', yl:'number of bacteria', ru:'bacteria per hour', yu:'', xu:'h', avg:(a,b,g)=>`between ${fmt(a,1)} and ${fmt(b,1)} hours the colony grows by an average of ${fmt(g,0)} bacteria per hour`, inst:(t,g)=>`at ${fmt(t,1)} hours the colony is growing at about ${fmt(g,0)} bacteria per hour`}
+];
+const dfn=(f,t)=>(f(t+1e-5)-f(t-1e-5))/2e-5;
+const CB={L:62,R:545,T:24,B:285};
+/* 6. chord */
+const chSvg=$('chSvg'), chC=$('chC'); let chP=[2,6], chD=0;
+function drawCH(){
+  const c=CV[+chC.value], A=axes({...CB,xMax:c.xMax,yMax:c.yMax,xStep:c.xs,yStep:c.ys,xl:c.xl,yl:c.yl}), ac=css('--accent'), tw=css('--two');
+  const [a,b]=chP, fa=c.f(a), fb=c.f(b), g=(fb-fa)/(b-a);
+  let s=A.s+poly(c.f,0,c.xMax,A.X,A.Y,ac,3.5);
+  if(b!==a){ const ext=(x)=>fa+g*(x-a); const x0=Math.max(0,Math.min(a,b)-c.xMax*0.08), x1=Math.min(c.xMax,Math.max(a,b)+c.xMax*0.08);
+    s+=seg(A.X(x0),A.Y(ext(x0)),A.X(x1),A.Y(ext(x1)),tw,2.5); }
+  s+=dot(A.X(a),A.Y(fa),tw,8)+dot(A.X(b),A.Y(fb),tw,8)+txt(A.X(a),A.Y(fa)-12,'A',tw,12,'middle',700)+txt(A.X(b),A.Y(fb)-12,'B',tw,12,'middle',700);
+  chSvg.innerHTML=s;
+  const lo=Math.min(a,b), hi2=Math.max(a,b), flo=c.f(lo), fhi=c.f(hi2);
+  $('chRate').textContent=b===a?'—':`${fmt(g)} ${c.ru}`;
+  $('chWork').innerHTML=b===a?'Drag A and B apart.':`A (${fmt(lo,1)}, ${fmt(flo,1)}) and B (${fmt(hi2,1)}, ${fmt(fhi,1)})<br><span class="c">gradient of chord = (${fmt(fhi,1)} − ${fmt(flo,1)}) ÷ (${fmt(hi2,1)} − ${fmt(lo,1)}) = ${fmt(fhi-flo,1)} ÷ ${fmt(hi2-lo,1)} = ${fmt(g)} ${c.ru}</span><br>Meaning: ${c.avg(lo,hi2,g)}.`;
+}
+dragOn(chSvg,e=>{const c=CV[+chC.value];const [px]=svgPt(chSvg,e,560);const x=(px-CB.L)/(CB.R-CB.L)*c.xMax;chD=Math.abs(x-chP[0])<=Math.abs(x-chP[1])?0:1;chMove(e);},e=>chMove(e));
+function chMove(e){const c=CV[+chC.value];const [px]=svgPt(chSvg,e,560);const st=c.xMax/20;chP[chD]=Math.max(0,Math.min(c.xMax,Math.round((px-CB.L)/(CB.R-CB.L)*c.xMax/st)*st));drawCH();}
+chC.addEventListener('input',()=>{const c=CV[+chC.value];chP=[c.xMax*0.2,c.xMax*0.6];drawCH();}); drawCH();
+
+/* 7. tangent */
+const tgSvg=$('tgSvg'), tgC=$('tgC'), tgH=$('tgH'); let tgX=6;
+function drawTG(){
+  const c=CV[+tgC.value], A=axes({...CB,xMax:c.xMax,yMax:c.yMax,xStep:c.xs,yStep:c.ys,xl:c.xl,yl:c.yl}), ac=css('--accent'), tw=css('--two'), hi=css('--hi');
+  const t=tgX, ft=c.f(t), g=dfn(c.f,t), hmax=c.xMax*0.4, h=hmax*(+tgH.value)/100, t2=Math.min(c.xMax,t+h), gc=t2>t?(c.f(t2)-ft)/(t2-t):g;
+  $('tgHv').textContent=` ${fmt(t2-t,2)} ${c.xu}`;
+  let s=A.s+poly(c.f,0,c.xMax,A.X,A.Y,ac,3.5);
+  const clipY=y=>Math.max(-c.yMax*0.05,Math.min(c.yMax*1.05,y));
+  const tl=x=>ft+g*(x-t); const span=c.xMax*0.35;
+  let xa=Math.max(0,t-span), xb=Math.min(c.xMax,t+span);
+  // keep tangent inside plot vertically
+  const fix=(x,dir)=>{ let y=tl(x); if(y<0&&g!==0){x=t+(0-ft)/g;} else if(y>c.yMax&&g!==0){x=t+(c.yMax-ft)/g;} return x; };
+  xa=fix(xa,-1); xb=fix(xb,1);
+  s+=seg(A.X(xa),A.Y(tl(xa)),A.X(xb),A.Y(tl(xb)),hi,3);
+  if(t2>t){ const cl=x=>ft+gc*(x-t); let xe=Math.min(c.xMax,t2+(t2-t)*0.3); if(cl(xe)>c.yMax) xe=t+(c.yMax-ft)/gc; s+=seg(A.X(t),A.Y(ft),A.X(xe),A.Y(clipY(cl(xe))),tw,2.5,true)+dot(A.X(t2),A.Y(c.f(t2)),tw,5); }
+  s+=dot(A.X(t),A.Y(ft),tw,8);
+  tgSvg.innerHTML=s;
+  $('tgTan').textContent=`${fmt(g)} ${c.ru}`; $('tgCh').textContent=`${fmt(gc)} ${c.ru}`;
+  $('tgWork').innerHTML=`point P at ${fmt(t,1)} ${c.xu}, value ${fmt(ft,1)} ${c.yu}<br><span class="c">chord from ${fmt(t,1)} to ${fmt(t2,2)}: gradient ${fmt(gc)} ${c.ru}</span><br><span class="b">tangent at P: gradient ${fmt(g)} ${c.ru}</span><br>${Math.abs(gc-g)<Math.abs(g)*0.01+1e-9?'The chord is now almost on top of the tangent. ':'Shrink the chord and watch its gradient approach the tangent\'s. '}Meaning: ${c.inst(t,g)}.`;
+}
+dragOn(tgSvg,e=>tgMove(e),e=>tgMove(e));
+function tgMove(e){const c=CV[+tgC.value];const [px]=svgPt(tgSvg,e,560);const st=c.xMax/40;tgX=Math.max(st,Math.min(c.xMax-st,Math.round((px-CB.L)/(CB.R-CB.L)*c.xMax/st)*st));drawTG();}
+tgC.addEventListener('input',()=>{tgX=CV[+tgC.value].xMax*0.6;drawTG();}); tgH.addEventListener('input',drawTG); drawTG();
+
+/* 7b. read a tangent */
+let TR=null;
+function trNew(){
+  const ci=rnd(0,2), c=CV[ci];
+  let t, P1, P2, g;
+  for(let k=0;k<200;k++){ t=ci===0?rnd(2,8):ci===1?pick([5,10,15]):rnd(3,8); const ft=c.f(t); g=dfn(c.f,t);
+    const d=c.xMax*0.25; const xa=Math.max(0,t-d), xb=Math.min(c.xMax,t+d);
+    const ya=ft+g*(xa-t), yb=ft+g*(xb-t);
+    if(ya<0||yb<0||ya>c.yMax||yb>c.yMax) continue;
+    const r=v=>Math.round(v*10)/10; P1=[r(xa),r(ya)]; P2=[r(xb),r(yb)]; break; }
+  if(!P1){ trNew(); return; }
+  TR={ci,c,t,g,P1,P2,ans:(P2[1]-P1[1])/(P2[0]-P1[0])};
+  $('trQ').textContent=`The orange tangent touches the curve at ${c.xl.split(' (')[0]} = ${t} ${c.xu==='h'?'hours':c.xu==='s'?'s':'minutes'}. Using the two marked points on the tangent, estimate the rate of change at that instant.`;
+  $('trU').textContent=c.ru; $('trA').value=''; $('trMsg').className='msg'; $('trMsg').textContent=''; drawTR(); }
+function drawTR(){ if(!TR)return; const {c,t,g,P1,P2}=TR, A=axes({...CB,xMax:c.xMax,yMax:c.yMax,xStep:c.xs,yStep:c.ys,xl:c.xl,yl:c.yl}), ac=css('--accent'), hi=css('--hi'), tw=css('--two');
+  let s=A.s+poly(c.f,0,c.xMax,A.X,A.Y,ac,3.5)+seg(A.X(P1[0]),A.Y(P1[1]),A.X(P2[0]),A.Y(P2[1]),hi,3);
+  s+=`<circle cx="${A.X(t)}" cy="${A.Y(c.f(t))}" r="5" fill="${ac}"/>`;
+  [P1,P2].forEach((p,i)=>{ s+=dot(A.X(p[0]),A.Y(p[1]),tw,6)+txt(A.X(p[0])+(i?-8:8),A.Y(p[1])+(g>=0?(i?-12:18):(i?18:-12)),`(${fmt(p[0],1)}, ${fmt(p[1],1)})`,tw,12,i?'end':'start',700); });
+  $('trSvg').innerHTML=s; }
+function trCheck(){ if(!TR)return; const u=num($('trA')), M=$('trMsg'), {c,t,P1,P2,ans}=TR; if(!isFinite(u)){M.className='msg bad';M.textContent='Type a number (it may be negative).';return;}
+  const tol=Math.max(0.02,Math.abs(ans)*0.02); let ok=false, m='';
+  const rise=P2[1]-P1[1], run=P2[0]-P1[0];
+  if(near(u,ans,tol)){ok=true;m=`(${fmt(P2[1],1)} − ${fmt(P1[1],1)}) ÷ (${fmt(P2[0],1)} − ${fmt(P1[0],1)}) = ${fmt(rise,1)} ÷ ${fmt(run,1)} = ${fmt(ans)} ${c.ru}.`;}
+  else if(near(u,-ans,tol)) m=`Check the sign. The tangent goes ${ans>0?'uphill, so the rate is positive':'downhill, so the rate is negative'}.`;
+  else if(ans!==0&&near(u,1/ans,Math.abs(1/ans)*0.02+0.002)) m='You did run ÷ rise. Gradient = rise ÷ run (change in y ÷ change in x).';
+  else if(near(u,c.f(t)/t,Math.abs(c.f(t)/t)*0.02+0.01)) m=`That's the value ÷ time at the point, which is an average from 0, not the gradient of the tangent.`;
+  else if(near(u,Math.abs(rise),tol)||near(u,Math.abs(run),0.05)) m=`That's just the ${near(u,Math.abs(rise),tol)?'rise':'run'}. Divide rise by run.`;
+  else m=`Use the two plum points: rise = ${fmt(P2[1],1)} − ${fmt(P1[1],1)}, run = ${fmt(P2[0],1)} − ${fmt(P1[0],1)}, then divide.`;
+  M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'Correct: ':'Not quite. ')+m; }
+$('trGo').addEventListener('click',trCheck); $('trA').addEventListener('keydown',e=>{if(e.key==='Enter')trCheck();}); $('trNew').addEventListener('click',trNew); trNew();
+
+const redrawAll=()=>{drawG1();drawJ();drawAV();drawVT();drawCT();drawCH();drawTG();drawTR();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'On a distance–time graph, a horizontal line means the object is…',opts:['stationary','moving at constant speed','accelerating','returning to the start'],a:0,fb:'Time passes but the distance doesn\'t change, so it isn\'t moving.'},
+  {q:'The gradient of a distance–time graph represents…',opts:['speed','acceleration','distance travelled','time taken'],a:0,fb:'Gradient = change in distance ÷ change in time = speed.'},
+  {q:'A cyclist travels 12 km in 45 minutes. What is her speed?',opts:['16 km/h','0.27 km/h','9 km/h','26.7 km/h'],a:0,fb:'45 minutes = 0.75 hours. 12 ÷ 0.75 = 16 km/h. (12 ÷ 45 = 0.27 is km per minute.)'},
+  {q:'The gradient of a velocity–time graph represents…',opts:['acceleration','speed','distance travelled','time'],a:0,fb:'Gradient = change in velocity ÷ change in time = acceleration, in m/s².'},
+  {q:'A car speeds up from 4 m/s to 24 m/s in 5 seconds. Its acceleration is…',opts:['4 m/s²','4.8 m/s²','20 m/s²','100 m/s²'],a:0,fb:'(24 − 4) ÷ 5 = 20 ÷ 5 = 4 m/s². (24 ÷ 5 forgets the starting speed.)'},
+  {q:'A tank\'s volume–time graph is a straight line from (0 min, 200 litres) to (8 min, 40 litres). What does the gradient tell you?',opts:['it empties at 20 litres per minute','it fills at 20 litres per minute','it empties at 25 litres per minute','it empties at 160 litres per minute'],a:0,fb:'Gradient = (40 − 200) ÷ 8 = −160 ÷ 8 = −20. Negative, so the tank is emptying at 20 litres per minute.'},
+  {q:'A driver goes 60 km at 60 km/h, then 60 km at 30 km/h. The average speed for the whole journey is…',opts:['40 km/h','45 km/h','50 km/h','90 km/h'],a:0,fb:'Times: 1 h and 2 h. Total 120 km in 3 h = 40 km/h. Not the mean of the speeds (45), because more time is spent going slowly.'},
+  {q:'Water flows at a constant rate into a container that gets narrower towards the top. The depth–time graph…',opts:['gets steeper','gets less steep','is a straight line','goes down'],a:0,fb:'As it narrows, the same volume each second raises the level more, so the depth rises faster: steeper.'},
+  {q:'Higher: a velocity–time graph is a straight line from (0, 0) to (6 s, 10 m/s). How far does the object travel in those 6 seconds?',opts:['30 m','60 m','1.7 m','16 m'],a:0,fb:'Distance = area of the triangle = ½ × 6 × 10 = 30 m. (60 m forgets the ½; 1.7 is the gradient, the acceleration.)'},
+  {q:'Higher: on a distance–time curve, the gradient of the tangent at t = 4 gives…',opts:['the speed at the instant t = 4','the average speed from 0 to 4','the distance at t = 4','the acceleration at t = 4'],a:0,fb:'A tangent gives the instantaneous rate: the speed at that moment. A chord from 0 to 4 would give the average speed.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

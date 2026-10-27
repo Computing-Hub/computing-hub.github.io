@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Simplify, Expand, Factorise</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive "lab" panels; graph-paper neutrals, teal = x tiles/terms, orange = unit tiles/constants, plum = x² tiles and the common factor. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:200px;max-width:55vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5em}
+input[type=text].wide{width:18em;max-width:70vw}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.8rem 0;line-height:1.7}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.tiles{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:.8rem;min-height:40px}
+.tile{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:600;color:#fff;border-radius:4px;font-size:.85rem;flex:none}
+.tile.u{width:22px;height:22px;background:var(--hi)}
+.tile.x{width:22px;height:60px;background:var(--accent)}
+.tile.xx{width:60px;height:60px;background:var(--two)}
+.tile.neg{opacity:.45;outline:2px dashed currentColor;outline-offset:-3px}
+.grp{display:inline-flex;flex-wrap:wrap;gap:4px;padding:6px;border:1px dashed var(--line);border-radius:6px;align-items:flex-end;margin:.3rem .3rem 0 0;vertical-align:top}
+.grp .lbl{font:600 .7rem var(--body);letter-spacing:.06em;color:var(--muted);align-self:flex-start;margin-right:4px;width:100%}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;align-items:start}
+.two>div{min-width:0}
+.pair{border:1px solid var(--line);border-radius:8px;padding:.6rem .8rem;min-width:0}
+.pair .h{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pair .v{font-family:var(--mono);font-size:1.15rem;margin-top:.2rem}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+.ok{color:var(--good);font-family:var(--mono)}.no{color:var(--bad);font-family:var(--mono)}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.arrowrow{display:grid;grid-template-columns:1fr auto 1fr;gap:.6rem;align-items:center;font-family:var(--mono);text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem;margin:1.2rem 0}
+.arrowrow small{display:block;font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.arrowrow .arr{color:var(--two);font-size:1.3rem;line-height:1.1}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Algebra · KS3</div>
+  <h1>Simplify, Expand, Factorise</h1>
+  <p class="lede">Three ways of rewriting an expression without changing its value. Simplifying tidies it. Expanding multiplies out a bracket. Factorising puts the bracket back. One picture, a rectangle, explains the last two, and shows why they are the same move run backwards.</p>
+  <span class="gcse">National curriculum KS3: simplify and manipulate algebraic expressions by collecting like terms, multiplying a single term over a bracket, taking out common factors</span>
+</header>
+
+<h2>1 · Same value, different shape</h2>
+<p>Here is the whole page in one line. The three expressions are equal for every value of x; what changes is how they're written and what each form is good for.</p>
+<div class="arrowrow">
+  <div><small>Factorised</small>3(x + 2)</div>
+  <div class="arr">expand →<br>← factorise</div>
+  <div><small>Expanded</small>3x + 6</div>
+</div>
+<p>Check it by substituting. Move x and all three forms give the same number.</p>
+<div class="lab">
+  <div class="controls"><label>x = <input type="range" id="cx" min="-5" max="8" value="4"><span id="cxv" style="font-family:var(--mono)"></span></label></div>
+  <div class="work" id="cwork"></div>
+</div>
+
+<h2>2 · Simplifying: collect like terms</h2>
+<p><strong>Like terms</strong> have exactly the same letter part: 3x and 5x are like; 3x and 3x² are not; 3x and 3y are not. Only like terms combine, because only tiles of the same shape stack. Type an expression and watch the tiles sort themselves into groups.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Expression <input type="text" class="wide" id="ctIn" value="4x + 3 - x + 2x² + 7 - 5x"></label>
+    <select id="ctPick"><option value="">examples…</option><option value="4x + 3 - x + 2x² + 7 - 5x">4x + 3 − x + 2x² + 7 − 5x</option><option value="3a + 2b - a + 4b">3a + 2b − a + 4b</option><option value="5p - 3 - 5p + 8">5p − 3 − 5p + 8</option><option value="x² + x + x² - x">x² + x + x² − x</option><option value="2ab + 3a + ab - a">2ab + 3a + ab − a</option></select>
+  </div>
+  <div id="ctGroups"></div>
+  <div class="work" id="ctWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>The sign belongs to the term.</strong> In 4x + 3 − x, the x-terms are +4x and −x, giving 3x. Read each term with the sign in front of it, and a lot of errors vanish. Also: 3x + 2 cannot become 5x. You don't know how many unit squares make a strip, so they stay separate.</p>
+</div>
+
+<h2>3 · Expanding a single bracket</h2>
+<p>3(x + 2) means three lots of (x + 2). Picture a rectangle 3 high and (x + 2) wide. Its area is the whole thing, but you can also split it into a 3-by-x part and a 3-by-2 part. Same rectangle, so <span class="m">3(x + 2) = 3x + 6</span>. The number outside multiplies <em>every</em> term inside. Drag the sliders to change the rectangle.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>outside <input type="number" id="exA" value="3" min="-9" max="9"></label>
+    <label>( <input type="number" id="exB" value="1" min="-9" max="9" style="width:4em">x + <input type="number" id="exC" value="2" min="-9" max="9" style="width:4em"> )</label>
+  </div>
+  <svg id="exSvg" viewBox="0 0 560 220" width="560" height="220"></svg>
+  <div class="work" id="exWork"></div>
+</div>
+
+<p>This picture is the <em>grid method</em> you used for long multiplication, with a letter in one of the columns. 3 × 12 = 3 × (10 + 2) = 30 + 6 and 3(x + 2) = 3x + 6 are the same calculation.</p>
+
+<h3>With a letter outside</h3>
+<p>x(x + 4) works the same way: an x-by-x square and an x-by-4 strip. The square is x², so <span class="m">x(x + 4) = x² + 4x</span>. Negative numbers follow the sign rules: <span class="m">−2(x − 5) = −2x + 10</span>, because (−2) × (−5) is +10.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Expand <select id="exS">
+      <option value="x,1,4">x(x + 4)</option><option value="2x,1,3">2x(x + 3)</option><option value="-2,1,-5">−2(x − 5)</option><option value="-1,1,7">−(x + 7)</option><option value="4,2,-3">4(2x − 3)</option><option value="3x,2,-1">3x(2x − 1)</option><option value="-x,1,-1">−x(x − 1)</option>
+    </select></label>
+  </div>
+  <div class="work" id="exS_work"></div>
+</div>
+
+<div class="callout">
+  <p><strong>The classic mistake.</strong> 3(x + 2) = 3x + 2. The 3 only reached the first term. Think of the rectangle: leaving out the 3 × 2 corner means the area is wrong. Every term inside gets multiplied, every time.</p>
+</div>
+
+<h2>4 · Factorising: find the sides</h2>
+<p>Factorising is expanding in reverse. You're given the area, 6x + 9, and asked for the sides of the rectangle. Look for the biggest thing that divides into every term: the <strong>highest common factor</strong> (see prime factorisation). Here it's 3. Pull it outside, and what's left inside is what you'd multiply 3 by to get each term back.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Factorise <input type="number" id="faA" value="6" min="-30" max="30" style="width:4.5em">x<sup><input type="number" id="faP" value="1" min="1" max="2" style="width:3em"></sup> + <input type="number" id="faB" value="9" min="-30" max="30" style="width:4.5em">x<sup><input type="number" id="faQ" value="0" min="0" max="2" style="width:3em"></sup></label>
+    <select id="faPick"><option value="">examples…</option><option value="6,1,9,0">6x + 9</option><option value="4,1,10,0">4x + 10</option><option value="5,2,15,1">5x² + 15x</option><option value="12,2,-8,1">12x² − 8x</option><option value="7,1,14,0">7x + 14</option><option value="3,1,7,0">3x + 7 (can't)</option><option value="-6,1,-9,0">−6x − 9</option><option value="2,2,6,1">2x² + 6x</option></select>
+  </div>
+  <svg id="faSvg" viewBox="0 0 560 220" width="560" height="220"></svg>
+  <div class="work" id="faWork"></div>
+</div>
+
+<p>A reliable routine:</p>
+<ol>
+  <li>Find the HCF of the <strong>numbers</strong>.</li>
+  <li>Find the highest power of each <strong>letter</strong> that appears in <em>every</em> term.</li>
+  <li>Write the HCF outside the bracket.</li>
+  <li>Divide each term by it to fill the bracket.</li>
+  <li><strong>Expand to check.</strong> You should get back exactly what you started with.</li>
+</ol>
+
+<div class="callout">
+  <p><strong>"Fully factorise" means the HCF, not just any factor.</strong> 4x + 8 = 2(2x + 4) is <em>true</em> but not <em>fully</em> factorised, because 2x + 4 still has a common factor of 2. The answer is 4(x + 2). The check: the bracket should have no common factor left in it. Also, if the first term is negative, take the minus out too: −6x − 9 = −3(2x + 3).</p>
+</div>
+
+<h2>5 · The round trip</h2>
+<p>Type any expression of the form a(bx + c) or ax + b and the tool goes both ways, checking one against the other. If the two columns don't match, something's wrong.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Expression <input type="text" class="wide" id="rtIn" value="5(2x - 3)" placeholder="e.g. 5(2x - 3) or 10x - 15"></label>
+  </div>
+  <div class="two">
+    <div class="pair"><div class="h">Expanded</div><div class="v" id="rtExp"></div></div>
+    <div class="pair"><div class="h">Factorised</div><div class="v" id="rtFac"></div></div>
+  </div>
+  <div class="work" id="rtWork"></div>
+</div>
+
+<h2>6 · Where these show up</h2>
+<div class="grid2">
+  <div class="use"><h3>Mental arithmetic</h3>
+    <p>7 × 98 = 7(100 − 2) = 700 − 14 = 686. Expanding a bracket is how you multiply awkward numbers in your head. 23 × 5 + 23 × 5 = 23(5 + 5) = 230 is factorising.</p></div>
+  <div class="use"><h3>Perimeters and areas</h3>
+    <p>A rectangle 2x + 3 by x has perimeter 2(2x + 3) + 2x = 6x + 6 = 6(x + 1), and area x(2x + 3) = 2x² + 3x. Both moves in one question.</p></div>
+  <div class="use"><h3>Solving equations</h3>
+    <p>3(x − 4) = 15 is easier once expanded: 3x − 12 = 15. Next year's quadratics are solved by factorising: x² + 5x = 0 → x(x + 5) = 0 → x = 0 or −5.</p></div>
+  <div class="use"><h3>Programming</h3>
+    <p>Compilers factorise: <code>a*b + a*c</code> becomes <code>a*(b+c)</code>, one multiplication instead of two. Spreadsheet formulas simplify the same way.</p></div>
+  <div class="use"><h3>Discounts</h3>
+    <p>Price p with 20% off then £5 off is 0.8p − 5. Three items: 3(0.8p − 5) = 2.4p − 15. Expanding gives you the total straight from p.</p></div>
+  <div class="use"><h3>Proof</h3>
+    <p>"The sum of three consecutive numbers is a multiple of 3": n + (n + 1) + (n + 2) = 3n + 3 = 3(n + 1). Simplify, then factorise, and the 3 outside <em>is</em> the proof.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Simplify 7a − 3b + 2a + 5b − a</summary>
+  <div class="step"><strong>a-terms:</strong> +7a + 2a − a = 8a.</div>
+  <div class="step"><strong>b-terms:</strong> −3b + 5b = 2b.</div>
+  <div class="step"><strong>Answer:</strong> <strong>8a + 2b</strong>. (Different letters stay apart.)</div>
+</details>
+<details>
+  <summary>Expand and simplify 4(2x + 1) − 3(x − 2)</summary>
+  <div class="step"><strong>First bracket:</strong> 4 × 2x = 8x, 4 × 1 = 4 → 8x + 4.</div>
+  <div class="step"><strong>Second bracket, with the minus:</strong> −3 × x = −3x, −3 × (−2) = +6 → −3x + 6.</div>
+  <div class="step"><strong>Collect:</strong> 8x − 3x = 5x; 4 + 6 = 10. <strong>5x + 10</strong>. (Or 5(x + 2) if asked to factorise.)</div>
+</details>
+<details>
+  <summary>Fully factorise 12x² − 18x</summary>
+  <div class="step"><strong>Numbers:</strong> HCF(12, 18) = 6.</div>
+  <div class="step"><strong>Letters:</strong> x² and x both contain x, so x comes out. HCF = 6x.</div>
+  <div class="step"><strong>Divide each term:</strong> 12x² ÷ 6x = 2x; 18x ÷ 6x = 3. So <strong>6x(2x − 3)</strong>.</div>
+  <div class="step"><strong>Check:</strong> 6x × 2x = 12x², 6x × (−3) = −18x ✓</div>
+</details>
+<details>
+  <summary>Exam-style: show that 5(n + 2) − 3(n − 1) is always odd for whole numbers n</summary>
+  <div class="step"><strong>Expand:</strong> 5n + 10 − 3n + 3.</div>
+  <div class="step"><strong>Simplify:</strong> 2n + 13.</div>
+  <div class="step"><strong>Reason:</strong> 2n is even for any whole number n (it's 2 × something), and even + 13 is odd. Done. The algebra turned "always" into one line.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>Simplifying collects like terms, and only like terms: the sign travels with the term. Expanding multiplies the outside by every term inside, which the rectangle picture makes impossible to forget. Factorising runs the rectangle backwards: find the HCF of numbers and letters, put it outside, divide to fill the bracket, and expand to check. "Fully" means the bracket has nothing left in common. The three skills are one skill with the rectangle viewed from different sides.</p>
+
+<footer>Made for KS3 students. Collecting like terms, expanding single brackets and factorising are in the England national curriculum at key stage 3 under Algebra. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';const sup=n=>String(n).replace(/[0-9]/g,d=>SUP[d]);
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;};
+const br=v=>v<0?`(${v})`:`${v}`;
+function coefStr(c,letters){if(!letters)return String(c);if(c===1)return letters;if(c===-1)return '−'+letters;return c+letters;}
+function joinTerms(parts){ // parts: [{c, l}] with l letters string
+  const out=[];parts.forEach((p,i)=>{if(p.c===0)return;const mag=Math.abs(p.c);const body=p.l?(mag===1?'':mag)+p.l:String(mag);out.push((out.length===0?(p.c<0?'−':''):(p.c<0?' − ':' + '))+body);});return out.join('')||'0';}
+function xpow(p){return p===0?'':p===1?'x':'x'+sup(p);}
+
+/* 1. check */
+const cx=document.getElementById('cx');
+function drawC(){const x=+cx.value;document.getElementById('cxv').textContent=' '+x;document.getElementById('cwork').innerHTML=`3(x + 2) = 3(${br(x)} + 2) = 3 × ${br(x+2)} = <strong>${3*(x+2)}</strong><br>3x + 6 = 3${br(x)} + 6 = ${3*x} + 6 = <strong>${3*x+6}</strong><br><span class="c">Same answer for every x: the two forms are equal.</span>`;}
+cx.addEventListener('input',drawC);drawC();
+
+/* 2. collect like terms */
+function parseExpr(s){
+  s=s.replace(/−/g,'-').replace(/\s+/g,'').replace(/\*/g,'');if(!s)return null;
+  const terms=[];let cur='',sign=1,i=0;if(s[0]==='-'){sign=-1;i=1;}else if(s[0]==='+')i=1;
+  for(;i<s.length;i++){const ch=s[i];if((ch==='+'||ch==='-')&&cur){terms.push({sign,body:cur});cur='';sign=ch==='-'?-1:1;}else cur+=ch;}
+  if(cur)terms.push({sign,body:cur});
+  const out=[];
+  for(const t of terms){const m=t.body.match(/^(\d*)((?:[a-zA-Z](?:\^\d|[²³])?)*)$/);if(!m)return null;
+    const c=t.sign*(m[1]===''?1:parseInt(m[1],10));const vars={};const re=/([a-zA-Z])(?:\^(\d)|([²³]))?/g;let v;while((v=re.exec(m[2]))){const p=v[2]?+v[2]:v[3]==='²'?2:v[3]==='³'?3:1;vars[v[1]]=(vars[v[1]]||0)+p;}
+    const key=Object.keys(vars).sort().map(k=>k+(vars[k]>1?sup(vars[k]):'')).join('');out.push({c,key});}
+  return out;
+}
+const ctIn=document.getElementById('ctIn'),ctPick=document.getElementById('ctPick');
+function drawCT(){
+  const T=parseExpr(ctIn.value);const G=document.getElementById('ctGroups'),W=document.getElementById('ctWork');
+  if(!T){G.innerHTML='';W.textContent='Use terms like 3x, 2x², 4ab, 7, joined with + and −.';return;}
+  const groups={};const order=[];T.forEach(t=>{if(!groups[t.key]){groups[t.key]=[];order.push(t.key);}groups[t.key].push(t.c);});
+  const deg=k=>k===''?-1:/[²³]/.test(k)?2:k.length;order.sort((p,q)=>deg(q)-deg(p)||p.localeCompare(q));
+  let html='',work=[],res=[];
+  order.forEach(k=>{const cs=groups[k],sum=cs.reduce((a,b)=>a+b,0);const kind=k===''?'u':/[²³]/.test(k)?'xx':'x';
+    html+=`<div class="grp"><span class="lbl">${k===''?'constants':k+' terms'}</span>${cs.map(c=>Array(Math.min(8,Math.abs(c))).fill(0).map(()=>`<div class="tile ${kind} ${c<0?'neg':''}" style="${kind==='x'?'height:36px':kind==='xx'?'width:36px;height:36px':''}"></div>`).join('')+(Math.abs(c)>8?'…':'')).join('<span style="margin:0 6px;color:var(--muted);align-self:center">+</span>')}</div>`;
+    work.push(`${k===''?'constants':k+' terms'}: ${cs.map((c,i)=>(i===0?(c<0?'−':''):(c<0?' − ':' + '))+Math.abs(c)+k).join('')} = ${sum}${k}${sum===0?'  (cancel out)':''}`);
+    res.push({c:sum,l:k});});
+  G.innerHTML=html;W.innerHTML=work.join('<br>')+`<br><strong>= ${joinTerms(res)}</strong>`;
+}
+ctIn.addEventListener('input',drawCT);ctPick.addEventListener('change',()=>{if(ctPick.value){ctIn.value=ctPick.value;drawCT();}});drawCT();
+
+/* 3. expanding area model */
+function areaModel(svgEl,outside,bCoef,c,opts={}){
+  // outside: {c, p} coefficient and power of x; inside terms: bCoef x + c
+  const W=560,H=220,ox=90,oy=50;const xLen=180,unitLen=Math.max(30,Math.min(140,Math.abs(c)*22));
+  const hgt=110;
+  const oLabel=coefStr(outside.c,xpow(outside.p));
+  const t1={c:outside.c*bCoef,p:outside.p+1},t2={c:outside.c*c,p:outside.p};
+  const col1=css('--two'),col2=css('--accent'),neg='var(--bad)';
+  const w1=Math.abs(bCoef)*xLen/Math.max(1,Math.abs(bCoef))*(Math.abs(bCoef)>1?1.2:1),w2=unitLen;
+  const sx=ox,s1=w1,s2=w2;
+  let s=`<rect x="${sx}" y="${oy}" width="${s1}" height="${hgt}" fill="${col1}" fill-opacity="${t1.c<0?0.18:0.35}" stroke="${col1}" stroke-width="2" ${t1.c<0?'stroke-dasharray="6 4"':''}/>`;
+  s+=`<rect x="${sx+s1}" y="${oy}" width="${s2}" height="${hgt}" fill="${col2}" fill-opacity="${t2.c<0?0.18:0.35}" stroke="${col2}" stroke-width="2" ${t2.c<0?'stroke-dasharray="6 4"':''}/>`;
+  const f='font-family="'+css('--mono')+'"';
+  s+=`<text x="${sx+s1/2}" y="${oy-14}" text-anchor="middle" font-size="16" font-weight="600" fill="${col1}" ${f}>${coefStr(bCoef,'x')}</text>`;
+  s+=`<text x="${sx+s1+s2/2}" y="${oy-14}" text-anchor="middle" font-size="16" font-weight="600" fill="${col2}" ${f}>${c<0?'− '+Math.abs(c):'+ '+c}</text>`;
+  s+=`<text x="${ox-16}" y="${oy+hgt/2+6}" text-anchor="end" font-size="18" font-weight="600" fill="${css('--hi')}" ${f}>${oLabel}</text>`;
+  s+=`<text x="${sx+s1/2}" y="${oy+hgt/2+6}" text-anchor="middle" font-size="18" font-weight="600" fill="${css('--fg')}" ${f}>${coefStr(t1.c,xpow(t1.p))}</text>`;
+  s+=`<text x="${sx+s1+s2/2}" y="${oy+hgt/2+6}" text-anchor="middle" font-size="18" font-weight="600" fill="${css('--fg')}" ${f}>${coefStr(t2.c,xpow(t2.p))}</text>`;
+  s+=`<text x="${sx}" y="${oy+hgt+32}" font-size="13" fill="${css('--muted')}" ${f}>${opts.caption||''}</text>`;
+  svgEl.innerHTML=s;
+  return {t1,t2};
+}
+const exA=document.getElementById('exA'),exB=document.getElementById('exB'),exC=document.getElementById('exC');
+function drawEX(){
+  const a=+exA.value|0,b=+exB.value|0,c=+exC.value|0;
+  const svg=document.getElementById('exSvg');
+  if(a===0||b===0){svg.innerHTML='';document.getElementById('exWork').textContent='Use a non-zero outside number and a non-zero x coefficient.';return;}
+  const {t1,t2}=areaModel(svg,{c:a,p:0},b,c,{caption:`area of a ${a} by (${joinTerms([{c:b,l:'x'},{c:c,l:''}])}) rectangle`});
+  document.getElementById('exWork').innerHTML=`${a}(${joinTerms([{c:b,l:'x'},{c:c,l:''}])})<br>= <span class="c">${a} × ${coefStr(b,'x')}</span> + <span class="a">${a} × ${br(c)}</span>   ← the outside reaches both terms<br>= <strong>${joinTerms([{c:t1.c,l:'x'},{c:t2.c,l:''}])}</strong>`;
+}
+[exA,exB,exC].forEach(e=>e.addEventListener('input',drawEX));drawEX();
+
+const exS=document.getElementById('exS');
+function parseOutside(s){const m=s.match(/^(-?)(\d*)(x?)$/);const c=(m[1]?-1:1)*(m[2]===''?1:+m[2]);return {c,p:m[3]?1:0};}
+function drawEXS(){
+  const [o,b,c]=exS.value.split(',');const O=parseOutside(o),B=+b,C=+c;
+  const t1={c:O.c*B,p:O.p+1},t2={c:O.c*C,p:O.p};
+  const label=coefStr(O.c,xpow(O.p));
+  document.getElementById('exS_work').innerHTML=`${O.c===-1&&O.p===0?'−':label}(${joinTerms([{c:B,l:'x'},{c:C,l:''}])})<br>= <span class="c">${label} × ${coefStr(B,'x')}</span> + <span class="a">${label} × ${br(C)}</span><br>= <span class="c">${coefStr(t1.c,xpow(t1.p))}</span> ${t2.c<0?'−':'+'} <span class="a">${Math.abs(t2.c)}${xpow(t2.p)}</span>${O.c<0&&C<0?'   ← negative × negative = positive':''}${O.p>0?'   ← x × x = x²':''}<br>= <strong>${joinTerms([{c:t1.c,l:xpow(t1.p)},{c:t2.c,l:xpow(t2.p)}])}</strong>`;
+}
+exS.addEventListener('change',drawEXS);drawEXS();
+
+/* 4. factorising */
+const faA=document.getElementById('faA'),faP=document.getElementById('faP'),faB=document.getElementById('faB'),faQ=document.getElementById('faQ'),faPick=document.getElementById('faPick');
+function drawFA(){
+  let a=+faA.value|0,p=+faP.value|0,b=+faB.value|0,q=+faQ.value|0;
+  const svg=document.getElementById('faSvg'),W=document.getElementById('faWork');
+  if(a===0||b===0){svg.innerHTML='';W.textContent='Both coefficients need to be non-zero.';return;}
+  if(q>p){[a,b]=[b,a];[p,q]=[q,p];}
+  const g=gcd(a,b)*(a<0?-1:1);const lp=Math.min(p,q);
+  const expr=joinTerms([{c:a,l:xpow(p)},{c:b,l:xpow(q)}]);
+  if(Math.abs(g)===1&&lp===0&&a>0){svg.innerHTML='';W.innerHTML=`${expr}<br>HCF of ${a} and ${b} is 1, and no letter is in every term.<br><strong>Cannot be factorised</strong>: there's no common factor to take out. The only rectangle is 1 by (${expr}).`;return;}
+  const hcf={c:g,p:lp};const in1={c:a/g,p:p-lp},in2={c:b/g,p:q-lp};
+  areaModel(svg,hcf,in1.c,in2.c,{caption:`sides: ${coefStr(g,xpow(lp))} and (${joinTerms([{c:in1.c,l:xpow(in1.p)},{c:in2.c,l:xpow(in2.p)}])})`});
+  // fix the inner labels for the x power case: areaModel assumes inside is bx + c; when in1.p==1 and in2.p==0 that's right.
+  const letterNote=lp>0?`, and x${lp>1?sup(lp):''} appears in every term`:'';
+  W.innerHTML=`${expr}<br>HCF of numbers: ${Math.abs(g)}${a<0?' (take the minus out too)':''}${letterNote} → common factor <span class="c">${coefStr(g,xpow(lp))}</span><br>${coefStr(a,xpow(p))} ÷ ${coefStr(g,xpow(lp))} = ${coefStr(in1.c,xpow(in1.p))},   ${coefStr(b,xpow(q))} ÷ ${coefStr(g,xpow(lp))} = ${coefStr(in2.c,xpow(in2.p))}<br>= <strong>${coefStr(g,xpow(lp))}(${joinTerms([{c:in1.c,l:xpow(in1.p)},{c:in2.c,l:xpow(in2.p)}])})</strong><br><span class="a">Check by expanding:</span> ${coefStr(g,xpow(lp))} × ${coefStr(in1.c,xpow(in1.p))} = ${coefStr(a,xpow(p))} ✓   ${coefStr(g,xpow(lp))} × ${br(in2.c)}${xpow(in2.p)} = ${coefStr(b,xpow(q))} ✓`;
+}
+[faA,faP,faB,faQ].forEach(e=>e.addEventListener('input',drawFA));
+faPick.addEventListener('change',()=>{if(faPick.value){const [a,p,b,q]=faPick.value.split(',');faA.value=a;faP.value=p;faB.value=b;faQ.value=q;drawFA();}});drawFA();
+
+/* 5. round trip */
+const rtIn=document.getElementById('rtIn');
+function drawRT(){
+  const s=rtIn.value.replace(/−/g,'-').replace(/\s+/g,'');const E=document.getElementById('rtExp'),F=document.getElementById('rtFac'),W=document.getElementById('rtWork');
+  let a,b,c; // represent as ax + b after expansion, with a possible outside factor
+  let m=s.match(/^(-?\d*)(x?)\((-?\d*)x([+-]\d+)\)$/);
+  if(m){const oc=(m[1]===''||m[1]==='-'?(m[1]==='-'?-1:1):+m[1]),op=m[2]?1:0;const bc=(m[3]===''||m[3]==='-'?(m[3]==='-'?-1:1):+m[3]),cc=+m[4];
+    if(op){ // x outside: ax² + bx
+      const A=oc*bc,B=oc*cc;E.textContent=joinTerms([{c:A,l:'x²'},{c:B,l:'x'}]);F.textContent=`${coefStr(oc,'x')}(${joinTerms([{c:bc,l:'x'},{c:cc,l:''}])})`;
+      W.innerHTML=`Expand: ${coefStr(oc,'x')} × ${coefStr(bc,'x')} = ${coefStr(A,'x²')},  ${coefStr(oc,'x')} × ${br(cc)} = ${coefStr(B,'x')}<br>Factorise the result: HCF(${Math.abs(A)}, ${Math.abs(B)}) = ${gcd(A,B)}, x in both → ${coefStr(gcd(A,B)*(A<0?-1:1),'x')} outside<br><span class="c">Round trip matches ✓</span>`;return;}
+    a=oc*bc;b=oc*cc;}
+  else{m=s.match(/^(-?\d*)x([+-]\d+)$/);if(!m){E.textContent='?';F.textContent='?';W.textContent='Try the form 5(2x - 3), x(x + 4) or 10x - 15.';return;}a=(m[1]===''||m[1]==='-'?(m[1]==='-'?-1:1):+m[1]);b=+m[2];}
+  const g=gcd(a,b)*(a<0?-1:1);
+  E.textContent=joinTerms([{c:a,l:'x'},{c:b,l:''}]);
+  if(Math.abs(g)===1&&a>0){F.textContent='no common factor';W.innerHTML=`${E.textContent}: HCF(${Math.abs(a)}, ${Math.abs(b)}) = 1, so it can't be factorised.`;return;}
+  F.textContent=`${g}(${joinTerms([{c:a/g,l:'x'},{c:b/g,l:''}])})`;
+  W.innerHTML=`Factorise: HCF(${Math.abs(a)}, ${Math.abs(b)}) = ${Math.abs(g)}${a<0?', minus taken out':''} → ${F.textContent}<br>Expand back: ${g} × ${coefStr(a/g,'x')} = ${coefStr(a,'x')},  ${g} × ${br(b/g)} = ${b}<br><span class="c">Round trip matches ✓</span>`;
+}
+rtIn.addEventListener('input',drawRT);drawRT();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawEX();drawFA();});}
+new MutationObserver(()=>{drawEX();drawFA();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'Simplify 6x + 3 − 2x − 7',opts:['4x − 4','4x + 4','8x − 4','4x − 10'],a:0,fb:'x-terms: 6x − 2x = 4x. Constants: 3 − 7 = −4.'},
+  {q:'Expand 5(2x − 3)',opts:['10x − 15','10x − 3','7x − 8','10x + 15'],a:0,fb:'5 × 2x = 10x and 5 × (−3) = −15. The 5 reaches both terms.'},
+  {q:'Expand x(x − 6)',opts:['x² − 6x','x − 6x','2x − 6','x² − 6'],a:0,fb:'x × x = x², x × (−6) = −6x.'},
+  {q:'Expand −2(x − 4)',opts:['−2x + 8','−2x − 8','2x − 8','−2x − 4'],a:0,fb:'(−2) × x = −2x, (−2) × (−4) = +8.'},
+  {q:'Fully factorise 8x + 12',opts:['4(2x + 3)','2(4x + 6)','8(x + 12)','4(2x + 12)'],a:0,fb:'HCF(8, 12) = 4. 2(4x + 6) is true but not fully factorised.'},
+  {q:'Fully factorise 3x² − 12x',opts:['3x(x − 4)','3(x² − 4x)','x(3x − 12)','3x(x − 12)'],a:0,fb:'HCF of numbers 3, x in both terms: 3x outside, then x − 4 inside.'},
+  {q:'Which cannot be factorised?',opts:['5x + 7','5x + 10','x² + x','4x − 6'],a:0,fb:'HCF(5, 7) = 1 and only one term has x. The others have factors 5, x and 2 respectively.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

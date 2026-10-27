@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Proportion Algebraically</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one or more interactive SVG panels drawn from JS (graphs on first-quadrant grids, draggable points, constant-area rectangles, before/after bars, a step-through method). Graph-paper neutrals. Colours on this page: teal = "y grows as x grows" relationships (direct proportion y = kx and the Higher powers y ∝ x², x³, √x), orange = "y shrinks as x grows" relationships (inverse proportion y = k/x and y ∝ 1/x²) including the constant-area rectangles, plum = the constant of proportionality k, the point you drag, and the step being worked on. Muted dashed lines are "not proportion" comparisons. Green/red are only used for right/wrong feedback. The orange "Higher" pill marks Higher-tier-only content. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+a{color:var(--accent)}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.D{color:var(--accent);font-weight:600}.I{color:var(--hi);font-weight:600}.K{color:var(--two);font-weight:600}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;line-height:1.5}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.pr{font-family:"Cambria Math","STIX Two Math","Latin Modern Math","Times New Roman",serif;font-size:1.15em;line-height:1}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none;cursor:pointer}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);max-width:100%;min-width:0}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn:disabled{opacity:.5;cursor:default}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:clamp(1.15rem,4.5vw,1.6rem);text-align:center;margin:.6rem 0}
+.pq{font-size:1.05rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:.95rem;line-height:1.85;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.88rem}
+.vt td,.vt th{text-align:center;padding:.3rem .35rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);text-align:left}
+.vt td.k{color:var(--two);font-weight:600}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.gg{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:.8rem}
+.gg>div{min-width:0;text-align:center}
+.gg select{width:100%;margin-top:.3rem}
+.steps{display:grid;gap:.5rem;margin-top:.8rem}
+.st{border:1px solid var(--line);border-radius:8px;padding:.5rem .8rem;font-size:.97rem}
+.st b{font-family:var(--display)}
+.st.on{border-color:var(--two);background:var(--two-soft)}
+.st.todo{opacity:.45}
+.st .w{font-family:var(--mono);font-size:.95rem;display:block;margin-top:.2rem;overflow-wrap:anywhere}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;max-width:100%;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}
+.recap ul{margin:.3rem 0;padding-left:1.2rem}
+table.tb{border-collapse:collapse;width:100%;font-size:.92rem}
+table.tb th,table.tb td{text-align:left;padding:.45rem .5rem;border-bottom:1px solid var(--line);vertical-align:top}
+table.tb th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+table.tb td.mono{font-family:var(--mono)}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Ratio, proportion and rates of change</div>
+  <h1>Proportion Algebraically</h1>
+  <p class="lede">At KS3 you solved proportion problems with tables and the unitary method. At GCSE you write the relationship as a <strong>formula</strong>: y = kx for direct proportion, y = k/x for inverse proportion, and (Higher) relationships like y = kx² or y = k/x². One number, <span class="K">k</span>, holds the whole relationship, and a four-step method finds it every time.</p>
+  <span class="gcse">GCSE subject content: solve problems involving direct and inverse proportion, including graphical and algebraic representations; recognise and interpret graphs that illustrate direct and inverse proportion; understand that X is inversely proportional to Y is equivalent to X is proportional to 1/Y; (Higher) construct and interpret equations that describe direct and inverse proportion</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start: a quick recap</strong></p>
+  <ul>
+    <li><strong>Direct proportion:</strong> two quantities go up in the same ratio. Double one, the other doubles. 3 pens cost £6, so 6 pens cost £12.</li>
+    <li><strong>Inverse proportion:</strong> one goes up as the other goes down in the same ratio. Double the number of workers and the job takes half the time.</li>
+    <li>Revise both, with the unitary method and recipes, on the KS3 <a href="../ks3-interactive/direct-inverse-proportion.html">Direct and Inverse Proportion</a> page. For the Higher sections you'll also need squares, cubes and roots (<a href="../ks3-interactive/powers-and-roots.html">Powers and Roots</a>) and solving simple equations (<a href="../ks3-interactive/linear-equations.html">Linear Equations</a>).</li>
+  </ul>
+</div>
+
+<h2>1 · Direct proportion: y = kx</h2>
+<p>Petrol costs £1.50 a litre. 2 litres cost £3, 4 litres cost £6, 10 litres cost £15. Divide any cost by its number of litres and you always get the same answer, 1.5. That fixed number is called the <strong>constant of proportionality</strong>, written <span class="K">k</span>. So</p>
+<p class="big">y ÷ x = <span class="K">k</span> &nbsp;&nbsp;so&nbsp;&nbsp; y = <span class="K">k</span>x</p>
+<p>We write "y is directly proportional to x" as <span class="m">y <span class="pr">∝</span> x</span>. The symbol <strong><span class="pr">∝</span></strong> means "is proportional to". Drag the plum point along the line and watch y ÷ x stay the same. Then tick the box to add a fixed charge and see what breaks.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>k = <input type="range" id="d1K" min="0.5" max="5" step="0.5" value="1.5"><span id="d1Kv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="d1C"> add a fixed charge of 3</label>
+  </div>
+  <div class="twin">
+    <svg id="d1Svg" class="drag" viewBox="0 0 360 340" width="360" height="340" aria-label="Graph of y = kx with a draggable point"></svg>
+    <div><table class="vt" id="d1Table"></table><div class="work" id="d1Work"></div></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>How to recognise direct proportion</strong></p>
+  <ul>
+    <li>In a table, y ÷ x is the same for every pair.</li>
+    <li>The graph is a <strong>straight line through the origin</strong> (0, 0). A straight line that doesn't go through (0, 0), like a taxi fare with a fixed charge, is <em>not</em> proportion: doubling the distance doesn't double the fare.</li>
+    <li>k is the gradient of the line (see <a href="../ks3-interactive/linear-graphs.html">Linear Graphs</a>).</li>
+  </ul>
+</div>
+
+<h2>2 · The four-step method</h2>
+<p>Exam questions describe the relationship in words and give you one pair of values. These four steps work for <em>every</em> proportion question, including the Higher ones later on:</p>
+<ol>
+  <li><strong>Write it with <span class="pr">∝</span>.</strong> "y is directly proportional to x" → y <span class="pr">∝</span> x.</li>
+  <li><strong>Replace <span class="pr">∝</span> with "= k".</strong> y <span class="pr">∝</span> x becomes y = kx.</li>
+  <li><strong>Find k.</strong> Substitute the pair of values you're given and solve for k.</li>
+  <li><strong>Use the formula.</strong> Write it out with the number for k, then substitute to answer the question.</li>
+</ol>
+<p>Pick a problem and step through it.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>problem <select id="stP">
+      <option value="0">y ∝ x, y = 12 when x = 4</option>
+      <option value="1">fuel cost and litres</option>
+      <option value="2">y ∝ 1/x, y = 8 when x = 5</option>
+      <option value="3">Higher: d ∝ t²</option>
+      <option value="4">Higher: y ∝ 1/x², find x</option>
+    </select></label>
+  </div>
+  <p class="pq" id="stQ"></p>
+  <svg id="stSvg" viewBox="0 0 560 70" width="560" height="70" aria-label="Progress through the four steps"></svg>
+  <div class="steps" id="stList"></div>
+  <div class="controls">
+    <button class="btn primary" id="stNext">Next step</button>
+    <button class="btn" id="stReset">Start again</button>
+  </div>
+</div>
+
+<h3>Try it: direct proportion</h3>
+<div class="lab">
+  <p class="pq" id="tyQ"></p>
+  <div class="controls">
+    <label>k = <input type="text" id="tyK" inputmode="decimal" autocomplete="off" style="width:5em"></label>
+    <label>answer <input type="text" id="tyA" inputmode="decimal" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="tyGo">Check</button>
+    <button class="btn" id="tyNew">New question</button>
+  </div>
+  <div class="msg" id="tyMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistake: k upside down.</strong> From y = kx, k = y ÷ x, not x ÷ y. If y = 12 when x = 4, then 12 = k × 4, so k = 3. Always write the substitution as an equation and solve it; don't guess which way to divide.</p>
+</div>
+
+<h2>3 · Inverse proportion: y = k/x</h2>
+<p>A field needs 12 hours of digging. 1 person takes 12 hours; 2 people take 6 hours; 3 people take 4 hours; 4 people take 3 hours. Multiply the two numbers in each pair and you always get 12. For inverse proportion, the <em>product</em> is constant:</p>
+<p class="big">x × y = <span class="K">k</span> &nbsp;&nbsp;so&nbsp;&nbsp; y = <span class="K">k</span>/x</p>
+<p>We write "y is inversely proportional to x" as <span class="m">y <span class="pr">∝</span> 1/x</span>: y is directly proportional to <em>one over</em> x. Picture it as a rectangle with width x and height y. Its area x × y is always k. Drag the corner: as the rectangle gets wider it must get shorter, and the corner traces out the curve.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>k = <select id="ivK"><option>6</option><option selected>12</option><option>24</option><option>36</option></select></label>
+  </div>
+  <div class="twin">
+    <svg id="ivSvg" class="drag" viewBox="0 0 360 340" width="360" height="340" aria-label="Rectangle of constant area under the curve y = k/x"></svg>
+    <div><table class="vt" id="ivTable"></table><div class="work" id="ivWork"></div></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Inverse proportion facts and traps</strong></p>
+  <ul>
+    <li>If x is multiplied by a number, y is <em>divided</em> by the same number. Double x → halve y.</li>
+    <li>The graph is a curve that gets close to both axes but never touches them: x can't be 0 (you can't divide by 0), and y never reaches 0.</li>
+    <li>"Inverse" does <strong>not</strong> mean y = k − x. With y = 12 − x, doubling x from 2 to 4 changes y from 10 to 8, not to 5. Check: is x × y constant? If not, it isn't inverse proportion.</li>
+  </ul>
+</div>
+
+<h2>4 · Proportion with powers and roots <span class="tag g">Higher</span></h2>
+<p>y can be proportional to something built from x, not just x itself. "The distance fallen is proportional to the <em>square</em> of the time" means d <span class="pr">∝</span> t², so d = kt². The same four steps work; you just square (or cube, or square-root) x before you multiply by k. Pick a relationship and see its graph and table.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>y <span class="pr">∝</span> <select id="pwT">
+      <option value="x">x</option><option value="sq" selected>x²</option><option value="cube">x³</option><option value="root">√x</option><option value="inv">1/x</option><option value="invsq">1/x²</option>
+    </select></label>
+    <label>k = <input type="range" id="pwK" min="0.5" max="4" step="0.5" value="2"><span id="pwKv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="pwSvg" viewBox="0 0 560 330" width="560" height="330" aria-label="Graph of the chosen proportion relationship"></svg>
+  <table class="vt" id="pwTable"></table>
+  <div class="work" id="pwWork"></div>
+</div>
+
+<table class="tb">
+  <tr><th>In words</th><th>With <span class="pr">∝</span></th><th>Formula</th></tr>
+  <tr><td>y is proportional to the square of x</td><td class="mono">y <span class="pr">∝</span> x²</td><td class="mono">y = kx²</td></tr>
+  <tr><td>y is proportional to the cube of x</td><td class="mono">y <span class="pr">∝</span> x³</td><td class="mono">y = kx³</td></tr>
+  <tr><td>y is proportional to the square root of x</td><td class="mono">y <span class="pr">∝</span> √x</td><td class="mono">y = k√x</td></tr>
+  <tr><td>y is inversely proportional to x</td><td class="mono">y <span class="pr">∝</span> 1/x</td><td class="mono">y = k/x</td></tr>
+  <tr><td>y is inversely proportional to the square of x</td><td class="mono">y <span class="pr">∝</span> 1/x²</td><td class="mono">y = k/x²</td></tr>
+</table>
+
+<div class="callout">
+  <p><strong>Exam trap: working backwards.</strong> If y = 3x² and you're told y = 75, then x² = 25, so x = 5. Don't stop at 25: you found x², not x. For y = k√x you <em>square</em> at the end instead.</p>
+</div>
+
+<h2>5 · What happens when x is scaled? <span class="tag g">Higher</span></h2>
+<p>Because of the power, scaling x scales y by a <em>different</em> amount. If y = kx² and x doubles, then the new y is k(2x)² = k × 4x² = 4 × kx². So y is multiplied by 2² = 4. In general, if x is multiplied by s, then y is multiplied by s to the same power as x appears in the formula. k doesn't matter: it cancels.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>y <span class="pr">∝</span> <select id="scT">
+      <option value="x">x</option><option value="sq" selected>x²</option><option value="cube">x³</option><option value="root">√x</option><option value="inv">1/x</option><option value="invsq">1/x²</option>
+    </select></label>
+    <label>x is multiplied by <select id="scS"><option>2</option><option>3</option><option>4</option><option>10</option><option value="0.5">½</option><option>1.2</option></select></label>
+  </div>
+  <svg id="scSvg" viewBox="0 0 560 220" width="560" height="220" aria-label="Before and after bars for x and y"></svg>
+  <div class="work" id="scWork"></div>
+</div>
+
+<h3>Try it: what happens to y?</h3>
+<div class="lab">
+  <p class="pq" id="sqQ"></p>
+  <div class="controls">
+    <label>y is multiplied by <input type="text" id="sqA" autocomplete="off" style="width:5em" placeholder="e.g. 1/4"></label>
+    <button class="btn primary" id="sqGo">Check</button>
+    <button class="btn" id="sqNew">New question</button>
+  </div>
+  <div class="msg" id="sqMsg"></div>
+</div>
+
+<h2>6 · Recognising the graphs <span class="tag g">Higher</span></h2>
+<p>Each relationship has its own shape. Direct proportion (y <span class="pr">∝</span> x) is a straight line through the origin; inverse proportion (y <span class="pr">∝</span> 1/x) is a curve that never touches the axes. (Every GCSE student needs those two.) At Higher, y <span class="pr">∝</span> x² and y <span class="pr">∝</span> x³ curve upwards from the origin more and more steeply (x³ more steeply still); y <span class="pr">∝</span> √x rises from the origin but flattens; y <span class="pr">∝</span> 1/x² falls even faster than 1/x. Match each graph to its relationship.</p>
+
+<div class="lab">
+  <div class="gg" id="ggBox"></div>
+  <div class="controls">
+    <button class="btn primary" id="ggGo">Check</button>
+    <button class="btn" id="ggNew">New set</button>
+  </div>
+  <div class="msg" id="ggMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Shape clues</strong></p>
+  <ul>
+    <li>Through the origin and <strong>straight</strong> → y <span class="pr">∝</span> x. Straight but <em>not</em> through the origin → not proportion.</li>
+    <li>Through the origin, <strong>bending upwards</strong> → y <span class="pr">∝</span> x² (or x³: steeper still after x = 1, flatter before it).</li>
+    <li>Through the origin, <strong>bending over</strong> (rising more slowly) → y <span class="pr">∝</span> √x.</li>
+    <li>Falling, never touching the axes → y <span class="pr">∝</span> 1/x or y <span class="pr">∝</span> 1/x². Test a point: if doubling x quarters y, it's 1/x².</li>
+  </ul>
+</div>
+
+<h2>7 · Mixed practice: the four steps with any relationship <span class="tag g">Higher</span></h2>
+<p>Each question is new. Write down the four steps on paper. Give exact answers, or round to 3 s.f. if they don't come out exactly. The feedback tries to spot which step went wrong.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>relationship <select id="mxT"><option value="mix">mixed</option><option value="x">y ∝ x</option><option value="inv">y ∝ 1/x</option><option value="sq">y ∝ x²</option><option value="cube">y ∝ x³</option><option value="root">y ∝ √x</option><option value="invsq">y ∝ 1/x²</option></select></label>
+  </div>
+  <p class="pq" id="mxQ"></p>
+  <div class="controls">
+    <label>answer <input type="text" id="mxA" inputmode="decimal" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="mxGo">Check</button>
+    <button class="btn" id="mxShow">Show working</button>
+    <button class="btn" id="mxNew">New question</button>
+  </div>
+  <div class="msg" id="mxMsg"></div>
+  <div class="work" id="mxWork" hidden></div>
+  <div class="msg" id="mxScore"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>y is directly proportional to x. When x = 4, y = 12. Find y when x = 10.</summary>
+  <div class="step"><strong>1. With <span class="pr">∝</span>:</strong> y <span class="pr">∝</span> x.</div>
+  <div class="step"><strong>2. With k:</strong> y = kx.</div>
+  <div class="step"><strong>3. Find k:</strong> 12 = k × 4, so k = 12 ÷ 4 = 3.</div>
+  <div class="step"><strong>4. Use it:</strong> y = 3x. When x = 10, y = 3 × 10 = <strong>30</strong>.</div>
+  <div class="step"><strong>Check:</strong> x went from 4 to 10 (× 2.5), and y from 12 to 30 (× 2.5) ✓</div>
+</details>
+<details>
+  <summary>Is this table direct proportion? x: 2, 5, 8 and y: 7, 17.5, 28.</summary>
+  <div class="step"><strong>Test y ÷ x for each pair:</strong> 7 ÷ 2 = 3.5; 17.5 ÷ 5 = 3.5; 28 ÷ 8 = 3.5.</div>
+  <div class="step"><strong>All the same,</strong> so yes: y is directly proportional to x, with <strong>y = 3.5x</strong>.</div>
+  <div class="step"><strong>Compare:</strong> x: 2, 5 and y: 7, 13 gives 3.5 and 2.6. Not equal, so that one is not proportion (it's y = 2x + 3).</div>
+</details>
+<details>
+  <summary>The time T days to build a wall is inversely proportional to the number of builders n. 6 builders take 10 days. How long do 4 builders take?</summary>
+  <div class="step"><strong>1. With <span class="pr">∝</span>:</strong> T <span class="pr">∝</span> 1/n.</div>
+  <div class="step"><strong>2. With k:</strong> T = k/n.</div>
+  <div class="step"><strong>3. Find k:</strong> 10 = k/6, so k = 10 × 6 = 60. (k is the total work: 60 builder-days.)</div>
+  <div class="step"><strong>4. Use it:</strong> T = 60/n. When n = 4, T = 60 ÷ 4 = <strong>15 days</strong>.</div>
+  <div class="step"><strong>Sense check:</strong> fewer builders, so it should take longer ✓</div>
+</details>
+<details>
+  <summary><span class="tag g">Higher</span> d is proportional to the square of t. d = 20 when t = 2. Find d when t = 6, and t when d = 125.</summary>
+  <div class="step"><strong>1–2.</strong> d <span class="pr">∝</span> t², so d = kt².</div>
+  <div class="step"><strong>3. Find k:</strong> 20 = k × 2² = 4k, so k = 5.</div>
+  <div class="step"><strong>4a.</strong> d = 5t². When t = 6, d = 5 × 36 = <strong>180</strong>.</div>
+  <div class="step"><strong>4b.</strong> When d = 125: 125 = 5t², so t² = 25 and t = <strong>5</strong> (time is positive, so ignore −5).</div>
+</details>
+<details>
+  <summary><span class="tag g">Higher</span> y is inversely proportional to the square of x. y = 8 when x = 3. Find y when x = 6.</summary>
+  <div class="step"><strong>1–2.</strong> y <span class="pr">∝</span> 1/x², so y = k/x².</div>
+  <div class="step"><strong>3. Find k:</strong> 8 = k/3² = k/9, so k = 72.</div>
+  <div class="step"><strong>4.</strong> y = 72/x². When x = 6, y = 72 ÷ 36 = <strong>2</strong>.</div>
+  <div class="step"><strong>Check with scaling:</strong> x doubled (3 → 6), so y is divided by 2² = 4: 8 ÷ 4 = 2 ✓</div>
+</details>
+<details>
+  <summary><span class="tag g">Higher</span> y is proportional to the square root of x. y = 12 when x = 9. Find y when x = 25, and x when y = 10.</summary>
+  <div class="step"><strong>1–2.</strong> y <span class="pr">∝</span> √x, so y = k√x.</div>
+  <div class="step"><strong>3. Find k:</strong> 12 = k × √9 = 3k, so k = 4.</div>
+  <div class="step"><strong>4a.</strong> y = 4√x. When x = 25, y = 4 × 5 = <strong>20</strong>.</div>
+  <div class="step"><strong>4b.</strong> When y = 10: 10 = 4√x, so √x = 2.5 and x = 2.5² = <strong>6.25</strong>. (Undo the square root by squaring.)</div>
+</details>
+<details>
+  <summary><span class="tag g">Higher</span> The power P of a wind turbine is proportional to the cube of the wind speed v. By what percentage does P increase if v increases by 20%?</summary>
+  <div class="step"><strong>Scaling:</strong> v is multiplied by 1.2, and P <span class="pr">∝</span> v³, so P is multiplied by 1.2³.</div>
+  <div class="step"><strong>Calculate:</strong> 1.2³ = 1.728.</div>
+  <div class="step"><strong>Interpret:</strong> × 1.728 is an increase of 0.728 = <strong>72.8%</strong>. (Not 60%: you multiply, you don't add 3 × 20%.)</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li><strong>Direct proportion</strong> y <span class="pr">∝</span> x means y = kx: y ÷ x is constant, and the graph is a straight line through the origin with gradient k.</li>
+  <li><strong>Inverse proportion</strong> y <span class="pr">∝</span> 1/x means y = k/x: x × y is constant, and the graph is a curve that never touches the axes. Multiply x by a number and y is divided by it.</li>
+  <li>The <strong>four steps</strong>: write with <span class="pr">∝</span>; replace <span class="pr">∝</span> with = k; substitute the given pair to find k; write the formula with k and use it.</li>
+  <li>Higher: y <span class="pr">∝</span> x², y <span class="pr">∝</span> x³, y <span class="pr">∝</span> √x and y <span class="pr">∝</span> 1/x² become y = kx², y = kx³, y = k√x and y = k/x². When working backwards, undo the power (square-root, cube-root or square).</li>
+  <li>Higher: if x is multiplied by s, y is multiplied by s to the same power: s² for x², s³ for x³, √s for √x, 1/s for 1/x and 1/s² for 1/x².</li>
+  <li>Higher: recognise each graph by its shape: straight through the origin; curving up; bending over; falling towards the axes.</li>
+</ul>
+
+<footer>Made for GCSE students. Direct and inverse proportion, including algebraic and graphical representations, are in the DfE GCSE mathematics subject content under Ratio, proportion and rates of change. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">Subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=3) => isFinite(v) ? minus(parseFloat(v.toFixed(d)).toString()) : '—';
+const sf3 = v => minus(String(Number(v.toPrecision(3))));
+const F = () => `font-family="${css('--mono')}"`;
+const txt = (x,y,s,col,size=11,anchor='middle',weight=400) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" fill="${col}" ${F()}>${s}</text>`;
+const num = el => { let s=String(el.value).trim().replace(/[−–]/g,'-').replace(/\s/g,''); const m=s.match(/^(-?[\d.]+)\/([\d.]+)$/); if(m){const v=+m[1]/+m[2];return isFinite(v)?v:NaN;} s=s.replace('½','0.5').replace('¼','0.25'); const v=parseFloat(s); return isFinite(v)&&/^-?[\d.]+$/.test(s)?v:NaN; };
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const near = (u,v,t) => Math.abs(u-v) <= t;
+function niceStep(max,target){ const raw=max/target, p=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/p; return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p; }
+
+/* relationship library */
+const REL={
+  x:    {f:x=>x,            lab:'x',   eq:k=>`y = ${fmt(k)}x`,   p:1,   up:true,  name:'y ∝ x',form:'kx'},
+  sq:   {f:x=>x*x,          lab:'x²',  eq:k=>`y = ${fmt(k)}x²`,  p:2,   up:true,  name:'y ∝ x²',form:'kx²'},
+  cube: {f:x=>x*x*x,        lab:'x³',  eq:k=>`y = ${fmt(k)}x³`,  p:3,   up:true,  name:'y ∝ x³',form:'kx³'},
+  root: {f:x=>Math.sqrt(x), lab:'√x',  eq:k=>`y = ${fmt(k)}√x`,  p:0.5, up:true,  name:'y ∝ √x',form:'k√x'},
+  inv:  {f:x=>1/x,          lab:'1/x', eq:k=>`y = ${fmt(k)}/x`,  p:-1,  up:false, name:'y ∝ 1/x',form:'k/x'},
+  invsq:{f:x=>1/(x*x),      lab:'1/x²',eq:k=>`y = ${fmt(k)}/x²`, p:-2,  up:false, name:'y ∝ 1/x²',form:'k/x²'}
+};
+const relCol = t => REL[t].up ? css('--accent') : css('--hi');
+
+/* first-quadrant axes: returns {s,X,Y} */
+function axes(o){ const {L,R,T,B,xMax,yMax}=o; const X=x=>L+(R-L)*x/xMax, Y=y=>B-(B-T)*y/yMax;
+  const xs=o.xStep||niceStep(xMax,5), ys=o.yStep||niceStep(yMax,5), mu=css('--muted'), gr=css('--grid'); let s='';
+  for(let x=0;x<=xMax+1e-9;x+=xs) s+=`<line x1="${X(x)}" y1="${T}" x2="${X(x)}" y2="${B}" stroke="${gr}"/>`+(o.noLabels?'':txt(X(x),B+14,fmt(x),mu,10));
+  for(let y=0;y<=yMax+1e-9;y+=ys) s+=`<line x1="${L}" y1="${Y(y)}" x2="${R}" y2="${Y(y)}" stroke="${gr}"/>`+(o.noLabels?'':txt(L-5,Y(y)+4,fmt(y),mu,10,'end'));
+  s+=`<line x1="${L}" y1="${B}" x2="${R}" y2="${B}" stroke="${mu}" stroke-width="1.5"/><line x1="${L}" y1="${T}" x2="${L}" y2="${B}" stroke="${mu}" stroke-width="1.5"/>`;
+  s+=txt(R-2,B-6,'x',mu,12,'end',600)+txt(L+8,T+10,'y',mu,12,'start',600);
+  return {s,X,Y}; }
+function curve(f,x0,x1,X,Y,yMax,col,w=3,dash){ let pts=[],segs=[]; for(let i=0;i<=240;i++){const x=x0+(x1-x0)*i/240, y=f(x); if(isFinite(y)&&y<=yMax*1.02&&y>=0){pts.push(`${X(x)},${Y(Math.min(y,yMax*1.02))}`);} else if(pts.length){segs.push(pts);pts=[];}} if(pts.length)segs.push(pts);
+  return segs.map(p=>`<polyline points="${p.join(' ')}" fill="none" stroke="${col}" stroke-width="${w}" ${dash?'stroke-dasharray="6 5"':''}/>`).join(''); }
+const svgX = (svg,ev,W) => { const r=svg.getBoundingClientRect(); return [(ev.clientX-r.left)/r.width*W, (ev.clientY-r.top)/r.height*(r.height/r.width*W)]; };
+function dragOn(svg,fn){ let on=false; svg.addEventListener('pointerdown',e=>{on=true;svg.setPointerCapture(e.pointerId);fn(e);}); svg.addEventListener('pointermove',e=>{if(on)fn(e);}); svg.addEventListener('pointerup',()=>{on=false;}); svg.addEventListener('pointercancel',()=>{on=false;}); }
+
+/* 1. direct proportion */
+const d1K=$('d1K'), d1C=$('d1C'), d1Svg=$('d1Svg'); let d1X=4;
+const D1={L:36,R:350,T:12,B:310,xMax:10,yMax:20};
+function drawD1(){
+  const k=+d1K.value, c=d1C.checked?3:0; $('d1Kv').textContent=' '+fmt(k);
+  const A=axes({...D1,xStep:1,yStep:2}), ac=css('--accent'), tw=css('--two'), mu=css('--muted');
+  let s=A.s;
+  if(c) s+=curve(x=>k*x,0,10,A.X,A.Y,20,mu,2,true);
+  s+=curve(x=>k*x+c,0,10,A.X,A.Y,20,ac,3);
+  const y=k*d1X+c, yy=Math.min(y,20);
+  s+=`<polyline points="${A.X(0)},${A.Y(c)} ${A.X(d1X)},${A.Y(c)} ${A.X(d1X)},${A.Y(yy)}" fill="none" stroke="${tw}" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  s+=`<circle cx="${A.X(0)}" cy="${A.Y(c)}" r="4" fill="${c?css('--bad'):css('--fg')}"/>`;
+  if(y<=20) s+=`<circle cx="${A.X(d1X)}" cy="${A.Y(y)}" r="8" fill="${tw}" stroke="${css('--panel')}" stroke-width="2"/>`+txt(Math.min(A.X(d1X)+10,300),A.Y(y)-10,`(${fmt(d1X)}, ${fmt(y)})`,tw,12,'start',600);
+  d1Svg.innerHTML=s;
+  const xs=[1,2,4,5,8];
+  $('d1Table').innerHTML=`<tr><th>x</th>${xs.map(x=>`<td>${x}</td>`).join('')}</tr><tr><th>y</th>${xs.map(x=>`<td>${fmt(k*x+c)}</td>`).join('')}</tr><tr><th>y ÷ x</th>${xs.map(x=>`<td class="k">${fmt((k*x+c)/x)}</td>`).join('')}</tr>`;
+  $('d1Work').innerHTML=c?`y = ${fmt(k)}x + 3<br><span class="x">y ÷ x changes: ${fmt((k+3))}, ${fmt((2*k+3)/2)}, ${fmt((4*k+3)/4)}…</span><br>The line misses (0, 0), so y is <strong>not</strong> proportional to x. Doubling x from 2 to 4 takes y from ${fmt(2*k+3)} to ${fmt(4*k+3)}, not double.`
+    :`point (${fmt(d1X)}, ${fmt(y)})<br><span class="c">k = y ÷ x = ${fmt(y)} ÷ ${fmt(d1X)} = ${fmt(k)}</span><br><span class="a">y = ${fmt(k)}x</span>: every point gives the same k, and the line goes through (0, 0).`;
+}
+dragOn(d1Svg,e=>{const [px]=svgX(d1Svg,e,360); d1X=Math.max(0.5,Math.min(10,Math.round(((px-D1.L)/(D1.R-D1.L)*10)*2)/2)); const k=+d1K.value,c=d1C.checked?3:0; while(k*d1X+c>20&&d1X>0.5)d1X-=0.5; drawD1();});
+[d1K,d1C].forEach(e=>e.addEventListener('input',()=>{const k=+d1K.value,c=d1C.checked?3:0; while(k*d1X+c>20&&d1X>0.5)d1X-=0.5; drawD1();})); drawD1();
+
+/* 2. four-step stepper */
+const ST=[
+  {q:'y is directly proportional to x. When x = 4, y = 12. Find y when x = 10.',
+   s:['y ∝ x','y = kx','12 = k × 4<br>k = 12 ÷ 4 = 3','y = 3x<br>x = 10: y = 3 × 10 = <strong>30</strong>']},
+  {q:'The cost C (£) of fuel is directly proportional to the number of litres L. 40 litres cost £58. Find the cost of 25 litres.',
+   s:['C ∝ L','C = kL','58 = k × 40<br>k = 58 ÷ 40 = 1.45 (the price per litre)','C = 1.45L<br>L = 25: C = 1.45 × 25 = <strong>£36.25</strong>']},
+  {q:'y is inversely proportional to x. When x = 5, y = 8. Find y when x = 2.',
+   s:['y ∝ 1/x','y = k/x','8 = k/5<br>k = 8 × 5 = 40','y = 40/x<br>x = 2: y = 40 ÷ 2 = <strong>20</strong>']},
+  {q:'Higher: d is proportional to the square of t. d = 20 when t = 2. Find d when t = 6.',
+   s:['d ∝ t²','d = kt²','20 = k × 2² = 4k<br>k = 20 ÷ 4 = 5','d = 5t²<br>t = 6: d = 5 × 6² = 5 × 36 = <strong>180</strong>']},
+  {q:'Higher: y is inversely proportional to the square of x. y = 8 when x = 3. Find x when y = 2 (x > 0).',
+   s:['y ∝ 1/x²','y = k/x²','8 = k/3² = k/9<br>k = 8 × 9 = 72','y = 72/x²<br>y = 2: 2 = 72/x², so x² = 72 ÷ 2 = 36<br>x = √36 = <strong>6</strong>']}
+];
+const STN=['Write with ∝','Replace ∝ with = k','Find k','Use the formula'];
+let stI=0;
+function drawST(){
+  const P=ST[+$('stP').value]; $('stQ').textContent=P.q;
+  $('stList').innerHTML=STN.map((n,i)=>`<div class="st ${i<stI?'':'todo'} ${i===stI-1?'on':''}"><b>Step ${i+1}: ${n}</b><span class="w">${i<stI?P.s[i]:'…'}</span></div>`).join('');
+  const tw=css('--two'), mu=css('--muted'), ln=css('--line'); let s='';
+  for(let i=0;i<4;i++){ const x=10+i*137, done=i<stI; s+=`<rect x="${x}" y="12" width="122" height="44" rx="8" fill="${done?css('--two-soft'):'none'}" stroke="${done?tw:ln}" stroke-width="${i===stI-1?2.5:1.5}"/>`+txt(x+61,32,`step ${i+1}`,done?tw:mu,11,'middle',600)+txt(x+61,48,['∝','= k','k = ?','use it'][i],done?tw:mu,14,'middle',600);
+    if(i<3) s+=`<path d="M${x+124},34 h9" stroke="${i<stI-1?tw:ln}" stroke-width="2"/>`; }
+  $('stSvg').innerHTML=s; $('stNext').disabled=stI>=4;
+}
+$('stNext').addEventListener('click',()=>{if(stI<4){stI++;drawST();}});
+$('stReset').addEventListener('click',()=>{stI=0;drawST();});
+$('stP').addEventListener('input',()=>{stI=0;drawST();}); drawST();
+
+/* 2b. try it: direct proportion */
+let TY=null;
+function tyNew(){ const k=pick([2,3,4,5,6,1.5,2.5,0.5,8]); let x0=rnd(2,9), x1; do{x1=rnd(2,15);}while(x1===x0);
+  const L=pick(['y','A','C','W']), X=pick(['x','t','n','m']);
+  TY={k,x0,x1,y0:k*x0,y1:k*x1,L,X};
+  $('tyQ').textContent=`${L} is directly proportional to ${X}. When ${X} = ${x0}, ${L} = ${fmt(k*x0)}. Find k, then find ${L} when ${X} = ${x1}.`;
+  $('tyK').value=''; $('tyA').value=''; $('tyMsg').className='msg'; $('tyMsg').textContent=''; }
+function tyCheck(){ if(!TY)return; const kU=num($('tyK')), aU=num($('tyA')), M=$('tyMsg'), {k,x0,x1,y0,y1,L,X}=TY; let msgs=[], ok=true;
+  if(!isFinite(kU)){ok=false;msgs.push('Type a value for k.');}
+  else if(near(kU,k,1e-6)) msgs.push(`k = ${fmt(y0)} ÷ ${x0} = ${fmt(k)} ✓`);
+  else { ok=false; msgs.push(near(kU,x0/y0,1e-3)?`k is upside down: ${fmt(y0)} = k × ${x0}, so k = ${fmt(y0)} ÷ ${x0}.`:near(kU,y0*x0,1e-6)?`You multiplied. ${fmt(y0)} = k × ${x0}, so divide: k = ${fmt(y0)} ÷ ${x0}.`:`Substitute: ${fmt(y0)} = k × ${x0}, then solve for k.`); }
+  if(!isFinite(aU)){ok=false;msgs.push(`Type a value for ${L}.`);}
+  else if(near(aU,y1,1e-6)) msgs.push(`${L} = ${fmt(k)} × ${x1} = ${fmt(y1)} ✓`);
+  else { ok=false; msgs.push(near(aU,y0*x0/x1,1e-6)?`That's inverse proportion (${L} = k/${X}). Directly proportional means ${L} = k${X}.`:near(aU,x1/k,1e-6)||near(aU,x1*x0/y0,1e-6)?`You divided by k. ${L} = k × ${X} = ${fmt(k)} × ${x1}.`:near(aU,y0+(x1-x0),1e-6)?`Adding the difference doesn't keep the ratio. Use ${L} = ${fmt(k)}${X}.`:`${L} = k × ${X}: multiply your k by ${x1}.`); }
+  M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'Correct. ':'Not quite. ')+msgs.join(' '); }
+$('tyGo').addEventListener('click',tyCheck); ['tyK','tyA'].forEach(i=>$(i).addEventListener('keydown',e=>{if(e.key==='Enter')tyCheck();}));
+$('tyNew').addEventListener('click',tyNew); tyNew();
+
+/* 3. inverse proportion rectangle */
+const ivK=$('ivK'), ivSvg=$('ivSvg'); let ivX=3;
+const IV={L:36,R:350,T:12,B:310,xMax:12,yMax:12};
+function drawIV(){
+  const k=+ivK.value, y=k/ivX; const A=axes({...IV,xStep:1,yStep:1}), hi=css('--hi'), tw=css('--two');
+  let s=A.s;
+  const yy=Math.min(y,12);
+  s+=`<rect x="${A.X(0)}" y="${A.Y(yy)}" width="${A.X(ivX)-A.X(0)}" height="${A.Y(0)-A.Y(yy)}" fill="${css('--hi-soft')}" fill-opacity=".85" stroke="${hi}" stroke-width="1.5"/>`;
+  s+=curve(x=>k/x,k/12.5,12,A.X,A.Y,12,hi,3);
+  if(y<=12) s+=txt((A.X(0)+A.X(ivX))/2,(A.Y(yy)+A.Y(0))/2+4,`area ${k}`,tw,12,'middle',700);
+  s+=`<circle cx="${A.X(ivX)}" cy="${A.Y(yy)}" r="8" fill="${tw}" stroke="${css('--panel')}" stroke-width="2"/>`+txt(Math.min(A.X(ivX)+10,290),A.Y(yy)-10,`(${fmt(ivX)}, ${fmt(y)})`,tw,12,'start',600);
+  ivSvg.innerHTML=s;
+  const xs=[1,2,3,4,6,12].filter(x=>k/x<=36);
+  $('ivTable').innerHTML=`<tr><th>x</th>${xs.map(x=>`<td>${x}</td>`).join('')}</tr><tr><th>y</th>${xs.map(x=>`<td>${fmt(k/x)}</td>`).join('')}</tr><tr><th>x × y</th>${xs.map(x=>`<td class="k">${k}</td>`).join('')}</tr>`;
+  $('ivWork').innerHTML=`width x = ${fmt(ivX)}, height y = ${k} ÷ ${fmt(ivX)} = ${fmt(y)}<br><span class="c">x × y = ${fmt(ivX)} × ${fmt(y)} = ${k} = k</span><br><span class="b">y = ${k}/x</span>${ivX*2<=12?`<br>double x to ${fmt(ivX*2)} → y halves to ${fmt(y/2)}`:''}`;
+}
+dragOn(ivSvg,e=>{const [px]=svgX(ivSvg,e,360); const k=+ivK.value; let x=Math.round((px-IV.L)/(IV.R-IV.L)*12*2)/2; ivX=Math.max(Math.max(0.5,k/12),Math.min(12,x)); drawIV();});
+ivK.addEventListener('input',()=>{ivX=Math.max(ivX,(+ivK.value)/12);drawIV();}); drawIV();
+
+/* 4. powers and roots */
+const pwT=$('pwT'), pwK=$('pwK');
+function drawPW(){
+  const t=pwT.value, R=REL[t], k=+pwK.value; $('pwKv').textContent=' '+fmt(k);
+  const xMax=5, yMax=R.up?Math.max(4,k*R.f(xMax)):k*R.f(0.5);
+  const step=niceStep(yMax,5), yM=Math.ceil(yMax/step)*step;
+  const A=axes({L:52,R:548,T:14,B:300,xMax,yMax:yM,xStep:1,yStep:step}), col=relCol(t), tw=css('--two');
+  let s=A.s+curve(x=>k*R.f(x),R.up?0:0.02,xMax,A.X,A.Y,yM,col,3.5);
+  for(let x=1;x<=4;x++){const y=k*R.f(x); if(y<=yM) s+=`<circle cx="${A.X(x)}" cy="${A.Y(y)}" r="5" fill="${tw}"/>`;}
+  s+=txt(540,34,R.eq(k),col,15,'end',700);
+  $('pwSvg').innerHTML=s;
+  const xs=[1,2,3,4];
+  $('pwTable').innerHTML=`<tr><th>x</th>${xs.map(x=>`<td>${x}</td>`).join('')}</tr><tr><th>${R.lab}</th>${xs.map(x=>`<td>${fmt(R.f(x))}</td>`).join('')}</tr><tr><th>y = ${fmt(k)} × ${R.lab}</th>${xs.map(x=>`<td class="k">${fmt(k*R.f(x))}</td>`).join('')}</tr>`;
+  const desc={x:'a straight line through the origin',sq:'a curve through the origin that gets steeper and steeper (half of a parabola)',cube:'a curve through the origin that is flat near 0, then climbs even faster than x²',root:'a curve through the origin that rises steeply at first, then flattens out',inv:'a curve that falls, getting close to both axes but never touching them',invsq:'a curve that falls even faster than 1/x, never touching the axes'}[t];
+  $('pwWork').innerHTML=`y ∝ ${R.lab} → <span class="c">${R.eq(k)}</span><br>Shape: ${desc}.<br>x = 2 → y = ${fmt(k)} × ${R.lab.replace('x','2')} = ${fmt(k*R.f(2))}; &nbsp;x = 4 → y = ${fmt(k*R.f(4))}`;
+}
+[pwT,pwK].forEach(e=>e.addEventListener('input',drawPW)); drawPW();
+
+/* 5. scaling */
+const scT=$('scT'), scS=$('scS');
+const powTxt=(t,s)=>{const S=s===0.5?'½':fmt(s);return {x:`${S}`,sq:`${S}²`,cube:`${S}³`,root:`√${S}`,inv:`1/${S}`,invsq:`1/${S}²`}[t];};
+function drawSC(){
+  const t=scT.value, s=+scS.value, R=REL[t], f=Math.pow(s,R.p), k=1, x0=2;
+  const y0=k*R.f(x0), y1=k*R.f(x0*s), tw=css('--two'), col=relCol(t), mu=css('--muted'), ln=css('--line');
+  const maxV=Math.max(1,f,s), W=320, Lx=150, sc=v=>W*v/maxV;
+  let o=txt(10,40,'x before',mu,12,'start')+`<rect x="${Lx}" y="26" width="${sc(1)}" height="20" fill="${ln}"/>`;
+  o+=txt(10,72,'x after',mu,12,'start')+`<rect x="${Lx}" y="58" width="${sc(s)}" height="20" fill="${tw}" fill-opacity=".7"/>`+txt(Lx+sc(s)+6,73,'× '+(s===0.5?'½':fmt(s)),tw,12,'start',600);
+  o+=txt(10,132,'y before',mu,12,'start')+`<rect x="${Lx}" y="118" width="${sc(1)}" height="20" fill="${ln}"/>`;
+  o+=txt(10,164,'y after',mu,12,'start')+`<rect x="${Lx}" y="150" width="${sc(f)}" height="20" fill="${col}" fill-opacity=".8"/>`+txt(Lx+sc(f)+6,165,'× '+fmt(f,4),col,12,'start',600);
+  o+=txt(10,205,'(bars show size compared with "before")',mu,11,'start');
+  $('scSvg').innerHTML=o;
+  const S=s===0.5?'½':fmt(s);
+  const alg={x:`k(${S}x) = ${S} × kx`,sq:`k(${S}x)² = ${S}² × kx² = ${fmt(f,4)} × kx²`,cube:`k(${S}x)³ = ${S}³ × kx³ = ${fmt(f,4)} × kx³`,root:`k√(${S}x) = √${S} × k√x = ${fmt(f,4)} × k√x`,inv:`k/(${S}x) = (1/${S}) × k/x = ${fmt(f,4)} × k/x`,invsq:`k/(${S}x)² = (1/${S}²) × k/x² = ${fmt(f,4)} × k/x²`}[t];
+  $('scWork').innerHTML=`${R.name} → y = k${R.lab==='x'?'x':R.lab.startsWith('1/')?'/'+R.lab.slice(2):R.lab}<br>replace x with ${S}x: <span class="c">${alg}</span><br>So y is multiplied by <strong>${powTxt(t,s)} = ${fmt(f,4)}</strong>${f<1?` (y ${f===0.5?'halves':'gets smaller'})`:''}.<br>Check with k = 1, x = 2: y goes from ${fmt(y0,4)} to ${fmt(y1,4)}, and ${fmt(y1,4)} ÷ ${fmt(y0,4)} = ${fmt(y1/y0,4)} ✓`;
+}
+[scT,scS].forEach(e=>e.addEventListener('input',drawSC)); drawSC();
+
+let SQ=null;
+function sqNew(){ const t=pick(['x','sq','cube','root','inv','invsq']); const s=t==='root'?pick([4,9,16,25]):pick([2,3,4,5,10]); const word={2:'doubled',3:'tripled',4:'multiplied by 4',5:'multiplied by 5',10:'multiplied by 10',9:'multiplied by 9',16:'multiplied by 16',25:'multiplied by 25'}[s];
+  SQ={t,s,f:Math.pow(s,REL[t].p)};
+  $('sqQ').innerHTML=`${REL[t].name.replace('∝','<span class="pr">∝</span>')}. If x is ${word}, what is y multiplied by? (Use a fraction like 1/4 if y gets smaller.)`;
+  $('sqA').value=''; $('sqMsg').className='msg'; $('sqMsg').textContent=''; }
+function sqCheck(){ if(!SQ)return; const u=num($('sqA')), M=$('sqMsg'), {t,s,f}=SQ, R=REL[t]; let ok=false, m='';
+  if(!isFinite(u)){M.className='msg bad';M.textContent='Type a number or a fraction like 1/4.';return;}
+  if(near(u,f,1e-6)){ok=true;m=`y is multiplied by ${powTxt(t,s)} = ${fmt(f,4)}.`;}
+  else if(near(u,s,1e-9)&&t!=='x') m=`That's what x is multiplied by. In ${R.name}, y is multiplied by ${powTxt(t,s)}.`;
+  else if(near(u,1/f,1e-6)) m=R.up?'y gets bigger when x gets bigger here, so the multiplier should be more than 1.':`For inverse relationships y gets smaller: the multiplier is a fraction, ${powTxt(t,s)}.`;
+  else if(near(u,s*Math.abs(R.p),1e-9)) m=`Don't multiply by the power, raise to it: ${s} to the power ${Math.abs(R.p)}, not ${s} × ${Math.abs(R.p)}.`;
+  else if(near(u,s/2,1e-9)&&t==='root') m=`√${s} is ${Math.sqrt(s)}, not ${s} ÷ 2.`;
+  else m=`Replace x with ${s}x in y = k${R.lab==='x'?'x':R.lab.startsWith('1/')?'/'+R.lab.slice(2):R.lab} and simplify.`;
+  M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'Correct: ':'Not quite. ')+m; }
+$('sqGo').addEventListener('click',sqCheck); $('sqA').addEventListener('keydown',e=>{if(e.key==='Enter')sqCheck();}); $('sqNew').addEventListener('click',sqNew); sqNew();
+
+/* 6. graph matching */
+const GOPTS=[['x','y ∝ x'],['sq','y ∝ x²'],['cube','y ∝ x³'],['root','y ∝ √x'],['inv','y ∝ 1/x'],['invsq','y ∝ 1/x²'],['lin','not proportion']];
+let GG=[];
+function ggNew(){ const pool=['x','sq','cube','root','inv','lin','invsq']; for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  GG=pool.slice(0,4).map(t=>({t}));
+  $('ggBox').innerHTML=GG.map((g,i)=>`<div><svg id="gg${i}" viewBox="0 0 160 140" width="160" height="140"></svg><select id="ggS${i}"><option value="">choose…</option>${GOPTS.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join('')}</select></div>`).join('');
+  $('ggMsg').className='msg'; $('ggMsg').textContent=''; drawGG(); }
+function drawGG(){ GG.forEach((g,i)=>{ const svg=$('gg'+i); if(!svg)return; const f=g.t==='lin'?(x=>0.8*x+1.2):(x=>{const v=REL[g.t].f(x);return g.t==='x'?v:g.t==='sq'?v*0.6:g.t==='cube'?v*0.32:g.t==='root'?v*2.4:g.t==='inv'?v*1.6:v*1.2;});
+  const A=axes({L:12,R:152,T:8,B:130,xMax:4,yMax:5,xStep:1,yStep:1,noLabels:true}); const col=g.t==='inv'||g.t==='invsq'?css('--hi'):css('--accent');
+  svg.innerHTML=A.s+curve(f,g.t==='inv'||g.t==='invsq'?0.05:0,4,A.X,A.Y,5,col,3); }); }
+$('ggGo').addEventListener('click',()=>{ let right=0, hints=[]; GG.forEach((g,i)=>{const v=$('ggS'+i).value; if(v===g.t)right++; else if(v){ const h=g.t==='lin'?'is straight but misses the origin':g.t==='x'?'is straight through the origin':g.t==='sq'?'curves upwards from the origin':g.t==='cube'?'is flat near 0 then shoots up (steeper than x²)':g.t==='root'?'rises then flattens':g.t==='inv'?'falls and never touches the axes':'falls very steeply near the y-axis, then hugs the x-axis'; hints.push(`Graph ${i+1} ${h}.`);} });
+  const M=$('ggMsg'), all=GG.every((g,i)=>$('ggS'+i).value); M.className='msg '+(right===4?'good':'bad');
+  M.textContent=right===4?'All four correct.':`${right} of 4 correct. ${hints.join(' ')}${all?'':' Choose an answer for every graph.'}`; });
+$('ggNew').addEventListener('click',ggNew); ggNew();
+
+/* 7. mixed practice */
+const mxT=$('mxT'); let MX=null, mxDone=false, mxR=0, mxN=0;
+function mxGen(t){
+  const R=REL[t]; let k,x0,x1,y1,find=Math.random()<0.4?'x':'y';
+  if(t==='x'){k=pick([2,3,4,1.5,2.5,6]);x0=rnd(2,8);x1=rnd(2,12);}
+  else if(t==='inv'){k=pick([12,24,36,48,60]);const d=[1,2,3,4,6,12].filter(v=>k%v===0);x0=pick(d);x1=pick(d.filter(v=>v!==x0));}
+  else if(t==='sq'){k=pick([2,3,4,5,0.5]);x0=rnd(2,5);x1=rnd(2,10);}
+  else if(t==='cube'){k=pick([2,3,4,0.5]);x0=rnd(2,4);x1=rnd(1,6);}
+  else if(t==='root'){k=pick([2,3,4,5]);x0=pick([4,9,16,25]);x1=pick([1,4,9,16,25,36,49,64,81,100].filter(v=>v!==x0));}
+  else {k=pick([36,72,144]);x0=pick([2,3,6]);x1=pick([1,2,3,6].filter(v=>v!==x0));}
+  if(x1===x0)x1=x0+1;
+  const y0=k*R.f(x0); y1=k*R.f(x1);
+  const word={x:'directly proportional to x',inv:'inversely proportional to x',sq:'proportional to the square of x',cube:'proportional to the cube of x',root:'proportional to the square root of x',invsq:'inversely proportional to the square of x'}[t];
+  const q=find==='y'?`y is ${word}. When x = ${x0}, y = ${fmt(y0)}. Find y when x = ${x1}.`:`y is ${word}. When x = ${x0}, y = ${fmt(y0)}. Find x when y = ${fmt(y1)} (x > 0).`;
+  const ans=find==='y'?y1:x1;
+  const solve={x:`x = ${fmt(y1)} ÷ ${fmt(k)} = ${fmt(x1)}`,inv:`x = ${fmt(k)} ÷ ${fmt(y1)} = ${fmt(x1)}`,sq:`x² = ${fmt(y1)} ÷ ${fmt(k)} = ${fmt(x1*x1)}, x = √${fmt(x1*x1)} = ${fmt(x1)}`,cube:`x³ = ${fmt(y1)} ÷ ${fmt(k)} = ${fmt(x1**3)}, x = ∛${fmt(x1**3)} = ${fmt(x1)}`,root:`√x = ${fmt(y1)} ÷ ${fmt(k)} = ${fmt(Math.sqrt(x1))}, x = ${fmt(Math.sqrt(x1))}² = ${fmt(x1)}`,invsq:`x² = ${fmt(k)} ÷ ${fmt(y1)} = ${fmt(x1*x1)}, x = √${fmt(x1*x1)} = ${fmt(x1)}`}[t];
+  const s3=t==='inv'?`${fmt(y0)} = k/${x0} → k = ${fmt(y0)} × ${x0} = ${fmt(k)}`:t==='invsq'?`${fmt(y0)} = k/${x0}² = k/${x0*x0} → k = ${fmt(y0)} × ${x0*x0} = ${fmt(k)}`:`${fmt(y0)} = k × ${R.lab.replace('x',x0)}${R.lab==='x'?'':' = k × '+fmt(R.f(x0),4)} → k = ${fmt(y0)} ÷ ${fmt(R.f(x0),4)} = ${fmt(k)}`;
+  const s4y=t==='inv'?`y = ${fmt(k)} ÷ ${x1} = ${fmt(y1)}`:t==='invsq'?`y = ${fmt(k)} ÷ ${x1}² = ${fmt(k)} ÷ ${x1*x1} = ${fmt(y1)}`:`y = ${fmt(k)} × ${R.lab.replace('x',x1)} = ${fmt(y1)}`;
+  const work=[`1. ${R.name}`,`2. y = ${R.form}`,`3. ${s3}`,`4. ${R.eq(k)}; `+(find==='y'?`x = ${x1}: ${s4y}`:`y = ${fmt(y1)}: ${solve}`)];
+  return {t,q,ans,work};
+}
+function mxNew(){ const t=mxT.value==='mix'?pick(Object.keys(REL)):mxT.value; let g; do{g=mxGen(t);}while(MX&&g.q===MX.q);
+  MX=g; mxDone=false; $('mxQ').textContent=MX.q; $('mxA').value=''; $('mxMsg').className='msg'; $('mxMsg').textContent=''; $('mxWork').hidden=true; $('mxWork').innerHTML=MX.work.join('<br>'); }
+function mxCheck(){ if(!MX)return; const u=num($('mxA')), M=$('mxMsg'); if(!isFinite(u)){M.className='msg bad';M.textContent='Type a number (decimals or a fraction like 9/4).';return;}
+  const a=MX.ans, tol=0.005; let ok=near(u,a,tol), m='';
+  if(ok) m=`Correct: ${fmt(a)}.`;
+  else { const W=mxWrongs(); for(const [v,t] of W){ if(isFinite(v)&&near(u,v,Math.max(1e-6,Math.abs(v)*0.002))&&!near(v,a,1e-6)){m=t;break;} }
+    if(!m) m='Go through the four steps: write with ∝, replace with = k, find k, then use the formula. Press "Show working" if stuck.'; }
+  if(!mxDone){mxN++; if(ok)mxR++;} mxDone=true;
+  M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'':'Not quite. ')+m; if(ok)$('mxWork').hidden=false;
+  $('mxScore').textContent=`Score: ${mxR} right first time out of ${mxN}.`; }
+function mxWrongs(){ // recompute likely mistakes from the question text
+  const q=MX.q, t=MX.t, nums=q.match(/\d+(?:\.\d+)?/g).map(Number), x0=nums[0], y0=nums[1], v=nums[2], findY=/Find y/.test(q), R=REL[t], W=[];
+  const word=q.split('. ')[0].replace('y is ','');
+  for(const o of Object.keys(REL)){ if(o===t)continue; const ko=y0/REL[o].f(x0), Ro=REL[o]; let ans;
+    if(findY) ans=ko*Ro.f(v); else { const target=v/ko; ans={x:target,sq:Math.sqrt(target),cube:Math.cbrt(target),root:target*target,inv:1/target,invsq:1/Math.sqrt(target)}[o]; }
+    W.push([ans,`That's the answer for ${Ro.name}. The question says y is ${word}: ${R.name}.`]); }
+  const k=y0/R.f(x0), kBad=R.f(x0)/y0;
+  if(findY) W.push([kBad*R.f(v),`k is upside down. From ${fmt(y0)} = k × ${R.lab.replace('x',x0)}, k = ${fmt(y0)} ÷ ${fmt(R.f(x0),4)} = ${fmt(k)}.`]);
+  else { const tgt=v/k; if(t==='sq')W.push([tgt,'That\'s x². Take the square root to get x.']); if(t==='invsq')W.push([1/tgt,'That\'s x². Take the square root to get x.']); if(t==='cube')W.push([tgt,'That\'s x³. Take the cube root.']); if(t==='root')W.push([tgt,'That\'s √x. Square it to get x.']); }
+  W.push([k,`That's k. Now use the formula to answer the question.`]);
+  return W; }
+$('mxGo').addEventListener('click',mxCheck); $('mxA').addEventListener('keydown',e=>{if(e.key==='Enter')mxCheck();});
+$('mxShow').addEventListener('click',()=>{$('mxWork').hidden=!$('mxWork').hidden;}); $('mxNew').addEventListener('click',mxNew); mxT.addEventListener('input',mxNew); mxNew();
+
+const redrawAll=()=>{drawD1();drawST();drawIV();drawPW();drawSC();drawGG();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'y is directly proportional to x. y = 15 when x = 5. What is y when x = 8?',opts:['24','18','40','9.6'],a:0,fb:'k = 15 ÷ 5 = 3, so y = 3x = 3 × 8 = 24. (18 adds 3 instead of using the ratio.)'},
+  {q:'"y is directly proportional to x" written as a formula is…',opts:['y = kx','y = k/x','y = x + k','y = kx²'],a:0,fb:'Replace ∝ with "= k": y ∝ x becomes y = kx.'},
+  {q:'Which graph shows that y is directly proportional to x?',opts:['a straight line through the origin','any straight line','a curve through the origin','a curve that never touches the axes'],a:0,fb:'Direct proportion is y = kx: straight, and through (0, 0). A straight line with an intercept is not proportion.'},
+  {q:'y is inversely proportional to x. y = 4 when x = 6. What is y when x = 3?',opts:['8','2','12','7'],a:0,fb:'k = xy = 6 × 4 = 24, so y = 24/x = 24 ÷ 3 = 8. Halving x doubles y.'},
+  {q:'3 people paint a fence in 8 hours. The time is inversely proportional to the number of people. How long do 4 people take?',opts:['6 hours','10.7 hours','7 hours','32 hours'],a:0,fb:'k = 3 × 8 = 24 person-hours. 24 ÷ 4 = 6 hours. More people, less time.'},
+  {q:'Higher: y ∝ x² and y = 18 when x = 3. What is y when x = 5?',opts:['50','30','150','90'],a:0,fb:'18 = k × 3² = 9k, so k = 2. y = 2 × 5² = 2 × 25 = 50.'},
+  {q:'Higher: y ∝ x². If x is doubled, y is…',opts:['multiplied by 4','doubled','multiplied by 8','halved'],a:0,fb:'k(2x)² = 4kx², so y is multiplied by 2² = 4.'},
+  {q:'Higher: y is inversely proportional to x². If x is doubled, y is…',opts:['divided by 4','halved','multiplied by 4','divided by 8'],a:0,fb:'k/(2x)² = k/(4x²) = ¼ × k/x², so y is divided by 4.'},
+  {q:'Higher: y ∝ √x. If x is multiplied by 9, y is multiplied by…',opts:['3','9','81','4.5'],a:0,fb:'k√(9x) = √9 × k√x = 3k√x. So y is multiplied by √9 = 3.'},
+  {q:'Higher: y ∝ x³ and y = 16 when x = 2. Find x when y = 54.',opts:['3','27','6.75','√27'],a:0,fb:'16 = k × 2³ = 8k, so k = 2. Then 54 = 2x³, x³ = 27, x = ∛27 = 3. (27 is x³: don\'t stop there.)'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q.replace(/∝/g,'<span class="pr">∝</span>')}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

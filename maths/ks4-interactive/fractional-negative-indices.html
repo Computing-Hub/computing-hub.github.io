@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Fractional and Negative Indices</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive SVG panel drawn from JS (factor chips, a halving staircase, root squares and cubes, a two-route flow diagram, a flip-root-power machine, an index number line) with step-through or "try it" controls. Graph-paper neutrals. Colours on this page: teal = the root, i.e. the denominator n of a fractional index and the value of ⁿ√a; orange = the power, i.e. the numerator m and raising to it; plum = the minus sign of a negative index and the "flip" (reciprocal) it causes, including cancelled factors. Green/red are only used for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+a{color:var(--accent)}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.3rem;position:relative;top:-.15em}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.S{color:var(--hi);font-weight:600}.K{color:var(--two);font-weight:600}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.25;margin:0 .15em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .2em}
+.fr>span:last-child{padding:0 .2em}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.btn:disabled{opacity:.45;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem;font-family:var(--mono)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}.work .g{color:var(--good)}
+.work .dim{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}
+.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.chip-note{font-size:.85rem;color:var(--muted)}
+sup{font-size:.7em;line-height:0}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Number</div>
+  <h1>Fractional and Negative Indices</h1>
+  <p class="lede">You know 2³ means 2 × 2 × 2. But what could 2<sup>−3</sup> mean? Or 8<sup>2/3</sup>? You can't multiply 8 by itself two-thirds of a time. This page shows that the index laws you already know <em>force</em> these powers to have one sensible meaning: a negative index means "one over", and a fractional index means a root.</p>
+  <span class="gcse">DfE GCSE subject content (Number): calculate with roots, and with integer indices; Higher tier: calculate with fractional indices; estimate powers and roots of any given positive number</span>
+</header>
+
+<div class="recap">
+  <p><strong>What you need from KS3</strong></p>
+  <ul>
+    <li><strong>Index notation</strong>: in a<sup>n</sup>, a is the <strong>base</strong> and n is the <strong>index</strong> (or power): how many copies of a are multiplied. 2<sup>4</sup> = 2 × 2 × 2 × 2 = 16.</li>
+    <li><strong>The three index laws</strong>: a<sup>m</sup> × a<sup>n</sup> = a<sup>m+n</sup>, a<sup>m</sup> ÷ a<sup>n</sup> = a<sup>m−n</sup>, (a<sup>m</sup>)<sup>n</sup> = a<sup>mn</sup>. Full recap on the <a href="../ks3-interactive/index-laws.html">index laws</a> page.</li>
+    <li><strong>Roots</strong>: √25 = 5 because 5² = 25; ∛8 = 2 because 2³ = 8. See <a href="../ks3-interactive/powers-and-roots.html">powers and roots</a>.</li>
+    <li><strong>Reciprocals</strong>: the reciprocal of a number is 1 divided by it, so you flip a fraction upside down. The reciprocal of 5 is <span class="fr"><span>1</span><span>5</span></span>; the reciprocal of <span class="fr"><span>2</span><span>3</span></span> is <span class="fr"><span>3</span><span>2</span></span>.</li>
+  </ul>
+</div>
+
+<h2>1 · Recap: why the index laws work</h2>
+<p>The laws aren't rules to memorise; they come from counting factors. Pick a law and watch the copies of a. Every idea on this page comes from insisting that these laws <em>keep working</em> for any index.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>law <select id="lwL"><option value="mul">multiply: aᵐ × aⁿ</option><option value="pow">power of a power: (aᵐ)ⁿ</option></select></label>
+    <label>m = <input type="range" id="lwM" min="1" max="5" value="3"><span id="lwMv" style="font-family:var(--mono)"></span></label>
+    <label>n = <input type="range" id="lwN" min="1" max="5" value="2"><span id="lwNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="lwSvg" viewBox="0 0 420 220" width="420" height="220" aria-label="Copies of a being counted"></svg>
+  <div class="work" id="lwWork"></div>
+</div>
+
+<h2>2 · Zero and negative indices</h2>
+<p>Look at the powers of 2 going <em>down</em>: 2<sup>3</sup> = 8, 2<sup>2</sup> = 4, 2<sup>1</sup> = 2. Every time the index drops by 1, the value is <strong>divided by 2</strong>. There's no reason to stop at 2<sup>1</sup>. Keep the pattern going and see what 2<sup>0</sup>, 2<sup>−1</sup>, 2<sup>−2</sup> must be.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>base <select id="hpB"><option>2</option><option>3</option><option>4</option><option>5</option><option>10</option></select></label>
+    <label>keep dividing <input type="range" id="hpS" min="0" max="6" value="2"></label>
+  </div>
+  <svg id="hpSvg" viewBox="0 0 420 150" width="420" height="150" aria-label="Staircase of powers"></svg>
+  <div class="msg" id="hpMsg"></div>
+</div>
+
+<p>The pattern says two things. <strong>Anything to the power 0 is 1</strong> (as long as the base isn't 0). And a <strong>negative index means the reciprocal</strong>: 2<sup>−3</sup> is not negative; it's <span class="fr"><span>1</span><span>2³</span></span> = <span class="fr"><span>1</span><span>8</span></span>.</p>
+<p class="big">a<sup>0</sup> = 1 &nbsp;&nbsp;&nbsp; a<sup class="K">−n</sup> = <span class="fr"><span class="K">1</span><span>a<sup>n</sup></span></span></p>
+<p>The division law gives the same answer. a<sup>3</sup> ÷ a<sup>5</sup> = a<sup>3−5</sup> = a<sup>−2</sup> by the law. But writing out the factors and cancelling gives <span class="fr"><span>1</span><span>a²</span></span>. Both must be right, so a<sup>−2</sup> = <span class="fr"><span>1</span><span>a²</span></span>. Change the counts and watch the factors cancel in pairs.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>top: a to the power <input type="range" id="dvM" min="0" max="6" value="3"><span id="dvMv" style="font-family:var(--mono)"></span></label>
+    <label>bottom: a to the power <input type="range" id="dvN" min="1" max="7" value="5"><span id="dvNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="dvSvg" viewBox="0 0 420 190" width="420" height="190" aria-label="Factors cancelling in a fraction"></svg>
+  <div class="work" id="dvWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Exam trap: a negative index does not make the answer negative.</strong> 5<sup>−2</sup> = <span class="fr"><span>1</span><span>25</span></span>, not −25 and not −10. The minus sign in the index means "flip", not "make negative". Also: 7<sup>0</sup> = 1, not 0 and not 7.</p>
+</div>
+
+<h2>3 · Fractional indices: a<sup>1/n</sup> is a root <span class="tag g">Higher</span></h2>
+<p>What number should 9<sup>1/2</sup> be? Use the multiplication law: 9<sup>1/2</sup> × 9<sup>1/2</sup> = 9<sup>1/2 + 1/2</sup> = 9<sup>1</sup> = 9. So 9<sup>1/2</sup> is a number that multiplies by itself to give 9. That's the square root: 9<sup>1/2</sup> = √9 = 3. In the same way, three copies of 8<sup>1/3</sup> multiply to 8<sup>1</sup>, so 8<sup>1/3</sup> = ∛8 = 2, the <strong>cube root</strong>.</p>
+<p class="big">a<sup class="R">1/n</sup> = <span class="R">ⁿ</span>√a</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>root n = <select id="rtN"><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
+    <label>a = <select id="rtA"></select></label>
+    <button class="btn primary" id="rtGo">Reveal</button>
+  </div>
+  <svg id="rtSvg" viewBox="0 0 420 260" width="420" height="260" aria-label="Root as the side of a square or cube"></svg>
+  <div class="work" id="rtWork"></div>
+</div>
+
+<p>The picture makes it concrete: a<sup>1/2</sup> is the side of a square with area a, and a<sup>1/3</sup> is the edge of a cube with volume a. For bases that aren't perfect powers, such as 10<sup>1/2</sup>, the answer is a surd (see the <a href="surds.html">surds</a> page) and your calculator gives a decimal: 10<sup>1/2</sup> = 3.16 to 3 s.f.</p>
+
+<h2>4 · a<sup>m/n</sup>: root first, then power <span class="tag g">Higher</span></h2>
+<p>Now the numerator isn't 1. Split the fraction using the power-of-a-power law: <span class="m">m/n = (1/n) × m</span>, so</p>
+<p class="big">a<sup><span class="S">m</span>/<span class="R">n</span></sup> = (<span class="R">ⁿ</span>√a)<sup class="S">m</sup> = <span class="R">ⁿ</span>√(a<sup class="S">m</sup>)</p>
+<p>The <span class="R">denominator is the root</span> and the <span class="S">numerator is the power</span>. A memory hook: the root is at the bottom, like the roots of a tree. Both orders give the same answer, but taking the <strong>root first keeps the numbers small</strong>. Compare the two routes:</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>base and root <select id="mnA"></select></label>
+    <label>power m = <input type="range" id="mnM" min="1" max="5" value="2"><span id="mnMv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="mnSvg" viewBox="0 0 420 210" width="420" height="210" aria-label="Two routes to the same answer"></svg>
+  <div class="work" id="mnWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes with fractional indices</strong></p>
+  <ul>
+    <li><strong>Multiplying by the index.</strong> 8<sup>2/3</sup> is not 8 × <span class="fr"><span>2</span><span>3</span></span>. An index is never a multiplier.</li>
+    <li><strong>Getting the root and power the wrong way round.</strong> In 8<sup>2/3</sup> the 3 (bottom) is the cube root and the 2 (top) is the square. (∛8)² = 4; (√8)³ is something else.</li>
+    <li><strong>Dividing instead of rooting.</strong> 16<sup>1/2</sup> = 4, not 8. Half the index is not half the number.</li>
+  </ul>
+</div>
+
+<h2>5 · Negative fractional indices <span class="tag g">Higher</span></h2>
+<p>Put sections 2 and 4 together. In a<sup>−m/n</sup> each part of the index has one job: the <span class="K">minus sign flips</span>, the <span class="R">denominator roots</span>, the <span class="S">numerator powers</span>. Do them in that order: flip, root, power. Pick an expression and run it through the machine.</p>
+
+<div class="lab">
+  <div class="chips" id="ngChips"></div>
+  <svg id="ngSvg" viewBox="0 0 420 250" width="420" height="250" aria-label="Flip, root, power machine"></svg>
+  <div class="controls">
+    <button class="btn" id="ngPrev">◀ Back</button>
+    <button class="btn primary" id="ngNext">Next step ▶</button>
+  </div>
+  <div class="work" id="ngWork"></div>
+</div>
+
+<h2>6 · Fractions to a negative power</h2>
+<p>A negative index means "1 over". When the base is already a fraction, 1 over a fraction is the fraction flipped:</p>
+<p class="big">(<span class="fr"><span>a</span><span>b</span></span>)<sup class="K">−n</sup> = (<span class="fr"><span>b</span><span>a</span></span>)<sup>n</sup></p>
+<p>Why: (<span class="fr"><span>2</span><span>3</span></span>)<sup>−2</sup> = 1 ÷ (<span class="fr"><span>2</span><span>3</span></span>)² = 1 ÷ <span class="fr"><span>4</span><span>9</span></span> = <span class="fr"><span>9</span><span>4</span></span>, which is (<span class="fr"><span>3</span><span>2</span></span>)². So flip first and the minus sign disappears. With a fractional index (Higher), root the top and bottom separately after flipping.</p>
+
+<div class="lab">
+  <div class="chips" id="fbChips"></div>
+  <svg id="fbSvg" viewBox="0 0 420 170" width="420" height="170" aria-label="A fraction flipping"></svg>
+  <div class="controls">
+    <button class="btn" id="fbPrev">◀ Back</button>
+    <button class="btn primary" id="fbNext">Next step ▶</button>
+  </div>
+  <div class="work" id="fbWork"></div>
+  <p class="chip-note">Expressions marked H have fractional indices: Higher tier.</p>
+</div>
+
+<h2>7 · Solving index equations</h2>
+<p>To solve an equation like <span class="m">2<sup>x</sup> = <span class="fr"><span>1</span><span>8</span></span></span>, write <strong>both sides as powers of the same base</strong>. Then the indices must be equal. Here 8 = 2<sup>3</sup>, so <span class="fr"><span>1</span><span>8</span></span> = 2<sup>−3</sup>, and 2<sup>x</sup> = 2<sup>−3</sup> gives x = −3.</p>
+<p>The number line below is in "index space": each tick is one more factor of the common base. The left-hand side jumps along in steps of its base's power; x counts how many jumps it takes to land on the right-hand side. (Higher questions need a fraction of a jump: 4<sup>x</sup> = 8 means 2<sup>2x</sup> = 2<sup>3</sup>, so 2x = 3 and x = <span class="fr"><span>3</span><span>2</span></span>.)</p>
+
+<div class="lab">
+  <p class="pq" id="eqQ"></p>
+  <svg id="eqSvg" viewBox="0 0 420 170" width="420" height="170" aria-label="Index number line with jumps"></svg>
+  <div class="controls">
+    <label>x = <input type="number" id="eqP" style="width:4.2em" aria-label="numerator"> / <input type="number" id="eqQd" style="width:4.2em" value="1" aria-label="denominator"></label>
+    <button class="btn primary" id="eqGo">Check</button>
+    <button class="btn" id="eqHint">Show the jumps</button>
+    <button class="btn" id="eqNew">New equation</button>
+  </div>
+  <div class="msg" id="eqMsg"></div>
+</div>
+
+<h2>8 · Practice</h2>
+<p>Evaluate each expression exactly. Type the answer as a fraction, top box over bottom box; for a whole number, leave the bottom as 1. Questions marked (Higher) use fractional indices.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>question type <select id="prType">
+      <option value="mix">mixed</option><option value="neg">negative indices</option><option value="fneg">fractions to a negative power</option><option value="unit">fractional index 1/n (Higher)</option><option value="mn">fractional index m/n (Higher)</option><option value="nmn">negative fractional index (Higher)</option>
+    </select></label>
+  </div>
+  <p class="pq" id="prQ"></p>
+  <div class="controls">
+    <label>answer <input type="number" id="prP" style="width:5em" aria-label="numerator"> / <input type="number" id="prD" style="width:5em" value="1" aria-label="denominator"></label>
+    <button class="btn primary" id="prGo">Check</button>
+    <button class="btn" id="prShow">Show working</button>
+    <button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+  <div class="msg" id="prScore"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Evaluate 5<sup>−2</sup></summary>
+  <div class="step"><strong>Negative index means reciprocal:</strong> 5<sup>−2</sup> = <span class="fr"><span>1</span><span>5²</span></span>.</div>
+  <div class="step"><strong>Work out the power:</strong> 5² = 25, so 5<sup>−2</sup> = <strong><span class="fr"><span>1</span><span>25</span></span></strong> (= 0.04).</div>
+  <div class="step"><strong>Not</strong> −25 and not −10: the answer is positive and small.</div>
+</details>
+<details>
+  <summary>Evaluate 16<sup>3/4</sup> <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Denominator 4 means fourth root:</strong> ⁴√16 = 2, because 2 × 2 × 2 × 2 = 16.</div>
+  <div class="step"><strong>Numerator 3 means cube it:</strong> 2³ = 8.</div>
+  <div class="step"><strong>Answer:</strong> 16<sup>3/4</sup> = <strong>8</strong>. (Power first would need ⁴√(16³) = ⁴√4096, the same 8 but much harder.)</div>
+</details>
+<details>
+  <summary>Evaluate 27<sup>−2/3</sup> <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Flip (the minus sign):</strong> 27<sup>−2/3</sup> = <span class="fr"><span>1</span><span>27<sup>2/3</sup></span></span>.</div>
+  <div class="step"><strong>Root (the 3):</strong> ∛27 = 3.</div>
+  <div class="step"><strong>Power (the 2):</strong> 3² = 9.</div>
+  <div class="step"><strong>Answer:</strong> <strong><span class="fr"><span>1</span><span>9</span></span></strong>.</div>
+</details>
+<details>
+  <summary>Evaluate (<span class="fr"><span>4</span><span>9</span></span>)<sup>−3/2</sup> <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Flip the fraction to remove the minus:</strong> (<span class="fr"><span>9</span><span>4</span></span>)<sup>3/2</sup>.</div>
+  <div class="step"><strong>Square root top and bottom:</strong> √9 = 3 and √4 = 2, giving <span class="fr"><span>3</span><span>2</span></span>.</div>
+  <div class="step"><strong>Cube top and bottom:</strong> 3³ = 27 and 2³ = 8.</div>
+  <div class="step"><strong>Answer:</strong> <strong><span class="fr"><span>27</span><span>8</span></span></strong> (or 3<span class="fr"><span>3</span><span>8</span></span> as a mixed number).</div>
+</details>
+<details>
+  <summary>Solve 2<sup>x</sup> = <span class="fr"><span>1</span><span>32</span></span></summary>
+  <div class="step"><strong>Write 32 as a power of 2:</strong> 32 = 2<sup>5</sup>.</div>
+  <div class="step"><strong>One over it is a negative power:</strong> <span class="fr"><span>1</span><span>32</span></span> = 2<sup>−5</sup>.</div>
+  <div class="step"><strong>Compare indices:</strong> 2<sup>x</sup> = 2<sup>−5</sup>, so <strong>x = −5</strong>.</div>
+</details>
+<details>
+  <summary>Solve 4<sup>x</sup> = <span class="fr"><span>1</span><span>8</span></span> <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Common base 2:</strong> 4 = 2², so 4<sup>x</sup> = (2²)<sup>x</sup> = 2<sup>2x</sup>. And <span class="fr"><span>1</span><span>8</span></span> = 2<sup>−3</sup>.</div>
+  <div class="step"><strong>Compare indices:</strong> 2x = −3, so <strong>x = −<span class="fr"><span>3</span><span>2</span></span></strong>.</div>
+  <div class="step"><strong>Check:</strong> 4<sup>−3/2</sup> = <span class="fr"><span>1</span><span>(√4)³</span></span> = <span class="fr"><span>1</span><span>2³</span></span> = <span class="fr"><span>1</span><span>8</span></span> ✓</div>
+</details>
+<details>
+  <summary>Exam-style: write <span class="fr"><span>1</span><span>x√x</span></span> in the form x<sup>k</sup> <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Write the root as a power:</strong> √x = x<sup>1/2</sup>, so x√x = x<sup>1</sup> × x<sup>1/2</sup> = x<sup>3/2</sup>.</div>
+  <div class="step"><strong>One over means a negative index:</strong> <span class="fr"><span>1</span><span>x<sup>3/2</sup></span></span> = x<sup>−3/2</sup>.</div>
+  <div class="step"><strong>Answer:</strong> <strong>k = −<span class="fr"><span>3</span><span>2</span></span></strong>.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>The index laws come from counting factors, and they decide what every other index must mean.</li>
+  <li><strong>a<sup>0</sup> = 1</strong> (for any a ≠ 0), from the halving pattern or from a<sup>n</sup> ÷ a<sup>n</sup>.</li>
+  <li><strong>a<sup>−n</sup> = 1/a<sup>n</sup></strong>: a negative index means the reciprocal, not a negative answer.</li>
+  <li><strong>a<sup>1/n</sup> = ⁿ√a</strong>, because n copies of a<sup>1/n</sup> multiply to a<sup>1</sup>. (Higher)</li>
+  <li><strong>a<sup>m/n</sup> = (ⁿ√a)<sup>m</sup></strong>: the denominator roots, the numerator powers. Root first to keep the numbers small. (Higher)</li>
+  <li><strong>a<sup>−m/n</sup></strong>: flip, root, power. (Higher)</li>
+  <li><strong>(a/b)<sup>−n</sup> = (b/a)<sup>n</sup></strong>: flip the fraction and the minus sign goes.</li>
+  <li>To solve <strong>index equations</strong>, write both sides as powers of the same base and set the indices equal.</li>
+</ul>
+
+<footer>Made for GCSE students. Calculating with roots, integer indices and (Higher tier) fractional indices is in the DfE GCSE mathematics subject content under Number. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE mathematics subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const F = () => `font-family="${css('--mono')}"`;
+const neg = s => String(s).replace(/-/g,'−');
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const big = n => { const s=String(n); return Math.abs(n)<10000 ? s : s.replace(/\B(?=(\d{3})+(?!\d))/g,'\u00A0'); };
+const iroot = (a,n) => { const r=Math.round(Math.pow(a,1/n)); return Math.pow(r,n)===a ? r : null; };
+const T = (x,y,txt,col,size=13,anchor='middle',weight=400) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" ${F()} fill="${col}">${txt}</text>`;
+const sp = (e,col) => `<tspan dy="-.45em" font-size="70%"${col?` fill="${col}"`:''}>${neg(e)}</tspan><tspan dy=".315em">&#8203;</tspan>`;
+const fr = (t,b) => `<span class="fr"><span>${t}</span><span>${b}</span></span>`;
+const frS = (p,q) => q===1 ? neg(p) : (p<0?'−':'')+fr(Math.abs(p),q);   // HTML fraction
+const frT = (p,q) => q===1 ? neg(p) : neg(p)+'/'+q;                        // plain text fraction
+const red = (p,q) => { if(q<0){p=-p;q=-q;} const g=gcd(p,q)||1; return [p/g,q/g]; };
+const supH = e => `<sup>${neg(e)}</sup>`;
+
+/* 1. index laws with chips */
+const lwL=$('lwL'), lwM=$('lwM'), lwN=$('lwN');
+function drawLW(){
+  const law=lwL.value, m=+lwM.value, n=+lwN.value, ac=css('--accent'), hi=css('--hi'), mu=css('--muted'), fg=css('--fg');
+  $('lwMv').textContent=' '+m; $('lwNv').textContent=' '+n;
+  const chip=(x,y,c)=>`<circle cx="${x}" cy="${y}" r="13" fill="${c}" fill-opacity=".18" stroke="${c}" stroke-width="1.5"/>`+T(x,y+5,'a',c,14,'middle',600);
+  let s='', w='';
+  if(law==='mul'){
+    const gap=30, tot=m+n, x0=210-((tot-1)*gap+30)/2;
+    for(let i=0;i<m;i++) s+=chip(x0+i*gap,90,ac);
+    s+=T(x0+(m-1)*gap+30,95,'×',mu,16,'middle',600);
+    for(let j=0;j<n;j++) s+=chip(x0+(m+j)*gap+30,90,hi);
+    s+=T(x0+((m-1)*gap)/2,55,'a',ac,18,'middle',700).replace('>a<','>a'+sp(m)+'<');
+    s+=T(x0+m*gap+30+((n-1)*gap)/2,55,'a',hi,18,'middle',700).replace('>a<','>a'+sp(n)+'<');
+    s+=T(210,160,'a',fg,20,'middle',700).replace('>a<','>a'+sp(m+n)+'<');
+    s+=T(210,190,`${m} + ${n} = ${m+n} copies of a, all multiplied`,mu,12);
+    w=`a${supH(m)} × a${supH(n)} = (${Array(m).fill('a').join(' × ')}) × (${Array(n).fill('a').join(' × ')}) = a${supH(m+n)}<br><span class="dim">Multiplying powers of the same base: add the indices.</span>`;
+  } else {
+    const gap=28;
+    for(let r=0;r<n;r++){ const y=24+r*34, x0=60;
+      s+=T(x0-14,y+5,'(',mu,20,'end')+T(x0+(m-1)*gap+20,y+5,')',mu,20,'start');
+      for(let i=0;i<m;i++) s+=chip(x0+i*gap,y,r%2?hi:ac);
+      s+=T(x0+(m-1)*gap+40,y+5,`= a${sp(m)}`,r%2?hi:ac,13,'start');
+    }
+    s+=T(340,100,`${m} × ${n} = ${m*n} factors`,mu,12)+T(340,130,'a',fg,20,'middle',700).replace('>a<','>a'+sp(m*n)+'<');
+    w=`(a${supH(m)})${supH(n)} = ${n} lots of a${supH(m)} multiplied = a${supH(m)} × … (${n} times) = a${supH(m*n)}<br><span class="dim">${n} groups of ${m} factors = ${m*n} factors: multiply the indices.</span>`;
+  }
+  $('lwSvg').innerHTML=s; $('lwWork').innerHTML=w;
+}
+[lwL,lwM,lwN].forEach(e=>e.addEventListener('input',drawLW)); drawLW();
+
+/* 2a. halving staircase */
+const hpB=$('hpB'), hpS=$('hpS');
+function drawHP(){
+  const b=+hpB.value, st=+hpS.value, ac=css('--accent'), tw=css('--two'), mu=css('--muted'), fg=css('--fg'), ln=css('--line');
+  let s='';
+  for(let i=0;i<7;i++){
+    const k=3-i, x=8+i*59, on=i<=st, cur=i===st, col=k<0?tw:k===0?fg:ac;
+    s+=`<rect x="${x}" y="40" width="51" height="70" rx="6" fill="${cur?col:'none'}" fill-opacity="${cur?.14:0}" stroke="${on?col:ln}" stroke-width="${cur?2.5:1.2}" ${on?'':'stroke-dasharray="4 3"'}/>`;
+    s+=T(x+25.5,66,`${b}${sp(k,k<0?tw:null)}`,on?fg:mu,15,'middle',600);
+    const val = k>=0 ? String(Math.pow(b,k)) : '1/'+Math.pow(b,-k);
+    s+=T(x+25.5,96,on?big(Math.pow(b,Math.abs(k))).replace(/^/,k<0?'1/':'') :'?',on?col:mu,val.length>5?10:12,'middle',600);
+    if(i<6){ s+=T(x+55,30,`÷${b}`,i<st?css('--hi'):ln,10,'middle',600); }
+  }
+  s+=T(210,135,'index goes down by 1 each step →',mu,11);
+  $('hpSvg').innerHTML=s;
+  const k=3-st, M=$('hpMsg');
+  M.innerHTML = k>0 ? `${b}<sup>${k}</sup> = ${big(Math.pow(b,k))}. Slide right to keep dividing by ${b}.` : k===0 ? `${b}<sup>1</sup> ÷ ${b} = 1, so <strong>${b}<sup>0</sup> = 1</strong>. Not 0!` : `${b}<sup>${neg(k)}</sup> = 1 ÷ ${b} ÷ … = ${fr(1,big(Math.pow(b,-k)))} = ${fr(1,b+'<sup>'+(-k)+'</sup>')}: <span class="K">a negative index means one over the positive power.</span>`;
+}
+[hpB,hpS].forEach(e=>e.addEventListener('input',drawHP)); drawHP();
+
+/* 2b. cancelling factors */
+const dvM=$('dvM'), dvN=$('dvN');
+function drawDV(){
+  const m=+dvM.value, n=+dvN.value, ac=css('--accent'), tw=css('--two'), mu=css('--muted'), fg=css('--fg');
+  $('dvMv').textContent=' '+m; $('dvNv').textContent=' '+n;
+  const gap=32, c=Math.min(m,n);
+  const row=(cnt,y)=>{ let s=''; const x0=200-((Math.max(cnt,1)-1)*gap)/2; if(cnt===0) return T(200,y+5,'1',fg,16,'middle',600);
+    for(let i=0;i<cnt;i++){ const x=x0+i*gap, gone=i<c; s+=`<circle cx="${x}" cy="${y}" r="13" fill="${gone?tw:ac}" fill-opacity="${gone?.08:.18}" stroke="${gone?tw:ac}" stroke-width="1.5"/>`+T(x,y+5,'a',gone?tw:ac,14,'middle',600); if(gone) s+=`<line x1="${x-12}" y1="${y+12}" x2="${x+12}" y2="${y-12}" stroke="${tw}" stroke-width="2.5"/>`; }
+    return s; };
+  let s=row(m,40)+`<line x1="40" y1="72" x2="360" y2="72" stroke="${fg}" stroke-width="2"/>`+row(n,104);
+  const d=m-n;
+  s+=T(210,150,`cancel ${c} pair${c===1?'':'s'}: ${c} factor${c===1?'':'s'} of a gone from top and bottom`,tw,12);
+  s+=T(210,176,d>0?`left: a${sp(d)} on top`:d===0?'left: 1 (everything cancels)':`left: 1 over a${sp(-d)}`,fg,14,'middle',700);
+  $('dvSvg').innerHTML=s;
+  const law=`a${supH(m)} ÷ a${supH(n)} = a${supH(m+'−'+n)} = a${supH(d)}`;
+  $('dvWork').innerHTML = `by the law: ${law}<br>by cancelling: ${d>0?'a'+supH(d):d===0?'1':fr(1,'a'+supH(-d))}<br>${d<0?`<span class="c">so a${supH(d)} = ${fr(1,'a'+supH(-d))}</span>`:d===0?'<span class="c">so a<sup>0</sup> = 1</span>':'<span class="dim">both agree; make the bottom bigger to get a negative index</span>'}`;
+}
+[dvM,dvN].forEach(e=>e.addEventListener('input',drawDV)); drawDV();
+
+/* 3. a^(1/n) as a root */
+const RT={2:[4,9,16,25,36,49,64,81,100],3:[8,27,64,125,1000],4:[16,81,625],5:[32,243]};
+const rtN=$('rtN'), rtA=$('rtA'); let rtShow=false;
+function fillRT(){ const n=+rtN.value; rtA.innerHTML=RT[n].map(a=>`<option>${a}</option>`).join(''); }
+function drawRT(){
+  const n=+rtN.value, a=+rtA.value, r=iroot(a,n), ac=css('--accent'), hi=css('--hi'), mu=css('--muted'), fg=css('--fg');
+  const lab = rtShow ? String(r) : '?';
+  const unit = `${a}${sp('1/'+n)}`;
+  let s='';
+  // chain: n boxes multiplied
+  const bw=60, gap=22, tot=n*bw+(n-1)*gap, x0=210-tot/2;
+  for(let i=0;i<n;i++){ const x=x0+i*(bw+gap); s+=`<rect x="${x}" y="12" width="${bw}" height="34" rx="5" fill="${ac}" fill-opacity=".12" stroke="${ac}"/>`+T(x+bw/2,34,rtShow?lab:unit,ac,rtShow?15:12,'middle',600); if(i<n-1) s+=T(x+bw+gap/2,34,'×',mu,14); }
+  s+=T(210,68,`= ${a}${sp(n+' × 1/'+n)} = ${a}${sp(1)} = ${a}`,fg,13,'middle',600);
+  if(n===2){ const side=120, X=210-side/2, Y=90;
+    s+=`<rect x="${X}" y="${Y}" width="${side}" height="${side}" fill="${hi}" fill-opacity=".14" stroke="${hi}" stroke-width="2"/>`+T(210,Y+side/2+5,`area ${a}`,hi,13,'middle',600);
+    s+=`<line x1="${X}" y1="${Y+side+10}" x2="${X+side}" y2="${Y+side+10}" stroke="${ac}" stroke-width="3"/>`+T(210,Y+side+28,`side = ${lab}`,ac,13,'middle',700);
+  } else if(n===3){ const e=80, dx=e*.45, dy=e*.35, X=210-(e+dx)/2, Y=100+dy;
+    const p=(x,y)=>`${x},${y}`;
+    s+=`<polygon points="${p(X,Y)} ${p(X+e,Y)} ${p(X+e,Y+e)} ${p(X,Y+e)}" fill="${hi}" fill-opacity=".16" stroke="${hi}" stroke-width="2"/>`;
+    s+=`<polygon points="${p(X,Y)} ${p(X+dx,Y-dy)} ${p(X+e+dx,Y-dy)} ${p(X+e,Y)}" fill="${hi}" fill-opacity=".08" stroke="${hi}" stroke-width="2"/>`;
+    s+=`<polygon points="${p(X+e,Y)} ${p(X+e+dx,Y-dy)} ${p(X+e+dx,Y+e-dy)} ${p(X+e,Y+e)}" fill="${hi}" fill-opacity=".24" stroke="${hi}" stroke-width="2"/>`;
+    s+=T(X+e/2,Y+e/2+5,`volume ${a}`,hi,12,'middle',600)+`<line x1="${X}" y1="${Y+e+10}" x2="${X+e}" y2="${Y+e+10}" stroke="${ac}" stroke-width="3"/>`+T(X+e/2,Y+e+28,`edge = ${lab}`,ac,13,'middle',700);
+  } else { s+=T(210,140,rtShow?`${Array(n).fill(r).join(' × ')} = ${a}`:`which number, used ${n} times, multiplies to ${a}?`,hi,14,'middle',600); }
+  $('rtSvg').innerHTML=s;
+  const name = n===2?'square root':n===3?'cube root':n===4?'fourth root':'fifth root';
+  $('rtWork').innerHTML = rtShow ? `${a}<sup>1/${n}</sup> = ${n===2?'':'<sup>'+n+'</sup>'}√${a} = <span class="a">${r}</span>, the ${name}, because ${Array(n).fill(r).join(' × ')} = ${a}` : `${n} copies of ${a}<sup>1/${n}</sup> multiply to ${a}<sup>1</sup>. Press Reveal.`;
+  $('rtGo').textContent = rtShow ? 'Hide' : 'Reveal';
+}
+rtN.addEventListener('input',()=>{ fillRT(); rtShow=false; drawRT(); });
+rtA.addEventListener('input',()=>{ rtShow=false; drawRT(); });
+$('rtGo').addEventListener('click',()=>{ rtShow=!rtShow; drawRT(); });
+fillRT(); drawRT();
+
+/* 4. a^(m/n): two routes */
+const MN=[[8,3],[27,3],[64,3],[125,3],[16,4],[81,4],[32,5],[4,2],[9,2],[25,2],[49,2],[100,2]];
+const mnA=$('mnA'), mnM=$('mnM');
+mnA.innerHTML=MN.map(([a,n],i)=>`<option value="${i}">${a}, n = ${n}</option>`).join('');
+function drawMN(){
+  const [a,n]=MN[+mnA.value], m=+mnM.value, r=iroot(a,n), ac=css('--accent'), hi=css('--hi'), mu=css('--muted'), fg=css('--fg');
+  $('mnMv').textContent=' '+m;
+  const ans=Math.pow(r,m), am=Math.pow(a,m);
+  const rootSym = {2:'√',3:'∛',4:'∜',5:'⁵√'}[n];
+  const box=(x,y,txt,col)=>{ const w=Math.max(44,txt.length*8.2+16); return {w, s:`<rect x="${x}" y="${y}" width="${w}" height="34" rx="6" fill="${col}" fill-opacity=".12" stroke="${col}" stroke-width="1.5"/>`+T(x+w/2,y+22,txt,col,13,'middle',600)}; };
+  const arrow=(x,y,len,lbl,col)=>`<line x1="${x+4}" y1="${y+17}" x2="${x+len-6}" y2="${y+17}" stroke="${col}" stroke-width="2"/><path d="M${x+len-6},${y+12} l6,5 l-6,5" fill="${col}"/>`+T(x+len/2,y+8,lbl,col,11,'middle',600);
+  const route=(y,mid,midCol,l1,c1,l2,c2,title,tcol)=>{ let s=T(8,y-10,title,tcol,12,'start',700), x=8; const b1=box(x,y,String(a),fg); s+=b1.s; x+=b1.w; s+=arrow(x,y,58,l1,c1); x+=58; const b2=box(x,y,mid,midCol); s+=b2.s; x+=b2.w; s+=arrow(x,y,58,l2,c2); x+=58; const b3=box(x,y,big(ans),css('--good')); s+=b3.s; return s; };
+  let s = route(40, String(r), ac, rootSym, ac, 'power '+m, hi, 'Root first', ac);
+  s += route(130, big(am), hi, 'power '+m, hi, rootSym, ac, 'Power first', hi);
+  $('mnSvg').innerHTML=s;
+  $('mnWork').innerHTML = `${a}<sup><span class="b">${m}</span>/<span class="a">${n}</span></sup> = (<span class="a">${rootSym}</span>${a})<sup class="b">${m}</sup> = <span class="a">${r}</span><sup class="b">${m}</sup> = <strong>${big(ans)}</strong><br><span class="dim">Root first, the biggest number you meet is ${big(Math.max(a,ans))}. Power first, it's ${big(am)}.</span>${m%n===0?`<br><span class="dim">Here m/n = ${m/n} is a whole number, so ${a}<sup>${m}/${n}</sup> = ${a}<sup>${m/n}</sup>.</span>`:''}`;
+}
+[mnA,mnM].forEach(e=>e.addEventListener('input',drawMN)); drawMN();
+
+/* 5. flip-root-power machine */
+const NG=[[8,2,3],[16,3,4],[25,3,2],[27,4,3],[4,5,2],[32,2,5],[9,1,2],[1000,2,3]];
+let ngI=0, ngStep=0;
+function ngChips(){ $('ngChips').innerHTML=NG.map(([a,m,n],i)=>`<button class="btn${i===ngI?' on':''}" data-i="${i}">${a}<sup>−${m}/${n}</sup></button>`).join(''); $('ngChips').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ ngI=+b.dataset.i; ngStep=0; ngChips(); drawNG(); })); }
+function drawNG(){
+  const [a,m,n]=NG[ngI], r=iroot(a,n), v=Math.pow(r,m), ac=css('--accent'), hi=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg'), ln=css('--line');
+  const rows=[
+    {act:'start', col:fg, txt:`${a}${sp('−'+m+'/'+n)}`},
+    {act:'flip (the −)', col:tw, txt:`1 / ${a}${sp(m+'/'+n)}`},
+    {act:`root (the ${n})`, col:ac, txt:`1 / ${r}${sp(m)}`},
+    {act:`power (the ${m})`, col:hi, txt:`1/${big(v)}`}
+  ];
+  let s='';
+  rows.forEach((R,i)=>{ const y=10+i*60, on=i<=ngStep;
+    s+=`<rect x="150" y="${y}" width="200" height="40" rx="7" fill="${on?R.col:'none'}" fill-opacity="${on?.12:0}" stroke="${on?R.col:ln}" stroke-width="${i===ngStep?2.5:1.2}" ${on?'':'stroke-dasharray="4 3"'}/>`;
+    s+=T(250,y+26,on?R.txt:'?',on?R.col:mu,16,'middle',700);
+    s+=T(138,y+26,R.act,on?R.col:mu,12,'end',600);
+    if(i<3) s+=`<line x1="250" y1="${y+42}" x2="250" y2="${y+56}" stroke="${i<ngStep?rows[i+1].col:ln}" stroke-width="2"/><path d="M245,${y+52} l5,6 l5,-6" fill="${i<ngStep?rows[i+1].col:ln}"/>`;
+  });
+  $('ngSvg').innerHTML=s;
+  const lines=[`${a}<sup>−${m}/${n}</sup>`,`<span class="c">flip:</span> = ${fr(1,a+'<sup>'+m+'/'+n+'</sup>')}`,`<span class="a">root:</span> ${n===2?'√':'<sup>'+n+'</sup>√'}${a} = ${r}, so = ${fr(1,r+'<sup>'+m+'</sup>')}`,`<span class="b">power:</span> ${r}<sup>${m}</sup> = ${big(v)}, so the answer is <strong>${fr(1,big(v))}</strong>`];
+  $('ngWork').innerHTML=lines.slice(0,ngStep+1).map(x=>`<div>${x}</div>`).join('');
+  $('ngPrev').disabled=ngStep===0; $('ngNext').disabled=ngStep===3;
+}
+$('ngPrev').addEventListener('click',()=>{ if(ngStep>0){ngStep--;drawNG();} });
+$('ngNext').addEventListener('click',()=>{ if(ngStep<3){ngStep++;drawNG();} });
+ngChips(); drawNG();
+
+/* 6. fractions to a negative power */
+const FB=[[2,3,2,1],[1,2,3,1],[3,4,1,1],[2,5,2,1],[4,9,1,2],[27,8,2,3],[16,81,3,4]]; // (p/q)^(-m/n)
+let fbI=0, fbStep=0;
+const idxT=(m,n)=> n===1?String(m):m+'/'+n;
+function fbChips(){ $('fbChips').innerHTML=FB.map(([p,q,m,n],i)=>`<button class="btn${i===fbI?' on':''}" data-i="${i}">(${p}/${q})<sup>−${idxT(m,n)}</sup>${n>1?' H':''}</button>`).join(''); $('fbChips').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ fbI=+b.dataset.i; fbStep=0; fbChips(); drawFB(); })); }
+function drawFB(){
+  const [p,q,m,n]=FB[fbI], rp=iroot(p,n), rq=iroot(q,n), P=Math.pow(rq,m), Q=Math.pow(rp,m);
+  const ac=css('--accent'), hi=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg');
+  const fracSvg=(x,top,bot,col,exp,ecol)=>{ const w=Math.max(String(top).length,String(bot).length)*11+14; return `<text x="${x}" y="70" text-anchor="middle" font-size="18" font-weight="700" ${F()} fill="${col}">${top}</text><line x1="${x-w/2}" y1="80" x2="${x+w/2}" y2="80" stroke="${col}" stroke-width="2"/><text x="${x}" y="102" text-anchor="middle" font-size="18" font-weight="700" ${F()} fill="${col}">${bot}</text>`+(exp?`<text x="${x+w/2+4}" y="60" font-size="14" font-weight="700" ${F()} fill="${ecol}">${neg(exp)}</text>`:'')+`<text x="${x-w/2-8}" y="90" text-anchor="end" font-size="34" ${F()} fill="${mu}">(</text><text x="${x+w/2+2}" y="90" font-size="34" ${F()} fill="${mu}">)</text>`; };
+  let s=fracSvg(70,p,q,fg,'−'+idxT(m,n),tw);
+  if(fbStep>=1){ s+=`<path d="M100,62 C150,20 190,20 236,62" fill="none" stroke="${tw}" stroke-width="2"/><path d="M230,58 l7,5 l-2,-8z" fill="${tw}"/>`+T(168,24,'flip: the minus goes',tw,11,'middle',600); s+=fracSvg(270,q,p,tw,idxT(m,n),hi); }
+  if(fbStep>=2){ s+=T(330,90,'=',mu,20,'middle',700)+`<text x="385" y="70" text-anchor="middle" font-size="18" font-weight="700" ${F()} fill="${css('--good')}">${P}</text><line x1="${385-Math.max(String(P).length,String(Q).length)*6-6}" y1="80" x2="${385+Math.max(String(P).length,String(Q).length)*6+6}" y2="80" stroke="${css('--good')}" stroke-width="2"/><text x="385" y="102" text-anchor="middle" font-size="18" font-weight="700" ${F()} fill="${css('--good')}">${Q}</text>`; }
+  s+=T(210,150,fbStep===0?'step through: flip, then apply the positive index':fbStep===1?(n>1?`now root top and bottom (${n===2?'√':n+'√'}), then power ${m}`:`now raise top and bottom to the power ${m}`):`top and bottom each ${n>1?'rooted then ':''}raised to the power ${m}`,mu,12);
+  $('fbSvg').innerHTML=s;
+  const L=[`(${fr(p,q)})<sup>−${idxT(m,n)}</sup>`,`<span class="c">flip:</span> = (${fr(q,p)})<sup>${idxT(m,n)}</sup>`];
+  if(n>1) L.push(`<span class="a">root:</span> ${n===2?'√':'<sup>'+n+'</sup>√'}${q} = ${rq}, ${n===2?'√':'<sup>'+n+'</sup>√'}${p} = ${rp}, giving ${fr(rq,rp)}; <span class="b">power:</span> (${fr(rq,rp)})<sup>${m}</sup> = <strong>${frS(P,Q)}</strong>`);
+  else L.push(`<span class="b">power:</span> ${m===1?'(nothing to do)':`${q}<sup>${m}</sup> = ${P} and ${p}<sup>${m}</sup> = ${Q}`} so the answer is <strong>${frS(P,Q)}</strong>`);
+  $('fbWork').innerHTML=L.slice(0,fbStep+1).map(x=>`<div>${x}</div>`).join('');
+  $('fbPrev').disabled=fbStep===0; $('fbNext').disabled=fbStep===2;
+}
+$('fbPrev').addEventListener('click',()=>{ if(fbStep>0){fbStep--;drawFB();} });
+$('fbNext').addEventListener('click',()=>{ if(fbStep<2){fbStep++;drawFB();} });
+fbChips(); drawFB();
+
+/* 7. solving index equations on an index number line */
+// c = common base, s = power of c in the left base, t = power of c on the right
+const EQ=[[2,1,3],[2,1,-3],[3,1,-2],[5,1,-3],[10,1,-3],[2,1,0],[3,1,-1],[2,1,-5],[2,2,3],[2,3,2],[3,2,-3],[3,3,2],[2,2,-5],[2,4,3],[5,2,-3],[2,3,-1],[2,2,1]];
+let EQc=null, eqHint=false;
+const rhsHtml=(c,t)=> t>=0 ? big(Math.pow(c,t)) : (c===10?'0.'+'0'.repeat(-t-1)+'1':fr(1,big(Math.pow(c,-t))));
+function eqNew(){ let e; do{ e=pick(EQ); }while(EQc && e===EQc); EQc=e; eqHint=false; const [c,s,t]=e;
+  $('eqQ').innerHTML=`Solve ${Math.pow(c,s)}<sup>x</sup> = ${rhsHtml(c,t)}${s>1?' <span class="tag g">Higher</span>':''}`;
+  $('eqP').value=''; $('eqQd').value='1'; $('eqMsg').textContent=''; $('eqMsg').className='msg'; drawEQ(); }
+function drawEQ(){
+  if(!EQc) return; const [c,s,t]=EQc, ac=css('--accent'), hi=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg');
+  const X=k=>210+k*30, y0=100; let g=`<line x1="${X(-6.5)}" y1="${y0}" x2="${X(6.5)}" y2="${y0}" stroke="${mu}" stroke-width="1.5"/>`;
+  for(let k=-6;k<=6;k++){ g+=`<line x1="${X(k)}" y1="${y0-5}" x2="${X(k)}" y2="${y0+5}" stroke="${mu}"/>`+T(X(k),y0+22,`${c}${sp(k)}`,k===t?hi:mu,11,'middle',k===t?700:400); }
+  g+=`<circle cx="${X(0)}" cy="${y0}" r="5" fill="${fg}"/>`+T(X(0),y0+37,'= 1',mu,10);
+  g+=`<circle cx="${X(t)}" cy="${y0}" r="7" fill="${hi}"/>`+T(Math.min(Math.max(X(t),50),370),y0-50,`target ${c}${sp(t)}`,hi,12,'middle',700);
+  g+=s===1?T(210,20,`${c}${sp('x')}: each jump is one factor of ${c}`,ac,13,'middle',600):T(210,20,`${Math.pow(c,s)} = ${c}${sp(s)}, so ${Math.pow(c,s)}${sp('x')} = ${c}${sp(s+'x')}: each jump is ${s} factors of ${c}`,ac,12,'middle',600);
+  if(eqHint){ const x=t/s, dir=Math.sign(t)||1; let pos=0; const full=Math.floor(Math.abs(x)+1e-9);
+    for(let j=0;j<full;j++){ const a0=X(pos), a1=X(pos+dir*s); g+=`<path d="M${a0},${y0-6} Q${(a0+a1)/2},${y0-40} ${a1},${y0-6}" fill="none" stroke="${ac}" stroke-width="2"/>`; pos+=dir*s; }
+    const rem=t-pos; if(Math.abs(rem)>1e-9){ const a0=X(pos), a1=X(t); g+=`<path d="M${a0},${y0-6} Q${(a0+a1)/2},${y0-30} ${a1},${y0-6}" fill="none" stroke="${tw}" stroke-width="2" stroke-dasharray="4 3"/>`; }
+    const [P,Q]=red(t,s);
+    g+=T(210,162,t===0?'no jumps needed: x = 0':`jumps of ${s} to reach ${neg(t)}: x = ${neg(t)} ÷ ${s} = ${frT(P,Q)}`,ac,12,'middle',600); }
+  $('eqSvg').innerHTML=g;
+}
+$('eqGo').addEventListener('click',()=>{
+  if(!EQc) return; const [c,s,t]=EQc, p=parseInt($('eqP').value), q=parseInt($('eqQd').value), M=$('eqMsg');
+  if(isNaN(p)||isNaN(q)||q===0){ M.className='msg bad'; M.textContent='Type x as a fraction: top box over bottom box (bottom 1 for a whole number).'; return; }
+  const [P,Q]=red(t,s), [u,v]=red(p,q);
+  if(u===P&&v===Q){ M.className='msg good'; M.innerHTML=s===1?`Correct: ${rhsHtml(c,t)} = ${c}${supH(t)}, so x = ${neg(t)}.`:`Correct: ${Math.pow(c,s)} = ${c}${supH(s)}, so ${c}${supH(s+'x')} = ${c}${supH(t)}, giving ${s}x = ${neg(t)} and x = ${frT(P,Q)}.`; return; }
+  M.className='msg bad';
+  if(u===-P&&v===Q && t!==0) M.innerHTML=`Check the sign. ${t<0?'One over a power is a negative index':'The right-hand side is bigger than 1, so x is positive'}.`;
+  else if(s>1 && u===t && v===1) M.innerHTML=`${neg(t)} is the power of ${c}, but the left side is ${Math.pow(c,s)}<sup>x</sup> = ${c}<sup>${s}x</sup>. Solve ${s}x = ${neg(t)}.`;
+  else if(t!==0 && u===Q*Math.sign(P)&&v===Math.abs(P)) M.innerHTML=`Upside down: ${s}x = ${neg(t)} gives x = ${neg(t)} ÷ ${s}, not ${s} ÷ ${neg(t)}.`;
+  else M.innerHTML=`Not quite. Write both sides as powers of ${c}: ${Math.pow(c,s)} = ${c}${supH(s)}, and the right-hand side is ${c}${supH(t)}. Press "Show the jumps".`;
+});
+$('eqHint').addEventListener('click',()=>{ eqHint=true; drawEQ(); });
+$('eqNew').addEventListener('click',eqNew);
+eqNew();
+
+/* 8. practice */
+const UN=[[4,2],[9,2],[16,2],[25,2],[36,2],[49,2],[64,2],[81,2],[100,2],[144,2],[8,3],[27,3],[64,3],[125,3],[1000,3],[16,4],[81,4],[32,5]];
+const GEN={
+  neg:()=>{ const b=pick([2,3,4,5,10]), k=b===10?rnd(1,3):b>=4?rnd(1,3):rnd(1,4), v=Math.pow(b,k);
+    return {q:`${b}<sup>−${k}</sup>`, P:1, Q:v, work:[`negative index: ${b}<sup>−${k}</sup> = 1/${b}<sup>${k}</sup>`,`${b}<sup>${k}</sup> = ${big(v)}`,`answer 1/${big(v)}`],
+      diag:(u,w)=> u===-v&&w===1?'A negative index does not make the answer negative. It means one over.':u===v&&w===1?`Close: that is ${b}<sup>${k}</sup>. The minus sign means flip it: 1/${v}.`:u===-b*k&&w===1?`An index is not a multiplier. ${b}<sup>−${k}</sup> means 1/${b}<sup>${k}</sup>.`:null}; },
+  fneg:()=>{ const pr=pick([[1,2],[2,3],[3,4],[2,5],[3,5],[1,3],[4,5],[5,2],[3,2]]), k=rnd(1,3), [p,q]=pr, P=Math.pow(q,k), Q=Math.pow(p,k);
+    return {q:`(${fr(p,q)})<sup>−${k}</sup>`, P, Q, work:[`flip: (${q}/${p})<sup>${k}</sup>`,`${q}<sup>${k}</sup> = ${P}, ${p}<sup>${k}</sup> = ${Q}`,`answer ${frT(P,Q)}`],
+      diag:(u,w)=> u===Q&&w===P&&(P!==Q)?'You raised the fraction to the power but forgot to flip it. The minus sign means flip.':u===-Q&&w===P?'A negative index means flip the fraction, not make it negative.':null}; },
+  unit:()=>{ const [a,n]=pick(UN), r=iroot(a,n);
+    return {q:`${a}<sup>1/${n}</sup>`, P:r, Q:1, work:[`the denominator ${n} means the ${n===2?'square':n===3?'cube':n===4?'fourth':'fifth'} root`,`${Array(n).fill(r).join(' × ')} = ${a}`,`answer ${r}`],
+      diag:(u,w)=> u*n===a*w?`You divided ${a} by ${n}. A fractional index means a root, not division.`:(w===n&&u===a)?'An index is not a multiplier.':null}; },
+  mn:()=>{ let a,n,m; do{ [a,n]=pick(UN); m=rnd(2,n+1); }while(m%n===0||Math.pow(iroot(a,n),m)>10000); const r=iroot(a,n), v=Math.pow(r,m);
+    return {q:`${a}<sup>${m}/${n}</sup>`, P:v, Q:1, work:[`root: ${n===2?'√':n+'√'}${a} = ${r}`,`power: ${r}<sup>${m}</sup> = ${big(v)}`,`answer ${big(v)}`],
+      diag:(u,w)=> u*n===a*m*w?`An index is not a multiplier: ${a}<sup>${m}/${n}</sup> is not ${a} × ${m}/${n}.`:(iroot(a,m)!==null&&u===Math.pow(iroot(a,m),n)&&w===1)?'Root and power swapped: the denominator is the root, the numerator is the power.':(u===r&&w===1)?`That's only the root. Now raise it to the power ${m}.`:null}; },
+  nmn:()=>{ let a,n,m; do{ [a,n]=pick(UN); m=rnd(1,n+1); }while(m%n===0||Math.pow(iroot(a,n),m)>10000); const r=iroot(a,n), v=Math.pow(r,m);
+    return {q:`${a}<sup>−${m}/${n}</sup>`, P:1, Q:v, work:[`flip: 1/${a}<sup>${m}/${n}</sup>`,`root: ${n===2?'√':n+'√'}${a} = ${r}`,`power: ${r}<sup>${m}</sup> = ${big(v)}`,`answer 1/${big(v)}`],
+      diag:(u,w)=> u===v&&w===1?'You forgot to flip. The minus sign in the index means one over.':u===-v&&w===1?'A negative index does not make the answer negative: flip instead.':(u===-1&&w===v)?'The answer is positive: a negative index means flip, not negative.':null}; }
+};
+let PQ=null, prDone=false, prRight=0, prTried=0;
+function prNew(){ const t=$('prType').value, k=t==='mix'?pick(Object.keys(GEN)):t; PQ=GEN[k](); prDone=false;
+  $('prQ').innerHTML=`Evaluate ${PQ.q}${['unit','mn','nmn'].includes(k)?' <span class="tag g">Higher</span>':''}`; $('prP').value=''; $('prD').value='1'; $('prMsg').textContent=''; $('prMsg').className='msg'; $('prWork').hidden=true; }
+$('prGo').addEventListener('click',()=>{
+  if(!PQ) return; const p=parseInt($('prP').value), q=parseInt($('prD').value), M=$('prMsg');
+  if(isNaN(p)||isNaN(q)||q===0){ M.className='msg bad'; M.textContent='Type the answer as a fraction: top over bottom (bottom 1 for a whole number).'; return; }
+  if(!prDone) prTried++;
+  const [u,w]=red(p,q);
+  if(u===PQ.P&&w===PQ.Q){ M.className='msg good'; M.textContent=`Correct: ${frT(PQ.P,PQ.Q)}.`+(gcd(p,q)>1?' (Simplify your fraction next time.)':''); if(!prDone){prRight++;prDone=true;} }
+  else { M.className='msg bad'; M.innerHTML=PQ.diag(u,w)||'Not quite. Deal with each part of the index in turn, or press "Show working".'; }
+  $('prScore').textContent=`Score: ${prRight} out of ${prTried} questions`;
+});
+$('prShow').addEventListener('click',()=>{ if(!PQ)return; $('prWork').innerHTML=PQ.work.map(x=>`<div>${x}</div>`).join(''); $('prWork').hidden=false; prDone=true; });
+$('prNew').addEventListener('click',prNew); $('prType').addEventListener('change',prNew); prNew();
+
+function redrawAll(){ drawLW(); drawHP(); drawDV(); drawRT(); drawMN(); drawNG(); drawFB(); drawEQ(); }
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll); }
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'3<sup>−2</sup> =',opts:['1/9','−9','−6','9'],a:0,fb:'A negative index means one over: 3<sup>−2</sup> = 1/3² = 1/9.'},
+  {q:'10<sup>0</sup> =',opts:['1','0','10','0.1'],a:0,fb:'Any non-zero number to the power 0 is 1: 10<sup>1</sup> ÷ 10 = 1.'},
+  {q:'25<sup>1/2</sup> =',opts:['5','12.5','625','1/25'],a:0,fb:'A power of 1/2 is the square root: √25 = 5. It is not half of 25.'},
+  {q:'8<sup>1/3</sup> =',opts:['2','8/3','512','1/2'],a:0,fb:'A power of 1/3 is the cube root: 2 × 2 × 2 = 8.'},
+  {q:'16<sup>3/4</sup> =',opts:['8','12','4','64'],a:0,fb:'Root first: ⁴√16 = 2. Then power: 2³ = 8.'},
+  {q:'27<sup>−1/3</sup> =',opts:['1/3','−3','−9','3'],a:0,fb:'Flip: 1/27<sup>1/3</sup>. Cube root: ∛27 = 3. So 1/3. The answer is positive.'},
+  {q:'(2/3)<sup>−2</sup> =',opts:['9/4','4/9','−4/9','−9/4'],a:0,fb:'Flip the fraction: (3/2)² = 9/4.'},
+  {q:'4<sup>−3/2</sup> =',opts:['1/8','−8','8','−1/8'],a:0,fb:'Flip: 1/4<sup>3/2</sup>. Root: √4 = 2. Power: 2³ = 8. So 1/8.'},
+  {q:'Solve 2<sup>x</sup> = 1/16.',opts:['x = −4','x = 4','x = 1/4','x = −1/4'],a:0,fb:'16 = 2<sup>4</sup>, so 1/16 = 2<sup>−4</sup> and x = −4.'},
+  {q:'Write 1/√x as a power of x.',opts:['x<sup>−1/2</sup>','x<sup>1/2</sup>','x<sup>−2</sup>','x<sup>2</sup>'],a:0,fb:'√x = x<sup>1/2</sup>, and one over it makes the index negative: x<sup>−1/2</sup>.'}
+];
+const qz=$('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.innerHTML=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.innerHTML='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

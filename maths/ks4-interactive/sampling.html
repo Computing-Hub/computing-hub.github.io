@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Sampling</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one interactive panel (an SVG picture of a population drawn from JS, or a sort/try-it card), kept narrow enough for a 360px phone. Graph-paper neutrals. Colours on this page: teal = the POPULATION (every member, population bars, unmarked fish), orange = the SAMPLE (members picked, sample bars, marked fish and the second catch), plum = anything CALCULATED from a sample (sample proportions, sample means, estimates of the population size, stratified shares). A muted dashed line is the TRUE population value that a sample is trying to estimate. Green/red are only used for right/wrong feedback. The orange pill "Higher" marks Higher-tier-only sections. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.3rem;position:relative;top:-.15em}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.X{color:var(--accent);font-weight:600}.F{color:var(--hi);font-weight:600}.P{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);flex-wrap:wrap}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.btn:disabled{opacity:.45;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:.95rem;line-height:1.8;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent);font-weight:600}.work .b{color:var(--hi);font-weight:600}.work .c{color:var(--two);font-weight:600}.work .x{color:var(--bad)}
+.raw{display:flex;flex-wrap:wrap;gap:.3rem;margin:.6rem 0}
+.chip{display:inline-block;min-width:2.4em;text-align:center;font-family:var(--mono);font-size:.9rem;padding:.12rem .3rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--hi);font-weight:500;line-height:1.5}
+.chip.rep{color:var(--muted);text-decoration:line-through;opacity:.7}
+.ft{font-family:var(--mono);font-variant-numeric:tabular-nums;border-collapse:collapse;width:auto;min-width:min(100%,240px);margin:.6rem auto;font-size:.9rem}
+.ft th,.ft td{text-align:center;padding:.3rem .5rem;border-bottom:1px solid var(--line);vertical-align:middle}
+.ft th{font:600 .68rem var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);line-height:1.3}
+.ft td.X{color:var(--accent);font-weight:600}.ft td.F{color:var(--hi);font-weight:600}.ft td.P{color:var(--two);font-weight:600}
+.ft tr.tot td{border-top:2px solid var(--line);font-weight:600}
+.ft tr.hm td{background:var(--two-soft)}
+.ft.left{margin-left:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.dc{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.6rem}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Statistics</div>
+  <h1>Sampling</h1>
+  <p class="lede">You want to know something about a huge group of people or things, but you can't check them all. So you check a few and use them to say something about everyone. This page is about doing that well: choosing a sample fairly, spotting when a sample will mislead you, and knowing how much to trust what it tells you.</p>
+  <span class="gcse">GCSE subject content (Statistics): infer properties of populations or distributions from a sample, whilst knowing the limitations of sampling; apply statistics to describe a population</span>
+</header>
+
+<div class="callout">
+  <p><strong>Before you start.</strong> You need percentages and fractions of amounts (<a href="../ks3-interactive/fractions-decimals-percentages.html">fractions, decimals and percentages</a>), the mean (<a href="../ks3-interactive/averages-and-range.html">averages and range</a>) and the idea that more trials give a more reliable relative frequency (<a href="../ks3-interactive/theoretical-experimental-probability.html">theoretical and experimental probability</a>). The Higher sections use proportion (<a href="../ks3-interactive/dividing-in-a-ratio.html">dividing in a ratio</a>).</p>
+</div>
+
+<h2>1 · Populations and samples</h2>
+<p>Suppose a head teacher wants to know how the 1200 pupils at her school get to school. The whole group she wants to know about is called the <strong class="X">population</strong>. It doesn't have to be people: it could be every battery a factory made today, or every fish in a lake.</p>
+<p>She could ask all 1200 pupils. Collecting data from every member of the population is called a <strong>census</strong>. Or she could ask, say, 60 of them and use their answers to estimate the picture for the whole school. The smaller group that you actually collect data from is a <strong class="F">sample</strong>.</p>
+<p>Why not always do a census? Three reasons come up again and again in exams:</p>
+<ul>
+  <li><strong>Cost:</strong> asking or testing everyone costs money (staff, postage, equipment).</li>
+  <li><strong>Time:</strong> a census of a big population takes a long time, and the answers may be out of date by the time you finish.</li>
+  <li><strong>Destructive testing:</strong> sometimes the test destroys the thing being tested. To find how long a battery lasts you run it until it is flat. Test every battery and there are none left to sell.</li>
+</ul>
+<p>A census makes sense when the population is small, or when you genuinely need information about every single member. Decide for each situation:</p>
+
+<div class="lab">
+  <p class="pq" id="csQ"></p>
+  <div class="dc">
+    <button class="btn" id="csC">Census</button>
+    <button class="btn" id="csS">Sample</button>
+    <button class="btn" id="csNext">Next</button>
+  </div>
+  <div class="msg" id="csMsg"></div>
+  <div class="msg" id="csScore"></div>
+</div>
+
+<p>The price of sampling is <strong>uncertainty</strong>. A sample only tells you about the people in it. Everything you say about the population is an <em>estimate</em>, and it is only as good as the sample. The rest of this page is about making that estimate as trustworthy as possible.</p>
+
+<h2>2 · Random sampling</h2>
+<p>The fairest way to choose a sample is a <strong>random sample</strong>: every member of the population has the <em>same chance</em> of being chosen. No person gets picked because they are nearby, friendly or loud. In practice you do it like this:</p>
+<ol>
+  <li>Get a list of the whole population (called a <strong>sampling frame</strong>, for example the school register).</li>
+  <li><strong>Number every member</strong>: 1, 2, 3, …, up to the size of the population.</li>
+  <li>Use a <strong>random number generator</strong> (a calculator's <span class="m">RanInt</span> button or a computer) to produce numbers in that range.</li>
+  <li>Pick the members with those numbers. <strong>If a number comes up twice, ignore the repeat</strong> and generate another. Keep going until you have enough people.</li>
+</ol>
+<p>Below is a Year 10 of 200 pupils, numbered 1 to 200. Some of them walk to school; you can't see which until they're in your sample. Press the generator one number at a time and watch what happens with repeats.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>sample size <input type="range" id="rsN" min="5" max="30" step="1" value="10"><span id="rsNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="rsSvg" viewBox="0 0 400 214" width="400" height="214" aria-label="200 numbered pupils; chosen pupils are highlighted"></svg>
+  <div class="big" id="rsCalc"></div>
+  <div class="controls" style="justify-content:center">
+    <button class="btn primary" id="rsGo">RanInt(1, 200)</button>
+    <button class="btn" id="rsFill">Fill the sample</button>
+    <button class="btn" id="rsNew">Start a new sample</button>
+  </div>
+  <div class="raw" id="rsList"></div>
+  <div class="msg" id="rsMsg"></div>
+  <div class="work" id="rsRes" hidden></div>
+</div>
+
+<div class="callout">
+  <p><strong>Exam phrase.</strong> "Describe how to take a random sample of 30 pupils from the 600 in Year 9" earns its marks for: <em>number every pupil from 1 to 600; use a random number generator to pick 30 different numbers from 1 to 600 (ignoring repeats); survey the pupils with those numbers.</em> "Pick names out of a hat" also counts if every name goes in. "Ask 30 pupils" does not: it says nothing about how they are chosen.</p>
+</div>
+
+<h2>3 · Bias: when a sample stops representing the population</h2>
+<p>A sample is <strong>representative</strong> if it looks like a small copy of the population. A sample is <strong>biased</strong> if the way it was chosen makes some kinds of member more likely to be picked than others, so its results lean one way. Bias is a problem with the <em>method</em>, and a bigger sample does not cure it: ask 500 people at a gym about exercise and you get a very confident wrong answer.</p>
+<p>The same 200 Year 10 pupils were asked "How many hours of sport do you do each week?". The teal bars show the whole year group; the orange bars show your sample (both as percentages, so they can be compared). Try each method.</p>
+
+<div class="lab">
+  <div class="chips" id="biBtns"></div>
+  <svg id="biSvg" viewBox="0 0 400 230" width="400" height="230" aria-label="Bar chart of hours of sport: population compared with the sample"></svg>
+  <div class="readout">
+    <div class="f"><b>Population mean</b><span id="biPop"></span></div>
+    <div class="t"><b>Sample mean</b><span id="biSam"></span></div>
+    <div class="p"><b>Error</b><span id="biErr"></span></div>
+  </div>
+  <div class="controls"><button class="btn" id="biAgain">Take this sample again</button></div>
+  <div class="msg" id="biMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Ways a sample becomes unrepresentative.</strong></p>
+  <ul>
+    <li><strong>Convenience sample:</strong> asking whoever is easiest to reach (your friends, people at the gate, people in one place at one time). The place and time decide who is there.</li>
+    <li><strong>Self-selecting (volunteer) sample:</strong> people choose whether to reply, and the ones who care most reply most.</li>
+    <li><strong>Too small a sample:</strong> even a random sample of 4 can be wildly off by bad luck. That isn't bias, but it is unreliable (section 5).</li>
+    <li><strong>Missing people from the list:</strong> a sampling frame that leaves some members out (only pupils with an email address, only people with a landline) can never pick them.</li>
+  </ul>
+  <p>To <strong>improve</strong> a biased sample in an exam answer: take a random sample from the whole population, and make it larger.</p>
+</div>
+
+<h2>4 · Bias in the question itself</h2>
+<p>Even a perfectly chosen sample gives biased results if the question pushes people towards an answer. A <strong>leading question</strong> suggests the "right" answer ("Don't you agree…?", "the excellent new…"). Response boxes cause trouble too: if they <strong>overlap</strong> (£0–£5 and £5–£10: where does £5 go?), leave <strong>gaps</strong>, have <strong>no box for some answers</strong>, or use <strong>vague words</strong> like "often" that mean different things to different people. Personal questions asked face to face get dishonest answers. Decide whether each question is fair or has a problem.</p>
+
+<div class="lab">
+  <p class="pq" id="lqQ"></p>
+  <div class="dc">
+    <button class="btn" id="lqF">Fair</button>
+    <button class="btn" id="lqB">Has a problem</button>
+    <button class="btn" id="lqNext">Next</button>
+  </div>
+  <div class="msg" id="lqMsg"></div>
+  <div class="msg" id="lqScore"></div>
+</div>
+
+<h2>5 · Sample size and reliability</h2>
+<p>In a town, 40% of adults support a new skate park, but the pollsters don't know that: they want to estimate it. Each poll asks a random sample and reports the <strong class="P">sample proportion</strong>: the fraction of the sample who said yes. For example, 9 yes out of 20 gives 9 ÷ 20 = 0.45 = 45%.</p>
+<p>Every random sample gives a slightly different answer just by chance. Take lots of samples of size 5, 20 and 100 and see how spread out their answers are. Each dot is one poll; the dashed line is the true 40%.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>true proportion <input type="range" id="ssP" min="10" max="90" step="5" value="40"><span id="ssPv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="ssSvg" viewBox="0 0 400 356" width="400" height="356" aria-label="Dot plots of sample proportions for samples of size 5, 20 and 100"></svg>
+  <div class="controls" style="justify-content:center">
+    <button class="btn primary" id="ss1">Take 1 sample of each size</button>
+    <button class="btn" id="ss10">Take 10 more of each</button>
+    <button class="btn" id="ssReset">Reset</button>
+  </div>
+  <div class="tbl"><table class="ft" id="ssTab"></table></div>
+  <div class="msg" id="ssMsg"></div>
+</div>
+
+<p>The dots for samples of 100 huddle around the true value; the dots for samples of 5 are scattered all over. So a <strong>larger sample is more reliable</strong>: its estimate is likely to be closer to the truth, and repeating it gives similar answers. (To halve the spread you need about four times the sample size, which is why polls of 1000 people are common and polls of 1 000 000 are not.)</p>
+<div class="callout">
+  <p><strong>Two different things.</strong> <em>Bias</em> pushes every result the same wrong way, and a bigger sample does not fix it. <em>Random variation</em> scatters results around the truth, and a bigger sample does shrink it. Using a sample to estimate a population figure: if 18 out of a random sample of 50 pupils walk, estimate 18 ÷ 50 = 36% of all pupils walk. Out of 900 pupils, that's about 0.36 × 900 = 324.</p>
+</div>
+
+<h2>6 · Stratified sampling <span class="tag g">Higher</span></h2>
+<p>Sometimes a population splits into groups that might answer differently: year groups, age bands, full-time and part-time staff. These groups are called <strong>strata</strong> (singular <em>stratum</em>). A pure random sample might, by chance, have too many Year 7s. A <strong>stratified sample</strong> makes sure each group appears in the <strong>same proportion as in the population</strong>, then picks randomly within each group.</p>
+<p>Concrete numbers first. A school has 1000 pupils, 240 of them in Year 7. Year 7 is 240 ÷ 1000 = 24% of the school, so it should be 24% of the sample. For a sample of 50, that's 0.24 × 50 = 12 Year 7s. In one line:</p>
+<p class="big">group's share = <span class="X">group size</span> ÷ <span class="X">population size</span> × <span class="F">sample size</span></p>
+
+<div class="lab">
+  <div class="controls">
+    <label>population <select id="stSet">
+      <option value="school">a school of 1000 pupils</option><option value="club">a sports club of 400 members</option><option value="firm">a company of 360 staff</option>
+    </select></label>
+    <label>sample size <input type="range" id="stN" min="10" max="100" step="10" value="50"><span id="stNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="stSvg" viewBox="0 0 400 150" width="400" height="150" aria-label="Population and sample split into the same proportions"></svg>
+  <div class="tbl"><table class="ft" id="stTab"></table></div>
+  <div class="msg" id="stMsg"></div>
+</div>
+
+<h3>Try it</h3>
+<div class="lab">
+  <p class="pq" id="stQ"></p>
+  <div class="controls">
+    <label>number in the sample <input type="text" id="stA" inputmode="decimal" autocomplete="off"></label>
+    <button class="btn primary" id="stGo">Check</button>
+    <button class="btn" id="stNew">New question</button>
+  </div>
+  <div class="msg" id="stQM"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Exam traps.</strong> Don't split the sample <em>equally</em> between the groups: that is only right if the groups are the same size. Round each answer to a whole number (you can't survey 9.375 people), then check the group numbers add up to the sample size. Within each group the people are still chosen <em>at random</em>.</p>
+</div>
+
+<h2>7 · Capture–recapture: counting fish you can't see <span class="tag g">Higher</span></h2>
+<p>How many fish are in a lake? You can't drain it to count them. The <strong>capture–recapture</strong> method uses a sample twice:</p>
+<ol>
+  <li><strong>Capture</strong> some fish, say M = 40. Mark each one (a harmless tag) and put them back.</li>
+  <li>Wait for them to mix back in with the rest.</li>
+  <li><strong>Recapture</strong>: catch a second sample, say n = 50, and count how many of them, m, are marked.</li>
+</ol>
+<p>The idea: if the second sample is a fair sample, the fraction of it that is marked should match the fraction of the whole lake that is marked. If 8 of the 50 are marked, then about 8 in 50 of all the fish are marked. We know there are 40 marked fish, so</p>
+<p class="big"><span class="F">m</span> ÷ <span class="F">n</span> ≈ <span class="F">M</span> ÷ <span class="P">N</span> &nbsp;so&nbsp; <span class="P">N</span> ≈ <span class="F">M</span> × <span class="F">n</span> ÷ <span class="F">m</span></p>
+<p>Here N ≈ 40 × 50 ÷ 8 = 250 fish. Try it on a lake where the true number is hidden.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>first catch M <input type="range" id="crM" min="20" max="60" step="5" value="40"><span id="crMv" style="font-family:var(--mono)"></span></label>
+    <label>second catch n <input type="range" id="crN" min="20" max="80" step="5" value="50"><span id="crNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="crSvg" viewBox="0 0 400 250" width="400" height="250" aria-label="A lake full of fish; marked fish are orange"></svg>
+  <div class="controls" style="justify-content:center">
+    <button class="btn primary" id="crMark">1 · Catch and mark</button>
+    <button class="btn" id="crRe" disabled>2 · Recapture</button>
+    <button class="btn" id="crReveal">Reveal the true number</button>
+    <button class="btn" id="crNew">New lake</button>
+  </div>
+  <div class="work" id="crWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Assumptions</strong> (exams often ask for one): the population doesn't change between the two catches (no births, deaths, fish arriving or leaving); the marks don't fall off; the marked fish mix fully back in; and marked fish are just as likely to be caught as unmarked ones. Because it rests on a sample, the answer is an <em>estimate</em>, and recapturing again gives a slightly different one.</p>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Census or sample? Testing light bulbs</summary>
+  <p>A factory makes 20 000 light bulbs a week. The manager wants to know the mean lifetime of the bulbs. Explain why she should use a sample.</p>
+  <div class="step"><strong>What does the test involve?</strong> To find a bulb's lifetime you leave it on until it fails.</div>
+  <div class="step"><strong>So the test is destructive.</strong> If every bulb were tested there would be none left to sell. (It would also take a long time and cost a lot.)</div>
+  <div class="step"><strong>Answer:</strong> testing destroys the bulbs, so she should test a random sample of them and use the sample mean as an estimate of the mean lifetime of all the bulbs.</div>
+</details>
+<details>
+  <summary>Describe how to take a random sample</summary>
+  <p>Describe how to choose a random sample of 30 members from a gym with 750 members.</p>
+  <div class="step"><strong>List and number:</strong> take the list of all 750 members and number them 1 to 750.</div>
+  <div class="step"><strong>Generate:</strong> use a random number generator to produce whole numbers from 1 to 750.</div>
+  <div class="step"><strong>Repeats:</strong> ignore any number that has already been picked, and keep going until there are 30 different numbers.</div>
+  <div class="step"><strong>Select:</strong> the members with those 30 numbers form the sample. Each member had the same chance of being chosen.</div>
+</details>
+<details>
+  <summary>Exam-style: criticise a sample</summary>
+  <p>To find out how much exercise people in a town do, Sam asks the first 40 people leaving a leisure centre on a Saturday morning. Give two reasons why his sample may be biased, and say how to improve it.</p>
+  <div class="step"><strong>Where:</strong> people leaving a leisure centre have just exercised, so they probably exercise more than the town as a whole. People who never exercise can't be picked.</div>
+  <div class="step"><strong>When:</strong> Saturday morning leaves out people who work on Saturdays, and may favour some age groups.</div>
+  <div class="step"><strong>How chosen:</strong> "the first 40" is a convenience sample: not everyone in the town had the same chance.</div>
+  <div class="step"><strong>Improve:</strong> number everyone on a list of the whole town (for example, the electoral register), choose a random sample with a random number generator, and take a larger sample.</div>
+</details>
+<details>
+  <summary>Using a sample to estimate a population</summary>
+  <p>A random sample of 50 of the 900 pupils at a school found that 18 walk to school. Estimate how many pupils at the school walk.</p>
+  <div class="step"><strong>Sample proportion:</strong> 18 ÷ 50 = 0.36 (that's 36%).</div>
+  <div class="step"><strong>Assume the population has the same proportion:</strong> 0.36 × 900 = 324.</div>
+  <div class="step"><strong>Answer:</strong> about <strong>324 pupils</strong> walk. Say "about" or "estimate": a different random sample could give a slightly different answer.</div>
+</details>
+<details>
+  <summary>Stratified sample with rounding <span class="tag g">Higher</span></summary>
+  <p>A sports club has 125 juniors, 210 adults and 65 seniors. A stratified sample of 30 members is taken. How many of each should be in the sample?</p>
+  <div class="step"><strong>Population size:</strong> 125 + 210 + 65 = 400.</div>
+  <div class="step"><strong>Juniors:</strong> 125 ÷ 400 × 30 = 0.3125 × 30 = 9.375 → <strong>9</strong>.</div>
+  <div class="step"><strong>Adults:</strong> 210 ÷ 400 × 30 = 0.525 × 30 = 15.75 → <strong>16</strong>.</div>
+  <div class="step"><strong>Seniors:</strong> 65 ÷ 400 × 30 = 0.1625 × 30 = 4.875 → <strong>5</strong>.</div>
+  <div class="step"><strong>Check:</strong> 9 + 16 + 5 = 30 ✓. The members within each group are then chosen at random.</div>
+</details>
+<details>
+  <summary>Capture–recapture <span class="tag g">Higher</span></summary>
+  <p>Ecologists catch 40 newts in a pond, mark them and release them. A week later they catch 50 newts and find that 8 are marked. Estimate the number of newts in the pond, and state one assumption.</p>
+  <div class="step"><strong>Fraction of the second sample that is marked:</strong> 8 ÷ 50 = 0.16.</div>
+  <div class="step"><strong>Assume the same fraction of the whole pond is marked:</strong> 40 ÷ N = 0.16.</div>
+  <div class="step"><strong>Solve:</strong> N = 40 ÷ 0.16 = 250. (Same as 40 × 50 ÷ 8 = 2000 ÷ 8 = 250.)</div>
+  <div class="step"><strong>Answer:</strong> about <strong>250 newts</strong>. Assumption: no newts were born, died, arrived or left during the week (also accepted: the marks don't come off; the marked newts mixed back in).</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>The <strong>population</strong> is the whole group you want to know about. A <strong>census</strong> collects data from all of it; a <strong>sample</strong> collects data from part of it.</li>
+  <li>We sample to save <strong>cost</strong> and <strong>time</strong>, and because some tests are <strong>destructive</strong>. A census is sensible when the population is small or every member matters.</li>
+  <li>In a <strong>random sample</strong> every member has the same chance of being chosen: number every member, use a random number generator, ignore repeats.</li>
+  <li>A <strong>biased</strong> sample leans one way because of how it was chosen: convenience samples, volunteers, a sampling frame that leaves people out. Leading questions and badly designed response boxes bias the answers too.</li>
+  <li><strong>Larger random samples are more reliable</strong>: their estimates are less spread out and usually closer to the true value. A bigger sample does not fix bias.</li>
+  <li>A sample proportion estimates a population proportion: proportion × population size estimates how many.</li>
+  <li><span class="tag g">Higher</span> A <strong>stratified sample</strong> takes group size ÷ population size × sample size from each group, rounded, chosen randomly within the group.</li>
+  <li><span class="tag g">Higher</span> <strong>Capture–recapture:</strong> N ≈ M × n ÷ m, assuming the population doesn't change, marks stay on and the fish mix fully.</li>
+</ul>
+
+<footer>Made for GCSE students. Sampling, bias and inferring properties of a population from a sample are in the DfE GCSE mathematics subject content under Statistics. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat(v.toFixed(d)).toString()) : '—';
+const num = el => { const v = parseFloat(String(el.value).replace(/−/g,'-').trim()); return isFinite(v) ? v : NaN; };
+const sum = a => a.reduce((s,v)=>s+v,0);
+const F = () => `font-family="${css('--mono')}"`;
+/* seeded random numbers (mulberry32) so simulations repeat the same way after a reset */
+function rng(seed){ let a=seed>>>0; return ()=>{ a=(a+0x6D2B79F5)|0; let t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }; }
+const rint = (r,a,b) => a + Math.floor(r()*(b-a+1));
+const shuffleR = (r,a) => { for(let i=a.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const pct = v => fmt(v*100,1)+'%';
+
+/* 1. census or sample */
+const CS=[
+  ['A factory wants the mean lifetime of the 10 000 batteries it made today.','s','Sample. Finding a battery\'s lifetime means running it flat: destructive testing. Test them all and there is nothing left to sell.'],
+  ['Six friends want to know each person\'s favourite pizza topping before ordering.','c','Census. The population is only 6 people and you need everyone\'s answer: asking all of them is quick and free.'],
+  ['A researcher wants the mean height of all 15-year-olds in England.','s','Sample. There are hundreds of thousands of them: measuring everyone would cost far too much and take far too long.'],
+  ['A rope maker checks the breaking strength of its rope by pulling it until it snaps.','s','Sample. The test destroys the rope (destructive testing).'],
+  ['An airline checks that every passenger on a flight has a valid passport.','c','Census. Each individual matters: one missed passenger is one too many, and the population (one plane-load) is small.'],
+  ['A chef checks whether a large pan of soup needs more salt.','s','Sample. She tastes a spoonful. Tasting it all would leave no soup (and a well-stirred spoonful represents the pan).'],
+  ['A newspaper wants to know how the 1200 pupils at a school travel there, for tomorrow\'s article.','s','Sample. Asking 1200 pupils by tomorrow is too slow: time is the issue.'],
+  ['A teacher wants the test mark of every pupil in her class of 28 to write their reports.','c','Census. She needs each pupil\'s own mark, and 28 is a small population.']
+];
+let csI=0,csR=0,csT=0,csDone=false;
+function csShow(){ $('csQ').textContent=CS[csI][0]+' Census or sample?'; $('csMsg').className='msg'; $('csMsg').textContent=''; csDone=false; $('csNext').disabled=true; }
+function csAns(k){ if(csDone) return; const it=CS[csI], ok=k===it[1]; csT++; if(ok) csR++; csDone=true; $('csNext').disabled=false;
+  $('csMsg').className='msg '+(ok?'good':'bad'); $('csMsg').textContent=(ok?'✓ ':'Not this time. ')+it[2]; $('csScore').textContent=`${csR} right out of ${csT}`; }
+$('csC').addEventListener('click',()=>csAns('c')); $('csS').addEventListener('click',()=>csAns('s'));
+$('csNext').addEventListener('click',()=>{ csI=(csI+1)%CS.length; csShow(); }); csShow();
+
+/* population of 200 Year 10 pupils (fixed seed): hours of sport and whether they walk */
+const POP=(function(){ const r=rng(2024), p=[];
+  for(let i=0;i<200;i++){ const u=r(); p.push({id:i+1,h:Math.min(12,Math.floor(-Math.log(1-u)*3.6)),walk:false}); }
+  shuffleR(r,[...Array(200).keys()]).slice(0,70).forEach(i=>{ p[i].walk=true; });
+  return p; })();
+const POPMEAN=sum(POP.map(q=>q.h))/200;
+
+/* 2. random sample with a random number generator */
+let rs={};
+let rsSeed=11;
+function rsStart(){ rs={r:rng(rsSeed),list:[],chosen:new Set()}; $('rsCalc').textContent='—'; $('rsMsg').className='msg'; $('rsMsg').textContent='Press RanInt to generate a random whole number from 1 to 200.'; rsDraw(); }
+function rsStep(){ const n=+$('rsN').value; if(rs.chosen.size>=n) return null; const k=rint(rs.r,1,200), rep=rs.chosen.has(k);
+  rs.list.push({k,rep}); if(!rep) rs.chosen.add(k); return {k,rep}; }
+function rsDraw(){ const n=+$('rsN').value; $('rsNv').textContent=' '+n;
+  let s=''; const f=F();
+  for(let i=0;i<200;i++){ const c=i%20, r=Math.floor(i/20), x=11+c*19.4, y=12+r*19.6, on=rs.chosen.has(i+1);
+    const last=rs.list.length&&rs.list[rs.list.length-1].k===i+1;
+    s+=`<circle cx="${x}" cy="${y}" r="8.4" fill="${on?css('--hi'):css('--accent-soft')}" stroke="${last?css('--fg'):on?css('--hi'):css('--accent')}" stroke-width="${last?2:1}"/>`+
+      `<text x="${x}" y="${y+2.6}" text-anchor="middle" font-size="7.2" fill="${on?'#fff':css('--accent')}" ${f}>${i+1}</text>`; }
+  $('rsSvg').innerHTML=s;
+  $('rsList').innerHTML=rs.list.map(e=>`<span class="chip${e.rep?' rep':''}" title="${e.rep?'repeat: ignored':'chosen'}">${e.k}</span>`).join('');
+  const done=rs.chosen.size>=n; $('rsGo').disabled=done; $('rsFill').disabled=done;
+  const R=$('rsRes');
+  if(done){ const walkers=[...rs.chosen].filter(k=>POP[k-1].walk).length;
+    R.hidden=false; R.innerHTML=`Sample complete: ${n} different pupils.<br>Walkers in the sample: <span class="b">${walkers}</span> out of ${n} = <span class="c">${pct(walkers/n)}</span><br>Whole year group (normally unknown): <span class="a">70</span> out of 200 = <span class="a">35%</span><br>${Math.abs(walkers/n-0.35)<=0.05?'Close: a fair sample usually lands near the truth.':'A fair method, but chance alone can still put a sample some way off, especially a small one. Try a bigger sample size.'}`; }
+  else R.hidden=true; }
+$('rsGo').addEventListener('click',()=>{ const e=rsStep(); if(!e) return; const M=$('rsMsg'), n=+$('rsN').value;
+  $('rsCalc').textContent=String(e.k);
+  if(e.rep){ M.className='msg bad'; M.textContent=`${e.k} is already in the sample. A repeat: ignore it and generate another number.`; }
+  else { M.className='msg good'; M.textContent=rs.chosen.size>=n?`Pupil ${e.k} chosen. That's ${n} different pupils: the sample is complete.`:`Pupil ${e.k} is in the sample (${rs.chosen.size} of ${n}).`; }
+  rsDraw(); });
+$('rsFill').addEventListener('click',()=>{ let reps=0, e; while((e=rsStep())){ if(e.rep) reps++; }
+  const M=$('rsMsg'); M.className='msg'; M.textContent=reps?`Done. ${reps} repeat${reps>1?'s were':' was'} ignored along the way (crossed out).`:'Done. No repeats came up this time.'; rsDraw(); });
+$('rsNew').addEventListener('click',()=>{ rsSeed++; rsStart(); });
+$('rsN').addEventListener('input',()=>{ rsStart(); });
+rsStart();
+
+/* 3. biased methods */
+const BI=[['random','Random sample of 20'],['gym','20 at the gym after school'],['vol','20 who answer a PE email'],['small','Random sample of 4']];
+$('biBtns').innerHTML=BI.map(([k,t])=>`<button class="btn" data-k="${k}">${t}</button>`).join('');
+let biMode='random', biSeed=5, biSample=[];
+function weightedPick(r,items,w,k){ const pool=items.slice(), ww=w.slice(), out=[];
+  while(out.length<k&&pool.length){ let t=r()*sum(ww), i=0; for(;i<pool.length-1;i++){ t-=ww[i]; if(t<0) break; } out.push(pool[i]); pool.splice(i,1); ww.splice(i,1); } return out; }
+function biTake(){ const r=rng(biSeed*31+BI.findIndex(b=>b[0]===biMode));
+  if(biMode==='random') biSample=shuffleR(r,POP.slice()).slice(0,20);
+  else if(biMode==='small') biSample=shuffleR(r,POP.slice()).slice(0,4);
+  else if(biMode==='gym') biSample=shuffleR(r,POP.filter(q=>q.h>=5)).slice(0,20);
+  else biSample=weightedPick(r,POP,POP.map(q=>(q.h+1)*(q.h+1)),20); }
+function biDraw(){ $('biBtns').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===biMode));
+  const W=400,H=230,L=36,Rr=390,T=14,B=190, f=F(), maxP=0.4;
+  const X=h=>L+(h+0.5)*(Rr-L)/13, Y=p=>B-(p/maxP)*(B-T), bw=(Rr-L)/13;
+  const pc=Array(13).fill(0), sc=Array(13).fill(0); POP.forEach(q=>pc[q.h]++); biSample.forEach(q=>sc[q.h]++);
+  let s='';
+  for(let p=0;p<=maxP+1e-9;p+=0.1){ s+=`<line x1="${L}" y1="${Y(p)}" x2="${Rr}" y2="${Y(p)}" stroke="${css('--grid')}"/><text x="${L-4}" y="${Y(p)+3}" text-anchor="end" font-size="10" fill="${css('--muted')}" ${f}>${Math.round(p*100)}%</text>`; }
+  for(let h=0;h<=12;h++){ const pp=Math.min(pc[h]/200,maxP), sp=Math.min(sc[h]/biSample.length,maxP);
+    s+=`<rect x="${X(h)-bw*0.42}" y="${Y(pp)}" width="${bw*0.4}" height="${B-Y(pp)}" fill="${css('--accent')}"/>`;
+    s+=`<rect x="${X(h)+bw*0.02}" y="${Y(sp)}" width="${bw*0.4}" height="${B-Y(sp)}" fill="${css('--hi')}"/>`;
+    s+=`<text x="${X(h)}" y="${B+13}" text-anchor="middle" font-size="10" fill="${css('--muted')}" ${f}>${h}</text>`; }
+  s+=`<line x1="${L}" y1="${B}" x2="${Rr}" y2="${B}" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  s+=`<text x="${(L+Rr)/2}" y="${H-12}" text-anchor="middle" font-size="11" fill="${css('--muted')}" ${f}>hours of sport per week</text>`;
+  const sm=sum(biSample.map(q=>q.h))/biSample.length, xm=v=>L+(v+0.5)*(Rr-L)/13;
+  s+=`<line x1="${xm(POPMEAN)}" y1="${T}" x2="${xm(POPMEAN)}" y2="${B}" stroke="${css('--muted')}" stroke-width="2" stroke-dasharray="5 4"/>`;
+  s+=`<line x1="${xm(sm)}" y1="${T}" x2="${xm(sm)}" y2="${B}" stroke="${css('--two')}" stroke-width="2"/>`;
+  s+=`<rect x="${Rr-128}" y="${T}" width="10" height="10" fill="${css('--accent')}"/><text x="${Rr-114}" y="${T+9}" font-size="10" fill="${css('--fg')}" ${f}>population</text>`;
+  s+=`<rect x="${Rr-128}" y="${T+15}" width="10" height="10" fill="${css('--hi')}"/><text x="${Rr-114}" y="${T+24}" font-size="10" fill="${css('--fg')}" ${f}>sample</text>`;
+  s+=`<line x1="${Rr-128}" y1="${T+35}" x2="${Rr-118}" y2="${T+35}" stroke="${css('--two')}" stroke-width="2"/><text x="${Rr-114}" y="${T+38}" font-size="10" fill="${css('--fg')}" ${f}>sample mean</text>`;
+  $('biSvg').innerHTML=s;
+  $('biPop').textContent=fmt(POPMEAN,2)+' h'; $('biSam').textContent=fmt(sm,2)+' h'; $('biErr').textContent=(sm>=POPMEAN?'+':'−')+fmt(Math.abs(sm-POPMEAN),2)+' h';
+  const M=$('biMsg');
+  M.textContent={random:'Every pupil had the same chance. The orange bars roughly follow the teal ones and the sample mean is near the true mean. Take it again: it moves a little, but stays close.',
+    gym:'Convenience sample. Everyone at the gym after school does a lot of sport, and pupils who do none can\'t be picked. Take it again: it is wrong every time, always too high. That is bias.',
+    vol:'Self-selecting sample. Pupils who love sport are far more likely to bother replying to a PE email. The sample mean is too high, and repeating doesn\'t fix it.',
+    small:'A random sample, so not biased, but with only 4 pupils one or two unusual people swing the mean a long way. Take it again a few times and watch it jump about. Small samples are unreliable.'}[biMode]; }
+$('biBtns').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; biMode=b.dataset.k; biTake(); biDraw(); });
+$('biAgain').addEventListener('click',()=>{ biSeed++; biTake(); biDraw(); });
+biTake(); biDraw();
+
+/* 4. fair or leading questions */
+const LQ=[
+  ['"Don\'t you agree that school lunches are far too expensive?"','b','Leading question: "Don\'t you agree…" and "far too" push people to say yes. Fairer: "How do you rate the price of school lunches?" with boxes from very poor to very good value.'],
+  ['"How much do you spend on lunch each week?"  □ £0–£5  □ £5–£10  □ £10–£15','b','The boxes overlap (where does £5 go?) and there is no box for more than £15. Fix: £0 ≤ s &lt; £5, £5 ≤ s &lt; £10, £10 ≤ s &lt; £15, £15 or more.'],
+  ['"How many hours of TV did you watch yesterday?"  □ less than 1  □ 1 up to 2  □ 2 up to 3  □ 3 or more','f','Fair: one clear time period (yesterday), no overlaps, no gaps, and every possible answer has a box.'],
+  ['"How often do you exercise?"  □ sometimes  □ often  □ a lot','b','Vague: "often" means different things to different people, and there is no box for "never". Use a time period and numbers, e.g. "How many times did you exercise last week?" 0, 1–2, 3–4, 5 or more.'],
+  ['"Do you think the excellent new sports hall was worth the money?"','b','Leading: calling it "excellent" tells people what to think. Remove the opinion word.'],
+  ['"How old are you, in whole years?"  □ under 11  □ 11–13  □ 14–16  □ 17 or over','f','Fair: whole years are discrete, so 11–13 and 14–16 don\'t overlap, and every age has a box.'],
+  ['A teacher asks each pupil out loud in class: "Have you ever cheated in a test?"','b','A sensitive question asked face to face: people won\'t answer honestly. Use an anonymous questionnaire.'],
+  ['"Which of these do you use most for homework?"  □ laptop  □ tablet  □ phone  □ paper only  □ other','f','Fair: neutral wording, and "other" catches anything not listed.']
+];
+let lqI=0,lqR=0,lqT=0,lqDone=false;
+function lqShow(){ $('lqQ').innerHTML=LQ[lqI][0]; $('lqMsg').className='msg'; $('lqMsg').textContent=''; lqDone=false; $('lqNext').disabled=true; }
+function lqAns(k){ if(lqDone) return; const it=LQ[lqI], ok=k===it[1]; lqT++; if(ok) lqR++; lqDone=true; $('lqNext').disabled=false;
+  $('lqMsg').className='msg '+(ok?'good':'bad'); $('lqMsg').innerHTML=(ok?'✓ ':'Look again. ')+it[2]; $('lqScore').textContent=`${lqR} right out of ${lqT}`; }
+$('lqF').addEventListener('click',()=>lqAns('f')); $('lqB').addEventListener('click',()=>lqAns('b'));
+$('lqNext').addEventListener('click',()=>{ lqI=(lqI+1)%LQ.length; lqShow(); }); lqShow();
+
+/* 5. sample size simulation */
+const SIZES=[5,20,100], SSMAX=40;
+let ss={};
+function ssReset(){ ss={r:rng(77),res:SIZES.map(()=>[])}; ssDraw(); }
+function ssTake(k){ const p=+$('ssP').value/100;
+  for(let t=0;t<k;t++) SIZES.forEach((n,j)=>{ if(ss.res[j].length>=SSMAX) return; let c=0; for(let i=0;i<n;i++) if(ss.r()<p) c++; ss.res[j].push(c/n); });
+  ssDraw(); }
+function ssDraw(){ const p=+$('ssP').value/100; $('ssPv').textContent=' '+Math.round(p*100)+'%';
+  const L=30,Rr=388,f=F(), X=v=>L+v*(Rr-L), rowH=112;
+  let s='';
+  SIZES.forEach((n,j)=>{ const base=rowH*(j+1)-6;
+    s+=`<text x="${L}" y="${base-rowH+34}" font-size="11" font-weight="600" fill="${css('--fg')}" ${f}>samples of ${n}</text>`;
+    s+=`<line x1="${L}" y1="${base}" x2="${Rr}" y2="${base}" stroke="${css('--muted')}"/>`;
+    for(let v=0;v<=10;v++){ s+=`<line x1="${X(v/10)}" y1="${base}" x2="${X(v/10)}" y2="${base+4}" stroke="${css('--muted')}"/>`; if(v%2===0) s+=`<text x="${X(v/10)}" y="${base+14}" text-anchor="middle" font-size="9" fill="${css('--muted')}" ${f}>${v*10}%</text>`; }
+    const stack={}; let over=0;
+    ss.res[j].forEach((e,i)=>{ const key=Math.round(e*100); stack[key]=(stack[key]||0)+1; const h=stack[key];
+      if(h>13){ over++; return; }
+      const last=i===ss.res[j].length-1;
+      s+=`<circle cx="${X(e)}" cy="${base-4.5-(h-1)*5.4}" r="2.6" fill="${css('--two')}" ${last?`stroke="${css('--fg')}" stroke-width="1.2"`:''}/>`; });
+    s+=`<line x1="${X(p)}" y1="${base-rowH+40}" x2="${X(p)}" y2="${base}" stroke="${css('--muted')}" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+    if(over) s+=`<text x="${Rr}" y="${base-rowH+34}" text-anchor="end" font-size="9" fill="${css('--muted')}" ${f}>+${over} off the top</text>`; });
+  $('ssSvg').innerHTML=s;
+  const rows=SIZES.map((n,j)=>{ const a=ss.res[j]; if(!a.length) return `<tr><td class="X">${n}</td><td>0</td><td>—</td><td>—</td></tr>`;
+    const lo=Math.min(...a), hi=Math.max(...a), near=a.filter(e=>Math.abs(e-p)<=0.1+1e-9).length;
+    return `<tr><td class="X">${n}</td><td>${a.length}</td><td class="P">${Math.round(lo*100)}% to ${Math.round(hi*100)}%</td><td class="P">${near} of ${a.length}</td></tr>`; }).join('');
+  $('ssTab').innerHTML=`<tr><th>Sample size</th><th>Polls</th><th>Estimates</th><th>Within 10 points of ${Math.round(p*100)}%</th></tr>`+rows;
+  const tot=ss.res[0].length, M=$('ssMsg');
+  M.textContent=tot===0?'Press a button to run some polls.':tot<5?'Run more polls to see the pattern.':tot>=SSMAX?`That's ${SSMAX} polls of each size: reset to start again.`:'Compare the rows: the bigger the sample, the tighter the dots cluster around the true value.'; }
+$('ss1').addEventListener('click',()=>ssTake(1)); $('ss10').addEventListener('click',()=>ssTake(10));
+$('ssReset').addEventListener('click',ssReset); $('ssP').addEventListener('input',ssReset);
+ssReset(); ssTake(10);
+
+/* 6. stratified sampling */
+const STS={school:{who:'pupils',g:[['Year 7',240],['Year 8',220],['Year 9',200],['Year 10',180],['Year 11',160]]},
+  club:{who:'members',g:[['Juniors',119],['Adults',201],['Seniors',80]]},
+  firm:{who:'staff',g:[['Full-time',168],['Part-time',144],['Contract',48]]}};
+function stDraw(){ const S=STS[$('stSet').value], n=+$('stN').value, N=sum(S.g.map(g=>g[1])); $('stNv').textContent=' '+n;
+  const ex=S.g.map(g=>g[1]/N*n), ro=ex.map(v=>Math.round(v)), tot=sum(ro);
+  const L=10,Rr=390,f=F(), cols=[css('--accent'),css('--hi'),css('--two'),css('--good'),css('--muted')];
+  let s='', x=L;
+  s+=`<text x="${L}" y="16" font-size="11" fill="${css('--muted')}" ${f}>population: ${N} ${S.who}</text>`;
+  S.g.forEach((g,i)=>{ const w=g[1]/N*(Rr-L); s+=`<rect x="${x}" y="22" width="${w}" height="34" fill="${cols[i]}" opacity="0.85" stroke="${css('--panel')}"/>`; if(w>34) s+=`<text x="${x+w/2}" y="43" text-anchor="middle" font-size="10" fill="#fff" ${f}>${g[1]}</text>`; x+=w; });
+  x=L; s+=`<text x="${L}" y="88" font-size="11" fill="${css('--muted')}" ${f}>sample: ${n} ${S.who}</text>`;
+  S.g.forEach((g,i)=>{ const w=g[1]/N*(Rr-L); s+=`<rect x="${x}" y="94" width="${w}" height="34" fill="${cols[i]}" opacity="0.85" stroke="${css('--panel')}"/>`; if(w>26) s+=`<text x="${x+w/2}" y="115" text-anchor="middle" font-size="10" fill="#fff" ${f}>${ro[i]}</text>`; x+=w; });
+  s+=`<text x="${L}" y="145" font-size="10" fill="${css('--muted')}" ${f}>Same proportions: each group's slice is the same width in both bars.</text>`;
+  $('stSvg').innerHTML=s;
+  $('stTab').innerHTML=`<tr><th>Group</th><th>Size</th><th>Share of sample</th><th>Take</th></tr>`+
+    S.g.map((g,i)=>`<tr><td>${g[0]}</td><td class="X">${g[1]}</td><td class="P">${g[1]} ÷ ${N} × ${n} = ${fmt(ex[i],3)}</td><td class="F">${ro[i]}</td></tr>`).join('')+
+    `<tr class="tot"><td>Total</td><td class="X">${N}</td><td></td><td class="F">${tot}</td></tr>`;
+  const M=$('stMsg');
+  if(tot===n){ M.className='msg'; M.textContent=`Rounded group sizes add up to ${n} ✓`; }
+  else { M.className='msg bad'; M.textContent=`Rounding each group gives ${tot}, not ${n}. In this case adjust the group whose decimal was closest to .5 so the total is ${n}, and say so.`; } }
+$('stSet').addEventListener('input',stDraw); $('stN').addEventListener('input',stDraw); stDraw();
+
+let stq={}, stSeed=3;
+const STQ=[{who:'pupils',things:['boys','girls'],ctx:'A school has'},{who:'members',things:['under-18s','adults','over-65s'],ctx:'A swimming club has'},{who:'people',things:['Year 12','Year 13'],ctx:'A sixth form has'},{who:'workers',things:['managers','office staff','drivers'],ctx:'A delivery firm has'}];
+function stqNew(){ const r=rng(stSeed++); let C,g,n,N,ask,ex;
+  do{ C=STQ[rint(r,0,STQ.length-1)]; g=C.things.map(()=>rint(r,3,40)*10); N=sum(g); n=rint(r,4,16)*5; ask=rint(r,0,g.length-1); ex=g[ask]/N*n; }
+  while(Math.abs(ex-Math.floor(ex)-0.5)<0.05||ex<2);
+  stq={C,g,n,N,ask,ex,ans:Math.round(ex)};
+  $('stQ').textContent=`${C.ctx} ${C.things.map((t,i)=>`${g[i]} ${t}`).join(', ').replace(/, ([^,]*)$/,' and $1')}. A stratified sample of ${n} is taken. How many ${C.things[ask]} should be in the sample?`;
+  $('stA').value=''; $('stQM').className='msg'; $('stQM').textContent=''; }
+function stqCheck(){ const v=num($('stA')), M=$('stQM'), q=stq; if(isNaN(v)){ M.className='msg'; M.textContent='Type a number first.'; return; }
+  const w=`${q.g[q.ask]} ÷ ${q.N} × ${q.n} = ${fmt(q.ex,3)}`;
+  if(v===q.ans){ M.className='msg good'; M.textContent=`✓ ${w} → ${q.ans}.`; return; }
+  M.className='msg bad'; const k=q.g.length; let m;
+  if(Math.abs(v-q.ex)<0.01) m=`Right calculation (${w}), but you can't sample part of a person: round to the nearest whole number.`;
+  else if(Math.abs(v-q.n/k)<0.51) m=`It looks like you split the sample equally between the ${k} groups (${q.n} ÷ ${k}). The groups are different sizes, so use group ÷ total × sample size.`;
+  else if(Math.abs(v-q.g[q.ask]/q.N)<0.01) m=`${fmt(q.g[q.ask]/q.N,3)} is the fraction of the population in that group. Multiply it by the sample size, ${q.n}.`;
+  else if(Math.abs(v-q.g[q.ask]/q.N*100)<0.6) m=`That's the percentage of the population in the group. You need that percentage of the sample of ${q.n}.`;
+  else if(Math.abs(v-q.g[q.ask]/q.n)<0.6||Math.abs(v-q.N/q.g[q.ask]*q.n)<0.6) m='The fraction is upside down or mixed up. It is group size ÷ total population, then × sample size.';
+  else if(Math.abs(v-q.ex)<1) m=`Close: ${w}. Round to the nearest whole number, not always down or up.`;
+  else m=`Not quite. Total population = ${q.g.join(' + ')} = ${q.N}. Then group ÷ total × sample size.`;
+  M.textContent=m; }
+$('stGo').addEventListener('click',stqCheck); $('stA').addEventListener('keydown',e=>{ if(e.key==='Enter') stqCheck(); });
+$('stNew').addEventListener('click',stqNew); stqNew();
+
+/* 7. capture-recapture */
+let cr={}, crSeed=1;
+function crNewLake(){ const r=rng(crSeed*97+5); const N=150+Math.floor(r()*251);
+  cr={r,N,fish:[],marked:new Set(),caught:new Set(),stage:0,reveal:false}; crScatter(); crDraw(); }
+function crScatter(){ const r=cr.r; cr.fish=[]; for(let i=0;i<cr.N;i++){ let x,y; do{ x=r()*2-1; y=r()*2-1; }while(x*x+y*y>0.92); cr.fish.push([200+x*182,120+y*100,r()<0.5?1:-1]); } }
+function crDraw(){ const M=+$('crM').value, n=+$('crN').value; $('crMv').textContent=' '+M; $('crNv').textContent=' '+n;
+  let s=`<ellipse cx="200" cy="120" rx="194" ry="112" fill="${css('--accent-soft')}" stroke="${css('--accent')}" stroke-width="1.5"/>`;
+  cr.fish.forEach((p,i)=>{ const mk=cr.marked.has(i), ca=cr.caught.has(i);
+    const col=mk?css('--hi'):css('--accent'), d=p[2];
+    s+=`<g transform="translate(${p[0].toFixed(1)},${p[1].toFixed(1)}) scale(${d},1)"><ellipse cx="0" cy="0" rx="4.2" ry="2.3" fill="${col}" opacity="${cr.stage===2&&!ca?0.35:1}"/><path d="M-4,0 l-3,-2.4 v4.8 z" fill="${col}" opacity="${cr.stage===2&&!ca?0.35:1}"/></g>`;
+    if(ca) s+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="6.5" fill="none" stroke="${css('--fg')}" stroke-width="1.2"/>`; });
+  s+=`<text x="200" y="245" text-anchor="middle" font-size="11" fill="${css('--muted')}" ${F()}>${cr.reveal?`true number of fish: ${cr.N}`:'true number of fish: hidden'}</text>`;
+  $('crSvg').innerHTML=s;
+  const W=$('crWork'); let w='';
+  if(cr.stage===0) w='Press <strong>Catch and mark</strong> to catch M fish at random, mark them (orange) and release them.';
+  else if(cr.stage===1) w=`<span class="b">${cr.marked.size}</span> fish caught, marked and released. They have swum off and mixed in.<br>Now press <strong>Recapture</strong> to catch a second sample of n = ${n}.`;
+  else { const m=[...cr.caught].filter(i=>cr.marked.has(i)).length, Mm=cr.marked.size, nn=cr.caught.size;
+    w=`Second catch: n = <span class="b">${nn}</span> fish (ringed), of which m = <span class="b">${m}</span> are marked.<br>`;
+    if(m===0) w+='No marked fish in the second catch, so the method can\'t give an estimate. Catch more fish (a bigger n) and try again.';
+    else { const est=Mm*nn/m; w+=`Fraction marked in the catch: ${m} ÷ ${nn} = ${fmt(m/nn,3)}<br>Estimate N ≈ M × n ÷ m = ${Mm} × ${nn} ÷ ${m} = <span class="c">${fmt(est,1)}</span> ≈ <span class="c">${Math.round(est)} fish</span>`+
+      (cr.reveal?`<br>True number: <span class="a">${cr.N}</span> (error ${fmt(Math.abs(Math.round(est)-cr.N)/cr.N*100,0)}%). Press Recapture again to see a different estimate from a new second catch.`:'<br>Press Recapture again for another estimate, or Reveal to compare with the truth.'); } }
+  W.innerHTML=w; $('crRe').disabled=cr.stage===0; }
+$('crMark').addEventListener('click',()=>{ const M=+$('crM').value; cr.marked=new Set(shuffleR(cr.r,[...Array(cr.N).keys()]).slice(0,M)); cr.caught=new Set(); cr.stage=1; crScatter(); crDraw(); });
+$('crRe').addEventListener('click',()=>{ if(cr.stage===0) return; const n=+$('crN').value; crScatter(); cr.caught=new Set(shuffleR(cr.r,[...Array(cr.N).keys()]).slice(0,n)); cr.stage=2; crDraw(); });
+$('crReveal').addEventListener('click',()=>{ cr.reveal=true; crDraw(); });
+$('crNew').addEventListener('click',()=>{ crSeed++; crNewLake(); });
+$('crM').addEventListener('input',()=>{ if(cr.stage>0){ cr.stage=0; cr.marked=new Set(); cr.caught=new Set(); } crDraw(); });
+$('crN').addEventListener('input',crDraw);
+crNewLake();
+
+const redraw=()=>{ rsDraw(); biDraw(); ssDraw(); stDraw(); crDraw(); };
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw); }
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'A council wants to know what the 40 000 people in a town think about a new road. Which of these is the population?',opts:['All 40 000 people in the town','The people the council asks','The people who reply','The council'],a:0,fb:'The population is the whole group you want to know about. The people you actually ask are the sample.'},
+  {q:'Why would a firework maker test a sample of its fireworks rather than all of them?',opts:['Testing destroys the fireworks','Fireworks are too small to count','A sample is always more accurate','It is against the law to test them all'],a:0,fb:'You test a firework by setting it off, so testing them all would leave none to sell: destructive testing.'},
+  {q:'Which of these gives a random sample of 20 pupils from a school of 800?',opts:['Number the pupils 1–800 and pick 20 different random numbers','Ask the first 20 pupils through the gate','Ask 20 of your friends','Ask for 20 volunteers in assembly'],a:0,fb:'Random means every pupil has the same chance. The others are convenience or self-selecting samples.'},
+  {q:'To find how people get to work, Ali asks people waiting at a train station. Why is the sample biased?',opts:['People who drive or walk to work are unlikely to be there','The sample is random','A train station is too noisy','He should ask more people at the station'],a:0,fb:'Everyone at the station uses the train, so other ways of travelling are left out. Asking more people at the station doesn\'t fix it.'},
+  {q:'Which question is a leading question?',opts:['"Wouldn\'t you agree that homework is pointless?"','"How many hours of homework did you do last week?"','"Which subject do you enjoy most?"','"How do you usually travel to school?"'],a:0,fb:'"Wouldn\'t you agree…" pushes the person towards one answer.'},
+  {q:'Which statement about random samples is true?',opts:['Larger samples usually give estimates closer to the true value','Larger samples remove bias','A sample of 5 is as reliable as a sample of 500','Smaller samples vary less'],a:0,fb:'Bigger random samples vary less and land closer to the truth. Bias comes from the method, so size doesn\'t remove it.'},
+  {q:'In a random sample of 40 pupils, 14 have a dog. Estimate how many of the 1000 pupils in the school have a dog.',opts:['350','14','140','560'],a:0,fb:'14 ÷ 40 = 0.35, and 0.35 × 1000 = 350.'},
+  {q:'(Higher) A school has 300 boys and 200 girls. A stratified sample of 50 is taken. How many boys?',opts:['30','25','300','20'],a:0,fb:'300 ÷ 500 × 50 = 0.6 × 50 = 30. Splitting equally (25) ignores the different group sizes; 20 is the number of girls.'},
+  {q:'(Higher) 30 fish are caught, marked and released. Later 40 fish are caught and 6 are marked. Estimate the number of fish.',opts:['200','8','36','1200'],a:0,fb:'N ≈ M × n ÷ m = 30 × 40 ÷ 6 = 1200 ÷ 6 = 200. (1200 forgets to divide by the 6 marked fish.)'},
+  {q:'(Higher) Which is an assumption of the capture–recapture method?',opts:['The population doesn\'t change between the two catches','The second catch must be bigger than the first','All the fish are the same size','Every fish is caught at least once'],a:0,fb:'If fish are born, die, arrive or leave between catches, the fraction marked changes and the estimate is wrong.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

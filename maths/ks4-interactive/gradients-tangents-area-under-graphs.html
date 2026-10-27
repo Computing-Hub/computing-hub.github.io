@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Gradients, Tangents and Area Under Graphs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an SVG graph drawn from JS with sliders or draggable points, plus a readout of the working. Colours on this page: teal = the graph itself (the line or curve), orange = estimates built from straight pieces (chords between two points, the trapezia under a curve, the shaded area pieces), plum = the tangent (the line touching the curve at one point, your "ruler") and the point it touches. Green/red are only for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.ca{color:var(--accent);font-weight:600}.ch{color:var(--hi);font-weight:600}.ct{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+a{color:var(--accent)}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.15rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:.35em;margin-left:.35rem;line-height:1.4}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+h3 .tag,summary .tag{vertical-align:.15em}
+.lab svg.drag{touch-action:none}
+.lab svg.drag [data-h]{cursor:grab}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.callout.trap{background:var(--two-soft)}
+.work .s{display:block}
+.work .s[hidden]{display:none}
+.work .note{color:var(--muted);font-family:var(--body);font-size:.9rem}
+.next{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;background:var(--panel)}
+@media (max-width:560px){
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block;width:100%}
+  table.stack tr:first-child{display:none}
+  table.stack tr{border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{border:0;padding:.15rem .3rem}
+}
+.controls label{flex-wrap:wrap}
+.readout b.nt,th.nt{text-transform:none;letter-spacing:.02em}
+.vt.sm td,.vt.sm th{padding:.3rem .25rem;font-size:.82rem}
+.vt th{text-transform:none;letter-spacing:.02em;font-size:.8rem}
+.controls label{max-width:100%}.controls select{min-width:0;max-width:100%}
+
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Algebra</div>
+  <h1>Gradients, Tangents and Area Under Graphs</h1>
+  <p class="lede">The gradient of a graph tells you how fast something is changing; the area under it tells you how much has built up. For straight lines both are easy. For curves we estimate them: the gradient with a <strong>tangent</strong>, the area with <strong>trapezia</strong>. These two ideas are the doorway to calculus.</p>
+  <span class="gcse">GCSE subject content: interpret the gradient of a straight-line graph as a rate of change; <strong>Higher:</strong> calculate or estimate gradients of graphs and areas under graphs (including non-linear graphs) and interpret the results, e.g. distance–time and velocity–time graphs; average and instantaneous rates of change (gradients of chords and tangents)</span>
+</header>
+
+<div class="recap">
+  <p><strong>Recap.</strong> The gradient of a straight line is <strong>rise ÷ run</strong> (change in y ÷ change in x); see <a href="../ks3-interactive/linear-graphs.html">Linear graphs</a>. You'll also need the area of a triangle (½ × base × height) and of a trapezium (½(a + b)h). For lots of real-life examples (distance–time, velocity–time, kinematics), see the companion page <a href="rates-of-change-graphs.html">Rates of change graphs</a>; this page concentrates on the methods.</p>
+</div>
+
+<h2>1 · The gradient of a line is a rate of change</h2>
+<p>When the axes measure real quantities, the gradient has <strong>units</strong>: "units of y per unit of x". A <strong>rate of change</strong> is how much one quantity changes for each unit of another, like metres per second, litres per minute or pounds per kilogram. On a straight line the rate is the same everywhere. Drag the two plum points along the line.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Situation <select id="lnS"><option value="0">filling a bath</option><option value="1">a taxi fare</option><option value="2">a cyclist</option></select></label>
+  </div>
+  <svg id="lnSvg" class="drag" viewBox="0 0 400 340" width="400" height="340" aria-label="Straight-line graph"></svg>
+  <div class="work" id="lnWork"></div>
+</div>
+
+<h2>2 · Curves: average rate of change and chords <span class="tag g">Higher</span></h2>
+<p>A ball rolls down a slope. The distance it has travelled is <span class="m">d = t²</span> metres after t seconds. The graph curves upwards: the ball keeps speeding up, so there is no single gradient. A <strong>chord</strong> is a straight line joining two points on a curve. Its gradient is the <strong>average rate of change</strong> between those points: here, the average speed.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>from t = <input type="range" id="chA" min="0" max="5.5" step="0.5" value="1"><span id="chAv" style="font-family:var(--mono)"></span></label>
+    <label>to t = <input type="range" id="chB" min="0.5" max="6" step="0.5" value="4"><span id="chBv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="chSvg" viewBox="0 0 400 360" width="400" height="360" aria-label="Chord on a curve"></svg>
+  <div class="work" id="chWork"></div>
+</div>
+
+<p>Move the two points closer together. The chord's gradient settles down towards a single value: the speed at one <em>instant</em>. That limit is the gradient of the <strong>tangent</strong>.</p>
+
+<h2>3 · Tangents and instantaneous rate of change <span class="tag g">Higher</span></h2>
+<p>A <strong>tangent</strong> to a curve is a straight line that just touches the curve at one point, going in the same direction as the curve there. The <strong>gradient of the curve at a point</strong> is defined as the gradient of the tangent at that point. In context it is the <strong>instantaneous rate of change</strong>, for example the speed at exactly t = 3 seconds.</p>
+<p>In an exam you draw the tangent with a ruler, by eye. Below, P is the point. Turn your plum ruler until it touches the curve at P without cutting across it. Then shrink the orange chord PQ to see what the true gradient is.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>point P at x = <input type="range" id="tgX" min="-3" max="3" step="0.5" value="2"><span id="tgXv" style="font-family:var(--mono)"></span></label>
+    <label>your ruler's gradient <input type="range" id="tgM" min="-3" max="4" step="0.05" value="1.2"><span id="tgMv" style="font-family:var(--mono)"></span></label>
+    <label>chord PQ, h = <input type="range" id="tgH" min="0.1" max="3" step="0.1" value="2"><span id="tgHv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="tgSvg" viewBox="0 0 400 380" width="400" height="380" aria-label="Tangent at a point"></svg>
+  <div class="work" id="tgWork"></div>
+  <div class="controls"><label><input type="checkbox" id="tgShow"> show the true tangent</label></div>
+  <div class="msg" id="tgMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Drawing a good tangent.</strong> Use a sharp pencil and a ruler. Make the line long. Near the point, the curve should be on the <em>same side</em> of your line on both sides of P (or the line is crossing it, which means it's a chord, not a tangent). To read the gradient, pick two points on your <em>tangent</em> (not on the curve) that are far apart, and work out rise ÷ run with a big triangle: it's more accurate than a small one.</p>
+</div>
+
+<h2>4 · Area under a straight-line graph <span class="tag g">Higher</span></h2>
+<p>On a <strong>velocity–time graph</strong>, velocity (speed in a direction) is on the y-axis and time on the x-axis. Area means height × width, and here that is (metres per second) × (seconds) = <strong>metres</strong>. So the <strong>area under a velocity–time graph is the distance travelled</strong>. Split the area into triangles, rectangles and trapezia. Drag the velocity at each time.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>v at 4 s <input type="range" id="vt1" min="0" max="16" step="1" value="12"><span id="vt1v" style="font-family:var(--mono)"></span></label>
+    <label>v at 10 s <input type="range" id="vt2" min="0" max="16" step="1" value="12"><span id="vt2v" style="font-family:var(--mono)"></span></label>
+    <label>v at 13 s <input type="range" id="vt3" min="0" max="16" step="1" value="0"><span id="vt3v" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="vtSvg" viewBox="0 0 400 320" width="400" height="320" aria-label="Velocity-time graph"></svg>
+  <div class="work" id="vtWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>The gradient of the same graph</strong> is (m/s) ÷ s = m/s², the <strong>acceleration</strong>. A negative gradient is deceleration. Don't mix them up: <em>gradient</em> gives acceleration; <em>area</em> gives distance.</p>
+</div>
+
+<h2>5 · Area under a curve: the trapezium method <span class="tag g">Higher</span></h2>
+<p>When the graph is curved, there is no simple shape for the area. Split it into vertical <strong>strips</strong> of equal width. Replace the curve across each strip with a straight line, so each strip becomes a trapezium (a four-sided shape with two parallel sides). Add up the trapezia. More strips give a better estimate.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>curve <select id="trF"><option value="0">y = x² + 1</option><option value="1">y = 8 − ½x²</option><option value="2">y = 6 − 4/(x + 1)</option></select></label>
+    <label>strips <input type="range" id="trN" min="1" max="12" step="1" value="4"><span id="trNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="trSvg" viewBox="0 0 400 340" width="400" height="340" aria-label="Trapezia under a curve"></svg>
+  <div class="readout">
+    <div class="t"><b>Trapezium estimate</b><span id="trEst"></span></div>
+    <div class="f"><b>True area</b><span id="trTrue"></span></div>
+    <div><b>Verdict</b><span id="trVer"></span></div>
+  </div>
+  <div class="work" id="trWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Over or under?</strong> If the curve bends <strong>upwards</strong> (like a U, gradient increasing), each straight top sits <em>above</em> the curve, so the trapezia <strong>over-estimate</strong>. If it bends <strong>downwards</strong> (like an ∩), they <strong>under-estimate</strong>. Exam questions often ask you to say which, and why.</p>
+</div>
+
+<h2>6 · Putting it together: a journey <span class="tag g">Higher</span></h2>
+<p>A car pulls away and later slows down: <span class="m">v = 4t − ½t²</span> m/s for 0 ≤ t ≤ 8. Slide the time. The plum tangent's gradient is the <strong>acceleration</strong> at that instant; the shaded area up to that time is the <strong>distance</strong> so far, estimated with half-second trapezia.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>t = <input type="range" id="jT" min="0.5" max="8" step="0.5" value="3"><span id="jTv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="jSvg" viewBox="0 0 400 320" width="400" height="320" aria-label="Velocity-time curve with tangent and area"></svg>
+  <div class="readout">
+    <div class="p"><b>Acceleration (gradient)</b><span id="jAcc"></span></div>
+    <div class="t"><b>Distance (area), trapezia</b><span id="jEst"></span></div>
+    <div class="f"><b>Distance, exact</b><span id="jEx"></span></div>
+  </div>
+</div>
+
+<div class="next">
+  <p><strong>What comes next.</strong> At A level, the tangent's gradient is found <em>exactly</em> with a formula (differentiation) and the area under a curve exactly with integration. If you're curious, take a look at <a href="../ks3-interactive/derivatives.html">Derivatives</a> and <a href="../ks3-interactive/integration.html">Integration</a>: they start from exactly the chords and strips on this page.</p>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>A tank holds 20 litres at the start and 80 litres after 12 minutes, filling steadily. Find the rate of flow.</summary>
+  <div class="step"><strong>Two points on the line:</strong> (0, 20) and (12, 80).</div>
+  <div class="step"><strong>Gradient:</strong> (80 − 20) ÷ (12 − 0) = 60 ÷ 12 = 5.</div>
+  <div class="step"><strong>With units:</strong> y is litres, x is minutes, so the rate is <strong>5 litres per minute</strong>.</div>
+</details>
+<details>
+  <summary>For d = t², find the average speed between t = 1 and t = 3 <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Points:</strong> t = 1, d = 1; t = 3, d = 9.</div>
+  <div class="step"><strong>Chord gradient:</strong> (9 − 1) ÷ (3 − 1) = 8 ÷ 2 = <strong>4 m/s</strong>.</div>
+  <div class="step"><strong>Meaning:</strong> the ball covers 8 m in 2 s. It is slower than 4 m/s at t = 1 and faster at t = 3.</div>
+</details>
+<details>
+  <summary>Estimate the gradient of y = x² at x = 3 <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Draw the tangent at (3, 9)</strong> with a ruler so it touches without crossing.</div>
+  <div class="step"><strong>Pick two points on the tangent, far apart:</strong> e.g. (1, −3) and (5, 21).</div>
+  <div class="step"><strong>Gradient:</strong> (21 − (−3)) ÷ (5 − 1) = 24 ÷ 4 = <strong>6</strong>. A hand-drawn tangent gives an estimate, so answers like 5.8 or 6.2 are usually accepted.</div>
+</details>
+<details>
+  <summary>A car accelerates from rest to 12 m/s in 4 s, travels at 12 m/s for 6 s, then stops steadily in 3 s. Find the acceleration at the start and the total distance. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Acceleration:</strong> gradient of the first part = 12 ÷ 4 = <strong>3 m/s²</strong>.</div>
+  <div class="step"><strong>Area, piece by piece:</strong> triangle ½ × 4 × 12 = 24; rectangle 6 × 12 = 72; triangle ½ × 3 × 12 = 18.</div>
+  <div class="step"><strong>Total distance:</strong> 24 + 72 + 18 = <strong>114 m</strong>. (Or one trapezium: ½(6 + 13) × 12 = 114 ✓)</div>
+</details>
+<details>
+  <summary>Use 4 strips of equal width to estimate the area under y = x² + 1 from x = 0 to x = 4. Is it an over- or under-estimate? <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Strip width:</strong> (4 − 0) ÷ 4 = 1. <strong>Heights:</strong> x = 0, 1, 2, 3, 4 give y = 1, 2, 5, 10, 17.</div>
+  <div class="step"><strong>Trapezia:</strong> ½(1 + 2) × 1 = 1.5; ½(2 + 5) × 1 = 3.5; ½(5 + 10) × 1 = 7.5; ½(10 + 17) × 1 = 13.5.</div>
+  <div class="step"><strong>Total:</strong> 1.5 + 3.5 + 7.5 + 13.5 = <strong>26</strong> square units.</div>
+  <div class="step"><strong>Over-estimate:</strong> the curve bends upwards, so each straight top lies above the curve. (The true area is 25⅓.)</div>
+</details>
+<details>
+  <summary>The tangent to a distance–time graph at t = 5 s passes through (2, 0) and (8, 19.2). What does its gradient represent? <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Gradient:</strong> 19.2 ÷ 6 = 3.2.</div>
+  <div class="step"><strong>Interpret:</strong> metres ÷ seconds, so it is the <strong>speed at t = 5 s: 3.2 m/s</strong> (an instantaneous rate, not an average).</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>The gradient of a straight-line graph is a <strong>rate of change</strong>, with units "y-units per x-unit".</li>
+  <li><span class="tag g">Higher</span> The gradient of a <strong>chord</strong> is the <strong>average</strong> rate of change between two points; the gradient of a <strong>tangent</strong> is the <strong>instantaneous</strong> rate of change at one point.</li>
+  <li><span class="tag g">Higher</span> Estimate a tangent's gradient by drawing it carefully and using a large rise ÷ run triangle on the tangent.</li>
+  <li><span class="tag g">Higher</span> The <strong>area under</strong> a velocity–time graph is the distance travelled; its gradient is the acceleration.</li>
+  <li><span class="tag g">Higher</span> Estimate the area under a curve by splitting it into equal-width trapezia and adding them. Curving upwards → over-estimate; curving downwards → under-estimate.</li>
+</ul>
+
+<footer>Made for GCSE students. Gradients as rates of change are in the DfE GCSE mathematics subject content under Algebra (and Ratio, proportion and rates of change); estimating gradients of curves with tangents and areas under graphs are Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">Subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => { if(!isFinite(v)) return '—'; let r=parseFloat((+v).toFixed(d)); if(Object.is(r,-0)) r=0; return minus(String(r)); };
+const fix = (v,d) => { if(!isFinite(v)) return '—'; let s=(+v).toFixed(d); if(/^-0(\.0*)?$/.test(s)) s=s.slice(1); return minus(s); };
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(v===0) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); return fix(r,Math.max(0,n-1-e)); };
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v=parseFloat(String(el.value).replace(/−/g,'-').replace(/\s/g,'')); return isFinite(v)?v:NaN; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a; };
+const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const sup = n => String(n).split('').map(c=>{const i='0123456789'.indexOf(c);return i>=0?'⁰¹²³⁴⁵⁶⁷⁸⁹'[i]:(c==='-'?'⁻':c);}).join('');
+/* polynomial from coefficients, highest power first: polyStr([1,-5,6]) = "x² − 5x + 6" */
+const polyStr = (cs,v='x') => { const n=cs.length-1; let s=''; cs.forEach((c,i)=>{ const p=n-i; if(Math.abs(c)<1e-12) return; const a=Math.abs(c); const body=p===0?fmt(a,4):((Math.abs(a-1)<1e-12?'':fmt(a,4))+v+(p>1?sup(p):'')); s+= s===''?(c<0?'−':'')+body:(c<0?' − ':' + ')+body; }); return s||'0'; };
+const xpm = (k,v='x') => Math.abs(k)<1e-12 ? v : `${v} ${k<0?'−':'+'} ${fmt(Math.abs(k),4)}`;
+const br = v => v<0 ? `(${fmt(v,4)})` : fmt(v,4);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const DRAW = [];
+const reg = f => { DRAW.push(f); f(); };
+function Plot(o){
+  const P=Object.assign({W:400,H:400,pad:26,gx:1,gy:1,lx:2,ly:2,xl:'x',yl:'y',xf:null,yf:null},o);
+  const W=P.W,H=P.H,pad=P.pad;
+  P.sx=x=>pad+(x-P.x0)/(P.x1-P.x0)*(W-2*pad);
+  P.sy=y=>H-pad-(y-P.y0)/(P.y1-P.y0)*(H-2*pad);
+  P.ix=px=>P.x0+(px-pad)/(W-2*pad)*(P.x1-P.x0);
+  P.iy=py=>P.y0+(H-pad-py)/(H-2*pad)*(P.y1-P.y0);
+  P.world=(svg,ev)=>{const r=svg.getBoundingClientRect();return [P.ix((ev.clientX-r.left)/r.width*W),P.iy((ev.clientY-r.top)/r.height*H)];};
+  const ticks=(a,b,st)=>{const out=[];for(let k=Math.ceil(a/st-1e-9);k*st<=b+1e-9;k++)out.push(Math.round(k*st*1e6)/1e6);return out;};
+  P.grid=()=>{const g=css('--grid'),mu=css('--muted'),f=F();let s='';
+    ticks(P.x0,P.x1,P.gx).forEach(x=>s+=`<line x1="${P.sx(x)}" y1="${P.sy(P.y0)}" x2="${P.sx(x)}" y2="${P.sy(P.y1)}" stroke="${g}"/>`);
+    ticks(P.y0,P.y1,P.gy).forEach(y=>s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(y)}" x2="${P.sx(P.x1)}" y2="${P.sy(y)}" stroke="${g}"/>`);
+    const ay=(P.y0<=0&&P.y1>=0)?0:P.y0, ax=(P.x0<=0&&P.x1>=0)?0:P.x0;
+    s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(ay)}" x2="${P.sx(P.x1)}" y2="${P.sy(ay)}" stroke="${mu}" stroke-width="1.5"/><line x1="${P.sx(ax)}" y1="${P.sy(P.y0)}" x2="${P.sx(ax)}" y2="${P.sy(P.y1)}" stroke="${mu}" stroke-width="1.5"/>`;
+    ticks(P.x0,P.x1,P.lx).forEach(x=>{if(Math.abs(x-ax)<1e-9&&ax===0)return;s+=`<text x="${P.sx(x)}" y="${P.sy(ay)+13}" text-anchor="middle" font-size="10" fill="${mu}" ${f}>${P.xf?P.xf(x):fmt(x)}</text>`;});
+    ticks(P.y0,P.y1,P.ly).forEach(y=>{if(Math.abs(y-ay)<1e-9&&ay===0)return;s+=`<text x="${P.sx(ax)-5}" y="${P.sy(y)+3}" text-anchor="end" font-size="10" fill="${mu}" ${f}>${P.yf?P.yf(y):fmt(y)}</text>`;});
+    if(ax===0&&ay===0)s+=`<text x="${P.sx(0)-5}" y="${P.sy(0)+13}" text-anchor="end" font-size="10" fill="${mu}" ${f}>0</text>`;
+    s+=`<text x="${P.sx(P.x1)-3}" y="${P.sy(ay)-5}" text-anchor="end" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.xl}</text><text x="${P.sx(ax)+6}" y="${P.sy(P.y1)+10}" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.yl}</text>`;
+    return s;};
+  P.clip=(svg,inner,over='')=>{svg.innerHTML=`<defs><clipPath id="cp${svg.id}"><rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${H-2*pad}"/></clipPath></defs>`+P.grid()+`<g clip-path="url(#cp${svg.id})">${inner}</g>`+over;};
+  P.path=(f,col,w=2.5,dash,a=P.x0,b=P.x1,n=400)=>{let d='',pen=false,prev=null;const span=P.y1-P.y0,mid=(P.y0+P.y1)/2;
+    for(let i=0;i<=n;i++){const x=a+(b-a)*i/n,y=f(x);
+      if(!isFinite(y)||Math.abs(y-mid)>span*3){pen=false;prev=null;continue;}
+      if(pen&&prev!==null&&Math.abs(y-prev)>span*1.5)pen=false;
+      d+=(pen?'L':'M')+P.sx(x).toFixed(1)+','+P.sy(y).toFixed(1);pen=true;prev=y;}
+    return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linejoin="round" stroke-linecap="round"/>`;};
+  P.seg=(x1,y1,x2,y2,col,w=2,dash)=>`<line x1="${P.sx(x1)}" y1="${P.sy(y1)}" x2="${P.sx(x2)}" y2="${P.sy(y2)}" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linecap="round"/>`;
+  P.dot=(x,y,col,r=5,label,dx=8,dy=-8,anchor='start')=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${col}"/>`+(label?`<text x="${P.sx(x)+dx}" y="${P.sy(y)+dy}" font-size="12" font-weight="600" fill="${col}" text-anchor="${anchor}" ${F()}>${label}</text>`:'');
+  P.ring=(x,y,col,r=5)=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${css('--panel')}" stroke="${col}" stroke-width="2.5"/>`;
+  P.text=(x,y,t,col,anchor='start',size=12,weight=600)=>`<text x="${P.sx(x)}" y="${P.sy(y)}" font-size="${size}" font-weight="${weight}" fill="${col}" text-anchor="${anchor}" ${F()}>${t}</text>`;
+  return P;
+}
+/* drag helper: calls onMove(ev) while a pointer is down on svg (or on an element with data-h) */
+function dragOn(svg,onMove,onDown){let on=false;
+  svg.addEventListener('pointerdown',e=>{if(onDown&&onDown(e)===false)return;on=true;try{svg.setPointerCapture(e.pointerId);}catch(_){}onMove(e);e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(on)onMove(e);});
+  const end=()=>{on=false;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);}
+/* step-through: lines is an array of html strings */
+function stepper(boxId,nextId,allId,resetId,onShow){const box=$(boxId);let lines=[],k=0;
+  const show=()=>{box.innerHTML=lines.map((l,i)=>`<span class="s"${i<k?'':' hidden'}>${l}</span>`).join('')+(k<lines.length?`<span class="s note">${k===0?'Press “Next step” to begin.':'…'}</span>`:'');if(nextId)$(nextId).disabled=k>=lines.length;if(onShow)onShow(k);};
+  if(nextId)$(nextId).addEventListener('click',()=>{if(k<lines.length)k++;show();});
+  if(allId)$(allId).addEventListener('click',()=>{k=lines.length;show();});
+  if(resetId)$(resetId).addEventListener('click',()=>{k=0;show();});
+  return {set(ls,start=0){lines=ls;k=start;show();},get k(){return k;}};}
+
+/* 1. straight-line rates */
+const LN=[
+ {P:{x0:0,x1:12,y0:0,y1:120,gx:1,gy:10,lx:2,ly:20,W:400,H:340,pad:30,xl:'min',yl:'litres'},f:t=>8*t+12,xu:'minutes',yu:'litres',rate:'litres per minute',d:'the bath fills at',x:[2,8]},
+ {P:{x0:0,x1:12,y0:0,y1:24,gx:1,gy:2,lx:2,ly:4,W:400,H:340,pad:30,xl:'miles',yl:'£'},f:d=>1.5*d+3,xu:'miles',yu:'£',rate:'pounds per mile',d:'each extra mile costs',x:[2,10]},
+ {P:{x0:0,x1:12,y0:0,y1:60,gx:1,gy:5,lx:2,ly:10,W:400,H:340,pad:30,xl:'s',yl:'m'},f:t=>4.5*t,xu:'seconds',yu:'metres',rate:'metres per second',d:'the cyclist\'s speed is',x:[2,8]}
+];
+let lnX=[2,8], lnDrag=-1;
+function drawLN(){ const S=LN[+$('lnS').value], P=Plot(S.P), ac=css('--accent'),hi=css('--hi'),tw=css('--two');
+  const [a,b]=lnX, ya=S.f(a), yb=S.f(b);
+  let s=P.path(S.f,ac,3,false,0,12,2)+`<polyline points="${P.sx(a)},${P.sy(ya)} ${P.sx(b)},${P.sy(ya)} ${P.sx(b)},${P.sy(yb)}" fill="none" stroke="${hi}" stroke-width="2" stroke-dasharray="5 4"/>`;
+  [[a,ya],[b,yb]].forEach(([x,y])=>s+=`<circle data-h="1" cx="${P.sx(x)}" cy="${P.sy(y)}" r="9" fill="${tw}" stroke="${css('--panel')}" stroke-width="2"/>`);
+  P.clip($('lnSvg'),s,P.text((a+b)/2,ya-(S.P.y1*0.05),`run ${fmt(b-a)}`,hi,'middle')+P.text(b+0.2,(ya+yb)/2,`rise ${fmt(yb-ya)}`,hi));
+  const g=(yb-ya)/(b-a);
+  $('lnWork').innerHTML=`points (${fmt(a)}, ${fmt(ya)}) and (${fmt(b)}, ${fmt(yb)})<br><span class="b">rise = ${fmt(yb)} − ${fmt(ya)} = ${fmt(yb-ya)} ${S.yu}; run = ${fmt(b)} − ${fmt(a)} = ${fmt(b-a)} ${S.xu}</span><br>gradient = ${fmt(yb-ya)} ÷ ${fmt(b-a)} = <strong>${fmt(g)} ${S.rate}</strong>: ${S.d} ${fmt(g)} ${S.rate}.`; }
+$('lnS').addEventListener('change',()=>{lnX=[2,8];drawLN();});
+dragOn($('lnSvg'),e=>{ const S=LN[+$('lnS').value], P=Plot(S.P); const [x]=P.world($('lnSvg'),e); let v=Math.max(0,Math.min(12,Math.round(x)));
+  if(lnDrag<0) lnDrag=Math.abs(x-lnX[0])<Math.abs(x-lnX[1])?0:1; const o=lnX[1-lnDrag]; if(v===o) return; lnX[lnDrag]=v; drawLN(); });
+$('lnSvg').addEventListener('pointerup',()=>lnDrag=-1); $('lnSvg').addEventListener('pointercancel',()=>lnDrag=-1);
+reg(drawLN);
+
+/* 2. chords on d = t² */
+const PC=Plot({x0:0,x1:6.5,y0:0,y1:40,gx:0.5,gy:2,lx:1,ly:10,H:360,xl:'t (s)',yl:'d (m)'});
+function drawCH(){ let a=+$('chA').value,b=+$('chB').value; if(b<=a){b=a+0.5;$('chB').value=b;} $('chAv').textContent=' '+fmt(a); $('chBv').textContent=' '+fmt(b);
+  const f=t=>t*t, ac=css('--accent'),hi=css('--hi'),tw=css('--two'), g=(f(b)-f(a))/(b-a);
+  let s=PC.path(f,ac,3,false,0,6.5)+PC.path(t=>f(a)+g*(t-a),hi,2,'7 5')+PC.seg(a,f(a),b,f(b),hi,3.5)+PC.dot(a,f(a),hi,6,`(${fmt(a)}, ${fmt(f(a))})`,-8,-8,'end')+PC.dot(b,f(b),hi,6,`(${fmt(b)}, ${fmt(f(b))})`,-8,-8,'end');
+  PC.clip($('chSvg'),s);
+  $('chWork').innerHTML=`<span class="b">chord gradient = (${fmt(f(b))} − ${fmt(f(a))}) ÷ (${fmt(b)} − ${fmt(a)}) = ${fmt(f(b)-f(a))} ÷ ${fmt(b-a)} = ${fmt(g)} m/s</span><br>average speed between t = ${fmt(a)} s and t = ${fmt(b)} s is <strong>${fmt(g)} m/s</strong>${b-a<=0.5?'<br><span class="c">the points are very close: this is nearly the speed at a single instant</span>':''}`; }
+['chA','chB'].forEach(i=>$(i).addEventListener('input',drawCH)); reg(drawCH);
+
+/* 3. tangent ruler */
+const f3=x=>x*x*x/10-x+3, d3=x=>0.3*x*x-1;
+const PT=Plot({x0:-4,x1:4,y0:-2,y1:8,H:380});
+function drawTG(){ const x0=+$('tgX').value,m=+$('tgM').value,h=+$('tgH').value; $('tgXv').textContent=' '+fmt(x0); $('tgMv').textContent=' '+fmt(m); $('tgHv').textContent=' '+fmt(h,1);
+  const ac=css('--accent'),hi=css('--hi'),tw=css('--two'),mu=css('--muted'), y0=f3(x0), mt=d3(x0), xq=x0+h, gq=(f3(xq)-y0)/h;
+  let s=PT.path(f3,ac,3);
+  if($('tgShow').checked) s+=PT.path(x=>y0+mt*(x-x0),mu,1.5,'4 4');
+  s+=PT.path(x=>y0+gq*(x-x0),hi,2,'7 5')+PT.dot(xq,f3(xq),hi,5,'Q');
+  s+=PT.seg(x0-3,y0-3*m,x0+3,y0+3*m,tw,3.5)+PT.dot(x0,y0,tw,7,'P',-10,-10,'end');
+  PT.clip($('tgSvg'),s);
+  $('tgWork').innerHTML=`P = (${fmt(x0)}, ${fmt(y0,3)}) on y = x³/10 − x + 3<br><span class="c">your ruler: gradient ${fmt(m)}</span><br><span class="b">chord PQ (Q at x = ${fmt(xq,1)}): gradient ${fmt(gq,3)}</span>${h<=0.3?' ← nearly the tangent':''}${$('tgShow').checked?`<br>true tangent gradient at P: <strong>${fmt(mt,3)}</strong>`:''}`;
+  // judge the ruler: does the curve stay on one side near P?
+  const side=t=>Math.sign(f3(t)-(y0+m*(t-x0))), L=side(x0-0.6), R=side(x0+0.6), err=Math.abs(m-mt), M=$('tgMsg');
+  if(err<=0.15){M.className='msg good';M.textContent=`Good tangent: your gradient ${fmt(m)} is within 0.15 of the true value. It touches at P without cutting across.`;}
+  else if(L!==R&&L!==0&&R!==0){M.className='msg bad';M.textContent=`Your line cuts across the curve at P: the curve is ${L>0?'above':'below'} it on the left and ${R>0?'above':'below'} on the right. Turn it ${m<mt?'steeper (bigger gradient)':'less steep (smaller gradient)'}.`;}
+  else {M.className='msg bad';M.textContent=`Close to the curve but not quite parallel to it at P. Try ${m<mt?'a bigger':'a smaller'} gradient. (Shrinking the orange chord shows the direction.)`;} }
+['tgX','tgM','tgH','tgShow'].forEach(i=>$(i).addEventListener('input',drawTG)); reg(drawTG);
+
+/* 4. velocity-time area */
+const PV=Plot({x0:0,x1:14,y0:0,y1:18,gx:1,gy:2,lx:2,ly:4,H:320,xl:'t (s)',yl:'v (m/s)'});
+function drawVT(){ const v=[0,+$('vt1').value,+$('vt2').value,+$('vt3').value], t=[0,4,10,13]; ['1','2','3'].forEach(k=>$('vt'+k+'v').textContent=' '+$('vt'+k).value);
+  const ac=css('--accent'),hi=css('--hi'), cols=[hi,css('--two'),hi]; let s='', lines=[], tot=0;
+  for(let i=0;i<3;i++){ const w=t[i+1]-t[i], A=(v[i]+v[i+1])/2*w; tot+=A;
+    s+=`<polygon points="${PV.sx(t[i])},${PV.sy(0)} ${PV.sx(t[i])},${PV.sy(v[i])} ${PV.sx(t[i+1])},${PV.sy(v[i+1])} ${PV.sx(t[i+1])},${PV.sy(0)}" fill="${cols[i]}" fill-opacity=".22" stroke="${cols[i]}" stroke-width="1"/>`;
+    const shape=v[i]===v[i+1]?(v[i]===0?'nothing':'rectangle'):(v[i]===0||v[i+1]===0)?'triangle':'trapezium';
+    const calc=shape==='rectangle'?`${w} × ${v[i]}`:shape==='triangle'?`½ × ${w} × ${Math.max(v[i],v[i+1])}`:shape==='nothing'?'0':`½(${v[i]} + ${v[i+1]}) × ${w}`;
+    const acc=(v[i+1]-v[i])/w;
+    lines.push(`${t[i]}–${t[i+1]} s: ${shape} ${calc} = <strong>${fmt(A)} m</strong> &nbsp;<span class="note">acceleration ${fmt(acc)} m/s²</span>`); }
+  s+=`<polyline points="${t.map((x,i)=>PV.sx(x)+','+PV.sy(v[i])).join(' ')}" fill="none" stroke="${ac}" stroke-width="3"/>`; t.forEach((x,i)=>s+=PV.dot(x,v[i],ac,4));
+  PV.clip($('vtSvg'),s);
+  $('vtWork').innerHTML=lines.join('<br>')+`<br><span class="b">total distance = <strong>${fmt(tot)} m</strong></span>${v[3]>0?'<br><span class="note">(the car is still moving at 13 s)</span>':''}`; }
+['vt1','vt2','vt3'].forEach(i=>$(i).addEventListener('input',drawVT)); reg(drawVT);
+
+/* 5. trapezia */
+const TR=[
+ {f:x=>x*x+1,a:0,b:4,ex:64/3+4,exs:'25⅓',bend:'up',P:{x0:0,x1:4.4,y0:0,y1:18,gx:0.5,gy:2,lx:1,ly:4}},
+ {f:x=>8-x*x/2,a:0,b:4,ex:32-64/6,exs:'21⅓',bend:'down',P:{x0:0,x1:4.4,y0:0,y1:9,gx:0.5,gy:1,lx:1,ly:2}},
+ {f:x=>6-4/(x+1),a:0,b:4,ex:24-4*Math.log(5),exs:'≈ 17.56',bend:'down',P:{x0:0,x1:4.4,y0:0,y1:7,gx:0.5,gy:1,lx:1,ly:1}}
+];
+function drawTR(){ const T=TR[+$('trF').value], n=+$('trN').value; $('trNv').textContent=' '+n; const P=Plot(Object.assign({H:340},T.P));
+  const ac=css('--accent'),hi=css('--hi'), h=(T.b-T.a)/n; let s='', est=0; const ys=[];
+  for(let i=0;i<=n;i++) ys.push(T.f(T.a+i*h));
+  for(let i=0;i<n;i++){ const x1=T.a+i*h,x2=x1+h; est+=(ys[i]+ys[i+1])/2*h;
+    s+=`<polygon points="${P.sx(x1)},${P.sy(0)} ${P.sx(x1)},${P.sy(ys[i])} ${P.sx(x2)},${P.sy(ys[i+1])} ${P.sx(x2)},${P.sy(0)}" fill="${hi}" fill-opacity=".22" stroke="${hi}" stroke-width="1.5"/>`; }
+  s+=P.path(T.f,ac,3,false,0,4.4);
+  P.clip($('trSvg'),s);
+  $('trEst').textContent=fmt(est,3); $('trTrue').textContent=T.exs;
+  const over=est>T.ex; $('trVer').textContent=`${over?'over':'under'}-estimate by ${fmt(Math.abs(est-T.ex),3)}`;
+  const show=n<=6;
+  $('trWork').innerHTML=`strip width h = (${T.b} − ${T.a}) ÷ ${n} = ${fmt(h,3)}<br>`+(show?`heights: ${ys.map(y=>fmt(y,3)).join(', ')}<br>`+ys.slice(0,-1).map((y,i)=>`½(${fmt(y,3)} + ${fmt(ys[i+1],3)}) × ${fmt(h,3)}`).join(' + ')+` = <strong>${fmt(est,3)}</strong>`:`${n} trapezia add up to <strong>${fmt(est,3)}</strong>`)+`<br><span class="b">the curve bends ${T.bend}wards, so the straight tops are ${T.bend==='up'?'above':'below'} it: ${T.bend==='up'?'over':'under'}-estimate</span>`; }
+['trF','trN'].forEach(i=>$(i).addEventListener('input',drawTR)); reg(drawTR);
+
+/* 6. journey */
+const vj=t=>4*t-t*t/2, aj=t=>4-t, sj=t=>2*t*t-t*t*t/6;
+const PJ=Plot({x0:0,x1:8.5,y0:-1,y1:10,gx:0.5,gy:1,lx:1,ly:2,H:320,xl:'t (s)',yl:'v (m/s)'});
+function drawJ(){ const T=+$('jT').value; $('jTv').textContent=' '+fmt(T)+' s'; const ac=css('--accent'),hi=css('--hi'),tw=css('--two');
+  let s='', est=0; const n=Math.round(T/0.5), h=T/n;
+  for(let i=0;i<n;i++){ const x1=i*h,x2=x1+h; est+=(vj(x1)+vj(x2))/2*h; s+=`<polygon points="${PJ.sx(x1)},${PJ.sy(0)} ${PJ.sx(x1)},${PJ.sy(vj(x1))} ${PJ.sx(x2)},${PJ.sy(vj(x2))} ${PJ.sx(x2)},${PJ.sy(0)}" fill="${hi}" fill-opacity=".22" stroke="${hi}" stroke-width="1"/>`; }
+  s+=PJ.path(vj,ac,3,false,0,8)+PJ.path(t=>vj(T)+aj(T)*(t-T),tw,2.5,false,T-2.5,T+2.5)+PJ.dot(T,vj(T),tw,7,`(${fmt(T)}, ${fmt(vj(T))})`);
+  PJ.clip($('jSvg'),s);
+  const a=aj(T); $('jAcc').textContent=`${fmt(a)} m/s² ${a>0?'(speeding up)':a<0?'(slowing down)':'(top speed)'}`; $('jEst').textContent=`${fmt(est,2)} m (${n} strips of ${fmt(h,2)} s)`; $('jEx').textContent=`${fmt(sj(T),2)} m`; }
+$('jT').addEventListener('input',drawJ); reg(drawJ);
+
+const QS=[
+  {q:'A graph of cost (£) against hours passes through (0, 4) and (5, 19). The rate is…',opts:['£3 per hour','£4 per hour','£19 per hour','£3.80 per hour'],a:0,fb:'(19 − 4) ÷ (5 − 0) = 15 ÷ 5 = 3: £3 per hour. The 4 is a fixed charge.'},
+  {q:'The gradient of a distance–time graph represents…',opts:['speed','acceleration','distance','time'],a:0,fb:'metres ÷ seconds = metres per second: speed.'},
+  {q:'Higher: the area under a velocity–time graph represents…',opts:['distance travelled','acceleration','speed','time taken'],a:0,fb:'(m/s) × s = m: the distance travelled.'},
+  {q:'Higher: the gradient of a velocity–time graph represents…',opts:['acceleration','distance','speed','time'],a:0,fb:'(m/s) ÷ s = m/s²: acceleration.'},
+  {q:'Higher: the average rate of change of y = x² from x = 1 to x = 4 is…',opts:['5','15','8','3'],a:0,fb:'Chord gradient: (16 − 1) ÷ (4 − 1) = 15 ÷ 3 = 5.'},
+  {q:'Higher: a tangent to a curve…',opts:['touches it at a point, with the same gradient as the curve there','joins two points on the curve','is always horizontal','crosses the curve at its turning point'],a:0,fb:'That\'s why its gradient gives the instantaneous rate of change. A line joining two points is a chord.'},
+  {q:'Higher: a trapezium strip has parallel sides 3 and 7 and width 2. Its area is…',opts:['10','20','21','5'],a:0,fb:'½(3 + 7) × 2 = 10.'},
+  {q:'Higher: trapezia under a curve that bends upwards (like a U) give…',opts:['an over-estimate','an under-estimate','the exact area','no estimate'],a:0,fb:'Each straight top sits above the curve, so a little extra area is included.'},
+  {q:'Higher: a car goes from 0 to 20 m/s in 10 s at a steady rate. How far does it travel?',opts:['100 m','200 m','2 m','10 m'],a:0,fb:'A triangle under the graph: ½ × 10 × 20 = 100 m.'},
+  {q:'Water volume (litres) is plotted against time (minutes). The gradient is measured in…',opts:['litres per minute','minutes per litre','litres × minutes','litres'],a:0,fb:'Gradient = change in y ÷ change in x: litres ÷ minutes.'}
+];
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>DRAW.forEach(f=>f()));}
+new MutationObserver(()=>DRAW.forEach(f=>f())).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

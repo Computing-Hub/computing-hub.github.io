@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Graph Transformations</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; every numbered section has an SVG explorer drawn from JS (choose a starting graph, slide the transformation, drag a point along the curve) with a working panel underneath; the last section is a "describe the transformation" game. Colours on this page: teal (dashed) = the original graph y = f(x), orange (solid) = the transformed graph, plum = a chosen point on the original, its image on the new graph, and the arrow between them. Green/red are only for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.ca{color:var(--accent);font-weight:600}.ch{color:var(--hi);font-weight:600}.ct{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+a{color:var(--accent)}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.15rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:.35em;margin-left:.35rem;line-height:1.4}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+h3 .tag,summary .tag{vertical-align:.15em}
+.lab svg.drag{touch-action:none}
+.lab svg.drag [data-h]{cursor:grab}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.callout.trap{background:var(--two-soft)}
+.work .s{display:block}
+.work .s[hidden]{display:none}
+.work .note{color:var(--muted);font-family:var(--body);font-size:.9rem}
+.next{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;background:var(--panel)}
+@media (max-width:560px){
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block;width:100%}
+  table.stack tr:first-child{display:none}
+  table.stack tr{border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{border:0;padding:.15rem .3rem}
+}
+.controls label{flex-wrap:wrap}
+.readout b.nt,th.nt{text-transform:none;letter-spacing:.02em}
+.vt.sm td,.vt.sm th{padding:.3rem .25rem;font-size:.82rem}
+.vt th{text-transform:none;letter-spacing:.02em;font-size:.8rem}
+.controls label{max-width:100%}.controls select{min-width:0;max-width:100%}
+.vec{display:inline-flex;flex-direction:column;vertical-align:middle;line-height:1.15;text-align:center;border-left:1.5px solid currentColor;border-right:1.5px solid currentColor;border-radius:7px;padding:0 .35em;font-family:var(--mono);font-size:.85em;margin:0 .1em}
+.typebtns{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+.typebtns button{text-align:left}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Algebra</div>
+  <h1>Graph Transformations <span class="tag g">Higher</span></h1>
+  <p class="lede">If you know what y = f(x) looks like, you can sketch y = f(x) + 3, y = f(x − 2), y = −f(x) and y = f(−x) without plotting a single point. Each one moves or flips the whole graph in a predictable way. The one surprise: changes <em>inside</em> the bracket do the opposite of what you'd expect.</p>
+  <span class="gcse">GCSE subject content (Higher): sketch translations and reflections of a given function; identify turning points and other key points after a transformation</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start.</strong> <strong>f(x)</strong> is function notation: f is a rule, and f(x) is what the rule gives when you put x in. If f(x) = x², then f(3) = 9 and f(x + 2) = (x + 2)². See <a href="functions-composite-inverse.html">Functions</a> for more. You'll also need to know the basic graph shapes (<a href="recognising-graphs.html">Recognising graphs</a>) and translations and reflections of shapes (<a href="../ks3-interactive/transformations.html">Transformations</a>). A translation is described by a column vector: <span class="vec"><span>a</span><span>b</span></span> means a right and b up.</p>
+</div>
+
+<h2>1 · A graph is a set of points <span class="tag g">Higher</span></h2>
+<p>The graph of y = f(x) is every point (x, f(x)). To transform a graph, transform its points. Pick a starting graph and drag the plum point along it: each point is an input x with its output f(x) as the height. Every panel below starts from the graph you choose there.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>y = f(x) = <select id="s1B"></select></label>
+    <label>x = <input type="range" id="s1X" min="-5" max="5" step="0.5" value="2"><span id="s1Xv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="s1Svg" viewBox="0 0 400 360" width="400" height="360" aria-label="Graph of f"></svg>
+  <div class="work" id="s1Work"></div>
+</div>
+
+<h2>2 · y = f(x) + a: up or down <span class="tag g">Higher</span></h2>
+<p>Adding a to the <em>output</em> raises every point by a. So y = f(x) + a is the graph of f <strong>translated by the vector</strong> <span class="vec"><span>0</span><span>a</span></span>: up if a is positive, down if negative. Every point (x, y) moves to (x, y + a).</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>f(x) = <select id="s2B"></select></label>
+    <label>a = <input type="range" id="s2A" min="-4" max="4" step="1" value="3"><span id="s2Av" style="font-family:var(--mono)"></span></label>
+    <label>point x = <input type="range" id="s2X" min="-5" max="5" step="0.5" value="1"></label>
+  </div>
+  <div class="big" id="s2Eq"></div>
+  <svg id="s2Svg" viewBox="0 0 400 360" width="400" height="360" aria-label="Vertical translation"></svg>
+  <div class="work" id="s2Work"></div>
+</div>
+
+<h2>3 · y = f(x + a): left or right, the opposite way <span class="tag g">Higher</span></h2>
+<p>Now the change is <em>inside</em> the bracket, to the <em>input</em>. In y = f(x + 2), the new graph at x = 0 shows f(2), the value the old graph had 2 units to the <em>right</em>. So everything the old graph did at x = 2, the new graph does at x = 0: the whole graph has moved 2 to the <strong>left</strong>.</p>
+<p class="big">y = f(x + a) is a translation by <span class="vec"><span>−a</span><span>0</span></span></p>
+<p>"Inside the bracket does the opposite": f(x + 2) moves left 2; f(x − 3) moves right 3. Every point (x, y) moves to (x − a, y).</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>f(x) = <select id="s3B"></select></label>
+    <label>a = <input type="range" id="s3A" min="-4" max="4" step="1" value="2"><span id="s3Av" style="font-family:var(--mono)"></span></label>
+    <label>point x = <input type="range" id="s3X" min="-5" max="5" step="0.5" value="2"></label>
+  </div>
+  <div class="big" id="s3Eq"></div>
+  <svg id="s3Svg" viewBox="0 0 400 360" width="400" height="360" aria-label="Horizontal translation"></svg>
+  <div class="tbl"><table class="vt" id="s3Tab"></table></div>
+  <div class="work" id="s3Work"></div>
+</div>
+
+<div class="callout">
+  <p><strong>The classic exam trap.</strong> y = (x − 3)² is y = x² moved 3 to the <strong>right</strong>, not left: its turning point is (3, 0), because that's where the bracket is 0. Check any translation by asking "where does the bracket become what it used to be?"</p>
+</div>
+
+<h2>4 · y = −f(x): reflect in the x-axis <span class="tag g">Higher</span></h2>
+<p>Making every <em>output</em> negative flips every point upside down: (x, y) goes to (x, −y). Points above the x-axis go below it by the same distance. The x-axis is the mirror line, and points <em>on</em> it (the roots) don't move.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>f(x) = <select id="s4B"></select></label>
+    <label><input type="checkbox" id="s4On" checked> apply y = −f(x)</label>
+    <label>point x = <input type="range" id="s4X" min="-5" max="5" step="0.5" value="-2"></label>
+  </div>
+  <svg id="s4Svg" viewBox="0 0 400 360" width="400" height="360" aria-label="Reflection in the x-axis"></svg>
+  <div class="work" id="s4Work"></div>
+</div>
+
+<h2>5 · y = f(−x): reflect in the y-axis <span class="tag g">Higher</span></h2>
+<p>Now the minus sign is <em>inside</em>. The new graph at x = 3 shows f(−3), the old value from the other side of the y-axis. So (x, y) goes to (−x, y): a reflection in the <strong>y-axis</strong>. Points on the y-axis (the y-intercept) don't move. A symmetrical graph like y = x² doesn't change at all.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>f(x) = <select id="s5B"></select></label>
+    <label><input type="checkbox" id="s5On" checked> apply y = f(−x)</label>
+    <label>point x = <input type="range" id="s5X" min="-5" max="5" step="0.5" value="2"></label>
+  </div>
+  <svg id="s5Svg" viewBox="0 0 400 360" width="400" height="360" aria-label="Reflection in the y-axis"></svg>
+  <div class="work" id="s5Work"></div>
+</div>
+
+<div class="tbl"><table class="stack">
+  <tr><th>Equation</th><th>Transformation</th><th>Point (x, y) goes to</th></tr>
+  <tr><td class="mono">y = f(x) + a</td><td>translation by <span class="vec"><span>0</span><span>a</span></span></td><td class="mono">(x, y + a)</td></tr>
+  <tr><td class="mono">y = f(x + a)</td><td>translation by <span class="vec"><span>−a</span><span>0</span></span></td><td class="mono">(x − a, y)</td></tr>
+  <tr><td class="mono">y = −f(x)</td><td>reflection in the x-axis</td><td class="mono">(x, −y)</td></tr>
+  <tr><td class="mono">y = f(−x)</td><td>reflection in the y-axis</td><td class="mono">(−x, y)</td></tr>
+</table></div>
+<p><strong>Memory hook:</strong> outside the f (changing y) does what it says; inside the bracket (changing x) does the opposite.</p>
+
+<h2>6 · Turning points after a transformation <span class="tag g">Higher</span></h2>
+<p>Exam questions often give you a turning point of y = f(x), like (2, 5), and ask for the turning point of a transformed graph. You don't need the equation: just move the point using the table above.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>f(x) = <select id="s6B"></select></label>
+    <label>transformation <select id="s6T"><option value="up">f(x) + a</option><option value="in">f(x + a)</option><option value="rx">−f(x)</option><option value="ry">f(−x)</option></select></label>
+    <label id="s6Aw">a = <input type="range" id="s6A" min="-4" max="4" step="1" value="-3"><span id="s6Av" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="big" id="s6Eq"></div>
+  <svg id="s6Svg" viewBox="0 0 400 360" width="400" height="360" aria-label="Turning points moved"></svg>
+  <div class="work" id="s6Work"></div>
+</div>
+
+<p><strong>Try it.</strong> Type the turning point of the new graph.</p>
+<div class="lab">
+  <p class="pq" id="tpQ"></p>
+  <div class="controls">
+    <label>( <input type="text" id="tpX" inputmode="numeric" autocomplete="off" style="width:4em"> , <input type="text" id="tpY" inputmode="numeric" autocomplete="off" style="width:4em"> )</label>
+    <button class="btn primary" id="tpGo">Check</button><button class="btn" id="tpNew">New question</button>
+  </div>
+  <div class="msg" id="tpMsg"></div>
+  <div class="msg" id="tpScore"></div>
+</div>
+
+<h2>7 · Describe the transformation <span class="tag g">Higher</span></h2>
+<p>The teal dashed graph is y = f(x); the orange one is a transformation of it. Choose the full description. In an exam you must say <strong>which</strong> transformation (translation or reflection) <strong>and</strong> give the vector or the mirror line.</p>
+
+<div class="lab">
+  <div class="big" id="dsEq" style="font-size:1.15rem"></div>
+  <svg id="dsSvg" viewBox="0 0 400 360" width="400" height="360" aria-label="Which transformation"></svg>
+  <div class="typebtns" id="dsBtns"></div>
+  <div class="msg" id="dsMsg"></div>
+  <div class="controls"><button class="btn" id="dsNew">Next one</button></div>
+  <div class="msg" id="dsScore"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Describe how y = x² + 3 is related to y = x², and give its turning point <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Form:</strong> it's f(x) + 3 with f(x) = x², so 3 is added to every output.</div>
+  <div class="step"><strong>Transformation:</strong> translation by the vector <span class="vec"><span>0</span><span>3</span></span>.</div>
+  <div class="step"><strong>Turning point:</strong> (0, 0) moves to <strong>(0, 3)</strong>.</div>
+</details>
+<details>
+  <summary>y = f(x) has a turning point at (2, 5). Find the turning point of (a) y = f(x − 3), (b) y = f(x) − 4, (c) y = −f(x), (d) y = f(−x) <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>(a)</strong> Inside the bracket, opposite way: −3 means 3 to the <em>right</em>. (2, 5) → <strong>(5, 5)</strong>.</div>
+  <div class="step"><strong>(b)</strong> Outside: down 4. (2, 5) → <strong>(2, 1)</strong>.</div>
+  <div class="step"><strong>(c)</strong> Reflect in the x-axis: change the sign of y. <strong>(2, −5)</strong> (and a maximum becomes a minimum).</div>
+  <div class="step"><strong>(d)</strong> Reflect in the y-axis: change the sign of x. <strong>(−2, 5)</strong>.</div>
+</details>
+<details>
+  <summary>Sketch y = (x + 2)² <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Recognise:</strong> f(x + 2) with f(x) = x².</div>
+  <div class="step"><strong>Inside the bracket, opposite way:</strong> translation by <span class="vec"><span>−2</span><span>0</span></span>, 2 to the left.</div>
+  <div class="step"><strong>Key points:</strong> turning point (0, 0) → <strong>(−2, 0)</strong>; y-intercept: put x = 0, y = 4, so (0, 4). Sketch a U through those.</div>
+</details>
+<details>
+  <summary>Describe the transformation from y = sin x to y = sin(x + 90°) <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Form:</strong> f(x + 90) with f(x) = sin x.</div>
+  <div class="step"><strong>Transformation:</strong> translation by <span class="vec"><span>−90</span><span>0</span></span>: 90° to the left.</div>
+  <div class="step"><strong>Check a point:</strong> the maximum (90°, 1) moves to (0°, 1). The new graph starts at its maximum: it is the graph of y = cos x.</div>
+</details>
+<details>
+  <summary>Show that reflecting y = x³ in the x-axis gives the same graph as reflecting it in the y-axis <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Reflect in the x-axis:</strong> y = −f(x) = −x³.</div>
+  <div class="step"><strong>Reflect in the y-axis:</strong> y = f(−x) = (−x)³ = −x³.</div>
+  <div class="step"><strong>Same equation,</strong> so the same graph. (This works because x³ has rotational symmetry about the origin.)</div>
+</details>
+<details>
+  <summary>Exam-style: A(1, 4) lies on y = f(x). Find the image of A on y = f(x + 1) + 2 <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Inside:</strong> + 1 moves the graph 1 left: x-coordinate 1 → 0.</div>
+  <div class="step"><strong>Outside:</strong> + 2 moves it 2 up: y-coordinate 4 → 6.</div>
+  <div class="step"><strong>Image:</strong> <strong>(0, 6)</strong>. Check: on the new graph at x = 0, y = f(0 + 1) + 2 = f(1) + 2 = 4 + 2 = 6 ✓</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li><strong>y = f(x) + a</strong>: translation by <span class="vec"><span>0</span><span>a</span></span>. Changes outside the f act on y and do what they say.</li>
+  <li><strong>y = f(x + a)</strong>: translation by <span class="vec"><span>−a</span><span>0</span></span>. Changes inside the bracket act on x and do the opposite.</li>
+  <li><strong>y = −f(x)</strong>: reflection in the x-axis, (x, y) → (x, −y). <strong>y = f(−x)</strong>: reflection in the y-axis, (x, y) → (−x, y).</li>
+  <li>To find a turning point (or any point) on the new graph, move the old point with the same rule; you don't need the equation of f.</li>
+  <li>Describe fully: say "translation" with a vector, or "reflection" with the mirror line.</li>
+</ul>
+
+<footer>Made for GCSE students. Translations and reflections of graphs of functions are in the DfE GCSE mathematics subject content under Algebra, at Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">Subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => { if(!isFinite(v)) return '—'; let r=parseFloat((+v).toFixed(d)); if(Object.is(r,-0)) r=0; return minus(String(r)); };
+const fix = (v,d) => { if(!isFinite(v)) return '—'; let s=(+v).toFixed(d); if(/^-0(\.0*)?$/.test(s)) s=s.slice(1); return minus(s); };
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(v===0) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); return fix(r,Math.max(0,n-1-e)); };
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v=parseFloat(String(el.value).replace(/−/g,'-').replace(/\s/g,'')); return isFinite(v)?v:NaN; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a; };
+const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const sup = n => String(n).split('').map(c=>{const i='0123456789'.indexOf(c);return i>=0?'⁰¹²³⁴⁵⁶⁷⁸⁹'[i]:(c==='-'?'⁻':c);}).join('');
+/* polynomial from coefficients, highest power first: polyStr([1,-5,6]) = "x² − 5x + 6" */
+const polyStr = (cs,v='x') => { const n=cs.length-1; let s=''; cs.forEach((c,i)=>{ const p=n-i; if(Math.abs(c)<1e-12) return; const a=Math.abs(c); const body=p===0?fmt(a,4):((Math.abs(a-1)<1e-12?'':fmt(a,4))+v+(p>1?sup(p):'')); s+= s===''?(c<0?'−':'')+body:(c<0?' − ':' + ')+body; }); return s||'0'; };
+const xpm = (k,v='x') => Math.abs(k)<1e-12 ? v : `${v} ${k<0?'−':'+'} ${fmt(Math.abs(k),4)}`;
+const br = v => v<0 ? `(${fmt(v,4)})` : fmt(v,4);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const DRAW = [];
+const reg = f => { DRAW.push(f); f(); };
+function Plot(o){
+  const P=Object.assign({W:400,H:400,pad:26,gx:1,gy:1,lx:2,ly:2,xl:'x',yl:'y',xf:null,yf:null},o);
+  const W=P.W,H=P.H,pad=P.pad;
+  P.sx=x=>pad+(x-P.x0)/(P.x1-P.x0)*(W-2*pad);
+  P.sy=y=>H-pad-(y-P.y0)/(P.y1-P.y0)*(H-2*pad);
+  P.ix=px=>P.x0+(px-pad)/(W-2*pad)*(P.x1-P.x0);
+  P.iy=py=>P.y0+(H-pad-py)/(H-2*pad)*(P.y1-P.y0);
+  P.world=(svg,ev)=>{const r=svg.getBoundingClientRect();return [P.ix((ev.clientX-r.left)/r.width*W),P.iy((ev.clientY-r.top)/r.height*H)];};
+  const ticks=(a,b,st)=>{const out=[];for(let k=Math.ceil(a/st-1e-9);k*st<=b+1e-9;k++)out.push(Math.round(k*st*1e6)/1e6);return out;};
+  P.grid=()=>{const g=css('--grid'),mu=css('--muted'),f=F();let s='';
+    ticks(P.x0,P.x1,P.gx).forEach(x=>s+=`<line x1="${P.sx(x)}" y1="${P.sy(P.y0)}" x2="${P.sx(x)}" y2="${P.sy(P.y1)}" stroke="${g}"/>`);
+    ticks(P.y0,P.y1,P.gy).forEach(y=>s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(y)}" x2="${P.sx(P.x1)}" y2="${P.sy(y)}" stroke="${g}"/>`);
+    const ay=(P.y0<=0&&P.y1>=0)?0:P.y0, ax=(P.x0<=0&&P.x1>=0)?0:P.x0;
+    s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(ay)}" x2="${P.sx(P.x1)}" y2="${P.sy(ay)}" stroke="${mu}" stroke-width="1.5"/><line x1="${P.sx(ax)}" y1="${P.sy(P.y0)}" x2="${P.sx(ax)}" y2="${P.sy(P.y1)}" stroke="${mu}" stroke-width="1.5"/>`;
+    ticks(P.x0,P.x1,P.lx).forEach(x=>{if(Math.abs(x-ax)<1e-9&&ax===0)return;s+=`<text x="${P.sx(x)}" y="${P.sy(ay)+13}" text-anchor="middle" font-size="10" fill="${mu}" ${f}>${P.xf?P.xf(x):fmt(x)}</text>`;});
+    ticks(P.y0,P.y1,P.ly).forEach(y=>{if(Math.abs(y-ay)<1e-9&&ay===0)return;s+=`<text x="${P.sx(ax)-5}" y="${P.sy(y)+3}" text-anchor="end" font-size="10" fill="${mu}" ${f}>${P.yf?P.yf(y):fmt(y)}</text>`;});
+    if(ax===0&&ay===0)s+=`<text x="${P.sx(0)-5}" y="${P.sy(0)+13}" text-anchor="end" font-size="10" fill="${mu}" ${f}>0</text>`;
+    s+=`<text x="${P.sx(P.x1)-3}" y="${P.sy(ay)-5}" text-anchor="end" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.xl}</text><text x="${P.sx(ax)+6}" y="${P.sy(P.y1)+10}" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.yl}</text>`;
+    return s;};
+  P.clip=(svg,inner,over='')=>{svg.innerHTML=`<defs><clipPath id="cp${svg.id}"><rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${H-2*pad}"/></clipPath></defs>`+P.grid()+`<g clip-path="url(#cp${svg.id})">${inner}</g>`+over;};
+  P.path=(f,col,w=2.5,dash,a=P.x0,b=P.x1,n=400)=>{let d='',pen=false,prev=null;const span=P.y1-P.y0,mid=(P.y0+P.y1)/2;
+    for(let i=0;i<=n;i++){const x=a+(b-a)*i/n,y=f(x);
+      if(!isFinite(y)||Math.abs(y-mid)>span*3){pen=false;prev=null;continue;}
+      if(pen&&prev!==null&&Math.abs(y-prev)>span*1.5)pen=false;
+      d+=(pen?'L':'M')+P.sx(x).toFixed(1)+','+P.sy(y).toFixed(1);pen=true;prev=y;}
+    return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linejoin="round" stroke-linecap="round"/>`;};
+  P.seg=(x1,y1,x2,y2,col,w=2,dash)=>`<line x1="${P.sx(x1)}" y1="${P.sy(y1)}" x2="${P.sx(x2)}" y2="${P.sy(y2)}" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linecap="round"/>`;
+  P.dot=(x,y,col,r=5,label,dx=8,dy=-8,anchor='start')=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${col}"/>`+(label?`<text x="${P.sx(x)+dx}" y="${P.sy(y)+dy}" font-size="12" font-weight="600" fill="${col}" text-anchor="${anchor}" ${F()}>${label}</text>`:'');
+  P.ring=(x,y,col,r=5)=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${css('--panel')}" stroke="${col}" stroke-width="2.5"/>`;
+  P.text=(x,y,t,col,anchor='start',size=12,weight=600)=>`<text x="${P.sx(x)}" y="${P.sy(y)}" font-size="${size}" font-weight="${weight}" fill="${col}" text-anchor="${anchor}" ${F()}>${t}</text>`;
+  return P;
+}
+/* drag helper: calls onMove(ev) while a pointer is down on svg (or on an element with data-h) */
+function dragOn(svg,onMove,onDown){let on=false;
+  svg.addEventListener('pointerdown',e=>{if(onDown&&onDown(e)===false)return;on=true;try{svg.setPointerCapture(e.pointerId);}catch(_){}onMove(e);e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(on)onMove(e);});
+  const end=()=>{on=false;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);}
+/* step-through: lines is an array of html strings */
+function stepper(boxId,nextId,allId,resetId,onShow){const box=$(boxId);let lines=[],k=0;
+  const show=()=>{box.innerHTML=lines.map((l,i)=>`<span class="s"${i<k?'':' hidden'}>${l}</span>`).join('')+(k<lines.length?`<span class="s note">${k===0?'Press “Next step” to begin.':'…'}</span>`:'');if(nextId)$(nextId).disabled=k>=lines.length;if(onShow)onShow(k);};
+  if(nextId)$(nextId).addEventListener('click',()=>{if(k<lines.length)k++;show();});
+  if(allId)$(allId).addEventListener('click',()=>{k=lines.length;show();});
+  if(resetId)$(resetId).addEventListener('click',()=>{k=0;show();});
+  return {set(ls,start=0){lines=ls;k=start;show();},get k(){return k;}};}
+
+/* base graphs */
+const D2R=Math.PI/180;
+const ZIG=[[-4,-1],[-2,3],[1,-2],[3,2],[5,0]];
+const zig=x=>{ if(x<ZIG[0][0]-1e-9||x>ZIG[ZIG.length-1][0]+1e-9) return NaN; for(let i=0;i<ZIG.length-1;i++){ const [x1,y1]=ZIG[i],[x2,y2]=ZIG[i+1]; if(x<=x2+1e-9) return y1+(y2-y1)*(x-x1)/(x2-x1);} return NaN; };
+const BASES={
+ sq:{n:'x²',f:x=>x*x,tp:[[0,0]],P:{x0:-7,x1:7,y0:-7,y1:9},xs:[-5,5,0.5]},
+ cu:{n:'x³ − 3x',f:x=>x*x*x-3*x,tp:[[-1,2],[1,-2]],P:{x0:-7,x1:7,y0:-7,y1:7},xs:[-3,3,0.5]},
+ zg:{n:'the zig-zag graph',f:zig,tp:[[-2,3],[1,-2],[3,2]],P:{x0:-7,x1:7,y0:-6,y1:6},xs:[-4,5,0.5],pts:ZIG},
+ sn:{n:'sin x',f:x=>Math.sin(x*D2R),tp:[[90,1],[270,-1]],trig:1,P:{x0:-360,x1:360,y0:-5,y1:5,gx:45,gy:1,lx:180,ly:1,xf:v=>v+'°'},xs:[0,360,15]}
+};
+const BK=Object.keys(BASES);
+['s1B','s2B','s3B','s4B','s5B','s6B'].forEach(id=>{ $(id).innerHTML=BK.map(k=>`<option value="${k}">${BASES[k].n}</option>`).join(''); });
+/* a trig-mode multiplier for a: degrees steps */
+const aScale=(b,t)=>b.trig&&t==='in'?45:1;
+const xsSet=(id,b)=>{ const el=$(id); const v=+el.value; el.min=b.xs[0]; el.max=b.xs[1]; el.step=b.xs[2]; if(v<b.xs[0]||v>b.xs[1]) el.value=b.trig?90:1; };
+const TF={ up:(f,a)=>x=>f(x)+a, in:(f,a)=>x=>f(x+a), rx:f=>x=>-f(x), ry:f=>x=>f(-x) };
+const IMG={ up:([x,y],a)=>[x,y+a], in:([x,y],a)=>[x-a,y], rx:([x,y])=>[x,-y], ry:([x,y])=>[-x,y] };
+const eqT=(t,a,trig)=>{ const u=trig?'°':''; const fx=trig?'sin':'f';
+  if(trig){ if(t==='up') return a===0?'y = sin x':`y = sin x ${a<0?'−':'+'} ${Math.abs(a)}`; if(t==='rx') return 'y = −sin x'; if(t==='ry') return 'y = sin(−x)'; }
+  if(t==='up') return a===0?`y = ${fx}(x)`:`y = ${fx}(x) ${a<0?'−':'+'} ${Math.abs(a)}`;
+  if(t==='in') return a===0?`y = ${fx}(x)`:`y = ${fx}(x ${a<0?'−':'+'} ${Math.abs(a)}${u})`;
+  if(t==='rx') return `y = −${fx}(x)`; return `y = ${fx}(−x)`; };
+const vecH=(a,b)=>`<span class="vec"><span>${minus(a)}</span><span>${minus(b)}</span></span>`;
+const arrowDefs=id=>`<defs><marker id="ah${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${css('--two')}"/></marker></defs>`;
+function pic(svg,b,g,pt,img,extra=''){ const P=Plot(Object.assign({H:360},b.P)), ac=css('--accent'),hi=css('--hi'),tw=css('--two');
+  let s=P.path(b.f,ac,2.2,'7 5',P.x0,P.x1,800); if(g) s+=P.path(g,hi,3,false,P.x0,P.x1,800);
+  if(pt&&isFinite(pt[1])){ s+=P.dot(pt[0],pt[1],tw,6); if(img&&isFinite(img[1])){ s+=P.dot(img[0],img[1],tw,6,`(${fmt(img[0])}, ${fmt(img[1])})`); const dx=P.sx(img[0])-P.sx(pt[0]),dy=P.sy(img[1])-P.sy(pt[1]),L=Math.hypot(dx,dy); if(L>14) s+=`<line x1="${P.sx(pt[0])+dx/L*7}" y1="${P.sy(pt[1])+dy/L*7}" x2="${P.sx(img[0])-dx/L*8}" y2="${P.sy(img[1])-dy/L*8}" stroke="${tw}" stroke-width="2" marker-end="url(#ah${svg.id})"/>`; } }
+  P.clip(svg,s+extra); svg.insertAdjacentHTML('afterbegin',arrowDefs(svg.id)); return P; }
+const bOf=id=>BASES[$(id).value];
+
+/* 1. points on f */
+function draw1(){ const b=bOf('s1B'); const x=+$('s1X').value; $('s1Xv').textContent=' '+fmt(x)+(b.trig?'°':''); const y=b.f(x);
+  pic($('s1Svg'),b,null,[x,y]);
+  $('s1Work').innerHTML=isFinite(y)?`input x = ${fmt(x)}${b.trig?'°':''} → output f(${fmt(x)}) = ${fmt(y,3)} → point <span class="c">(${fmt(x)}, ${fmt(y,3)})</span>${b.pts?'<br>the zig-zag is made of straight pieces joining '+b.pts.map(p=>`(${fmt(p[0])}, ${fmt(p[1])})`).join(', '):''}`:`f(${fmt(x)}) is not defined: this graph only exists from x = ${b.xs[0]} to ${b.xs[1]}.`; }
+$('s1B').addEventListener('change',()=>{xsSet('s1X',bOf('s1B'));draw1();}); $('s1X').addEventListener('input',draw1); reg(draw1);
+
+/* 2-5 generic panels */
+function panel(n,t){ const B='s'+n+'B',A='s'+n+'A',X='s'+n+'X',On='s'+n+'On';
+  const draw=()=>{ const b=bOf(B), sc=aScale(b,t); const a=$(A)?(+$(A).value)*sc:0; if($(A)) $(A+'v').textContent=' '+minus(a)+(b.trig?'°':'');
+    const on=$(On)?$(On).checked:true; const g=on?TF[t](b.f,a):null; const x=+$(X).value, pt=[x,b.f(x)], im=on?IMG[t](pt,a):null;
+    pic($('s'+n+'Svg'),b,g,pt,im);
+    if($('s'+n+'Eq')) $('s'+n+'Eq').textContent=eqT(t,a,b.trig);
+    const W=$('s'+n+'Work'); const u=b.trig?'°':'';
+    if(!isFinite(pt[1])){W.textContent='Move the point onto the graph.';return;}
+    const P0=`(${fmt(pt[0])}${u}, ${fmt(pt[1],3)})`, P1=im?`(${fmt(im[0])}${u}, ${fmt(im[1],3)})`:'';
+    if(t==='up') W.innerHTML=`every y-value ${a>=0?'+':'−'} ${Math.abs(a)}: translation by ${vecH(0,a)}<br><span class="c">${P0} → ${P1}</span>`;
+    else if(t==='in'){ W.innerHTML=`new graph at x = ${fmt(im[0])}${u} uses f(${fmt(im[0])} ${a<0?'−':'+'} ${Math.abs(a)}) = f(${fmt(pt[0])}) = ${fmt(pt[1],3)}<br>so the point moves ${a>0?'left':a<0?'right':'nowhere'} ${Math.abs(a)}${u}: translation by ${vecH(-a,0)}<br><span class="c">${P0} → ${P1}</span>`;
+      const xs=b.trig?[-90,0,90,180]:[-2,-1,0,1,2]; $('s3Tab').innerHTML=`<tr><th>x</th>${xs.map(v=>`<td>${fmt(v)}</td>`).join('')}</tr><tr><th>x ${a<0?'−':'+'} ${Math.abs(a)}</th>${xs.map(v=>`<td>${fmt(v+a)}</td>`).join('')}</tr><tr><th>f(x ${a<0?'−':'+'} ${Math.abs(a)})</th>${xs.map(v=>`<td class="on">${isFinite(b.f(v+a))?fmt(b.f(v+a),2):'—'}</td>`).join('')}</tr>`; }
+    else if(t==='rx') W.innerHTML=on?`every y-value changes sign; x stays the same<br><span class="c">${P0} → ${P1}</span>${Math.abs(pt[1])<1e-9?' (on the mirror line, so it doesn\'t move)':''}`:'Tick the box to apply the reflection.';
+    else W.innerHTML=on?`new graph at x = ${fmt(im[0])} uses f(−(${fmt(im[0])})) = f(${fmt(pt[0])}); every x-value changes sign<br><span class="c">${P0} → ${P1}</span>${Math.abs(pt[0])<1e-9?' (on the mirror line, so it doesn\'t move)':''}${$(B).value==='sq'?'<br>y = x² is symmetrical about the y-axis, so it looks unchanged.':''}`:'Tick the box to apply the reflection.'; };
+  $(B).addEventListener('change',()=>{xsSet(X,bOf(B));draw();}); [A,X,On].forEach(i=>{ if($(i)) $(i).addEventListener('input',draw); }); reg(draw); }
+panel(2,'up'); panel(3,'in'); panel(4,'rx'); panel(5,'ry');
+
+/* 6. turning points */
+function draw6(){ const b=bOf('s6B'), t=$('s6T').value, sc=aScale(b,t), a=(+$('s6A').value)*sc; $('s6Av').textContent=' '+minus(a)+(b.trig?'°':''); $('s6Aw').hidden=(t==='rx'||t==='ry');
+  const g=TF[t](b.f,a); const P=pic($('s6Svg'),b,g,null,null); const tw=css('--two'), u=b.trig?'°':'';
+  let extra=''; const lines=b.tp.map(p=>{ const q=IMG[t](p,a); return `(${fmt(p[0])}${u}, ${fmt(p[1])}) → <strong>(${fmt(q[0])}${u}, ${fmt(q[1])})</strong>`; });
+  const svg=$('s6Svg'); const pts=b.tp.map(p=>IMG[t](p,a));
+  svg.insertAdjacentHTML('beforeend',pts.map(q=>P.ring(q[0],q[1],tw,7)).join('')+b.tp.map(p=>P.dot(p[0],p[1],css('--accent'),4)).join(''));
+  $('s6Eq').textContent=eqT(t,a,b.trig);
+  const rule={up:`(x, y) → (x, y ${a<0?'−':'+'} ${Math.abs(a)})`,in:`(x, y) → (x ${a<0?'+':'−'} ${Math.abs(a)}${u}, y)`,rx:'(x, y) → (x, −y): a maximum becomes a minimum and vice versa',ry:'(x, y) → (−x, y)'}[t];
+  $('s6Work').innerHTML=`<span class="b">${rule}</span><br>turning points: ${lines.join('; ')}`; }
+['s6B','s6T','s6A'].forEach(i=>$(i).addEventListener('input',draw6)); reg(draw6);
+
+/* 6b. try it */
+let TQ=null,tqDone=false,tqR=0,tqT=0;
+function tpNew(){ const p=rnd(-5,5),q=rnd(-5,5),t=pick(['up','in','rx','ry','in','up']); let a=0; if(t==='up'||t==='in') do{a=rnd(-5,5);}while(a===0); TQ={p,q,t,a,ans:IMG[t]([p,q],a)}; tqDone=false;
+  $('tpQ').innerHTML=`y = f(x) has a turning point at (${minus(p)}, ${minus(q)}). Find the turning point of <span class="m">${eqT(t,a,false)}</span>.`; ['tpX','tpY'].forEach(i=>$(i).value=''); $('tpMsg').className='msg'; $('tpMsg').textContent=''; }
+$('tpGo').addEventListener('click',()=>{ const x=num($('tpX')),y=num($('tpY')),M=$('tpMsg'); if(isNaN(x)||isNaN(y)){M.className='msg bad';M.textContent='Type both coordinates.';return;}
+  const {p,q,t,a,ans}=TQ, ok=x===ans[0]&&y===ans[1]; let m='';
+  if(ok) m=`Correct: (${minus(ans[0])}, ${minus(ans[1])}).`;
+  else if(t==='in'&&x===p+a&&y===q) m=`Inside the bracket does the opposite: ${eqT(t,a,false).slice(4)} moves the graph ${a>0?'left':'right'} ${Math.abs(a)}, so x = ${minus(p)} ${a>0?'−':'+'} ${Math.abs(a)} = ${minus(ans[0])}.`;
+  else if(t==='in'&&x===p&&(y===q+a||y===q-a)) m='A change inside the bracket moves the graph sideways, so the x-coordinate changes, not y.';
+  else if(t==='up'&&y===q&&(x===p+a||x===p-a)) m='A change outside the f moves the graph up or down, so the y-coordinate changes, not x.';
+  else if(t==='up'&&x===p&&y===q-a) m=`Outside the f does what it says: ${a>0?'+':'−'} ${Math.abs(a)} moves it ${a>0?'up':'down'}.`;
+  else if(t==='rx'&&x===-p&&y===q) m='−f(x) reflects in the x-axis: the y-coordinate changes sign, not x.';
+  else if(t==='ry'&&x===p&&y===-q) m='f(−x) reflects in the y-axis: the x-coordinate changes sign, not y.';
+  else if((t==='rx'||t==='ry')&&x===-p&&y===-q) m='Only one coordinate changes sign in a reflection. Which axis is the mirror line?';
+  else m=`Use the rule from the table: the answer is (${minus(ans[0])}, ${minus(ans[1])}).`;
+  if(!tqDone){tqT++;if(ok)tqR++;} tqDone=true; M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'':'Not quite. ')+m; $('tpScore').textContent=`Score: ${tqR} right first time out of ${tqT}.`; });
+$('tpNew').addEventListener('click',tpNew); tpNew();
+
+/* 7. describe it */
+let DQ=null,dqDone=false,dqR=0,dqT=0;
+const descr=(t,a,u='')=>t==='up'?`Translation by ${vecH(0,a+'')}`:t==='in'?`Translation by ${vecH(-a+u,0)}`:t==='rx'?'Reflection in the x-axis':'Reflection in the y-axis';
+function dsNew(){ const k=pick(['sq','zg','zg','sn','cu']), b=BASES[k]; let t,a=0,sc=1; do{ t=pick(['up','in','rx','ry']); sc=aScale(b,t); a=(t==='up'||t==='in')?(rnd(1,3)*(Math.random()<.5?-1:1))*sc:0; }while(k==='sq'&&t==='ry'||k==='cu'&&(t==='rx'||t==='ry'));
+  DQ={k,t,a}; dqDone=false; const u=b.trig?'°':'';
+  const correct=descr(t,a,u); const wrong=new Set();
+  if(t==='up'){ wrong.add(`Translation by ${vecH(0,-a)}`); wrong.add(`Translation by ${vecH(a+u,0)}`); wrong.add(`Translation by ${vecH(-a+u,0)}`); }
+  else if(t==='in'){ wrong.add(`Translation by ${vecH(a+u,0)}`); wrong.add(`Translation by ${vecH(0,-a/sc)}`); wrong.add(`Translation by ${vecH(0,a/sc)}`); }
+  else { wrong.add(t==='rx'?'Reflection in the y-axis':'Reflection in the x-axis'); wrong.add('Reflection in the line y = x'); wrong.add(`Translation by ${vecH(0,2)}`); }
+  const opts=[correct,...[...wrong].filter(w=>w!==correct).slice(0,3)].sort(()=>Math.random()-.5);
+  $('dsEq').innerHTML=`y = ${b.trig?'sin x':'f(x)'} &nbsp;→&nbsp; ${eqT(t,a,b.trig)}`;
+  const box=$('dsBtns'); box.innerHTML=''; opts.forEach(o=>{const bt=document.createElement('button');bt.className='btn';bt.type='button';bt.innerHTML=o;
+    bt.addEventListener('click',()=>{const ok=o===correct,M=$('dsMsg'); if(!dqDone){dqT++;if(ok)dqR++;dqDone=true;} M.className='msg '+(ok?'good':'bad');
+      M.innerHTML=ok?'Correct. '+({up:'Outside the f: the graph moves up or down.',in:'Inside the bracket: it moves sideways, the opposite way to the sign.',rx:'−f(x): every y changes sign.',ry:'f(−x): every x changes sign.'}[t]):'Not quite. '+({up:'The change is outside the f, so it acts on y. Which way?',in:'The change is inside the bracket, so the graph moves sideways, and the opposite way to the sign.',rx:'The minus is outside the f, so the y-values change sign.',ry:'The minus is inside the bracket, so the x-values change sign.'}[t]); $('dsScore').textContent=`Score: ${dqR} right first time out of ${dqT}.`;});
+    box.appendChild(bt);}); $('dsMsg').className='msg'; $('dsMsg').textContent=''; drawDS(); }
+function drawDS(){ if(!DQ) return; const b=BASES[DQ.k]; pic($('dsSvg'),b,TF[DQ.t](b.f,DQ.a),null,null); }
+$('dsNew').addEventListener('click',dsNew); DRAW.push(drawDS); dsNew();
+
+const QS=[
+  {q:'y = f(x) + 3 is y = f(x)…',opts:['translated 3 up','translated 3 right','translated 3 left','translated 3 down'],a:0,fb:'Outside the f: add 3 to every y-value. Translation by the vector (0, 3).'},
+  {q:'y = f(x − 2) is y = f(x)…',opts:['translated 2 right','translated 2 left','translated 2 down','translated 2 up'],a:0,fb:'Inside the bracket does the opposite: − 2 moves the graph 2 to the right.'},
+  {q:'y = −f(x) is a…',opts:['reflection in the x-axis','reflection in the y-axis','translation down','rotation of 180°'],a:0,fb:'Every y-value changes sign: (x, y) → (x, −y).'},
+  {q:'y = f(−x) is a…',opts:['reflection in the y-axis','reflection in the x-axis','translation left','reflection in y = x'],a:0,fb:'Every x-value changes sign: (x, y) → (−x, y).'},
+  {q:'y = f(x) has a turning point at (3, −1). The turning point of y = f(x + 4) is…',opts:['(−1, −1)','(7, −1)','(3, 3)','(3, −5)'],a:0,fb:'+ 4 inside moves it 4 left: 3 − 4 = −1. y is unchanged.'},
+  {q:'y = f(x) has a turning point at (3, −1). The turning point of y = −f(x) is…',opts:['(3, 1)','(−3, −1)','(−3, 1)','(3, −1)'],a:0,fb:'Reflect in the x-axis: the y-coordinate changes sign.'},
+  {q:'y = f(x) has a turning point at (3, −1). The turning point of y = f(−x) is…',opts:['(−3, −1)','(3, 1)','(−3, 1)','(1, −3)'],a:0,fb:'Reflect in the y-axis: the x-coordinate changes sign.'},
+  {q:'The turning point of y = x² − 5 is…',opts:['(0, −5)','(5, 0)','(−5, 0)','(0, 5)'],a:0,fb:'x² − 5 is x² translated 5 down: (0, 0) → (0, −5).'},
+  {q:'y = cos x is translated by the vector (90, 0). The new equation is…',opts:['y = cos(x − 90°)','y = cos(x + 90°)','y = cos x + 90','y = cos x − 90'],a:0,fb:'90° right means − 90 inside the bracket. (This is the graph of sin x.)'},
+  {q:'(2, 7) lies on y = f(x). Which point lies on y = f(x) − 7?',opts:['(2, 0)','(−5, 7)','(9, 7)','(2, 14)'],a:0,fb:'Outside the f: 7 down, so (2, 7) → (2, 0).'}
+];
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>DRAW.forEach(f=>f()));}
+new MutationObserver(()=>DRAW.forEach(f=>f())).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

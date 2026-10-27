@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Coordinates</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive SVG grids; graph-paper neutrals, teal = x / horizontal, orange = y / vertical, plum = the point. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --q1:#0b6e6e; --q2:#c2410c; --q3:#6d28d9; --q4:#b45309;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171;
+  --q1:#3fbcb0; --q2:#f0894f; --q3:#b794f6; --q4:#fbbf24; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171;
+  --q1:#3fbcb0; --q2:#f0894f; --q3:#b794f6; --q4:#fbbf24; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.X{color:var(--accent);font-weight:600}.Y{color:var(--hi);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.8rem;font-family:var(--mono);text-align:center}
+.quad div{padding:.7rem .4rem;border-radius:8px;border:2px solid;font-size:1.05rem}
+.quad small{display:block;font:600 .68rem var(--body);letter-spacing:.08em;text-transform:uppercase;opacity:.8}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Algebra · KS3</div>
+  <h1>Coordinates</h1>
+  <p class="lede">Two numbers pin down any point on a flat surface: how far <span class="X">across</span>, then how far <span class="Y">up</span>. Add negative numbers and the grid extends in every direction, giving four quadrants and the plane that every graph for the rest of school is drawn on.</p>
+  <span class="gcse">National curriculum KS3: work with coordinates in all four quadrants; this page is the foundation for plotting graphs of linear and other functions</span>
+</header>
+
+<h2>1 · Across first, then up</h2>
+<p>Two number lines crossing at right angles. The horizontal one is the <strong class="X">x-axis</strong>; the vertical one is the <strong class="Y">y-axis</strong>. Where they cross is the <strong>origin</strong>, (0, 0). A point is written <span class="m">(x, y)</span>: first the x-value, then the y-value, in brackets with a comma. Order matters: (3, 5) and (5, 3) are different places.</p>
+<p>Click anywhere on the grid or drag the point. Watch the path: along the corridor, then up the stairs.</p>
+
+<div class="lab">
+  <svg id="g1" viewBox="0 0 520 520" width="520" height="520"></svg>
+  <div class="big" id="g1Big"></div>
+  <div class="readout">
+    <div class="f"><b>Across (x)</b><span id="g1x"></span></div>
+    <div class="t"><b>Up (y)</b><span id="g1y"></span></div>
+    <div class="p"><b>Quadrant</b><span id="g1q"></span></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Remembering the order.</strong> x comes before y in the alphabet, and across comes before up in the brackets. "Along the corridor, then up the stairs." Spanish uses the same convention: <em>abscisa</em> (x) then <em>ordenada</em> (y), the <em>par ordenado</em>.</p>
+</div>
+
+<h2>2 · Four quadrants</h2>
+<p>With negative numbers on both axes, the grid splits into four regions, numbered anticlockwise from top-right with Roman numerals. The signs of x and y tell you which quadrant you're in without looking.</p>
+
+<div class="quad">
+  <div style="border-color:var(--q2);color:var(--q2)"><small>Quadrant II</small>(−, +)</div>
+  <div style="border-color:var(--q1);color:var(--q1)"><small>Quadrant I</small>(+, +)</div>
+  <div style="border-color:var(--q3);color:var(--q3)"><small>Quadrant III</small>(−, −)</div>
+  <div style="border-color:var(--q4);color:var(--q4)"><small>Quadrant IV</small>(+, −)</div>
+</div>
+
+<p>Points <em>on</em> an axis belong to no quadrant: (4, 0) sits on the x-axis, (0, −3) on the y-axis. Move the point in Section 1 onto an axis and the quadrant readout says so.</p>
+
+<h2>3 · Plot the point</h2>
+<p>Now the other way round: you're given the coordinates and must find the place. Click where you think the point is. Five points, and a negative or two in every round.</p>
+
+<div class="lab">
+  <div class="big" id="g2Target"></div>
+  <svg id="g2" viewBox="0 0 520 520" width="520" height="520"></svg>
+  <div class="msg" id="g2Msg"></div>
+  <div class="readout">
+    <div><b>Score</b><span id="g2Score">0 / 0</span></div>
+    <div><b>Streak</b><span id="g2Streak">0</span></div>
+  </div>
+  <div class="controls"><button class="btn" id="g2New">New point</button><button class="btn" id="g2Reset">Reset score</button></div>
+</div>
+
+<h2>4 · Read the point</h2>
+<p>And the reverse again, which exam questions ask more often: a point is marked, you write its coordinates. Type them, including minus signs.</p>
+
+<div class="lab">
+  <svg id="g3" viewBox="0 0 520 520" width="520" height="520"></svg>
+  <div class="controls">
+    <label>( <input type="number" id="g3x" style="width:4em"> , <input type="number" id="g3y" style="width:4em"> )</label>
+    <button class="btn primary" id="g3Go">Check</button><button class="btn" id="g3New">New point</button>
+  </div>
+  <div class="msg" id="g3Msg"></div>
+</div>
+
+<h2>5 · Shapes from coordinates</h2>
+<p>Coordinates let you describe shapes with numbers. Plot three corners of a rectangle and the fourth is forced. This is the kind of question exams ask: "A(−2, 1), B(3, 1), C(3, 4) are three vertices of a rectangle. Find D." Join the points and the answer is visible.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Shape <select id="g4S">
+      <option value="rect">Rectangle: find the 4th vertex</option>
+      <option value="square">Square: find the 4th vertex</option>
+      <option value="mid">Midpoint of a line segment</option>
+      <option value="reflect">Reflect a point in the y-axis</option>
+      <option value="reflect2">Reflect a point in the x-axis</option>
+    </select></label>
+    <button class="btn" id="g4New">New example</button>
+  </div>
+  <svg id="g4" viewBox="0 0 520 520" width="520" height="520"></svg>
+  <div class="readout" id="g4Read"></div>
+  <div class="msg" id="g4Msg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Midpoint = average of the ends.</strong> Halfway between (−2, 1) and (6, 5) is ((−2 + 6)/2, (1 + 5)/2) = (2, 3). Average the x's, average the y's. It's the first formula built on coordinates and it comes up every year.</p>
+</div>
+
+<h2>6 · Where coordinates live</h2>
+<div class="grid2">
+  <div class="use"><h3>Every graph</h3>
+    <p>A graph is a set of points whose coordinates satisfy a rule. y = 2x + 1 is just the collection of all (x, y) pairs where the y really is 2x + 1. The next page plots them.</p></div>
+  <div class="use"><h3>Maps and GPS</h3>
+    <p>Latitude and longitude are coordinates on a sphere. Jersey is roughly (49.2° N, 2.1° W): the W is a negative x. Grid references on an OS map are "eastings then northings": across then up, exactly.</p></div>
+  <div class="use"><h3>Screens and games</h3>
+    <p>Every pixel has an (x, y). Note the trap: on screens y grows <em>downwards</em>, so (0, 0) is the top-left. Scratch puts (0, 0) in the centre with y up, like maths. Game characters move by adding to their coordinates.</p></div>
+  <div class="use"><h3>Spreadsheets</h3>
+    <p>Cell C4 is a coordinate: column C across, row 4 down. Letters then numbers: across then up (well, down), same convention.</p></div>
+  <div class="use"><h3>Chess and Battleships</h3>
+    <p>e4, B7: column letter then row number. Battleships is a coordinate game with hidden points, which is why it's used to teach this.</p></div>
+  <div class="use"><h3>Data science</h3>
+    <p>A scatter graph is thousands of coordinate pairs (height, weight), (hours studied, score). Patterns in the cloud of points are correlation. Statistics starts here.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Plot (−3, 2)</summary>
+  <div class="step"><strong>Start at the origin.</strong></div>
+  <div class="step"><strong>x = −3:</strong> go 3 to the <em>left</em> (negative is left).</div>
+  <div class="step"><strong>y = 2:</strong> go 2 up. Mark it. You're in quadrant II (−, +).</div>
+</details>
+<details>
+  <summary>Write the coordinates of a point 4 below the origin and 1 to the right</summary>
+  <div class="step"><strong>Across first:</strong> 1 to the right → x = 1.</div>
+  <div class="step"><strong>Then up/down:</strong> 4 below → y = −4.</div>
+  <div class="step"><strong>Answer:</strong> <strong>(1, −4)</strong>, quadrant IV.</div>
+</details>
+<details>
+  <summary>A(−2, 1), B(3, 1), C(3, 4) are three vertices of a rectangle. Find D.</summary>
+  <div class="step"><strong>A and B share y = 1</strong>, so AB is horizontal, length 5.</div>
+  <div class="step"><strong>B and C share x = 3</strong>, so BC is vertical, length 3.</div>
+  <div class="step"><strong>D sits above A by 3</strong> and level with C: D = <strong>(−2, 4)</strong>. Sketch it to be sure.</div>
+</details>
+<details>
+  <summary>Exam-style: M is the midpoint of PQ. P = (−5, 2), M = (1, −1). Find Q.</summary>
+  <div class="step"><strong>Midpoint is the average</strong>, so M is halfway. From P to M the x went −5 → 1, which is +6; the y went 2 → −1, which is −3.</div>
+  <div class="step"><strong>Go the same again from M:</strong> x = 1 + 6 = 7, y = −1 − 3 = −4.</div>
+  <div class="step"><strong>Q = (7, −4).</strong> Check: average of −5 and 7 is 1 ✓, average of 2 and −4 is −1 ✓</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>A coordinate pair (x, y) means across then up, measured from the origin, with negatives meaning left and down. The four quadrants are numbered anticlockwise from the top right and each has its own sign pattern; points on an axis belong to none. Reading and plotting points in all four quadrants is the groundwork for every graph, and simple geometry (fourth vertex, midpoint, reflection) is done by looking at how the x's and y's change.</p>
+
+<footer>Made for KS3 students. Coordinates in all four quadrants are in the England national curriculum at key stage 3 under Algebra. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const R=6; // grid half-range
+const S=520,pad=30,cell=(S-2*pad)/(2*R);
+const sx=x=>pad+(x+R)*cell,sy=y=>pad+(R-y)*cell;
+const toGrid=(svg,ev)=>{const r=svg.getBoundingClientRect();const px=(ev.clientX-r.left)/r.width*S,py=(ev.clientY-r.top)/r.height*S;return [Math.round((px-pad)/cell-R),Math.round(R-(py-pad)/cell)];};
+const clamp=v=>Math.max(-R,Math.min(R,v));
+function gridBase(opts={}){
+  const f=`font-family="${css('--mono')}"`;let s='';
+  if(opts.quadColors){const a=0.07;s+=`<rect x="${sx(0)}" y="${sy(R)}" width="${R*cell}" height="${R*cell}" fill="${css('--q1')}" opacity="${a}"/><rect x="${sx(-R)}" y="${sy(R)}" width="${R*cell}" height="${R*cell}" fill="${css('--q2')}" opacity="${a}"/><rect x="${sx(-R)}" y="${sy(0)}" width="${R*cell}" height="${R*cell}" fill="${css('--q3')}" opacity="${a}"/><rect x="${sx(0)}" y="${sy(0)}" width="${R*cell}" height="${R*cell}" fill="${css('--q4')}" opacity="${a}"/>`;
+    s+=`<text x="${sx(R-1)}" y="${sy(R-1)}" font-size="14" fill="${css('--q1')}" ${f} text-anchor="middle">I</text><text x="${sx(-R+1)}" y="${sy(R-1)}" font-size="14" fill="${css('--q2')}" ${f} text-anchor="middle">II</text><text x="${sx(-R+1)}" y="${sy(-R+1)}" font-size="14" fill="${css('--q3')}" ${f} text-anchor="middle">III</text><text x="${sx(R-1)}" y="${sy(-R+1)}" font-size="14" fill="${css('--q4')}" ${f} text-anchor="middle">IV</text>`;}
+  for(let i=-R;i<=R;i++){s+=`<line x1="${sx(i)}" y1="${sy(-R)}" x2="${sx(i)}" y2="${sy(R)}" stroke="${css('--grid')}" stroke-width="1"/><line x1="${sx(-R)}" y1="${sy(i)}" x2="${sx(R)}" y2="${sy(i)}" stroke="${css('--grid')}" stroke-width="1"/>`;}
+  s+=`<line x1="${sx(-R)}" y1="${sy(0)}" x2="${sx(R)}" y2="${sy(0)}" stroke="${css('--accent')}" stroke-width="2"/><line x1="${sx(0)}" y1="${sy(-R)}" x2="${sx(0)}" y2="${sy(R)}" stroke="${css('--hi')}" stroke-width="2"/>`;
+  for(let i=-R;i<=R;i++){if(i===0)continue;s+=`<text x="${sx(i)}" y="${sy(0)+16}" text-anchor="middle" font-size="12" fill="${css('--accent')}" ${f}>${i}</text><text x="${sx(0)-8}" y="${sy(i)+4}" text-anchor="end" font-size="12" fill="${css('--hi')}" ${f}>${i}</text>`;}
+  s+=`<text x="${sx(0)-8}" y="${sy(0)+16}" text-anchor="end" font-size="12" fill="${css('--muted')}" ${f}>0</text>`;
+  s+=`<text x="${sx(R)-4}" y="${sy(0)-8}" text-anchor="end" font-size="15" font-weight="600" fill="${css('--accent')}" ${f}>x</text><text x="${sx(0)+10}" y="${sy(R)+12}" font-size="15" font-weight="600" fill="${css('--hi')}" ${f}>y</text>`;
+  return s;
+}
+const quadOf=(x,y)=>x===0&&y===0?'the origin':x===0?'on the y-axis':y===0?'on the x-axis':x>0&&y>0?'I (+, +)':x<0&&y>0?'II (−, +)':x<0&&y<0?'III (−, −)':'IV (+, −)';
+const dot=(x,y,c,r=8,label)=>`<circle cx="${sx(x)}" cy="${sy(y)}" r="${r}" fill="${c}"/>`+(label?`<text x="${sx(x)+12}" y="${sy(y)-10}" font-size="14" font-weight="600" fill="${c}" font-family="${css('--mono')}">${label}</text>`:'');
+
+/* 1. explorer */
+const g1=document.getElementById('g1');let p1=[3,2];
+function draw1(){const [x,y]=p1;
+  g1.innerHTML=gridBase({quadColors:true})+`<line x1="${sx(0)}" y1="${sy(0)}" x2="${sx(x)}" y2="${sy(0)}" stroke="${css('--accent')}" stroke-width="5" opacity=".6"/><line x1="${sx(x)}" y1="${sy(0)}" x2="${sx(x)}" y2="${sy(y)}" stroke="${css('--hi')}" stroke-width="5" opacity=".6"/>`+dot(x,y,css('--two'),9,`(${x}, ${y})`);
+  document.getElementById('g1Big').innerHTML=`(<span class="X">${x}</span>, <span class="Y">${y}</span>)`;
+  document.getElementById('g1x').textContent=x===0?'0: stay':`${Math.abs(x)} to the ${x>0?'right':'left'}`;
+  document.getElementById('g1y').textContent=y===0?'0: stay':`${Math.abs(y)} ${y>0?'up':'down'}`;
+  document.getElementById('g1q').textContent=quadOf(x,y);}
+let drag1=false;
+g1.addEventListener('pointerdown',e=>{drag1=true;const [x,y]=toGrid(g1,e);p1=[clamp(x),clamp(y)];draw1();});
+g1.addEventListener('pointermove',e=>{if(!drag1)return;const [x,y]=toGrid(g1,e);p1=[clamp(x),clamp(y)];draw1();});
+window.addEventListener('pointerup',()=>drag1=false);draw1();
+
+/* 3. plot the point game */
+const g2=document.getElementById('g2');let t2=null,sc2={n:0,ok:0,streak:0},done2=false;
+function rnd(){const v=()=>Math.floor(Math.random()*(2*R-1))-(R-1);let x=v(),y=v();if(Math.random()<0.7&&x>0&&y>0){x=-x;}return [x,y];}
+function new2(){t2=rnd();done2=false;document.getElementById('g2Target').innerHTML=`Plot (<span class="X">${t2[0]}</span>, <span class="Y">${t2[1]}</span>)`;document.getElementById('g2Msg').textContent='Click where this point goes.';document.getElementById('g2Msg').className='msg';g2.innerHTML=gridBase();}
+g2.addEventListener('pointerdown',e=>{if(done2)return;const [x,y]=toGrid(g2,e);const ok=x===t2[0]&&y===t2[1];sc2.n++;if(ok){sc2.ok++;sc2.streak++;}else sc2.streak=0;done2=true;
+  g2.innerHTML=gridBase()+(ok?'':dot(x,y,css('--bad'),8,`you: (${x}, ${y})`))+dot(t2[0],t2[1],ok?css('--good'):css('--two'),9,`(${t2[0]}, ${t2[1]})`);
+  const m=document.getElementById('g2Msg');m.className='msg '+(ok?'good':'bad');
+  m.textContent=ok?'Correct.':(x===t2[1]&&y===t2[0]?'You swapped x and y. Across first, then up.':Math.sign(x)!==Math.sign(t2[0])&&x!==0?'Wrong direction for x: negative means left.':Math.sign(y)!==Math.sign(t2[1])&&y!==0?'Wrong direction for y: negative means down.':`Not quite: you clicked (${x}, ${y}).`);
+  document.getElementById('g2Score').textContent=`${sc2.ok} / ${sc2.n}`;document.getElementById('g2Streak').textContent=sc2.streak;});
+document.getElementById('g2New').addEventListener('click',new2);document.getElementById('g2Reset').addEventListener('click',()=>{sc2={n:0,ok:0,streak:0};document.getElementById('g2Score').textContent='0 / 0';document.getElementById('g2Streak').textContent='0';new2();});new2();
+
+/* 4. read the point */
+const g3=document.getElementById('g3');let t3=null;
+function new3(){t3=rnd();g3.innerHTML=gridBase()+dot(t3[0],t3[1],css('--two'),9,'P');document.getElementById('g3x').value='';document.getElementById('g3y').value='';document.getElementById('g3Msg').textContent='';document.getElementById('g3Msg').className='msg';}
+document.getElementById('g3Go').addEventListener('click',()=>{const x=parseInt(document.getElementById('g3x').value,10),y=parseInt(document.getElementById('g3y').value,10);const m=document.getElementById('g3Msg');if(isNaN(x)||isNaN(y)){m.textContent='Fill in both numbers.';return;}
+  const ok=x===t3[0]&&y===t3[1];m.className='msg '+(ok?'good':'bad');m.textContent=ok?`Correct: P = (${x}, ${y}), quadrant ${quadOf(x,y)}.`:(x===t3[1]&&y===t3[0]?'Swapped: that is (y, x). Read across first.':`Not quite. P is (${t3[0]}, ${t3[1]}). ${x!==t3[0]?'Check the x (across).':'Check the y (up).'}`);
+  if(!ok)g3.innerHTML=gridBase()+dot(t3[0],t3[1],css('--two'),9,`P (${t3[0]}, ${t3[1]})`);});
+document.getElementById('g3New').addEventListener('click',new3);new3();
+
+/* 5. shapes */
+const g4=document.getElementById('g4'),g4S=document.getElementById('g4S');let st4={};
+function new4(){const kind=g4S.value;const v=(lo,hi)=>lo+Math.floor(Math.random()*(hi-lo+1));let s='';const read=[];let msg='';
+  if(kind==='rect'||kind==='square'){const x1=v(-5,0),y1=v(-5,0);const w=kind==='square'?v(2,5):v(2,6),h=kind==='square'?w:v(2,5);const x2=Math.min(5,x1+w),y2=Math.min(5,y1+h);
+    const A=[x1,y1],B=[x2,y1],C=[x2,y2],D=[x1,y2];st4={ans:D};
+    s=`<polyline points="${sx(A[0])},${sy(A[1])} ${sx(B[0])},${sy(B[1])} ${sx(C[0])},${sy(C[1])}" fill="none" stroke="${css('--two')}" stroke-width="2"/><polyline points="${sx(C[0])},${sy(C[1])} ${sx(D[0])},${sy(D[1])} ${sx(A[0])},${sy(A[1])}" fill="none" stroke="${css('--two')}" stroke-width="2" stroke-dasharray="6 5" opacity=".5"/>`+dot(A[0],A[1],css('--two'),7,`A (${A[0]}, ${A[1]})`)+dot(B[0],B[1],css('--two'),7,`B (${B[0]}, ${B[1]})`)+dot(C[0],C[1],css('--two'),7,`C (${C[0]}, ${C[1]})`)+dot(D[0],D[1],css('--hi'),9,'D = ?');
+    read.push(['A',`(${A[0]}, ${A[1]})`],['B',`(${B[0]}, ${B[1]})`],['C',`(${C[0]}, ${C[1]})`],['D',`(${D[0]}, ${D[1]})`]);msg=`D shares its x with A (${x1}) and its y with C (${y2}): D = (${x1}, ${y2}).`;}
+  else if(kind==='mid'){const P=[v(-6,6),v(-6,6)];let Q=[v(-6,6),v(-6,6)];if((P[0]+Q[0])%2)Q[0]+=Q[0]<6?1:-1;if((P[1]+Q[1])%2)Q[1]+=Q[1]<6?1:-1;const M=[(P[0]+Q[0])/2,(P[1]+Q[1])/2];
+    s=`<line x1="${sx(P[0])}" y1="${sy(P[1])}" x2="${sx(Q[0])}" y2="${sy(Q[1])}" stroke="${css('--two')}" stroke-width="2"/>`+dot(P[0],P[1],css('--two'),7,`P (${P[0]}, ${P[1]})`)+dot(Q[0],Q[1],css('--two'),7,`Q (${Q[0]}, ${Q[1]})`)+dot(M[0],M[1],css('--hi'),9,`M (${M[0]}, ${M[1]})`);
+    read.push(['P',`(${P[0]}, ${P[1]})`],['Q',`(${Q[0]}, ${Q[1]})`],['Midpoint',`((${P[0]} + ${Q[0]})/2, (${P[1]} + ${Q[1]})/2) = (${M[0]}, ${M[1]})`]);msg='Average the x-values and average the y-values.';}
+  else{const P=[v(-5,5)||2,v(-5,5)||3];const inY=kind==='reflect';const Pp=inY?[-P[0],P[1]]:[P[0],-P[1]];
+    s=`<line x1="${sx(P[0])}" y1="${sy(P[1])}" x2="${sx(Pp[0])}" y2="${sy(Pp[1])}" stroke="${css('--muted')}" stroke-width="1.5" stroke-dasharray="5 4"/>`+dot(P[0],P[1],css('--two'),8,`P (${P[0]}, ${P[1]})`)+dot(Pp[0],Pp[1],css('--hi'),8,`P′ (${Pp[0]}, ${Pp[1]})`);
+    read.push(['P',`(${P[0]}, ${P[1]})`],[`Reflected in the ${inY?'y':'x'}-axis`,`(${Pp[0]}, ${Pp[1]})`]);msg=inY?'Reflecting in the y-axis flips the sign of x; y stays the same.':'Reflecting in the x-axis flips the sign of y; x stays the same.';}
+  g4.innerHTML=gridBase()+s;document.getElementById('g4Read').innerHTML=read.map(r=>`<div><b>${r[0]}</b><span>${r[1]}</span></div>`).join('');document.getElementById('g4Msg').textContent=msg;}
+g4S.addEventListener('change',new4);document.getElementById('g4New').addEventListener('click',new4);new4();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{draw1();new4();});}
+new MutationObserver(()=>{draw1();new4();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'In (−4, 7), which number tells you how far across?',opts:['−4 (4 to the left)','7','both','neither'],a:0,fb:'The first number is x, across. Negative means left.'},
+  {q:'Which quadrant is (3, −5) in?',opts:['IV','I','II','III'],a:0,fb:'x positive, y negative: bottom right, quadrant IV.'},
+  {q:'Which point lies on the y-axis?',opts:['(0, −6)','(−6, 0)','(6, 6)','(−6, −6)'],a:0,fb:'On the y-axis you have gone 0 across, so x = 0.'},
+  {q:'Which point is in quadrant III?',opts:['(−2, −9)','(2, −9)','(−2, 9)','(2, 9)'],a:0,fb:'Quadrant III is bottom-left: both negative.'},
+  {q:'Midpoint of (−4, 2) and (6, −8)?',opts:['(1, −3)','(2, −6)','(5, 5)','(−5, 5)'],a:0,fb:'Average: (−4 + 6)/2 = 1, (2 + (−8))/2 = −3.'},
+  {q:'Reflect (5, −2) in the x-axis.',opts:['(5, 2)','(−5, −2)','(−5, 2)','(−2, 5)'],a:0,fb:'Reflecting in the x-axis flips y only.'},
+  {q:'A(1, 1), B(5, 1), C(5, 4) are three corners of a rectangle. D = ?',opts:['(1, 4)','(4, 1)','(5, 5)','(1, 5)'],a:0,fb:'D is above A (same x = 1) and level with C (same y = 4).'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

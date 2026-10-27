@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Similar Shapes: Area and Volume</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each section has an SVG drawn from JS with a scale-factor slider. Colours on this page: teal = the original (smaller) shape, its unit squares and unit cubes; orange = the enlarged (similar) shape and its tiles and cubes; plum = scale factors and the arrows that link the two shapes. Green/red = right/wrong feedback only. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.D{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.parts-svg [data-part]{cursor:pointer}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.12rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.45rem;position:relative;top:-.12em;white-space:nowrap}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+summary .tag{font-size:.6rem}
+.grp{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.lab svg.drag{touch-action:none;cursor:grab}
+.lab svg.drag:active{cursor:grabbing}
+.hint{font-size:.85rem;color:var(--muted);margin:.4rem 0 0}
+.formula{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.7rem 1rem;margin:1.2rem 0;font-family:var(--mono);font-size:1.05rem;line-height:1.8}
+.formula b{font-family:var(--body)}
+.A{color:var(--accent);font-weight:600}.H{color:var(--hi);font-weight:600}.T{color:var(--two);font-weight:600}
+sup,sub{line-height:0}
+@media (max-width:540px){
+  table.stack tr:first-child{display:none}
+  table.stack tr{display:block;border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{display:block;border:0;padding:.15rem .3rem}
+  table.stack td[data-h]::before{content:attr(data-h) ": ";font:600 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+}
+.sort{display:grid;gap:.5rem;margin-top:.6rem}
+.sort .it{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;justify-content:space-between;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.45rem .7rem}
+.sort .it.ok{border-color:var(--good)}
+.sort .it.no{border-color:var(--bad)}
+.sort .it .grp button{font-size:.8rem;padding:.25rem .55rem}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Geometry and measures</div>
+  <h1>Similar Shapes: Area and Volume</h1>
+  <p class="lede">Double every length of a photo and you need four times as much paper. Double every length of a model boat and it needs eight times as much wood. When shapes are similar, lengths, areas and volumes all grow, but at different rates. This page shows exactly why, using tiles and cubes, and how to go backwards from an area or volume to a length.</p>
+  <span class="gcse">GCSE subject content G6 and G19: apply the concepts of congruence and similarity. G19 (Higher): the relationships between lengths, areas and volumes in similar figures.</span>
+</header>
+
+<h2>1 · Recap: similar shapes and the length scale factor</h2>
+<p>Two shapes are <strong>similar</strong> if one is an enlargement of the other: same angles, and every length multiplied by the same number, the <strong>length scale factor</strong> k. (Revise with the KS3 pages <a href="../ks3-interactive/congruence-similarity.html">Congruence and similarity</a> and <a href="../ks3-interactive/scale-factors.html">Scale factors</a>.) To find k, divide a length on the big shape by the matching length on the small one.</p>
+<div class="lab">
+  <div class="controls"><label>k <input type="range" id="lsK" min="1" max="3" step="0.25" value="2"><span id="lsKv" style="font-family:var(--mono)"></span></label></div>
+  <svg id="lsSvg" viewBox="0 0 440 240" width="440" height="240"></svg>
+  <div class="work" id="lsWork"></div>
+</div>
+
+<h2>2 · Area scale factor = k² <span class="tag g">Higher</span></h2>
+<p>Enlarge a shape by scale factor k. Each little unit square inside it becomes a k by k square, which holds k × k = k² unit squares. So every area is multiplied by k², not k. Watch the tiles: with k = 3, each teal square becomes nine.</p>
+<div class="lab">
+  <div class="controls"><label>length scale factor k <input type="range" id="arK" min="1" max="4" step="0.5" value="3"><span id="arKv" style="font-family:var(--mono)"></span></label></div>
+  <svg id="arSvg" viewBox="0 0 440 280" width="440" height="280"></svg>
+  <div class="work" id="arWork"></div>
+</div>
+<div class="callout"><p><strong>The big trap:</strong> using k for areas. If the lengths are 3 times bigger, the area is 3² = 9 times bigger, not 3. Lengths include perimeters, heights, radii and diagonals (all × k); areas include surface area, the area of a face and the amount of paint (all × k²).</p></div>
+
+<h2>3 · Volume scale factor = k³ <span class="tag g">Higher</span></h2>
+<p>In three dimensions, each unit cube becomes a k by k by k block of cubes: k³ of them. So volumes (and anything that depends on volume, such as capacity or the mass of a solid made of the same material) are multiplied by k³.</p>
+<div class="lab">
+  <div class="controls"><label>k <input type="range" id="voK" min="1" max="4" step="1" value="2"><span id="voKv" style="font-family:var(--mono)"></span></label></div>
+  <svg id="voSvg" viewBox="0 0 440 300" width="440" height="300"></svg>
+  <div class="readout">
+    <div class="p"><b>Length × k</b><span id="voL"></span></div>
+    <div class="p"><b>Area × k²</b><span id="voA"></span></div>
+    <div class="t"><b>Volume × k³</b><span id="voV"></span></div>
+  </div>
+</div>
+<div class="formula">lengths × k    areas × k²    volumes × k³<br>ratio of lengths a : b → areas a² : b² → volumes a³ : b³</div>
+
+<h2>4 · Going backwards <span class="tag g">Higher</span></h2>
+<p>Often you're given two areas or two volumes and need a length. Undo the power: if the area scale factor is k², then <strong>k = √(area factor)</strong>; if the volume factor is k³, then <strong>k = ∛(volume factor)</strong>. To get from areas to volumes, always go through k: square-root first, then cube.</p>
+<div class="lab">
+  <div class="controls">
+    <label>I know the <select id="bwT"><option value="L">length</option><option value="A" selected>area</option><option value="V">volume</option></select> scale factor</label>
+    <label>= <input type="text" id="bwV" value="25/4" style="width:6em"></label>
+  </div>
+  <svg id="bwSvg" viewBox="0 0 440 150" width="440" height="150"></svg>
+  <div class="work" id="bwWork"></div>
+  <p class="hint">Type a number or a fraction, e.g. 27/8.</p>
+</div>
+
+<h2>5 · Length, area or volume? <span class="tag g">Higher</span></h2>
+<p>In word problems the hard part is spotting which kind of quantity you have. Ask: is it measured in cm, cm² or cm³ (or does it depend on one of those)? Sort these quantities for two similar solids.</p>
+<div class="lab">
+  <div class="sort" id="soBox"></div>
+  <div class="msg" id="soMsg"></div>
+</div>
+
+<h2>6 · Mixed problems <span class="tag g">Higher</span></h2>
+<p>Strategy: (1) find k from two matching lengths, or by square-rooting or cube-rooting a given ratio; (2) decide whether the unknown is a length, area or volume; (3) multiply (or divide, going from big to small) by k, k² or k³. Answers to 3 s.f.</p>
+<div class="lab">
+  <p class="pq" id="prQ"></p>
+  <svg id="prSvg" viewBox="0 0 440 200" width="440" height="200"></svg>
+  <div class="controls">
+    <label>answer <input type="text" id="prA" inputmode="decimal" autocomplete="off" style="width:6em"> <span id="prU"></span></label>
+    <button class="btn primary" id="prGo">Check</button>
+    <button class="btn" id="prShow">Show working</button>
+    <button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Two triangles are similar. The small one has sides 4 cm and 6 cm; the matching sides of the large one are 10 cm and x cm. Find x.</summary>
+  <div class="step"><strong>k</strong> = 10 ÷ 4 = 2.5 (big ÷ small, using a matching pair).</div>
+  <div class="step">x = 6 × 2.5 = <strong>15 cm</strong>.</div>
+</details>
+<details>
+  <summary>Two similar shapes have matching lengths 3 cm and 6 cm. The small one has area 20 cm². Find the area of the large one. <span class="tag g">Higher</span></summary>
+  <div class="step">k = 6 ÷ 3 = 2. Area factor = k² = 4.</div>
+  <div class="step">Area = 20 × 4 = <strong>80 cm²</strong>. (Not 40: that uses k for an area.)</div>
+</details>
+<details>
+  <summary>Two similar cylinders have heights 10 cm and 15 cm. The small one has volume 400 cm³. Find the volume of the large one. <span class="tag g">Higher</span></summary>
+  <div class="step">k = 15 ÷ 10 = 1.5. Volume factor = 1.5³ = 3.375.</div>
+  <div class="step">Volume = 400 × 3.375 = <strong>1350 cm³</strong>.</div>
+</details>
+<details>
+  <summary>Two similar solids have surface areas 50 cm² and 200 cm². The small one has volume 30 cm³. Find the volume of the large one. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Area factor</strong> = 200 ÷ 50 = 4.</div>
+  <div class="step"><strong>Back to k</strong>: k = √4 = 2. <strong>Volume factor</strong> = 2³ = 8.</div>
+  <div class="step">Volume = 30 × 8 = <strong>240 cm³</strong>. (Using 4 for volume, 120 cm³, is the classic error.)</div>
+</details>
+<details>
+  <summary>Two similar bottles have volumes 128 cm³ and 250 cm³. The small one is 12 cm tall and the large one has surface area 150 cm². Find the height of the large bottle and the surface area of the small one. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Volume ratio</strong> 128 : 250 = 64 : 125 (÷ 2).</div>
+  <div class="step"><strong>Length ratio</strong>: ∛64 : ∛125 = 4 : 5, so k = 5/4 = 1.25.</div>
+  <div class="step"><strong>Height</strong> = 12 × 1.25 = <strong>15 cm</strong>.</div>
+  <div class="step"><strong>Area ratio</strong> = 4² : 5² = 16 : 25. Going from big to small: 150 × 16/25 = <strong>96 cm²</strong>.</div>
+</details>
+<details>
+  <summary>Two similar statues are 20 cm and 50 cm tall. The small one has mass 1.2 kg and needs 0.3 litres of paint. Find the mass of the large one and the paint it needs. <span class="tag g">Higher</span></summary>
+  <div class="step">k = 50 ÷ 20 = 2.5.</div>
+  <div class="step"><strong>Mass</strong> depends on volume (same material): 1.2 × 2.5³ = 1.2 × 15.625 = <strong>18.75 kg</strong>.</div>
+  <div class="step"><strong>Paint</strong> covers the surface, an area: 0.3 × 2.5² = 0.3 × 6.25 = <strong>1.875 litres</strong>. (Paint is measured in litres, but it's an <em>area</em> problem.)</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>Similar shapes: every length is multiplied by the same scale factor k (big ÷ small for matching lengths).</li>
+  <li>Higher: areas are multiplied by k² (each unit square becomes k × k squares); volumes by k³ (each unit cube becomes k × k × k cubes).</li>
+  <li>Lengths a : b give areas a² : b² and volumes a³ : b³.</li>
+  <li>Going backwards: k = √(area factor) = ∛(volume factor). To get from area to volume, go through k.</li>
+  <li>Paint, surface area and covering problems are areas (k²); capacity and mass of the same material are volumes (k³).</li>
+</ul>
+
+<footer>Made for GCSE students. Similarity is in the DfE GCSE mathematics subject content under Geometry and measures; the relationships between lengths, areas and volumes of similar figures are Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const PI = Math.PI, RAD = PI/180;
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat((+v).toFixed(d)).toString()) : '—';
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(Math.abs(v)<1e-12) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); if(e>=n-1) return minus(String(Math.round(r))); return minus(r.toFixed(n-1-e)); };
+const long = v => isFinite(v) ? minus((Math.trunc(v*1000+(v<0?-1e-9:1e-9))/1000).toFixed(3)) + '…' : '—';
+const dp1 = v => isFinite(v) ? minus((+v).toFixed(1)) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v = parseFloat(String(el.value).replace(/−/g,'-').replace(/,/g,'')); return isFinite(v) ? v : NaN; };
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T = (x,y,s,col,o={}) => `<text x="${x}" y="${y}" font-size="${o.fs||13}" ${o.w?`font-weight="${o.w}"`:''} text-anchor="${o.a||'middle'}" fill="${col}" ${F()} ${o.extra||''}>${s}</text>`;
+const L = (x1,y1,x2,y2,col,w=2,dash) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+const C = (x,y,r,fill,stroke='none',w=0) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${w}"/>`;
+const poly = (pts,fill,stroke='none',w=0,op=1,dash) => `<polygon points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="${fill}" fill-opacity="${op}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+/* angle arc at vertex V between directions to A and B (screen coords), radius r */
+function angArc(V,A,B,r,col,w=1.6){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]), a2=Math.atan2(B[1]-V[1],B[0]-V[0]); let d=a2-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const p1=[V[0]+r*Math.cos(a1),V[1]+r*Math.sin(a1)], p2=[V[0]+r*Math.cos(a1+d),V[1]+r*Math.sin(a1+d)]; return `<path d="M${p1[0]},${p1[1]} A${r},${r} 0 0 ${d>0?1:0} ${p2[0]},${p2[1]}" fill="none" stroke="${col}" stroke-width="${w}"/>`; }
+function angLabelPos(V,A,B,r){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]); let d=Math.atan2(B[1]-V[1],B[0]-V[0])-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const m=a1+d/2; return [V[0]+r*Math.cos(m), V[1]+r*Math.sin(m)+4]; }
+/* right-angle square at V between A and B */
+function rightMark(V,A,B,s,col){ const u=[A[0]-V[0],A[1]-V[1]],v=[B[0]-V[0],B[1]-V[1]]; const lu=Math.hypot(...u)||1, lv=Math.hypot(...v)||1; const p=[V[0]+u[0]/lu*s,V[1]+u[1]/lu*s], q=[V[0]+v[0]/lv*s,V[1]+v[1]/lv*s], r=[p[0]+v[0]/lv*s,p[1]+v[1]/lv*s]; return `<polyline points="${p[0]},${p[1]} ${r[0]},${r[1]} ${q[0]},${q[1]}" fill="none" stroke="${col}" stroke-width="1.5"/>`; }
+const svgXY = (svg,ev) => { const vb=svg.viewBox.baseVal, r=svg.getBoundingClientRect(); const k=Math.min(r.width/vb.width, r.height/vb.height); const ox=(r.width-vb.width*k)/2, oy=(r.height-vb.height*k)/2; return [vb.x+(ev.clientX-r.left-ox)/k, vb.y+(ev.clientY-r.top-oy)/k]; };
+/* generic drag: pick(p) returns a handle key or null; move(key,p) updates */
+function dragger(svg,pick,move,end){ let key=null; svg.addEventListener('pointerdown',e=>{ const p=svgXY(svg,e); const k=pick(p); if(k===null||k===undefined) return; key=k; try{svg.setPointerCapture(e.pointerId);}catch(_){} e.preventDefault(); move(key,p); }); svg.addEventListener('pointermove',e=>{ if(key===null) return; e.preventDefault(); move(key,svgXY(svg,e)); }); const up=()=>{ if(key!==null&&end) end(key); key=null; }; svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',up); }
+const nearest = (p,pts,maxd) => { let best=null,bd=maxd; pts.forEach((q,i)=>{ const d=Math.hypot(p[0]-q[0],p[1]-q[1]); if(d<bd){bd=d;best=i;} }); return best; };
+const REDRAW=[]; const reg = f => { REDRAW.push(f); f(); return f; };
+const feedback = (el,ok,msg) => { el.className='msg '+(ok?'good':'bad'); el.textContent=msg; };
+
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const TE=()=>css('--accent'),OR=()=>css('--hi'),PL=()=>css('--two'),FG=()=>css('--fg'),MU=()=>css('--muted');
+
+/* 1. length scale factor */
+const lsK=$('lsK');
+function drawLS(){
+  const k=+lsK.value; $('lsKv').textContent=' '+fmt(k);
+  const a=3,b=2,u=26; // small triangle legs 3 by 2 units, drawn as right triangle
+  const s0=[60,200],big=[190,200];
+  const tri=(o,sc,col)=>poly([[o[0],o[1]],[o[0]+a*u*sc,o[1]],[o[0],o[1]-b*u*sc]],col,col,2.5,.22);
+  let s=tri(s0,1,TE())+tri(big,k,OR());
+  s+=T(s0[0]+a*u/2,s0[1]+16,a+' cm',TE(),{fs:12,w:700})+T(s0[0]-6,s0[1]-b*u/2,b+' cm',TE(),{fs:12,w:700,a:'end'});
+  s+=T(big[0]+a*u*k/2,big[1]+16,fmt(a*k)+' cm',OR(),{fs:12,w:700})+T(big[0]-6,big[1]-b*u*k/2,fmt(b*k)+' cm',OR(),{fs:12,w:700,a:'end'});
+  s+=T((s0[0]+a*u+big[0])/2-12,s0[1]+36,'lengths × '+fmt(k)+' →',PL(),{fs:13,w:700});
+  $('lsSvg').innerHTML=s;
+  const hyp=Math.hypot(a,b);
+  $('lsWork').innerHTML=`k = ${fmt(a*k)} ÷ ${a} = <strong>${fmt(k)}</strong><br>every length × ${fmt(k)}: ${b} → ${fmt(b*k)}, slanted side ${fmt(hyp,2)} → ${fmt(hyp*k,2)}, perimeter ${fmt(a+b+hyp,2)} → ${fmt((a+b+hyp)*k,2)}<br>angles stay the same<br><span class="c">area: ${fmt(a*b/2)} → ${fmt(a*b/2*k*k)} cm², which is × ${fmt(k*k,4)}, not × ${fmt(k)} (see section 2)</span>`;
+}
+lsK.addEventListener('input',drawLS); reg(drawLS);
+
+/* 2. area tiles */
+const arK=$('arK');
+const LSH=[[0,0],[1,0],[0,1]]; // L-shape of 3 unit squares (col,row from bottom-left)
+function drawAR(){
+  const k=+arK.value; $('arKv').textContent=' '+fmt(k);
+  const u=Math.min(26,230/(2*k)), base=250;
+  let s='';
+  // small shape
+  const sx=24,su=26;
+  LSH.forEach(([c,r])=>{s+=`<rect x="${sx+c*su}" y="${base-(r+1)*su}" width="${su}" height="${su}" fill="${TE()}" fill-opacity=".35" stroke="${TE()}" stroke-width="1.5"/>`;});
+  s+=T(sx+su,base+18,'area 3',TE(),{fs:12,w:700});
+  // big shape on unit grid
+  const bx=120;
+  for(let i=0;i<=Math.ceil(2*k);i++){s+=L(bx+i*u,base,bx+i*u,base-Math.ceil(2*k)*u,css('--grid'),1)+L(bx,base-i*u,bx+Math.ceil(2*k)*u,base-i*u,css('--grid'),1);}
+  LSH.forEach(([c,r],idx)=>{const x=bx+c*k*u,y=base-(r+1)*k*u;s+=`<rect x="${x}" y="${y}" width="${k*u}" height="${k*u}" fill="${OR()}" fill-opacity="${idx===0?.45:.25}" stroke="${OR()}" stroke-width="2"/>`;
+    if(Number.isInteger(k)){for(let i=1;i<k;i++){s+=L(x+i*u,y,x+i*u,y+k*u,OR(),.8)+L(x,y+i*u,x+k*u,y+i*u,OR(),.8);}}});
+  s+=T(bx+k*u,base+18,'area 3 × '+fmt(k*k,2)+' = '+fmt(3*k*k,2),OR(),{fs:12,w:700});
+  s+=T(bx+k*u/2,base-k*u/2+4,Number.isInteger(k)?k*k+' squares':fmt(k*k,2),FG(),{fs:12,w:700});
+  $('arSvg').innerHTML=s;
+  $('arWork').innerHTML=`each side × ${fmt(k)}, so each unit square becomes ${fmt(k)} × ${fmt(k)} = <strong>${fmt(k*k,2)}</strong> squares<br>area scale factor = k² = ${fmt(k)}² = ${fmt(k*k,2)}<br>area: 3 × ${fmt(k*k,2)} = <strong>${fmt(3*k*k,2)}</strong> square units<br><span class="x">✗ 3 × ${fmt(k)} = ${fmt(3*k)} (using k instead of k²)</span>`;
+}
+arK.addEventListener('input',drawAR); reg(drawAR);
+
+/* 3. cubes */
+const voK=$('voK');
+function drawVO(){
+  const k=+voK.value; $('voKv').textContent=' '+k;
+  const s0=Math.min(40,150/k), ox=260, oy=110;
+  const P=(i,j,l,sz,o)=>[o[0]+(i-j)*sz*0.866,o[1]+(i+j)*sz*0.5-l*sz];
+  const cube=(i,j,l,sz,o,col)=>{const p=(a,b,c)=>P(a,b,c,sz,o).join(',');
+    return `<polygon points="${p(i,j,l+1)} ${p(i+1,j,l+1)} ${p(i+1,j+1,l+1)} ${p(i,j+1,l+1)}" fill="${col}" fill-opacity=".55" stroke="${css('--panel')}" stroke-width="1"/>`+
+    `<polygon points="${p(i+1,j,l)} ${p(i+1,j+1,l)} ${p(i+1,j+1,l+1)} ${p(i+1,j,l+1)}" fill="${col}" fill-opacity=".85" stroke="${css('--panel')}" stroke-width="1"/>`+
+    `<polygon points="${p(i,j+1,l)} ${p(i+1,j+1,l)} ${p(i+1,j+1,l+1)} ${p(i,j+1,l+1)}" fill="${col}" fill-opacity=".35" stroke="${css('--panel')}" stroke-width="1"/>`;};
+  let s=cube(0,0,0,40,[60,170],TE())+T(60,240,'1 cube',TE(),{fs:12,w:700});
+  const list=[];for(let i=0;i<k;i++)for(let j=0;j<k;j++)for(let l=0;l<k;l++)list.push([i,j,l]);
+  list.sort((a,b)=>(a[0]+a[1]+a[2])-(b[0]+b[1]+b[2])||a[2]-b[2]);
+  const o=[ox,oy+ (4-k)*0]; const yBase=60+k*s0;
+  list.forEach(([i,j,l])=>s+=cube(i,j,l,s0,[ox,yBase],OR()));
+  s+=T(ox,yBase+k*s0+30,`${k} × ${k} × ${k} = ${k**3} cubes`,OR(),{fs:13,w:700});
+  $('voSvg').innerHTML=s;
+  $('voL').textContent=`× ${k}`; $('voA').textContent=`× ${k}² = ${k*k}`; $('voV').textContent=`× ${k}³ = ${k**3}`;
+}
+voK.addEventListener('input',drawVO); reg(drawVO);
+
+/* 4. backwards */
+const bwT=$('bwT'),bwV=$('bwV');
+const parseF=s=>{s=String(s).replace(/−/g,'-').replace(/\s/g,'');const m=s.match(/^(\d*\.?\d+)[\/:](\d*\.?\d+)$/);if(m)return parseFloat(m[1])/parseFloat(m[2]);return parseFloat(s);};
+const nice=v=>{const r=Math.round(v);if(Math.abs(v-r)<1e-9)return String(r);for(const d of [2,3,4,5,8,9,16,25,27,64,125]){const n=v*d;if(Math.abs(n-Math.round(n))<1e-9)return Math.round(n)+'/'+d;}return fmt(v,4);};
+function drawBW(){
+  const t=bwT.value,v=parseF(bwV.value),W=$('bwWork');
+  let k=NaN; if(v>0){k=t==='L'?v:t==='A'?Math.sqrt(v):Math.cbrt(v);}
+  const box=(x,lab,val,col,on)=>`<rect x="${x}" y="40" width="120" height="60" rx="8" fill="${col}" fill-opacity="${on?.3:.1}" stroke="${col}" stroke-width="${on?2.5:1.5}"/>`+T(x+60,62,lab,col,{fs:12,w:700})+T(x+60,86,val,FG(),{fs:14,w:700});
+  let s=box(20,'length k',isFinite(k)?nice(k):'?',PL(),t==='L')+box(160,'area k²',isFinite(k)?nice(k*k):'?',TE(),t==='A')+box(300,'volume k³',isFinite(k)?nice(k**3):'?',OR(),t==='V');
+  s+=T(150,30,'square ↦',MU(),{fs:11})+T(150,120,'↤ √',MU(),{fs:11})+T(290,120,'∛ (via k)',MU(),{fs:11})+T(290,30,'(via k) cube ↦',MU(),{fs:11});
+  $('bwSvg').innerHTML=s;
+  if(!(v>0)){W.innerHTML='Type a positive number or fraction.';return;}
+  const from=t==='L'?`k = ${nice(v)}`:t==='A'?`area factor ${nice(v)} → k = √${nice(v)} = ${nice(k)}`:`volume factor ${nice(v)} → k = ∛${nice(v)} = ${nice(k)}`;
+  W.innerHTML=`${from}<br>area factor = k² = <strong>${nice(k*k)}</strong><br>volume factor = k³ = <strong>${nice(k**3)}</strong>`+(t==='A'?`<br><span class="x">✗ the volume factor is not ${nice(v)}, and not ${nice(v)} × 1.5: go back to k first, then cube</span>`:'')+(k<1?'<br><span class="c">k < 1: the second shape is smaller (an enlargement by a fraction).</span>':'');
+}
+[bwT,bwV].forEach(e=>e.addEventListener('input',drawBW)); reg(drawBW);
+
+/* 5. sorting */
+const ITEMS=[['height','L'],['perimeter of the base','L'],['surface area','A'],['amount of paint to cover it','A'],['area of the label','A'],['volume','V'],['capacity (how much it holds)','V'],['mass (same material)','V'],['radius of the base','L'],['number of tiles to cover the top','A']];
+(function(){const box=$('soBox');ITEMS.forEach(([name,ans])=>{const d=document.createElement('div');d.className='it';d.innerHTML=`<span>${name}</span>`;const g=document.createElement('span');g.className='grp';
+  [['L','length × k'],['A','area × k²'],['V','volume × k³']].forEach(([c,lab])=>{const b=document.createElement('button');b.className='btn';b.textContent=lab;b.addEventListener('click',()=>{d.classList.remove('ok','no');d.classList.add(c===ans?'ok':'no');g.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+    const M=$('soMsg');if(c===ans){feedback(M,true,`Yes: ${name} is ${ans==='L'?'a length (× k)':ans==='A'?'an area (× k²)':'a volume (× k³)'}.`);}else{feedback(M,false,`Not quite: ${name} ${ans==='L'?'is measured in cm, a length: × k.':ans==='A'?'depends on how much surface there is: an area, × k².':'depends on how much space is inside: a volume, × k³.'}`);}});g.appendChild(b);});
+  d.appendChild(g);box.appendChild(d);});})();
+
+/* 6. practice */
+let PQ=null;
+function prNew(){
+  const t=pick(['LA','LV','AV','VL','mass','paint','VA']);
+  const pairs=[[2,3],[3,4],[2,5],[3,5],[4,5],[1,2],[1,3],[2,7],[5,6]];
+  const [a,b]=pick(pairs); const k=b/a;
+  let q,ans,unit,wrong=[],work,sm,bg;
+  if(t==='LA'){const A=rnd(4,40);sm=a*rnd(2,4);bg=sm*k;q=`Two similar shapes have matching lengths ${sm} cm and ${fmt(bg)} cm. The smaller has area ${A} cm². Find the area of the larger.`;ans=A*k*k;unit='cm²';
+    wrong=[[A*k,'Areas scale by k², not k: square the length scale factor.'],[A*k**3,'That uses k³. Area scales by k².'],[A/(k*k),'You divided. The larger shape has the larger area: multiply.']];work=`k = ${fmt(bg)} ÷ ${sm} = ${fmt(k,4)}<br>area factor = k² = ${fmt(k*k,4)}<br>area = ${A} × ${fmt(k*k,4)} = <strong>${sf(ans)} cm²</strong>`;}
+  if(t==='LV'){const V=rnd(5,60)*2;sm=a*rnd(2,4);bg=sm*k;q=`Two similar solids have heights ${sm} cm and ${fmt(bg)} cm. The smaller has volume ${V} cm³. Find the volume of the larger.`;ans=V*k**3;unit='cm³';
+    wrong=[[V*k,'Volumes scale by k³, not k.'],[V*k*k,'That uses k² (areas). Volumes scale by k³.'],[V/k**3,'You divided: the larger solid has the larger volume.']];work=`k = ${fmt(bg)} ÷ ${sm} = ${fmt(k,4)}<br>volume factor = k³ = ${fmt(k**3,4)}<br>volume = ${V} × ${fmt(k**3,4)} = <strong>${sf(ans)} cm³</strong>`;}
+  if(t==='AV'){const m=rnd(1,4);const A1=a*a*m*4,A2=b*b*m*4,V=rnd(3,40)*2;q=`Two similar solids have surface areas ${A1} cm² and ${A2} cm². The smaller has volume ${V} cm³. Find the volume of the larger.`;ans=V*k**3;unit='cm³';
+    wrong=[[V*k*k,'You used the area factor for volume. Square-root to get k first, then cube it.'],[V*k,'That uses k. Volume needs k³.'],[V*(k*k)**3,'You cubed the area factor. Square-root it first to get k.']];work=`area factor = ${A2} ÷ ${A1} = ${fmt(k*k,4)}<br>k = √${fmt(k*k,4)} = ${fmt(k,4)}<br>volume factor = k³ = ${fmt(k**3,4)}<br>volume = ${V} × ${fmt(k**3,4)} = <strong>${sf(ans)} cm³</strong>`;}
+  if(t==='VL'){const m=rnd(1,3);const V1=a**3*m,V2=b**3*m,h=a*rnd(2,5);q=`Two similar containers have volumes ${V1} cm³ and ${V2} cm³. The smaller is ${h} cm tall. How tall is the larger?`;ans=h*k;unit='cm';
+    wrong=[[h*k**3,'You used the volume factor for a length. Cube-root it to get k.'],[h*Math.sqrt(k**3),'Volumes need a cube root, not a square root.'],[h*k*k,'That is k². For a length use k = ∛(volume factor).']];work=`volume factor = ${V2} ÷ ${V1} = ${fmt(k**3,4)}<br>k = ∛${fmt(k**3,4)} = ${fmt(k,4)}<br>height = ${h} × ${fmt(k,4)} = <strong>${sf(ans)} cm</strong>`;}
+  if(t==='VA'){const m=rnd(1,3);const V1=a**3*m,V2=b**3*m,A=rnd(10,90);q=`Two similar solids have volumes ${V1} cm³ and ${V2} cm³. The larger has surface area ${A} cm². Find the surface area of the smaller.`;ans=A/(k*k);unit='cm²';
+    wrong=[[A*k*k,'The smaller solid has the smaller area: divide by k².'],[A/k**3,'That uses the volume factor. Find k = ∛(volume factor), then use k².'],[A/k,'Area needs k², not k.']];work=`volume factor = ${V2} ÷ ${V1} = ${fmt(k**3,4)}, k = ∛ = ${fmt(k,4)}<br>area factor = k² = ${fmt(k*k,4)}<br>small area = ${A} ÷ ${fmt(k*k,4)} = <strong>${sf(ans)} cm²</strong>`;}
+  if(t==='mass'){const mass=rnd(2,40)/10;sm=a*rnd(3,6);bg=sm*k;q=`Two similar statues are made of the same metal. They are ${sm} cm and ${fmt(bg)} cm tall. The smaller has mass ${fmt(mass,1)} kg. Find the mass of the larger.`;ans=mass*k**3;unit='kg';
+    wrong=[[mass*k,'Mass depends on volume (how much metal): use k³.'],[mass*k*k,'Mass depends on volume, not surface area: use k³.']];work=`k = ${fmt(bg)} ÷ ${sm} = ${fmt(k,4)}<br>mass ∝ volume: × k³ = ${fmt(k**3,4)}<br>mass = ${fmt(mass,1)} × ${fmt(k**3,4)} = <strong>${sf(ans)} kg</strong>`;}
+  if(t==='paint'){const p=rnd(2,20)/10;sm=a*rnd(3,6);bg=sm*k;q=`Two similar models are ${sm} cm and ${fmt(bg)} cm long. It takes ${fmt(p,1)} litres of paint to cover the smaller. How much paint covers the larger?`;ans=p*k*k;unit='litres';
+    wrong=[[p*k**3,'Paint covers the surface: an area, × k². The litres are a distraction.'],[p*k,'Paint covers an area: use k².']];work=`k = ${fmt(bg)} ÷ ${sm} = ${fmt(k,4)}<br>paint ∝ surface area: × k² = ${fmt(k*k,4)}<br>paint = ${fmt(p,1)} × ${fmt(k*k,4)} = <strong>${sf(ans)} litres</strong>`;}
+  PQ={q,ans,unit,wrong,work,k,t};
+  $('prQ').textContent=q+' Give your answer to 3 s.f.'; $('prU').textContent=unit; $('prA').value=''; $('prMsg').className='msg'; $('prMsg').textContent=''; $('prWork').hidden=true; $('prWork').innerHTML=work;
+  drawPR();
+}
+function drawPR(){if(!PQ)return;const k=PQ.k,u=60/Math.max(1,k)*1;const s1=50,s2=s1*k;const r=Math.min(1,150/s2);
+  const shape=(x,s,col)=>{s*=r;const by=180;return poly([[x,by],[x+s,by],[x+s,by-s*0.9],[x+s*0.5,by-s*1.3],[x,by-s*0.9]],col,col,2.5,.22);};
+  $('prSvg').innerHTML=shape(40,s1,TE())+shape(200,s2,OR())+T(200+s2*r/2,195,'× '+fmt(k,3)+' lengths',PL(),{fs:12,w:700})+T(40+s1*r/2,195,'small',TE(),{fs:12,w:700});}
+const near=(u,v)=>{const e=Math.floor(Math.log10(Math.abs(v)));return Math.abs(u-v)<=0.5*10**(e-2)+1e-9;};
+function prCheck(){const u=parseFloat($('prA').value.replace(/−/g,'-').replace(/[^0-9.\-]/g,'')),M=$('prMsg');if(!isFinite(u)){feedback(M,false,'Type a number.');return;}
+  if(near(u,PQ.ans)){feedback(M,true,'Correct: '+sf(PQ.ans)+' '+PQ.unit+'.');$('prWork').hidden=false;return;}
+  for(const [v,m] of PQ.wrong){if(Math.abs(v-PQ.ans)<1e-9)continue;if(near(u,v)||Math.abs(u-v)<=Math.abs(v)*0.004){feedback(M,false,'Not quite. '+m);return;}}
+  feedback(M,false,Math.abs(u-PQ.ans)<=Math.abs(PQ.ans)*0.02?'Very close: check your rounding.':'Not quite. Find k, decide length, area or volume, then use k, k² or k³.');}
+$('prGo').addEventListener('click',prCheck); $('prA').addEventListener('keydown',e=>{if(e.key==='Enter')prCheck();});
+$('prShow').addEventListener('click',()=>{$('prWork').hidden=!$('prWork').hidden;}); $('prNew').addEventListener('click',prNew); prNew(); REDRAW.push(drawPR);
+
+/* quiz */
+const QS=[
+  {q:'The length scale factor is 3. The area scale factor is…',opts:['9','3','6','27'],a:0,fb:'Areas scale by k² = 3² = 9.'},
+  {q:'The length scale factor is 2. The volume scale factor is…',opts:['8','4','6','2'],a:0,fb:'Volumes scale by k³ = 2³ = 8.'},
+  {q:'Two similar shapes have area scale factor 25. The length scale factor is…',opts:['5','12.5','625','25'],a:0,fb:'k = √25 = 5.'},
+  {q:'Two similar solids have volume scale factor 27. The area scale factor is…',opts:['9','3','27','729'],a:0,fb:'k = ∛27 = 3, so the area factor is 3² = 9.'},
+  {q:'Matching lengths of two similar shapes are in the ratio 2 : 5. Their areas are in the ratio…',opts:['4 : 25','2 : 5','8 : 125','4 : 10'],a:0,fb:'Square both parts: 2² : 5² = 4 : 25.'},
+  {q:'A solid has volume 10 cm³. A similar solid has every length doubled. Its volume is…',opts:['80 cm³','20 cm³','40 cm³','1000 cm³'],a:0,fb:'× 2³ = 8: 10 × 8 = 80 cm³.'},
+  {q:'Two similar jugs hold 1 litre and 8 litres. The small jug is 12 cm tall. The large jug is…',opts:['24 cm tall','96 cm tall','34 cm tall','48 cm tall'],a:0,fb:'Volume factor 8, so k = ∛8 = 2: 12 × 2 = 24 cm.'},
+  {q:'The amount of paint needed to cover similar objects scales with…',opts:['k² (area)','k (length)','k³ (volume)','it doesn\'t change'],a:0,fb:'Paint covers a surface, so it scales like area: k².'},
+  {q:'Two similar solids have masses in the ratio 1 : 27 (same material). Their surface areas are in the ratio…',opts:['1 : 9','1 : 27','1 : 3','1 : 81'],a:0,fb:'Mass ∝ volume, so lengths are 1 : 3 (cube root) and areas 1 : 9.'},
+  {q:'Two similar cones have heights 6 cm and 9 cm. The small one has surface area 40 cm². The large one has…',opts:['90 cm²','60 cm²','135 cm²','80 cm²'],a:0,fb:'k = 1.5, area factor 2.25: 40 × 2.25 = 90 cm².'}
+];
+const redrawAll=()=>REDRAW.forEach(f=>f());
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Route to a 4 — Maths</title>
+<style>
+  :root{--blue:#1f4e79;--green:#2e7d32;--amber:#b26a00;--bg:#f5f7fa}
+  *{box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:#222;line-height:1.6}
+  header{background:var(--blue);color:#fff;padding:28px 20px;text-align:center}
+  header h1{margin:0 0 6px;font-size:2em}
+  header p{margin:0;opacity:.9;max-width:38em;margin-inline:auto}
+  main{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+  .stage{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.1);margin:22px 0;padding:18px 20px}
+  .stage h2{color:var(--blue);margin:0 0 4px}
+  .stage > p{margin:4px 0 14px;color:#555}
+  .strand{font-weight:700;color:#444;margin:14px 0 6px;text-transform:uppercase;font-size:.85em;letter-spacing:.05em}
+  ul.topics{list-style:none;margin:0;padding:0}
+  ul.topics li{display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid #eee}
+  ul.topics a{color:var(--blue);text-decoration:none;font-weight:600}
+  ul.topics a:hover{text-decoration:underline}
+  input.done{width:22px;height:22px;flex:none}
+  .vid{font-size:.75em;background:#e8f0e9;color:var(--green);border:1px solid var(--green);
+       border-radius:999px;padding:2px 8px;white-space:nowrap}
+  .soon{color:#888}
+  .soon .tag{font-size:.75em;background:#fff4e0;color:var(--amber);border:1px solid var(--amber);
+       border-radius:999px;padding:2px 8px;white-space:nowrap}
+  .count{float:right;font-size:.8em;color:#777;font-weight:400}
+  .note{background:#eef4fb;border-left:4px solid var(--blue);padding:10px 14px;border-radius:0 8px 8px 0;margin:18px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>Route to a 4</h1>
+  <p>These are the topics that earn a grade 4 in Maths. Work through them in order.
+     Tick a topic when you can do it without help. Your ticks are saved on this device only.</p>
+</header>
+<main>
+
+<div class="stage">
+  <h2>Stage 1 · Strong foundations <span class="count" data-count></span></h2>
+  <p>Get these solid first. Everything else is built on them.</p>
+  <div class="strand">Number</div>
+  <ul class="topics">
+    <li class="soon" data-id="negatives">Negative numbers <span class="tag">page coming soon</span> <span class="vid">&#9654; video ready</span></li>
+    <li class="soon" data-id="bidmas">Order of operations (BIDMAS) <span class="tag">page coming soon</span></li>
+    <li data-id="rounding"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/rounding-and-estimation.html">Rounding and estimation</a></li>
+    <li data-id="fdp"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/fractions-decimals-percentages.html">Fractions, decimals and percentages</a> <span class="vid">&#9654; videos: fractions</span></li>
+    <li data-id="primes"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/prime-factorisation.html">Prime factors, HCF and LCM</a> <span class="vid">&#9654; videos: HCF, LCM</span></li>
+    <li data-id="powers"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/powers-and-roots.html">Powers and roots</a></li>
+  </ul>
+  <div class="strand">Algebra</div>
+  <ul class="topics">
+    <li data-id="notation"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/algebraic-notation.html">Algebra notation (3x means 3 times x)</a></li>
+    <li data-id="substitution"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/substitution.html">Substitution</a></li>
+    <li data-id="coordinates"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/coordinates.html">Coordinates</a></li>
+  </ul>
+</div>
+
+<div class="stage">
+  <h2>Stage 2 · The grade 4 core <span class="count" data-count></span></h2>
+  <p>These topics carry most of the grade 4 marks on the paper.</p>
+  <div class="strand">Number</div>
+  <ul class="topics">
+    <li data-id="pctchange"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/percentage-change.html">Percentage change</a> <span class="vid">&#9654; video ready</span></li>
+    <li data-id="interest"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/simple-interest.html">Simple interest and money</a></li>
+    <li data-id="stdform"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/standard-form.html">Standard form</a></li>
+    <li data-id="indexlaws"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/index-laws.html">Index laws</a></li>
+  </ul>
+  <div class="strand">Ratio and proportion</div>
+  <ul class="topics">
+    <li data-id="ratio"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/dividing-in-a-ratio.html">Dividing in a ratio</a></li>
+    <li data-id="proportion"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/direct-inverse-proportion.html">Direct and inverse proportion</a></li>
+    <li data-id="scale"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/scale-factors.html">Scale factors and maps</a></li>
+  </ul>
+  <div class="strand">Algebra</div>
+  <ul class="topics">
+    <li data-id="linear"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/linear-equations.html">Solving linear equations</a></li>
+    <li data-id="expand"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/expanding-factorising.html">Expanding and factorising</a></li>
+    <li data-id="sequences"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/linear-sequences.html">Sequences and the nth term</a></li>
+    <li data-id="graphs"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/linear-graphs.html">Straight-line graphs</a></li>
+    <li data-id="formulae"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/rearranging-formulae.html">Rearranging formulae</a></li>
+  </ul>
+  <div class="strand">Geometry</div>
+  <ul class="topics">
+    <li data-id="angles"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/angle-facts.html">Angle facts</a></li>
+    <li data-id="area"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/perimeter-area-volume.html">Perimeter, area and volume</a></li>
+    <li data-id="circles"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/circles.html">Circles</a></li>
+    <li class="soon" data-id="transform">Transformations <span class="tag">page coming soon</span></li>
+  </ul>
+  <div class="strand">Statistics and probability</div>
+  <ul class="topics">
+    <li data-id="averages"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/averages-and-range.html">Averages and range</a></li>
+    <li data-id="charts"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/statistical-charts.html">Charts and graphs</a></li>
+    <li data-id="freq"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/frequency-tables.html">Frequency tables</a></li>
+    <li data-id="probscale"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/probability-scale.html">The probability scale</a></li>
+    <li data-id="samplespace"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/sample-spaces-venn-diagrams.html">Sample spaces and Venn diagrams</a></li>
+  </ul>
+</div>
+
+<div class="stage">
+  <h2>Stage 3 · Push to a 5 <span class="count" data-count></span></h2>
+  <p>Secure on Stages 1 and 2? These take you past the pass line.</p>
+  <ul class="topics">
+    <li data-id="pythagoras"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/pythagoras.html">Pythagoras' theorem</a></li>
+    <li data-id="simeq"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/simultaneous-equations.html">Simultaneous equations</a></li>
+    <li data-id="quadgraphs"><input class="done" type="checkbox" aria-label="done"><a href="ks3-interactive/quadratic-graphs.html">Quadratic graphs</a></li>
+    <li data-id="trig"><input class="done" type="checkbox" aria-label="done"><a href="ks4-interactive/right-angled-trigonometry.html">Right-angled trigonometry</a></li>
+    <li data-id="compound"><input class="done" type="checkbox" aria-label="done"><a href="ks4-interactive/compound-interest-growth-decay.html">Compound interest</a></li>
+    <li data-id="relfreq"><input class="done" type="checkbox" aria-label="done"><a href="ks4-interactive/relative-frequency.html">Relative frequency</a></li>
+    <li data-id="trees"><input class="done" type="checkbox" aria-label="done"><a href="ks4-interactive/tree-diagrams.html">Tree diagrams</a></li>
+  </ul>
+</div>
+
+<div class="note">
+  <strong>Teachers:</strong> every page has a &#9881; Settings button (easy-read text, calm mode,
+  one step at a time, read aloud). You can also set these in a link you give a student:
+  <code>?font=easy&amp;motion=low&amp;chunks=on&amp;audio=on</code>.
+  Short explainer videos for marked topics are on the Quick Explainers site.
+</div>
+
+</main>
+<script>
+(function(){
+  var KEY='route4-progress';
+  var done={};
+  try{done=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+  function counts(){
+    document.querySelectorAll('.stage').forEach(function(st){
+      var boxes=st.querySelectorAll('input.done');
+      var t=boxes.length,d=0;
+      boxes.forEach(function(b){if(b.checked)d++});
+      var c=st.querySelector('[data-count]');
+      if(c)c.textContent=d+' of '+t+' done';
+    });
+  }
+  document.querySelectorAll('li[data-id]').forEach(function(li){
+    var id=li.getAttribute('data-id');
+    var box=li.querySelector('input.done');
+    if(!box)return;
+    box.checked=!!done[id];
+    box.addEventListener('change',function(){
+      done[id]=box.checked;
+      try{localStorage.setItem(KEY,JSON.stringify(done))}catch(e){}
+      counts();
+    });
+  });
+  counts();
+})();
+</script>
+<script src="inclusion-settings.js" defer></script>
+</body>
+</html>

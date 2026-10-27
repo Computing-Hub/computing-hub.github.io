@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Triangles and Quadrilaterals</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each idea gets an interactive panel with an SVG drawn on faint grid paper (drag the round vertex handles, tap buttons, move sliders), followed by readouts and feedback. Colours on this page: teal = the shape itself (its sides and the vertices you can drag; both lines in the parallel/perpendicular panel); orange = notation and trials (equal-side dashes, parallel arrows, right-angle boxes, angle arcs, the folded or turned trial copy, the sticker corner); plum = diagonals and lines of symmetry; green / red = a property is true / false, or an answer is right / wrong. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.M{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.P{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none;cursor:grab}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);min-width:0;max-width:100%}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.props{list-style:none;padding:0;margin:.8rem 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.2rem 1rem;font-size:.92rem;max-width:none}
+.props li{padding:.2rem .45rem;border-radius:6px;transition:background .4s}
+.props li.flip{background:var(--hi-soft)}
+.props .y{color:var(--good);font-weight:600}.props .n{color:var(--bad);font-weight:600}.props .v{color:var(--two);font-weight:600;font-family:var(--mono)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin:.4rem 0}
+.chips span{font-size:.85rem;padding:.15rem .65rem;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.chips span.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.key{display:flex;flex-wrap:wrap;gap:.3rem 1.1rem;font-size:.85rem;color:var(--muted);margin-top:.6rem}
+.key i{display:inline-block;width:16px;height:4px;border-radius:2px;vertical-align:middle;margin-right:.35rem}
+.clues{margin:.4rem 0 .8rem;padding-left:1.5rem}
+.clues li{margin:.25rem 0}
+@media (max-width:620px){table.stack,table.stack tbody,table.stack tr,table.stack td{display:block;width:100%}table.stack tr:first-child{display:none}table.stack tr{border-bottom:1px solid var(--line);padding:.4rem 0}table.stack td{border:0;padding:.15rem .2rem}table.stack td:first-child{font-weight:600;font-family:var(--display);font-size:1.05rem}table.stack td[data-l]::before{content:attr(data-l) ": ";color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em}}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Geometry and measures · KS3</div>
+  <h1>Triangles and Quadrilaterals</h1>
+  <p class="lede">Look around you: a slice of toast, a road sign, a kite in the sky, a door, a slice of pizza. Most flat shapes you meet have three or four straight sides. This page teaches you the words mathematicians use to describe them, the symbols they draw on diagrams, and how to name any of these shapes from a few clues. You won't just be told the rules: you'll find them yourself by dragging corners, folding and turning.</p>
+  <span class="gcse">National curriculum KS3: derive and illustrate properties of triangles, quadrilaterals and other plane figures (for example, equal lengths and angles) using appropriate language; use the standard conventions for labelling the sides and angles of triangle ABC</span>
+</header>
+
+<h2>1 · The words we need</h2>
+<p>A <strong>polygon</strong> is a flat shape made only of straight lines that join up to close in a space. No curves, no gaps. Polygons are named by how many sides they have:</p>
+<ul>
+  <li>A <strong>triangle</strong> has 3 sides. "Tri" means three, as in <em>tri</em>cycle.</li>
+  <li>A <strong>quadrilateral</strong> has 4 sides. "Quad" means four (a quad bike has four wheels) and "lateral" means side. So quadrilateral literally means "four sides".</li>
+</ul>
+<p>To talk about a shape precisely we need names for its parts. We label the corners with capital letters, going round the shape in order. Tap each word to see which part it means.</p>
+
+<div class="lab">
+  <div class="controls" id="vcBtns">
+    <button class="btn" data-w="vertex">vertex</button><button class="btn" data-w="side">side</button><button class="btn" data-w="angle">angle</button><button class="btn" data-w="diagonal">diagonal</button>
+  </div>
+  <svg id="vcSvg" viewBox="0 0 396 288" width="396" height="288"></svg>
+  <div class="msg" id="vcMsg"></div>
+</div>
+
+<p>Two more words describe how two straight lines sit relative to each other.</p>
+<ul>
+  <li><strong>Parallel</strong> lines point in exactly the same direction, so they never meet, however far you extend them. Think of railway tracks, or the lines on lined paper.</li>
+  <li><strong>Perpendicular</strong> lines meet at a <strong>right angle</strong>: exactly 90°, a "square corner" like the corner of this screen or a sheet of paper.</li>
+</ul>
+<p>Turn the second line with the slider. Watch for the moment it becomes parallel, and the moment it becomes perpendicular. Then use the tilt slider to turn the whole picture.</p>
+
+<div class="lab">
+  <svg id="ppSvg" viewBox="0 0 400 230" width="400" height="230"></svg>
+  <div class="controls">
+    <label>turn second line <input type="range" id="ppA" min="0" max="180" step="5" value="30"><span id="ppAv" style="font-family:var(--mono)"></span></label>
+    <label>tilt everything <input type="range" id="ppT" min="0" max="90" step="5" value="0"><span id="ppTv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="readout"><div class="t"><b>Angle between the lines</b><span id="ppAng"></span></div></div>
+  <div class="msg" id="ppMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes.</strong> "Perpendicular" does <em>not</em> mean "vertical" (straight up and down). Two lines are perpendicular if they meet at 90° to <em>each other</em>, whichever way they are tilted: try the tilt slider at 90° in the panel above.</p>
+  <p>Parallel lines don't have to be the same length or start in the same place. They just have to point in the same direction.</p>
+</div>
+
+<h2>2 · Reading the marks on a diagram</h2>
+<p>A drawing can trick your eyes: two sides can <em>look</em> equal without being equal. So mathematicians draw small symbols on diagrams to state facts for certain.</p>
+<ul>
+  <li><strong>Dashes</strong> (also called hash marks or ticks) across sides mean "these sides are the same length". Sides with <em>one</em> dash all match each other; sides with <em>two</em> dashes match each other, and so on. One dash and two dashes mean different lengths.</li>
+  <li><strong>Arrows</strong> on sides mean "these sides are parallel". Sides with one arrow are parallel to each other; sides with two arrows are parallel to each other.</li>
+  <li>A <strong>small square</strong> in a corner means "this angle is exactly 90°", a right angle.</li>
+</ul>
+<p>Practise reading the marks. Each picture asks one question; your answer gets instant feedback.</p>
+
+<div class="lab">
+  <svg id="mkSvg" viewBox="0 0 396 288" width="396" height="288"></svg>
+  <p id="mkQ" style="margin:.6rem 0"></p>
+  <div class="opts" id="mkOpts"></div>
+  <div class="msg" id="mkMsg"></div>
+  <div class="controls"><button class="btn" id="mkPrev">← Previous</button><span id="mkStep" style="font-family:var(--mono);font-size:.9rem;color:var(--muted)"></span><button class="btn primary" id="mkNext">Next →</button></div>
+</div>
+
+<div class="callout">
+  <p><strong>Marks beat looks.</strong> Exam diagrams often say "not drawn accurately". Only the marks, the labels and any numbers written on the diagram are facts. If a side has no dash, you know nothing about its length, however equal it looks.</p>
+</div>
+
+<h2>3 · Symmetry: folding and turning</h2>
+<p>Many shapes look balanced. There are two different kinds of balance, and each has its own name.</p>
+<p><strong>Line symmetry</strong> (also called reflection symmetry): a <strong>line of symmetry</strong> is a line you could fold the shape along so that one half lands exactly on top of the other, like a mirror. A butterfly has one. Use the "try a fold" button: each orange copy shows what happens if you fold along the orange line. If the copy lands exactly on the shape, that line is a line of symmetry.</p>
+<p><strong>Rotational symmetry</strong>: imagine tracing the shape, then turning it about its centre. The <strong>order of rotational symmetry</strong> is the number of times it fits exactly onto its own outline during one full turn (360°). The orange dot is a sticker on one corner, so you can see it really has moved. Every shape fits after a full turn, so the smallest order is 1, which means "no rotational symmetry".</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>shape <select id="syS">
+      <option value="equi">equilateral triangle</option><option value="iso">isosceles triangle</option><option value="sca">scalene triangle</option>
+      <option value="sq">square</option><option value="rect" selected>rectangle</option><option value="rho">rhombus</option><option value="para">parallelogram</option>
+      <option value="kite">kite</option><option value="itr">isosceles trapezium</option><option value="tra">trapezium</option>
+    </select></label>
+    <button class="btn" id="syFold">Try a fold line</button>
+    <label><input type="checkbox" id="syShow"> show all lines of symmetry</label>
+  </div>
+  <svg id="sySvg" viewBox="0 0 396 288" width="396" height="288"></svg>
+  <div class="controls"><label>turn <input type="range" id="syTurn" min="0" max="360" step="5" value="0"><span id="syTurnV" style="font-family:var(--mono)"></span></label></div>
+  <div class="msg" id="syMsg"></div>
+  <div class="work" id="syFits"></div>
+  <div class="controls">
+    <label>Lines of symmetry <input type="number" id="syL" min="0" max="8" step="1"></label>
+    <label>Order of rotational symmetry <input type="number" id="syO" min="0" max="8" step="1"></label>
+    <button class="btn primary" id="syCheck">Check</button>
+  </div>
+  <div class="msg" id="syCk"></div>
+</div>
+
+<div class="callout">
+  <p><strong>The classic mistake:</strong> thinking the diagonals of a rectangle are lines of symmetry. Choose the rectangle and try the diagonal folds: the corners miss. A rectangle that isn't a square has exactly 2 lines of symmetry, both through the middles of opposite sides. Likewise a parallelogram has rotational symmetry of order 2 but <em>no</em> lines of symmetry at all.</p>
+</div>
+
+<h2>4 · Triangles</h2>
+<p>Every triangle gets <em>two</em> describing words: one about its sides and one about its angles.</p>
+<h3>Sorted by sides</h3>
+<ul>
+  <li><strong>Equilateral</strong> ("equal sides"): all 3 sides are the same length. All 3 angles are then equal too, 60° each.</li>
+  <li><strong>Isosceles</strong> (Greek for "equal legs"): exactly 2 sides are the same length. The 2 angles opposite those sides, called the <strong>base angles</strong>, are equal.</li>
+  <li><strong>Scalene</strong>: no sides the same length, and no angles the same size.</li>
+</ul>
+<h3>Sorted by angles</h3>
+<ul>
+  <li><strong>Acute</strong>: all 3 angles are less than 90° (acute means "sharp").</li>
+  <li><strong>Right-angled</strong>: one angle is exactly 90°.</li>
+  <li><strong>Obtuse</strong>: one angle is more than 90° (obtuse means "blunt").</li>
+</ul>
+<p><strong>The angles of any triangle add up to 180°.</strong> You can see why with paper: draw a triangle, tear off the three corners and put their points together. They always make a straight line, and a straight line is 180°. That is also why a triangle can never have two right angles: 90° + 90° = 180° already, leaving nothing for the third corner.</p>
+<p>Drag the corners A, B and C below (they snap to the grid). The page measures the sides and angles, adds the marks for equal sides and right angles, and names the triangle. Then take on a challenge.</p>
+
+<div class="lab">
+  <div class="controls" id="trPre">
+    <button class="btn" data-t="equi">equilateral</button><button class="btn" data-t="iso">isosceles</button><button class="btn" data-t="sca">scalene</button><button class="btn" data-t="right">right-angled</button><button class="btn" data-t="obt">obtuse</button>
+  </div>
+  <svg id="trSvg" class="drag" viewBox="0 0 440 320" width="440" height="320"></svg>
+  <div class="big" id="trName"></div>
+  <div class="readout">
+    <div class="f"><b>Sides</b><span id="trSides"></span></div>
+    <div class="t"><b>Angles</b><span id="trAngles"></span></div>
+  </div>
+  <div class="msg" id="trWhy"></div>
+  <div class="controls"><label>challenge: make <select id="trCh">
+    <option value="">choose a challenge…</option>
+    <option value="0">a right-angled isosceles triangle</option>
+    <option value="1">an obtuse scalene triangle</option>
+    <option value="2">an obtuse isosceles triangle</option>
+    <option value="3">an acute scalene triangle</option>
+    <option value="4">a right-angled equilateral triangle</option>
+  </select></label></div>
+  <div class="msg" id="trMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Watch out.</strong> An isosceles triangle doesn't have to "stand up" with its odd side at the bottom: turned any way, two equal sides still make it isosceles. The equal base angles are the ones <em>opposite</em> the equal sides, not the angle between them. And "right-angled" describes the angles, so a right-angled triangle can also be isosceles (angles 90°, 45°, 45°) or scalene (for example sides 3, 4, 5).</p>
+</div>
+
+<h2>5 · Quadrilaterals: drag and discover</h2>
+<p>A quadrilateral can be split into two triangles by drawing one diagonal. Each triangle's angles add up to 180°, so <strong>the angles of any quadrilateral add up to 2 × 180° = 360°</strong>.</p>
+<p>Some quadrilaterals have special properties and special names. Rather than learn a list, explore. Pick a shape, then drag one corner a little. The checklist updates live, and anything that just changed flashes orange. Ask yourself: which properties break as soon as I move a corner? Which ones go together?</p>
+
+<div class="lab">
+  <div class="controls" id="qdPre">
+    <button class="btn" data-q="sq">square</button><button class="btn" data-q="tsq">tilted square</button><button class="btn" data-q="rect">rectangle</button><button class="btn" data-q="rho">rhombus</button><button class="btn" data-q="para">parallelogram</button><button class="btn" data-q="kite">kite</button><button class="btn" data-q="itr">isosceles trapezium</button><button class="btn" data-q="tra">trapezium</button>
+  </div>
+  <svg id="qdSvg" class="drag" viewBox="0 0 440 320" width="440" height="320"></svg>
+  <div class="controls">
+    <label><input type="checkbox" id="qdMarks" checked> marks</label>
+    <label><input type="checkbox" id="qdDiag"> diagonals</label>
+    <label><input type="checkbox" id="qdSym"> lines of symmetry</label>
+  </div>
+  <div class="big" id="qdName"></div>
+  <div class="work" id="qdAng"></div>
+  <ul class="props" id="qdProps"></ul>
+  <div class="key"><span><i style="background:var(--accent)"></i>shape</span><span><i style="background:var(--hi)"></i>marks</span><span><i style="background:var(--two)"></i>diagonals and lines of symmetry</span></div>
+</div>
+
+<p>Here is what you should have found. These are the properties each shape <em>always</em> has. (A particular one can have extras: a square is a very special rhombus, for instance, which is what section 6 is about.)</p>
+
+<div class="tbl"><table class="stack">
+  <tr><th>Shape</th><th>Sides</th><th>Angles</th><th>Diagonals</th><th>Lines of symmetry</th><th>Rotational order</th></tr>
+  <tr><td>Square</td><td data-l="Sides">4 equal; opposite sides parallel</td><td data-l="Angles">all 90°</td><td data-l="Diagonals">equal, cross at 90°, cut each other in half</td><td data-l="Lines of symmetry" class="mono">4</td><td data-l="Rotational order" class="mono">4</td></tr>
+  <tr><td>Rectangle</td><td data-l="Sides">opposite sides equal and parallel</td><td data-l="Angles">all 90°</td><td data-l="Diagonals">equal, cut each other in half</td><td data-l="Lines of symmetry" class="mono">2</td><td data-l="Rotational order" class="mono">2</td></tr>
+  <tr><td>Rhombus</td><td data-l="Sides">4 equal; opposite sides parallel</td><td data-l="Angles">opposite angles equal</td><td data-l="Diagonals">cross at 90°, cut each other in half</td><td data-l="Lines of symmetry" class="mono">2</td><td data-l="Rotational order" class="mono">2</td></tr>
+  <tr><td>Parallelogram</td><td data-l="Sides">opposite sides equal and parallel</td><td data-l="Angles">opposite angles equal</td><td data-l="Diagonals">cut each other in half</td><td data-l="Lines of symmetry" class="mono">0</td><td data-l="Rotational order" class="mono">2</td></tr>
+  <tr><td>Kite</td><td data-l="Sides">two pairs of equal sides, next to each other</td><td data-l="Angles">one pair of opposite angles equal</td><td data-l="Diagonals">cross at 90°; one cuts the other in half</td><td data-l="Lines of symmetry" class="mono">1</td><td data-l="Rotational order" class="mono">1</td></tr>
+  <tr><td>Isosceles trapezium</td><td data-l="Sides">one pair of parallel sides; the other two sides equal</td><td data-l="Angles">two pairs of equal angles</td><td data-l="Diagonals">equal</td><td data-l="Lines of symmetry" class="mono">1</td><td data-l="Rotational order" class="mono">1</td></tr>
+  <tr><td>Trapezium</td><td data-l="Sides">one pair of parallel sides</td><td data-l="Angles">the two angles along each slanted side add up to 180°</td><td data-l="Diagonals">nothing special</td><td data-l="Lines of symmetry" class="mono">0</td><td data-l="Rotational order" class="mono">1</td></tr>
+</table></div>
+
+<div class="callout">
+  <p><strong>A tilted square is still a square.</strong> Press "tilted square" above. People often call a square standing on its corner a "diamond", but "diamond" isn't a maths name, and turning a shape never changes its sides or angles. It still has 4 equal sides and 4 right angles, so it is a square.</p>
+  <p><strong>Another trap:</strong> a rectangle is defined by its <em>angles</em> (four right angles), not by being "long and thin".</p>
+</div>
+
+<h2>6 · The quadrilateral family tree</h2>
+<p>Here is an idea that surprises many people: <strong>a square is a rectangle</strong>. Why? A rectangle is any quadrilateral with four right angles. A square has four right angles, so it passes the test. It just has an extra property too (all sides equal). It's like saying every Labrador is a dog, but not every dog is a Labrador: every square is a rectangle, but not every rectangle is a square.</p>
+<p>In the same way, a square is also a <strong>rhombus</strong> (four equal sides), and both rectangles and rhombuses are special <strong>parallelograms</strong> (two pairs of parallel sides). Start with a parallelogram below. Make its angle 90° and it becomes a rectangle. Make side AD as long as AB (4 units) and it becomes a rhombus. Do both at once and you get a square. The highlighted boxes in the family tree show every name that fits.</p>
+
+<div class="lab">
+  <svg id="fmSvg" viewBox="0 0 430 390" width="430" height="390"></svg>
+  <div class="controls">
+    <label>angle A <input type="range" id="fmAng" min="45" max="135" step="5" value="65"><span id="fmAngV" style="font-family:var(--mono)"></span></label>
+    <label>side AD <input type="range" id="fmLen" min="2" max="5.5" step="0.5" value="3"><span id="fmLenV" style="font-family:var(--mono)"></span></label>
+    <label>turn the shape <input type="range" id="fmRot" min="0" max="90" step="15" value="0"><span id="fmRotV" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="big" id="fmName"></div>
+  <div class="msg" id="fmAlso"></div>
+  <svg id="treeSvg" viewBox="0 0 560 300" width="560" height="300" style="margin-top:1rem"></svg>
+  <div class="msg" id="treeMsg">Tap any box in the tree to read its definition.</div>
+</div>
+
+<p>Read the tree from top to bottom: each shape has <em>all</em> the properties of every shape above it that it is joined to, plus something extra. So a square has every property of a rectangle <em>and</em> every property of a rhombus. A rhombus is also a special kite, because its four equal sides certainly include two pairs of equal sides next to each other.</p>
+
+<div class="callout">
+  <p><strong>Which way round?</strong> "Every square is a rectangle" is true; "every rectangle is a square" is false. Going <em>down</em> the tree is always safe. Going <em>up</em> isn't.</p>
+  <p>Books disagree about one word: some say a trapezium has <em>exactly</em> one pair of parallel sides, others say <em>at least</em> one pair (which makes every parallelogram a trapezium too). That's why the line from trapezium to parallelogram is dashed.</p>
+</div>
+
+<h2>7 · Guess the shape</h2>
+<p>Now use properties like a detective. A mystery shape is hidden. Each clue is a property it has. Guess as soon as you think you know, but if a clue rules your guess out, you'll be told which one. The fewer clues you need, the better. Good strategy: after each clue, think "which shapes are still possible?"</p>
+
+<div class="lab">
+  <ol class="clues" id="gsClues"></ol>
+  <div class="msg" id="gsLeft"></div>
+  <div class="opts" id="gsOpts" style="margin-top:.6rem"></div>
+  <div class="msg" id="gsMsg"></div>
+  <div class="controls"><button class="btn primary" id="gsMore">Reveal another clue</button><button class="btn" id="gsNew">New mystery shape</button></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>A quadrilateral has all four sides 5 cm long and one angle of 70°. Name it and find its other angles.</summary>
+  <div class="step"><strong>Sides first:</strong> four equal sides means it is a rhombus or a square.</div>
+  <div class="step"><strong>Angles:</strong> a square's angles are all 90°. This shape has a 70° angle, so it is <strong>not</strong> a square. It is a <strong>rhombus</strong>.</div>
+  <div class="step"><strong>Opposite angles of a rhombus are equal</strong>, so the angle opposite the 70° is also 70°. Call each of the other two angles x; they are equal to each other for the same reason.</div>
+  <div class="step"><strong>Angles in a quadrilateral add up to 360°:</strong> 70 + 70 + x + x = 360, so 2x = 360 − 140 = 220 and x = 110. The angles are <strong>70°, 110°, 70°, 110°</strong>.</div>
+  <div class="step"><strong>Check:</strong> 70 + 110 + 70 + 110 = 360 ✓</div>
+</details>
+<details>
+  <summary>An isosceles triangle has an angle of 40° between its two equal sides. Find the other two angles.</summary>
+  <div class="step"><strong>Picture it:</strong> the 40° is at the top, where the two equal sides meet. The other two angles are the base angles, opposite the equal sides, so they are equal. Call each one b.</div>
+  <div class="step"><strong>Angles in a triangle add up to 180°:</strong> 40 + b + b = 180, so 2b = 140 and b = 70. The angles are <strong>40°, 70°, 70°</strong>.</div>
+  <div class="step"><strong>Careful:</strong> if the question had said the 40° was a <em>base</em> angle, the other base angle would also be 40°, and the top angle would be 180 − 40 − 40 = 100°. Read which angle you've been given.</div>
+</details>
+<details>
+  <summary>ABCD is a kite with AB = AD and CB = CD. Angle A = 80° and angle B = 110°. Find angles C and D.</summary>
+  <div class="step"><strong>Which angles are equal in a kite?</strong> The line of symmetry goes through A and C (the corners where equal sides meet). Folding along AC puts B on top of D, so <strong>angle D = angle B = 110°</strong>.</div>
+  <div class="step"><strong>Angles in a quadrilateral add up to 360°:</strong> angle C = 360 − 80 − 110 − 110 = <strong>60°</strong>.</div>
+  <div class="step"><strong>Check:</strong> 80 + 110 + 60 + 110 = 360 ✓. Note angles A and C are <em>not</em> equal: they sit on the line of symmetry, and each is folded onto itself.</div>
+</details>
+<details>
+  <summary>How many lines of symmetry does a parallelogram have, and what is its order of rotational symmetry? (Not a rectangle or rhombus.)</summary>
+  <div class="step"><strong>Lines of symmetry:</strong> try each possible fold. Along a diagonal, the two halves are the same size but one is flipped the wrong way, so the corners don't meet. Through the middles of opposite sides, the slanted sides lean opposite ways. So there are <strong>0 lines of symmetry</strong>.</div>
+  <div class="step"><strong>Rotational symmetry:</strong> turn it about the centre (where the diagonals cross). After a half turn (180°) it fits its outline exactly, and again after 360°. That's 2 fits, so the order is <strong>2</strong>.</div>
+  <div class="step"><strong>Lesson:</strong> a shape can have rotational symmetry without line symmetry. They are different kinds of symmetry.</div>
+</details>
+<details>
+  <summary>The diagonals of a quadrilateral are the same length and cut each other in half, but they do not cross at right angles. What is it?</summary>
+  <div class="step"><strong>Diagonals cut each other in half</strong> → it is a parallelogram (or one of its special cases: rectangle, rhombus, square).</div>
+  <div class="step"><strong>Equal diagonals</strong> → among those, only rectangles and squares have equal diagonals.</div>
+  <div class="step"><strong>Not at right angles</strong> → a square's diagonals cross at 90°, so it isn't a square. It is a <strong>rectangle</strong>.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A <strong>vertex</strong> is a corner, a <strong>side</strong> joins neighbouring vertices, and a <strong>diagonal</strong> joins two vertices that aren't next to each other. A quadrilateral has 2 diagonals; a triangle has none.</li>
+  <li><strong>Parallel</strong> lines point the same way and never meet; <strong>perpendicular</strong> lines meet at 90°, at any tilt.</li>
+  <li>On diagrams, matching <strong>dashes</strong> mean equal lengths, matching <strong>arrows</strong> mean parallel sides, and a small <strong>square</strong> means a right angle. Trust the marks, not your eyes.</li>
+  <li>A <strong>line of symmetry</strong> is a fold line where the halves match. The <strong>order of rotational symmetry</strong> is how many times a shape fits its outline in one full turn; the smallest is 1.</li>
+  <li>Triangles are equilateral, isosceles or scalene (by sides) and acute, right-angled or obtuse (by angles). Their angles add up to 180°.</li>
+  <li>Quadrilateral angles add up to 360°. Square, rectangle, rhombus, parallelogram, kite, isosceles trapezium and trapezium are each defined by their sides and angles, and have their own diagonal and symmetry properties.</li>
+  <li>The family tree: a square is a special rectangle <em>and</em> a special rhombus; both are special parallelograms; a rhombus is also a special kite. Turning a shape never changes its name.</li>
+  <li>To identify a shape from clues, use each property to rule shapes out until only one fits.</li>
+</ul>
+
+<footer>Made for KS3 students. Properties of triangles and quadrilaterals are in the England national curriculum at key stage 3 under Geometry and measures. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const F=()=>`font-family="${css('--mono')}"`;
+const fmt=(v,d=2)=>isFinite(v)?parseFloat(v.toFixed(d)).toString():'—';
+
+/* geometry */
+const sub=(p,q)=>[p[0]-q[0],p[1]-q[1]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1],crs=(a,b)=>a[0]*b[1]-a[1]*b[0];
+const L2=(p,q)=>dot(sub(p,q),sub(p,q));
+const close=(a,b)=>Math.abs(a-b)<=1e-6*Math.max(1,Math.abs(a),Math.abs(b));
+const near=(p,q)=>close(p[0],q[0])&&close(p[1],q[1]);
+const mid=(p,q)=>[(p[0]+q[0])/2,(p[1]+q[1])/2];
+const centroid=P=>[P.reduce((s,p)=>s+p[0],0)/P.length,P.reduce((s,p)=>s+p[1],0)/P.length];
+const sinB=(u,v)=>crs(u,v)/Math.sqrt(dot(u,u)*dot(v,v)),cosB=(u,v)=>dot(u,v)/Math.sqrt(dot(u,u)*dot(v,v));
+const isPar=(a,b,c,d)=>Math.abs(sinB(sub(b,a),sub(d,c)))<1e-9;
+const isRightAt=(v,a,b)=>Math.abs(cosB(sub(a,v),sub(b,v)))<1e-9;
+const angAt=(v,a,b)=>Math.acos(Math.max(-1,Math.min(1,cosB(sub(a,v),sub(b,v)))))*180/Math.PI;
+const rotP=(p,c,t)=>{const x=p[0]-c[0],y=p[1]-c[1],co=Math.cos(t),si=Math.sin(t);return [c[0]+x*co-y*si,c[1]+x*si+y*co];};
+const reflP=(p,c,d)=>{const v=sub(p,c),t=dot(v,d);return [c[0]+2*t*d[0]-v[0],c[1]+2*t*d[1]-v[1]];};
+function samePoly(P,Q){const n=P.length,map=[];
+  for(let i=0;i<n;i++){const j=P.findIndex(p=>near(p,Q[i]));if(j<0)return false;map.push(j);}
+  for(let i=0;i<n;i++){const g=(map[i]-map[(i+1)%n]+n)%n;if(g!==1&&g!==n-1)return false;}
+  return true;}
+function symLines(P){const c=centroid(P),n=P.length,out=[],cand=P.map(p=>sub(p,c));
+  for(let i=0;i<n;i++)cand.push(sub(mid(P[i],P[(i+1)%n]),c));
+  cand.forEach(v=>{const l=Math.hypot(v[0],v[1]);if(l<1e-9)return;const d=[v[0]/l,v[1]/l];
+    if(out.some(o=>Math.abs(crs(o.d,d))<1e-6))return;
+    out.push({c,d,ok:samePoly(P,P.map(p=>reflP(p,c,d)))});});
+  return out;}
+function rotOrder(P){const c=centroid(P);for(let k=P.length;k>=2;k--){if(samePoly(P,P.map(p=>rotP(p,c,2*Math.PI/k))))return k;}return 1;}
+const segX=(p1,p2,p3,p4)=>{const o=(a,b,c)=>crs(sub(b,a),sub(c,a));const a=o(p3,p4,p1),b=o(p3,p4,p2),c=o(p1,p2,p3),d=o(p1,p2,p4);return ((a>0&&b<0)||(a<0&&b>0))&&((c>0&&d<0)||(c<0&&d>0));};
+function triInfo(P){const [A,B,C]=P;const L=[L2(A,B),L2(B,C),L2(C,A)];
+  if(Math.abs(sinB(sub(B,A),sub(C,A)))<1e-9)return {flat:true};
+  const e=[close(L[0],L[1]),close(L[1],L[2]),close(L[2],L[0])];
+  const sides=e[0]&&e[1]?'equilateral':(e[0]||e[1]||e[2])?'isosceles':'scalene';
+  const ang=[angAt(A,B,C),angAt(B,C,A),angAt(C,A,B)],right=[isRightAt(A,B,C),isRightAt(B,C,A),isRightAt(C,A,B)];
+  const ri=right.indexOf(true),obt=ang.findIndex((a,i)=>!right[i]&&a>90);
+  return {sides,angles:ri>=0?'right':obt>=0?'obtuse':'acute',ang,right,ri,obt,len:L.map(Math.sqrt),e};}
+function quadInfo(P){const [A,B,C,D]=P;
+  if(segX(A,B,C,D)||segX(B,C,D,A))return {bad:'crossed'};
+  const cr=[0,1,2,3].map(i=>sinB(sub(P[(i+1)%4],P[i]),sub(P[(i+2)%4],P[(i+1)%4])));
+  if(cr.some(v=>Math.abs(v)<1e-9))return {bad:'flat'};
+  const area=P.reduce((s,p,i)=>s+crs(p,P[(i+1)%4]),0);
+  const reflex=[0,1,2,3].map(i=>Math.sign(cr[(i+3)%4])!==Math.sign(area));
+  const convex=!reflex.some(Boolean);
+  const L=[L2(A,B),L2(B,C),L2(C,D),L2(D,A)];
+  const all4=close(L[0],L[1])&&close(L[1],L[2])&&close(L[2],L[3]);
+  const opp=close(L[0],L[2])&&close(L[1],L[3]);
+  const kite=(close(L[0],L[1])&&close(L[2],L[3]))||(close(L[1],L[2])&&close(L[3],L[0]));
+  const p1=isPar(A,B,D,C),p2=isPar(B,C,A,D),npar=(p1?1:0)+(p2?1:0);
+  const ang=[0,1,2,3].map(i=>{const a=angAt(P[i],P[(i+3)%4],P[(i+1)%4]);return reflex[i]?360-a:a;});
+  const rights=[0,1,2,3].map(i=>!reflex[i]&&isRightAt(P[i],P[(i+3)%4],P[(i+1)%4]));
+  const nRight=rights.filter(Boolean).length,allRight=nRight===4;
+  const oppAng=close(ang[0],ang[2])&&close(ang[1],ang[3]);
+  const dEq=close(L2(A,C),L2(B,D)),dPerp=Math.abs(cosB(sub(C,A),sub(D,B)))<1e-9,bis=near(mid(A,C),mid(B,D));
+  const lines=symLines(P).filter(l=>l.ok),rot=rotOrder(P);
+  let name;
+  if(!convex)name=kite?'arrowhead (a concave kite)':'concave quadrilateral';
+  else if(npar===2)name=all4&&allRight?'square':allRight?'rectangle':all4?'rhombus':'parallelogram';
+  else if(kite)name='kite';
+  else if(npar===1){const legs=p1?close(L[1],L[3]):close(L[0],L[2]);name=legs?'isosceles trapezium':nRight===2?'trapezium (right-angled)':'trapezium';}
+  else name='quadrilateral (no special name)';
+  return {name,convex,all4,opp,kite,p1,p2,npar,ang,rights,allRight,oppAng,dEq,dPerp,bis,lines,rot};}
+/* end geometry */
+
+/* drawing kit: unit-grid boards and notation marks */
+function Board(svg,W,H,u,pad){const VW=W*u+2*pad,VH=H*u+2*pad;
+  const B={svg,W,H,u,pad,VW,VH,X:x=>pad+x*u,Y:y=>pad+(H-y)*u};
+  B.P=p=>`${B.X(p[0]).toFixed(1)},${B.Y(p[1]).toFixed(1)}`;
+  B.grid=()=>{let s='';const g=css('--grid');for(let i=0;i<=W;i++)s+=`<line x1="${B.X(i)}" y1="${B.Y(0)}" x2="${B.X(i)}" y2="${B.Y(H)}" stroke="${g}"/>`;for(let j=0;j<=H;j++)s+=`<line x1="${B.X(0)}" y1="${B.Y(j)}" x2="${B.X(W)}" y2="${B.Y(j)}" stroke="${g}"/>`;return s;};
+  B.toUnits=(e,snap)=>{const r=svg.getBoundingClientRect();let x=((e.clientX-r.left)/r.width*VW-pad)/u,y=H-((e.clientY-r.top)/r.height*VH-pad)/u;
+    if(snap){x=Math.round(x/snap)*snap;y=Math.round(y/snap)*snap;}return [Math.min(W,Math.max(0,x)),Math.min(H,Math.max(0,y))];};
+  svg.setAttribute('viewBox',`0 0 ${VW} ${VH}`);svg.setAttribute('width',VW);svg.setAttribute('height',VH);
+  return B;}
+const ID={X:x=>x,Y:y=>y};
+const px=(B,p)=>[B.X(p[0]),B.Y(p[1])];
+function hashMk(B,p,q,n,col){const [x1,y1]=px(B,p),[x2,y2]=px(B,q);const L=Math.hypot(x2-x1,y2-y1)||1,ux=(x2-x1)/L,uy=(y2-y1)/L,nx=-uy,ny=ux,mx=(x1+x2)/2-ux*14,my=(y1+y2)/2-uy*14;let s='';
+  for(let i=0;i<n;i++){const o=(i-(n-1)/2)*6,cx=mx+ux*o,cy=my+uy*o;s+=`<line x1="${cx+nx*7}" y1="${cy+ny*7}" x2="${cx-nx*7}" y2="${cy-ny*7}" stroke="${col}" stroke-width="2.4" stroke-linecap="round"/>`;}return s;}
+function arrowMk(B,p,q,n,col){const [x1,y1]=px(B,p),[x2,y2]=px(B,q);const L=Math.hypot(x2-x1,y2-y1)||1,ux=(x2-x1)/L,uy=(y2-y1)/L,nx=-uy,ny=ux,mx=(x1+x2)/2+ux*14,my=(y1+y2)/2+uy*14;let s='';
+  for(let i=0;i<n;i++){const o=(i-(n-1)/2)*8,tx=mx+ux*o,ty=my+uy*o;s+=`<polyline points="${tx-ux*8+nx*6},${ty-uy*8+ny*6} ${tx},${ty} ${tx-ux*8-nx*6},${ty-uy*8-ny*6}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`;}return s;}
+function boxMk(B,v,a,b,col,sz=12){const [vx,vy]=px(B,v),[ax,ay]=px(B,a),[bx,by]=px(B,b);const la=Math.hypot(ax-vx,ay-vy)||1,lb=Math.hypot(bx-vx,by-vy)||1;
+  const ux=(ax-vx)/la*sz,uy=(ay-vy)/la*sz,wx=(bx-vx)/lb*sz,wy=(by-vy)/lb*sz;
+  return `<path d="M${vx+ux},${vy+uy} L${vx+ux+wx},${vy+uy+wy} L${vx+wx},${vy+wy}" fill="none" stroke="${col}" stroke-width="2"/>`;}
+function arcMk(B,v,a,b,r,col,label){const [vx,vy]=px(B,v),[ax,ay]=px(B,a),[bx,by]=px(B,b);const t1=Math.atan2(ay-vy,ax-vx);let d=Math.atan2(by-vy,bx-vx)-t1;
+  while(d>Math.PI)d-=2*Math.PI;while(d<=-Math.PI)d+=2*Math.PI;const t2=t1+d,tm=t1+d/2;
+  let s=`<path d="M${vx+r*Math.cos(t1)},${vy+r*Math.sin(t1)} A${r},${r} 0 0 ${d>0?1:0} ${vx+r*Math.cos(t2)},${vy+r*Math.sin(t2)}" fill="none" stroke="${col}" stroke-width="1.8"/>`;
+  if(label)s+=`<text x="${vx+(r+16)*Math.cos(tm)}" y="${vy+(r+16)*Math.sin(tm)+4}" text-anchor="middle" font-size="12" font-weight="600" fill="${col}" ${F()}>${label}</text>`;return s;}
+function poly(B,P,col,fillOp=.14,extra=''){return `<polygon points="${P.map(B.P).join(' ')}" fill="${col}" fill-opacity="${fillOp}" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" ${extra}/>`;}
+function labels(B,P,names,col){const c=px(B,centroid(P));return P.map((p,i)=>{const [x,y]=px(B,p);let dx=x-c[0],dy=y-c[1];const l=Math.hypot(dx,dy)||1;dx/=l;dy/=l;
+  return `<text x="${x+dx*18}" y="${y+dy*18+5}" text-anchor="middle" font-size="15" font-weight="600" fill="${col||css('--fg')}" ${F()}>${names[i]}</text>`;}).join('');}
+function handles(B,P){const ac=css('--accent'),pn=css('--panel');return P.map(p=>`<circle cx="${B.X(p[0])}" cy="${B.Y(p[1])}" r="9" fill="${pn}" stroke="${ac}" stroke-width="3"/>`).join('');}
+function symLine(B,c,d,len,col,dash){const a=[c[0]-d[0]*len,c[1]-d[1]*len],b=[c[0]+d[0]*len,c[1]+d[1]*len];return `<line x1="${B.X(a[0])}" y1="${B.Y(a[1])}" x2="${B.X(b[0])}" y2="${B.Y(b[1])}" stroke="${col}" stroke-width="2.5" ${dash?'stroke-dasharray="7 5"':''}/>`;}
+function marks(B,P,col){const n=P.length,L=P.map((p,i)=>L2(p,P[(i+1)%n]));let s='';
+  const g=Array(n).fill(0);let next=1;
+  for(let i=0;i<n;i++){if(g[i])continue;const same=[];for(let j=i;j<n;j++)if(!g[j]&&close(L[i],L[j]))same.push(j);if(same.length>1){same.forEach(j=>g[j]=next);next++;}}
+  for(let i=0;i<n;i++)if(g[i])s+=hashMk(B,P[i],P[(i+1)%n],g[i],col);
+  if(n===4){let k=1;[[0,2],[1,3]].forEach(([i,j])=>{const a=P[i],b=P[i+1],c=P[j],d=P[(j+1)%4];if(isPar(a,b,c,d)){s+=arrowMk(B,a,b,k,col)+(dot(sub(b,a),sub(d,c))>0?arrowMk(B,c,d,k,col):arrowMk(B,d,c,k,col));k++;}});}
+  const area=P.reduce((t,p,i)=>t+crs(p,P[(i+1)%n]),0);
+  for(let i=0;i<n;i++){const v=P[i],a=P[(i+n-1)%n],b=P[(i+1)%n];const turn=crs(sub(v,a),sub(b,v));if(Math.sign(turn)===Math.sign(area)&&isRightAt(v,a,b))s+=boxMk(B,v,a,b,col);}
+  return s;}
+function dragger(B,getPts,onMove){let idx=-1;const svg=B.svg;
+  svg.addEventListener('pointerdown',e=>{const p=B.toUnits(e,0),P=getPts();let best=-1,bd=Infinity;P.forEach((q,i)=>{const d=Math.hypot(q[0]-p[0],q[1]-p[1]);if(d<bd){bd=d;best=i;}});
+    if(bd*B.u<36){idx=best;try{svg.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();}});
+  svg.addEventListener('pointermove',e=>{if(idx<0)return;const p=B.toUnits(e,0.5),P=getPts();if(P.some((q,i)=>i!==idx&&near(q,p)))return;if(near(P[idx],p))return;P[idx]=p;onMove();});
+  const end=()=>{idx=-1;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);}
+
+/* 1. vocabulary */
+const vcB=Board($('vcSvg'),10,7,36,18),VQ=[[1.5,1],[8,1.5],[7,5.5],[2.5,6]];let vcW='vertex';
+const VDEF={vertex:'<strong>Vertex</strong> (plural <strong>vertices</strong>): a corner, where two sides meet. This shape has 4 vertices, labelled A, B, C and D in order round the shape.',
+  side:'<strong>Side</strong> (or <strong>edge</strong>): a straight line joining two vertices that are next to each other. We name a side by the letters at its ends: AB, BC, CD and DA.',
+  angle:'<strong>Angle</strong>: the amount of turn between two sides that meet at a vertex, measured in degrees (°). The angle at B can be written ∠B or ∠ABC: the middle letter is the vertex.',
+  diagonal:'<strong>Diagonal</strong>: a straight line joining two vertices that are <em>not</em> next to each other, cutting across the inside. A quadrilateral has 2 diagonals, AC and BD. A triangle has none, because every corner is next to both of the others.'};
+function drawVC(){const B=vcB,P=VQ,ac=css('--accent'),hi=css('--hi'),two=css('--two'),fg=css('--fg');let s=B.grid()+poly(B,P,ac);
+  if(vcW==='side'){const cc=px(B,centroid(P));P.forEach((p,i)=>{const q=P[(i+1)%4];s+=`<line x1="${B.X(p[0])}" y1="${B.Y(p[1])}" x2="${B.X(q[0])}" y2="${B.Y(q[1])}" stroke="${hi}" stroke-width="5" stroke-linecap="round"/>`;
+    const [mx,my]=px(B,mid(p,q));let dx=mx-cc[0],dy=my-cc[1];const l=Math.hypot(dx,dy);s+=`<text x="${mx+dx/l*20}" y="${my+dy/l*20+5}" text-anchor="middle" font-size="14" font-weight="600" fill="${hi}" ${F()}>${'ABCD'[i]+'ABCD'[(i+1)%4]}</text>`;});}
+  if(vcW==='angle')P.forEach((p,i)=>{s+=arcMk(B,p,P[(i+3)%4],P[(i+1)%4],24,hi,Math.round(angAt(p,P[(i+3)%4],P[(i+1)%4]))+'°');});
+  if(vcW==='diagonal'){[[0,2],[1,3]].forEach(([i,j])=>{s+=`<line x1="${B.X(P[i][0])}" y1="${B.Y(P[i][1])}" x2="${B.X(P[j][0])}" y2="${B.Y(P[j][1])}" stroke="${two}" stroke-width="3" stroke-dasharray="7 5"/>`;});}
+  P.forEach(p=>{s+=`<circle cx="${B.X(p[0])}" cy="${B.Y(p[1])}" r="${vcW==='vertex'?8:4.5}" fill="${vcW==='vertex'?hi:ac}"/>`;});
+  s+=labels(B,P,'ABCD',fg);$('vcSvg').innerHTML=s;$('vcMsg').innerHTML=VDEF[vcW];
+  $('vcBtns').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.w===vcW));}
+$('vcBtns').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{vcW=b.dataset.w;drawVC();}));drawVC();
+
+/* 1b. parallel and perpendicular */
+const ppA=$('ppA'),ppT=$('ppT');
+function drawPP(){const th=+ppA.value,tilt=+ppT.value;$('ppAv').textContent=` ${th}°`;$('ppTv').textContent=` ${tilt}°`;
+  const ac=css('--accent'),hi=css('--hi'),y0=165,P=[200,70],r=th*Math.PI/180,d=[Math.cos(r),-Math.sin(r)],between=Math.min(th,180-th);
+  let g=`<line x1="-400" y1="${y0}" x2="800" y2="${y0}" stroke="${ac}" stroke-width="3"/><line x1="${P[0]-800*d[0]}" y1="${P[1]-800*d[1]}" x2="${P[0]+800*d[0]}" y2="${P[1]+800*d[1]}" stroke="${ac}" stroke-width="3"/><circle cx="${P[0]}" cy="${P[1]}" r="5" fill="${ac}"/>`;
+  let msg,cls='msg';
+  if(between===0){g+=arrowMk(ID,[130,y0],[270,y0],1,hi)+arrowMk(ID,[130,P[1]],[270,P[1]],1,hi);cls='msg good';
+    msg='<strong>Parallel.</strong> The lines point in exactly the same direction, so however far you extend them they never meet. The matching arrows are the symbol for "parallel".';}
+  else{const t=(y0-P[1])/d[1],X=P[0]+t*d[0];
+    if(between===90){g+=boxMk(ID,[X,y0],[X+30,y0],P,hi,14);cls='msg good';msg='<strong>Perpendicular.</strong> The lines meet at exactly 90°, a right angle. The little square is the symbol for a right angle.';}
+    else{g+=th<90?arcMk(ID,[X,y0],[X+30,y0],P,30,hi,between+'°'):arcMk(ID,[X,y0],[X-30,y0],P,30,hi,between+'°');
+      msg=`Neither. The lines cross at ${between}°, which isn't 90°. Any two lines that aren't parallel meet somewhere, even if it's off the edge of the picture.`;}
+    g+=`<circle cx="${X}" cy="${y0}" r="5" fill="${hi}"/>`;}
+  $('ppSvg').innerHTML=`<g transform="rotate(${-tilt} 200 115)">${g}</g>`;
+  $('ppAng').textContent=`${between}°`;const m=$('ppMsg');m.className=cls;m.innerHTML=msg+(tilt&&(between===0||between===90)?' Notice the tilt changes nothing.':'');}
+[ppA,ppT].forEach(e=>e.addEventListener('input',drawPP));drawPP();
+
+/* 2. reading the marks */
+const mkB=Board($('mkSvg'),10,7,36,18);
+const MK=[
+  {P:[[5,6],[2,1],[8,1]],h:[[0,1,1],[0,2,1]],ar:[],bx:[],q:'Which two sides are equal in length?',
+   o:[{t:'AB and BC',fb:'BC has no dash, so the diagram tells you nothing about its length. Look for sides with the same number of dashes.'},
+      {t:'AB and AC',ok:1,fb:'Yes. AB and AC each have one dash, and matching dashes mean matching lengths. A triangle with two equal sides is called isosceles.'},
+      {t:'all three sides',fb:'Only marked sides are claimed to be equal. BC has no dash, so it isn\'t said to match.'}]},
+  {P:[[1.5,1.5],[6.5,1.5],[8.5,5.5],[3.5,5.5]],h:[],ar:[[0,1,1],[3,2,1],[0,3,2],[1,2,2]],bx:[],q:'Which side is parallel to AD?',
+   o:[{t:'DC',fb:'DC has a single arrow but AD has double arrows. Only sides with the same number of arrows are parallel.'},
+      {t:'AB',fb:'AB has a single arrow but AD has double arrows. Different numbers of arrows mark different directions.'},
+      {t:'BC',ok:1,fb:'Yes. AD and BC both carry double arrows, so they are parallel. AB and DC (single arrows) are the other parallel pair. Two pairs of parallel sides make a parallelogram.'}]},
+  {P:[[5,6.5],[7,4.5],[5,0.5],[3,4.5]],h:[[0,1,1],[0,3,1],[2,1,2],[2,3,2]],ar:[],bx:[],q:'Is side AB the same length as side BC?',
+   o:[{t:'Yes, both sides are marked',fb:'Having a mark isn\'t enough: the number of dashes must match. AB has one dash, BC has two.'},
+      {t:'No',ok:1,fb:'Right. AB has one dash and BC has two, so they are different lengths. AB matches AD, and BC matches CD. Two pairs of equal sides next to each other make a kite.'},
+      {t:'Yes, they look the same',fb:'Never trust looks. Read the marks: one dash on AB, two dashes on BC.'}]},
+  {P:[[2,1],[8,1],[5,5.5],[2,5.5]],h:[],ar:[[0,1,1],[3,2,1]],bx:[0,3],q:'What does the small square drawn in corner A mean?',
+   o:[{t:'Angle A is exactly 90°',ok:1,fb:'Yes. A small square in a corner is the symbol for a right angle (90°). Angle D is marked as 90° too.'},
+      {t:'The shape is a square',fb:'The box marks one right-angled corner, not the whole shape. Only AB and DC are parallel (single arrows), so this is a trapezium.'},
+      {t:'Side AD is short',fb:'The box is about the angle at A, not about any length.'}]},
+  {P:[[2,1.5],[8,1.5],[8,5.5],[2,5.5]],h:[],ar:[],bx:[],note:'not drawn accurately',q:'This diagram has no marks at all. What do you know for certain?',
+   o:[{t:'It is a rectangle',fb:'It looks like one, but nothing on the diagram says the angles are 90°. Diagrams are often "not drawn accurately".'},
+      {t:'Opposite sides are parallel',fb:'There are no arrows, so being parallel isn\'t given. It might be slightly off.'},
+      {t:'Only that it has 4 sides',ok:1,fb:'Exactly. Without dashes, arrows or right-angle boxes, you can\'t claim any sides are equal or parallel, or that any angle is 90°. All you know is that it\'s a quadrilateral.'}]}
+];
+let mkI=0;
+function drawMKsvg(){const it=MK[mkI],B=mkB,P=it.P,n=P.length,hi=css('--hi');let s=B.grid()+poly(B,P,css('--accent'));
+  it.h.forEach(([i,j,k])=>s+=hashMk(B,P[i],P[j],k,hi));it.ar.forEach(([i,j,k])=>s+=arrowMk(B,P[i],P[j],k,hi));
+  it.bx.forEach(i=>s+=boxMk(B,P[i],P[(i+1)%n],P[(i+n-1)%n],hi));
+  s+=labels(B,P,'ABCD');if(it.note)s+=`<text x="${B.VW-20}" y="${B.VH-6}" text-anchor="end" font-size="12" font-style="italic" fill="${css('--muted')}" ${F()}>${it.note}</text>`;
+  $('mkSvg').innerHTML=s;}
+function renderMK(){const it=MK[mkI];drawMKsvg();$('mkQ').innerHTML=`<strong>${mkI+1}.</strong> ${it.q}`;$('mkStep').textContent=`${mkI+1} of ${MK.length}`;
+  const box=$('mkOpts'),msg=$('mkMsg');box.innerHTML='';msg.className='msg';msg.textContent='';
+  it.o.forEach(o=>{const b=document.createElement('button');b.textContent=o.t;b.addEventListener('click',()=>{msg.className='msg '+(o.ok?'good':'bad');msg.textContent=(o.ok?'Correct. ':'Not quite. ')+o.fb;
+    if(o.ok){b.classList.add('right');box.querySelectorAll('button').forEach(x=>x.disabled=true);}else b.classList.add('wrong');});box.appendChild(b);});
+  $('mkPrev').disabled=mkI===0;$('mkNext').disabled=mkI===MK.length-1;}
+$('mkPrev').addEventListener('click',()=>{if(mkI>0){mkI--;renderMK();}});$('mkNext').addEventListener('click',()=>{if(mkI<MK.length-1){mkI++;renderMK();}});renderMK();
+
+/* 3. symmetry */
+const R3=Math.sqrt(3);
+const SY={equi:[[2.5,1.4],[7.5,1.4],[5,1.4+2.5*R3]],iso:[[3,1],[7,1],[5,6]],sca:[[2,1],[8,1],[3.5,6]],
+  sq:[[3,1.5],[7,1.5],[7,5.5],[3,5.5]],rect:[[2,2],[8,2],[8,5],[2,5]],rho:[[5,0.5],[7.5,3.5],[5,6.5],[2.5,3.5]],para:[[1.5,1.5],[6.5,1.5],[8.5,5.5],[3.5,5.5]],
+  kite:[[5,6.5],[7,4.5],[5,0.5],[3,4.5]],itr:[[2,1.5],[8,1.5],[6.5,5.5],[3.5,5.5]],tra:[[2,1.5],[8,1.5],[6,5.5],[3,5.5]]};
+const syB=Board($('sySvg'),10,7,36,18),syS=$('syS'),syTurn=$('syTurn'),syShow=$('syShow');let syFold=-1,syFound=new Set();
+function syData(){const P=SY[syS.value];const cand=symLines(P);return {P,cand,good:cand.filter(c=>c.ok),order:rotOrder(P),c:centroid(P)};}
+function drawSY(){const {P,cand,c}=syData(),B=syB,th=+syTurn.value,t=th*Math.PI/180,ac=css('--accent'),hi=css('--hi'),two=css('--two'),mu=css('--muted');
+  $('syTurnV').textContent=` ${th}°`;const Q=P.map(p=>rotP(p,c,t));const R=Math.max(...P.map(p=>Math.hypot(p[0]-c[0],p[1]-c[1])))+0.7;
+  let s=B.grid()+`<polygon points="${P.map(B.P).join(' ')}" fill="none" stroke="${mu}" stroke-width="2" stroke-dasharray="5 5"/>`+poly(B,Q,ac,.18);
+  if(syShow.checked)cand.filter(l=>l.ok).forEach(l=>s+=symLine(B,c,rotP(l.d,[0,0],t),R,two,false));
+  const m=$('syMsg');let msg='',cls='msg';
+  if(syFold>=0){const l=cand[syFold],d=rotP(l.d,[0,0],t),img=Q.map(p=>reflP(p,c,d));s+=poly(B,img,hi,.12,'stroke-dasharray="6 4"')+symLine(B,c,d,R,hi,true);
+    cls='msg '+(l.ok?'good':'bad');msg=`Fold line ${syFold+1} of ${cand.length}: `+(l.ok?'the folded copy lands exactly on the shape ✓ This is a line of symmetry.':'the folded copy does not land on the shape ✗ Not a line of symmetry.');}
+  s+=`<circle cx="${B.X(c[0])}" cy="${B.Y(c[1])}" r="3" fill="${css('--fg')}"/><circle cx="${B.X(Q[0][0])}" cy="${B.Y(Q[0][1])}" r="7" fill="${hi}"/>`;
+  syB.svg.innerHTML=s;
+  const fits=th>0&&samePoly(P,Q);if(fits)syFound.add(th);
+  if(th>0&&!msg){if(fits){cls='msg good';msg=th===360?'A full turn: back where it started. Every shape fits at 360°.':`It fits exactly on its outline at ${th}° ✓ (look where the orange sticker has gone).`;}else msg='Doesn\'t fit its outline here. Keep turning.';}
+  if(!msg)msg='Press "Try a fold line", or move the turn slider.';
+  m.className=cls;m.textContent=msg;
+  const f=[...syFound].sort((a,b)=>a-b);$('syFits').innerHTML=f.length?`Fits found so far: <span class="b">${f.map(x=>x+'°').join(', ')}</span>${syFound.has(360)?`<br>In one full turn it fits <strong>${f.length}</strong> time${f.length>1?'s':''}${f.length===syData().order?'':' (have you found them all?)'}.`:'<br>Keep going to 360° to complete a full turn.'}`:'Turn the shape and note every angle where it fits its dashed outline.';}
+syS.addEventListener('change',()=>{syFold=-1;syFound=new Set();syTurn.value=0;$('syCk').textContent='';$('syL').value='';$('syO').value='';drawSY();});
+syTurn.addEventListener('input',()=>{syFold=-1;drawSY();});syShow.addEventListener('input',drawSY);
+$('syFold').addEventListener('click',()=>{const n=syData().cand.length;syFold=(syFold+1)%n;drawSY();});
+$('syCheck').addEventListener('click',()=>{const d=syData(),L=d.good.length,O=d.order,l=parseInt($('syL').value,10),o=parseInt($('syO').value,10),m=$('syCk');
+  if(isNaN(l)||isNaN(o)){m.className='msg bad';m.textContent='Fill in both boxes first.';return;}
+  const parts=[];const v=syS.value;
+  if(l!==L){if((v==='rect'||v==='para')&&l>L)parts.push(`Lines: not ${l}. The diagonals of a ${v==='rect'?'rectangle':'parallelogram'} are not lines of symmetry. Try the fold lines through the corners and watch them miss.`);
+    else parts.push(`Lines: not ${l}. Use "Try a fold line" to test every possible fold, and count the ticks.`);}
+  if(o!==O){if(o===0)parts.push('Order can\'t be 0: every shape fits back on itself after a full 360° turn, so the smallest order is 1.');
+    else parts.push(`Order: not ${o}. Turn the shape all the way to 360° and count the fits (360° counts as one).`);}
+  m.className='msg '+(parts.length?'bad':'good');m.textContent=parts.length?parts.join(' '):`Both right ✓ ${L} line${L===1?'':'s'} of symmetry, rotational symmetry of order ${O}.`;});
+drawSY();
+
+/* 4. triangles */
+const trB=Board($('trSvg'),10,7,40,20);
+const TP={equi:[[2,1],[8,1],[5,1+3*R3]],iso:[[2,1],[8,1],[5,6]],sca:[[1.5,1],[8,1],[3.5,5]],right:[[2,1],[8,1],[2,5.5]],obt:[[1,1],[6,1],[8.5,4]]};
+let T=[[2,1],[8,1],[4,5.5]];
+const CH=[{s:'isosceles',a:'right'},{s:'scalene',a:'obtuse'},{s:'isosceles',a:'obtuse'},{s:'scalene',a:'acute'},{imp:true}];
+const SN=['AB','BC','CA'],AN=['A','B','C'];
+function drawTR(){const B=trB,P=T,info=triInfo(P),ac=css('--accent'),hi=css('--hi');let s=B.grid()+poly(B,P,ac);
+  if(info.flat){s+=handles(B,P)+labels(B,P,'ABC');trB.svg.innerHTML=s;$('trName').textContent='not a triangle';$('trSides').textContent='—';$('trAngles').textContent='—';
+    $('trWhy').textContent='The three corners are in a straight line, so there is no space inside. Drag one corner off the line.';chkTR(info);return;}
+  s+=marks(B,P,hi);
+  P.forEach((p,i)=>{if(!info.right[i])s+=arcMk(B,p,P[(i+2)%3],P[(i+1)%3],26,hi,Math.round(info.ang[i])+'°');else{const [x,y]=px(B,p),c=px(B,centroid(P));const dx=c[0]-x,dy=c[1]-y,l=Math.hypot(dx,dy);s+=`<text x="${x+dx/l*36}" y="${y+dy/l*36+4}" text-anchor="middle" font-size="12" font-weight="600" fill="${hi}" ${F()}>90°</text>`;}});
+  s+=handles(B,P)+labels(B,P,'ABC');trB.svg.innerHTML=s;
+  const A2={acute:'acute',right:'right-angled',obtuse:'obtuse'};
+  $('trName').textContent=`${info.sides} · ${A2[info.angles]}`;
+  $('trSides').textContent=SN.map((n,i)=>`${n} = ${fmt(info.len[i])}`).join(', ');
+  $('trAngles').textContent=AN.map((n,i)=>`∠${n} = ${fmt(info.ang[i],1)}°`).join(', ')+`; total ${fmt(info.ang.reduce((a,b)=>a+b,0),1)}°`;
+  let why;const pairs=[];if(info.e[0])pairs.push('AB = BC');if(info.e[1])pairs.push('BC = CA');if(info.e[2])pairs.push('CA = AB');
+  if(info.sides==='equilateral')why='All three sides are equal, so it is <strong>equilateral</strong>, and every angle is 60°.';
+  else if(info.sides==='isosceles')why=`Exactly two sides are equal (${pairs[0]}, see the dashes), so it is <strong>isosceles</strong>. The two angles opposite those sides are equal.`;
+  else why='No two sides are equal, so it is <strong>scalene</strong>; no two angles are equal either.';
+  if(info.angles==='right')why+=` Angle ${AN[info.ri]} is exactly 90° (the small square), so it is <strong>right-angled</strong>.`;
+  else if(info.angles==='obtuse')why+=` Angle ${AN[info.obt]} is ${fmt(info.ang[info.obt],1)}°, more than 90°, so it is <strong>obtuse</strong>.`;
+  else why+=` Its biggest angle is ${fmt(Math.max(...info.ang),1)}°, less than 90°, so it is <strong>acute</strong>.`;
+  $('trWhy').innerHTML=why+' (Angles are rounded; together they make exactly 180°.)';chkTR(info);}
+function chkTR(info){const v=$('trCh').value,m=$('trMsg');if(v===''){m.className='msg';m.textContent='';return;}const c=CH[+v];
+  if(c.imp){m.className='msg good';m.textContent='Trick question: this one is impossible! An equilateral triangle\'s angles are all 60°, so none can ever be 90°. Spotting that something can\'t exist is good maths too.';return;}
+  if(!info.flat&&info.sides===c.s&&info.angles===c.a){m.className='msg good';m.textContent='Done ✓ The readout agrees. Can you find a different one?';}
+  else{m.className='msg';m.textContent=`Not yet. You need it to be ${c.s} and ${c.a==='right'?'right-angled':c.a}. Right now it is ${info.flat?'flat':info.sides+' and '+(info.angles==='right'?'right-angled':info.angles)}.`+(c.s==='isosceles'?' Hint: make two sides the same length, for example by placing one corner exactly halfway across from the other two.':'');}}
+dragger(trB,()=>T,drawTR);
+$('trPre').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{T=TP[b.dataset.t].map(p=>p.slice());drawTR();}));
+$('trCh').addEventListener('change',drawTR);drawTR();
+
+/* 5. quadrilaterals */
+const qdB=Board($('qdSvg'),10,7,40,20);
+const QP={sq:[[3,1.5],[7,1.5],[7,5.5],[3,5.5]],tsq:[[3,1],[7,2],[6,6],[2,5]],rect:[[2,1.5],[8,1.5],[8,5.5],[2,5.5]],rho:SY.rho,para:SY.para,kite:SY.kite,itr:SY.itr,tra:SY.tra};
+let Qd=QP.sq.map(p=>p.slice()),qdPrev=null,qdFlipT=[],qdTimer=0;
+function drawQD(){const B=qdB,P=Qd,ac=css('--accent'),hi=css('--hi'),two=css('--two');const info=quadInfo(P);let s=B.grid()+poly(B,P,ac);
+  if(info.bad){s+=handles(B,P)+labels(B,P,'ABCD');qdB.svg.innerHTML=s;$('qdName').textContent=info.bad==='crossed'?'sides cross over':'three corners in a line';
+    $('qdAng').textContent=info.bad==='crossed'?'Two sides cross each other, so this isn\'t a proper quadrilateral any more. Drag a corner back.':'Three corners are in a straight line, so really this is a triangle. Drag a corner off the line.';$('qdProps').innerHTML='';qdPrev=null;return;}
+  const c=centroid(P),R=Math.max(...P.map(p=>Math.hypot(p[0]-c[0],p[1]-c[1])))+0.6;
+  if($('qdSym').checked)info.lines.forEach(l=>s+=symLine(B,l.c,l.d,R,two,false));
+  if($('qdDiag').checked){[[0,2],[1,3]].forEach(([i,j])=>{s+=`<line x1="${B.X(P[i][0])}" y1="${B.Y(P[i][1])}" x2="${B.X(P[j][0])}" y2="${B.Y(P[j][1])}" stroke="${two}" stroke-width="2.5" stroke-dasharray="7 5"/>`;});}
+  if($('qdMarks').checked)s+=marks(B,P,hi);
+  s+=handles(B,P)+labels(B,P,'ABCD');qdB.svg.innerHTML=s;
+  $('qdName').textContent=info.name;
+  $('qdAng').innerHTML=`∠A ${fmt(info.ang[0],1)}°, ∠B ${fmt(info.ang[1],1)}°, ∠C ${fmt(info.ang[2],1)}°, ∠D ${fmt(info.ang[3],1)}°<br><span class="b">total ${fmt(info.ang.reduce((a,b)=>a+b,0),1)}°</span>`;
+  const items=[['All 4 sides equal',info.all4],['Opposite sides equal',info.opp],['Two pairs of next-door sides equal',info.kite],['Pairs of parallel sides',String(info.npar)],
+    ['All angles 90°',info.allRight],['Opposite angles equal',info.oppAng],['Diagonals equal length',info.dEq],['Diagonals cross at 90°',info.dPerp],
+    ['Diagonals cut each other in half',info.bis],['Lines of symmetry',String(info.lines.length)],['Order of rotational symmetry',String(info.rot)]];
+  const now=Date.now();items.forEach((it,i)=>{if(qdPrev&&qdPrev[i]!==it[1])qdFlipT[i]=now;});qdPrev=items.map(it=>it[1]);
+  const render=()=>{const t=Date.now();$('qdProps').innerHTML=items.map((it,i)=>{const v=it[1];const val=typeof v==='string'?`<span class="v">${v}</span>`:v?'<span class="y">✓ yes</span>':'<span class="n">✗ no</span>';
+    return `<li class="${t-(qdFlipT[i]||0)<1200?'flip':''}">${val} ${it[0]}</li>`;}).join('');};
+  render();clearTimeout(qdTimer);qdTimer=setTimeout(render,1300);}
+dragger(qdB,()=>Qd,drawQD);
+$('qdPre').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{Qd=QP[b.dataset.q].map(p=>p.slice());drawQD();}));
+['qdMarks','qdDiag','qdSym'].forEach(id=>$(id).addEventListener('input',drawQD));drawQD();
+
+/* 6. family tree */
+const fmB=Board($('fmSvg'),10,9,40,15),fmAng=$('fmAng'),fmLen=$('fmLen'),fmRot=$('fmRot');
+const TREE={quad:{t:'Quadrilateral',x:280,y:30},trap:{t:'Trapezium',x:90,y:110},para:{t:'Parallelogram',x:280,y:110},kite:{t:'Kite',x:470,y:110},
+  itr:{t:'Isosceles trapezium',x:90,y:190},rect:{t:'Rectangle',x:235,y:190},rho:{t:'Rhombus',x:395,y:190},sq:{t:'Square',x:315,y:268}};
+const EDGES=[['quad','trap'],['quad','para'],['quad','kite'],['trap','itr'],['para','rect'],['para','rho'],['kite','rho'],['rect','sq'],['rho','sq']];
+const TDEF={quad:'<strong>Quadrilateral:</strong> any flat shape with 4 straight sides. Every shape in the tree is one.',
+  trap:'<strong>Trapezium</strong> (plural trapezia): a quadrilateral with a pair of parallel sides. Some books say exactly one pair; others say at least one pair, which would make every parallelogram a trapezium too (the dashed line).',
+  para:'<strong>Parallelogram:</strong> both pairs of opposite sides are parallel. Then opposite sides are equal, opposite angles are equal, and the diagonals cut each other in half.',
+  kite:'<strong>Kite:</strong> two pairs of equal sides, each pair next to each other. Its diagonals cross at right angles, and it has a line of symmetry through the corners where equal sides meet.',
+  itr:'<strong>Isosceles trapezium:</strong> a trapezium whose two non-parallel sides are equal. It has 1 line of symmetry and equal diagonals.',
+  rect:'<strong>Rectangle:</strong> a quadrilateral with four right angles. It is a special parallelogram, and its diagonals are equal.',
+  rho:'<strong>Rhombus:</strong> a quadrilateral with four equal sides. It is a special parallelogram and also a special kite; its diagonals cross at right angles.',
+  sq:'<strong>Square:</strong> four equal sides and four right angles. It is a rectangle and a rhombus at the same time, so it has every property of both.'};
+let fmOn=new Set(),treeSel='';
+function drawFM(){const th=+fmAng.value,b=+fmLen.value,ph=+fmRot.value;$('fmAngV').textContent=` ${th}°`;$('fmLenV').textContent=` ${b}`;$('fmRotV').textContent=` ${ph}°`;
+  const r=th*Math.PI/180,Dv=[b*Math.cos(r),b*Math.sin(r)];let P=[[0,0],[4,0],[4+Dv[0],Dv[1]],Dv];const c=centroid(P);P=P.map(p=>rotP([p[0]-c[0]+5,p[1]-c[1]+4.5],[5,4.5],ph*Math.PI/180));
+  const B=fmB,isR=th===90,isH=b===4;let s=B.grid()+poly(B,P,css('--accent'))+marks(B,P,css('--hi'));
+  s+=`<line x1="${B.X(P[0][0])}" y1="${B.Y(P[0][1])}" x2="${B.X(P[2][0])}" y2="${B.Y(P[2][1])}" stroke="${css('--two')}" stroke-width="2" stroke-dasharray="6 5"/><line x1="${B.X(P[1][0])}" y1="${B.Y(P[1][1])}" x2="${B.X(P[3][0])}" y2="${B.Y(P[3][1])}" stroke="${css('--two')}" stroke-width="2" stroke-dasharray="6 5"/>`;
+  s+=labels(B,P,'ABCD');fmB.svg.innerHTML=s;
+  const name=isR&&isH?'square':isR?'rectangle':isH?'rhombus':'parallelogram';$('fmName').textContent=name;
+  fmOn=new Set(['quad','para']);if(isR)fmOn.add('rect');if(isH){fmOn.add('rho');fmOn.add('kite');}if(isR&&isH)fmOn.add('sq');
+  const EXP={square:'Four right angles, so it passes the rectangle test. Four equal sides, so it passes the rhombus test. It is both at once, and also a parallelogram and a kite.',
+    rectangle:'Four right angles make it a rectangle (and still a parallelogram). The sides aren\'t all equal, so it isn\'t a rhombus or a square. Slide AD to 4 to make one.',
+    rhombus:'Four equal sides make it a rhombus (and still a parallelogram, and a kite). The angles aren\'t 90°, so it isn\'t a rectangle or a square. Slide angle A to 90°.',
+    parallelogram:'Two pairs of parallel sides, but no right angles and the sides aren\'t all equal. Try angle A = 90°, or side AD = 4, or both.'};
+  $('fmAlso').textContent=EXP[name]+(ph?` Turning it by ${ph}° changed nothing: names depend on sides and angles, not on which way up the shape is.`:'');drawTree();}
+function drawTree(){const ac=css('--accent'),ln=css('--line'),mu=css('--muted'),fg=css('--fg'),pn=css('--panel'),as=css('--accent-soft');let s='';const w=140,h=36;
+  s+=`<line x1="${TREE.trap.x+w/2}" y1="${TREE.trap.y}" x2="${TREE.para.x-w/2}" y2="${TREE.para.y}" stroke="${mu}" stroke-width="1.5" stroke-dasharray="5 5"/>`;
+  EDGES.forEach(([a,b])=>{const A=TREE[a],B=TREE[b],on=fmOn.has(a)&&fmOn.has(b);s+=`<line x1="${A.x}" y1="${A.y+h/2}" x2="${B.x}" y2="${B.y-h/2}" stroke="${on?ac:mu}" stroke-width="${on?3:1.5}"/>`;});
+  Object.entries(TREE).forEach(([k,N])=>{const on=fmOn.has(k),sel=treeSel===k;
+    s+=`<g data-n="${k}" style="cursor:pointer"><rect x="${N.x-w/2}" y="${N.y-h/2}" width="${w}" height="${h}" rx="8" fill="${on?as:pn}" stroke="${sel?css('--hi'):on?ac:ln}" stroke-width="${on||sel?2.5:1.5}"/><text x="${N.x}" y="${N.y+5}" text-anchor="middle" font-size="${N.t.length>14?12.5:15}" font-weight="${on?700:500}" fill="${on?ac:fg}" font-family="${css('--body')}">${N.t}</text></g>`;});
+  $('treeSvg').innerHTML=s;}
+$('treeSvg').addEventListener('click',e=>{const g=e.target.closest('[data-n]');if(!g)return;treeSel=g.dataset.n;$('treeMsg').innerHTML=TDEF[treeSel];drawTree();});
+[fmAng,fmLen,fmRot].forEach(e=>e.addEventListener('input',drawFM));drawFM();
+
+/* 7. guess the shape */
+const GS={equi:{name:'equilateral triangle',n:[3],eq:[true],par:[0],ra:[0],lines:[3],rot:[3],dE:[],dP:[]},
+  iso:{name:'isosceles triangle',n:[3],eq:[false],par:[0],ra:[0,1],lines:[1],rot:[1],dE:[],dP:[]},
+  sca:{name:'scalene triangle',n:[3],eq:[false],par:[0],ra:[0,1],lines:[0],rot:[1],dE:[],dP:[]},
+  sq:{name:'square',n:[4],eq:[true],par:[2],ra:[4],lines:[4],rot:[4],dE:[true],dP:[true]},
+  rect:{name:'rectangle',n:[4],eq:[false],par:[2],ra:[4],lines:[2],rot:[2],dE:[true],dP:[false]},
+  rho:{name:'rhombus',n:[4],eq:[true],par:[2],ra:[0],lines:[2],rot:[2],dE:[false],dP:[true]},
+  para:{name:'parallelogram',n:[4],eq:[false],par:[2],ra:[0],lines:[0],rot:[2],dE:[false],dP:[false]},
+  kite:{name:'kite',n:[4],eq:[false],par:[0],ra:[0,1,2],lines:[1],rot:[1],dE:[true,false],dP:[true]},
+  itr:{name:'isosceles trapezium',n:[4],eq:[false],par:[1],ra:[0],lines:[1],rot:[1],dE:[true],dP:[true,false]},
+  tra:{name:'trapezium',n:[4],eq:[false],par:[1],ra:[0,2],lines:[0],rot:[1],dE:[false],dP:[true,false]}};
+const DESC={n:v=>`has ${v} sides`,eq:v=>v?'has all its sides equal':'does not have all its sides equal',par:v=>v===0?'has no parallel sides':v===1?'has exactly one pair of parallel sides':'has two pairs of parallel sides',
+  ra:v=>v===0?'has no right angles':v===1?'has one right angle':v===4?'has four right angles':`has ${v} right angles`,lines:v=>v===1?'has 1 line of symmetry':`has ${v===0?'no':v} lines of symmetry`,
+  rot:v=>`has rotational symmetry of order ${v}`,dE:v=>v?'can have equal diagonals':'has diagonals of different lengths',dP:v=>v?'can have diagonals that cross at right angles':'has diagonals that don\'t cross at right angles'};
+const S4=['n',4,'It has 4 sides.'],S3=['n',3,'It has 3 sides.'];
+const PZ=[{ans:'rho',c:[S4,['eq',true,'All its sides are the same length.'],['ra',0,'It has no right angles.']]},
+  {ans:'rect',c:[S4,['par',2,'It has two pairs of parallel sides.'],['ra',4,'All its angles are right angles.'],['lines',2,'It has exactly 2 lines of symmetry.']]},
+  {ans:'kite',c:[S4,['dP',true,'Its diagonals cross at right angles.'],['lines',1,'It has exactly 1 line of symmetry.'],['par',0,'It has no parallel sides.']]},
+  {ans:'iso',c:[S3,['rot',1,'It has rotational symmetry of order 1 (it only fits its outline after a full turn).'],['lines',1,'It has exactly 1 line of symmetry.']]},
+  {ans:'para',c:[S4,['rot',2,'It has rotational symmetry of order 2.'],['lines',0,'It has no lines of symmetry.']]},
+  {ans:'itr',c:[S4,['dE',true,'Its diagonals are the same length.'],['par',1,'It has exactly one pair of parallel sides.']]},
+  {ans:'sq',c:[S4,['dP',true,'Its diagonals cross at right angles.'],['dE',true,'Its diagonals are the same length.'],['rot',4,'It has rotational symmetry of order 4.']]},
+  {ans:'equi',c:[S3,['lines',3,'It has 3 lines of symmetry.']]},
+  {ans:'sca',c:[S3,['ra',1,'It has a right angle.'],['lines',0,'It has no lines of symmetry.']]},
+  {ans:'tra',c:[S4,['par',1,'It has exactly one pair of parallel sides.'],['lines',0,'It has no lines of symmetry.']]}];
+const art=w=>/^[aeiou]/i.test(w)?'an':'a',cap=w=>w[0].toUpperCase()+w.slice(1);
+let gsOrder=[...PZ.keys()].sort(()=>Math.random()-0.5),gsK=0,gsPz,gsN=1,gsDone=false;
+const fitsClues=(k,n)=>gsPz.c.slice(0,n).every(([a,v])=>GS[k][a].includes(v));
+function gsRender(){$('gsClues').innerHTML=gsPz.c.slice(0,gsN).map(c=>`<li>${c[2]}</li>`).join('');
+  const left=Object.keys(GS).filter(k=>fitsClues(k,gsN)).length;$('gsLeft').textContent=gsDone?'':`Shapes on the list that still fit every clue: ${left}.`+(gsN<gsPz.c.length?'':' (That\'s every clue.)');
+  $('gsMore').disabled=gsDone||gsN>=gsPz.c.length;}
+function gsStart(){gsPz=PZ[gsOrder[gsK%PZ.length]];gsK++;gsN=1;gsDone=false;const box=$('gsOpts');box.innerHTML='';$('gsMsg').className='msg';$('gsMsg').textContent='Make a guess, or reveal another clue.';
+  Object.entries(GS).forEach(([k,S])=>{const b=document.createElement('button');b.textContent=S.name;b.addEventListener('click',()=>gsGuess(k,b));box.appendChild(b);});gsRender();}
+function gsGuess(k,b){if(gsDone)return;const m=$('gsMsg'),S=GS[k];
+  const fail=gsPz.c.slice(0,gsN).findIndex(([a,v])=>!S[a].includes(v));
+  if(fail>=0){const [a]=gsPz.c[fail];b.classList.add('wrong');m.className='msg bad';m.textContent=`Clue ${fail+1} rules it out: ${art(S.name)} ${S.name} ${S[a].length?S[a].map(DESC[a]).join(', or '):'has no diagonals at all'}.`;return;}
+  if(k===gsPz.ans){gsDone=true;b.classList.add('right');const others=Object.keys(GS).filter(x=>x!==k&&fitsClues(x,gsN)).map(x=>GS[x].name);m.className='msg good';
+    m.textContent=`Yes, it's ${art(S.name)} ${S.name}! Solved with ${gsN} clue${gsN>1?'s':''}.`+(others.length?` A lucky guess, though: ${others.join(', ')} also fitted the clues so far.`:' Those clues pin it down exactly.');gsRender();return;}
+  b.classList.add('wrong');m.className='msg bad';m.textContent=`${cap(art(S.name))} ${S.name} does fit every clue so far, so that's a sensible guess, but it isn't this one. Reveal another clue to tell them apart.`;}
+$('gsMore').addEventListener('click',()=>{if(gsN<gsPz.c.length){gsN++;gsRender();$('gsMsg').className='msg';$('gsMsg').textContent='New clue added. Which shapes are still possible?';}});
+$('gsNew').addEventListener('click',gsStart);gsStart();
+
+const redraw=()=>{drawVC();drawPP();drawMKsvg();drawSY();drawTR();drawQD();drawFM();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);}
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'How many diagonals does a quadrilateral have?',opts:['2','4','1','0'],a:0,fb:'A diagonal joins two corners that aren\'t next to each other. In ABCD those are AC and BD.'},
+  {q:'Two sides of a shape each have two small dashes on them. This tells you that…',opts:['they are the same length','they are parallel','they are both 2 cm long','they are perpendicular'],a:0,fb:'Matching dashes mean equal lengths. Parallel sides are shown with arrows instead.'},
+  {q:'A triangle has angles of 90°, 45° and 45°. It is…',opts:['right-angled and isosceles','right-angled and scalene','acute and isosceles','obtuse and isosceles'],a:0,fb:'One 90° angle makes it right-angled. Two equal angles mean the two sides opposite them are equal, so it is isosceles.'},
+  {q:'How many lines of symmetry does a rectangle that isn\'t a square have?',opts:['2','4','1','0'],a:0,fb:'The two fold lines through the middles of opposite sides. The diagonals are not lines of symmetry.'},
+  {q:'What is the order of rotational symmetry of a parallelogram (not a rectangle or rhombus)?',opts:['2','1','4','0'],a:0,fb:'It fits its outline after a half turn (180°) and after a full turn (360°): 2 times.'},
+  {q:'Which statement is true?',opts:['Every square is a rhombus','Every rhombus is a square','Every rectangle is a square','Every kite is a rhombus'],a:0,fb:'A rhombus needs four equal sides, and a square has them. A rhombus doesn\'t need right angles, so not every rhombus is a square.'},
+  {q:'A quadrilateral has exactly one pair of parallel sides. It is a…',opts:['trapezium','parallelogram','rhombus','kite'],a:0,fb:'Parallelograms and rhombuses have two pairs of parallel sides. A kite (that isn\'t a rhombus) has none.'},
+  {q:'A quadrilateral\'s diagonals are equal, cross at right angles and cut each other in half. It is a…',opts:['square','rhombus','rectangle','kite'],a:0,fb:'Cutting each other in half → parallelogram family. Equal → rectangle. At right angles → rhombus. Both → square.'},
+  {q:'Can a triangle have two right angles?',opts:['No, because the angles would already add up to 180°','Yes, if it is isosceles','Yes, if it is big enough','Only if it is equilateral'],a:0,fb:'90° + 90° = 180°, the total for the whole triangle, leaving 0° for the third angle. That is impossible.'},
+  {q:'A square is turned so that it stands on one corner. What is it called now?',opts:['still a square','a diamond, not a square','a rhombus but not a square','a kite but not a square'],a:0,fb:'Turning doesn\'t change any lengths or angles. It still has 4 equal sides and 4 right angles, so it is a square.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

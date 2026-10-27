@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Enlargement with Negative Scale Factors</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive SVG grids (graph-paper neutrals). Colours on this page: teal = the object (the shape before), orange = the image (the shape after) with primed labels A′, B′, C′; plum = the centre of enlargement and the rays (guide lines) through it. Vertex A is marked with a dot on both shapes so you can see the image turn upside down. Green/red = right/wrong feedback only. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.D{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.parts-svg [data-part]{cursor:pointer}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.12rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.45rem;position:relative;top:-.12em;white-space:nowrap}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+summary .tag{font-size:.6rem}
+.grp{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.lab svg.drag{touch-action:none;cursor:grab}
+.lab svg.drag:active{cursor:grabbing}
+.hint{font-size:.85rem;color:var(--muted);margin:.4rem 0 0}
+.formula{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.7rem 1rem;margin:1.2rem 0;font-family:var(--mono);font-size:1.05rem;line-height:1.8}
+.formula b{font-family:var(--body)}
+.A{color:var(--accent);font-weight:600}.H{color:var(--hi);font-weight:600}.T{color:var(--two);font-weight:600}
+sup,sub{line-height:0}
+@media (max-width:540px){
+  table.stack tr:first-child{display:none}
+  table.stack tr{display:block;border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{display:block;border:0;padding:.15rem .3rem}
+  table.stack td[data-h]::before{content:attr(data-h) ": ";font:600 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+}
+.cv{display:inline-flex;flex-direction:column;align-items:center;border-left:2px solid currentColor;border-right:2px solid currentColor;border-radius:9px;padding:0 .4em;line-height:1.15;vertical-align:middle;font-family:var(--mono);font-size:.92em;margin:.1em 0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Geometry and measures</div>
+  <h1>Enlargement with Negative Scale Factors</h1>
+  <p class="lede">An enlargement changes a shape's size but not its shape. A scale factor of 2 doubles it; a scale factor of ½ halves it. But what could a scale factor of −2 mean? The image appears on the <em>other side</em> of the centre, twice as big and upside down. This page builds up from the KS3 idea to negative scale factors, then works backwards to find the centre and scale factor from a picture.</p>
+  <span class="gcse">GCSE subject content G7: identify, describe and construct congruent and similar shapes, including on coordinate axes, by considering rotation, reflection, translation and enlargement (including fractional and, at Higher, negative scale factors).</span>
+</header>
+
+<h2>1 · Recap: enlargement from a centre</h2>
+<p>From the KS3 page <a href="../ks3-interactive/transformations.html">Transformations</a>: an enlargement needs a <strong>centre</strong> and a <strong>scale factor</strong> k. Every point of the image is k times as far from the centre as the matching point of the object, along the same straight line (a <strong>ray</strong>) through the centre. Count it as a vector: from the centre to a vertex is, say, <span class="cv"><span>2</span><span>1</span></span>; multiply by k = 3 to get <span class="cv"><span>6</span><span>3</span></span>, and go that far from the centre.</p>
+<div class="lab">
+  <div class="controls"><label>scale factor k <input type="range" id="e1K" min="1" max="3" step="1" value="2"><span id="e1Kv" style="font-family:var(--mono)"></span></label></div>
+  <svg id="e1Svg" class="drag" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <p class="hint">Drag the plum centre.</p>
+  <div class="work" id="e1Work"></div>
+</div>
+
+<h2>2 · Fractional scale factors</h2>
+<p>A scale factor between 0 and 1 makes the image <strong>smaller</strong> and pulls it towards the centre. It's still called an enlargement in maths. With k = ½ each vertex goes half as far from the centre; with k = ⅓, a third as far.</p>
+<div class="lab">
+  <div class="controls"><label>k <select id="e2K"><option value="0.5">½</option><option value="0.25">¼</option><option value="0.3333333333333333">⅓</option><option value="0.6666666666666666">⅔</option><option value="0.75">¾</option><option value="1.5">1½</option></select></label></div>
+  <svg id="e2Svg" class="drag" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="work" id="e2Work"></div>
+</div>
+<div class="callout"><p><strong>Trap:</strong> a scale factor of ½ does not mean "subtract 2" or "halve the coordinates". Halve the <em>distances from the centre</em>. Only when the centre is the origin (0, 0) do the coordinates simply halve.</p></div>
+
+<h2>3 · Negative scale factors <span class="tag g">Higher</span></h2>
+<p>A negative scale factor means: go the same distance as for the positive version, but in the <strong>opposite direction</strong> through the centre. The vector from the centre to each vertex is multiplied by a negative number, which reverses it. So the image ends up on the other side of the centre, and because every point is reversed, it's <strong>upside down</strong> (rotated 180°). The size still changes by the size of k: −2 doubles lengths, −½ halves them.</p>
+<div class="lab">
+  <div class="controls">
+    <label>scale factor k <input type="range" id="e3K" min="-3" max="3" step="0.5" value="-2"><span id="e3Kv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="e3Rays" checked> show rays</label>
+  </div>
+  <svg id="e3Svg" class="drag" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <p class="hint">Drag the centre, and drag the object's corners.</p>
+  <div class="work" id="e3Work"></div>
+</div>
+<div class="callout"><p><strong>Special case:</strong> k = −1 gives an image the same size, upside down, on the other side: it's exactly a <strong>rotation of 180°</strong> about the centre. And k = 0 would squash everything onto the centre, so it's never used.</p></div>
+
+<h2>4 · Constructing it step by step <span class="tag g">Higher</span></h2>
+<p>To draw an enlargement with a negative scale factor without guessing, do one vertex at a time with vectors. Step through for k = −2 and centre (1, 1).</p>
+<div class="lab">
+  <svg id="e4Svg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="controls">
+    <button class="btn" id="e4Prev">◀ Back</button>
+    <button class="btn primary" id="e4Next">Next step ▶</button>
+    <span class="hint" id="e4Step"></span>
+  </div>
+  <div class="work" id="e4Work"></div>
+</div>
+
+<h2>5 · Finding the centre and scale factor <span class="tag g">Higher</span></h2>
+<p>Given an object and its image, work backwards:</p>
+<ol>
+  <li><strong>Centre:</strong> join each vertex to its matching image vertex with a straight line (A to A′, B to B′, …). All the lines cross at one point: the centre. For a negative scale factor the centre lies <em>between</em> the shapes.</li>
+  <li><strong>Scale factor:</strong> divide an image length by the matching object length. Make it <strong>negative</strong> if the image is on the opposite side of the centre (upside down).</li>
+</ol>
+<div class="lab">
+  <p class="pq">Click the grid point that is the centre of enlargement, then type the scale factor (fractions like −1/2 are fine).</p>
+  <svg id="e5Svg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="controls">
+    <label>k = <input type="text" id="e5K" autocomplete="off" style="width:5em"></label>
+    <button class="btn primary" id="e5Go">Check</button>
+    <button class="btn" id="e5Help">Draw the lines</button>
+    <button class="btn" id="e5New">New question</button>
+  </div>
+  <div class="msg" id="e5Msg"></div>
+</div>
+<div class="callout"><p><strong>Describe it fully.</strong> "Enlargement, scale factor −2, centre (1, 1)." You need all three parts: the word enlargement, the scale factor and the centre as coordinates.</p></div>
+
+<h2>6 · What changes and what doesn't</h2>
+<div class="tbl"><table class="stack">
+  <tr><th>Property</th><th>Under an enlargement with scale factor k</th></tr>
+  <tr><td data-h="Property">Angles</td><td>Unchanged: object and image are similar.</td></tr>
+  <tr><td data-h="Property">Lengths</td><td>Multiplied by the size of k (ignore the sign): k = −3 makes every side 3 times as long.</td></tr>
+  <tr><td data-h="Property">Area <span class="tag g">Higher</span></td><td>Multiplied by k² (always positive): k = −3 gives an area 9 times as big. See <a href="similar-shapes-area-volume.html">Similar shapes</a>.</td></tr>
+  <tr><td data-h="Property">Orientation</td><td>Same way up if k &gt; 0; turned through 180° if k &lt; 0.</td></tr>
+  <tr><td data-h="Property">Position</td><td>Same side of the centre if k &gt; 0; opposite side if k &lt; 0.</td></tr>
+</table></div>
+<div class="lab">
+  <div class="controls"><label>k <input type="range" id="e6K" min="-3" max="3" step="0.5" value="-1.5"><span id="e6Kv" style="font-family:var(--mono)"></span></label></div>
+  <div class="readout">
+    <div class="f"><b>Object</b><span id="e6O"></span></div>
+    <div class="t"><b>Image</b><span id="e6I"></span></div>
+    <div><b>Orientation</b><span id="e6R"></span></div>
+  </div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Enlarge the triangle A(1, 1), B(3, 1), C(1, 2) by scale factor 2, centre the origin.</summary>
+  <div class="step">With centre (0, 0), the vector from the centre to each point is just its coordinates; multiply by 2.</div>
+  <div class="step"><strong>A′(2, 2), B′(6, 2), C′(2, 4).</strong> Check: AB = 2, A′B′ = 4 ✓.</div>
+</details>
+<details>
+  <summary>Enlarge the triangle (4, 2), (6, 2), (4, 6) by scale factor ½, centre (0, 0).</summary>
+  <div class="step">Multiply each position by ½: <strong>(2, 1), (3, 1), (2, 3)</strong>.</div>
+  <div class="step">The image is half the size and closer to the centre.</div>
+</details>
+<details>
+  <summary>Find the image of P(2, 3) under an enlargement with scale factor −2, centre (1, 1). <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Vector from the centre to P:</strong> (2 − 1, 3 − 1) = <span class="cv"><span>1</span><span>2</span></span>.</div>
+  <div class="step"><strong>Multiply by −2:</strong> <span class="cv"><span>−2</span><span>−4</span></span>.</div>
+  <div class="step"><strong>Go that far from the centre:</strong> (1 − 2, 1 − 4) = <strong>P′(−1, −3)</strong>.</div>
+</details>
+<details>
+  <summary>Describe the single transformation that is an enlargement with scale factor −1, centre (0, 0). <span class="tag g">Higher</span></summary>
+  <div class="step">Every point (x, y) goes to (−x, −y): same distance from the origin, opposite direction.</div>
+  <div class="step">That is a <strong>rotation of 180° about (0, 0)</strong>.</div>
+</details>
+<details>
+  <summary>Triangle A(2, 1), B(4, 1), C(2, 2) maps to A′(−4, −2), B′(−8, −2), C′(−4, −4). Describe the transformation fully. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Centre:</strong> the line through A(2, 1) and A′(−4, −2) and the line through B(4, 1) and B′(−8, −2) both pass through (0, 0).</div>
+  <div class="step"><strong>Size:</strong> AB = 2, A′B′ = 4, so the lengths are × 2.</div>
+  <div class="step"><strong>Sign:</strong> the image is on the opposite side of the centre and upside down, so k is negative.</div>
+  <div class="step"><strong>Answer:</strong> enlargement, scale factor <strong>−2</strong>, centre <strong>(0, 0)</strong>.</div>
+</details>
+<details>
+  <summary>Find the image of P(6, 4) under an enlargement with scale factor −½, centre (2, 0). <span class="tag g">Higher</span></summary>
+  <div class="step">Vector from centre to P: (6 − 2, 4 − 0) = <span class="cv"><span>4</span><span>4</span></span>.</div>
+  <div class="step">× −½: <span class="cv"><span>−2</span><span>−2</span></span>. From the centre: (2 − 2, 0 − 2) = <strong>P′(0, −2)</strong>.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>An enlargement needs a centre and a scale factor k. Multiply the vector from the centre to each vertex by k.</li>
+  <li>0 &lt; k &lt; 1: smaller image, closer to the centre (still called an enlargement).</li>
+  <li>Higher: k &lt; 0 puts the image on the other side of the centre and turns it upside down; lengths are multiplied by the size of k. k = −1 is a rotation of 180°.</li>
+  <li>To find the centre, join matching vertices; the lines meet at the centre. Scale factor = image length ÷ object length, negative if the image is inverted on the other side.</li>
+  <li>Describe fully: enlargement, scale factor, centre.</li>
+</ul>
+
+<footer>Made for GCSE students. Enlargement, including fractional scale factors, is in the DfE GCSE mathematics subject content under Geometry and measures; negative scale factors are Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const PI = Math.PI, RAD = PI/180;
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat((+v).toFixed(d)).toString()) : '—';
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(Math.abs(v)<1e-12) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); if(e>=n-1) return minus(String(Math.round(r))); return minus(r.toFixed(n-1-e)); };
+const long = v => isFinite(v) ? minus((Math.trunc(v*1000+(v<0?-1e-9:1e-9))/1000).toFixed(3)) + '…' : '—';
+const dp1 = v => isFinite(v) ? minus((+v).toFixed(1)) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v = parseFloat(String(el.value).replace(/−/g,'-').replace(/,/g,'')); return isFinite(v) ? v : NaN; };
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T = (x,y,s,col,o={}) => `<text x="${x}" y="${y}" font-size="${o.fs||13}" ${o.w?`font-weight="${o.w}"`:''} text-anchor="${o.a||'middle'}" fill="${col}" ${F()} ${o.extra||''}>${s}</text>`;
+const L = (x1,y1,x2,y2,col,w=2,dash) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+const C = (x,y,r,fill,stroke='none',w=0) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${w}"/>`;
+const poly = (pts,fill,stroke='none',w=0,op=1,dash) => `<polygon points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="${fill}" fill-opacity="${op}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+/* angle arc at vertex V between directions to A and B (screen coords), radius r */
+function angArc(V,A,B,r,col,w=1.6){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]), a2=Math.atan2(B[1]-V[1],B[0]-V[0]); let d=a2-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const p1=[V[0]+r*Math.cos(a1),V[1]+r*Math.sin(a1)], p2=[V[0]+r*Math.cos(a1+d),V[1]+r*Math.sin(a1+d)]; return `<path d="M${p1[0]},${p1[1]} A${r},${r} 0 0 ${d>0?1:0} ${p2[0]},${p2[1]}" fill="none" stroke="${col}" stroke-width="${w}"/>`; }
+function angLabelPos(V,A,B,r){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]); let d=Math.atan2(B[1]-V[1],B[0]-V[0])-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const m=a1+d/2; return [V[0]+r*Math.cos(m), V[1]+r*Math.sin(m)+4]; }
+/* right-angle square at V between A and B */
+function rightMark(V,A,B,s,col){ const u=[A[0]-V[0],A[1]-V[1]],v=[B[0]-V[0],B[1]-V[1]]; const lu=Math.hypot(...u)||1, lv=Math.hypot(...v)||1; const p=[V[0]+u[0]/lu*s,V[1]+u[1]/lu*s], q=[V[0]+v[0]/lv*s,V[1]+v[1]/lv*s], r=[p[0]+v[0]/lv*s,p[1]+v[1]/lv*s]; return `<polyline points="${p[0]},${p[1]} ${r[0]},${r[1]} ${q[0]},${q[1]}" fill="none" stroke="${col}" stroke-width="1.5"/>`; }
+const svgXY = (svg,ev) => { const vb=svg.viewBox.baseVal, r=svg.getBoundingClientRect(); const k=Math.min(r.width/vb.width, r.height/vb.height); const ox=(r.width-vb.width*k)/2, oy=(r.height-vb.height*k)/2; return [vb.x+(ev.clientX-r.left-ox)/k, vb.y+(ev.clientY-r.top-oy)/k]; };
+/* generic drag: pick(p) returns a handle key or null; move(key,p) updates */
+function dragger(svg,pick,move,end){ let key=null; svg.addEventListener('pointerdown',e=>{ const p=svgXY(svg,e); const k=pick(p); if(k===null||k===undefined) return; key=k; try{svg.setPointerCapture(e.pointerId);}catch(_){} e.preventDefault(); move(key,p); }); svg.addEventListener('pointermove',e=>{ if(key===null) return; e.preventDefault(); move(key,svgXY(svg,e)); }); const up=()=>{ if(key!==null&&end) end(key); key=null; }; svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',up); }
+const nearest = (p,pts,maxd) => { let best=null,bd=maxd; pts.forEach((q,i)=>{ const d=Math.hypot(p[0]-q[0],p[1]-q[1]); if(d<bd){bd=d;best=i;} }); return best; };
+const REDRAW=[]; const reg = f => { REDRAW.push(f); f(); return f; };
+const feedback = (el,ok,msg) => { el.className='msg '+(ok?'good':'bad'); el.textContent=msg; };
+
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const TE=()=>css('--accent'),OR=()=>css('--hi'),PL=()=>css('--two'),FG=()=>css('--fg'),MU=()=>css('--muted');
+const R=10,S=400,pad=20,cell=(S-2*pad)/(2*R);
+const sx=x=>pad+(x+R)*cell, sy=y=>pad+(R-y)*cell;
+const toG=(svg,ev)=>{const p=svgXY(svg,ev);return [Math.round((p[0]-pad)/cell-R),Math.round(R-(p[1]-pad)/cell)];};
+const clampG=v=>Math.max(-R,Math.min(R,v));
+function grid(){let s=`<rect x="${pad}" y="${pad}" width="${S-2*pad}" height="${S-2*pad}" fill="none"/>`;for(let i=-R;i<=R;i++){s+=L(sx(i),sy(-R),sx(i),sy(R),css('--grid'),1)+L(sx(-R),sy(i),sx(R),sy(i),css('--grid'),1);}
+  s+=L(sx(-R),sy(0),sx(R),sy(0),MU(),1.2)+L(sx(0),sy(-R),sx(0),sy(R),MU(),1.2);for(let i=-R;i<=R;i+=2){if(!i)continue;s+=T(sx(i),sy(0)+12,minus(i),MU(),{fs:8})+T(sx(0)-4,sy(i)+3,minus(i),MU(),{fs:8,a:'end'});}return s;}
+const clip=(id,inner)=>`<defs><clipPath id="cp${id}"><rect x="${pad}" y="${pad}" width="${S-2*pad}" height="${S-2*pad}"/></clipPath></defs>`+grid()+`<g clip-path="url(#cp${id})">${inner}</g>`;
+const enl=(P,c,k)=>[c[0]+k*(P[0]-c[0]),c[1]+k*(P[1]-c[1])];
+const shape=(pts,col,op=.3,lbl,prime)=>{let s=poly(pts.map(p=>[sx(p[0]),sy(p[1])]),col,col,2.5,op);s+=C(sx(pts[0][0]),sy(pts[0][1]),5,col);
+  if(lbl)pts.forEach((p,i)=>{const cx=pts.reduce((a,q)=>a+q[0],0)/pts.length,cy=pts.reduce((a,q)=>a+q[1],0)/pts.length;let dx=p[0]-cx,dy=p[1]-cy;const d=Math.hypot(dx,dy)||1;s+=T(sx(p[0])+dx/d*12,sy(p[1])-dy/d*12+4,'ABCD'[i]+(prime?'′':''),col,{fs:11,w:700});});return s;};
+const ptStr=p=>`(${minus(fmt(p[0]))}, ${minus(fmt(p[1]))})`;
+const kStr=k=>{const m={0.5:'½',0.25:'¼',0.75:'¾',1.5:'1½',2.5:'2½'};const a=Math.abs(k);const t=m[a]||(Math.abs(a-1/3)<1e-9?'⅓':Math.abs(a-2/3)<1e-9?'⅔':fmt(a,3));return (k<0?'−':'')+t;};
+const cv=(x,y)=>`<span class="cv"><span>${minus(fmt(x))}</span><span>${minus(fmt(y))}</span></span>`;
+function gdrag(svg,pts,draw,o={}){let key=null;
+  svg.addEventListener('pointerdown',e=>{const p=svgXY(svg,e);let best=null,bd=20;Object.keys(pts).forEach(k=>{const d=Math.hypot(p[0]-sx(pts[k][0]),p[1]-sy(pts[k][1]));if(d<bd){bd=d;best=k;}});if(best===null)return;key=best;try{svg.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(key===null)return;e.preventDefault();const g=toG(svg,e).map(clampG);if(o.ok&&!o.ok(key,g))return;pts[key]=g;draw();});
+  const up=()=>{key=null;};svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);}
+
+/* 1. recap */
+const C1={c:[-6,-5]}; const OB1=[[-4,-4],[-2,-4],[-4,-2]]; const e1K=$('e1K');
+function drawE1(){const k=+e1K.value;$('e1Kv').textContent=' '+k;const c=C1.c,im=OB1.map(p=>enl(p,c,k));
+  let s='';im.forEach(p=>s+=L(sx(c[0]),sy(c[1]),sx(p[0]),sy(p[1]),PL(),1.2,'4 4'));s+=shape(OB1,TE(),.3,true)+shape(im,OR(),.2,true,true)+C(sx(c[0]),sy(c[1]),7,PL(),css('--panel'),2);
+  $('e1Svg').innerHTML=clip('e1',s);const v=[OB1[0][0]-c[0],OB1[0][1]-c[1]];
+  $('e1Work').innerHTML=`centre ${ptStr(c)}, A = ${ptStr(OB1[0])}<br>centre → A: ${cv(v[0],v[1])} × ${k} = ${cv(k*v[0],k*v[1])}<br>A′ = ${ptStr(c)} + ${cv(k*v[0],k*v[1])} = <strong>${ptStr(im[0])}</strong>`;}
+gdrag($('e1Svg'),C1,drawE1); e1K.addEventListener('input',drawE1); reg(drawE1);
+
+/* 2. fractional */
+const C2={c:[-8,-6]}; const OB2=[[0,-2],[8,-2],[0,6]]; const e2K=$('e2K');
+function drawE2(){const k=+e2K.value,c=C2.c,im=OB2.map(p=>enl(p,c,k));
+  let s='';OB2.forEach(p=>s+=L(sx(c[0]),sy(c[1]),sx(p[0]),sy(p[1]),PL(),1.2,'4 4'));s+=shape(OB2,TE(),.25,true)+shape(im,OR(),.3,true,true)+C(sx(c[0]),sy(c[1]),7,PL(),css('--panel'),2);
+  $('e2Svg').innerHTML=clip('e2',s);const v=[OB2[1][0]-c[0],OB2[1][1]-c[1]];
+  $('e2Work').innerHTML=`k = ${kStr(k)}: lengths × ${kStr(k)} (AB = 8 → A′B′ = ${fmt(8*k,2)})<br>centre → B: ${cv(v[0],v[1])} × ${kStr(k)} = ${cv(+(k*v[0]).toFixed(3),+(k*v[1]).toFixed(3))}<br>B′ = <strong>${ptStr(im[1].map(x=>+x.toFixed(3)))}</strong>`;}
+gdrag($('e2Svg'),C2,drawE2); e2K.addEventListener('input',drawE2); reg(drawE2);
+
+/* 3. negative (main) */
+const P3={c:[0,0],A:[2,1],B:[4,1],C:[2,3]}; const e3K=$('e3K'),e3Rays=$('e3Rays');
+function drawE3(){const k=+e3K.value;$('e3Kv').textContent=' '+kStr(k);const c=P3.c,ob=[P3.A,P3.B,P3.C],im=ob.map(p=>enl(p,c,k));
+  let s='';if(e3Rays.checked)ob.forEach((p,i)=>{const q=im[i];s+=L(sx(p[0]),sy(p[1]),sx(q[0]),sy(q[1]),PL(),1.2,'4 4')+L(sx(c[0]),sy(c[1]),sx(p[0]),sy(p[1]),PL(),1.2,'4 4');});
+  s+=shape(ob,TE(),.3,true)+(k!==0?shape(im,OR(),.25,true,true):'')+C(sx(c[0]),sy(c[1]),7,PL(),css('--panel'),2);
+  ob.forEach(p=>s+=C(sx(p[0]),sy(p[1]),9,'transparent',TE(),1.5));
+  $('e3Svg').innerHTML=clip('e3',s);
+  const off=im.some(p=>Math.abs(p[0])>R||Math.abs(p[1])>R);
+  const v=[P3.A[0]-c[0],P3.A[1]-c[1]];
+  $('e3Work').innerHTML=k===0?'k = 0 squashes every point onto the centre: not a useful enlargement.':`centre ${ptStr(c)}; centre → A = ${cv(v[0],v[1])}; × (${kStr(k)}) = ${cv(+(k*v[0]).toFixed(3),+(k*v[1]).toFixed(3))}; A′ = <strong>${ptStr(im[0].map(x=>+x.toFixed(3)))}</strong><br>`+
+    (k<0?`k is negative: the image is on the <strong>opposite side</strong> of the centre and <strong>upside down</strong>. Lengths × ${kStr(-k)}.${k===-1?' (k = −1: a rotation of 180°.)':''}`:`k is positive: the image is on the same side of the centre, the same way up. Lengths × ${kStr(k)}.`)+(off?'<br><span class="x">Part of the image is off the grid: move the centre or the shape.</span>':'');}
+gdrag($('e3Svg'),P3,drawE3,{ok:(k,g)=>!Object.keys(P3).some(j=>j!==k&&P3[j][0]===g[0]&&P3[j][1]===g[1])}); [e3K,e3Rays].forEach(e=>e.addEventListener('input',drawE3)); reg(drawE3);
+
+/* 4. step-through */
+const c4=[1,1],ob4=[[2,3],[4,3],[2,4]],k4=-2; let e4S=0;
+function drawE4(){const im=ob4.map(p=>enl(p,c4,k4));let s=shape(ob4,TE(),.3,true)+C(sx(c4[0]),sy(c4[1]),7,PL(),css('--panel'),2)+T(sx(c4[0])+10,sy(c4[1])+14,'centre (1, 1)',PL(),{fs:11,a:'start'});
+  const done=Math.min(3,e4S);
+  for(let i=0;i<done;i++){const p=ob4[i],q=im[i];s+=L(sx(c4[0]),sy(c4[1]),sx(p[0]),sy(p[1]),PL(),2)+L(sx(c4[0]),sy(c4[1]),sx(q[0]),sy(q[1]),OR(),2,'5 4')+C(sx(q[0]),sy(q[1]),5,OR())+T(sx(q[0])+8,sy(q[1])+4,'ABC'[i]+'′',OR(),{fs:11,w:700,a:'start'});}
+  if(e4S>=4)s+=shape(im,OR(),.25,true,true);
+  $('e4Svg').innerHTML=clip('e4',s);
+  const W=['Object ABC with A(2, 3), B(4, 3), C(2, 4). Enlarge by scale factor −2, centre (1, 1).'];
+  ob4.forEach((p,i)=>{const v=[p[0]-c4[0],p[1]-c4[1]],q=im[i];W.push(`<strong>${'ABC'[i]}:</strong> centre → ${'ABC'[i]} = ${cv(v[0],v[1])}. × (−2) = ${cv(-2*v[0],-2*v[1])}. ${'ABC'[i]}′ = (1, 1) + ${cv(-2*v[0],-2*v[1])} = <strong>${ptStr(q)}</strong>`);});
+  W.push('Join A′B′C′. Check: it is twice the size (A′B′ = 4, AB = 2), on the other side of the centre, and upside down.');
+  $('e4Work').innerHTML=W.slice(0,e4S+1).join('<br>'); $('e4Step').textContent=`step ${e4S+1} of 5`;}
+$('e4Next').addEventListener('click',()=>{e4S=Math.min(4,e4S+1);drawE4();}); $('e4Prev').addEventListener('click',()=>{e4S=Math.max(0,e4S-1);drawE4();}); reg(drawE4);
+
+/* 5. find centre and k */
+let E5=null;
+function e5New(){let tries=0;for(;;){tries++;const c=[rnd(-3,3),rnd(-3,3)],k=pick([-3,-2,-1,-0.5,2,3,0.5,-1.5]);const sh=pick([[[0,0],[2,0],[0,2]],[[0,0],[2,0],[2,2]],[[0,0],[4,0],[0,2]],[[0,0],[2,0],[0,4]]]);
+    const off=[pick([-1,1])*rnd(1,3),pick([-1,1])*rnd(1,3)];let ob=sh.map(p=>[c[0]+off[0]+p[0],c[1]+off[1]+p[1]]);
+    if(Math.abs(k)<1)ob=sh.map(p=>[c[0]+2*off[0]+p[0]*2,c[1]+2*off[1]+p[1]*2]);
+    const im=ob.map(p=>enl(p,c,k));const all=ob.concat(im);
+    if(all.every(p=>Math.abs(p[0])<=9&&Math.abs(p[1])<=9&&Number.isInteger(p[0])&&Number.isInteger(p[1]))&&!ob.some(p=>p[0]===c[0]&&p[1]===c[1])){E5={c,k,ob,im,guess:null,help:false};break;}
+    if(tries>500){E5={c:[0,0],k:-2,ob:[[1,1],[3,1],[1,2]],im:[[-2,-2],[-6,-2],[-2,-4]],guess:null,help:false};break;}}
+  $('e5K').value='';$('e5Msg').textContent='';$('e5Msg').className='msg';drawE5();}
+function drawE5(){if(!E5)return;let s='';
+  if(E5.help)E5.ob.forEach((p,i)=>{const q=E5.im[i];const d=[q[0]-p[0],q[1]-p[1]];s+=L(sx(p[0]-d[0]*3),sy(p[1]-d[1]*3),sx(q[0]+d[0]*3),sy(q[1]+d[1]*3),PL(),1.2,'4 4');});
+  s+=shape(E5.ob,TE(),.3,true)+shape(E5.im,OR(),.25,true,true);
+  if(E5.guess)s+=C(sx(E5.guess[0]),sy(E5.guess[1]),7,PL(),css('--panel'),2);
+  $('e5Svg').innerHTML=clip('e5',s);}
+$('e5Svg').addEventListener('pointerdown',e=>{E5.guess=toG($('e5Svg'),e).map(clampG);drawE5();});
+const parseK=s=>{s=String(s).replace(/−/g,'-').replace(/\s/g,'');const m=s.match(/^(-?)(\d*\.?\d+)\/(\d*\.?\d+)$/);if(m)return (m[1]?-1:1)*parseFloat(m[2])/parseFloat(m[3]);return parseFloat(s);};
+$('e5Go').addEventListener('click',()=>{const M=$('e5Msg');const k=parseK($('e5K').value);let msgs=[],ok=true;
+  if(!E5.guess){ok=false;msgs.push('Click the grid point you think is the centre.');}
+  else if(E5.guess[0]!==E5.c[0]||E5.guess[1]!==E5.c[1]){ok=false;msgs.push(`Centre ${ptStr(E5.guess)} isn't right: lines through matching vertices (A to A′, B to B′) must all pass through it. Try "Draw the lines".`);}
+  if(!isFinite(k)){ok=false;msgs.push('Type the scale factor.');}
+  else if(Math.abs(k-E5.k)>1e-9){ok=false;if(Math.abs(k+E5.k)<1e-9)msgs.push(E5.k<0?'Check the sign: the image is upside down on the other side of the centre, so k is negative.':'Check the sign: the image is the same way up on the same side, so k is positive.');else if(Math.abs(k-1/E5.k)<1e-9||Math.abs(k+1/E5.k)<1e-9)msgs.push('Upside down fraction: scale factor = image length ÷ object length.');else msgs.push('Compare a side of the image with the matching side of the object: image ÷ object.');}
+  feedback(M,ok,ok?`Correct: enlargement, scale factor ${kStr(E5.k)}, centre ${ptStr(E5.c)}.`:'Not quite. '+msgs.join(' '));});
+$('e5Help').addEventListener('click',()=>{E5.help=!E5.help;drawE5();}); $('e5New').addEventListener('click',e5New); e5New(); REDRAW.push(drawE5);
+
+/* 6. properties */
+const e6K=$('e6K');
+function drawE6(){const k=+e6K.value;$('e6Kv').textContent=' '+kStr(k);
+  $('e6O').textContent='side 4 cm, area 12 cm²';
+  $('e6I').textContent=k===0?'—':`side ${fmt(4*Math.abs(k),2)} cm, area ${fmt(12*k*k,2)} cm²`;
+  $('e6R').textContent=k===0?'—':k>0?'same way up, same side':'upside down, opposite side';}
+e6K.addEventListener('input',drawE6); drawE6();
+
+/* quiz */
+const QS=[
+  {q:'An enlargement with scale factor ½ makes the image…',opts:['half the size, closer to the centre','twice the size','the same size','upside down'],a:0,fb:'0 < k < 1 shrinks the shape towards the centre.'},
+  {q:'Higher: an enlargement with a negative scale factor puts the image…',opts:['on the opposite side of the centre, upside down','on the same side, upside down','on the opposite side, same way up','in the same place'],a:0,fb:'The vector from the centre is reversed, so the image is through the centre and rotated 180°.'},
+  {q:'Higher: an enlargement with scale factor −1 is the same as…',opts:['a rotation of 180° about the centre','a reflection in the y-axis','a translation','no change'],a:0,fb:'Same size, same distance, opposite direction: a half turn.'},
+  {q:'Enlarge (3, 2) by scale factor 2, centre (0, 0).',opts:['(6, 4)','(5, 4)','(1.5, 1)','(6, 2)'],a:0,fb:'Multiply both coordinates by 2 when the centre is the origin.'},
+  {q:'Higher: enlarge (2, 3) by scale factor −2, centre (1, 1).',opts:['(−1, −3)','(−4, −6)','(5, 5)','(0, −1)'],a:0,fb:'Centre → point = (1, 2); × −2 = (−2, −4); from (1, 1): (−1, −3).'},
+  {q:'Higher: a triangle with sides 3, 4, 5 is enlarged by scale factor −2. Its longest side is…',opts:['10','−10','5','7'],a:0,fb:'Lengths are multiplied by the size of k: 5 × 2 = 10. Lengths are never negative.'},
+  {q:'Higher: a shape of area 5 cm² is enlarged by scale factor −3. The image\'s area is…',opts:['45 cm²','−45 cm²','15 cm²','−15 cm²'],a:0,fb:'Area × k² = (−3)² = 9: 5 × 9 = 45 cm².'},
+  {q:'To find the centre of enlargement you…',opts:['join matching vertices; the lines meet at the centre','find the midpoint of the object','measure the angle between the shapes','reflect the object'],a:0,fb:'Lines through each vertex and its image all pass through the centre.'},
+  {q:'Object side 6 cm, matching image side 2 cm, image the same way up. The scale factor is…',opts:['⅓','3','−⅓','−3'],a:0,fb:'Image ÷ object = 2 ÷ 6 = ⅓, positive because the image is the same way up on the same side.'},
+  {q:'A full description of an enlargement needs…',opts:['the word enlargement, the scale factor and the centre','just the scale factor','the scale factor and the angle','the centre only'],a:0,fb:'Enlargement, scale factor k, centre (x, y): all three.'}
+];
+const redrawAll=()=>REDRAW.forEach(f=>f());
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

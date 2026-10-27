@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>The Product Rule for Counting</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive SVG panel drawn from JS (tree diagrams that grow as you list, a menu tree, code slots, a pick-from-the-pool game, a grid of every 3-digit number, a sample-space grid) with sliders, buttons and tap targets. Graph-paper neutrals. Colours on this page: teal = the choices available at each stage (branches, slot counts, outcomes that fit), orange = a restricted position that must be filled first and the outcomes being listed right now, plum = things already used up when repetition is not allowed. Green/red are only used for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+a{color:var(--accent)}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.3rem;position:relative;top:-.15em}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.S{color:var(--hi);font-weight:600}.K{color:var(--two);font-weight:600}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.25;margin:0 .15em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .2em}
+.fr>span:last-child{padding:0 .2em}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.btn:disabled{opacity:.45;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem;font-family:var(--mono)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}.work .g{color:var(--good)}
+.work .dim{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}
+.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.controls label{flex-wrap:wrap;max-width:100%}
+.controls select{max-width:100%}
+.slotbox{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Number</div>
+  <h1>The Product Rule for Counting</h1>
+  <p class="lede">How many different outfits can you make from 3 tops and 2 pairs of trousers? How many 4-digit PINs are there? How many ways can 8 runners finish first, second and third? You could list them all, but lists get long fast. This page starts by listing carefully, spots the multiplication hiding in every list, and turns it into a rule that counts thousands of possibilities in one line.</p>
+  <span class="gcse">DfE GCSE subject content (Number): apply systematic listing strategies; Higher tier: including use of the product rule for counting</span>
+</header>
+
+<div class="recap">
+  <p><strong>What you need from KS3</strong></p>
+  <ul>
+    <li><strong>Listing outcomes</strong> in a sample space, and using a two-way table or tree diagram to show every combination. Recap on <a href="../ks3-interactive/sample-spaces-venn-diagrams.html">sample spaces and Venn diagrams</a>.</li>
+    <li><strong>Probability</strong> of equally likely outcomes: number of ways it can happen ÷ total number of outcomes.</li>
+    <li><strong>Digits</strong> are 0 to 9 (ten of them); <strong>even</strong> numbers end in 0, 2, 4, 6 or 8; a 3-digit number can't start with 0.</li>
+    <li><strong>Powers</strong>: 10<sup>4</sup> = 10 × 10 × 10 × 10 = 10 000.</li>
+  </ul>
+</div>
+
+<h2>1 · Listing systematically</h2>
+<p>An <strong>outcome</strong> is one possible result, here one complete outfit. To list every outcome without missing or repeating any, be <strong>systematic</strong>: fix the first choice, run through every option for the second, then move the first choice on. A <strong>tree diagram</strong> does this automatically: each branch is one choice. Press "list the next outfit" and watch the list fill in order.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>tops <input type="range" id="otT" min="1" max="5" value="3"><span id="otTv" style="font-family:var(--mono)"></span></label>
+    <label>trousers <input type="range" id="otB" min="1" max="4" value="2"><span id="otBv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="otSvg" viewBox="0 0 420 300" width="420" height="300" aria-label="Tree diagram of outfits"></svg>
+  <div class="controls">
+    <button class="btn primary" id="otNext">List the next outfit</button>
+    <button class="btn" id="otAll">List them all</button>
+    <button class="btn" id="otReset">Start again</button>
+  </div>
+  <div class="work" id="otWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Listing mistakes:</strong> jumping about ("red with jeans, blue with chinos, red with chinos…") makes it easy to miss one or count one twice. Keep one choice fixed while the other runs through all its options, exactly like the tree.</p>
+</div>
+
+<h2>2 · Spotting the multiplication: the product rule <span class="tag g">Higher</span></h2>
+<p>Look at the tree again. Each of the 3 tops sprouts the <em>same</em> 2 branches, so there are 3 groups of 2: 3 × 2 = 6 outfits. Change the sliders above and the count is always tops × trousers. That is the <strong>product rule for counting</strong> ("product" means the answer to a multiplication):</p>
+<p class="big">m ways × n ways = <span class="R">m × n</span> ways</p>
+<p>If one choice can be made in m ways and, <em>for each of those</em>, a second choice can be made in n ways, then together there are m × n ways. It works for any number of stages: just keep multiplying. A restaurant offers starters, mains and desserts; a meal is one of each.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>starters <input type="range" id="mnS" min="1" max="4" value="2"><span id="mnSv" style="font-family:var(--mono)"></span></label>
+    <label>mains <input type="range" id="mnM" min="1" max="4" value="3"><span id="mnMv" style="font-family:var(--mono)"></span></label>
+    <label>desserts <input type="range" id="mnD" min="1" max="4" value="2"><span id="mnDv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="mnSvg" viewBox="0 0 420 300" width="420" height="300" aria-label="Three-stage tree diagram"></svg>
+  <div class="big" id="mnEq"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Multiply, don't add.</strong> 2 starters, 3 mains and 2 desserts give 2 × 3 × 2 = 12 meals, not 2 + 3 + 2 = 7. You'd only add if you were choosing <em>one</em> dish from the whole menu (a starter <em>or</em> a main <em>or</em> a dessert).</p>
+</div>
+
+<h2>3 · Codes and PINs: repetition allowed <span class="tag g">Higher</span></h2>
+<p>A 4-digit PIN has four <strong>positions</strong> (slots). Each slot can be any of the 10 digits, and digits can repeat (1111 is allowed). So there are 10 choices for every slot:</p>
+<p class="big">10 × 10 × 10 × 10 = 10<sup>4</sup> = 10 000</p>
+<p>That matches common sense: the PINs are exactly 0000, 0001, … up to 9999, which is ten thousand codes. In general, with k symbols and L slots and repeats allowed, there are <span class="m">k<sup>L</sup></span> codes.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>symbols <select id="cdK"><option value="2">2 (0 or 1)</option><option value="10" selected>10 (digits)</option><option value="26">26 (letters)</option><option value="36">36 (letters and digits)</option></select></label>
+    <label>length <input type="range" id="cdL" min="1" max="6" value="4"><span id="cdLv" style="font-family:var(--mono)"></span></label>
+    <button class="btn" id="cdRand">Random code</button>
+  </div>
+  <svg id="cdSvg" viewBox="0 0 420 150" width="420" height="150" aria-label="Code slots with the number of choices for each"></svg>
+  <div class="work" id="cdWork"></div>
+</div>
+
+<h2>4 · No repeats: 10 × 9 × 8 … <span class="tag g">Higher</span></h2>
+<p>Now suppose things <strong>can't be reused</strong>: a runner can't finish both first and second, and some codes ban repeated digits. Each time you fill a slot, one option gets used up, so the next slot has one fewer choice. Tap the runners in the order they finish and watch the number of choices shrink.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>runners <input type="range" id="rcN" min="3" max="8" value="6"><span id="rcNv" style="font-family:var(--mono)"></span></label>
+    <label>places to fill <input type="range" id="rcK" min="1" max="4" value="3"><span id="rcKv" style="font-family:var(--mono)"></span></label>
+    <button class="btn" id="rcRand">Random finish</button>
+    <button class="btn" id="rcReset">Clear</button>
+  </div>
+  <svg id="rcSvg" viewBox="0 0 420 230" width="420" height="230" aria-label="Pick runners from a pool into places"></svg>
+  <div class="work" id="rcWork"></div>
+</div>
+
+<div class="tbl"><table>
+  <tr><th>Situation</th><th>Count</th><th>Why</th></tr>
+  <tr><td>4-digit PIN, repeats allowed</td><td class="mono">10 × 10 × 10 × 10 = 10 000</td><td>Every slot has all 10 digits.</td></tr>
+  <tr><td>4-digit PIN, no repeats</td><td class="mono">10 × 9 × 8 × 7 = 5040</td><td>Each slot has one fewer digit left.</td></tr>
+  <tr><td>Gold, silver, bronze from 8 runners</td><td class="mono">8 × 7 × 6 = 336</td><td>A runner can only finish in one place.</td></tr>
+</table></div>
+
+<div class="callout">
+  <p><strong>Read the question for repetition.</strong> "Digits can be repeated" → the same number every slot. "No digit is used more than once" or choosing different people → count down by 1 each slot. Mixing these up is the most common product rule mistake.</p>
+</div>
+
+<h2>5 · Restrictions: fill the fussy slot first <span class="tag g">Higher</span></h2>
+<p>Real questions add <strong>restrictions</strong>: a 3-digit number can't start with 0; an even number must end in 0, 2, 4, 6 or 8. The strategy: <strong>fill the most restricted slot first</strong>, then the others. Below, the orange slot is the one filled first. The grid shows <em>every</em> number from 100 to 999; the ones that fit are shaded, so you can check that the product rule really does count them.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>count <select id="rsP"></select></label>
+  </div>
+  <svg id="rsSlots" viewBox="0 0 420 120" width="420" height="120" aria-label="Three digit slots with choices"></svg>
+  <svg id="rsGrid" viewBox="0 0 420 400" width="420" height="400" aria-label="Grid of all three-digit numbers"></svg>
+  <div class="work" id="rsWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Why the order matters:</strong> for odd 3-digit numbers with all digits different, if you fill the hundreds first (9 ways) and then the units, the number of odd digits left depends on what you picked: if the hundreds digit was odd, only 4 odd digits remain; if it was even, 5 do. Filling the units first (5 odd digits) avoids that problem: then hundreds has 8 (not 0, not the units digit) and tens has 8 (anything except the two used). 5 × 8 × 8 = 320.</p>
+</div>
+
+<h2>6 · Counting and probability</h2>
+<p>The product rule tells you the size of a <strong>sample space</strong>, the list of all equally likely outcomes. A coin and a dice give 2 × 6 = 12 outcomes, which is exactly the number of cells in the two-way table. Tap a cell: its probability is 1 over the total. (See also the <a href="../ks3-interactive/sample-spaces-venn-diagrams.html">sample spaces</a> page.)</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>first <select id="spA"><option value="coin">coin (2)</option><option value="spin3">spinner (3)</option><option value="spin4">spinner (4)</option><option value="dice" selected>dice (6)</option></select></label>
+    <label>second <select id="spB"><option value="coin">coin (2)</option><option value="spin3">spinner (3)</option><option value="spin4">spinner (4)</option><option value="dice" selected>dice (6)</option></select></label>
+  </div>
+  <svg id="spSvg" viewBox="0 0 420 330" width="420" height="330" aria-label="Sample space grid"></svg>
+  <div class="msg" id="spMsg"></div>
+</div>
+
+<p>The same idea works for huge sample spaces you'd never draw. A thief guessing a 4-digit PIN at random has a probability of <span class="fr"><span>1</span><span>10 000</span></span> of getting it first time. A random 3-digit number is even with probability <span class="fr"><span>450</span><span>900</span></span> = <span class="fr"><span>1</span><span>2</span></span>.</p>
+
+<h2>7 · Practice</h2>
+<p>New questions each time. Type the number of ways. The feedback tries to spot your mistake.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>question type <select id="prType">
+      <option value="mix">mixed</option><option value="basic">choices from groups</option><option value="rep">codes with repeats</option><option value="norep">no repeats</option><option value="restr">restrictions</option>
+    </select></label>
+  </div>
+  <p class="pq" id="prQ"></p>
+  <div class="controls">
+    <label>number of ways <input type="text" id="prA" inputmode="numeric" style="width:7em"></label>
+    <button class="btn primary" id="prGo">Check</button>
+    <button class="btn" id="prShow">Show working</button>
+    <button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+  <div class="msg" id="prScore"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>List all the outfits from tops {red, blue} and trousers {jeans, chinos, shorts}</summary>
+  <div class="step"><strong>Fix red:</strong> red + jeans, red + chinos, red + shorts.</div>
+  <div class="step"><strong>Fix blue:</strong> blue + jeans, blue + chinos, blue + shorts.</div>
+  <div class="step"><strong>Total:</strong> 6 outfits. <strong>Check:</strong> 2 tops × 3 trousers = 6 ✓</div>
+</details>
+<details>
+  <summary>4 tops, 3 pairs of trousers and 2 pairs of shoes: how many outfits? <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Three independent choices</strong>, one from each group.</div>
+  <div class="step"><strong>Product rule:</strong> 4 × 3 × 2 = <strong>24 outfits</strong>. (Not 4 + 3 + 2 = 9.)</div>
+</details>
+<details>
+  <summary>8 runners race. In how many ways can gold, silver and bronze be awarded? <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Gold:</strong> any of 8 runners. <strong>Silver:</strong> any of the 7 left. <strong>Bronze:</strong> any of the 6 left.</div>
+  <div class="step"><strong>Product rule:</strong> 8 × 7 × 6 = <strong>336 ways</strong>.</div>
+  <div class="step"><strong>Trap:</strong> 8 × 8 × 8 = 512 would let one runner win two medals.</div>
+</details>
+<details>
+  <summary>How many 4-digit whole numbers are there? <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Restricted slot first:</strong> the first digit can't be 0, so 9 choices (1–9).</div>
+  <div class="step"><strong>Other slots:</strong> 10 choices each (repeats allowed).</div>
+  <div class="step"><strong>Total:</strong> 9 × 10 × 10 × 10 = <strong>9000</strong>. Check: the numbers 1000 to 9999 are 9999 − 1000 + 1 = 9000 ✓</div>
+</details>
+<details>
+  <summary>How many odd 3-digit numbers have all their digits different? <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Most restricted slot first, the units:</strong> must be odd: 1, 3, 5, 7 or 9, so 5 choices.</div>
+  <div class="step"><strong>Next most restricted, the hundreds:</strong> not 0 and not the units digit: 10 − 2 = 8 choices.</div>
+  <div class="step"><strong>Tens:</strong> any digit except the two already used: 8 choices.</div>
+  <div class="step"><strong>Total:</strong> 5 × 8 × 8 = <strong>320</strong>.</div>
+</details>
+<details>
+  <summary>A number plate has 2 letters followed by 3 digits, repeats allowed. How many plates are possible? <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Letters:</strong> 26 × 26 = 676. <strong>Digits:</strong> 10 × 10 × 10 = 1000.</div>
+  <div class="step"><strong>Total:</strong> 676 × 1000 = <strong>676 000</strong> plates.</div>
+</details>
+<details>
+  <summary>Exam-style: a club of 20 members chooses a captain and a vice-captain. Show that there are 380 ways. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Captain:</strong> 20 choices. <strong>Vice-captain:</strong> anyone except the captain, so 19 choices.</div>
+  <div class="step"><strong>Product rule:</strong> 20 × 19 = <strong>380</strong> ✓. The order matters here (captain ≠ vice-captain), which is why it isn't halved.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>List outcomes <strong>systematically</strong>: fix one choice and run through every option for the next. A tree diagram does this for you.</li>
+  <li>The <strong>product rule</strong> (Higher): if one thing can be done in m ways and another in n ways, together there are m × n ways. Keep multiplying for more stages.</li>
+  <li><strong>Repetition allowed</strong>: every slot has the same number of choices, so k symbols in L slots gives k<sup>L</sup>.</li>
+  <li><strong>No repetition</strong>: one fewer choice each time, like 10 × 9 × 8.</li>
+  <li><strong>Restrictions</strong>: fill the most restricted slot first (no leading 0, must be even, must be odd), then count what's left for the others.</li>
+  <li>The product rule gives the size of a sample space, so P(one particular outcome) = 1 ÷ (total number of outcomes).</li>
+</ul>
+
+<footer>Made for GCSE students. Systematic listing strategies and (Higher tier) the product rule for counting are in the DfE GCSE mathematics subject content under Number. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE mathematics subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const F = () => `font-family="${css('--mono')}"`;
+const big = n => { const s=String(n); return Math.abs(n)<10000 ? s : s.replace(/\B(?=(\d{3})+(?!\d))/g,'\u00A0'); };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const T = (x,y,txt,col,size=13,anchor='middle',weight=400) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" ${F()} fill="${col}">${txt}</text>`;
+const num = s => { const v=parseInt(String(s).replace(/[\s,]/g,''),10); return isFinite(v)?v:NaN; };
+
+/* 1. outfits tree */
+const TOPS=['red','blue','green','black','white'], TROU=['jeans','chinos','shorts','joggers'];
+const otT=$('otT'), otB=$('otB'); let otK=0;
+function drawOT(){
+  const t=+otT.value, b=+otB.value, N=t*b; otK=Math.min(otK,N);
+  $('otTv').textContent=' '+t; $('otBv').textContent=' '+b;
+  const ac=css('--accent'), hc=css('--hi'), mu=css('--muted'), fg=css('--fg'), ln=css('--line');
+  const H=280, top=12, leafGap=H/N, x0=24, x1=120, x2=230;
+  let s=`<circle cx="${x0}" cy="${top+H/2}" r="5" fill="${fg}"/>`;
+  for(let i=0;i<t;i++){ const yT=top+(i*b+b/2)*leafGap;
+    s+=`<line x1="${x0}" y1="${top+H/2}" x2="${x1}" y2="${yT}" stroke="${ac}" stroke-width="1.5"/>`;
+    for(let j=0;j<b;j++){ const k=i*b+j, yL=top+(k+0.5)*leafGap, on=k<otK, cur=k===otK-1;
+      s+=`<line x1="${x1}" y1="${yT}" x2="${x2}" y2="${yL}" stroke="${on?(cur?hc:ac):ln}" stroke-width="${cur?2.5:1.2}"/>`;
+      s+=T(x2+6,yL+4,`${TROU[j]}`,on?(cur?hc:fg):mu,N>12?9:11,'start',cur?700:400);
+      if(on) s+=T(410,yL+4,`${k+1}. ${TOPS[i]} + ${TROU[j]}`,cur?hc:ac,N>12?9:11,'end',cur?700:400); }
+    s+=`<rect x="${x1-28}" y="${yT-9}" width="56" height="18" rx="4" fill="${css('--panel')}" stroke="${ac}"/>`+T(x1,yT+4,TOPS[i],ac,11,'middle',600);
+  }
+  $('otSvg').innerHTML=s;
+  $('otWork').innerHTML=`listed ${otK} of ${N} outfits${otK===N?`<br><span class="g">All done: ${t} top${t>1?'s':''}, each with ${b} pair${b>1?'s':''} of trousers, so ${t} × ${b} = ${N}.</span>`:''}`;
+  $('otNext').disabled=otK===N;
+}
+[otT,otB].forEach(e=>e.addEventListener('input',()=>{ otK=0; drawOT(); }));
+$('otNext').addEventListener('click',()=>{ otK++; drawOT(); });
+$('otAll').addEventListener('click',()=>{ otK=999; drawOT(); });
+$('otReset').addEventListener('click',()=>{ otK=0; drawOT(); });
+drawOT();
+
+/* 2. menu tree with three stages */
+const mnS=$('mnS'), mnM=$('mnM'), mnD=$('mnD');
+function drawMN(){
+  const a=+mnS.value, b=+mnM.value, c=+mnD.value, N=a*b*c, ac=css('--accent'), hc=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg');
+  $('mnSv').textContent=' '+a; $('mnMv').textContent=' '+b; $('mnDv').textContent=' '+c;
+  const H=260, top=26, g=H/N, X=[20,120,230,340];
+  let s=T(X[1],14,'starter',ac,11,'middle',600)+T(X[2],14,'main',hc,11,'middle',600)+T(X[3],14,'dessert',tw,11,'middle',600);
+  const ry=top+H/2;
+  for(let i=0;i<a;i++){ const y1=top+(i*b*c+b*c/2)*g; s+=`<line x1="${X[0]}" y1="${ry}" x2="${X[1]}" y2="${y1}" stroke="${ac}" stroke-width="1.5"/>`;
+    for(let j=0;j<b;j++){ const y2=top+((i*b+j)*c+c/2)*g; s+=`<line x1="${X[1]}" y1="${y1}" x2="${X[2]}" y2="${y2}" stroke="${hc}" stroke-width="1.2"/>`;
+      for(let k=0;k<c;k++){ const y3=top+((i*b+j)*c+k+0.5)*g; s+=`<line x1="${X[2]}" y1="${y2}" x2="${X[3]}" y2="${y3}" stroke="${tw}"/><circle cx="${X[3]}" cy="${y3}" r="${N>32?1.8:3}" fill="${tw}"/>`; }
+      s+=`<circle cx="${X[2]}" cy="${y2}" r="3" fill="${hc}"/>`; }
+    s+=`<circle cx="${X[1]}" cy="${y1}" r="4" fill="${ac}"/>`; }
+  s+=`<circle cx="${X[0]}" cy="${ry}" r="5" fill="${fg}"/>`+T(X[3]+12,ry+4,`${N} meals`,fg,13,'start',700);
+  $('mnSvg').innerHTML=s;
+  $('mnEq').innerHTML=`<span class="R">${a}</span> × <span class="S">${b}</span> × <span class="K">${c}</span> = ${N}`;
+}
+[mnS,mnM,mnD].forEach(e=>e.addEventListener('input',drawMN)); drawMN();
+
+/* 3. code slots with repetition */
+const cdK=$('cdK'), cdL=$('cdL'); let cdCode=null;
+const SYM={2:'01',10:'0123456789',26:'ABCDEFGHIJKLMNOPQRSTUVWXYZ',36:'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'};
+function drawCD(){
+  const k=+cdK.value, L=+cdL.value, ac=css('--accent'), mu=css('--muted'), fg=css('--fg'), hc=css('--hi');
+  $('cdLv').textContent=' '+L;
+  if(!cdCode||cdCode.length!==L||cdCode.some(ch=>!SYM[k].includes(ch))) cdCode=Array(L).fill('?');
+  const w=50, gap=16, tot=L*w+(L-1)*gap, x0=210-tot/2;
+  let s='';
+  for(let i=0;i<L;i++){ const x=x0+i*(w+gap);
+    s+=`<rect x="${x}" y="20" width="${w}" height="52" rx="6" fill="${ac}" fill-opacity=".1" stroke="${ac}" stroke-width="1.5"/>`+T(x+w/2,54,cdCode[i],cdCode[i]==='?'?mu:hc,24,'middle',700);
+    s+=T(x+w/2,94,k,ac,15,'middle',700)+T(x+w/2,110,'choices',mu,9);
+    if(i<L-1) s+=T(x+w+gap/2,99,'×',mu,14,'middle',600); }
+  const total=Math.pow(k,L);
+  s+=T(210,140,`${Array(L).fill(k).join(' × ')} = ${k}${L>1?'^'+L:''} = ${big(total)}`.replace(/\^(\d)/,(m,d)=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[+d]),fg,14,'middle',700);
+  $('cdSvg').innerHTML=s;
+  let w2=`${L} slot${L>1?'s':''}, each with all ${k} symbols available (repeats allowed): <strong>${big(total)}</strong> codes.`;
+  if(k===10) w2+=`<br><span class="dim">They run from ${'0'.repeat(L)} to ${'9'.repeat(L)}: that's ${big(total)} codes, since ${'9'.repeat(L)} + 1 = ${big(total)}.</span>`;
+  if(k===2) w2+=`<br><span class="dim">Each extra slot doubles the count: ${Array.from({length:L},(_,i)=>Math.pow(2,i+1)).join(', ')}.</span>`;
+  w2+=`<br><span class="dim">A random guess is right with probability 1/${big(total)}.</span>`;
+  $('cdWork').innerHTML=w2;
+}
+[cdK,cdL].forEach(e=>e.addEventListener('input',()=>{ cdCode=null; drawCD(); }));
+$('cdRand').addEventListener('click',()=>{ const k=+cdK.value; cdCode=Array.from({length:+cdL.value},()=>SYM[k][rnd(0,k-1)]); drawCD(); });
+drawCD();
+
+/* 4. picking runners without repetition */
+const rcN=$('rcN'), rcK=$('rcK'), rcSvg=$('rcSvg'); let rcPicked=[];
+const PLACE=['1st','2nd','3rd','4th'];
+function rcPos(i,n){ const w=Math.min(48,360/n); return [210-(n*w)/2+w*(i+0.5), 50]; }
+function drawRC(){
+  let n=+rcN.value, k=+rcK.value; if(k>n){ k=n; rcK.value=n; }
+  $('rcNv').textContent=' '+n; $('rcKv').textContent=' '+k;
+  rcPicked=rcPicked.filter(i=>i<n).slice(0,k);
+  const ac=css('--accent'), tw=css('--two'), hc=css('--hi'), mu=css('--muted'), fg=css('--fg');
+  let s=T(210,16,rcPicked.length<k?`tap the runner who finishes ${PLACE[rcPicked.length]}`:'all places filled',mu,12);
+  for(let i=0;i<n;i++){ const [x,y]=rcPos(i,n), used=rcPicked.includes(i);
+    s+=`<g data-r="${i}" style="cursor:pointer"><circle cx="${x}" cy="${y}" r="18" fill="${used?tw:ac}" fill-opacity="${used?.12:.2}" stroke="${used?tw:ac}" stroke-width="2" ${used?'stroke-dasharray="4 3"':''}/>`+T(x,y+5,i+1,used?tw:ac,15,'middle',700)+`</g>`; }
+  const w=72, gap=20, tot=k*w+(k-1)*gap, x0=210-tot/2;
+  for(let j=0;j<k;j++){ const x=x0+j*(w+gap), filled=j<rcPicked.length, choices=n-j;
+    s+=`<rect x="${x}" y="100" width="${w}" height="56" rx="7" fill="${filled?hc:'none'}" fill-opacity=".12" stroke="${filled?hc:mu}" stroke-width="1.5" ${filled?'':'stroke-dasharray="4 3"'}/>`;
+    s+=T(x+w/2,118,PLACE[j],mu,11)+T(x+w/2,146,filled?'runner '+(rcPicked[j]+1):'?',filled?hc:mu,13,'middle',700);
+    s+=T(x+w/2,180,choices,ac,18,'middle',700)+T(x+w/2,196,'choices',mu,10);
+    if(j<k-1) s+=T(x+w+gap/2,185,'×',mu,15,'middle',600); }
+  let prod=1; for(let j=0;j<k;j++) prod*=n-j;
+  s+=T(210,222,`${Array.from({length:k},(_,j)=>n-j).join(' × ')} = ${prod}`,fg,14,'middle',700);
+  rcSvg.innerHTML=s;
+  rcSvg.querySelectorAll('g[data-r]').forEach(g=>g.addEventListener('click',()=>{ const i=+g.dataset.r; if(rcPicked.includes(i)||rcPicked.length>=+rcK.value) return; rcPicked.push(i); drawRC(); }));
+  const used=rcPicked.length;
+  $('rcWork').innerHTML = used===0 ? `${PLACE[0]} place: any of the ${n} runners.` : used<k ? `${used} runner${used>1?'s':''} used up (plum), so ${PLACE[used]} place has ${n-used} choices.` : `<span class="g">Done.</span> Choices went ${Array.from({length:k},(_,j)=>n-j).join(', ')}: one fewer each time, because a runner can't finish twice. Total ${prod} possible results.${k>1?` <span class="dim">(With repeats it would be ${n}<sup>${k}</sup> = ${Math.pow(n,k)}.)</span>`:''}`;
+}
+[rcN,rcK].forEach(e=>e.addEventListener('input',()=>{ rcPicked=[]; drawRC(); }));
+$('rcRand').addEventListener('click',()=>{ const n=+rcN.value, k=+rcK.value, a=[...Array(n).keys()].sort(()=>Math.random()-0.5); rcPicked=a.slice(0,k); drawRC(); });
+$('rcReset').addEventListener('click',()=>{ rcPicked=[]; drawRC(); });
+drawRC();
+
+/* 5. restrictions and the grid of 3-digit numbers */
+const dist = s => new Set(s).size===s.length;
+const RS=[
+  {name:'all 3-digit numbers', f:s=>true, slots:[[9,'1–9 (not 0)',1],[10,'any digit',2],[10,'any digit',3]]},
+  {name:'3-digit even numbers', f:s=>+s[2]%2===0, slots:[[9,'1–9 (not 0)',2],[10,'any digit',3],[5,'0, 2, 4, 6, 8',1]]},
+  {name:'at least 500', f:s=>+s>=500, slots:[[5,'5, 6, 7, 8, 9',1],[10,'any digit',2],[10,'any digit',3]]},
+  {name:'all digits different', f:s=>dist(s), slots:[[9,'1–9 (not 0)',1],[9,'not the 1st digit',2],[8,'not the 2 used',3]]},
+  {name:'odd, all digits different', f:s=>dist(s)&&+s[2]%2===1, slots:[[8,'not 0, not the units digit',2],[8,'not the 2 used',3],[5,'1, 3, 5, 7, 9',1]]},
+  {name:'only digits 1–5, no repeats', f:s=>dist(s)&&/^[1-5]+$/.test(s), slots:[[5,'1–5',1],[4,'1–5, not used',2],[3,'1–5, not used',3]]}
+];
+const rsP=$('rsP');
+rsP.innerHTML=RS.map((r,i)=>`<option value="${i}">${r.name}</option>`).join('');
+function drawRS(){
+  const R=RS[+rsP.value], ac=css('--accent'), hc=css('--hi'), mu=css('--muted'), fg=css('--fg'), ln=css('--line');
+  const names=['hundreds','tens','units'], w=110, gap=24, x0=210-(3*w+2*gap)/2;
+  let s='';
+  R.slots.forEach(([c,why,ord],i)=>{ const x=x0+i*(w+gap), isFirst=ord===1, col=isFirst?hc:ac;
+    s+=`<rect x="${x}" y="8" width="${w}" height="74" rx="7" fill="${col}" fill-opacity=".1" stroke="${col}" stroke-width="${isFirst?2.5:1.5}"/>`;
+    s+=T(x+w/2,24,names[i],mu,10)+T(x+w/2,52,c,col,22,'middle',700)+T(x+w/2,72,why,col,9,'middle',400);
+    s+=`<circle cx="${x+w-4}" cy="12" r="10" fill="${col}"/>`+T(x+w-4,16,ord,css('--panel'),11,'middle',700);
+    if(i<2) s+=T(x+w+gap/2,52,'×',mu,16,'middle',600); });
+  const prod=R.slots.reduce((p,q)=>p*q[0],1);
+  s+=T(210,108,`${R.slots.map(q=>q[0]).join(' × ')} = ${prod}   (numbered circles: order to fill)`,fg,12,'middle',700);
+  $('rsSlots').innerHTML=s;
+  let g='', cnt=0; const cs=12.4, gx=210-15*cs, gy=8;
+  for(let n=100;n<=999;n++){ const i=n-100, r=Math.floor(i/30), c=i%30, ok=R.f(String(n)); if(ok) cnt++;
+    g+=`<rect x="${gx+c*cs}" y="${gy+r*cs}" width="${cs-1.5}" height="${cs-1.5}" rx="1.5" fill="${ok?ac:ln}" fill-opacity="${ok?.85:.5}"/>`; }
+  g+=T(210,gy+30*cs+16,`each square is one number, 100 to 999 (30 per row); shaded = fits: ${cnt}`,mu,11);
+  $('rsGrid').innerHTML=g;
+  $('rsWork').innerHTML=`product rule: ${R.slots.map(q=>q[0]).join(' × ')} = <strong>${prod}</strong><br>counting the shaded squares one by one: <strong>${cnt}</strong> ${cnt===prod?'<span class="g">✓ the same</span>':''}`;
+}
+rsP.addEventListener('input',drawRS); drawRS();
+
+/* 6. sample space grid */
+const SPO={coin:['H','T'],spin3:['1','2','3'],spin4:['1','2','3','4'],dice:['1','2','3','4','5','6']};
+const spA=$('spA'), spB=$('spB'); let spSel=null;
+function drawSP(){
+  const A=SPO[spA.value], B=SPO[spB.value], ac=css('--accent'), hc=css('--hi'), mu=css('--muted'), fg=css('--fg'), ln=css('--line');
+  const cw=Math.min(52,300/B.length), ch=Math.min(42,260/A.length), x0=210-(B.length*cw)/2+20, y0=40;
+  let s=T(x0-24,y0-14,'1st \\ 2nd',mu,10,'middle');
+  B.forEach((b,j)=>s+=T(x0+j*cw+cw/2,y0-12,b,hc,14,'middle',700));
+  A.forEach((a,i)=>{ s+=T(x0-14,y0+i*ch+ch/2+5,a,ac,14,'middle',700);
+    B.forEach((b,j)=>{ const sel=spSel&&spSel[0]===i&&spSel[1]===j;
+      s+=`<g data-c="${i},${j}" style="cursor:pointer"><rect x="${x0+j*cw+2}" y="${y0+i*ch+2}" width="${cw-4}" height="${ch-4}" rx="4" fill="${sel?hc:ac}" fill-opacity="${sel?.35:.1}" stroke="${sel?hc:ln}"/>`+T(x0+j*cw+cw/2,y0+i*ch+ch/2+4,`${a},${b}`,sel?hc:fg,cw<40?10:12,'middle',sel?700:400)+`</g>`; }); });
+  const N=A.length*B.length;
+  s+=T(210,y0+A.length*ch+24,`${A.length} × ${B.length} = ${N} equally likely outcomes`,fg,13,'middle',700);
+  $('spSvg').innerHTML=s;
+  $('spSvg').querySelectorAll('g[data-c]').forEach(g=>g.addEventListener('click',()=>{ spSel=g.dataset.c.split(',').map(Number); drawSP(); }));
+  $('spMsg').innerHTML = spSel&&spSel[0]<A.length&&spSel[1]<B.length ? `P(${A[spSel[0]]} then ${B[spSel[1]]}) = <strong>1/${N}</strong>: one cell out of ${N}.` : `Tap a cell. There are ${A.length} × ${B.length} = ${N} cells, one for each outcome.`;
+}
+[spA,spB].forEach(e=>e.addEventListener('input',()=>{ spSel=null; drawSP(); })); drawSP();
+
+/* 7. practice */
+const countNums=(lo,hi,f)=>{ let c=0; for(let n=lo;n<=hi;n++) if(f(String(n))) c++; return c; };
+const GEN={
+  basic:()=>{ const ctx=pick([['shirts','ties','pairs of shoes','outfits'],['starters','mains','desserts','three-course meals'],['bread types','fillings','sauces','sandwiches']]); const k=pick([2,3]); const ns=Array.from({length:k},()=>rnd(2,7)); const ans=ns.reduce((a,b)=>a*b,1);
+    return {q:`There are ${ns.map((n,i)=>n+' '+ctx[i]).join(', ').replace(/, ([^,]*)$/,' and $1')}. How many different ${k===2&&ctx[3]==='three-course meals'?'two-course meals':ctx[3]} can be made using one of each?`, ans, work:[`one choice from each group: ${ns.join(' × ')}`,`= ${ans}`], diag:a=>a===ns.reduce((x,y)=>x+y,0)?'You added. Each choice from one group pairs with every choice from the others, so multiply.':null}; },
+  rep:()=>{ const t=pick([['a digit from 0 to 9',10],['a letter from A to Z',26],['one of the digits 1 to 5',5],['one of the vowels A, E, I, O or U',5]]), L=rnd(2,4), ans=Math.pow(t[1],L);
+    return {q:`A code is ${L} characters long. Each character is ${t[0]}, and characters can be repeated. How many codes are possible?`, ans, work:[`${L} slots, ${t[1]} choices each`,`${Array(L).fill(t[1]).join(' × ')} = ${big(ans)}`],
+      diag:a=>{ let p=1; for(let j=0;j<L;j++) p*=t[1]-j; return a===p?'That would be with no repeats. Here repeats are allowed, so every slot has all '+t[1]+' choices.':a===t[1]*L?'You multiplied by the length. It should be '+t[1]+' multiplied by itself '+L+' times.':null; }}; },
+  norep:()=>{ const t=pick([['runners in a race',' finish 1st, 2nd and 3rd',3],['students','be chosen as president and secretary',2],['different books','be arranged in a row on a shelf',0],['digits 0–9','make a 3-digit PIN with no repeated digit',3]]);
+    let n = t[0]==='digits 0–9'?10:rnd(5,9), k=t[2]||(n=rnd(4,6),n); let ans=1; for(let j=0;j<k;j++) ans*=n-j;
+    const q = t[0]==='digits 0–9' ? `How many ways can you ${t[1]}? (A PIN may start with 0.)` : t[2]===0 ? `In how many ways can ${n} ${t[0]} ${t[1]}?` : `${n} ${t[0]}. In how many ways can they ${t[1].trim()}?`;
+    return {q, ans, work:[`${k} positions; one fewer choice each time`,`${Array.from({length:k},(_,j)=>n-j).join(' × ')} = ${big(ans)}`], diag:a=>a===Math.pow(n,k)?`That allows repeats. Once one is used it can't be used again: ${n} × ${n-1} × …`:null}; },
+  restr:()=>{ const R=pick([
+      ['How many 3-digit numbers are even?',100,999,s=>+s[2]%2===0,'units first: 5 even digits; hundreds 9 (not 0); tens 10','9 × 10 × 5',500],
+      ['How many 3-digit numbers have all their digits different?',100,999,dist,'hundreds 9 (not 0); tens 9 (not the hundreds digit); units 8','9 × 9 × 8',720],
+      ['How many 4-digit numbers are there? (They can\'t start with 0.)',1000,9999,()=>true,'first digit 9 (not 0); the other three 10 each','9 × 10 × 10 × 10',10000],
+      ['How many 3-digit numbers are odd with all digits different?',100,999,s=>dist(s)&&+s[2]%2===1,'units first: 5 odd digits; hundreds 8 (not 0, not the units digit); tens 8','5 × 8 × 8',null],
+      ['How many 2-digit numbers are odd?',10,99,s=>+s[1]%2===1,'tens 9 (not 0); units 5 odd digits','9 × 5',50],
+      ['How many 3-digit numbers are multiples of 5?',100,999,s=>s[2]==='0'||s[2]==='5','units 2 (0 or 5); hundreds 9; tens 10','9 × 10 × 2',200]]);
+    const ans=countNums(R[1],R[2],R[3]);
+    return {q:R[0], ans, work:[R[4],`${R[5]} = ${big(ans)}`], diag:a=>R[6]&&a===R[6]?'You counted as if the first digit could be 0. A number can\'t start with 0, so the first slot has 9 choices.':(a===2*ans?'Double the right answer: check the number of choices in the restricted slot.':null)}; }
+};
+let PQ=null, prDone=false, prRight=0, prTried=0;
+function prNew(){ const t=$('prType').value, k=t==='mix'?pick(Object.keys(GEN)):t; PQ=GEN[k](); prDone=false; $('prQ').textContent=PQ.q; $('prA').value=''; $('prMsg').textContent=''; $('prMsg').className='msg'; $('prWork').hidden=true; }
+$('prGo').addEventListener('click',()=>{ if(!PQ) return; const a=num($('prA').value), M=$('prMsg'); if(isNaN(a)){ M.className='msg bad'; M.textContent='Type a whole number.'; return; }
+  if(!prDone) prTried++; const ok=a===PQ.ans; if(ok&&!prDone){ prRight++; prDone=true; }
+  M.className='msg '+(ok?'good':'bad'); M.textContent=ok?`Correct: ${big(PQ.ans)}.`:(PQ.diag(a)||'Not quite. Draw a box for each position, write how many choices each has (restricted ones first), then multiply.');
+  $('prScore').textContent=`Score: ${prRight} out of ${prTried} questions`; });
+$('prShow').addEventListener('click',()=>{ if(!PQ) return; $('prWork').innerHTML=PQ.work.map(x=>`<div>${x}</div>`).join(''); $('prWork').hidden=false; prDone=true; });
+$('prNew').addEventListener('click',prNew); $('prType').addEventListener('change',prNew); prNew();
+
+function redrawAll(){ drawOT(); drawMN(); drawCD(); drawRC(); drawRS(); drawSP(); }
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll); }
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'5 shirts and 4 ties. How many shirt-and-tie combinations?',opts:['20','9','25','10'],a:0,fb:'Each of the 5 shirts goes with each of the 4 ties: 5 × 4 = 20.'},
+  {q:'A 3-digit PIN uses the digits 0–9, repeats allowed. How many PINs?',opts:['1000','720','30','999'],a:0,fb:'10 × 10 × 10 = 1000 (000 to 999).'},
+  {q:'A 3-digit code uses the digits 0–9 with no digit repeated. How many codes?',opts:['720','1000','27','504'],a:0,fb:'10 × 9 × 8 = 720: one fewer choice each time.'},
+  {q:'6 runners. In how many ways can 1st and 2nd place be filled?',opts:['30','36','12','11'],a:0,fb:'6 choices for 1st, then 5 for 2nd: 6 × 5 = 30.'},
+  {q:'How many 4-digit whole numbers are there?',opts:['9000','10 000','9999','5040'],a:0,fb:'The first digit can\'t be 0: 9 × 10 × 10 × 10 = 9000.'},
+  {q:'How many 2-digit numbers are even?',opts:['45','50','90','40'],a:0,fb:'Tens digit 1–9 (9 ways), units digit 0, 2, 4, 6, 8 (5 ways): 9 × 5 = 45.'},
+  {q:'A menu has 3 starters, 5 mains and 2 desserts. How many three-course meals?',opts:['30','10','15','60'],a:0,fb:'3 × 5 × 2 = 30. Adding (10) would be choosing just one dish.'},
+  {q:'A code is 2 letters (A–Z) followed by 1 digit, repeats allowed. How many codes?',opts:['6760','46','676','2600'],a:0,fb:'26 × 26 × 10 = 6760.'},
+  {q:'A 3-digit number is chosen at random. What is the probability it is even?',opts:['1/2','450/1000','1/3','9/10'],a:0,fb:'There are 9 × 10 × 10 = 900 three-digit numbers and 9 × 10 × 5 = 450 are even: 450/900 = 1/2.'},
+  {q:'Why fill the most restricted position first?',opts:['So each later position has a definite number of choices','Because it is always the first digit','To make the answer bigger','It never makes any difference'],a:0,fb:'If you leave it till last, how many options it has can depend on earlier choices. Filling it first keeps every count fixed.'}
+];
+const qz=$('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

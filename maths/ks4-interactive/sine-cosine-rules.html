@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Sine and Cosine Rules</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an SVG triangle drawn from JS, most with draggable corners. Colours pair each side with the angle opposite it: teal = side a and angle A, orange = side b and angle B, plum = side c and angle C. Dashed text-colour lines are perpendicular heights dropped for derivations; in the ambiguous-case picture the swinging side a is teal and the two possible triangles are shaded teal and orange. In the bearings picture grey lines are north lines, plum = the two legs of the journey and teal = the direct distance found with the cosine rule. Green/red = right/wrong feedback only. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.D{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.parts-svg [data-part]{cursor:pointer}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.12rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.45rem;position:relative;top:-.12em;white-space:nowrap}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+summary .tag{font-size:.6rem}
+.grp{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.lab svg.drag{touch-action:none;cursor:grab}
+.lab svg.drag:active{cursor:grabbing}
+.hint{font-size:.85rem;color:var(--muted);margin:.4rem 0 0}
+.formula{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.7rem 1rem;margin:1.2rem 0;font-family:var(--mono);font-size:1.05rem;line-height:1.8}
+.formula b{font-family:var(--body)}
+.A{color:var(--accent);font-weight:600}.H{color:var(--hi);font-weight:600}.T{color:var(--two);font-weight:600}
+sup,sub{line-height:0}
+@media (max-width:540px){
+  table.stack tr:first-child{display:none}
+  table.stack tr{display:block;border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{display:block;border:0;padding:.15rem .3rem}
+  table.stack td[data-h]::before{content:attr(data-h) ": ";font:600 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+}
+.flow{display:grid;gap:.6rem;margin-top:.4rem}
+.flow .node{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.6rem .8rem}
+.flow .node.done{opacity:.65}
+.flow .node.leaf{border-color:var(--accent);background:var(--accent-soft)}
+.flow .node .grp{margin-top:.4rem}
+.bars{display:grid;gap:.35rem;margin-top:.8rem;font-family:var(--mono);font-size:.9rem}
+.bars .row{display:grid;grid-template-columns:10em 1fr;gap:.5rem;align-items:center}
+.bars .bar{height:16px;border-radius:3px;min-width:2px}
+.opts2{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem}
+.opts2 button{font:inherit;font-size:.95rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts2 button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts2 button.wrong{border-color:var(--bad);opacity:.6}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Geometry and measures</div>
+  <h1>Sine and Cosine Rules <span class="tag g">Higher</span></h1>
+  <p class="lede">SOH CAH TOA only works when there's a right angle. Most triangles in the real world (a field, a roof truss, a ship's route) don't have one. Two rules, both built by cutting a triangle into right-angled pieces, let you find any side or angle of <em>any</em> triangle, and a third formula gives its area.</p>
+  <span class="gcse">GCSE subject content G22 (Higher): know and apply the sine rule and cosine rule to find unknown lengths and angles. G23 (Higher): know and apply Area = ½ab sin C to calculate the area, sides or angles of any triangle.</span>
+</header>
+
+<h2>1 · Labelling any triangle <span class="tag g">Higher</span></h2>
+<p>You need right-angled trigonometry first (see <a href="right-angled-trigonometry.html">Trigonometry and exact values</a>, or the KS3 page <a href="../ks3-interactive/trigonometry.html">Trigonometric ratios</a>). For a general triangle we use a standard labelling:</p>
+<ul>
+  <li>The corners (vertices) are capital letters <strong>A, B, C</strong>, and the angle at each corner uses the same letter.</li>
+  <li>Each side gets the <em>lower-case</em> letter of the angle <strong>opposite</strong> it: side <span class="A">a</span> is opposite angle <span class="A">A</span>, <span class="H">b</span> opposite <span class="H">B</span>, <span class="T">c</span> opposite <span class="T">C</span>.</li>
+</ul>
+<p>A side and its opposite angle make a <strong>pair</strong> (same colour below). Spotting pairs is the key to choosing a rule. Drag the corners: the biggest angle is always opposite the longest side.</p>
+
+<div class="lab">
+  <svg id="lbSvg" class="drag" viewBox="0 0 420 300" width="420" height="300" aria-label="Triangle with draggable corners"></svg>
+  <div class="readout">
+    <div class="f"><b>Pair a, A</b><span id="lbA"></span></div>
+    <div class="t"><b>Pair b, B</b><span id="lbB"></span></div>
+    <div class="p"><b>Pair c, C</b><span id="lbC"></span></div>
+  </div>
+  <p class="hint">Lengths are in cm. Angles always add up to <span id="lbSum"></span>.</p>
+</div>
+
+<h2>2 · The sine rule: where it comes from <span class="tag g">Higher</span></h2>
+<p>Cut the triangle into two right-angled triangles by dropping a perpendicular (a line at 90°) from C to the line AB. Call its length <strong>h</strong>. Then write h in two ways, once from each right-angled triangle. Step through, and drag the corners to check that it works for every shape, even when the perpendicular lands outside the triangle.</p>
+
+<div class="lab">
+  <svg id="sdSvg" class="drag" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <div class="controls">
+    <button class="btn" id="sdPrev">◀ Back</button>
+    <button class="btn primary" id="sdNext">Next step ▶</button>
+    <span class="hint" id="sdStep"></span>
+  </div>
+  <div class="work" id="sdWork"></div>
+</div>
+
+<div class="formula"><b>Sine rule</b> (for finding a side):  a/sin A = b/sin B = c/sin C<br><b>Upside down</b> (for finding an angle):  sin A/a = sin B/b = sin C/c</div>
+<p>You only ever use <em>two</em> of the three fractions at once. You need one complete pair (a side and its opposite angle) plus one more piece of information.</p>
+
+<h2>3 · Using the sine rule <span class="tag g">Higher</span></h2>
+<p>To find a <strong>side</strong>, put the unknown side on top: <span class="m">b/sin B = a/sin A</span>, then multiply both sides by sin B. To find an <strong>angle</strong>, put the sines on top: <span class="m">sin B/b = sin A/a</span>, multiply by b, then use sin⁻¹. If you're given two angles, the third one is 180° minus the other two; you might need it to make a pair.</p>
+
+<div class="lab">
+  <p class="pq" id="snQ"></p>
+  <svg id="snSvg" viewBox="0 0 400 250" width="400" height="250"></svg>
+  <div class="controls">
+    <label><span id="snVar">x</span> = <input type="text" id="snA" inputmode="decimal" autocomplete="off" style="width:6em"> <span id="snU"></span></label>
+    <button class="btn primary" id="snGo">Check</button>
+    <button class="btn" id="snShow">Show working</button>
+    <button class="btn" id="snNew">New question</button>
+  </div>
+  <div class="msg" id="snMsg"></div>
+  <div class="work" id="snWork" hidden></div>
+</div>
+
+<h2>4 · The ambiguous case <span class="tag g">Higher</span></h2>
+<p>Here's a surprise. Suppose you know angle A, side b and side a (which is opposite A). Picture side a as a stick hinged at C, swinging until it hits the base line. Sometimes it can land in <em>two</em> places, giving two different triangles that both fit the information. That's because sin x = sin(180° − x): for example sin 50° = sin 130°. So when the sine rule gives you an angle, there may be a second, obtuse answer: <strong>180° minus the first</strong>.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>angle A <input type="range" id="amA" min="20" max="80" value="35"><span id="amAv" style="font-family:var(--mono)"></span></label>
+    <label>b <input type="range" id="amB" min="5" max="10" step="0.5" value="9"><span id="amBv" style="font-family:var(--mono)"></span></label>
+    <label>a <input type="range" id="amSa" min="2" max="12" step="0.1" value="6"><span id="amSav" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="amSvg" viewBox="0 0 440 270" width="440" height="270"></svg>
+  <div class="work" id="amWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>When to worry.</strong> The ambiguous case only happens when you use the sine rule to find an <em>angle</em>, and the side opposite the known angle is the shorter of the two given sides. If the question says the angle is obtuse, or the diagram shows it, take 180° minus your calculator answer. Otherwise, check whether 180° minus it still leaves room in the triangle (the angles must add to 180°).</p>
+</div>
+
+<h2>5 · The cosine rule: Pythagoras with a correction <span class="tag g">Higher</span></h2>
+<p>If you know two sides and the angle <em>between</em> them, there's no complete pair, so the sine rule can't start. Pythagoras says c² = a² + b² when C = 90°. For other angles, c² needs a correction. Make C smaller than 90° and the triangle closes up, so c is shorter than Pythagoras says; make C bigger and c is longer. The correction is exactly <span class="m">2ab cos C</span>.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>a <input type="range" id="crA" min="3" max="10" step="0.5" value="6"><span id="crAv" style="font-family:var(--mono)"></span></label>
+    <label>b <input type="range" id="crB" min="3" max="10" step="0.5" value="8"><span id="crBv" style="font-family:var(--mono)"></span></label>
+    <label>angle C <input type="range" id="crC" min="5" max="175" value="60"><span id="crCv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="crSvg" viewBox="0 0 420 260" width="420" height="260"></svg>
+  <div class="bars" id="crBars"></div>
+  <div class="work" id="crWork"></div>
+</div>
+
+<div class="formula"><b>Cosine rule</b> (for a side):  c² = a² + b² − 2ab cos C<br><b>Rearranged</b> (for an angle):  cos C = (a² + b² − c²) ÷ 2ab</div>
+
+<details>
+  <summary>Why is the correction 2ab cos C? (algebraic proof)</summary>
+  <div class="step">Drop a perpendicular h from B onto side CA, landing at D. Let CD = x, so DA = b − x.</div>
+  <div class="step">In the right-angled triangle BCD: x = a cos C and h² = a² − x².</div>
+  <div class="step">In the right-angled triangle BDA: c² = h² + (b − x)² = a² − x² + b² − 2bx + x² = a² + b² − 2bx.</div>
+  <div class="step">Replace x by a cos C: <strong>c² = a² + b² − 2ab cos C</strong>. When C = 90°, cos C = 0 and this is Pythagoras.</div>
+</details>
+
+<p>Practise both ways round. The commonest error is BIDMAS: in <span class="m">a² + b² − 2ab cos C</span>, work out 2ab cos C <em>first</em> and subtract it. Don't do a² + b² − 2ab and then multiply by cos C.</p>
+
+<div class="lab">
+  <p class="pq" id="csQ"></p>
+  <svg id="csSvg" viewBox="0 0 400 250" width="400" height="250"></svg>
+  <div class="controls">
+    <label><span id="csVar">x</span> = <input type="text" id="csA" inputmode="decimal" autocomplete="off" style="width:6em"> <span id="csU"></span></label>
+    <button class="btn primary" id="csGo">Check</button>
+    <button class="btn" id="csShow">Show working</button>
+    <button class="btn" id="csNew">New question</button>
+  </div>
+  <div class="msg" id="csMsg"></div>
+  <div class="work" id="csWork" hidden></div>
+</div>
+
+<h2>6 · Area = ½ab sin C <span class="tag g">Higher</span></h2>
+<p>You know area = ½ × base × height. Take a as the base. The height is the perpendicular from A to the line BC, and in the right-angled triangle it makes with side b, height = b sin C. So</p>
+<p class="big">area = ½ × a × b sin C</p>
+<p>Use it with two sides and the angle <strong>between them</strong> (the included angle). The letters can change, e.g. ½bc sin A; the pattern is "two sides and the angle where they meet". Drag the corners: both calculations always agree.</p>
+
+<div class="lab">
+  <svg id="arSvg" class="drag" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <div class="work" id="arWork"></div>
+</div>
+
+<h2>7 · Which rule? <span class="tag g">Higher</span></h2>
+<p>The hardest part of an exam question is often choosing. Work through the flowchart with a question in mind.</p>
+
+<div class="lab">
+  <div class="flow" id="fcBox"></div>
+  <div class="controls"><button class="btn" id="fcReset">Start again</button></div>
+</div>
+
+<p>Now practise choosing. Each triangle shows what you know; the question mark is what you want.</p>
+<div class="lab">
+  <svg id="wrSvg" viewBox="0 0 400 240" width="400" height="240"></svg>
+  <p class="pq" id="wrQ"></p>
+  <div class="opts2" id="wrOpts"></div>
+  <div class="msg" id="wrMsg"></div>
+  <div class="controls"><button class="btn" id="wrNew">Next triangle</button><span class="hint" id="wrScore"></span></div>
+</div>
+
+<h2>8 · Bearings and real problems <span class="tag g">Higher</span></h2>
+<p>A ship sails from A to B, then turns and sails to C. How far is C from A, and on what bearing? (Bearings are measured clockwise from north as three figures; see the <a href="bearings.html">Bearings</a> page.) The two legs and the angle between them at B give two sides and the included angle: a cosine rule question. The hard part is finding angle ABC, using the parallel north lines.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>A→B <input type="range" id="bgD1" min="5" max="20" value="15"><span id="bgD1v" style="font-family:var(--mono)"></span></label>
+    <label>bearing <input type="range" id="bgT1" min="0" max="359" value="40"><span id="bgT1v" style="font-family:var(--mono)"></span></label>
+    <label>B→C <input type="range" id="bgD2" min="5" max="20" value="9"><span id="bgD2v" style="font-family:var(--mono)"></span></label>
+    <label>bearing <input type="range" id="bgT2" min="0" max="359" value="120"><span id="bgT2v" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="bgSvg" viewBox="0 0 420 340" width="420" height="340"></svg>
+  <div class="work" id="bgWork"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Sine rule, finding a side: A = 40°, B = 65°, a = 8 cm. Find b. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Pairs:</strong> a = 8 with A = 40° is a complete pair. b with B = 65° is the pair we want. → sine rule.</div>
+  <div class="step">b / sin 65° = 8 / sin 40°</div>
+  <div class="step">b = 8 × sin 65° ÷ sin 40° = 8 × 0.906307… ÷ 0.642787… = 11.279… cm</div>
+  <div class="step"><strong>Answer:</strong> b = <strong>11.3 cm</strong> (3 s.f.). Sense check: B is bigger than A, so b should be longer than a ✓. (Upside down gives 5.67 cm, shorter than a: wrong.)</div>
+</details>
+<details>
+  <summary>Sine rule, finding an angle: a = 9 cm, b = 7 cm, A = 72°. Find B. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Pairs:</strong> a, A complete; want B, and we know b. → sine rule, angles on top.</div>
+  <div class="step">sin B / 7 = sin 72° / 9 → sin B = 7 × sin 72° ÷ 9 = 0.739710…</div>
+  <div class="step">B = sin⁻¹(0.739710…) = 47.706…° → <strong>B = 47.7°</strong> (1 d.p.)</div>
+  <div class="step"><strong>Could B be 180° − 47.7° = 132.3°?</strong> Then A + B = 72° + 132.3° = 204.3°, more than 180°. Impossible, so there's only one answer. (Also b is shorter than a, so B must be smaller than A.)</div>
+</details>
+<details>
+  <summary>The ambiguous case: A = 35°, a = 6 cm, b = 9 cm. Find the two possible values of B. <span class="tag g">Higher</span></summary>
+  <div class="step">sin B = 9 × sin 35° ÷ 6 = 0.860364…</div>
+  <div class="step">B = sin⁻¹(0.860364…) = <strong>59.4°</strong> (1 d.p.)</div>
+  <div class="step"><strong>Second solution:</strong> 180° − 59.357…° = <strong>120.6°</strong>. Check it fits: 35° + 120.6° = 155.6°, less than 180°, leaving C = 24.4°. Both triangles exist.</div>
+  <div class="step">This happens because a (6) is shorter than b (9) but longer than the height b sin A = 5.16: the swinging side can land in two places.</div>
+</details>
+<details>
+  <summary>Cosine rule, finding a side: b = 7 cm, c = 10 cm, A = 50°. Find a. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Two sides and the included angle</strong>, no complete pair → cosine rule.</div>
+  <div class="step">a² = b² + c² − 2bc cos A = 7² + 10² − 2 × 7 × 10 × cos 50°</div>
+  <div class="step">a² = 49 + 100 − 140 × 0.642787… = 149 − 89.990… = 59.0097…</div>
+  <div class="step">a = √59.0097… = 7.681… → <strong>a = 7.68 cm</strong> (3 s.f.)</div>
+  <div class="step"><strong>Trap:</strong> (49 + 100 − 140) × cos 50° = 5.79 is the BIDMAS error. And don't forget the square root: 59.0 is a², not a.</div>
+</details>
+<details>
+  <summary>Cosine rule, finding an angle: a triangle has sides 5 cm, 7 cm and 9 cm. Find its largest angle. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Largest angle is opposite the longest side</strong> (9 cm). Call it C, so c = 9, a = 5, b = 7.</div>
+  <div class="step">cos C = (a² + b² − c²) ÷ 2ab = (25 + 49 − 81) ÷ (2 × 5 × 7) = −7 ÷ 70 = −0.1</div>
+  <div class="step">C = cos⁻¹(−0.1) = 95.739…° → <strong>95.7°</strong> (1 d.p.)</div>
+  <div class="step">A negative cosine means an obtuse angle. Unlike the sine rule, cos⁻¹ never gives an ambiguous answer.</div>
+</details>
+<details>
+  <summary>Area: a = 8 cm, b = 11 cm, C = 40°. Find the area of the triangle. <span class="tag g">Higher</span></summary>
+  <div class="step">C is between sides a and b (the included angle) ✓.</div>
+  <div class="step">Area = ½ab sin C = ½ × 8 × 11 × sin 40° = 44 × 0.642787… = 28.282…</div>
+  <div class="step"><strong>Answer:</strong> <strong>28.3 cm²</strong> (3 s.f.)</div>
+</details>
+<details>
+  <summary>Bearings: a ship sails 15 km on a bearing of 040° from A to B, then 9 km on a bearing of 120° to C. Find the distance AC and the bearing of C from A. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Angle ABC.</strong> At B, the bearing back to A is 040° + 180° = 220°. The ship then heads on 120°. The angle between those two directions is 220° − 120° = <strong>100°</strong>.</div>
+  <div class="step"><strong>Cosine rule:</strong> AC² = 15² + 9² − 2 × 15 × 9 × cos 100° = 225 + 81 + 46.884… = 352.885…, so AC = 18.785… = <strong>18.8 km</strong> (3 s.f.).</div>
+  <div class="step"><strong>Angle BAC</strong> (sine rule): sin BAC = 9 × sin 100° ÷ 18.785… = 0.471…, so BAC = 28.15…° (acute, as it's opposite the shortest side).</div>
+  <div class="step"><strong>Bearing:</strong> C is clockwise of the first leg, so 040° + 28.15…° = 068.15…° → <strong>068°</strong> to the nearest degree.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>Label a general triangle with side a opposite angle A, and so on. A side with its opposite angle is a pair.</li>
+  <li>Sine rule: a/sin A = b/sin B = c/sin C, proved by writing the height h = b sin A = a sin B. Use it when you know a complete pair. Unknown side on top for a side; sines on top for an angle.</li>
+  <li>Ambiguous case: sin x = sin(180° − x), so an angle found with the sine rule may have a second, obtuse answer. Check whether it fits.</li>
+  <li>Cosine rule: c² = a² + b² − 2ab cos C, Pythagoras with a correction. Use it for two sides and the included angle (find the third side), or three sides (find an angle with cos C = (a² + b² − c²) ÷ 2ab).</li>
+  <li>Area of any triangle = ½ab sin C, from ½ × base × height with height b sin C.</li>
+  <li>Choosing: right angle → SOH CAH TOA; complete pair → sine rule; otherwise → cosine rule; area → ½ab sin C.</li>
+  <li>In bearings problems, use parallel north lines to find the angle inside the triangle, then apply the rules.</li>
+</ul>
+
+<footer>Made for GCSE students. The sine rule, the cosine rule and Area = ½ab sin C are Higher tier content in the DfE GCSE mathematics subject content under Geometry and measures. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const PI = Math.PI, RAD = PI/180;
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat((+v).toFixed(d)).toString()) : '—';
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(Math.abs(v)<1e-12) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); if(e>=n-1) return minus(String(Math.round(r))); return minus(r.toFixed(n-1-e)); };
+const long = v => isFinite(v) ? minus((Math.trunc(v*1000+(v<0?-1e-9:1e-9))/1000).toFixed(3)) + '…' : '—';
+const dp1 = v => isFinite(v) ? minus((+v).toFixed(1)) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v = parseFloat(String(el.value).replace(/−/g,'-').replace(/,/g,'')); return isFinite(v) ? v : NaN; };
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T = (x,y,s,col,o={}) => `<text x="${x}" y="${y}" font-size="${o.fs||13}" ${o.w?`font-weight="${o.w}"`:''} text-anchor="${o.a||'middle'}" fill="${col}" ${F()} ${o.extra||''}>${s}</text>`;
+const L = (x1,y1,x2,y2,col,w=2,dash) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+const C = (x,y,r,fill,stroke='none',w=0) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${w}"/>`;
+const poly = (pts,fill,stroke='none',w=0,op=1,dash) => `<polygon points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="${fill}" fill-opacity="${op}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+/* angle arc at vertex V between directions to A and B (screen coords), radius r */
+function angArc(V,A,B,r,col,w=1.6){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]), a2=Math.atan2(B[1]-V[1],B[0]-V[0]); let d=a2-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const p1=[V[0]+r*Math.cos(a1),V[1]+r*Math.sin(a1)], p2=[V[0]+r*Math.cos(a1+d),V[1]+r*Math.sin(a1+d)]; return `<path d="M${p1[0]},${p1[1]} A${r},${r} 0 0 ${d>0?1:0} ${p2[0]},${p2[1]}" fill="none" stroke="${col}" stroke-width="${w}"/>`; }
+function angLabelPos(V,A,B,r){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]); let d=Math.atan2(B[1]-V[1],B[0]-V[0])-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const m=a1+d/2; return [V[0]+r*Math.cos(m), V[1]+r*Math.sin(m)+4]; }
+/* right-angle square at V between A and B */
+function rightMark(V,A,B,s,col){ const u=[A[0]-V[0],A[1]-V[1]],v=[B[0]-V[0],B[1]-V[1]]; const lu=Math.hypot(...u)||1, lv=Math.hypot(...v)||1; const p=[V[0]+u[0]/lu*s,V[1]+u[1]/lu*s], q=[V[0]+v[0]/lv*s,V[1]+v[1]/lv*s], r=[p[0]+v[0]/lv*s,p[1]+v[1]/lv*s]; return `<polyline points="${p[0]},${p[1]} ${r[0]},${r[1]} ${q[0]},${q[1]}" fill="none" stroke="${col}" stroke-width="1.5"/>`; }
+const svgXY = (svg,ev) => { const vb=svg.viewBox.baseVal, r=svg.getBoundingClientRect(); const k=Math.min(r.width/vb.width, r.height/vb.height); const ox=(r.width-vb.width*k)/2, oy=(r.height-vb.height*k)/2; return [vb.x+(ev.clientX-r.left-ox)/k, vb.y+(ev.clientY-r.top-oy)/k]; };
+/* generic drag: pick(p) returns a handle key or null; move(key,p) updates */
+function dragger(svg,pick,move,end){ let key=null; svg.addEventListener('pointerdown',e=>{ const p=svgXY(svg,e); const k=pick(p); if(k===null||k===undefined) return; key=k; try{svg.setPointerCapture(e.pointerId);}catch(_){} e.preventDefault(); move(key,p); }); svg.addEventListener('pointermove',e=>{ if(key===null) return; e.preventDefault(); move(key,svgXY(svg,e)); }); const up=()=>{ if(key!==null&&end) end(key); key=null; }; svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',up); }
+const nearest = (p,pts,maxd) => { let best=null,bd=maxd; pts.forEach((q,i)=>{ const d=Math.hypot(p[0]-q[0],p[1]-q[1]); if(d<bd){bd=d;best=i;} }); return best; };
+const REDRAW=[]; const reg = f => { REDRAW.push(f); f(); return f; };
+const feedback = (el,ok,msg) => { el.className='msg '+(ok?'good':'bad'); el.textContent=msg; };
+
+const sinD=t=>Math.sin(t*RAD), cosD=t=>Math.cos(t*RAD);
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const dist=(P,Q)=>Math.hypot(P[0]-Q[0],P[1]-Q[1]);
+const angAt=(V,P,Q)=>{const u=[P[0]-V[0],P[1]-V[1]],v=[Q[0]-V[0],Q[1]-V[1]];const lu=Math.hypot(...u),lv=Math.hypot(...v);if(lu<1e-9||lv<1e-9)return NaN;return Math.acos(Math.max(-1,Math.min(1,(u[0]*v[0]+u[1]*v[1])/(lu*lv))))/RAD;};
+const cross=(A,B,C)=>(B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0]);
+const U=30; // px per cm
+const within=(u,v,ang)=>{ if(!isFinite(v)) return false; if(ang) return Math.abs(u-v)<=0.05+1e-9; const e=Math.floor(Math.log10(Math.abs(v))); return Math.abs(u-v)<=0.5*Math.pow(10,e-2)+1e-9; };
+const readNum=el=>parseFloat(String(el.value).replace(/−/g,'-').replace(/[^0-9.\-]/g,''));
+const COL=()=>({a:css('--accent'),b:css('--hi'),c:css('--two')});
+
+/* draw triangle ABC (screen points). opt.lab {a,b,c,A,B,C} strings; opt.arcs: which angles to arc */
+function triSVG(A,B,C,o={}){
+  const col=COL(), fg=css('--fg'), mu=css('--muted');
+  const G=[(A[0]+B[0]+C[0])/3,(A[1]+B[1]+C[1])/3];
+  const lab=o.lab||{};
+  let s=poly([A,B,C],css('--accent-soft'),'none',0,.45);
+  const side=(P,Q,k)=>L(P[0],P[1],Q[0],Q[1],o.fade&&o.fade.includes(k)?css('--line'):col[k],o.fade&&o.fade.includes(k)?2.5:3.5);
+  s+=side(B,C,'a')+side(C,A,'b')+side(A,B,'c');
+  const V={A,B,C}, opp={A:[B,C],B:[C,A],C:[A,B]};
+  ['A','B','C'].forEach(k=>{const P=V[k];const [Q,R]=opp[k];const ang=angAt(P,Q,R);
+    if(lab[k]!==undefined&&lab[k]!==''&&isFinite(ang)&&ang>2){const r=ang<40?34:24;s+=angArc(P,Q,R,r,col[k.toLowerCase()],2);const lp=angLabelPos(P,Q,R,r+(ang<40?24:20));s+=T(lp[0],lp[1],lab[k],col[k.toLowerCase()],{fs:12,w:600});}
+    let dx=P[0]-G[0],dy=P[1]-G[1];const d=Math.hypot(dx,dy)||1;
+    if(!o.noVert)s+=T(P[0]+dx/d*16,P[1]+dy/d*16+5,k,fg,{w:700,fs:14});});
+  const sl=(P,Q,k)=>{const t=lab[k];if(t===undefined||t==='')return '';const mx=(P[0]+Q[0])/2,my=(P[1]+Q[1])/2;let dx=mx-G[0],dy=my-G[1];const d=Math.hypot(dx,dy)||1;dx/=d;dy/=d;const len=String(t).length*3.8;return T(mx+dx*(14+len*Math.abs(dx)),my+dy*15+5,t,col[k],{w:600,fs:13});};
+  s+=sl(B,C,'a')+sl(C,A,'b')+sl(A,B,'c');
+  if(o.handles)[A,B,C].forEach(P=>s+=C_(P));
+  return s;
+}
+const C_=P=>C(P[0],P[1],9,css('--fg'),css('--panel'),2)+C(P[0],P[1],18,'transparent');
+/* triangle from angles A,B (degrees) fitted into W×H; returns screen points */
+function fitTri(Ad,Bd,W=400,H=250,m=46){
+  const Cd=180-Ad-Bd, c=sinD(Cd), b=sinD(Bd);
+  let P=[[0,0],[c,0],[b*cosD(Ad),b*sinD(Ad)]];
+  const xs=P.map(p=>p[0]),ys=P.map(p=>p[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y1=Math.max(...ys);
+  const k=Math.min((W-2*m)/(x1-x0),(H-2*m)/y1);const ox=(W-(x1-x0)*k)/2-x0*k, oy=(H+y1*k)/2;
+  return P.map(p=>[ox+p[0]*k,oy-p[1]*k]);
+}
+/* draggable triangle state factory */
+function dragTri(svg,pts,draw){
+  dragger(svg,p=>nearest(p,pts,30),(i,p)=>{const vb=svg.viewBox.baseVal;const q=[Math.max(20,Math.min(vb.width-20,p[0])),Math.max(24,Math.min(vb.height-20,p[1]))];
+    if(pts.some((r,j)=>j!==i&&dist(r,q)<40))return; pts[i]=q; draw();});
+}
+const parts=(A,B,C)=>({a:dist(B,C)/U,b:dist(C,A)/U,c:dist(A,B)/U,A:angAt(A,B,C),B:angAt(B,C,A),C:angAt(C,A,B),flat:Math.abs(cross(A,B,C))<400});
+
+/* 1. labelling */
+const LB=[[90,240],[350,250],[230,60]];
+function drawLB(){
+  const [A,B,Cp]=LB, p=parts(A,B,Cp);
+  $('lbSvg').innerHTML=triSVG(A,B,Cp,{lab:{a:'a = '+sf(p.a),b:'b = '+sf(p.b),c:'c = '+sf(p.c),A:fmt(p.A,1)+'°',B:fmt(p.B,1)+'°',C:fmt(p.C,1)+'°'},handles:true});
+  $('lbA').textContent=`a = ${sf(p.a)} cm, A = ${fmt(p.A,1)}°`; $('lbB').textContent=`b = ${sf(p.b)} cm, B = ${fmt(p.B,1)}°`; $('lbC').textContent=`c = ${sf(p.c)} cm, C = ${fmt(p.C,1)}°`;
+  $('lbSum').textContent=`${fmt(p.A,1)}° + ${fmt(p.B,1)}° + ${fmt(p.C,1)}° = ${fmt(p.A+p.B+p.C,1)}°`;
+}
+dragTri($('lbSvg'),LB,drawLB); reg(drawLB);
+
+/* 2. sine rule derivation */
+const SD=[[70,240],[330,240],[250,70]]; let sdS=0; const SDN=5;
+function drawSD(){
+  const [A,B,Cp]=SD, p=parts(A,B,Cp), col=COL(), fg=css('--fg'), mu=css('--muted');
+  // foot of perpendicular from C to line AB
+  const ux=B[0]-A[0], uy=B[1]-A[1], l2=ux*ux+uy*uy; const t=((Cp[0]-A[0])*ux+(Cp[1]-A[1])*uy)/l2; const D=[A[0]+t*ux,A[1]+t*uy];
+  const h=dist(Cp,D)/U;
+  let s='';
+  if(sdS>=1&&(t<0||t>1)){const E=t<0?A:B; s+=L(E[0],E[1],D[0],D[1],mu,1.5,'5 4');}
+  s+=triSVG(A,B,Cp,{lab:{a:sdS>=3?'a = '+sf(p.a):'a',b:sdS===2||sdS>=4?'b = '+sf(p.b):'b',c:'c',A:sdS===2||sdS>=4?fmt(p.A,1)+'°':'A',B:sdS>=3?fmt(p.B,1)+'°':'B',C:''},handles:true});
+  if(sdS>=1&&!p.flat){ s+=L(Cp[0],Cp[1],D[0],D[1],fg,2,'6 4')+rightMark(D,t<1?B:A,Cp,10,mu); const hm=[(Cp[0]+D[0])/2,(Cp[1]+D[1])/2]; s+=T(hm[0]+(t>0.5?-10:10),hm[1],'h',fg,{w:700,fs:15,a:t>0.5?'end':'start'})+T(D[0],D[1]+18,'D',mu,{fs:12}); }
+  $('sdSvg').innerHTML=s;
+  const obtA=p.A>90, obtB=p.B>90;
+  const steps=[
+    `Any triangle ABC. No right angle, so SOH CAH TOA can't be used directly.`,
+    `Drop a perpendicular from C to the line AB (extended if needed). It meets it at D at 90°. Its length is h = ${sf(h)}. Now there are two right-angled triangles: ADC and BDC.`,
+    `In triangle ADC, b is the hypotenuse and h is opposite angle A:<br>sin A = h ÷ b, so <span class="b">h = b sin A</span> = ${sf(p.b)} × sin ${fmt(p.A,1)}° = ${sf(p.b*sinD(p.A))}`+(obtA?`<br><span class="c">(A is obtuse, so the angle inside triangle ADC is 180° − A; but sin(180° − A) = sin A, so it still works.)</span>`:''),
+    `In triangle BDC, a is the hypotenuse and h is opposite angle B:<br>sin B = h ÷ a, so <span class="a">h = a sin B</span> = ${sf(p.a)} × sin ${fmt(p.B,1)}° = ${sf(p.a*sinD(p.B))}`+(obtB?`<br><span class="c">(B is obtuse: sin(180° − B) = sin B, so it still works.)</span>`:''),
+    `Both equal h, so b sin A = a sin B. Divide both sides by sin A sin B:<br><strong>a/sin A = b/sin B</strong><br>Dropping a perpendicular from A instead gives the same with c and C. Check with this triangle:<br>a/sin A = ${p.flat?'—':fmt(p.a/sinD(p.A),3)}, b/sin B = ${p.flat?'—':fmt(p.b/sinD(p.B),3)}, c/sin C = ${p.flat?'—':fmt(p.c/sinD(p.C),3)}`
+  ];
+  $('sdWork').innerHTML=p.flat?'The corners are (almost) in a straight line, so there is no triangle. Drag a corner away.':steps[sdS];
+  $('sdStep').textContent=`step ${sdS+1} of ${SDN}`;
+}
+dragTri($('sdSvg'),SD,drawSD);
+$('sdNext').addEventListener('click',()=>{sdS=Math.min(SDN-1,sdS+1);drawSD();}); $('sdPrev').addEventListener('click',()=>{sdS=Math.max(0,sdS-1);drawSD();});
+reg(drawSD);
+
+/* generic practice runner */
+function practice(prefix,gen){
+  let P=null;
+  const svg=$(prefix+'Svg');
+  function draw(){ if(!P)return; const pts=fitTri(P.A,P.B); svg.innerHTML=triSVG(pts[0],pts[1],pts[2],{lab:P.lab,fade:P.fade}); }
+  function nw(){ P=gen(); $(prefix+'Q').textContent=P.q; $(prefix+'Var').textContent=P.ang?'θ':'x'; $(prefix+'U').textContent=P.ang?'°':'cm'; $(prefix+'A').value=''; const M=$(prefix+'Msg'); M.className='msg'; M.textContent=''; $(prefix+'Work').hidden=true; $(prefix+'Work').innerHTML=P.work; draw(); }
+  function check(){ const u=readNum($(prefix+'A')), M=$(prefix+'Msg'); if(!isFinite(u)){feedback(M,false,'Type a number.');return;}
+    if(within(u,P.ans,P.ang)){feedback(M,true,'Correct: '+(P.ang?P.ans.toFixed(1)+'°':sf(P.ans)+' cm')+'.');$(prefix+'Work').hidden=false;return;}
+    for(const [v,m] of P.wrong){ if(!isFinite(v)||Math.abs(v-P.ans)<1e-6)continue; if(within(u,v,P.ang)||Math.abs(u-v)<=Math.abs(v)*0.003){feedback(M,false,'Not quite. '+m);return;} }
+    feedback(M,false,Math.abs(u-P.ans)<=Math.abs(P.ans)*0.02?'Very close. Check your rounding, and keep full calculator values until the end.':'Not quite. Write the rule out with the letters first, then substitute. "Show working" has the steps.'); }
+  $(prefix+'Go').addEventListener('click',check); $(prefix+'A').addEventListener('keydown',e=>{if(e.key==='Enter')check();});
+  $(prefix+'Show').addEventListener('click',()=>{$(prefix+'Work').hidden=!$(prefix+'Work').hidden;}); $(prefix+'New').addEventListener('click',nw);
+  nw(); REDRAW.push(draw);
+}
+
+/* 3. sine rule practice */
+practice('sn',()=>{
+  const t=pick(['side2','side2','side3','angle']);
+  if(t==='angle'){ // know a, b, A with a > b so B acute & unique
+    let A,a,b,sB; do{A=rnd(35,110);a=rnd(6,14);b=rnd(4,a-1);sB=b*sinD(A)/a;}while(sB>=0.98);
+    const B=Math.asin(sB)/RAD;
+    return {A,B,ang:true,ans:B,q:`Find angle θ (opposite the ${b} cm side). Give your answer to 1 d.p.`,lab:{a:a+' cm',b:b+' cm',A:A+'°',B:'θ'},fade:['c'],
+      wrong:[[sB,'That is sin θ. Use sin⁻¹ to get the angle.'],[Math.asin(Math.min(1,a*sinD(A)/b))/RAD,'The fraction is upside down: sin θ = '+b+' × sin '+A+'° ÷ '+a+'.'],[Math.asin(sB),'That is in radians. Switch your calculator to degrees.'],[180-B,'That is the obtuse possibility, but A + θ would be more than 180°. Here θ is acute.']],
+      work:`Complete pair: a = ${a}, A = ${A}°. Want B (θ), know b = ${b}.<br>sin θ / ${b} = sin ${A}° / ${a}<br>sin θ = ${b} × sin ${A}° ÷ ${a} = ${long(sB)}<br>θ = sin⁻¹(${long(sB)}) = <strong>${B.toFixed(1)}°</strong><br>(180° − ${B.toFixed(1)}° = ${(180-B).toFixed(1)}° is too big: ${A}° + ${(180-B).toFixed(1)}° > 180°.)`};
+  }
+  let A,B; do{A=rnd(25,100);B=rnd(25,100);}while(A+B>155||Math.abs(A-B)<6);
+  const Cd=180-A-B;
+  if(t==='side2'){ const a=rnd(5,15); const b=a*sinD(B)/sinD(A);
+    return {A,B,ans:b,q:`Find the length x. Give your answer to 3 s.f.`,lab:{a:a+' cm',b:'x',A:A+'°',B:B+'°'},fade:['c'],
+      wrong:[[a*sinD(A)/sinD(B),'The fraction is upside down. x / sin '+B+'° = '+a+' / sin '+A+'°, so x = '+a+' × sin '+B+'° ÷ sin '+A+'°.'],[a*Math.sin(B)/Math.sin(A),'Your calculator is in radians. Switch to degrees.'],[a*sinD(Cd)/sinD(A),'You used angle C = '+Cd+'°. x is opposite the '+B+'° angle.']],
+      work:`Complete pair: ${a} cm opposite ${A}°. x is opposite ${B}°.<br>x / sin ${B}° = ${a} / sin ${A}°<br>x = ${a} × sin ${B}° ÷ sin ${A}° = ${long(b)}<br>x = <strong>${sf(b)} cm</strong>`}; }
+  const c=rnd(5,15); const a=c*sinD(A)/sinD(Cd);
+  return {A,B,ans:a,q:`Find the length x. Give your answer to 3 s.f.`,lab:{a:'x',c:c+' cm',A:A+'°',B:B+'°'},fade:['b'],
+    wrong:[[c*sinD(A)/sinD(B),'You used B = '+B+'°, but the '+c+' cm side is opposite angle C, not B. Find C = 180° − '+A+'° − '+B+'° = '+Cd+'° first.'],[c*sinD(Cd)/sinD(A),'Upside down: x is on top, x / sin '+A+'° = '+c+' / sin '+Cd+'°.'],[c*Math.sin(A)/Math.sin(Cd),'Radians mode. Switch to degrees.']],
+    work:`The ${c} cm side is opposite C, which isn't given. C = 180° − ${A}° − ${B}° = ${Cd}°: now ${c} cm and ${Cd}° make a pair.<br>x / sin ${A}° = ${c} / sin ${Cd}°<br>x = ${c} × sin ${A}° ÷ sin ${Cd}° = ${long(a)}<br>x = <strong>${sf(a)} cm</strong>`};
+});
+
+/* 4. ambiguous case */
+const amA=$('amA'),amB=$('amB'),amSa=$('amSa');
+function drawAM(){
+  const Ad=+amA.value,b=+amB.value,a=+amSa.value; $('amAv').textContent=' '+Ad+'°'; $('amBv').textContent=' '+fmt(b)+' cm'; $('amSav').textContent=' '+fmt(a,1)+' cm';
+  const k=26, A=[40,235], te=css('--accent'),hi=css('--hi'),tw=css('--two'),fg=css('--fg'),mu=css('--muted');
+  const Cp=[A[0]+b*k*cosD(Ad),A[1]-b*k*sinD(Ad)], h=b*sinD(Ad), cx=b*cosD(Ad);
+  let s=L(10,A[1],430,A[1],mu,1.5);
+  s+=`<circle cx="${Cp[0]}" cy="${Cp[1]}" r="${a*k}" fill="none" stroke="${te}" stroke-width="1.2" stroke-dasharray="4 4" opacity=".7"/>`;
+  const sols=[]; const disc=a*a-h*h;
+  if(disc>=-1e-9){ const r=Math.sqrt(Math.max(0,disc)); [cx-r,cx+r].forEach(x=>{ if(x>1e-6&&!sols.some(y=>Math.abs(y-x)<1e-6))sols.push(x); }); }
+  sols.sort((p,q)=>q-p);
+  const fills=[css('--accent-soft'),css('--hi-soft')], lines=[te,hi];
+  sols.forEach((x,i)=>{ const B=[A[0]+x*k,A[1]]; s+=poly([A,B,Cp],i?hi:te,'none',0,.16)+L(Cp[0],Cp[1],B[0],B[1],lines[i],3.5)+C(B[0],B[1],5,lines[i])+T(B[0],B[1]+20,'B'+(sols.length>1?(i+1):''),lines[i],{w:700}); });
+  s+=L(A[0],A[1],Cp[0],Cp[1],hi,3.5)+T((A[0]+Cp[0])/2-12,(A[1]+Cp[1])/2,'b = '+fmt(b),hi,{w:600,a:'end',fs:12});
+  s+=L(Cp[0],Cp[1],Cp[0],A[1],mu,1.2,'3 3')+T(Cp[0]+4,A[1]-6,'h',mu,{a:'start',fs:11});
+  s+=angArc(A,[A[0]+50,A[1]],Cp,30,te)+T(A[0]+46,A[1]-8,Ad+'°',te,{fs:12,a:'start',w:600});
+  s+=C(A[0],A[1],4,fg)+T(A[0]-6,A[1]+18,'A',fg,{w:700})+C(Cp[0],Cp[1],4,fg)+T(Cp[0],Cp[1]-10,'C',fg,{w:700});
+  $('amSvg').innerHTML=s;
+  const sB=b*sinD(Ad)/a; let w=`Height from C: h = b sin A = ${fmt(b)} × sin ${Ad}° = ${fmt(h,2)} cm<br>Sine rule: sin B = b sin A ÷ a = ${fmt(b)} × sin ${Ad}° ÷ ${fmt(a,1)} = ${sB>1?fmt(sB,4)+' (more than 1!)':fmt(sB,4)}<br>`;
+  if(sols.length===0) w+=`<span class="x">a = ${fmt(a,1)} is shorter than the height ${fmt(h,2)}: side a can't reach the base. No triangle. (Your calculator would give an error for sin⁻¹ of a number bigger than 1.)</span>`;
+  else { const B1=Math.asin(Math.min(1,sB))/RAD;
+    if(Math.abs(disc)<1e-9) w+=`a equals the height exactly: one triangle, with B = 90°.`;
+    else if(sols.length===2) w+=`<span class="a">B₁ = sin⁻¹(${fmt(sB,4)}) = ${B1.toFixed(1)}°</span>, <span class="b">B₂ = 180° − ${B1.toFixed(1)}° = ${(180-B1).toFixed(1)}°</span><br>h &lt; a &lt; b (${fmt(h,2)} &lt; ${fmt(a,1)} &lt; ${fmt(b)}): side a lands in <strong>two</strong> places. Both triangles fit the information: this is the ambiguous case.`;
+    else w+=`B = sin⁻¹(${fmt(sB,4)}) = ${B1.toFixed(1)}°. a ≥ b, so the other landing point is behind A: only <strong>one</strong> triangle. (180° − ${B1.toFixed(1)}° = ${(180-B1).toFixed(1)}° would make A + B ${Ad+180-B1>=180?'at least':'…'} 180°.)`; }
+  $('amWork').innerHTML=w;
+}
+[amA,amB,amSa].forEach(e=>e.addEventListener('input',drawAM)); reg(drawAM);
+
+/* 5. cosine rule visual */
+const crA=$('crA'),crB=$('crB'),crC=$('crC');
+function drawCR(){
+  const a=+crA.value,b=+crB.value,Cd=+crC.value; $('crAv').textContent=' '+fmt(a); $('crBv').textContent=' '+fmt(b); $('crCv').textContent=' '+Cd+'°';
+  const c2=a*a+b*b-2*a*b*cosD(Cd), c=Math.sqrt(c2), py=a*a+b*b;
+  // C at origin, CB along x (length a), CA at angle Cd (length b)
+  const P=[[0,0],[a,0],[b*cosD(Cd),b*sinD(Cd)]]; // C, B, A
+  const xs=P.map(p=>p[0]),ys=P.map(p=>p[1]); const x0=Math.min(...xs),x1=Math.max(...xs),y1=Math.max(...ys);
+  const k=Math.min(340/(x1-x0),200/Math.max(y1,1)), ox=(420-(x1-x0)*k)/2-x0*k, oy=225;
+  const S=P.map(p=>[ox+p[0]*k,oy-p[1]*k]); const [Cs,Bs,As]=S;
+  let s='';
+  // ghost right-angled position of A
+  const Ag=[Cs[0],Cs[1]-b*k]; s+=L(Cs[0],Cs[1],Ag[0],Ag[1],css('--line'),2,'5 4')+L(Ag[0],Ag[1],Bs[0],Bs[1],css('--line'),2,'5 4');
+  s+=triSVG(As,Bs,Cs,{lab:{a:'a = '+fmt(a),b:'b = '+fmt(b),c:'c = '+sf(c),C:Cd+'°'}});
+  $('crSvg').innerHTML=s;
+  const mx=Math.max(py,c2,(a+b)**2*0.01)+1, corr=2*a*b*cosD(Cd);
+  const bar=(lab,v,col)=>`<div class="row"><span>${lab}</span><div class="bar" style="width:${Math.max(0,v)/((a+b)**2)*100}%;background:${col}"></div></div>`;
+  $('crBars').innerHTML=bar('a² + b² = '+fmt(py,1),py,css('--muted'))+bar((corr>=0?'− ':'+ ')+fmt(Math.abs(corr),1),Math.abs(corr),css('--hi'))+bar('c² = '+fmt(c2,1),c2,css('--two'));
+  $('crWork').innerHTML=`c² = a² + b² − 2ab cos C<br>c² = ${fmt(a)}² + ${fmt(b)}² − 2 × ${fmt(a)} × ${fmt(b)} × cos ${Cd}°<br>c² = ${fmt(py,2)} − ${fmt(2*a*b,2)} × ${fmt(cosD(Cd),4)} = ${fmt(py,2)} ${corr>=0?'−':'+'} ${fmt(Math.abs(corr),2)} = ${fmt(c2,2)}<br>c = √${fmt(c2,2)} = <strong>${sf(c)}</strong><br><span class="c">${Cd<90?`C < 90°: cos C is positive, so we subtract. c is shorter than Pythagoras' √${fmt(py,2)} = ${sf(Math.sqrt(py))}.`:Cd===90?'C = 90°: cos C = 0, no correction. This is Pythagoras.':`C > 90°: cos C is negative, so subtracting it adds. c is longer than Pythagoras' ${sf(Math.sqrt(py))}.`}</span>`;
+}
+[crA,crB,crC].forEach(e=>e.addEventListener('input',drawCR)); reg(drawCR);
+
+/* 5b. cosine rule practice */
+practice('cs',()=>{
+  if(Math.random()<.55){ // side: know b, c, A
+    const A=rnd(25,140), b=rnd(4,14), c=rnd(4,14); const a2=b*b+c*c-2*b*c*cosD(A), a=Math.sqrt(a2);
+    const B=Math.asin(Math.min(1,b*sinD(A)/a))/RAD; const Bfix=(b*b>a*a+c*c)?180-B:B;
+    return {A,B:Bfix,ans:a,q:`Find the length x. Give your answer to 3 s.f.`,lab:{a:'x',b:b+' cm',c:c+' cm',A:A+'°'},
+      wrong:[[a2,'That is x², not x. Take the square root at the end.'],[Math.sqrt(Math.abs((b*b+c*c-2*b*c)*cosD(A))),'BIDMAS: work out 2 × '+b+' × '+c+' × cos '+A+'° first, then subtract it from '+b+'² + '+c+'².'],[(b*b+c*c-2*b*c)*cosD(A),'BIDMAS: 2bc cos A is one term. Work it out first, then subtract.'],[Math.sqrt(b*b+c*c+2*b*c*cosD(A)),'The rule subtracts 2bc cos A. (If cos A is negative, subtracting it adds.)'],[Math.sqrt(b*b+c*c-2*b*c*Math.cos(A)),'Radians mode. Switch your calculator to degrees.'],[Math.sqrt(b*b+c*c),'That is Pythagoras. There is no right angle here, so the correction 2bc cos A is needed.']],
+      work:`Two sides and the included angle → cosine rule.<br>x² = ${b}² + ${c}² − 2 × ${b} × ${c} × cos ${A}°<br>x² = ${b*b+c*c} − ${2*b*c} × ${fmt(cosD(A),5)} = ${long(a2)}<br>x = √${fmt(a2,3)} = ${long(a)}<br>x = <strong>${sf(a)} cm</strong>`};
+  }
+  let a,b,c; do{a=rnd(4,14);b=rnd(4,14);c=rnd(4,14);}while(a+b<=c+1||a+c<=b+1||b+c<=a+1);
+  const cA=(b*b+c*c-a*a)/(2*b*c), A=Math.acos(cA)/RAD, B=Math.acos((a*a+c*c-b*b)/(2*a*c))/RAD;
+  return {A,B,ang:true,ans:A,q:`Find angle θ. Give your answer to 1 d.p.`,lab:{a:a+' cm',b:b+' cm',c:c+' cm',A:'θ'},
+    wrong:[[cA,'That is cos θ. Use cos⁻¹ to get the angle.'],[B,'That is the angle opposite the '+b+' cm side. θ is opposite '+a+' cm, so a² is the one subtracted: cos θ = (b² + c² − a²) ÷ 2bc.'],[Math.acos((a*a+b*b-c*c)/(2*a*b))/RAD,'That is the angle opposite the '+c+' cm side. θ is opposite '+a+' cm, so subtract '+a+'².'],[Math.acos(Math.max(-1,Math.min(1,(b*b+c*c-a*a)/2*b*c)))/RAD,'Divide by the whole of 2bc: put brackets round the denominator.'],[Math.acos(cA),'That is in radians. Switch to degrees.']],
+    work:`Three sides → cosine rule for an angle. θ is opposite ${a} cm, so that one is subtracted.<br>cos θ = (${b}² + ${c}² − ${a}²) ÷ (2 × ${b} × ${c}) = ${b*b+c*c-a*a} ÷ ${2*b*c} = ${long(cA)}<br>θ = cos⁻¹(${long(cA)}) = <strong>${A.toFixed(1)}°</strong>`};
+});
+
+/* 6. area */
+const AR=[[70,240],[340,240],[230,70]];
+function drawAR(){
+  const [A,B,Cp]=AR, p=parts(A,B,Cp), fg=css('--fg'), mu=css('--muted');
+  // height from A to line BC
+  const ux=B[0]-Cp[0],uy=B[1]-Cp[1],l2=ux*ux+uy*uy; const t=((A[0]-Cp[0])*ux+(A[1]-Cp[1])*uy)/l2; const D=[Cp[0]+t*ux,Cp[1]+t*uy]; const h=dist(A,D)/U;
+  let s='';
+  if(t<0||t>1){const E=t<0?Cp:B; s+=L(E[0],E[1],D[0],D[1],mu,1.5,'5 4');}
+  s+=triSVG(A,B,Cp,{lab:{a:'a = '+sf(p.a),b:'b = '+sf(p.b),C:fmt(p.C,1)+'°'},handles:true});
+  if(!p.flat){s+=L(A[0],A[1],D[0],D[1],fg,2,'6 4')+rightMark(D,t<1?B:Cp,A,10,mu)+T((A[0]+D[0])/2+8,(A[1]+D[1])/2,'height',fg,{fs:12,a:'start',extra:'dx="6"'});}
+  $('arSvg').innerHTML=s;
+  const ar1=0.5*p.a*h, ar2=0.5*p.a*p.b*sinD(p.C);
+  $('arWork').innerHTML=p.flat?'The corners are in a straight line: area 0.':`<span class="a">base a = ${sf(p.a)}</span>; height = b sin C = ${sf(p.b)} × sin ${fmt(p.C,1)}° = ${sf(h)}<br>½ × base × height = ½ × ${sf(p.a)} × ${sf(h)} = ${sf(ar1)} cm²<br>½ab sin C = ½ × ${sf(p.a)} × ${sf(p.b)} × sin ${fmt(p.C,1)}° = <strong>${sf(ar2)} cm²</strong>`+(p.C>90?`<br><span class="c">C is obtuse: the height falls outside the triangle, but sin C = sin(180° − C), so the formula still works.</span>`:'');
+}
+dragTri($('arSvg'),AR,drawAR); reg(drawAR);
+
+/* 7. flowchart */
+const FC={
+  start:{q:'Is there a right angle in the triangle you are using?',yes:'right',no:'area'},
+  right:{leaf:'Use SOH CAH TOA (for sides with angles) or Pythagoras (for three sides). No need for the sine or cosine rule.'},
+  area:{q:'Do you want the AREA (or are you given the area)?',yes:'areaLeaf',no:'pair'},
+  areaLeaf:{leaf:'Use Area = ½ab sin C, with two sides and the angle between them. To find a side or angle from the area, substitute and rearrange.'},
+  pair:{q:'Do you know a side AND the angle opposite it (a complete pair)?',yes:'sine',no:'cos'},
+  sine:{leaf:'Use the SINE RULE. Side wanted: x/sin X = a/sin A. Angle wanted: sin X/x = sin A/a (watch for the ambiguous case). Tip: if you know two angles you can always get the third, which may complete a pair.'},
+  cos:{leaf:'Use the COSINE RULE. Two sides and the included angle → find the third side: a² = b² + c² − 2bc cos A. Three sides → find an angle: cos A = (b² + c² − a²) ÷ 2bc.'}
+};
+let fcPath=['start'];
+function drawFC(){
+  const box=$('fcBox'); box.innerHTML='';
+  fcPath.forEach((k,i)=>{const n=FC[k];const d=document.createElement('div');d.className='node'+(n.leaf?' leaf':'')+(i<fcPath.length-1?' done':'');
+    if(n.leaf){d.innerHTML='<strong>→ </strong>'+n.leaf;}
+    else{d.innerHTML=`<strong>${n.q}</strong>`;const g=document.createElement('div');g.className='grp';
+      ['yes','no'].forEach(ans=>{const b=document.createElement('button');b.className='btn'+(fcPath[i+1]===n[ans]?' on':'');b.textContent=ans==='yes'?'Yes':'No';b.addEventListener('click',()=>{fcPath=fcPath.slice(0,i+1).concat(n[ans]);drawFC();});g.appendChild(b);});
+      d.appendChild(g);}
+    box.appendChild(d);});
+}
+$('fcReset').addEventListener('click',()=>{fcPath=['start'];drawFC();}); drawFC();
+
+/* 7b. which rule trainer */
+const RULES=['SOH CAH TOA','Sine rule','Cosine rule','½ab sin C'];
+let WR=null, wrR=0, wrT=0, wrDone=false;
+function wrNew(){
+  const t=pick(['sideS','angS','sideC','angC','area','right','sideS2']);
+  let A=rnd(35,85),B=rnd(35,85); if(t==='right')B=90; while(A+B>=165)A-=10;
+  const lab={}, nm={A:A+'°',B:B+'°'}; let ans, why={};
+  if(t==='sideS'){lab.a='7 cm';lab.A=A+'°';lab.B=B+'°';lab.b='?';ans=1;why={2:'There is a complete pair (7 cm opposite '+A+'°), so the cosine rule isn\'t needed.',0:'No right angle here.',3:'The question asks for a side, not the area.'};}
+  if(t==='sideS2'){lab.c='9 cm';lab.A=A+'°';lab.B=B+'°';lab.a='?';ans=1;why={2:'Find C = 180° − A − B first; then 9 cm and C make a pair: sine rule.',0:'No right angle here.',3:'The question asks for a side, not the area.'};}
+  if(t==='angS'){lab.a='8 cm';lab.b='6 cm';lab.A=A+'°';lab.B='?';ans=1;why={2:'8 cm is opposite '+A+'°: a complete pair. Use the sine rule for the angle.',0:'No right angle here.',3:'This asks for an angle, not an area.'};}
+  if(t==='sideC'){lab.b='6 cm';lab.c='9 cm';lab.A=A+'°';lab.a='?';ans=2;why={1:'The '+A+'° angle is between the two known sides; the side opposite it is unknown, so there\'s no complete pair.',0:'No right angle here.',3:'½bc sin A would give the area, not side a.'};}
+  if(t==='angC'){lab.a='7 cm';lab.b='8 cm';lab.c='9 cm';lab.A='?';ans=2;why={1:'No angle is known, so there\'s no pair. Three sides → cosine rule.',0:'No right angle here.',3:'That gives area, and you\'d need an angle first.'};}
+  if(t==='area'){lab.b='6 cm';lab.c='9 cm';lab.A=A+'°';ans=3;why={1:'You want the area, and you have two sides and the angle between them.',2:'The cosine rule finds a side or angle, not area.',0:'No right angle here.'};}
+  if(t==='right'){lab.a='?';lab.b='10 cm';lab.A=A+'°';lab.B='90°';ans=0;why={1:'The sine rule works, but there is a right angle, so SOH CAH TOA is quicker: b is the hypotenuse.',2:'There is a right angle: SOH CAH TOA is simplest.',3:'You want a side, not the area.'};}
+  WR={A,B,lab,ans,why};
+  $('wrQ').textContent=t==='area'?'Find the area of this triangle. Which rule?':'Find the value marked ?. Which rule?';
+  wrDone=false; $('wrMsg').textContent=''; $('wrMsg').className='msg';
+  const box=$('wrOpts'); box.innerHTML='';
+  RULES.forEach((r,i)=>{const b=document.createElement('button');b.textContent=r;b.addEventListener('click',()=>{const ok=i===WR.ans;if(!wrDone){wrT++;if(ok)wrR++;wrDone=true;$('wrScore').textContent=`${wrR} / ${wrT} right first time`;}
+    if(ok){b.classList.add('right');box.querySelectorAll('button').forEach(x=>x.disabled=true);feedback($('wrMsg'),true,'Correct.');}else{b.classList.add('wrong');feedback($('wrMsg'),false,'Not quite. '+(WR.why[i]||''));}});box.appendChild(b);});
+  drawWR();
+}
+function drawWR(){ if(!WR)return; const p=fitTri(WR.A,WR.B,400,240); $('wrSvg').innerHTML=triSVG(p[0],p[1],p[2],{lab:WR.lab})+(WR.B===90?rightMark(p[1],p[0],p[2],12,css('--muted')):''); }
+$('wrNew').addEventListener('click',wrNew); wrNew(); REDRAW.push(drawWR);
+
+/* 8. bearings */
+const bg=['bgD1','bgT1','bgD2','bgT2'].map(i=>$(i));
+const b3=t=>String(Math.round(((t%360)+360)%360)%360).padStart(3,'0');
+function drawBG(){
+  const [d1,t1,d2,t2]=bg.map(e=>+e.value); $('bgD1v').textContent=' '+d1+' km'; $('bgT1v').textContent=' '+b3(t1)+'°'; $('bgD2v').textContent=' '+d2+' km'; $('bgT2v').textContent=' '+b3(t2)+'°';
+  const A=[0,0], B=[d1*sinD(t1),d1*cosD(t1)], Cm=[B[0]+d2*sinD(t2),B[1]+d2*cosD(t2)];
+  const xs=[A[0],B[0],Cm[0]],ys=[A[1],B[1],Cm[1]]; const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const k=Math.min(320/Math.max(x1-x0,1),240/Math.max(y1-y0,1)); const ox=(420-(x1-x0)*k)/2-x0*k, oy=(340+(y1-y0)*k)/2+y0*k+10;
+  const S=p=>[ox+p[0]*k,oy-p[1]*k]; const As=S(A),Bs=S(B),Cs=S(Cm);
+  const tw=css('--two'),te=css('--accent'),mu=css('--muted'),fg=css('--fg');
+  let s='';
+  [As,Bs].forEach(P=>{s+=L(P[0],P[1]+30,P[0],P[1]-50,mu,1.5,'4 4')+T(P[0],P[1]-56,'N',mu,{fs:11,w:600});});
+  s+=L(As[0],As[1],Bs[0],Bs[1],tw,3.5)+L(Bs[0],Bs[1],Cs[0],Cs[1],tw,3.5)+L(As[0],As[1],Cs[0],Cs[1],te,3,'7 4');
+  const angB=angAt(Bs,As,Cs);
+  if(isFinite(angB)&&angB>2&&angB<178){s+=angArc(Bs,As,Cs,26,fg);const lp=angLabelPos(Bs,As,Cs,46);s+=T(lp[0],lp[1],fmt(angB,1)+'°',fg,{fs:12,w:600});}
+  s+=C(As[0],As[1],5,fg)+T(As[0]-10,As[1]+16,'A',fg,{w:700})+C(Bs[0],Bs[1],5,fg)+T(Bs[0]+12,Bs[1]+4,'B',fg,{w:700,a:'start'})+C(Cs[0],Cs[1],5,fg)+T(Cs[0]+12,Cs[1]+4,'C',fg,{w:700,a:'start'});
+  const mid=(P,Q,t)=>{const mx=(P[0]+Q[0])/2,my=(P[1]+Q[1])/2;let nx=-(Q[1]-P[1]),ny=Q[0]-P[0];const l=Math.hypot(nx,ny)||1;nx/=l;ny/=l;const G=[(As[0]+Bs[0]+Cs[0])/3,(As[1]+Bs[1]+Cs[1])/3];if((mx-G[0])*nx+(my-G[1])*ny<0){nx=-nx;ny=-ny;}return T(mx+nx*18,my+ny*18+4,t,tw,{fs:12,w:600});};
+  s+=mid(As,Bs,d1+' km')+mid(Bs,Cs,d2+' km');
+  $('bgSvg').innerHTML=s;
+  const back=(t1+180)%360; let diff=Math.abs(back-t2)%360; if(diff>180)diff=360-diff;
+  const AC2=d1*d1+d2*d2-2*d1*d2*cosD(diff), AC=Math.sqrt(Math.max(0,AC2));
+  let w=`<strong>Angle ABC:</strong> at B the bearing back to A is ${b3(t1)}° + 180° = ${b3(back)}°. The ship leaves B on ${b3(t2)}°. The angle between these directions is ${fmt(diff,1)}°.<br>`;
+  if(diff<0.5){w+=`The ship turns right round and heads back towards A: AC = |${d1} − ${d2}| = ${Math.abs(d1-d2)} km. (No triangle.)`;}
+  else if(diff>179.5){w+=`The ship carries straight on: AC = ${d1} + ${d2} = ${d1+d2} km on a bearing of ${b3(t1)}°. (No triangle.)`;}
+  else{
+    const cosBAC=(d1*d1+AC2-d2*d2)/(2*d1*AC), BAC=Math.acos(Math.max(-1,Math.min(1,cosBAC)))/RAD;
+    const turn=cross([0,0],[B[0],-B[1]],[Cm[0],-Cm[1]]); // screen-like orientation (y down) → positive = clockwise
+    const brg=((t1+(turn>0?BAC:-BAC))%360+360)%360;
+    w+=`<strong>Cosine rule:</strong> AC² = ${d1}² + ${d2}² − 2 × ${d1} × ${d2} × cos ${fmt(diff,1)}° = ${fmt(AC2,3)}<br>AC = <strong>${sf(AC)} km</strong><br>`;
+    w+=`<strong>Angle BAC</strong> (cosine rule again): cos BAC = (${d1}² + ${fmt(AC,3)}² − ${d2}²) ÷ (2 × ${d1} × ${fmt(AC,3)}) → BAC = ${fmt(BAC,1)}°<br>`;
+    w+=`C is ${turn>0?'clockwise':'anticlockwise'} of the first leg, so the bearing of C from A = ${b3(t1)}° ${turn>0?'+':'−'} ${fmt(BAC,1)}° = <strong>${b3(brg)}°</strong>`;
+  }
+  $('bgWork').innerHTML=w;
+}
+bg.forEach(e=>e.addEventListener('input',drawBG)); reg(drawBG);
+
+/* quiz */
+const QS=[
+  {q:'Which is the sine rule (for finding a side)?',opts:['a/sin A = b/sin B','a/sin B = b/sin A','a sin A = b sin B','a² = b² + c² − 2bc cos A'],a:0,fb:'Each side over the sine of its own opposite angle: a/sin A = b/sin B = c/sin C.'},
+  {q:'You know all three sides of a triangle and want an angle. Which rule?',opts:['Cosine rule','Sine rule','½ab sin C','SOH CAH TOA'],a:0,fb:'No angle is known, so there is no pair. cos A = (b² + c² − a²) ÷ 2bc.'},
+  {q:'a = 10 cm, A = 30°, B = 45°. Find b to 3 s.f.',opts:['14.1 cm','7.07 cm','20.0 cm','5.00 cm'],a:0,fb:'b = 10 × sin 45° ÷ sin 30° = 10 × 0.7071… ÷ 0.5 = 14.142… = 14.1 cm.'},
+  {q:'b = 5, c = 8, A = 60°. Find a.',opts:['7','9.43','√89','49'],a:0,fb:'a² = 25 + 64 − 2 × 5 × 8 × cos 60° = 89 − 40 = 49, so a = 7. (√89 ignores the correction; 49 forgets the square root.)'},
+  {q:'Area of a triangle with sides 6 cm and 10 cm and an included angle of 30°?',opts:['15 cm²','30 cm²','26.0 cm²','60 cm²'],a:0,fb:'½ × 6 × 10 × sin 30° = 30 × ½ = 15 cm².'},
+  {q:'When C = 90°, the cosine rule c² = a² + b² − 2ab cos C becomes…',opts:['Pythagoras: c² = a² + b²','the sine rule','c = a + b','area = ½ab'],a:0,fb:'cos 90° = 0, so the correction vanishes and you get Pythagoras.'},
+  {q:'A triangle has sides 3, 5 and 7. Its largest angle is…',opts:['120°','60°','90°','150°'],a:0,fb:'cos C = (9 + 25 − 49) ÷ 30 = −15 ÷ 30 = −0.5, so C = 120°.'},
+  {q:'The sine rule gives sin B = 0.5. Which values of B are possible?',opts:['30° or 150°','30° only','30° or 60°','150° only'],a:0,fb:'sin 30° = sin 150° = 0.5. Both may be possible unless the other angles rule one out: the ambiguous case.'},
+  {q:'A triangle has area 20 cm², with sides 5 cm and 10 cm. The acute angle between them is…',opts:['53.1°','23.6°','36.9°','0.8°'],a:0,fb:'20 = ½ × 5 × 10 × sin C, so sin C = 0.8 and C = sin⁻¹(0.8) = 53.13…° = 53.1°.'},
+  {q:'Working out a² = 49 + 100 − 140 cos 50°, a student gets (49 + 100 − 140) × cos 50°. What went wrong?',opts:['BIDMAS: 140 cos 50° should be worked out first','Should have used sin','Should have added 140 cos 50°','Nothing'],a:0,fb:'140 cos 50° is one term (a product). Multiply first, then subtract from 149.'}
+];
+const redrawAll=()=>REDRAW.forEach(f=>f());
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

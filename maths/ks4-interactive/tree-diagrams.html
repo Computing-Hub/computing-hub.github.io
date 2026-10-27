@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Tree Diagrams and Combined Events</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one or more interactive panels (SVG tree diagrams, frequency trees, bags of counters and area grids drawn from JS, with typed "try it" inputs). Graph-paper neutrals. Colours on this page: teal = the first stage of an experiment (first pick, first spin, first-stage branches, event A in the area grid); plum = the second stage (second pick, second-stage branches, event B); muted grey = the third stage of a three-stage tree and anything not chosen; orange = the path or paths you have picked, i.e. the combined event whose probability is being found (orange branches, shaded end results, the A-and-B cells). Counters in bags are drawn red and blue using --bad and --two only as counter colours, with letters R and B on them. Green/red text is only right/wrong feedback. The orange "Higher" pill marks Higher-tier-only content. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.4rem;position:relative;top:-.15em}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.A{color:var(--accent);font-weight:600}.B{color:var(--two);font-weight:600}.E{color:var(--hi);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none}
+.tap [data-i]{cursor:pointer}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);max-width:100%}
+input[type=range]{accent-color:var(--accent);width:150px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+input.good{border-color:var(--good);box-shadow:0 0 0 1px var(--good)}
+input.bad{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad)}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn:disabled{opacity:.45;cursor:default}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--hi);background:var(--hi-soft);color:var(--hi);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout>div{min-width:0;overflow-wrap:anywhere}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.3rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.05rem;font-weight:500;margin:.4rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:.95rem;line-height:1.8;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tbl{overflow-x:auto}
+.fq{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr));gap:.5rem 1rem;margin-top:.8rem}
+.fq label{display:flex;flex-direction:column;gap:.2rem;font-size:.88rem;color:var(--muted)}
+.fq input{width:5em}
+.tq{border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem}
+.tq p{margin:.2rem 0 .4rem}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line);overflow-wrap:anywhere}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.recap{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.9rem 1.1rem;margin:1.5rem 0}
+.recap p{margin:.3rem 0}.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a,main a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Probability</div>
+  <h1>Tree Diagrams and Combined Events</h1>
+  <p class="lede">What is the chance of two things both happening, like picking two red sweets, or a six on both dice? A tree diagram lays out every possible path so you can multiply along a path and add the paths you want. This page builds trees step by step: independent events, picking without putting back, "at least one", and three-stage trees.</p>
+  <span class="gcse">GCSE subject content: record, describe and analyse the frequency of outcomes using frequency trees; calculate the probability of independent and dependent combined events, including using tree diagrams and other representations, and know the underlying assumptions</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start: what you need from KS3</strong></p>
+  <ul>
+    <li>With equally likely outcomes, <strong>P(event) = outcomes you want ÷ all outcomes</strong>. Probabilities go from 0 (impossible) to 1 (certain). See <a href="../ks3-interactive/probability-scale.html">the probability scale</a>.</li>
+    <li><span class="m">P(not A) = 1 − P(A)</span>, and probabilities of all the outcomes add up to 1. See <a href="../ks3-interactive/mutually-exclusive-outcomes.html">mutually exclusive outcomes</a>.</li>
+    <li>Listing outcomes for two things, like a coin and a dice, in a sample space. See <a href="../ks3-interactive/sample-spaces-venn-diagrams.html">sample spaces and Venn diagrams</a>.</li>
+    <li>Multiplying fractions: top × top and bottom × bottom, so <span class="m">2/3 × 4/5 = 8/15</span>. Adding fractions needs a common denominator. See <a href="../ks3-interactive/fractions-decimals-percentages.html">fractions, decimals and percentages</a>.</li>
+  </ul>
+</div>
+
+<h2>1 · Frequency trees: counting first</h2>
+<p>Before we use probabilities, let's use <strong>counts</strong>. A <strong>frequency tree</strong> starts with a whole group, splits it into two parts, then splits each part again. Each box holds a <strong>frequency</strong> (how many). The one rule: <em>the two boxes coming out of a box add up to that box</em>. So whenever a split has one gap, you can fill it by subtracting.</p>
+<p>Fill in the four empty boxes from the information given, then press <strong>Check</strong>. The tree updates as you type.</p>
+
+<div class="lab">
+  <p class="pq" id="ftQ"></p>
+  <svg id="ftSvg" viewBox="0 0 400 270" width="400" height="270" aria-label="Frequency tree"></svg>
+  <div class="fq">
+    <label><span id="ftL1"></span><input type="text" id="ftI1" inputmode="numeric" autocomplete="off"></label>
+    <label><span id="ftL2"></span><input type="text" id="ftI2" inputmode="numeric" autocomplete="off"></label>
+    <label><span id="ftL3"></span><input type="text" id="ftI3" inputmode="numeric" autocomplete="off"></label>
+    <label><span id="ftL4"></span><input type="text" id="ftI4" inputmode="numeric" autocomplete="off"></label>
+  </div>
+  <div class="controls">
+    <button class="btn primary" id="ftGo">Check</button>
+    <button class="btn" id="ftNew">New tree</button>
+  </div>
+  <div class="msg" id="ftMsg"></div>
+  <div id="ftPBox" hidden>
+    <p class="pq" id="ftPQ"></p>
+    <div class="controls">
+      <label>P = <input type="text" id="ftPA" autocomplete="off" style="width:6em"></label>
+      <button class="btn primary" id="ftPGo">Check</button>
+      <button class="btn" id="ftPNew">Another question</button>
+    </div>
+    <div class="msg" id="ftPMsg"></div>
+  </div>
+</div>
+
+<p>Once the tree is full, a probability is just a box divided by the box it came from at the start: "a person is picked at random from everyone" means divide by the very first number. Frequency trees are the bridge to probability trees: replace each count by a fraction of the box before it and you get the branches of section 3.</p>
+
+<h2>2 · Independent events</h2>
+<p>A <strong>combined event</strong> is two (or more) things happening together, like "spin red <em>and</em> roll a 6". Two events are <strong>independent</strong> if one happening <em>does not change the probability</em> of the other. A spinner can't see what the dice did, so they're independent. Events that do affect each other are <strong>dependent</strong>.</p>
+<p>For independent events there's a short-cut: <span class="m">P(A and B) = P(A) × P(B)</span>. To see <em>why</em> it's a multiplication, draw every equally likely outcome as a grid: spinner sections across, dice faces down. Every cell is equally likely. The orange cells are "red <em>and</em> low enough": a block of (red columns) × (good rows) cells.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>spinner sections <input type="range" id="arD" min="2" max="6" value="5"><span id="arDv" style="font-family:var(--mono)"></span></label>
+    <label>red sections <input type="range" id="arN" min="0" max="5" value="2"><span id="arNv" style="font-family:var(--mono)"></span></label>
+    <label>dice shows at most <input type="range" id="arK" min="0" max="6" value="3"><span id="arKv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="arSvg" viewBox="0 0 400 300" width="400" height="300" aria-label="Area model of two independent events"></svg>
+  <div class="readout">
+    <div class="f"><b>P(A) red</b><span id="arPA"></span></div>
+    <div class="p"><b>P(B) dice</b><span id="arPB"></span></div>
+    <div class="t"><b>P(A and B)</b><span id="arPAB"></span></div>
+  </div>
+  <div class="work" id="arWork"></div>
+</div>
+
+<p>So the multiplication isn't a rule to memorise: it's counting cells in a rectangle. It only works because the spinner doesn't change the dice. Spotting whether events are independent is a skill in itself, and exam questions sometimes ask what you have <em>assumed</em>. Decide for each pair:</p>
+
+<div class="lab">
+  <div id="inList"></div>
+  <svg id="inSvg" viewBox="0 0 400 46" width="400" height="46" aria-label="Score"></svg>
+</div>
+
+<h2>3 · Tree diagrams: the AND rule and the OR rule</h2>
+<p>A <strong>tree diagram</strong> shows a combined event in stages. From the start, draw one branch for each outcome of the first stage and write its probability on the branch. From the end of each branch, draw the branches for the second stage. Each route from the start to an end is a <strong>path</strong>, and each path is one combined outcome.</p>
+<p>Two rules do everything:</p>
+<ul>
+  <li><strong>AND: multiply along the branches.</strong> To go down a path, the first thing <em>and</em> the second thing must happen, so multiply (that's the grid in section 2).</li>
+  <li><strong>OR: add the end results.</strong> Different paths can't happen at the same time (they're <em>mutually exclusive</em>), so if several paths give what you want, add their end probabilities.</li>
+</ul>
+<p>Here a biased spinner lands on red (R) or not red (R′), and a biased coin lands heads (H) or tails (T). Set the probabilities, then tap the end results you want (or use a button) and watch the working.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>P(R) <input type="range" id="orA" min="1" max="9" value="3"><span id="orAv" style="font-family:var(--mono)"></span></label>
+    <label>P(H) <input type="range" id="orB" min="1" max="9" value="6"><span id="orBv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="orSvg" class="tap" viewBox="0 0 400 270" width="400" height="270" aria-label="Tree diagram for a spinner and a coin"></svg>
+  <div class="chips" id="orChips"></div>
+  <div class="work" id="orWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Two checks that catch most mistakes.</strong> Every pair of branches from the same point adds up to 1 (something must happen). And all the end results add up to 1 (you must end up on exactly one path). If a probability ever comes out bigger than 1, you have added where you should have multiplied.</p>
+</div>
+
+<div class="lab">
+  <p class="pq" id="otQ"></p>
+  <div class="controls">
+    <label>P = <input type="text" id="otA" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="otGo">Check</button>
+    <button class="btn" id="otNew">New question</button>
+  </div>
+  <div class="msg" id="otMsg"></div>
+</div>
+
+<h2>4 · Building a tree from a bag</h2>
+<p>A bag holds red and blue counters. You take one at random, note its colour, then take a second. There are two ways to do it:</p>
+<ul>
+  <li><strong>With replacement</strong>: put the first counter back before the second pick. The bag is the same both times, so the picks are <em>independent</em>.</li>
+  <li><strong>Without replacement</strong>: keep the first counter out. Now the bag has one fewer counter for the second pick, and one fewer of whatever colour you took. The second pick <em>depends</em> on the first. (Higher: the second-stage branches are <em>conditional</em> probabilities; see <a href="conditional-probability.html">conditional probability</a>.)</li>
+</ul>
+<p>Choose the bag, then press <strong>Next step</strong> to build the tree one stage at a time. Switch between with and without replacement and watch the second-stage branches change.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>red <input type="range" id="bgR" min="1" max="8" value="3"><span id="bgRv" style="font-family:var(--mono)"></span></label>
+    <label>blue <input type="range" id="bgB" min="1" max="8" value="7"><span id="bgBv" style="font-family:var(--mono)"></span></label>
+    <label><select id="bgRep"><option value="0">without replacement</option><option value="1">with replacement</option></select></label>
+  </div>
+  <svg id="bgSvg" class="tap" viewBox="0 0 400 330" width="400" height="330" aria-label="A bag of counters and its tree diagram"></svg>
+  <div class="controls">
+    <button class="btn primary" id="bgNext">Next step</button>
+    <button class="btn" id="bgAll">Show it all</button>
+    <button class="btn" id="bgReset">Start again</button>
+  </div>
+  <div class="work" id="bgWork"></div>
+</div>
+
+<h2>5 · Dependent events: the denominator drops</h2>
+<p>Here is "without replacement" happening one counter at a time. Take counters out and watch the fraction for the <em>next</em> pick. The bottom number always goes down by 1 (one fewer counter). The top number goes down by 1 only if you took that colour. Under the bag, the probability of the exact sequence you took is built up by multiplying.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>bag <select id="tkBag"><option value="5,3">5 red, 3 blue</option><option value="3,2">3 red, 2 blue</option><option value="4,6">4 red, 6 blue</option><option value="2,7">2 red, 7 blue</option></select></label>
+  </div>
+  <svg id="tkSvg" viewBox="0 0 400 150" width="400" height="150" aria-label="Taking counters out of a bag"></svg>
+  <div class="controls">
+    <button class="btn primary" id="tkRed">Take a red</button>
+    <button class="btn primary" id="tkBlue">Take a blue</button>
+    <button class="btn" id="tkReset">Put them all back</button>
+  </div>
+  <div class="readout">
+    <div style="color:var(--bad)"><b>Next pick: P(red)</b><span id="tkPR"></span></div>
+    <div class="p"><b>Next pick: P(blue)</b><span id="tkPB"></span></div>
+  </div>
+  <div class="work" id="tkWork"></div>
+</div>
+
+<div class="lab">
+  <p class="pq" id="dpQ"></p>
+  <div class="controls">
+    <label>P = <input type="text" id="dpA" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="dpGo">Check</button>
+    <button class="btn" id="dpNew">New question</button>
+  </div>
+  <div class="msg" id="dpMsg"></div>
+</div>
+
+<h2>6 · "At least one" = 1 − P(none)</h2>
+<p>"At least one six" means one six, or two sixes, or more. On a tree that's <em>almost every</em> path, which is a lot of adding. But there is only <strong>one</strong> path with no six at all. Since all the paths add up to 1:</p>
+<p class="big">P(at least one) = 1 − P(none)</p>
+<p>Roll a fair dice more times and watch the tree. S means a six (probability 1/6) and N means not a six (5/6). Orange paths have at least one six; only the grey one doesn't.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>number of rolls <input type="range" id="alN" min="1" max="6" value="2"><span id="alNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="alSvg" viewBox="0 0 400 300" width="400" height="300" aria-label="At least one six"></svg>
+  <div class="work" id="alWork"></div>
+</div>
+
+<div class="lab">
+  <p class="pq" id="aqQ"></p>
+  <div class="controls">
+    <label>P = <input type="text" id="aqA" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="aqGo">Check</button>
+    <button class="btn" id="aqNew">New question</button>
+  </div>
+  <div class="msg" id="aqMsg"></div>
+</div>
+
+<h2>7 · Three-stage trees</h2>
+<p>Nothing new, just a bigger tree. Each path now has three branches to multiply, and with two outcomes at each stage there are 2 × 2 × 2 = 8 paths. Questions like "exactly two" are where trees earn their keep: you have to find <em>every</em> path with exactly two, and there are three of them. Pick an experiment, then tap paths or use a button.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>experiment <select id="t3X">
+      <option value="coin">fair coin, 3 flips (H, T)</option>
+      <option value="pen">3 penalties, P(S) = 3/4</option>
+      <option value="bag">4 red, 3 blue, take 3, no replacing</option>
+    </select></label>
+  </div>
+  <svg id="t3Svg" class="tap" viewBox="0 0 400 360" width="400" height="360" aria-label="Three-stage tree diagram"></svg>
+  <div class="chips" id="t3Chips"></div>
+  <div class="work" id="t3Work"></div>
+</div>
+
+<h2>8 · Spot the mistake</h2>
+<p>Each student below has made one of the classic tree-diagram mistakes. Look at their tree and working, and pick what went wrong.</p>
+
+<div class="lab">
+  <p class="pq" id="smQ"></p>
+  <svg id="smSvg" viewBox="0 0 400 230" width="400" height="230" aria-label="A student's tree diagram"></svg>
+  <div class="work" id="smWork"></div>
+  <div class="chips" id="smOpts"></div>
+  <div class="msg" id="smMsg"></div>
+  <div class="controls"><button class="btn" id="smNext">Next case</button><span id="smCount" style="color:var(--muted);font-size:.9rem"></span></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes and exam traps</strong></p>
+  <ul>
+    <li><strong>Adding along a path.</strong> Along = AND = multiply. Only add <em>different</em> end results.</li>
+    <li><strong>Forgetting "without replacement".</strong> Read for words like <em>eats</em>, <em>keeps</em>, <em>does not replace</em>, <em>picks two people</em>. The bottom drops by 1, and the top drops for the colour you took.</li>
+    <li><strong>Only one path for "one of each".</strong> Red then blue <em>and</em> blue then red both count.</li>
+    <li><strong>"At least one" by adding.</strong> P(six on first) + P(six on second) counts double sixes twice. Use 1 − P(none).</li>
+    <li><strong>Branches that don't add to 1.</strong> Fill in the missing branch with 1 − p before you start.</li>
+    <li><strong>Assuming independence when it isn't sensible.</strong> Rain and being late are probably linked. Say what you have assumed.</li>
+  </ul>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>P(A) = 0.6 and P(B) = 0.3, and A and B are independent. Find P(both), P(neither) and P(exactly one).</summary>
+  <div class="step"><strong>Complete the branches first:</strong> P(A′) = 1 − 0.6 = 0.4 and P(B′) = 1 − 0.3 = 0.7.</div>
+  <div class="step"><strong>Both (A and B):</strong> multiply along: 0.6 × 0.3 = <strong>0.18</strong>.</div>
+  <div class="step"><strong>Neither (A′ and B′):</strong> 0.4 × 0.7 = <strong>0.28</strong>.</div>
+  <div class="step"><strong>Exactly one:</strong> two paths. A and B′: 0.6 × 0.7 = 0.42. A′ and B: 0.4 × 0.3 = 0.12. Add: 0.42 + 0.12 = <strong>0.54</strong>.</div>
+  <div class="step"><strong>Check:</strong> the four end results 0.18 + 0.42 + 0.12 + 0.28 = 1 ✓, and both + neither + exactly one = 0.18 + 0.28 + 0.54 = 1 ✓.</div>
+</details>
+<details>
+  <summary>A bag has 5 red and 3 green sweets. Zara eats two at random. Find the probability that they are the same colour.</summary>
+  <div class="step"><strong>Spot the dependence:</strong> she <em>eats</em> the first sweet, so this is without replacement. 8 sweets, then 7.</div>
+  <div class="step"><strong>Both red:</strong> 5/8 × 4/7 = 20/56. (One red has gone: 4 red out of 7.)</div>
+  <div class="step"><strong>Both green:</strong> 3/8 × 2/7 = 6/56.</div>
+  <div class="step"><strong>Same colour = both red OR both green:</strong> 20/56 + 6/56 = 26/56 = <strong>13/28</strong>.</div>
+  <div class="step"><strong>Check:</strong> different colours = 5/8 × 3/7 + 3/8 × 5/7 = 15/56 + 15/56 = 30/56, and 26/56 + 30/56 = 1 ✓.</div>
+</details>
+<details>
+  <summary>A fair dice is rolled three times. Find the probability of at least one six.</summary>
+  <div class="step"><strong>Use the complement:</strong> at least one six = 1 − P(no sixes).</div>
+  <div class="step"><strong>No sixes:</strong> not a six every time, and the rolls are independent: 5/6 × 5/6 × 5/6 = 125/216.</div>
+  <div class="step"><strong>Answer:</strong> 1 − 125/216 = 216/216 − 125/216 = <strong>91/216</strong>.</div>
+  <div class="step"><strong>Why not 1/6 + 1/6 + 1/6 = 1/2?</strong> That counts rolls with two or three sixes more than once. With 6 rolls it would give 1, "certain", which is clearly false.</div>
+</details>
+<details>
+  <summary>The probability that Ella wins a game of chess is 0.6. She plays three games, and the results are independent. Find the probability that she wins exactly two.</summary>
+  <div class="step"><strong>Branches:</strong> W = 0.6, L = 1 − 0.6 = 0.4 at every stage.</div>
+  <div class="step"><strong>Paths with exactly two wins:</strong> WWL, WLW, LWW. Three paths.</div>
+  <div class="step"><strong>Each path:</strong> 0.6 × 0.6 × 0.4 = 0.144 (the same three numbers in a different order, so the same product).</div>
+  <div class="step"><strong>Add:</strong> 0.144 + 0.144 + 0.144 = 3 × 0.144 = <strong>0.432</strong>.</div>
+</details>
+<details>
+  <summary>200 students: 85 are boys, 40 of the boys have a school dinner, and 72 of the girls have a school dinner. Complete a frequency tree and find P(a student picked at random has a school dinner).</summary>
+  <div class="step"><strong>First split:</strong> girls = 200 − 85 = 115.</div>
+  <div class="step"><strong>Boys split:</strong> 40 dinner, so 85 − 40 = 45 no dinner.</div>
+  <div class="step"><strong>Girls split:</strong> 72 dinner, so 115 − 72 = 43 no dinner. Check: 40 + 45 + 72 + 43 = 200 ✓.</div>
+  <div class="step"><strong>Probability:</strong> school dinner = 40 + 72 = 112 out of 200. P = 112/200 = <strong>14/25</strong>.</div>
+</details>
+<details>
+  <summary>Exam-style <span class="tag g">Higher</span>: a bag has n sweets, 6 of them orange. Two are taken without replacement. P(both orange) = 1/3. Show that n² − n − 90 = 0 and find n.</summary>
+  <div class="step"><strong>Write the tree path:</strong> P(both orange) = 6/n × 5/(n − 1) = 30/(n(n − 1)).</div>
+  <div class="step"><strong>Set it equal to 1/3:</strong> 30/(n(n − 1)) = 1/3, so n(n − 1) = 90.</div>
+  <div class="step"><strong>Expand:</strong> n² − n = 90, so <strong>n² − n − 90 = 0</strong>.</div>
+  <div class="step"><strong>Factorise:</strong> (n − 10)(n + 9) = 0, so n = 10 or n = −9. A number of sweets can't be negative, so <strong>n = 10</strong>.</div>
+  <div class="step"><strong>Check:</strong> 6/10 × 5/9 = 30/90 = 1/3 ✓.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A <strong>frequency tree</strong> splits a group twice; the two boxes from any box add up to it. A probability is a box over the starting total.</li>
+  <li>Events are <strong>independent</strong> if one doesn't change the probability of the other. Then P(A and B) = P(A) × P(B), which is counting cells in a grid.</li>
+  <li>On a <strong>tree diagram</strong>, <strong>multiply along</strong> a path (AND) and <strong>add the end results</strong> of different paths (OR).</li>
+  <li>Branches from one point add to 1, and all the end results add to 1. Use this to fill gaps and to check.</li>
+  <li><strong>Without replacement</strong> makes the events <strong>dependent</strong>: on the second stage the bottom drops by 1, and the top drops for the colour already taken.</li>
+  <li><strong>At least one</strong> = 1 − P(none).</li>
+  <li>Three-stage trees work the same way: multiply three branches; for "exactly two", find every path (often three) and add.</li>
+</ul>
+
+<footer>Made for GCSE students. Tree diagrams, frequency trees and independent and dependent combined events are in the DfE GCSE mathematics subject content under Probability. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const F = () => `font-family="${css('--mono')}"`;
+const gcd = (a,b) => b ? gcd(b,a%b) : Math.abs(a);
+const frac = (n,d) => { if(n===0) return '0'; if(n===d) return '1'; const g=gcd(n,d); return `${n/g}/${d/g}`; };
+const fracW = (n,d) => { const s=frac(n,d); return s===`${n}/${d}` ? s : `${n}/${d} = ${s}`; };
+const dec = (n,d) => { const k=Math.round(Math.log10(d)); let s=(n/d).toFixed(k); if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,''); return s; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const svgPt = (svg,e,W,H) => { const r=svg.getBoundingClientRect(); return [(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H]; };
+function parseFrac(s){
+  s=String(s).trim().replace(/−/g,'-').replace(/\s+/g,'');
+  const m=s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
+  if(m){ const d=+m[2]; return d ? {v:+m[1]/d,n:+m[1],d:d,f:true} : null; }
+  if(/^-?(\d+\.?\d*|\.\d+)$/.test(s)) return {v:+s,f:false};
+  return null;
+}
+function judge(str,n,d,wrongs,decimal){
+  const p=parseFrac(str);
+  if(!p) return {ok:false,msg:decimal?'Type a decimal such as 0.42 (or a fraction).':'Type a fraction such as 3/20.'};
+  if(Math.abs(p.v-n/d)<1e-9){ const s=decimal?dec(n,d):frac(n,d); return {ok:true,msg:(p.f&&`${p.n}/${p.d}`!==s&&!decimal)?`Correct. ${p.n}/${p.d} simplifies to ${s}.`:`Correct: ${s}.`}; }
+  if(p.v>1) return {ok:false,msg:'Not quite. A probability can never be more than 1. Did you add where you should multiply?'};
+  for(const [wn,wd,m] of (wrongs||[])){ if(wd && Math.abs(wn/wd-n/d)>1e-9 && Math.abs(p.v-wn/wd)<1e-9) return {ok:false,msg:'Not quite. '+m}; }
+  return {ok:false,msg:'Not quite. Multiply along each path you want, then add the paths.'};
+}
+function sfrac(cx,yb,n,d,col,fs){
+  const w=Math.max(String(n).length,String(d).length)*fs*0.32+2;
+  return `<text x="${cx}" y="${yb-3}" text-anchor="middle" font-size="${fs}" font-weight="600" ${F()} fill="${col}">${n}</text><line x1="${cx-w}" y1="${yb}" x2="${cx+w}" y2="${yb}" stroke="${col}" stroke-width="1.3"/><text x="${cx}" y="${yb+fs-1}" text-anchor="middle" font-size="${fs}" font-weight="600" ${F()} fill="${col}">${d}</text>`;
+}
+
+/* shared tree builder and renderer */
+function mkTree(stages,fn,path){ path=path||[]; return fn(path).map(b=>{ const k=Object.assign({},b); k.kids=path.length+1<stages?mkTree(stages,fn,path.concat([k])):null; return k; }); }
+function layout(root,xs,y0,y1){
+  const leaves=[];
+  (function walk(nd,depth,path){ nd.depth=depth; nd.path=path; nd.x=xs[depth]; if(nd.kids) nd.kids.forEach(k=>walk(k,depth+1,path.concat([k]))); else leaves.push(nd); })(root,0,[]);
+  const st=(y1-y0)/leaves.length; leaves.forEach((l,i)=>{ l.y=y0+st*(i+.5); l.i=i; l.pn=l.path.reduce((s,k)=>s*k.n,1); l.pd=l.path.reduce((s,k)=>s*k.d,1); });
+  (function setY(nd){ if(nd.kids){ nd.kids.forEach(setY); nd.y=nd.kids.reduce((s,k)=>s+k.y,0)/nd.kids.length; } })(root);
+  return {leaves,st};
+}
+function drawTree(svg,kids,o){
+  const root={kids}, L=layout(root,o.xs,o.y0,o.y1), leaves=L.leaves, fs=o.fs||13, hi=css('--hi');
+  const cols=[null,css('--accent'),css('--two'),css('--muted')], sel=o.sel||new Set(), reveal=o.reveal==null?99:o.reveal;
+  const on=new Set(); leaves.forEach(l=>{ if(sel.has(l.i)) l.path.forEach(n=>on.add(n)); });
+  let s='';
+  if(o.ends) leaves.forEach(l=>{ const x=l.x-4; s+=`<g data-i="${l.i}"><rect x="${x}" y="${l.y-L.st/2+1}" width="${o.W-x-2}" height="${L.st-2}" rx="6" fill="${sel.has(l.i)?css('--hi-soft'):'transparent'}"/></g>`; });
+  s+=`<circle cx="${o.xs[0]}" cy="${root.y}" r="4" fill="${css('--fg')}"/>`;
+  (function br(nd){ if(!nd.kids) return; const x1=nd.depth?nd.x+o.labW:nd.x+4;
+    nd.kids.forEach(k=>{ const vis=k.depth<=reveal, isOn=on.has(k), col=isOn?hi:cols[k.depth], x2=k.x-2;
+      s+=`<line x1="${x1}" y1="${nd.y}" x2="${x2}" y2="${k.y}" stroke="${vis?col:css('--line')}" stroke-width="${isOn?3.4:vis?2:1.5}" ${vis?'':'stroke-dasharray="5 4"'} stroke-linecap="round"/>`;
+      if(vis){
+        s+=`<text x="${k.x+2}" y="${k.y+5}" font-size="${fs+1}" font-weight="700" ${F()} fill="${col}">${k.lab}</text>`;
+        const mx=(x1+x2)/2, my=(nd.y+k.y)/2, up=k.y<nd.y;
+        if(o.stacked&&o.mode!=='dec'){ const w=Math.max(String(k.n).length,String(k.d).length)*fs*0.32+2; s+=sfrac(mx-6-w,up?my-15:my+16,k.n,k.d,col,fs); }
+        else { const t=o.mode==='dec'?dec(k.n,k.d):`${k.n}/${k.d}`; s+=`<text x="${mx-4}" y="${up?my-6:my+fs+2}" text-anchor="end" font-size="${fs}" font-weight="600" ${F()} fill="${col}">${t}</text>`; }
+      } else s+=`<text x="${k.x+2}" y="${k.y+5}" font-size="${fs}" ${F()} fill="${css('--muted')}">?</text>`;
+      br(k); });
+  })(root);
+  if(o.ends) leaves.forEach(l=>{ const t=o.leafTxt(l); if(t) s+=`<text x="${l.x+o.labW+4}" y="${l.y+5}" font-size="${o.lfs||fs-1}" font-weight="${sel.has(l.i)?700:500}" ${F()} fill="${sel.has(l.i)?hi:css('--fg')}" pointer-events="none">${t}</text>`; });
+  if(o.extra) s+=o.extra;
+  svg.innerHTML=s;
+  return leaves;
+}
+function leafAt(svg,e,W,H,leaves,xMin){ const [x,y]=svgPt(svg,e,W,H); if(x<xMin) return -1; let best=-1,bd=1e9; leaves.forEach(l=>{ const d=Math.abs(l.y-y); if(d<bd){ bd=d; best=l.i; } }); return best; }
+
+/* 1. frequency tree */
+const FT=[
+  {who:'people',ctx:'took a driving test',A:'men',A2:'women',B:'passed',B2:'failed',noun:'person'},
+  {who:'students',ctx:'sat a maths mock exam',A:'in Year 10',A2:'in Year 11',B:'passed',B2:'did not pass',noun:'student',of:true},
+  {who:'people',ctx:'were asked whether they own a pet',A:'adults',A2:'children',B:'own a pet',B2:'do not own a pet',noun:'person'}
+];
+let ft=null;
+const ftIn=[1,2,3,4].map(i=>$('ftI'+i));
+function ftNew(){
+  const c=pick(FT), N=rnd(10,24)*5, a=rnd(Math.ceil(N*.3),Math.floor(N*.7)), ap=rnd(Math.ceil(a*.25),Math.floor(a*.75)), b=N-a, bp=rnd(Math.ceil(b*.25),Math.floor(b*.75));
+  ft={c,N,a,ap,b,bp,tp:ap+bp,solved:false,pq:null};
+  const An=c.of?`students ${c.A}`:c.A, A2n=c.of?`students ${c.A2}`:c.A2;
+  ft.An=An; ft.A2n=A2n;
+  $('ftQ').textContent=`${N} ${c.who} ${c.ctx}. ${a} of them were ${c.A}. ${ap} of the ${An} ${c.B}. In total, ${ft.tp} ${c.who} ${c.B}.`;
+  ft.ans=[b,a-ap,bp,b-bp];
+  ft.lab=[`number of ${A2n}`,`${An} who ${c.B2}`,`${A2n} who ${c.B}`,`${A2n} who ${c.B2}`];
+  ft.lab.forEach((t,i)=>$('ftL'+(i+1)).textContent=t);
+  ftIn.forEach(i=>{ i.value=''; i.classList.remove('good','bad'); });
+  $('ftMsg').className='msg'; $('ftMsg').textContent='Start with a split that has only one gap.'; $('ftPBox').hidden=true;
+  drawFT();
+}
+function drawFT(){
+  const c=ft.c, fg=css('--fg'), mu=css('--muted'), ac=css('--accent'), tw=css('--two');
+  const v=ftIn.map(i=>i.value.trim()), sh=k=>v[k]===''?'?':v[k];
+  const boxes=[
+    {x:40,y:135,t:String(ft.N),g:1},
+    {x:165,y:72,t:String(ft.a),g:1,lab:ft.c.of?c.A:c.A,col:ac},{x:165,y:198,t:sh(0),lab:c.A2,col:ac},
+    {x:322,y:40,t:String(ft.ap),g:1,lab:c.B,col:tw},{x:322,y:104,t:sh(1),lab:c.B2,col:tw},
+    {x:322,y:166,t:sh(2),lab:c.B,col:tw},{x:322,y:230,t:sh(3),lab:c.B2,col:tw}
+  ];
+  const ln=(p,q,col)=>`<line x1="${p.x+30}" y1="${p.y}" x2="${q.x-30}" y2="${q.y}" stroke="${col}" stroke-width="2"/>`;
+  let s=ln(boxes[0],boxes[1],ac)+ln(boxes[0],boxes[2],ac)+ln(boxes[1],boxes[3],tw)+ln(boxes[1],boxes[4],tw)+ln(boxes[2],boxes[5],tw)+ln(boxes[2],boxes[6],tw);
+  boxes.forEach(b=>{ const q=b.t==='?';
+    s+=`<rect x="${b.x-30}" y="${b.y-15}" width="60" height="30" rx="6" fill="${css('--bg')}" stroke="${q?mu:b.g?fg:tw}" stroke-width="${b.g?2:1.5}" ${q?'stroke-dasharray="4 3"':''}/>`;
+    s+=`<text x="${b.x}" y="${b.y+6}" text-anchor="middle" font-size="16" font-weight="700" ${F()} fill="${q?mu:b.g?fg:tw}">${b.t}</text>`;
+    if(b.lab) s+=`<text x="${b.x}" y="${b.y-20}" text-anchor="middle" font-size="11" ${F()} fill="${b.col}">${b.lab.length>16?b.lab.slice(0,15)+'…':b.lab}</text>`; });
+  $('ftSvg').innerHTML=s;
+}
+function ftCheck(){
+  const M=$('ftMsg'), c=ft.c, vals=ftIn.map(i=>parseInt(i.value,10));
+  ftIn.forEach((inp,k)=>{ inp.classList.remove('good','bad'); if(inp.value.trim()!=='') inp.classList.add(vals[k]===ft.ans[k]?'good':'bad'); });
+  drawFT();
+  const bad=ft.ans.findIndex((a,k)=>vals[k]!==a);
+  if(bad<0){ M.className='msg good'; M.textContent=`All correct. Check: ${ft.ap} + ${ft.ans[1]} + ${ft.bp} + ${ft.ans[3]} = ${ft.N} ✓`; ft.solved=true; ftProb(); return; }
+  const v=vals[bad]; let m='';
+  if(bad===0) m=v===ft.a?`${ft.a} are the ${ft.An}. The two boxes from ${ft.N} add up to ${ft.N}: ${ft.N} − ${ft.a}.`:`The two boxes coming out of ${ft.N} must add up to ${ft.N}: ${ft.a} + ? = ${ft.N}.`;
+  else if(bad===1) m=v===ft.ap?`${ft.ap} ${c.B}. You want the ${ft.An} who ${c.B2}: ${ft.a} − ${ft.ap}.`:`The ${ft.An} split into ${c.B} and ${c.B2}: ${ft.ap} + ? = ${ft.a}.`;
+  else if(bad===2) m=v===ft.tp?`${ft.tp} is everyone who ${c.B}, including the ${ft.ap} ${ft.An}. Take them away: ${ft.tp} − ${ft.ap}.`:`Everyone who ${c.B} is ${ft.tp}. ${ft.ap} of them are ${ft.An}, so the rest are ${ft.A2n}.`;
+  else m=v===ft.N-ft.tp?`${ft.N-ft.tp} is everyone who ${c.B2}, ${ft.An} too. Use the ${ft.A2n} box: ${ft.b} − ${ft.bp}.`:`The ${ft.A2n} split into two boxes: ${ft.bp} + ? = ${ft.b}.`;
+  M.className='msg bad'; M.textContent='Not quite. '+m;
+}
+function ftProb(){
+  const c=ft.c, N=ft.N;
+  const Q=[
+    {t:`A ${c.noun} is picked at random from all ${N}. Find P(they are one of the ${ft.A2n} who ${c.B}).`,n:ft.bp,d:N,wr:[[ft.bp,ft.b,`That divides by the ${ft.A2n} only. The ${c.noun} is picked from all ${N}, so divide by ${N}.`],[ft.bp,ft.tp,`That divides by everyone who ${c.B}. Divide by the whole group, ${N}.`]]},
+    {t:`A ${c.noun} is picked at random. Find the probability that they ${c.B2}.`,n:ft.N-ft.tp,d:N,wr:[[ft.ans[3],N,`That's only the ${ft.A2n}. Add the ${ft.An} who ${c.B2} too.`],[ft.ans[1],N,`That's only the ${ft.An}. Add the ${ft.A2n} who ${c.B2} too.`]]},
+    {t:`A ${c.noun} is picked at random. Find P(they are one of the ${ft.An} who ${c.B2}).`,n:ft.ans[1],d:N,wr:[[ft.ans[1],ft.a,`That divides by the ${ft.An} only. Divide by the whole group, ${N}.`]]}
+  ];
+  let q; do{ q=pick(Q); }while(ft.pq&&q.t===ft.pq.t);
+  ft.pq=q; $('ftPBox').hidden=false; $('ftPQ').textContent=q.t; $('ftPA').value=''; $('ftPMsg').className='msg'; $('ftPMsg').textContent='';
+}
+ftIn.forEach(i=>{ i.addEventListener('input',drawFT); i.addEventListener('keydown',e=>{ if(e.key==='Enter') ftCheck(); }); });
+$('ftGo').addEventListener('click',ftCheck); $('ftNew').addEventListener('click',ftNew);
+$('ftPGo').addEventListener('click',()=>{ if(!ft.pq) return; const q=ft.pq, r=judge($('ftPA').value,q.n,q.d,q.wr), M=$('ftPMsg'); M.className='msg '+(r.ok?'good':'bad'); M.textContent=r.ok?r.msg:r.msg.replace('Multiply along each path you want, then add the paths.','Top: the box you want. Bottom: the number you are picking from.'); });
+$('ftPA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('ftPGo').click(); });
+$('ftPNew').addEventListener('click',ftProb);
+ftNew();
+
+/* 2. area model */
+const arD=$('arD'), arN=$('arN'), arK=$('arK');
+function drawAR(){
+  const D=+arD.value; arN.max=D; if(+arN.value>D) arN.value=D; const N=+arN.value, K=+arK.value;
+  $('arDv').textContent=' '+D; $('arNv').textContent=' '+N; $('arKv').textContent=' '+K;
+  const x0=70, y0=40, W=300, H=240, cw=W/D, ch=H/6, ac=css('--accent'), tw=css('--two'), hi=css('--hi');
+  let s=`<text x="${x0+W/2}" y="16" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${ac}">spinner: ${D} equal sections (first ${N} red)</text>`;
+  s+=`<text transform="rotate(-90)" x="${-(y0+H/2)}" y="18" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${tw}">dice: 1 to 6</text>`;
+  for(let j=0;j<D;j++) s+=`<text x="${x0+j*cw+cw/2}" y="${y0-8}" text-anchor="middle" font-size="11" ${F()} fill="${j<N?ac:css('--muted')}">${j<N?'red':'not'}</text>`;
+  for(let i=0;i<6;i++){ s+=`<text x="${x0-10}" y="${y0+i*ch+ch/2+5}" text-anchor="end" font-size="13" font-weight="${i<K?700:400}" ${F()} fill="${i<K?tw:css('--muted')}">${i+1}</text>`;
+    for(let j=0;j<D;j++){ const a=j<N, b=i<K, f=a&&b?css('--hi-soft'):a?css('--accent-soft'):b?css('--two-soft'):css('--bg');
+      s+=`<rect x="${x0+j*cw+1.5}" y="${y0+i*ch+1.5}" width="${cw-3}" height="${ch-3}" rx="4" fill="${f}" stroke="${a&&b?hi:css('--line')}" stroke-width="${a&&b?2:1}"/>`;
+      if(a&&b) s+=`<circle cx="${x0+j*cw+cw/2}" cy="${y0+i*ch+ch/2}" r="5" fill="${hi}"/>`; } }
+  $('arSvg').innerHTML=s;
+  $('arPA').textContent=`${N}/${D}`+(frac(N,D)!==`${N}/${D}`?` = ${frac(N,D)}`:'');
+  $('arPB').textContent=`${K}/6`+(frac(K,6)!==`${K}/6`?` = ${frac(K,6)}`:'');
+  $('arPAB').textContent=`${N*K}/${6*D}`+(frac(N*K,6*D)!==`${N*K}/${6*D}`?` = ${frac(N*K,6*D)}`:'');
+  $('arWork').innerHTML=`The grid has ${D} × 6 = ${6*D} equally likely cells.<br><span class="b">Orange cells</span>: ${N} red columns × ${K} rows = ${N*K} cells, so P(red and at most ${K}) = ${N*K}/${6*D}.<br>Same answer by multiplying: <span class="a">${N}/${D}</span> × <span class="c">${K}/6</span> = (${N} × ${K})/(${D} × 6) = ${N*K}/${6*D}${frac(N*K,6*D)!==`${N*K}/${6*D}`?' = '+frac(N*K,6*D):''}.`;
+}
+[arD,arN,arK].forEach(e=>e.addEventListener('input',drawAR)); drawAR();
+
+const IN=[
+  {t:'Flip a coin, then roll a dice.',a:1,fb:'The coin cannot affect the dice.'},
+  {t:'Take a sweet from a bag and eat it, then take another sweet.',a:0,fb:'The first sweet has gone, so the bag is different for the second pick.'},
+  {t:'Take a card from a pack, put it back and shuffle, then take another.',a:1,fb:'Putting it back makes the pack the same again.'},
+  {t:'Roll a dice, then roll it again.',a:1,fb:'A dice has no memory: a six first does not make a six more or less likely next.'},
+  {t:'Pick a captain from the class, then pick a vice-captain from the rest.',a:0,fb:'The captain cannot be picked again, so the second choice depends on the first.'},
+  {t:'"It rains today" and "Sam is late for school today".',a:0,fb:'Rain slows traffic, so it probably changes the chance of being late. A question may tell you to assume independence, but it would be an assumption.'}
+];
+const inRes=IN.map(()=>null);
+function drawIN(){
+  const box=$('inList'); box.innerHTML='';
+  IN.forEach((it,i)=>{ const d=document.createElement('div'); d.className='tq'; if(i===0) d.style.borderTop='0';
+    d.innerHTML=`<p>${i+1}. ${it.t}</p><div class="controls" style="margin-top:0"><button class="btn" type="button" data-v="1">Independent</button><button class="btn" type="button" data-v="0">Dependent</button></div><div class="msg"></div>`;
+    const msg=d.querySelector('.msg');
+    d.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ const v=+b.dataset.v;
+      d.querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+      if(v===it.a){ msg.className='msg good'; msg.textContent='Yes: '+(it.a?'independent. ':'dependent. ')+it.fb; inRes[i]=true; }
+      else { msg.className='msg bad'; msg.textContent='Not quite. Ask: does the first thing change the chances for the second? '+it.fb; inRes[i]=false; }
+      drawINs(); }));
+    box.appendChild(d); });
+  drawINs();
+}
+function drawINs(){
+  const ok=inRes.filter(x=>x===true).length; let s='';
+  IN.forEach((_,i)=>{ const r=inRes[i], x=200+(i-2.5)*44; s+=`<circle cx="${x}" cy="20" r="14" fill="${r===true?css('--accent-soft'):css('--bg')}" stroke="${r===true?css('--good'):r===false?css('--bad'):css('--line')}" stroke-width="2"/><text x="${x}" y="25" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${r===true?css('--good'):css('--muted')}">${r===true?'✓':i+1}</text>`; });
+  s+=`<text x="398" y="44" text-anchor="end" font-size="11" ${F()} fill="${css('--muted')}">${ok} of ${IN.length} right</text>`;
+  $('inSvg').innerHTML=s;
+}
+drawIN();
+
+/* 3. AND / OR tree with decimals */
+const orA=$('orA'), orB=$('orB'), orSvg=$('orSvg'); let orSel=new Set([0]), orName='R and H';
+const OREV={'R and H':[0],'neither: R′ and T':[3],'exactly one of R, H':[1,2],'at least one of R, H':[0,1,2]};
+let orLeaves=[];
+function orTree(a,b){ return mkTree(2,p=>p.length===0?[{lab:'R',n:a,d:10},{lab:'R′',n:10-a,d:10}]:[{lab:'H',n:b,d:10},{lab:'T',n:10-b,d:10}]); }
+function drawOR(){
+  const a=+orA.value, b=+orB.value; $('orAv').textContent=' '+dec(a,10); $('orBv').textContent=' '+dec(b,10);
+  orLeaves=drawTree(orSvg,orTree(a,b),{W:400,xs:[14,112,210],y0:6,y1:264,labW:28,fs:14,lfs:14,mode:'dec',ends:true,sel:orSel,
+    leafTxt:l=>`${dec(l.path[0].n,10)} × ${dec(l.path[1].n,10)} = ${dec(l.pn,100)}`});
+  const S=[...orSel].sort(), M=$('orWork');
+  if(!S.length){ M.innerHTML='Tap an end result to select it.'; }
+  else { const parts=S.map(i=>{ const l=orLeaves[i]; return `<span class="b">${l.path.map(k=>k.lab).join(' and ')}</span>: ${dec(l.path[0].n,10)} × ${dec(l.path[1].n,10)} = ${dec(l.pn,100)}`; });
+    const tot=S.reduce((s,i)=>s+orLeaves[i].pn,0);
+    M.innerHTML=(orName?`<strong>P(${orName})</strong><br>`:'')+parts.join('<br>')+(S.length>1?`<br>Add the ends (OR): ${S.map(i=>dec(orLeaves[i].pn,100)).join(' + ')} = <strong>${dec(tot,100)}</strong>`:`<br>One path, so the answer is <strong>${dec(tot,100)}</strong>`)+
+      `<br><span class="a">Check: all four ends ${orLeaves.map(l=>dec(l.pn,100)).join(' + ')} = ${dec(orLeaves.reduce((s,l)=>s+l.pn,0),100)} ✓</span>`; }
+  $('orChips').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.k===orName));
+}
+Object.keys(OREV).forEach(k=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=k; b.dataset.k=k; b.addEventListener('click',()=>{ orSel=new Set(OREV[k]); orName=k; drawOR(); }); $('orChips').appendChild(b); });
+orSvg.addEventListener('click',e=>{ const i=leafAt(orSvg,e,400,270,orLeaves,200); if(i<0) return; if(orSel.has(i)) orSel.delete(i); else orSel.add(i); orName=Object.keys(OREV).find(k=>OREV[k].length===orSel.size&&OREV[k].every(x=>orSel.has(x)))||''; drawOR(); });
+[orA,orB].forEach(e=>e.addEventListener('input',drawOR)); drawOR();
+
+let ot=null;
+function otNew(){
+  const a=rnd(1,9), b=rnd(1,9), A=10-a, B=10-b, kind=pick(['both','neither','one','atl']);
+  const names={both:'both happen (red and heads)',neither:'neither happens',one:'exactly one of them happens',atl:'at least one of them happens'};
+  ot={a,b,kind};
+  const ans={both:a*b,neither:A*B,one:a*B+A*b,atl:100-A*B}[kind];
+  const wr={both:[[a*10+b*10,100,'You added along the path. Along a path means AND: multiply.']],
+    neither:[[A*10+B*10,100,'You added along the path. Multiply the two "not" branches.'],[100-a*b,100,'That\'s P(not both). "Neither" means R′ and T: multiply those branches.']],
+    one:[[a*B,100,'That\'s only red then tails. Heads without red is the other path that gives exactly one. Add both paths.'],[A*b,100,'That\'s only one of the two paths. Add red-and-tails too.'],[100-A*B,100,'That\'s at least one, which includes both happening. Leave out the R and H path.']],
+    atl:[[a*10+b*10,100,'Adding P(R) + P(H) counts the "both" path twice. Use 1 − P(neither).'],[A*B,100,'That\'s P(neither). Subtract it from 1.'],[a*B+A*b,100,'That\'s exactly one. At least one also includes both.']]}[kind];
+  ot.ans=ans; ot.wr=wr;
+  $('otQ').textContent=`Try it: P(R) = ${dec(a,10)} and P(H) = ${dec(b,10)}, independent. Find the probability that ${names[kind]}.`;
+  $('otA').value=''; $('otMsg').className='msg'; $('otMsg').textContent='';
+}
+$('otGo').addEventListener('click',()=>{ const r=judge($('otA').value,ot.ans,100,ot.wr,true), M=$('otMsg'); M.className='msg '+(r.ok?'good':'bad'); M.textContent=r.msg; });
+$('otA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('otGo').click(); });
+$('otNew').addEventListener('click',otNew); otNew();
+
+/* 4. build a tree from a bag */
+const bgR=$('bgR'), bgB=$('bgB'), bgRep=$('bgRep'), bgSvg=$('bgSvg'); let bgStep=0, bgSel=new Set(), bgLeaves=[];
+function bagTree(r,b,rep,stages){ return mkTree(stages,p=>{ const tr=rep?0:p.filter(k=>k.lab==='R').length, tb=rep?0:p.filter(k=>k.lab==='B').length, n=r+b-(rep?0:p.length); return [{lab:'R',n:r-tr,d:n},{lab:'B',n:b-tb,d:n}]; }); }
+function counters(r,b,y,cx,taken){ let s=''; const n=r+b, gap=Math.min(22,360/n), x0=cx-gap*(n-1)/2;
+  for(let i=0;i<n;i++){ const red=i<r, x=x0+i*gap, col=red?css('--bad'):css('--two'), t=taken&&taken.has(i);
+    s+=`<circle cx="${x}" cy="${y}" r="9" fill="${t?'none':col}" stroke="${col}" stroke-width="1.5" ${t?'stroke-dasharray="3 2"':''}/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="10" font-weight="700" ${F()} fill="${t?col:css('--panel')}">${red?'R':'B'}</text>`; }
+  return s; }
+function drawBG(){
+  const r=+bgR.value, b=+bgB.value, rep=bgRep.value==='1', n=r+b; $('bgRv').textContent=' '+r; $('bgBv').textContent=' '+b;
+  const extra=counters(r,b,18,200);
+  bgLeaves=drawTree(bgSvg,bagTree(r,b,rep,2),{W:400,xs:[14,104,194],y0:40,y1:326,labW:18,fs:15,lfs:13.5,stacked:true,reveal:bgStep,ends:bgStep>=3,sel:bgSel,extra,
+    leafTxt:l=>`${l.path[0].n}/${l.path[0].d} × ${l.path[1].n}/${l.path[1].d} = ${l.pn}/${l.pd}`});
+  const W=$('bgWork'), D=rep?n*n:n*(n-1);
+  const L=[`The bag has <span class="b">${r} red</span> and ${b} blue: ${n} counters. Press Next step.`,
+    `<span class="a">Stage 1 (first pick):</span> P(R) = ${r}/${n}, P(B) = ${b}/${n}. Check: ${r}/${n} + ${b}/${n} = 1 ✓`,
+    rep?`<span class="c">Stage 2 (second pick):</span> the counter went back, so the bag is the same: every second-stage branch is again ${r}/${n} and ${b}/${n}. The picks are independent.`
+       :`<span class="c">Stage 2 (second pick):</span> one counter is out, so there are ${n-1} left: every bottom is ${n-1}. After a red, ${r-1} red are left (top branch ${r-1}/${n-1}). After a blue, ${b-1} blue are left. Each pair still adds to 1.`,
+    `<span class="b">End results:</span> multiply along each path. ${bgLeaves.map(l=>`${l.path.map(k=>k.lab).join('')}: ${l.pn}/${l.pd}${frac(l.pn,l.pd)!==`${l.pn}/${l.pd}`?' = '+frac(l.pn,l.pd):''}`).join('; ')}. Tap an end result to highlight its path.`,
+    `<span class="a">Check:</span> ${bgLeaves.map(l=>`${l.pn}/${D}`).join(' + ')} = ${bgLeaves.reduce((s,l)=>s+l.pn,0)}/${D} = 1 ✓ All the end results add up to 1.`+(bgSel.size?`<br><span class="b">Selected:</span> P = ${[...bgSel].sort().map(i=>bgLeaves[i].pn+'/'+D).join(' + ')} = ${fracW([...bgSel].reduce((s,i)=>s+bgLeaves[i].pn,0),D)}`:'')];
+  W.innerHTML=L.slice(0,bgStep+1).join('<br>');
+  $('bgNext').disabled=bgStep>=4;
+}
+bgSvg.addEventListener('click',e=>{ if(bgStep<3) return; const i=leafAt(bgSvg,e,400,330,bgLeaves,190); if(i<0) return; if(bgSel.has(i)) bgSel.delete(i); else bgSel.add(i); if(bgStep===3) bgStep=4; drawBG(); });
+$('bgNext').addEventListener('click',()=>{ bgStep=Math.min(4,bgStep+1); drawBG(); });
+$('bgAll').addEventListener('click',()=>{ bgStep=4; drawBG(); });
+$('bgReset').addEventListener('click',()=>{ bgStep=0; bgSel=new Set(); drawBG(); });
+[bgR,bgB,bgRep].forEach(e=>e.addEventListener('input',()=>{ bgSel=new Set(); drawBG(); }));
+drawBG();
+
+/* 5. take counters out */
+const tkBag=$('tkBag'); let tk=null;
+function tkReset(){ const [r,b]=tkBag.value.split(',').map(Number); tk={r0:r,b0:b,r,b,seq:[]}; drawTK(); }
+function drawTK(){
+  const n=tk.r+tk.b, red=css('--bad'), tw=css('--two'), mu=css('--muted');
+  let s=`<rect x="20" y="8" width="210" height="96" rx="22" fill="${css('--bg')}" stroke="${mu}" stroke-width="1.5"/><text x="125" y="122" text-anchor="middle" font-size="12" ${F()} fill="${mu}">in the bag: ${n}</text>`;
+  const items=[]; for(let i=0;i<tk.r;i++) items.push('R'); for(let i=0;i<tk.b;i++) items.push('B');
+  items.forEach((c,i)=>{ const x=46+(i%8)*23, y=34+Math.floor(i/8)*26, col=c==='R'?red:tw; s+=`<circle cx="${x}" cy="${y}" r="10" fill="${col}"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="10" font-weight="700" ${F()} fill="${css('--panel')}">${c}</text>`; });
+  s+=`<text x="250" y="22" font-size="12" ${F()} fill="${mu}">taken out, in order:</text>`;
+  tk.seq.forEach((st,i)=>{ const x=262+(i%6)*22, y=44+Math.floor(i/6)*26, col=st.c==='R'?red:tw; s+=`<circle cx="${x}" cy="${y}" r="10" fill="${col}"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="10" font-weight="700" ${F()} fill="${css('--panel')}">${st.c}</text>`; });
+  if(!tk.seq.length) s+=`<text x="250" y="48" font-size="12" ${F()} fill="${css('--line')}">nothing yet</text>`;
+  s+=`<text x="20" y="144" font-size="12" ${F()} fill="${css('--hi')}">${tk.seq.length?'P(this exact order) = '+tk.seq.map(q=>q.n+'/'+q.d).join(' × '):''}</text>`;
+  $('tkSvg').innerHTML=s;
+  $('tkPR').textContent=n?`${tk.r}/${n}`+(frac(tk.r,n)!==`${tk.r}/${n}`?` = ${frac(tk.r,n)}`:''):'bag empty';
+  $('tkPB').textContent=n?`${tk.b}/${n}`+(frac(tk.b,n)!==`${tk.b}/${n}`?` = ${frac(tk.b,n)}`:''):'bag empty';
+  $('tkRed').disabled=tk.r===0; $('tkBlue').disabled=tk.b===0;
+  let w='';
+  if(!tk.seq.length) w=`Start: ${tk.r} red out of ${n}. Take a counter out and keep it out.`;
+  else { const last=tk.seq[tk.seq.length-1]; const N=tk.seq.reduce((s,q)=>s*q.n,1), D=tk.seq.reduce((s,q)=>s*q.d,1);
+    w=`You took a <span class="b">${last.c==='R'?'red':'blue'}</span>: that had probability ${last.n}/${last.d}. Now there are ${n} counters (bottom down by 1) and ${last.c==='R'?`${tk.r} red (red top down by 1; blue top unchanged)`:`${tk.b} blue (blue top down by 1; red top unchanged)`}.<br>P(${tk.seq.map(q=>q.c).join(', then ')}) = ${tk.seq.map(q=>q.n+'/'+q.d).join(' × ')} = ${fracW(N,D)}`; }
+  $('tkWork').innerHTML=w;
+}
+function tkTake(c){ const n=tk.r+tk.b; if(c==='R'&&tk.r){ tk.seq.push({c,n:tk.r,d:n}); tk.r--; } else if(c==='B'&&tk.b){ tk.seq.push({c,n:tk.b,d:n}); tk.b--; } drawTK(); }
+$('tkRed').addEventListener('click',()=>tkTake('R')); $('tkBlue').addEventListener('click',()=>tkTake('B'));
+$('tkReset').addEventListener('click',tkReset); tkBag.addEventListener('input',tkReset); tkReset();
+
+let dp=null;
+function dpNew(){
+  const r=rnd(3,7), b=rnd(3,7), n=r+b, kind=pick(['rr','bb','one','same']), D=n*(n-1);
+  const items=pick([['red','blue','counters','takes'],['strawberry','lemon','sweets','eats'],['black','white','socks','takes out']]);
+  const [c1,c2,thing,verb]=items;
+  const nm={rr:`both ${c1}`,bb:`both ${c2}`,one:`one of each flavour`,same:'the same'}[kind];
+  const ans={rr:r*(r-1),bb:b*(b-1),one:2*r*b,same:r*(r-1)+b*(b-1)}[kind];
+  const wr={rr:[[r*r*(n-1),n*n*(n-1),'That\'s with replacement. The first one is kept, so the second pick is out of '+(n-1)+'.'],[r*r,n*(n-1),`The bottom drops to ${n-1}, good, but one ${c1} has gone too: only ${r-1} left.`]],
+    bb:[[b*b*(n-1),n*n*(n-1),'That\'s with replacement. The first one is kept, so the second pick is out of '+(n-1)+'.'],[b*b,n*(n-1),`The bottom drops to ${n-1}, good, but one ${c2} has gone too: only ${b-1} left.`]],
+    one:[[r*b,D,`That's only ${c1} then ${c2}. ${c2[0].toUpperCase()+c2.slice(1)} then ${c1} is a second path. Add both.`],[2*r*b*(n-1),n*n*(n-1),'That\'s with replacement. The second pick is out of '+(n-1)+'.']],
+    same:[[r*(r-1),D,`That's only both ${c1}. Add both ${c2} too.`],[b*(b-1),D,`That's only both ${c2}. Add both ${c1} too.`],[(r*r+b*b)*(n-1),n*n*(n-1),'That\'s with replacement. The second pick is out of '+(n-1)+'.']]}[kind];
+  dp={ans,D,wr};
+  $('dpQ').textContent=`Try it: a bag has ${r} ${c1} and ${b} ${c2} ${thing}. Jo ${verb} two at random, one after the other, without replacement. Find the probability that they are ${kind==='one'?(thing==='sweets'?'one of each flavour':'one of each colour'):kind==='same'?(thing==='sweets'?'the same flavour':'the same colour'):nm}.`;
+  $('dpA').value=''; $('dpMsg').className='msg'; $('dpMsg').textContent='';
+}
+$('dpGo').addEventListener('click',()=>{ const r=judge($('dpA').value,dp.ans,dp.D,dp.wr), M=$('dpMsg'); M.className='msg '+(r.ok?'good':'bad'); M.textContent=r.msg; });
+$('dpA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('dpGo').click(); });
+$('dpNew').addEventListener('click',dpNew); dpNew();
+
+/* 6. at least one */
+const alN=$('alN'), alSvg=$('alSvg');
+function drawAL(){
+  const n=+alN.value; $('alNv').textContent=' '+n;
+  const none=Math.pow(5,n), all=Math.pow(6,n), at=all-none, H=n<=3?300:120;
+  alSvg.setAttribute('viewBox',`0 0 400 ${H}`); alSvg.setAttribute('height',H);
+  const bar=(y)=>{ const w=372*at/all; return `<rect x="14" y="${y}" width="${w}" height="22" rx="4" fill="${css('--hi')}"/><rect x="${14+w}" y="${y}" width="${372-w}" height="22" rx="4" fill="${css('--line')}"/><text x="16" y="${y+40}" font-size="12" ${F()} fill="${css('--hi')}">at least one six: ${(at/all).toPrecision(3)}</text><text x="386" y="${y+40}" text-anchor="end" font-size="12" ${F()} fill="${css('--muted')}">none: ${(none/all).toPrecision(3)}</text>`; };
+  if(n<=3){
+    const kids=mkTree(n,()=>[{lab:'S',n:1,d:6},{lab:'N',n:5,d:6}]);
+    const xs=n===1?[14,170]:n===2?[14,120,226]:[10,86,162,238];
+    const tmp=layout({kids},xs,4,236).leaves; const sel=new Set(tmp.filter(l=>l.path.some(k=>k.lab==='S')).map(l=>l.i));
+    drawTree(alSvg,kids,{W:400,xs,y0:4,y1:236,labW:16,fs:n===3?12.5:14,lfs:14,ends:true,sel,extra:bar(246),
+      leafTxt:l=>l.path.some(k=>k.lab==='S')?`${l.path.map(k=>k.lab).join('')}  ${frac(l.pn,l.pd)}`:`${l.path.map(k=>k.lab).join('')}  ${frac(l.pn,l.pd)} none`});
+  } else {
+    alSvg.innerHTML=`<text x="200" y="22" text-anchor="middle" font-size="13" ${F()} fill="${css('--muted')}">The tree would have 2^${n} = ${Math.pow(2,n)} paths.</text><text x="200" y="42" text-anchor="middle" font-size="13" ${F()} fill="${css('--muted')}">Only one of them (N N … N) has no six.</text>`+bar(56);
+  }
+  $('alWork').innerHTML=`P(no six in ${n} roll${n>1?'s':''}) = ${Array(n).fill('5/6').join(' × ')} = ${none}/${all}<br><span class="b">P(at least one six)</span> = 1 − ${none}/${all} = ${frac(at,all)}${n>1?` ≈ ${(at/all).toPrecision(3)}`:''}`+(n>=2?`<br>Adding ${n} lots of 1/6 would give ${frac(n,6)}${n===6?', i.e. certain':''}: too big, because rolls with two or more sixes get counted more than once.`:'');
+}
+alN.addEventListener('input',drawAL); drawAL();
+
+let aq=null;
+function aqNew(){
+  if(Math.random()<0.5){ const p=rnd(1,4), k=rnd(2,3), q=10-p, D=Math.pow(10,k), none=Math.pow(q,k);
+    const ctx=pick([['a light bulb is faulty','bulbs','at least one is faulty'],['a seed fails to grow','seeds are planted','at least one fails to grow'],['a train is late','train journeys are made','at least one is late']]);
+    aq={dec:true,n:D-none,d:D,wr:[[none,D,`That's P(none). Subtract it from 1.`],[k*p*Math.pow(10,k-1),D,'Adding the probabilities counts the cases with two or more more than once. Use 1 − P(none).'],[Math.pow(p,k),D,'That\'s P(all of them). "At least one" is 1 − P(none).']]};
+    $('aqQ').textContent=`Try it: the probability that ${ctx[0]} is ${dec(p,10)}. ${k===2?'Two':'Three'} ${ctx[1]}, independently. Find the probability that ${ctx[2]}.`;
+  } else { const r=rnd(2,5), b=rnd(3,6), n=r+b, D=n*(n-1), none=b*(b-1);
+    aq={dec:false,n:D-none,d:D,wr:[[none,D,'That\'s P(no red). Subtract it from 1.'],[2*r*b,D,'That\'s exactly one red. At least one also includes two reds.'],[n*n-b*b,n*n,'That\'s with replacement. The first counter is kept, so the second pick is out of '+(n-1)+'.']]};
+    $('aqQ').textContent=`Try it: a bag has ${r} red and ${b} blue counters. Two are taken without replacement. Find P(at least one red).`; }
+  $('aqA').value=''; $('aqMsg').className='msg'; $('aqMsg').textContent='';
+}
+$('aqGo').addEventListener('click',()=>{ const r=judge($('aqA').value,aq.n,aq.d,aq.wr,aq.dec), M=$('aqMsg'); M.className='msg '+(r.ok?'good':'bad'); M.textContent=r.ok?r.msg:r.msg.replace('Multiply along each path you want, then add the paths.','Work out P(none) first, then subtract from 1.'); });
+$('aqA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('aqGo').click(); });
+$('aqNew').addEventListener('click',aqNew); aqNew();
+
+/* 7. three-stage trees */
+const t3X=$('t3X'), t3Svg=$('t3Svg'); let t3Sel=new Set(), t3Name='', t3Leaves=[];
+const T3={coin:{a:'H',b:'T',fn:()=>[{lab:'H',n:1,d:2},{lab:'T',n:1,d:2}]},
+  pen:{a:'S',b:'M',fn:()=>[{lab:'S',n:3,d:4},{lab:'M',n:1,d:4}]},
+  bag:{a:'R',b:'B',fn:p=>{ const tr=p.filter(k=>k.lab==='R').length, tb=p.length-tr, n=7-p.length; return [{lab:'R',n:4-tr,d:n},{lab:'B',n:3-tb,d:n}]; }}};
+const t3Ev=X=>({[`exactly two ${X.a}`]:l=>l.path.filter(k=>k.lab===X.a).length===2,[`at least one ${X.a}`]:l=>l.path.some(k=>k.lab===X.a),'all three the same':l=>l.path.every(k=>k.lab===l.path[0].lab),[`no ${X.a} at all`]:l=>!l.path.some(k=>k.lab===X.a)});
+function t3Chips(){ const X=T3[t3X.value], E=t3Ev(X), box=$('t3Chips'); box.innerHTML='';
+  Object.keys(E).forEach(k=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=k; b.dataset.k=k; b.addEventListener('click',()=>{ t3Name=k; t3Sel=new Set(t3Leaves.filter(E[k]).map(l=>l.i)); drawT3(); }); box.appendChild(b); }); }
+function drawT3(){
+  const X=T3[t3X.value];
+  t3Leaves=drawTree(t3Svg,mkTree(3,X.fn),{W:400,xs:[8,84,160,236],y0:4,y1:356,labW:16,fs:12.5,lfs:15,ends:true,sel:t3Sel,leafTxt:l=>`${l.path.map(k=>k.lab).join('')}  ${frac(l.pn,l.pd)}`});
+  const D=t3Leaves[0].pd, S=[...t3Sel].sort((a,b)=>a-b), W=$('t3Work');
+  let w=S.length?(t3Name?`<strong>P(${t3Name})</strong><br>`:'')+S.map(i=>{ const l=t3Leaves[i]; return `<span class="b">${l.path.map(k=>k.lab).join(' ')}</span>: ${l.path.map(k=>k.n+'/'+k.d).join(' × ')} = ${fracW(l.pn,l.pd)}`; }).join('<br>'):'Tap end results, or press a button.';
+  if(S.length>1){ const tot=S.reduce((s,i)=>s+t3Leaves[i].pn,0); w+=`<br>Add: ${S.map(i=>t3Leaves[i].pn+'/'+D).join(' + ')} = ${fracW(tot,D)}`; }
+  if(S.length&&t3Name&&t3Name.indexOf('at least')===0){ const none=t3Leaves.filter(l=>!l.path.some(k=>k.lab===X.a))[0]; w+=`<br><span class="a">Quicker:</span> 1 − P(${none.path.map(k=>k.lab).join('')}) = 1 − ${frac(none.pn,none.pd)} = ${frac(D-none.pn,D)}`; }
+  w+=`<br><span class="a">Check: all 8 ends add to ${t3Leaves.reduce((s,l)=>s+l.pn,0)}/${D} = 1 ✓</span>`;
+  W.innerHTML=w;
+  $('t3Chips').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===t3Name));
+}
+t3Svg.addEventListener('click',e=>{ const i=leafAt(t3Svg,e,400,360,t3Leaves,226); if(i<0) return; if(t3Sel.has(i)) t3Sel.delete(i); else t3Sel.add(i); const E=t3Ev(T3[t3X.value]); t3Name=Object.keys(E).find(k=>{ const s=t3Leaves.filter(E[k]).map(l=>l.i); return s.length===t3Sel.size&&s.every(x=>t3Sel.has(x)); })||''; drawT3(); });
+t3X.addEventListener('input',()=>{ t3Sel=new Set(); t3Name=''; t3Chips(); drawT3(); });
+t3Chips(); drawT3(); $('t3Chips').querySelector('button').click();
+
+/* 8. spot the mistake */
+const SMO=['Added along a path instead of multiplying','Forgot the first one is not put back','Took one off the bottom but not the top','Only used one of the paths that work','Branches from one point don\'t add up to 1','Added two events that can both happen'];
+const SM=[
+  {q:'A spinner lands on red with probability 3/5. It is spun twice. Ben finds P(red both times):',fn:()=>[{lab:'R',n:3,d:5},{lab:'B',n:2,d:5}],sel:[0],work:'P(R, R) = 3/5 + 3/5 = 6/5',a:0,hint:'Is 6/5 a possible probability? What do you do along a path?',fb:'Along a path you multiply: 3/5 × 3/5 = 9/25. Any probability bigger than 1 is a sign something has gone wrong.'},
+  {q:'A bag has 3 red and 4 blue sweets. Ama eats two, one after the other. She finds P(both red):',fn:()=>[{lab:'R',n:3,d:7},{lab:'B',n:4,d:7}],sel:[0],work:'P(R, R) = 3/7 × 3/7 = 9/49',a:1,hint:'She ate the first sweet. How many sweets are left for the second pick?',fb:'After eating one, 6 sweets are left and only 2 are red: 3/7 × 2/6 = 6/42 = 1/7.'},
+  {q:'Same bag (3 red, 4 blue), two sweets eaten. Kai finds P(both red):',fn:p=>p.length===0?[{lab:'R',n:3,d:7},{lab:'B',n:4,d:7}]:p[0].lab==='R'?[{lab:'R',n:3,d:6},{lab:'B',n:4,d:6}]:[{lab:'R',n:3,d:6},{lab:'B',n:3,d:6}],sel:[0],work:'P(R, R) = 3/7 × 3/6 = 9/42 = 3/14',a:2,hint:'He has 6 left on the bottom. How many red are left after a red is eaten?',fb:'The bottom is right, but a red has gone, so only 2 red remain: 3/7 × 2/6 = 1/7. Checking the branches after R would have caught it: 3/6 + 4/6 = 7/6, not 1.'},
+  {q:'The probability that Jo is late on any day is 0.3, independently. Jo finds P(late on Monday, on time on Tuesday):',fn:()=>[{lab:'L',n:3,d:10},{lab:'L′',n:6,d:10}],sel:[1],dec:true,work:'P(L, L′) = 0.3 × 0.6 = 0.18',a:4,hint:'Add up the two branches coming from the start.',fb:'0.3 + 0.6 = 0.9, not 1. Not late must be 1 − 0.3 = 0.7, so P = 0.3 × 0.7 = 0.21.'},
+  {q:'A bag has 3 red and 4 blue counters. Two are taken without replacement. Mo finds P(one of each colour):',fn:p=>{ const r=p.filter(k=>k.lab==='R').length, n=7-p.length; return [{lab:'R',n:3-r,d:n},{lab:'B',n:4-(p.length-r),d:n}]; },sel:[1],work:'P(R, B) = 3/7 × 4/6 = 12/42 = 2/7',a:3,hint:'Is red-then-blue the only way to get one of each?',fb:'Blue then red also gives one of each: 4/7 × 3/6 = 12/42. P = 12/42 + 12/42 = 24/42 = 4/7.'},
+  {q:'A fair dice is rolled twice. Lily finds P(at least one six):',fn:()=>[{lab:'S',n:1,d:6},{lab:'N',n:5,d:6}],sel:[0,1,2],work:'P(at least one six) = 1/6 + 1/6 = 1/3',a:5,hint:'Can a six on the first roll and a six on the second roll both happen?',fb:'They can both happen, so adding counts (six, six) twice. Use 1 − P(no six) = 1 − 25/36 = 11/36.'}
+];
+let smI=0, smDone=false;
+function drawSM(){
+  const C=SM[smI];
+  $('smQ').textContent=C.q; $('smWork').textContent=C.work; $('smCount').textContent=`Case ${smI+1} of ${SM.length}`;
+  drawTree($('smSvg'),mkTree(2,C.fn),{W:400,xs:[14,128,242],y0:6,y1:224,labW:24,fs:15,lfs:15,stacked:!C.dec,mode:C.dec?'dec':'frac',ends:true,sel:new Set(C.sel),leafTxt:l=>l.path.map(k=>k.lab).join(', ')});
+}
+function smShow(){
+  const box=$('smOpts'); box.innerHTML=''; smDone=false; $('smMsg').className='msg'; $('smMsg').textContent='What went wrong?';
+  SMO.forEach((o,i)=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=o;
+    b.addEventListener('click',()=>{ if(smDone) return; const C=SM[smI], M=$('smMsg');
+      if(i===C.a){ smDone=true; b.classList.add('on'); M.className='msg good'; M.textContent='Yes. '+C.fb; }
+      else { M.className='msg bad'; M.textContent='Not quite. Look again: '+C.hint; } });
+    box.appendChild(b); });
+  drawSM();
+}
+$('smNext').addEventListener('click',()=>{ smI=(smI+1)%SM.length; smShow(); });
+smShow();
+
+const redrawAll=()=>{ drawFT(); drawAR(); drawINs(); drawOR(); drawBG(); drawTK(); drawAL(); drawT3(); drawSM(); };
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll); }
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'Two events are independent when…',opts:['one happening does not change the probability of the other','they cannot both happen','their probabilities add up to 1','they have the same probability'],a:0,fb:'Independent means no influence. "Cannot both happen" is mutually exclusive, which is a different idea.'},
+  {q:'A fair coin is flipped and a fair dice is rolled. P(heads and a 6) = ?',opts:['1/12','2/3','1/8','1/6'],a:0,fb:'Independent, so multiply: 1/2 × 1/6 = 1/12. Adding (1/2 + 1/6 = 2/3) is the classic mistake.'},
+  {q:'60 people took a test. 25 were adults and 15 of the adults passed. 40 people passed in total. How many children failed?',opts:['10','20','25','35'],a:0,fb:'Children = 60 − 25 = 35. Children who passed = 40 − 15 = 25. Children who failed = 35 − 25 = 10.'},
+  {q:'A bag has 4 red and 6 blue counters. Two are taken without replacement. P(both red) = ?',opts:['2/15','4/25','8/45','11/15'],a:0,fb:'4/10 × 3/9 = 12/90 = 2/15. 4/25 is with replacement; 8/45 forgets that a red has gone; 11/15 adds.'},
+  {q:'Same bag (4 red, 6 blue), two taken without replacement. P(one of each colour) = ?',opts:['8/15','4/15','12/25','1/2'],a:0,fb:'Two paths: 4/10 × 6/9 + 6/10 × 4/9 = 24/90 + 24/90 = 48/90 = 8/15. 4/15 uses only one path.'},
+  {q:'P(a seed grows) = 0.9. Two seeds are planted, independently. P(at least one grows) = ?',opts:['0.99','0.81','0.18','1.8'],a:0,fb:'P(neither grows) = 0.1 × 0.1 = 0.01, so P(at least one) = 1 − 0.01 = 0.99. 0.81 is both; 0.18 is exactly one.'},
+  {q:'A fair dice is rolled 3 times. P(at least one 6) = ?',opts:['91/216','1/2','125/216','1/216'],a:0,fb:'1 − (5/6)³ = 1 − 125/216 = 91/216. 125/216 is P(no sixes); 1/2 comes from adding 1/6 three times.'},
+  {q:'The four end results of a tree diagram are 0.28, 0.12, 0.42 and x. What is x?',opts:['0.18','0.82','0.28','1'],a:0,fb:'All end results add up to 1: x = 1 − (0.28 + 0.12 + 0.42) = 1 − 0.82 = 0.18.'},
+  {q:'Which pair of events is dependent?',opts:['taking two sweets from a bag without putting the first back','flipping a coin twice','rolling a dice and spinning a spinner','taking a card, putting it back, then taking another'],a:0,fb:'Without replacement, the first pick changes what is left for the second.'},
+  {q:'A fair coin is flipped 3 times. P(exactly 2 heads) = ?',opts:['3/8','1/8','1/4','2/3'],a:0,fb:'HHT, HTH and THH: three paths, each 1/2 × 1/2 × 1/2 = 1/8. Total 3/8.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

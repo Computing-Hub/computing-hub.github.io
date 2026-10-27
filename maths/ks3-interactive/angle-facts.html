@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Angle Facts</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive SVG diagrams (drag the round handles); graph-paper neutrals, teal = lines and the arms of angles, orange = the angle you are measuring or finding (the unknown), plum = the angle you are given or its partner angle, grey = a third/fourth angle when a diagram needs more than two; the faint plum glow on parallel lines traces the F, Z or C shape. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+li{margin:.3rem 0}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.M{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.P{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.fig svg{display:block;max-width:100%;height:auto;margin:.6rem auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);max-width:100%;min-width:0}
+select.rsn{min-width:0;max-width:100%}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ask{font-weight:600;margin:.2rem 0 .4rem}
+.try{border-top:1px dashed var(--line);margin-top:1rem;padding-top:.8rem}
+.try h3{margin-top:0;font-size:1.05rem}
+.rrow{display:flex;flex-wrap:wrap;gap:.5rem .8rem;align-items:center;margin:.7rem 0 .2rem;font-size:.95rem}
+.rrow .lbl{font-family:var(--mono);min-width:9.5em}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.learned li{margin:.5rem 0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Geometry and measures · KS3</div>
+  <h1>Angle Facts</h1>
+  <p class="lede">Every time a door swings open, a clock hand moves or a skateboarder spins, something <em>turns</em>. An angle measures how much. A handful of simple facts about angles (they all come from "a full turn is 360°") let you work out angles you can't measure, and explain exactly why you're right.</p>
+  <span class="gcse">National curriculum KS3: draw and measure angles; apply the properties of angles at a point, angles at a point on a straight line and vertically opposite angles; understand and use alternate and corresponding angles on parallel lines; derive and use the sum of angles in a triangle and use it to deduce the angle sum in any polygon, and to derive properties of regular polygons</span>
+</header>
+
+<h2>1 · What an angle is: an amount of turn</h2>
+<p>Hold a pencil flat on the table, keep one end still and spin the other end round. The amount the pencil has turned is an <strong>angle</strong>. Nothing else matters: not how long the pencil is, only how far it has turned.</p>
+<p>When we draw an angle we show two straight lines that meet at a point. The point where they meet is called the <strong>vertex</strong> (plural: vertices). The two lines are called the <strong>arms</strong>. One arm is where the turn starts, the other is where it stops. A little curved <strong>arc</strong> between the arms shows which gap we mean.</p>
+<p>We measure angles in <strong>degrees</strong>, written with a small circle: <span class="m">°</span>. A whole turn, all the way round back to the start, is split into 360 equal steps, so one full turn is <strong>360°</strong>. (People think the number 360 comes from ancient Babylon, and it's handy because 360 divides exactly by 2, 3, 4, 5, 6, 8, 9, 10, 12 and lots more.) From that one fact:</p>
+<ul>
+  <li>half a turn is 360 ÷ 2 = <strong>180°</strong> (you end up facing backwards, and the two arms make a straight line);</li>
+  <li>a quarter turn is 360 ÷ 4 = <strong>90°</strong> (the corner of a page, a "square corner");</li>
+  <li>three-quarters of a turn is 3 × 90 = <strong>270°</strong>.</li>
+</ul>
+<p>Drag the round handle (or use the slider) to turn the arm. The scale round the outside works like a <strong>protractor</strong>, the see-through tool you use to measure angles.</p>
+
+<div class="lab">
+  <svg id="t1Svg" viewBox="0 0 400 330" width="400" height="330" aria-label="An angle that you can turn by dragging the handle"></svg>
+  <div class="controls">
+    <label>turn <input type="range" id="t1R" min="0" max="360" step="1" value="60"></label>
+    <button class="btn t1Pre" data-a="90">quarter turn</button><button class="btn t1Pre" data-a="180">half turn</button><button class="btn t1Pre" data-a="270">¾ turn</button><button class="btn t1Pre" data-a="360">full turn</button>
+  </div>
+  <div class="readout">
+    <div class="t"><b>Angle</b><span id="t1Deg"></span></div>
+    <div class="f"><b>Type</b><span id="t1Type"></span></div>
+    <div class="p"><b>Fraction of a turn</b><span id="t1Turn"></span></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Using a real protractor.</strong> Put the centre cross exactly on the vertex. Line up the 0° line with one arm. Then count round <em>from that 0</em> to the other arm. A protractor has two scales of numbers, one going each way. The most common mistake is reading the wrong one: if the angle is clearly smaller than a square corner but you read 130°, you've used the wrong scale (the right answer would be 180 − 130 = 50°). Always ask: "is it smaller or bigger than 90°?" before you read.</p>
+</div>
+
+<h2>2 · Types of angle</h2>
+<p>Angles get names depending on how big they are. You only need two landmarks to sort any angle: the <strong>square corner</strong> (90°) and the <strong>straight line</strong> (180°).</p>
+<div class="tbl"><table>
+  <tr><th>Name</th><th>Size</th><th>How to spot it</th></tr>
+  <tr><td><strong>Acute</strong></td><td class="mono">between 0° and 90°</td><td>Sharp and pointy. It fits inside the corner of a page. ("A-cute little angle.")</td></tr>
+  <tr><td><strong>Right angle</strong></td><td class="mono">exactly 90°</td><td>A square corner. Always marked with a small square instead of an arc. Two lines that meet at a right angle are called <strong>perpendicular</strong>.</td></tr>
+  <tr><td><strong>Obtuse</strong></td><td class="mono">between 90° and 180°</td><td>Blunt and wide open, but not yet flat.</td></tr>
+  <tr><td><strong>Straight angle</strong></td><td class="mono">exactly 180°</td><td>The two arms make one straight line.</td></tr>
+  <tr><td><strong>Reflex</strong></td><td class="mono">between 180° and 360°</td><td>More than a straight line: the arc goes the "long way round" the outside.</td></tr>
+</table></div>
+<p>Every pair of arms actually makes <em>two</em> angles: the small one inside and the big one round the outside. Together they make a full turn, so if the inside is 70°, the reflex angle outside is 360 − 70 = 290°. The arc tells you which one is meant.</p>
+
+<div class="lab">
+  <p class="ask">Name that angle: what type is the orange one?</p>
+  <svg id="t2Svg" viewBox="0 0 400 300" width="400" height="300" aria-label="A random angle to classify"></svg>
+  <div class="opts" id="t2Btns"><button data-k="acute">acute</button><button data-k="right">right angle</button><button data-k="obtuse">obtuse</button><button data-k="reflex">reflex</button></div>
+  <div class="msg" id="t2Msg"></div>
+  <div class="controls">
+    <label>Now estimate its size: <input type="number" id="t2Est" min="0" max="360"> °</label>
+    <button class="btn primary" id="t2EstGo">Check estimate</button><button class="btn" id="t2New">New angle</button>
+  </div>
+  <div class="msg" id="t2EstMsg"></div>
+</div>
+
+<p>Estimating tip: first decide which landmarks the angle sits between (0°, 90°, 180°, 270°, 360°), then ask "about halfway? closer to one end?". Half a right angle is 45°, which is a useful extra landmark.</p>
+
+<h2>3 · Angles on a straight line and angles at a point</h2>
+<p>Here's the first <strong>angle fact</strong>. If several angles sit next to each other along a straight line, all sharing the same vertex, then together they make half a turn. So:</p>
+<p class="big">angles on a straight line add up to 180°</p>
+<p>And if angles go <em>all the way round</em> a point with no gaps, together they make a full turn:</p>
+<p class="big">angles at a point add up to 360°</p>
+<p>Neither of these is a new rule to memorise: they're just "half a turn = 180°" and "a full turn = 360°". Drag the handles and watch the total stay the same no matter what you do.</p>
+
+<div class="lab">
+  <div class="controls"><label>show <select id="t3Mode"><option value="line">angles on a straight line</option><option value="point">angles at a point</option></select></label></div>
+  <svg id="t3Svg" viewBox="0 0 400 300" width="400" height="300" aria-label="Angles on a straight line or at a point; drag the handles"></svg>
+  <div class="work" id="t3Work"></div>
+
+  <div class="try">
+    <h3>Try it: find x</h3>
+    <p class="ask" id="t3TQ"></p>
+    <svg id="t3TSvg" viewBox="0 0 400 230" width="400" height="230" aria-label="Missing angle question"></svg>
+    <div class="controls"><label>x = <input type="number" id="t3TIn"> °</label><button class="btn primary" id="t3TGo">Check</button><button class="btn" id="t3TNew">New question</button></div>
+    <div class="msg" id="t3TMsg"></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistake: using the wrong total.</strong> Look at the diagram before you calculate. Is there a straight line with all the angles on one side of it? Use 180°. Do the angles go all the way round? Use 360°. Mixing these up is the single most common error in angle questions.</p>
+  <p><strong>Another trap:</strong> diagrams in tests are usually "not drawn accurately", so you must <em>calculate</em>, not measure with a protractor.</p>
+</div>
+
+<h2>4 · Vertically opposite angles</h2>
+<p>When two straight lines cross, they make an X shape with four angles at the crossing point. The angles that are <em>across from each other</em> (not next to each other) are called <strong>vertically opposite</strong> angles. ("Vertically" here is about the shared vertex, not about up-and-down.)</p>
+<p>The fact: <strong>vertically opposite angles are equal</strong>. Drag either line and watch the orange angles match each other, and the plum angles match each other.</p>
+
+<div class="lab">
+  <svg id="t4Svg" viewBox="0 0 400 300" width="400" height="300" aria-label="Two crossing lines; drag the ends to rotate them"></svg>
+  <div class="work" id="t4Work"></div>
+</div>
+
+<p><strong>Why it's true.</strong> Look at angles <span class="C">a</span> and <span class="P">b</span>: they sit together on one straight line, so a + b = 180°. Now look at <span class="P">b</span> and <span class="C">c</span>: they sit together on the other straight line, so b + c = 180°. Both a and c are "whatever is left when you take b away from 180°", so they must be the same. The working box above does this with the actual numbers.</p>
+
+<div class="callout">
+  <p><strong>Watch out:</strong> the angles must be made by two <em>straight</em> lines crossing. If a line bends at the vertex, the opposite angles are not equal. And the neighbouring angles (like a and b) are <em>not</em> equal: they add up to 180° instead.</p>
+</div>
+
+<h2>5 · Angles in a triangle and a quadrilateral</h2>
+<p>A <strong>triangle</strong> is a flat shape with three straight sides and three corners. Each corner has an angle inside the shape, called an <strong>interior angle</strong>. Here's a surprising fact: whatever triangle you draw, long and thin or fat and pointy, the three interior angles always add up to exactly the same total.</p>
+<p>Try the classic experiment. Cut out a paper triangle, tear off its three corners and lay them side by side with their points together. They always fit perfectly along a straight line. Do it here: drag the corners to make any triangle you like, then press <em>Tear off next corner</em>.</p>
+
+<div class="lab">
+  <div class="controls"><label>shape <select id="t5Mode"><option value="tri">triangle</option><option value="quad">quadrilateral</option></select></label>
+    <button class="btn primary" id="t5Tear">Tear off next corner</button><button class="btn" id="t5Reset">Put corners back</button></div>
+  <svg id="t5Svg" viewBox="0 0 460 440" width="460" height="440" aria-label="A shape with draggable corners; torn-off corners are placed together below"></svg>
+  <div class="readout"><div class="t"><b>Interior angles (to the nearest degree)</b><span id="t5Sum"></span></div></div>
+  <div class="msg" id="t5Msg"></div>
+
+  <div class="try">
+    <h3>Try it: find the missing angle</h3>
+    <p class="ask" id="t5TQ"></p>
+    <div class="controls"><label>missing angle = <input type="number" id="t5TIn"> °</label><button class="btn primary" id="t5TGo">Check</button><button class="btn" id="t5TNew">New question</button></div>
+    <div class="msg" id="t5TMsg"></div>
+  </div>
+</div>
+
+<p class="big">angles in a triangle add up to 180°</p>
+<p>A <strong>quadrilateral</strong> is any flat shape with four straight sides ("quad" means four, "lateral" means sides): squares, rectangles, kites and wonky ones too. Switch the widget to quadrilateral. The dashed line, called a <strong>diagonal</strong>, joins two opposite corners and cuts the quadrilateral into <em>two</em> triangles. Each triangle's angles add up to 180°, so altogether 2 × 180° = 360°. Tear the four corners off and they fit round a point: a full turn.</p>
+<p class="big">angles in a quadrilateral add up to 360°</p>
+<p>Two special triangles come up all the time. In an <strong>equilateral</strong> triangle all three sides are equal and so are all three angles: 180 ÷ 3 = 60° each. In an <strong>isosceles</strong> triangle two sides are equal (shown by little dashes on the sides), and the two angles at the bottom of those sides, the <strong>base angles</strong>, are equal too.</p>
+
+<div class="callout">
+  <p><strong>Common mistakes:</strong> using 360° for a triangle (that's the quadrilateral total), and forgetting that a right-angle square symbol means one of the angles is 90° even though no number is written. In a triangle, if you already know two angles, the third is <em>180 minus their total</em>, never 180 minus just one of them.</p>
+</div>
+
+<h2>6 · Angles on parallel lines</h2>
+<p>Two lines are <strong>parallel</strong> if they go in exactly the same direction, so they stay the same distance apart and never meet, like railway tracks or the lines on lined paper. In diagrams parallel lines are marked with matching little arrows (&gt;). A line that cuts across both of them is called a <strong>transversal</strong>.</p>
+<p>The transversal makes four angles at each crossing: eight angles in total. But because the parallel lines point the same way, the transversal crosses each one in exactly the same way. That gives three fact pairs. The glowing lines trace the shape that helps you spot each one:</p>
+<div class="tbl"><table>
+  <tr><th>Pair</th><th>Where they are</th><th>Shape</th><th>Rule</th></tr>
+  <tr><td><strong>Corresponding</strong></td><td>In the same position at each crossing (both top-right, say)</td><td class="mono">F</td><td>equal</td></tr>
+  <tr><td><strong>Alternate</strong></td><td>Between the parallel lines, on opposite sides of the transversal</td><td class="mono">Z</td><td>equal</td></tr>
+  <tr><td><strong>Co-interior</strong></td><td>Between the parallel lines, on the same side of the transversal</td><td class="mono">C or U</td><td>add up to 180°</td></tr>
+</table></div>
+<p>Choose a pair type, then tilt the transversal by dragging anywhere on the diagram or using the slider. The letters a to h name all eight angles. <em>Other pair</em> shows the other examples of the same type.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>pair <select id="t6Rel"><option value="corr">corresponding (F)</option><option value="alt">alternate (Z)</option><option value="co">co-interior (C)</option></select></label>
+    <button class="btn" id="t6Next">Other pair</button>
+    <label>tilt <input type="range" id="t6Th" min="35" max="145" step="1" value="60"></label>
+  </div>
+  <svg id="t6Svg" viewBox="0 0 460 300" width="460" height="300" aria-label="Two parallel lines cut by a transversal"></svg>
+  <div class="work" id="t6Work"></div>
+
+  <div class="try">
+    <h3>Try it: find x and give the reason</h3>
+    <svg id="t6TSvg" viewBox="0 0 460 300" width="460" height="300" aria-label="Parallel lines question"></svg>
+    <div class="controls"><label>x = <input type="number" id="t6TIn"> °</label>
+      <label>because <select id="t6TR" class="rsn"></select></label></div>
+    <div class="controls"><button class="btn primary" id="t6TGo">Check</button><button class="btn" id="t6TNew">New question</button></div>
+    <div class="msg" id="t6TMsg"></div>
+  </div>
+</div>
+
+<p><strong>Why co-interior angles add to 180°.</strong> In the diagram, angle d and angle e are co-interior. Angle e is equal to angle a (corresponding). And a + d = 180° because they sit together on a straight line. So d + e = d + a = 180°.</p>
+
+<div class="callout">
+  <p><strong>Common mistakes:</strong> using these facts when the lines are <em>not</em> marked parallel (without the arrows, none of these rules apply), and mixing up "equal" with "add to 180°". Quick sense check: on parallel lines every angle is one of just two sizes, a small one and a big one, which add up to 180°. If x looks the same size as the given angle, they're equal; if one looks acute and the other obtuse, they add up to 180°.</p>
+</div>
+
+<h2>7 · Angles in polygons</h2>
+<p>A <strong>polygon</strong> is any flat shape made of straight sides: triangle (3 sides), quadrilateral (4), pentagon (5), hexagon (6), heptagon (7), octagon (8), nonagon (9), decagon (10)… A <strong>regular</strong> polygon has all its sides the same length <em>and</em> all its angles the same size, like a stop sign (a regular octagon) or the cells in a honeycomb (regular hexagons).</p>
+<h3>Interior angles: split it into triangles</h3>
+<p>Pick one corner and draw lines from it to every other corner you can. The polygon splits into triangles. A shape with n sides always splits into <strong>n − 2</strong> triangles (try it: a pentagon gives 3, a hexagon gives 4). Each triangle gives 180°, so:</p>
+<p class="big">sum of interior angles = (n − 2) × 180°</p>
+<p>For a regular polygon all the interior angles are equal, so each one is that total divided by n.</p>
+
+<div class="lab">
+  <div class="controls"><label>number of sides n = <input type="range" id="t7N" min="3" max="12" step="1" value="5"><span id="t7Nv" style="font-family:var(--mono)"></span></label></div>
+  <svg id="t7Svg" viewBox="0 0 460 320" width="460" height="320" aria-label="Regular polygon split into triangles"></svg>
+  <div class="readout">
+    <div class="f"><b>Shape</b><span id="t7Name"></span></div>
+    <div><b>Interior sum</b><span id="t7Sum"></span></div>
+    <div class="t"><b>Each interior</b><span id="t7Int"></span></div>
+    <div class="p"><b>Each exterior</b><span id="t7Ext"></span></div>
+  </div>
+  <div class="work" id="t7Work"></div>
+</div>
+
+<h3>Exterior angles: walk a pencil round the edge</h3>
+<p>Now make one side longer, past the corner (the dashed line). The angle between that extended side and the next side is called an <strong>exterior angle</strong>. It's exactly the amount you have to <em>turn</em> at that corner if you walk round the edge of the shape. The interior angle and exterior angle at a corner sit together on a straight line, so <strong>interior + exterior = 180°</strong>.</p>
+<p>Put a pencil on the first side and walk it round the shape, turning at every corner. When it gets back to the start it is pointing the same way it began. It has turned exactly once. So, for <em>any</em> polygon that doesn't dent inwards:</p>
+<p class="big">exterior angles add up to 360°</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>shape <select id="t7bShape"><option value="pent">wonky pentagon</option><option value="tri">triangle</option><option value="quad">wonky quadrilateral</option><option value="hex">regular hexagon</option></select></label>
+    <button class="btn primary" id="t7bNext">Walk to next corner and turn</button><button class="btn" id="t7bReset">Start again</button>
+  </div>
+  <svg id="t7bSvg" viewBox="0 0 460 330" width="460" height="330" aria-label="A pencil walking round a polygon"></svg>
+  <div class="work" id="t7bWork"></div>
+</div>
+
+<p>For a regular polygon the turns are all equal, so <strong>each exterior angle = 360° ÷ n</strong>. This is usually the quickest route: a regular decagon turns 360 ÷ 10 = 36° at each corner, so each interior angle is 180 − 36 = 144°. It also works backwards: if each exterior angle is 30°, there must be 360 ÷ 30 = 12 sides.</p>
+
+<div class="lab">
+  <div class="try" style="border-top:0;margin-top:0;padding-top:0">
+    <h3>Try it: polygon practice</h3>
+    <p class="ask" id="t7TQ"></p>
+    <div class="controls"><label>answer <input type="number" id="t7TIn" style="width:6em"></label><button class="btn primary" id="t7TGo">Check</button><button class="btn" id="t7TNew">New question</button></div>
+    <div class="msg" id="t7TMsg"></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes:</strong> doing n × 180 instead of (n − 2) × 180; mixing up interior and exterior angles (the exterior is the small turn, the interior is the angle inside); and dividing 360 by the <em>interior</em> angle to find the number of sides. Only the exterior angle divides into 360.</p>
+</div>
+
+<h2>8 · Giving reasons</h2>
+<p>In maths, getting the number isn't the whole job: you have to say <em>which fact</em> you used. A reason is a short sentence naming the angle fact. These are the standard ones. Learn the wording, because "Z-angles" or "because it's parallel" won't get the marks.</p>
+<div class="tbl"><table>
+  <tr><th>Situation</th><th>Reason to write</th></tr>
+  <tr><td>Angles together along a straight line</td><td>Angles on a straight line add up to 180°</td></tr>
+  <tr><td>Angles all the way round a point</td><td>Angles at a point add up to 360°</td></tr>
+  <tr><td>Two straight lines cross</td><td>Vertically opposite angles are equal</td></tr>
+  <tr><td>The three angles of a triangle</td><td>Angles in a triangle add up to 180°</td></tr>
+  <tr><td>The four angles of a quadrilateral</td><td>Angles in a quadrilateral add up to 360°</td></tr>
+  <tr><td>Two equal sides in a triangle</td><td>Base angles of an isosceles triangle are equal</td></tr>
+  <tr><td>Parallel lines, F-shape</td><td>Corresponding angles are equal</td></tr>
+  <tr><td>Parallel lines, Z-shape</td><td>Alternate angles are equal</td></tr>
+  <tr><td>Parallel lines, C-shape</td><td>Co-interior angles add up to 180°</td></tr>
+</table></div>
+<p>Harder questions need two or three facts in a row. Write one line per step: the calculation, then the reason. Work through this one. The top and bottom lines are parallel; P is on the top line and Q and R are on the bottom line.</p>
+
+<div class="lab">
+  <svg id="t8Svg" viewBox="0 0 460 280" width="460" height="280" aria-label="Triangle PQR between two parallel lines"></svg>
+  <div class="rrow"><span class="lbl">a = angle PQR =</span><input type="number" id="t8A1"> ° <select class="rsn" id="t8R1"></select></div>
+  <div class="msg" id="t8M1"></div>
+  <div class="rrow"><span class="lbl">b = angle PRQ =</span><input type="number" id="t8A2"> ° <select class="rsn" id="t8R2"></select></div>
+  <div class="msg" id="t8M2"></div>
+  <div class="rrow"><span class="lbl">c = angle QPR =</span><input type="number" id="t8A3"> ° <select class="rsn" id="t8R3"></select></div>
+  <div class="msg" id="t8M3"></div>
+  <div class="controls"><button class="btn primary" id="t8Go">Check my reasons</button></div>
+</div>
+
+<p>Notice something clever in that diagram: the 50°, c and 60° at P sit together on the top straight line, so they add to 180°. But a = 50° and b = 60° are the triangle's other two angles. So the triangle's three angles add up to 180° too. That's a <em>proof</em> that every triangle's angles add to 180°, using alternate angles, which is even better than tearing paper.</p>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Angles at a point are 90°, 140°, 75° and y. Find y.</summary>
+  <div class="fig"><svg id="we1" viewBox="0 0 400 230" width="400" height="230" aria-label="Four angles around a point"></svg></div>
+  <div class="step"><strong>Spot the fact:</strong> the four angles go all the way round one point, so they make a full turn. The square symbol means that angle is 90°.</div>
+  <div class="step"><strong>Add what you know:</strong> 90 + 140 + 75 = 305°.</div>
+  <div class="step"><strong>Take it from the total:</strong> y = 360 − 305 = <strong>55°</strong>. Reason: angles at a point add up to 360°.</div>
+  <div class="step"><strong>Check:</strong> 90 + 140 + 75 + 55 = 360 ✓. And y looks acute in the diagram, which 55° is.</div>
+</details>
+<details>
+  <summary>An isosceles triangle has a 40° angle between its two equal sides. Find the other two angles.</summary>
+  <div class="fig"><svg id="we2" viewBox="0 0 400 230" width="400" height="230" aria-label="Isosceles triangle with top angle 40 degrees"></svg></div>
+  <div class="step"><strong>Spot the facts:</strong> the dashes show the two equal sides, so the two base angles (both called x) are equal. All three angles add up to 180°.</div>
+  <div class="step"><strong>What's left for the base angles:</strong> 180 − 40 = 140°. Reason: angles in a triangle add up to 180°.</div>
+  <div class="step"><strong>Share it equally:</strong> x = 140 ÷ 2 = <strong>70°</strong> each. Reason: base angles of an isosceles triangle are equal.</div>
+  <div class="step"><strong>Check:</strong> 40 + 70 + 70 = 180 ✓. A common slip is 180 − 40 = 140 and stopping there: 140° can't be a base angle, because two of them would already be more than 180°.</div>
+</details>
+<details>
+  <summary>Parallel lines: one angle is 112°. Find x and y, giving reasons.</summary>
+  <div class="fig"><svg id="we3" viewBox="0 0 460 300" width="460" height="300" aria-label="Parallel lines with a transversal, angles 112 degrees, x and y"></svg></div>
+  <div class="step"><strong>Find x:</strong> 112° and x are both between the parallel lines, on the same side (the left side) of the transversal: a C-shape. So they are co-interior: x + 112 = 180, giving x = 180 − 112 = <strong>68°</strong>. Reason: co-interior angles add up to 180°.</div>
+  <div class="step"><strong>Find y:</strong> y is across the crossing from x, made by the same two straight lines. So y = x = <strong>68°</strong>. Reason: vertically opposite angles are equal.</div>
+  <div class="step"><strong>Sense check:</strong> 112° is obtuse and x, y look acute, so "add to 180°" (not "equal") makes sense. Both small angles are 68° and both big ones are 112° ✓.</div>
+</details>
+<details>
+  <summary>Find the size of each interior angle of a regular octagon.</summary>
+  <div class="step"><strong>Number of sides:</strong> an octagon has n = 8 sides (like an octopus has 8 legs).</div>
+  <div class="step"><strong>Interior sum:</strong> (n − 2) × 180 = (8 − 2) × 180 = 6 × 180 = 1080°. It splits into 6 triangles.</div>
+  <div class="step"><strong>Each angle:</strong> it's regular, so all 8 angles are equal: 1080 ÷ 8 = <strong>135°</strong>.</div>
+  <div class="step"><strong>Check another way:</strong> each exterior angle = 360 ÷ 8 = 45°, and interior = 180 − 45 = 135° ✓.</div>
+</details>
+<details>
+  <summary>Each interior angle of a regular polygon is 156°. How many sides does it have?</summary>
+  <div class="step"><strong>Go via the exterior angle:</strong> interior + exterior = 180°, so exterior = 180 − 156 = 24°.</div>
+  <div class="step"><strong>The exterior angles make one full turn:</strong> 360 ÷ 24 = <strong>15 sides</strong>.</div>
+  <div class="step"><strong>Check:</strong> (15 − 2) × 180 = 13 × 180 = 2340°, and 2340 ÷ 15 = 156° ✓. (Don't do 360 ÷ 156: that isn't even a whole number, which tells you something's gone wrong.)</div>
+</details>
+<details>
+  <summary>A quadrilateral has angles x, 2x, 100° and 80°. Find x.</summary>
+  <div class="step"><strong>Use the total:</strong> angles in a quadrilateral add up to 360°, so x + 2x + 100 + 80 = 360.</div>
+  <div class="step"><strong>Tidy up:</strong> 3x + 180 = 360.</div>
+  <div class="step"><strong>Solve:</strong> subtract 180 from both sides: 3x = 180. Divide both sides by 3: x = <strong>60°</strong>.</div>
+  <div class="step"><strong>Check:</strong> the angles are 60°, 120°, 100°, 80°, and 60 + 120 + 100 + 80 = 360 ✓.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul class="learned">
+  <li>An angle measures an amount of turn. A full turn is 360°, half a turn 180°, a quarter turn 90°. The meeting point is the vertex and the two lines are the arms.</li>
+  <li>Types: acute (less than 90°), right (exactly 90°, marked with a square), obtuse (between 90° and 180°), straight (180°), reflex (between 180° and 360°).</li>
+  <li>Angles on a straight line add up to 180°. Angles at a point add up to 360°.</li>
+  <li>When two straight lines cross, vertically opposite angles are equal, and neighbouring angles add to 180°.</li>
+  <li>Angles in a triangle add up to 180°; angles in a quadrilateral add up to 360° (two triangles). Isosceles triangles have two equal base angles; equilateral triangles have three 60° angles.</li>
+  <li>On parallel lines: corresponding angles (F) are equal, alternate angles (Z) are equal, co-interior angles (C) add up to 180°.</li>
+  <li>Polygons: interior angle sum = (n − 2) × 180°; exterior angles add up to 360°; interior + exterior = 180° at each corner. For a regular polygon, each exterior angle = 360° ÷ n and n = 360° ÷ exterior angle.</li>
+  <li>Always calculate rather than measure, and write the reason for every step using the standard wording.</li>
+</ul>
+
+<footer>Made for KS3 students. Angles at a point, on a straight line, on parallel lines and in polygons are in the England national curriculum at key stage 3 under Geometry and measures. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const F=()=>`font-family="${css('--mono')}"`;
+const D=Math.PI/180;
+const norm=a=>((a%360)+360)%360;
+const fmt=v=>Number.isInteger(v)?String(v):parseFloat(v.toFixed(2)).toString();
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+const f2=v=>v.toFixed(2);
+/* point at distance r from c in direction d (degrees, anticlockwise from east, like a protractor) */
+const P=(c,r,d)=>[c[0]+r*Math.cos(d*D),c[1]-r*Math.sin(d*D)];
+const dirOf=(a,b)=>norm(Math.atan2(-(b[1]-a[1]),b[0]-a[0])/D);
+const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+const cdist=(x,y)=>Math.min(norm(x-y),norm(y-x));
+const ln=(a,b,col,w=2.5,extra='')=>`<line x1="${f2(a[0])}" y1="${f2(a[1])}" x2="${f2(b[0])}" y2="${f2(b[1])}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" ${extra}/>`;
+const tx=(p,s,col,sz=14,anc='middle',w=600)=>`<text x="${f2(p[0])}" y="${f2(p[1]+sz*0.35)}" text-anchor="${anc}" font-size="${sz}" font-weight="${w}" fill="${col}" ${F()}>${s}</text>`;
+const handle=(p,col)=>`<circle cx="${f2(p[0])}" cy="${f2(p[1])}" r="12" fill="${col}" fill-opacity=".18" stroke="${col}" stroke-width="2"/><circle cx="${f2(p[0])}" cy="${f2(p[1])}" r="4.5" fill="${col}"/>`;
+const vdot=(p,col)=>`<circle cx="${f2(p[0])}" cy="${f2(p[1])}" r="3.5" fill="${col}"/>`;
+/* angle mark: wedge from direction `st`, turning anticlockwise through `sz` degrees; a square for 90° */
+function mark(c,r,st,sz,col,op=.25){
+  if(sz<=0.01)return '';
+  if(Math.abs(sz-90)<0.5){const s=Math.min(r*0.55,17),p1=P(c,s,st),p2=P(c,s*Math.SQRT2,st+45),p3=P(c,s,st+90);
+    return `<path d="M${f2(c[0])},${f2(c[1])} L${f2(p1[0])},${f2(p1[1])} L${f2(p2[0])},${f2(p2[1])} L${f2(p3[0])},${f2(p3[1])} Z" fill="${col}" fill-opacity="${op}" stroke="${col}" stroke-width="2"/>`;}
+  if(sz>=359.99)return `<circle cx="${f2(c[0])}" cy="${f2(c[1])}" r="${r}" fill="${col}" fill-opacity="${op}" stroke="${col}" stroke-width="2"/>`;
+  const p1=P(c,r,st),p2=P(c,r,st+sz),L=sz>180?1:0;
+  return `<path d="M${f2(c[0])},${f2(c[1])} L${f2(p1[0])},${f2(p1[1])} A${r},${r} 0 ${L} 0 ${f2(p2[0])},${f2(p2[1])} Z" fill="${col}" fill-opacity="${op}"/><path d="M${f2(p1[0])},${f2(p1[1])} A${r},${r} 0 ${L} 0 ${f2(p2[0])},${f2(p2[1])}" fill="none" stroke="${col}" stroke-width="2"/>`;}
+/* interior angle at corner b of a polygon (neighbours a and c), size known: returns the start direction */
+function cornerStart(b,a,c,size){const u=dirOf(b,c),w=dirOf(b,a);return Math.abs(norm(w-u)-size)<1?u:w;}
+/* interior angles of a simple polygon (any orientation, reflex allowed) */
+function interior(pts){const n=pts.length,t=[];for(let i=0;i<n;i++){const a=pts[(i-1+n)%n],b=pts[i],c=pts[(i+1)%n];let d=dirOf(b,c)-dirOf(a,b);d=norm(d+180)-180;t.push(d);}
+  const s=Math.sign(t.reduce((x,y)=>x+y,0))||1;return t.map(x=>180-s*x);}
+function turns(pts){const n=pts.length,t=[];for(let i=0;i<n;i++){const a=pts[(i-1+n)%n],b=pts[i],c=pts[(i+1)%n];let d=dirOf(b,c)-dirOf(a,b);d=norm(d+180)-180;t.push(d);}return t;}
+/* whole-number rounding that keeps the exact total */
+function roundTo(vals,total){const fl=vals.map(v=>Math.floor(v+1e-9));let rem=Math.round(total-fl.reduce((s,v)=>s+v,0));const idx=vals.map((v,i)=>[v-fl[i],i]).sort((a,b)=>b[0]-a[0]);for(let k=0;k<rem&&k<idx.length;k++)fl[idx[k][1]]++;return fl;}
+const crossP=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);
+const segX=(p1,p2,p3,p4)=>((crossP(p3,p4,p1)>0)!==(crossP(p3,p4,p2)>0))&&((crossP(p1,p2,p3)>0)!==(crossP(p1,p2,p4)>0));
+function svgPt(svg,ev){const r=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal;return [(ev.clientX-r.left)/r.width*vb.width,(ev.clientY-r.top)/r.height*vb.height];}
+function drag(svg,pickFn,moveFn){let act=null;
+  svg.addEventListener('pointerdown',e=>{const p=svgPt(svg,e);const k=pickFn(p);if(k===null)return;act=k;try{svg.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();moveFn(act,p);});
+  svg.addEventListener('pointermove',e=>{if(act===null)return;e.preventDefault();moveFn(act,svgPt(svg,e));});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(t=>svg.addEventListener(t,()=>{act=null;}));}
+const nearest=(p,list,maxD)=>{let best=null,bd=maxD;list.forEach((q,i)=>{const d=dist(p,q);if(d<bd){bd=d;best=i;}});return best;};
+const REASONS=[['','choose a reason…'],['line','Angles on a straight line add up to 180°'],['point','Angles at a point add up to 360°'],['vo','Vertically opposite angles are equal'],['tri','Angles in a triangle add up to 180°'],['corr','Corresponding angles are equal'],['alt','Alternate angles are equal'],['co','Co-interior angles add up to 180°']];
+document.querySelectorAll('select.rsn').forEach(s=>{s.innerHTML=REASONS.map(r=>`<option value="${r[0]}">${r[1]}</option>`).join('');});
+
+/* 1. angle turner */
+const t1Svg=$('t1Svg'),t1R=$('t1R'),C1=[200,165];let t1A=+t1R.value;
+function typeOf(a){if(a<=0)return 'no turn yet';if(a<90)return 'acute';if(a===90)return 'right angle';if(a<180)return 'obtuse';if(a===180)return 'straight angle';if(a<360)return 'reflex';return 'full turn';}
+function turnWords(a){const m={0:'no turn',90:'a quarter turn',180:'half a turn',270:'three-quarters of a turn',360:'one full turn'};return m[a]||`${a} ÷ 360 ≈ ${(a/360).toFixed(2)} of a turn`;}
+function drawT1(){const a=t1A,mu=css('--muted');let s=`<circle cx="${C1[0]}" cy="${C1[1]}" r="128" fill="none" stroke="${css('--line')}"/>`;
+  for(let d=0;d<360;d+=10){const big=d%30===0;s+=ln(P(C1,128,d),P(C1,big?116:122,d),mu,big?1.5:1);if(big)s+=tx(P(C1,143,d),d,mu,11,'middle',400);}
+  if(a>0)s+=mark(C1,38,0,a,css('--hi'));
+  s+=ln(C1,P(C1,112,0),css('--accent'),3)+ln(C1,P(C1,112,a),css('--accent'),3)+vdot(C1,css('--fg'));
+  if(a>0)s+=tx(a>=360?P(C1,62,135):P(C1,a<30?78:62,a/2),a+'°',css('--hi'),15);
+  s+=handle(P(C1,112,a),css('--accent'));
+  t1Svg.innerHTML=s;$('t1Deg').textContent=a+'°';$('t1Type').textContent=typeOf(a);$('t1Turn').textContent=turnWords(a);}
+t1R.addEventListener('input',()=>{t1A=+t1R.value;drawT1();});
+document.querySelectorAll('.t1Pre').forEach(b=>b.addEventListener('click',()=>{t1A=+b.dataset.a;t1R.value=t1A;drawT1();}));
+drag(t1Svg,p=>dist(p,C1)>15?1:null,(k,p)=>{let a=Math.round(dirOf(C1,p));if(a>=360)a=0;if(a===0&&t1A>180)a=360;t1A=a;t1R.value=a;drawT1();});
+drawT1();
+
+/* 2. name that angle */
+const t2Svg=$('t2Svg'),C2=[200,150];let t2={a:50,rot:20,shown:false};
+const kindOf=a=>a<90?'acute':a===90?'right':a<180?'obtuse':'reflex';
+const WHY={acute:'less than 90°, smaller than a square corner.',right:'exactly 90°, a quarter turn, shown by the little square.',obtuse:'between 90° and 180°: wider than a square corner but less than a straight line.',reflex:'between 180° and 360°: more than a straight line, so the arc goes the long way round.'};
+function hint2(k,tr){
+  if(tr==='reflex')return 'Look at which side the orange arc is on. It goes the long way round: more than a straight line (180°). Angles bigger than 180° are reflex.';
+  if(k==='reflex')return 'Reflex angles are bigger than a straight line (180°). The orange angle here is less than a straight line, so it can\'t be reflex.';
+  if(tr==='right')return 'The little square in the corner is the symbol for exactly 90°. That makes it a right angle.';
+  if(k==='right')return 'A right angle is exactly 90° and is always marked with a small square. This one has a curved arc, so it isn\'t a right angle.';
+  if(tr==='acute')return 'Imagine the corner of a book (90°). This angle would fit inside that corner, so it is less than 90°.';
+  return 'Imagine the corner of a book (90°). This angle is wider than that corner, but still less than a straight line.';}
+function drawT2(){const {a,rot}=t2;let s=mark(C2,34,rot,a,css('--hi'),.3)+ln(C2,P(C2,115,rot),css('--accent'),3)+ln(C2,P(C2,115,rot+a),css('--accent'),3)+vdot(C2,css('--fg'));
+  if(t2.shown)s+=tx(P(C2,60,rot+a/2),a+'°',css('--hi'),15);t2Svg.innerHTML=s;}
+function t2New(){const k=pick(['acute','right','obtuse','reflex']);const a=k==='acute'?5*rnd(3,17):k==='right'?90:k==='obtuse'?5*rnd(19,35):5*rnd(38,68);
+  t2={a,rot:rnd(0,359),shown:false};const M=$('t2Msg');M.className='msg';M.textContent='Pick a type.';$('t2EstMsg').textContent='';$('t2EstMsg').className='msg';$('t2Est').value='';
+  $('t2Btns').querySelectorAll('button').forEach(b=>{b.classList.remove('right','wrong');b.disabled=false;});drawT2();}
+$('t2Btns').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset.k,tr=kindOf(t2.a),M=$('t2Msg');
+  if(k===tr){b.classList.add('right');M.className='msg good';M.textContent=`Yes: ${tr==='right'?'a right angle':tr}. It is ${t2.a}°, ${WHY[tr]}`;t2.shown=true;drawT2();$('t2Btns').querySelectorAll('button').forEach(x=>x.disabled=true);}
+  else{b.classList.add('wrong');M.className='msg bad';M.textContent='Not quite. '+hint2(k,tr);}});
+$('t2EstGo').addEventListener('click',()=>{const v=parseFloat($('t2Est').value),M=$('t2EstMsg');if(isNaN(v)){M.className='msg bad';M.textContent='Type your estimate in degrees.';return;}
+  const d=Math.abs(v-t2.a);t2.shown=true;drawT2();
+  if(d<=10){M.className='msg good';M.textContent=`Excellent: it's ${t2.a}°, and you were only ${d}° away.`;}
+  else if(d<=25){M.className='msg good';M.textContent=`Close: it's ${t2.a}° (you were ${d}° away). Compare with 90° and 180° to get even nearer.`;}
+  else{M.className='msg bad';M.textContent=`It's ${t2.a}°, which is ${d}° from your guess. ${t2.a<90?'It\'s smaller than a square corner, so under 90°.':t2.a<180?'It\'s between a square corner (90°) and a straight line (180°).':'It\'s more than a straight line, so over 180°: take the small gap away from 360°.'}`;}});
+$('t2New').addEventListener('click',t2New);t2New();
+
+/* 3. straight line and point */
+const t3Svg=$('t3Svg'),t3Mode=$('t3Mode'),C3=[200,160];let t3L=130,t3Pt=[30,150,250];
+function drawT3(){let s='';const W=$('t3Work'),ac=css('--accent');
+  if(t3Mode.value==='line'){const a=t3L,b=180-a;
+    s+=mark(C3,42,0,a,css('--hi'))+mark(C3,42,a,b,css('--two'));
+    s+=ln([30,C3[1]],[370,C3[1]],ac,3)+ln(C3,P(C3,125,a),ac,3)+vdot(C3,css('--fg'));
+    s+=tx(P(C3,68,a/2),a+'°',css('--hi'),15)+tx(P(C3,68,a+b/2),b+'°',css('--two'),15)+handle(P(C3,125,a),ac);
+    W.innerHTML=`<span class="b">${a}°</span> + <span class="c">${b}°</span> = <strong>180°</strong><br>Turn the ray however you like: the two angles always make half a turn.`;}
+  else{const r=[...t3Pt].sort((x,y)=>x-y),sz=[r[1]-r[0],r[2]-r[1],360-r[2]+r[0]],cl=[css('--hi'),css('--two'),css('--muted')];
+    r.forEach((st,i)=>s+=mark(C3,42,st,sz[i],cl[i]));
+    r.forEach(st=>s+=ln(C3,P(C3,125,st),ac,3));s+=vdot(C3,css('--fg'));
+    r.forEach((st,i)=>s+=tx(P(C3,68,st+sz[i]/2),sz[i]+'°',cl[i],15));
+    t3Pt.forEach(st=>s+=handle(P(C3,125,st),ac));
+    W.innerHTML=`<span class="b">${sz[0]}°</span> + <span class="c">${sz[1]}°</span> + ${sz[2]}° = <strong>360°</strong><br>Three angles all the way round: a full turn, however you drag them.`;}
+  t3Svg.innerHTML=s;}
+drag(t3Svg,p=>{if(t3Mode.value==='line')return dist(p,C3)>15?'L':null;return nearest(p,t3Pt.map(a=>P(C3,125,a)),45);},(k,p)=>{
+  let a=Math.round(dirOf(C3,p));
+  if(k==='L'){if(a>180)a=a>270?5:175;t3L=Math.max(5,Math.min(175,a));}
+  else{a=a%360;if(t3Pt.some((o,j)=>j!==k&&cdist(o,a)<15))return;t3Pt[k]=a;}
+  drawT3();});
+t3Mode.addEventListener('change',drawT3);drawT3();
+
+let t3q;const t3TSvg=$('t3TSvg');
+function t3TNew(){if(Math.random()<.5){let g;do{g=rnd(25,155);}while(g===90);t3q={type:'line',g:[g],ans:180-g};}
+  else{let g1,g2;do{g1=rnd(40,160);g2=rnd(40,160);}while(360-g1-g2<40||360-g1-g2>175);t3q={type:'point',g:[g1,g2],ans:360-g1-g2,rot:rnd(0,359)};}
+  $('t3TIn').value='';$('t3TMsg').textContent='';$('t3TMsg').className='msg';
+  $('t3TQ').textContent=t3q.type==='line'?'These two angles sit together on a straight line. Find x.':'These three angles go all the way round a point. Find x.';drawT3T();}
+function drawT3T(){const q=t3q,ac=css('--accent');let s='';
+  if(q.type==='line'){const c=[200,170],g=q.g[0];s+=mark(c,38,0,g,css('--two'))+mark(c,38,g,180-g,css('--hi'));s+=ln([40,170],[360,170],ac,3)+ln(c,P(c,140,g),ac,3);
+    s+=tx(P(c,64,g/2),g+'°',css('--two'),15)+tx(P(c,64,g+(180-g)/2),'x',css('--hi'),17);}
+  else{const c=[200,115],[g1,g2]=q.g,r=q.rot,st=[r,r+g1,r+g1+g2],sz=[g1,g2,q.ans];
+    sz.forEach((z,i)=>s+=mark(c,34,st[i],z,i<2?css('--two'):css('--hi')));st.forEach(a=>s+=ln(c,P(c,98,a),ac,3));
+    sz.forEach((z,i)=>s+=tx(P(c,60,st[i]+z/2),i<2?z+'°':'x',i<2?css('--two'):css('--hi'),i<2?15:17));}
+  t3TSvg.innerHTML=s;}
+$('t3TGo').addEventListener('click',()=>{const v=parseFloat($('t3TIn').value),M=$('t3TMsg'),q=t3q;if(isNaN(v)){M.className='msg bad';M.textContent='Type a number of degrees.';return;}
+  const tot=q.g.reduce((s,x)=>s+x,0);
+  const work=q.type==='line'?`x = 180° − ${q.g[0]}° = ${q.ans}°`:`${q.g[0]}° + ${q.g[1]}° = ${tot}°, so x = 360° − ${tot}° = ${q.ans}°`;
+  if(v===q.ans){M.className='msg good';M.textContent=`Correct. ${work}. Reason: angles ${q.type==='line'?'on a straight line add up to 180°':'at a point add up to 360°'}.`;return;}
+  M.className='msg bad';
+  if(q.type==='line'&&v===360-tot)M.textContent='You took it away from 360°. These angles are only on one side of a straight line: that\'s half a turn, 180°.';
+  else if(q.type==='point'&&v===180-tot)M.textContent='These angles go all the way round the point: a full turn, 360°, not 180°.';
+  else if(q.type==='point'&&(v===360-q.g[0]||v===360-q.g[1]))M.textContent='Take away both known angles from 360°, not just one of them.';
+  else if(v===q.g[0]&&q.type==='line')M.textContent='x isn\'t a copy of the other angle. The two together make a straight line, so they add up to 180°.';
+  else M.textContent=`Not quite. Angles ${q.type==='line'?'on a straight line add up to 180°':'at a point add up to 360°'}: add the known angles, then subtract from that total.`;});
+$('t3TNew').addEventListener('click',t3TNew);t3TNew();
+
+/* 4. vertically opposite */
+const t4Svg=$('t4Svg'),C4=[200,150];let t4=[15,120];
+function drawT4(){const [p,q]=t4,a=norm(q-p)%180,b=180-a,st=[p,p+a,p+180,p+180+a],sz=[a,b,a,b],cl=[css('--hi'),css('--two'),css('--hi'),css('--two')],nm='abcd';let s='';
+  st.forEach((x,i)=>s+=mark(C4,34,x,sz[i],cl[i]));
+  s+=ln(P(C4,140,p),P(C4,140,p+180),css('--accent'),3)+ln(P(C4,140,q),P(C4,140,q+180),css('--accent'),3)+vdot(C4,css('--fg'));
+  st.forEach((x,i)=>s+=tx(P(C4,74,x+sz[i]/2),`${nm[i]}=${sz[i]}°`,cl[i],13));
+  [p,p+180,q,q+180].forEach(x=>s+=handle(P(C4,140,x),css('--accent')));
+  t4Svg.innerHTML=s;
+  $('t4Work').innerHTML=`<span class="b">a</span> + <span class="c">b</span> = 180°  (straight line)   ${a} + ${b} = 180<br><span class="c">b</span> + <span class="b">c</span> = 180°  (other straight line)  so c = 180 − ${b} = ${a}<br>So <span class="b">a = c = ${a}°</span>, and in the same way <span class="c">b = d = ${b}°</span>.`;}
+drag(t4Svg,p=>{const i=nearest(p,[t4[0],t4[0]+180,t4[1],t4[1]+180].map(x=>P(C4,140,x)),50);return i===null?null:(i<2?0:1);},(k,p)=>{
+  const na=Math.round(dirOf(C4,p))%180,d=norm(na-t4[1-k])%180;if(d<25||d>155)return;t4[k]=na;drawT4();});
+drawT4();
+
+/* 5. triangle and quadrilateral */
+const t5Svg=$('t5Svg'),t5Mode=$('t5Mode'),T5S={tri:[[80,240],[380,230],[260,50]],quad:[[70,230],[370,245],[340,60],[140,80]]};
+let t5P=T5S.tri.map(p=>p.slice()),t5Step=0;
+function validPoly(pts){const n=pts.length;if(n===4&&(segX(pts[0],pts[1],pts[2],pts[3])||segX(pts[1],pts[2],pts[3],pts[0])))return false;
+  const A=interior(pts);if(A.some(x=>x<8||x>352))return false;return Math.abs(A.reduce((s,x)=>s+x,0)-(n-2)*180)<0.5;}
+function drawT5(){const pts=t5P,n=pts.length,A=interior(pts),tot=(n-2)*180,R=roundTo(A,tot),cl=[css('--hi'),css('--two'),css('--accent'),css('--muted')],L='ABCD';let s='';
+  s+=`<polygon points="${pts.map(p=>p.map(f2).join(',')).join(' ')}" fill="${css('--accent')}" fill-opacity=".07" stroke="${css('--accent')}" stroke-width="3" stroke-linejoin="round"/>`;
+  if(n===4){let r=A.findIndex(x=>x>180);if(r<0)r=0;s+=ln(pts[r],pts[(r+2)%4],css('--muted'),1.5,'stroke-dasharray="6 5"');}
+  pts.forEach((b,i)=>{const st=cornerStart(b,pts[(i-1+n)%n],pts[(i+1)%n],A[i]),mid=st+A[i]/2;s+=mark(b,28,st,A[i],cl[i],.3);
+    s+=tx(P(b,A[i]<40?66:52,mid),R[i]+'°',cl[i],13)+tx(P(b,20,mid+180),L[i],css('--fg'),13);});
+  pts.forEach((b,i)=>s+=handle(b,cl[i]));
+  if(t5Step>0){const c=[230,352];if(n===3)s+=ln([110,352],[350,352],css('--muted'),2);let cum=0;
+    for(let k=0;k<t5Step;k++){s+=mark(c,52,cum,A[k],cl[k],.35);s+=tx(P(c,A[k]<30?84:70,cum+A[k]/2),R[k]+'°',cl[k],13);cum+=A[k];}
+    s+=vdot(c,css('--fg'));}
+  else s+=tx([230,345],'torn-off corners will go here',css('--muted'),12,'middle',400);
+  t5Svg.innerHTML=s;
+  $('t5Sum').textContent=`${L.slice(0,n).split('').join(' + ')} = ${R.map(x=>x+'°').join(' + ')} = ${tot}°`;
+  const M=$('t5Msg');
+  const msgs=n===3?['Drag the corners to make any triangle, then tear off the corners one at a time.','Corner A is torn off and placed at the point on the line.','Corner B fits next to it, with no gap and no overlap.','Corner C fills the rest exactly. The three corners make a straight line: 180°. Reshape the triangle and watch: it still fits.']
+    :['Drag the corners to make any quadrilateral (even one with a dent), then tear off the corners.','Corner A is placed at the point.','Corner B fits next to it.','Corner C fits next.','Corner D fills the gap exactly: the four corners go all the way round a point, a full turn of 360°. The dashed diagonal shows why: two triangles, 2 × 180° = 360°.'];
+  M.textContent=msgs[t5Step];}
+function t5Set(){t5P=T5S[t5Mode.value].map(p=>p.slice());t5Step=0;drawT5();}
+drag(t5Svg,p=>nearest(p,t5P,40),(k,p)=>{const q=[Math.max(20,Math.min(440,p[0])),Math.max(20,Math.min(255,p[1]))];const np=t5P.map(x=>x.slice());np[k]=q;if(validPoly(np)){t5P=np;drawT5();}});
+t5Mode.addEventListener('change',t5Set);
+$('t5Tear').addEventListener('click',()=>{if(t5Step<t5P.length)t5Step++;drawT5();});
+$('t5Reset').addEventListener('click',()=>{t5Step=0;drawT5();});
+drawT5();
+
+let t5q;
+function t5TNew(){if(Math.random()<.55){let g1,g2;do{g1=rnd(25,110);g2=rnd(20,110);}while(180-g1-g2<15);t5q={type:'tri',g:[g1,g2],ans:180-g1-g2};}
+  else{let g;do{g=[rnd(50,140),rnd(50,140),rnd(50,140)];}while(360-g[0]-g[1]-g[2]<40||360-g[0]-g[1]-g[2]>170);t5q={type:'quad',g,ans:360-g[0]-g[1]-g[2]};}
+  $('t5TQ').textContent=t5q.type==='tri'?`A triangle has angles ${t5q.g[0]}° and ${t5q.g[1]}°. What is the third angle?`:`A quadrilateral has angles ${t5q.g.join('°, ').replace(/, ([^,]*)$/,' and $1')}°. What is the fourth angle?`;
+  $('t5TIn').value='';$('t5TMsg').textContent='';$('t5TMsg').className='msg';}
+$('t5TGo').addEventListener('click',()=>{const v=parseFloat($('t5TIn').value),M=$('t5TMsg'),q=t5q,T=q.type==='tri'?180:360,tot=q.g.reduce((s,x)=>s+x,0);
+  if(isNaN(v)){M.className='msg bad';M.textContent='Type a number of degrees.';return;}
+  if(v===q.ans){M.className='msg good';M.textContent=`Correct. ${q.g.join(' + ')} = ${tot}, and ${T} − ${tot} = ${q.ans}°. Reason: angles in a ${q.type==='tri'?'triangle add up to 180°':'quadrilateral add up to 360°'}.`;return;}
+  M.className='msg bad';
+  if(q.type==='tri'&&v===360-tot)M.textContent='You used 360°. That\'s the total for a quadrilateral. A triangle\'s angles add up to 180°.';
+  else if(q.type==='quad'&&v===180-tot)M.textContent='You used 180°, the triangle total. A quadrilateral is two triangles, so its angles add up to 360°.';
+  else if(v===tot)M.textContent=`${tot}° is the total of the angles you know. Now subtract it from ${T}°.`;
+  else if(q.g.some(x=>v===T-x))M.textContent='Subtract all the known angles from the total, not just one of them.';
+  else M.textContent=`Not quite. Add the known angles (${q.g.join(' + ')}), then subtract from ${T}°.`;});
+$('t5TNew').addEventListener('click',t5TNew);t5TNew();
+
+/* 6. parallel lines */
+const PAIRS={corr:[[[0,1],[1,1]],[[0,2],[1,2]],[[0,3],[1,3]],[[0,4],[1,4]]],alt:[[[0,3],[1,1]],[[0,4],[1,2]]],co:[[[0,4],[1,1]],[[0,3],[1,2]]]};
+const LET=[['','a','b','c','d'],['','e','f','g','h']];
+const REL={corr:{name:'Corresponding',shape:'F',rule:'equal',reason:'corresponding angles are equal'},alt:{name:'Alternate',shape:'Z',rule:'equal',reason:'alternate angles are equal'},co:{name:'Co-interior',shape:'C',rule:'add up to 180°',reason:'co-interior angles add up to 180°'}};
+const POSN=['','top-right','top-left','bottom-left','bottom-right'];
+const posStart=(th,p)=>[0,0,th,180,180+th][p],posSize=(th,p)=>(p%2?th:180-th);
+function parG(th){const k=1/Math.tan(th*D);return {I:[[230+60*k,95],[230-60*k,215]],top:[230+135*k,20],bot:[230-135*k,290]};}
+function drawPar(th,o){const g=parG(th),ac=css('--accent');let s='';
+  if(o.hl)o.marks.forEach(m=>{const I=g.I[m.i],h=(m.pos===1||m.pos===4)?0:180,t=m.pos<=2?th:th+180;s+=ln(I,P(I,110,h),css('--two'),14,'stroke-opacity=".22"')+ln(I,P(I,120/Math.sin(th*D),t),css('--two'),14,'stroke-opacity=".22"');});
+  s+=ln([20,95],[440,95],ac,3)+ln([20,215],[440,215],ac,3)+ln(g.top,g.bot,ac,3);
+  [95,215].forEach(y=>s+=`<path d="M58,${y-7} L68,${y} L58,${y+7}" fill="none" stroke="${ac}" stroke-width="2.5" stroke-linejoin="round"/>`);
+  for(let i=0;i<2;i++)for(let p=1;p<=4;p++){const m=o.marks.find(x=>x.i===i&&x.pos===p),st=posStart(th,p),sz=posSize(th,p);
+    if(m){s+=mark(g.I[i],28,st,sz,m.col,.32);s+=tx(P(g.I[i],sz<60?66:56,st+sz/2),m.text,m.col,14);}
+    else if(o.letters){s+=mark(g.I[i],20,st,sz,css('--muted'),.1);s+=tx(P(g.I[i],38,st+sz/2),LET[i][p],css('--muted'),12,'middle',500);}}
+  return s;}
+const t6Svg=$('t6Svg'),t6Rel=$('t6Rel'),t6Th=$('t6Th');let t6Idx=0;
+function drawT6(){const th=+t6Th.value,rel=t6Rel.value,list=PAIRS[rel],pr=list[t6Idx%list.length];
+  const [x,y]=pr,v1=posSize(th,x[1]),v2=posSize(th,y[1]),n1=LET[x[0]][x[1]],n2=LET[y[0]][y[1]];
+  t6Svg.innerHTML=drawPar(th,{hl:true,letters:true,marks:[{i:x[0],pos:x[1],col:css('--hi'),text:`${n1}=${v1}°`},{i:y[0],pos:y[1],col:css('--two'),text:`${n2}=${v2}°`}]});
+  const where=rel==='corr'?`both ${POSN[x[1]]} at their crossing`:rel==='alt'?'between the parallel lines, on opposite sides of the transversal':'between the parallel lines, on the same side of the transversal';
+  $('t6Work').innerHTML=`${REL[rel].name} angles <span class="b">${n1}</span> and <span class="c">${n2}</span>: ${where} (${REL[rel].shape}-shape).<br>`+(rel==='co'?`<span class="b">${n1}</span> + <span class="c">${n2}</span> = ${v1}° + ${v2}° = <strong>180°</strong>`:`<span class="b">${n1} = ${v1}°</span> and <span class="c">${n2} = ${v2}°</span>: <strong>equal</strong>`);}
+t6Rel.addEventListener('change',()=>{t6Idx=0;drawT6();});t6Th.addEventListener('input',drawT6);
+$('t6Next').addEventListener('click',()=>{t6Idx++;drawT6();});
+drag(t6Svg,p=>dist(p,[230,155])>20?1:null,(k,p)=>{let th=Math.round(dirOf([230,155],p))%180;th=Math.max(35,Math.min(145,th));t6Th.value=th;drawT6();});
+drawT6();
+
+let t6q;const t6TSvg=$('t6TSvg');
+function t6TNew(){const rel=pick(['corr','alt','co']),pr=pick(PAIRS[rel]),pair=Math.random()<.5?[pr[1],pr[0]]:pr;let th;do{th=5*rnd(8,28);}while(th===90);
+  t6q={rel,pair,th,g:posSize(th,pair[0][1]),ans:posSize(th,pair[1][1])};$('t6TIn').value='';$('t6TR').value='';$('t6TMsg').textContent='';$('t6TMsg').className='msg';drawT6T();}
+function drawT6T(){const q=t6q;t6TSvg.innerHTML=drawPar(q.th,{hl:false,letters:false,marks:[{i:q.pair[0][0],pos:q.pair[0][1],col:css('--two'),text:q.g+'°'},{i:q.pair[1][0],pos:q.pair[1][1],col:css('--hi'),text:'x'}]});}
+$('t6TGo').addEventListener('click',()=>{const v=parseFloat($('t6TIn').value),r=$('t6TR').value,M=$('t6TMsg'),q=t6q,R=REL[q.rel];
+  if(isNaN(v)){M.className='msg bad';M.textContent='Type a number of degrees for x.';return;}
+  const okN=v===q.ans,okR=r===q.rel;
+  if(okN&&okR){M.className='msg good';M.textContent=`Correct: x = ${q.ans}°, because ${R.reason}${q.rel==='co'?` (${q.g} + ${q.ans} = 180)`:''}.`;return;}
+  M.className='msg bad';
+  if(okN){M.textContent=r===''?'Right number. Now choose the reason.':`Right number, but check the reason. Trace the lines joining the two angles: F = corresponding, Z = alternate, C = co-interior. These two make a ${R.shape}-shape.`;return;}
+  if(q.rel==='co'&&v===q.g)M.textContent='These two are both between the parallel lines on the same side of the transversal (a C-shape): co-interior. Co-interior angles are not equal; they add up to 180°.';
+  else if(q.rel!=='co'&&v===180-q.g)M.textContent=`These are ${R.name.toLowerCase()} angles (${R.shape}-shape), which are equal. No subtracting needed: notice they look the same size.`;
+  else M.textContent='Not quite. First spot the shape joining the two angles (F, Z or C), then use its rule: F and Z are equal, C adds up to 180°.';});
+$('t6TNew').addEventListener('click',t6TNew);t6TNew();
+
+/* 7. polygons */
+const PN={3:'triangle',4:'quadrilateral',5:'pentagon',6:'hexagon',7:'heptagon',8:'octagon',9:'nonagon',10:'decagon',11:'hendecagon',12:'dodecagon'};
+const pname=n=>PN[n]||n+'-sided polygon';
+const regular=(n,c,r)=>Array.from({length:n},(_,k)=>P(c,r,270-180/n+360*k/n));
+const deg1=v=>Math.abs(v-Math.round(v))<1e-9?Math.round(v)+'°':'≈ '+v.toFixed(1)+'°';
+const t7Svg=$('t7Svg'),t7N=$('t7N');
+function drawT7(){const n=+t7N.value,v=regular(n,[230,165],130),sum=(n-2)*180,iv=sum/n,ev=360/n;let s='';$('t7Nv').textContent=' '+n;
+  for(let k=1;k<=n-2;k++)s+=`<polygon points="${[v[0],v[k],v[k+1]].map(p=>p.map(f2).join(',')).join(' ')}" fill="${k%2?css('--hi'):css('--two')}" fill-opacity=".12"/>`;
+  for(let k=2;k<=n-2;k++)s+=ln(v[0],v[k],css('--muted'),1.5,'stroke-dasharray="6 5"');
+  s+=`<polygon points="${v.map(p=>p.map(f2).join(',')).join(' ')}" fill="none" stroke="${css('--accent')}" stroke-width="3" stroke-linejoin="round"/>`;
+  const b=v[1],e=dirOf(v[0],v[1]),st=cornerStart(b,v[0],v[2],iv);
+  s+=ln(b,P(b,70,e),css('--accent'),2,'stroke-dasharray="5 4"');
+  s+=mark(b,26,st,iv,css('--hi'),.35)+mark(b,26,e,ev,css('--two'),.35);
+  s+=tx(P(b,48,st+iv/2),deg1(iv).replace('≈ ',''),css('--hi'),12)+tx(P(b,ev<40?64:46,e+ev/2),deg1(ev).replace('≈ ',''),css('--two'),12);
+  for(let k=1;k<=n-2;k++){const g=[(v[0][0]+v[k][0]+v[k+1][0])/3,(v[0][1]+v[k][1]+v[k+1][1])/3];if(k!==1||n<5)s+=tx(g,'180°',css('--muted'),11,'middle',500);}
+  t7Svg.innerHTML=s;
+  $('t7Name').textContent=`${pname(n)} (${n} sides)`;$('t7Sum').textContent=sum+'°';$('t7Int').textContent=deg1(iv);$('t7Ext').textContent=deg1(ev);
+  $('t7Work').innerHTML=`${n} sides → ${n-3} diagonal${n-3===1?'':'s'} from one corner → ${n} − 2 = <strong>${n-2}</strong> triangle${n===3?'':'s'}<br>Interior sum = (${n} − 2) × 180° = ${n-2} × 180° = <strong>${sum}°</strong><br><span class="b">Regular: each interior = ${sum}° ÷ ${n} = ${deg1(iv)}</span><br><span class="c">Each exterior = 360° ÷ ${n} = ${deg1(ev)}</span><br>Check: interior + exterior = ${fmt(iv)} + ${fmt(ev)} = 180° ✓`;}
+t7N.addEventListener('input',drawT7);drawT7();
+
+const T7B={tri:[[90,270],[390,250],[210,60]],quad:[[80,250],[370,280],[380,110],[150,70]],pent:[[110,260],[330,280],[400,150],[250,50],[90,130]],hex:regular(6,[230,165],115)};
+const t7bSvg=$('t7bSvg'),t7bShape=$('t7bShape');let t7bStep=0;
+function drawT7b(){const v=T7B[t7bShape.value],n=v.length,tr=turns(v),ex=tr.map(Math.abs),R=roundTo(ex,360);let s='';
+  s+=`<polygon points="${v.map(p=>p.map(f2).join(',')).join(' ')}" fill="${css('--accent')}" fill-opacity=".06" stroke="${css('--accent')}" stroke-width="3" stroke-linejoin="round"/>`;
+  const seq=[];for(let j=1;j<=t7bStep;j++){const i=j%n;seq.push(i);const b=v[i],e=dirOf(v[(i-1+n)%n],b),st=tr[i]>0?e:e+tr[i];
+    s+=ln(b,P(b,55,e),css('--muted'),1.8,'stroke-dasharray="5 4"')+mark(b,24,st,ex[i],css('--hi'),.35)+tx(P(b,ex[i]<45?62:44,st+ex[i]/2),R[i]+'°',css('--hi'),12);}
+  v.forEach(p=>s+=vdot(p,css('--fg')));
+  const cur=t7bStep%n,d=dirOf(v[cur],v[(cur+1)%n]),b=v[cur],tip=P(b,76,d),bs=P(b,60,d);
+  s+=ln(b,bs,css('--two'),6)+`<polygon points="${[tip,P(bs,8,d+90),P(bs,8,d-90)].map(p=>p.map(f2).join(',')).join(' ')}" fill="${css('--two')}"/>`;
+  t7bSvg.innerHTML=s;
+  const W=$('t7bWork'),tot=seq.reduce((x,i)=>x+R[i],0);
+  if(t7bStep===0)W.innerHTML='The pencil (plum arrow) starts on the first side, pointing along it.<br>Press the button to walk it to the next corner and turn it to face along the next side.';
+  else W.innerHTML=`Turns so far: <span class="b">${seq.map(i=>R[i]+'°').join(' + ')}</span> = <strong>${tot}°</strong>`+(t7bStep===n?`<br><span class="c">Back at the start, facing the same way: exactly one full turn, 360°. Try another shape: it's always 360°.</span>`:`<br>${n-t7bStep} more corner${n-t7bStep===1?'':'s'} to go.`);
+  $('t7bNext').disabled=t7bStep>=n;}
+$('t7bNext').addEventListener('click',()=>{const n=T7B[t7bShape.value].length;if(t7bStep<n)t7bStep++;drawT7b();});
+$('t7bReset').addEventListener('click',()=>{t7bStep=0;drawT7b();});t7bShape.addEventListener('change',()=>{t7bStep=0;drawT7b();});drawT7b();
+
+let t7q;const NS=[5,6,8,9,10,12,15,18,20];
+function t7TNew(){const type=pick(['sum','ext','int','sides']);let n,ans,q;
+  if(type==='sum'){n=pick([5,6,7,8,9,10,12]);ans=(n-2)*180;q=`What do the interior angles of a ${pname(n)} add up to?`;}
+  else{n=pick(NS);const e=360/n,i=180-e;
+    if(type==='ext'){ans=e;q=`Find the size of each exterior angle of a regular ${pname(n)}${PN[n]?' ('+n+' sides)':''}.`;}
+    else if(type==='int'){ans=i;q=`Find the size of each interior angle of a regular ${pname(n)}${PN[n]?' ('+n+' sides)':''}.`;}
+    else{ans=n;q=`Each interior angle of a regular polygon is ${i}°. How many sides does it have?`;}}
+  t7q={type,n,ans};$('t7TQ').textContent=q;$('t7TIn').value='';$('t7TMsg').textContent='';$('t7TMsg').className='msg';}
+$('t7TGo').addEventListener('click',()=>{const v=parseFloat($('t7TIn').value),M=$('t7TMsg'),{type,n,ans}=t7q,e=360/n,i=180-e;
+  if(isNaN(v)){M.className='msg bad';M.textContent='Type a number.';return;}
+  const W={sum:`(${n} − 2) × 180 = ${n-2} × 180 = ${ans}°`,ext:`360 ÷ ${n} = ${e}°`,int:`exterior = 360 ÷ ${n} = ${e}°, so interior = 180 − ${e} = ${i}°`,sides:`exterior = 180 − ${i} = ${e}°, so n = 360 ÷ ${e} = ${n}`}[type];
+  if(v===ans){M.className='msg good';M.textContent='Correct: '+W+(type==='sides'?' sides.':'.');return;}
+  M.className='msg bad';
+  if(type==='sum'&&v===n*180)M.textContent=`That's ${n} × 180. A ${pname(n)} splits into ${n} − 2 triangles, not ${n}.`;
+  else if(type==='ext'&&Math.abs(v-i)<1e-9)M.textContent='That\'s the interior angle. The exterior angle is the turn at each corner: 360° shared equally between the corners.';
+  else if(type==='int'&&Math.abs(v-e)<1e-9)M.textContent='That\'s the exterior angle (the turn). The interior angle is what\'s left on the straight line: 180° minus the exterior.';
+  else if(type==='sides'&&Math.abs(v-360/i)<0.01)M.textContent='Don\'t divide 360 by the interior angle. First find the exterior angle (180 − interior), then divide 360 by that.';
+  else M.textContent={sum:'Use (n − 2) × 180°: count the triangles first.',ext:'Each exterior angle of a regular polygon is 360° ÷ number of sides.',int:'Find the exterior angle (360 ÷ n) first, then interior = 180 − exterior.',sides:'Find the exterior angle (180 − interior), then sides = 360 ÷ exterior.'}[type];});
+$('t7TNew').addEventListener('click',t7TNew);t7TNew();
+
+/* 8. giving reasons */
+const t8Svg=$('t8Svg');
+function drawT8(){const ac=css('--accent'),hi=css('--hi'),tw=css('--two'),Pp=[230,60],Q=[230-170/Math.tan(50*D),230],R=[230+170/Math.tan(60*D),230];let s='';
+  s+=mark(Pp,30,180,50,tw)+mark(Pp,30,300,60,tw)+mark(Pp,30,230,70,hi)+mark(Q,30,0,50,hi)+mark(R,30,120,60,hi);
+  s+=ln([20,60],[440,60],ac,3)+ln([20,230],[440,230],ac,3)+ln(Pp,Q,ac,3)+ln(Pp,R,ac,3);
+  [60,230].forEach(y=>s+=`<path d="M40,${y-7} L50,${y} L40,${y+7}" fill="none" stroke="${ac}" stroke-width="2.5" stroke-linejoin="round"/>`);
+  s+=tx(P(Pp,52,205),'50°',tw,13)+tx(P(Pp,52,330),'60°',tw,13)+tx(P(Pp,50,265),'c',hi,15)+tx(P(Q,50,25),'a',hi,15)+tx(P(R,50,150),'b',hi,15);
+  s+=tx([Pp[0],Pp[1]-16],'P',css('--fg'),14)+tx([Q[0]-6,Q[1]+20],'Q',css('--fg'),14)+tx([R[0]+6,R[1]+20],'R',css('--fg'),14);
+  t8Svg.innerHTML=s;}
+drawT8();
+const T8=[{a:50,ok:['alt'],h:{corr:'Corresponding angles make an F-shape. Here the top line, PQ and the bottom line make a Z-shape, so these are alternate.',co:'Co-interior angles add up to 180°, but these two are the same size: they make a Z-shape.'},hn:'a and the 50° are joined by a Z-shape (top line, PQ, bottom line).'},
+  {a:60,ok:['alt'],h:{corr:'Trace the lines: top line, PR, bottom line. That\'s a Z-shape (backwards), so alternate, not corresponding.',co:'These two are equal, so they can\'t be co-interior (those add to 180°). It\'s a Z-shape.'},hn:'b and the 60° are joined by a (backwards) Z-shape.'},
+  {a:70,ok:['tri','line'],h:{},hn:'Use the triangle: a + b + c = 180°, so c = 180 − 50 − 60.'}];
+$('t8Go').addEventListener('click',()=>{T8.forEach((t,k)=>{const v=parseFloat($('t8A'+(k+1)).value),r=$('t8R'+(k+1)).value,M=$('t8M'+(k+1));
+  const okN=v===t.a,okR=t.ok.includes(r);
+  if(okN&&okR){M.className='msg good';M.textContent=k===2?(r==='tri'?'✓ 180 − 50 − 60 = 70°. (Angles on the straight line at P would also work: 180 − 50 − 60 = 70.)':'✓ 50 + c + 60 = 180 on the top line, so c = 70°. (Angles in a triangle would also work.)'):`✓ ${t.a}°, alternate angles are equal.`;}
+  else if(isNaN(v)){M.className='msg bad';M.textContent='Fill in the size first.';}
+  else if(!okN){M.className='msg bad';M.textContent=`Size not right yet. ${t.hn}`;}
+  else{M.className='msg bad';M.textContent=r===''?'Right size. Now choose the reason.':(t.h[r]||'Right size, but that fact doesn\'t link these angles. '+t.hn);}});});
+
+/* worked example diagrams */
+function drawWE(){const ac=css('--accent'),hi=css('--hi'),tw=css('--two');
+  {const c=[200,115],st=[0,90,230,305],sz=[90,140,75,55],lb=['90°','140°','75°','y'];let s='';
+    st.forEach((a,i)=>s+=mark(c,30,a,sz[i],i<3?tw:hi));st.forEach(a=>s+=ln(c,P(c,100,a),ac,3));
+    st.forEach((a,i)=>s+=tx(P(c,i===0?40:56,a+sz[i]/2),lb[i],i<3?tw:hi,i<3?14:16));$('we1').innerHTML=s;}
+  {const B=[150,200],C=[250,200],A=[200,200-50*Math.tan(70*D)];let s='';
+    s+=mark(A,28,cornerStart(A,B,C,40),40,tw)+mark(B,28,0,70,hi)+mark(C,28,110,70,hi);
+    s+=`<polygon points="${[A,B,C].map(p=>p.map(f2).join(',')).join(' ')}" fill="none" stroke="${ac}" stroke-width="3" stroke-linejoin="round"/>`;
+    [B,C].forEach(p=>{const m=[(A[0]+p[0])/2,(A[1]+p[1])/2],d=dirOf(A,p);s+=ln(P(m,8,d+90),P(m,8,d-90),ac,2.5);});
+    s+=tx(P(A,48,270),'40°',tw,13)+tx(P(B,46,35),'x',hi,15)+tx(P(C,46,145),'x',hi,15);$('we2').innerHTML=s;}
+  $('we3').innerHTML=drawPar(112,{hl:false,letters:false,marks:[{i:0,pos:3,col:tw,text:'112°'},{i:1,pos:2,col:hi,text:'x'},{i:1,pos:4,col:hi,text:'y'}]});}
+drawWE();
+
+const redraw=()=>{drawT1();drawT2();drawT3();drawT3T();drawT4();drawT5();drawT6();drawT6T();drawT7();drawT7b();drawT8();drawWE();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);}
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'An angle of 135° is…',opts:['obtuse','acute','reflex','a right angle'],a:0,fb:'135° is between 90° and 180°, so it is obtuse.'},
+  {q:'Two angles sit together on a straight line. One is 68°. The other is…',opts:['112°','292°','22°','68°'],a:0,fb:'Angles on a straight line add up to 180°: 180 − 68 = 112°.'},
+  {q:'Three angles go all the way round a point: 120°, 95° and x. Find x.',opts:['145°','65°','215°','35°'],a:0,fb:'Angles at a point add up to 360°: 120 + 95 = 215, and 360 − 215 = 145°.'},
+  {q:'Two straight lines cross. One of the angles is 38°. The angle vertically opposite it is…',opts:['38°','142°','52°','322°'],a:0,fb:'Vertically opposite angles are equal. (142° is the angle next to it: 180 − 38.)'},
+  {q:'A triangle has angles 47° and 68°. The third angle is…',opts:['65°','115°','245°','75°'],a:0,fb:'47 + 68 = 115, and angles in a triangle add up to 180°: 180 − 115 = 65°.'},
+  {q:'A quadrilateral has angles 90°, 110°, 75° and x. Find x.',opts:['85°','265°','5°','95°'],a:0,fb:'90 + 110 + 75 = 275, and angles in a quadrilateral add up to 360°: 360 − 275 = 85°.'},
+  {q:'On parallel lines, which pair of angles add up to 180° (rather than being equal)?',opts:['co-interior','alternate','corresponding','vertically opposite'],a:0,fb:'Co-interior angles (C-shape) add up to 180°. Alternate (Z) and corresponding (F) angles are equal.'},
+  {q:'What do the interior angles of a hexagon add up to?',opts:['720°','1080°','540°','360°'],a:0,fb:'A hexagon has 6 sides: (6 − 2) × 180 = 4 × 180 = 720°.'},
+  {q:'Each exterior angle of a regular decagon (10 sides) is…',opts:['36°','144°','18°','72°'],a:0,fb:'Exterior angles add up to 360°: 360 ÷ 10 = 36°. (144° is the interior angle.)'},
+  {q:'Each interior angle of a regular polygon is 140°. How many sides does it have?',opts:['9','7','8','140'],a:0,fb:'Exterior = 180 − 140 = 40°, and 360 ÷ 40 = 9 sides.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

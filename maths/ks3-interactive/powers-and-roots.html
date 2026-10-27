@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Powers and Roots</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive "lab" panels; graph-paper neutrals, teal for squares, orange for cubes/highlights, plum for roots. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:180px;max-width:50vw}
+input[type=number]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}
+.readout .p{color:var(--two)}
+.big{font-family:var(--mono);font-size:1.15rem;text-align:center;margin:1rem 0;line-height:1.8}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;align-items:start}
+.two>div{min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono,th.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+.stair td{text-align:center;font-family:var(--mono);font-size:1.05rem}
+.stair td.arrow{color:var(--hi);font-size:.85rem}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;font-family:var(--mono);margin-top:.5rem}
+.chips span{padding:.2rem .6rem;border-radius:999px;background:var(--accent-soft);font-size:.9rem}
+.chips span.c{background:var(--hi-soft)}
+.law{font-family:var(--mono);font-size:1.05rem;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin:.6rem 0;line-height:1.7;overflow-x:auto}
+.law .f{color:var(--accent)}.law .g{color:var(--hi)}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Number · KS3</div>
+  <h1>Powers and Roots</h1>
+  <p class="lede">Squares are literally squares and cubes are literally cubes. Start from the shapes, and the index laws, zero powers and negative powers stop being rules to memorise and become patterns you can see.</p>
+  <span class="gcse">National curriculum KS3: square and cube numbers, square and cube roots, integer powers, index laws, standard form prerequisite</span>
+</header>
+
+<h2>1 · Squares are squares</h2>
+<p>5² is said "five squared" and means 5 × 5 = 25. The name is not a metaphor. If you build a square with 5 dots along each side, it contains exactly 25 dots. Drag the slider and count.</p>
+
+<div class="lab">
+  <div class="controls"><label>Side n = <input type="range" id="sq" min="1" max="12" value="5"></label></div>
+  <div id="sqArea"></div>
+  <div class="readout">
+    <div><b>n</b><span id="sqN"></span></div>
+    <div><b>n² = n × n</b><span id="sqV"></span></div>
+    <div class="t"><b>Added since last square</b><span id="sqD"></span></div>
+  </div>
+</div>
+
+<p>The square numbers are <span class="m">1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225</span>. Know them to 15². Notice what the orange L-shape shows: to go from one square to the next you add the next odd number (1, 3, 5, 7, …). That's why the differences between square numbers are always odd.</p>
+
+<h2>2 · Cubes are cubes</h2>
+<p>4³ is "four cubed" and means 4 × 4 × 4 = 64. Build a cube with 4 blocks along each edge: 4 layers, each a 4 × 4 square of 16, total 64.</p>
+
+<div class="lab">
+  <div class="controls"><label>Edge n = <input type="range" id="cu" min="1" max="6" value="4"></label></div>
+  <div id="cuArea"></div>
+  <div class="readout">
+    <div><b>n</b><span id="cuN"></span></div>
+    <div><b>Each layer n²</b><span id="cuL"></span></div>
+    <div class="t"><b>n³ = n layers × n²</b><span id="cuV"></span></div>
+  </div>
+</div>
+
+<p>The cube numbers to know: <span class="m">1, 8, 27, 64, 125, 216, 343, 512, 729, 1000</span>. The dimensions are the clue to the names: a square is 2-dimensional so squaring uses the number twice; a cube is 3-dimensional so cubing uses it three times. After that the shapes run out but the pattern doesn't: n⁴ is n used four times, and so on.</p>
+
+<h2>3 · Reading the notation</h2>
+<div class="big">
+  <span style="color:var(--accent)">base</span><sup style="color:var(--hi)">index</sup> &nbsp;&nbsp; e.g. &nbsp; <span style="color:var(--accent);font-size:1.4em">2</span><sup style="color:var(--hi)">5</sup> = 2 × 2 × 2 × 2 × 2 = 32
+</div>
+<p>The big number is the <strong>base</strong>: what you're multiplying. The small raised number is the <strong>index</strong> (plural <em>indices</em>; also called the <strong>power</strong> or <strong>exponent</strong>): how many copies to multiply. In Spanish, <em>base</em> and <em>exponente</em>, and the whole thing is a <em>potencia</em>.</p>
+<p>The most common mistake in the whole topic: <span class="m">2⁵</span> is <strong>not</strong> 2 × 5 = 10. It is five 2s multiplied, which is 32. Index means "how many copies", never "multiply by".</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Base <input type="number" id="pb" value="3" min="-20" max="20" step="1"></label>
+    <label>Index <input type="number" id="pi" value="4" min="1" max="12" step="1"></label>
+  </div>
+  <div class="readout">
+    <div><b>Expanded</b><span id="pExp"></span></div>
+    <div class="t"><b>Value</b><span id="pVal"></span></div>
+    <div><b>Common mistake (base × index)</b><span id="pBad"></span></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Negative bases.</strong> (−3)² = (−3) × (−3) = +9, because two negatives multiply to a positive. (−3)³ = −27: three negatives give a negative. Even powers of a negative are positive; odd powers stay negative. And watch the brackets: <span class="m">−3²</span> means −(3²) = −9, but <span class="m">(−3)²</span> = 9. Try base −3 above.</p>
+</div>
+
+<h2>4 · Roots: going backwards</h2>
+<p>Squaring asks "5 along each side, how many in total?" The <strong>square root</strong> asks the reverse: "25 in total, how long is each side?" √25 = 5. The symbol √ is called the <em>radical</em> (<em>raíz</em> in Spanish). Likewise the <strong>cube root</strong>: ∛64 = 4, because a cube of 64 blocks has edge 4.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Number <input type="number" id="rn" value="25" min="1" max="10000" step="1"></label>
+  </div>
+  <div id="rootArea"></div>
+  <div class="readout">
+    <div class="p"><b>√ (square root)</b><span id="rSq"></span></div>
+    <div class="p"><b>∛ (cube root)</b><span id="rCu"></span></div>
+    <div><b>Verdict</b><span id="rMsg"></span></div>
+  </div>
+</div>
+
+<p>Two things to notice:</p>
+<ul>
+  <li>Most numbers are not perfect squares, so their square roots are not whole numbers. √20 is between √16 = 4 and √25 = 5, so it's "4 point something" (4.47…). Trapping a root between two known squares is a skill examiners test.</li>
+  <li>Every positive number has <strong>two</strong> square roots, because (−5)² is also 25. The √ symbol means the <em>positive</em> one. When an equation says x² = 25, the full answer is x = ±5.</li>
+</ul>
+
+<h2>5 · The index laws (don't memorise, count)</h2>
+<p>Each law is just counting copies. Change the indices and watch the copies line up.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>a = <input type="number" id="la" value="2" min="2" max="9"></label>
+    <label>m = <input type="number" id="lm" value="3" min="1" max="7"></label>
+    <label>n = <input type="number" id="ln" value="2" min="1" max="7"></label>
+  </div>
+  <div id="laws"></div>
+</div>
+
+<div class="tbl"><table>
+  <tr><th>Law</th><th class="mono">Rule</th><th>Why</th></tr>
+  <tr><td>Multiplying</td><td class="mono">aᵐ × aⁿ = aᵐ⁺ⁿ</td><td>m copies then n more copies: m + n copies in total.</td></tr>
+  <tr><td>Dividing</td><td class="mono">aᵐ ÷ aⁿ = aᵐ⁻ⁿ</td><td>n of the copies on the bottom cancel n on the top.</td></tr>
+  <tr><td>Power of a power</td><td class="mono">(aᵐ)ⁿ = aᵐⁿ</td><td>n groups, each holding m copies: m × n copies.</td></tr>
+  <tr><td>Power of a product</td><td class="mono">(ab)ⁿ = aⁿbⁿ</td><td>(2 × 3)² = 2 × 3 × 2 × 3 = 2² × 3².</td></tr>
+</table></div>
+
+<p>The laws only work when the <strong>bases match</strong>. 2³ × 5² has no shortcut; you just work it out (8 × 25 = 200). And they are about multiplying and dividing: there is no law for 2³ + 2², which is simply 8 + 4 = 12.</p>
+
+<h2>6 · Zero and negative powers</h2>
+<p>What could 2⁰ or 2⁻¹ possibly mean? You can't multiply "zero copies" or "minus one copy". The answer comes from a pattern. Going down the staircase, each step divides by the base. Just keep going.</p>
+
+<div class="lab">
+  <div class="controls"><label>Base <input type="number" id="zb" value="2" min="2" max="10"></label></div>
+  <div class="tbl" id="stair"></div>
+</div>
+
+<p>Reading the staircase:</p>
+<ul>
+  <li><span class="m">a⁰ = 1</span> for any base (except 0 itself). Not 0. Think of it as "no multiplying has happened yet", and the starting point for multiplication is 1.</li>
+  <li><span class="m">a⁻ⁿ = 1 ⁄ aⁿ</span>. A negative index means <em>reciprocal</em>, not a negative number. 2⁻³ = ⅛, which is positive. 10⁻² = 0.01.</li>
+</ul>
+<p>These make the dividing law hold everywhere. 2³ ÷ 2³ = 2⁰, and 8 ÷ 8 = 1, so 2⁰ must be 1. And 2² ÷ 2⁵ = 2⁻³, while 4 ÷ 32 = ⅛, so 2⁻³ must be ⅛. The pattern was forced on us; nobody chose it.</p>
+
+<h2>7 · Where this shows up</h2>
+<div class="grid2">
+  <div class="use"><h3>Area and volume</h3>
+    <p>Area is measured in cm² and volume in cm³ precisely because they come from squaring and cubing lengths. Double a cube's edge and its volume goes up by 2³ = 8 times. That's why big animals need thick legs.</p></div>
+  <div class="use"><h3>Standard form</h3>
+    <p>The Sun's mass is 2 × 10³⁰ kg; a hydrogen atom is 1.7 × 10⁻²⁷ kg. Powers of ten, including negative ones, are how science writes very large and very small numbers. Next topic after this one.</p></div>
+  <div class="use"><h3>Computing: binary and bytes</h3>
+    <p>Each bit doubles the choices, so n bits give 2ⁿ patterns: 8 bits → 2⁸ = 256 values. 1 KiB = 2¹⁰ bytes, 1 MiB = 2²⁰, 1 GiB = 2³⁰. Colour depth, IP addresses and password strength are all powers of 2.</p></div>
+  <div class="use"><h3>Compound interest</h3>
+    <p>£1000 at 5% a year for 10 years is 1000 × 1.05¹⁰ ≈ £1629. Each year multiplies by the same factor, so years become an index.</p></div>
+  <div class="use"><h3>Pythagoras</h3>
+    <p>a² + b² = c² is squares and a square root in one line. Finding the hypotenuse always ends with √: a 3-4-5 triangle has c = √(9 + 16) = √25 = 5.</p></div>
+  <div class="use"><h3>Earthquakes and sound</h3>
+    <p>The Richter and decibel scales are powers of 10. A magnitude 7 quake shakes 10 times harder than a 6 and 100 = 10² times harder than a 5.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Simplify 3⁴ × 3² ÷ 3³</summary>
+  <div class="step"><strong>Same base throughout</strong>, so the laws apply. Multiplying adds indices: 3⁴ × 3² = 3⁶.</div>
+  <div class="step"><strong>Dividing subtracts</strong>: 3⁶ ÷ 3³ = 3³.</div>
+  <div class="step"><strong>Evaluate</strong> if asked: 3³ = <strong>27</strong>. Check the long way: 81 × 9 ÷ 27 = 729 ÷ 27 = 27 ✓</div>
+</details>
+<details>
+  <summary>Estimate √40 without a calculator</summary>
+  <div class="step"><strong>Trap it.</strong> 6² = 36 and 7² = 49, so √40 is between 6 and 7.</div>
+  <div class="step"><strong>Refine.</strong> 40 is closer to 36 than 49, so a bit above 6. Try 6.3² = 39.69. Try 6.4² = 40.96. So √40 ≈ <strong>6.3</strong>.</div>
+</details>
+<details>
+  <summary>Write 5⁻² and (2³)² as ordinary numbers</summary>
+  <div class="step"><strong>5⁻²</strong>: negative index means reciprocal: 1/5² = <strong>1/25</strong> = 0.04. Positive, not negative.</div>
+  <div class="step"><strong>(2³)²</strong>: power of a power multiplies indices: 2⁶ = <strong>64</strong>. Check: 8² = 64 ✓</div>
+</details>
+<details>
+  <summary>Exam-style: 2ˣ = 64. Find x.</summary>
+  <div class="step"><strong>Count the doublings.</strong> 2, 4, 8, 16, 32, 64: six of them. So <strong>x = 6</strong>.</div>
+  <div class="step"><strong>Or factorise.</strong> 64 = 2 × 2 × 2 × 2 × 2 × 2 = 2⁶ (see the prime factorisation page). Same answer.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>A power says how many copies of the base to multiply, and squares and cubes are named for the shapes they count. Roots run the process backwards. The index laws fall out of counting copies: add indices to multiply, subtract to divide, multiply for a power of a power, always with matching bases. Walking the staircase downwards forces a⁰ = 1 and a⁻ⁿ = 1/aⁿ. From here you are ready for standard form, surds, and the fractional indices that tie roots and powers together at GCSE.</p>
+
+<footer>Made for KS3 students. Everything on this page is in the England national curriculum for mathematics at key stage 3, under Number. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
+const sup=n=>String(n).replace(/-/,'⁻').replace(/[0-9]/g,d=>SUP[d]);
+const fmt=v=>Number.isInteger(v)?String(v):v.toFixed(3).replace(/0+$/,'');
+
+/* 1. squares */
+const sq=document.getElementById('sq');
+function drawSq(){
+  const n=+sq.value,cell=Math.min(28,Math.floor(300/12)),g=3,S=n*(cell+g)+g;
+  let s='';for(let r=0;r<n;r++)for(let c=0;c<n;c++){const isL=(r===n-1||c===n-1)&&n>1;s+=`<rect x="${g+c*(cell+g)}" y="${g+r*(cell+g)}" width="${cell}" height="${cell}" rx="3" fill="${isL?css('--hi'):css('--accent')}"/>`;}
+  document.getElementById('sqArea').innerHTML=`<svg viewBox="0 0 ${S} ${S}" width="${S}" height="${S}">${s}</svg>`;
+  document.getElementById('sqN').textContent=n;
+  document.getElementById('sqV').textContent=`${n} × ${n} = ${n*n}`;
+  document.getElementById('sqD').textContent=n>1?`${(n-1)*(n-1)} + ${2*n-1} = ${n*n}  (the L-shape has ${2*n-1})`:'—';
+}
+sq.addEventListener('input',drawSq);drawSq();
+
+/* 2. cubes (isometric) */
+const cu=document.getElementById('cu');
+function drawCu(){
+  const n=+cu.value,u=Math.min(26,Math.floor(150/n));
+  const ox=n*u+20,oy=20+n*u*0.5;
+  const px=(x,y,z)=>[ox+(x-y)*u*0.87,oy+(x+y)*u*0.5-z*u];
+  const face=(pts,col)=>`<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="${col}" stroke="${css('--panel')}" stroke-width="1"/>`;
+  let s='';
+  const top=css('--hi'),left=css('--accent'),right=css('--two');
+  // draw back-to-front
+  for(let z=0;z<n;z++)for(let y=n-1;y>=0;y--)for(let x=0;x<n;x++){
+    // visible faces only (cheap: draw all, order handles overlap)
+    s+=face([px(x,y,z+1),px(x+1,y,z+1),px(x+1,y+1,z+1),px(x,y+1,z+1)],top);
+    s+=face([px(x,y+1,z),px(x+1,y+1,z),px(x+1,y+1,z+1),px(x,y+1,z+1)],left);
+    s+=face([px(x+1,y,z),px(x+1,y+1,z),px(x+1,y+1,z+1),px(x+1,y,z+1)],right);
+  }
+  const W=2*n*u*0.87+40,H=n*u*1.5+n*u+40;
+  document.getElementById('cuArea').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${s}</svg>`;
+  document.getElementById('cuN').textContent=n;
+  document.getElementById('cuL').textContent=`${n} × ${n} = ${n*n}`;
+  document.getElementById('cuV').textContent=`${n} × ${n*n} = ${n**3}`;
+}
+cu.addEventListener('input',drawCu);drawCu();
+
+/* 3. notation */
+const pb=document.getElementById('pb'),pi=document.getElementById('pi');
+function drawP(){
+  const b=Math.trunc(+pb.value||0),i=Math.max(1,Math.min(12,Math.trunc(+pi.value||1)));
+  const bs=b<0?`(${b})`:`${b}`;
+  document.getElementById('pExp').textContent=Array(i).fill(bs).join(' × ');
+  document.getElementById('pVal').textContent=`${bs}${sup(i)} = ${Math.pow(b,i)}`;
+  document.getElementById('pBad').textContent=`${bs} × ${i} = ${b*i}  ✗`;
+}
+pb.addEventListener('input',drawP);pi.addEventListener('input',drawP);drawP();
+
+/* 4. roots */
+const rn=document.getElementById('rn');
+function drawRoot(){
+  const n=Math.max(1,Math.trunc(+rn.value||1)),s=Math.sqrt(n),c=Math.cbrt(n);
+  const si=Math.round(s),ci=Math.round(c),isSq=si*si===n,isCu=ci**3===n;
+  const lo=Math.floor(s),hi=lo+1;
+  document.getElementById('rSq').textContent=`√${n} = ${fmt(s)}`+(isSq?'  (exact)':`  between √${lo*lo}=${lo} and √${hi*hi}=${hi}`);
+  document.getElementById('rCu').textContent=`∛${n} = ${fmt(c)}`+(isCu?'  (exact)':'');
+  document.getElementById('rMsg').textContent=isSq&&isCu?'perfect square AND perfect cube':isSq?'perfect square: makes an exact square':isCu?'perfect cube: makes an exact cube':'not a perfect square: the square has a ragged edge';
+  // draw: a square of side floor(sqrt n) filled, plus leftover dots
+  const side=isSq?si:lo,left=n-side*side,cell=Math.min(18,Math.floor(320/(side+2))),g=2;
+  if(n>400){document.getElementById('rootArea').innerHTML=`<p style="color:var(--muted);font-size:.9rem;margin:.4rem 0">Too many dots to draw; the numbers above still apply.</p>`;return;}
+  let svg='';for(let r=0;r<side;r++)for(let col=0;col<side;col++)svg+=`<rect x="${col*(cell+g)}" y="${r*(cell+g)}" width="${cell}" height="${cell}" rx="2" fill="${css('--two')}"/>`;
+  for(let k=0;k<left;k++){const col=k%(side+1),r=side+Math.floor(k/(side+1));svg+=`<rect x="${col*(cell+g)}" y="${r*(cell+g)}" width="${cell}" height="${cell}" rx="2" fill="${css('--hi')}"/>`;}
+  const rows=side+Math.ceil(left/(side+1));
+  const W=(side+1)*(cell+g),H=Math.max(1,rows)*(cell+g);
+  document.getElementById('rootArea').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${svg}</svg><p style="color:var(--muted);font-size:.9rem;margin:.4rem 0">${isSq?`${n} dots make a perfect ${side} × ${side} square, so √${n} = ${side}.`:`The biggest square inside ${n} dots is ${side} × ${side} = ${side*side}, with ${left} left over. So √${n} is a bit more than ${side}.`}</p>`;
+}
+rn.addEventListener('input',drawRoot);drawRoot();
+
+/* 5. index laws */
+const la=document.getElementById('la'),lm=document.getElementById('lm'),ln=document.getElementById('ln');
+function drawLaws(){
+  const a=Math.max(2,Math.trunc(+la.value||2)),m=Math.max(1,Math.min(7,Math.trunc(+lm.value||1))),n=Math.max(1,Math.min(7,Math.trunc(+ln.value||1)));
+  const F=k=>`<span class="f">${Array(k).fill(a).join(' × ')}</span>`,G=k=>`<span class="g">${Array(k).fill(a).join(' × ')}</span>`;
+  let div;
+  if(m>n) div=`${a}${sup(m)} ÷ ${a}${sup(n)} = <span class="f">${Array(m).fill(a).join(' × ')}</span> ⁄ <span class="g">${Array(n).fill(a).join(' × ')}</span> → cancel ${n} pairs → ${a}${sup(m-n)} = ${a**(m-n)}`;
+  else if(m===n) div=`${a}${sup(m)} ÷ ${a}${sup(n)} → every copy cancels → ${a}⁰ = 1`;
+  else div=`${a}${sup(m)} ÷ ${a}${sup(n)} → cancel ${m} pairs, ${n-m} left underneath → 1 ⁄ ${a}${sup(n-m)} = ${a}${sup(m-n)}`;
+  document.getElementById('laws').innerHTML=`
+    <div class="law"><strong>Multiply:</strong> ${a}${sup(m)} × ${a}${sup(n)} = ${F(m)} × ${G(n)} = ${a}${sup(m+n)} = ${a**(m+n)}</div>
+    <div class="law"><strong>Divide:</strong> ${div}</div>
+    <div class="law"><strong>Power of a power:</strong> (${a}${sup(m)})${sup(n)} = ${Array(n).fill(`(${F(m)})`).join(' × ')} = ${a}${sup(m*n)} = ${a**(m*n)}</div>`;
+}
+[la,lm,ln].forEach(e=>e.addEventListener('input',drawLaws));drawLaws();
+
+/* 6. staircase */
+const zb=document.getElementById('zb');
+function drawStair(){
+  const b=Math.max(2,Math.min(10,Math.trunc(+zb.value||2)));
+  const ks=[3,2,1,0,-1,-2,-3];
+  const val=k=>k>=0?String(b**k):`1/${b**(-k)}`;
+  let head='<tr>'+ks.map(k=>`<th class="mono" style="text-align:center">${b}${sup(k)}</th>`).join('')+'</tr>';
+  let row='<tr>'+ks.map(k=>`<td style="color:${k<0?css('--two'):k===0?css('--hi'):'inherit'};font-weight:${k===0?'700':'500'}">${val(k)}</td>`).join('')+'</tr>';
+  let arrows='<tr>'+ks.map((k,i)=>`<td class="arrow">${i<ks.length-1?'÷'+b+' →':''}</td>`).join('')+'</tr>';
+  document.getElementById('stair').innerHTML=`<table class="stair">${head}${row}${arrows}</table>`;
+}
+zb.addEventListener('input',drawStair);drawStair();
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawSq();drawCu();drawRoot();drawStair();});}
+new MutationObserver(()=>{drawSq();drawCu();drawRoot();drawStair();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'2⁵ = ?',opts:['32','10','25','16'],a:0,fb:'Five 2s multiplied: 2 × 2 × 2 × 2 × 2 = 32. Not 2 × 5.'},
+  {q:'√144 = ?',opts:['12','72','14','11'],a:0,fb:'12 × 12 = 144. Know your squares up to 15².'},
+  {q:'3⁵ × 3² = ?',opts:['3⁷','3¹⁰','9⁷','3³'],a:0,fb:'Same base, multiplying: add the indices. 5 + 2 = 7.'},
+  {q:'4⁰ = ?',opts:['1','0','4','undefined'],a:0,fb:'Any non-zero base to the power 0 is 1. Walk down the staircase: 16, 4, 1.'},
+  {q:'2⁻³ = ?',opts:['1/8','−8','−6','1/6'],a:0,fb:'Negative index means reciprocal: 1/2³ = 1/8. It is positive.'},
+  {q:'(−2)⁴ = ?',opts:['16','−16','−8','8'],a:0,fb:'An even number of negatives multiplies to a positive: (−2)(−2)(−2)(−2) = 16.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

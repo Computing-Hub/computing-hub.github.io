@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Recurring Decimals and Fractions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive SVG panel drawn from JS (a dot-notation builder, a bus-stop division, a remainder clock, a denominator grid, lined-up decimal strips, a zooming number line) with step-through or "try it" controls. Graph-paper neutrals. Colours on this page: orange = the repeating block of a recurring decimal (the digits under the dots) and anything that repeats; teal = digits that do not repeat (terminating decimals, the non-repeating start, and the prime factors 2 and 5 that allow a decimal to terminate); plum = remainders in a division and the subtraction step that makes the repeating tails cancel. Green/red are only used for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+a{color:var(--accent)}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.3rem;position:relative;top:-.15em}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.S{color:var(--hi);font-weight:600}.K{color:var(--two);font-weight:600}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.25;margin:0 .15em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .2em}
+.fr>span:last-child{padding:0 .2em}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.btn:disabled{opacity:.45;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem;font-family:var(--mono)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}.work .g{color:var(--good)}
+.work .dim{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}
+.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.dt{position:relative;display:inline-block}
+.dt::after{content:"";position:absolute;left:50%;top:-.12em;width:.24em;height:.24em;margin-left:-.12em;border-radius:50%;background:currentColor}
+.rep{color:var(--hi);font-weight:600}.pre{color:var(--accent);font-weight:600}
+.dec{font-family:var(--mono);white-space:nowrap}
+sup{font-size:.7em;line-height:0}
+.ans{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center}
+.controls label{flex-wrap:wrap}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Number</div>
+  <h1>Recurring Decimals and Fractions</h1>
+  <p class="lede">Type 1 ÷ 8 into a calculator and you get 0.125. Type 1 ÷ 3 and you get 0.3333333, and the threes would go on for ever if the screen were big enough. Why do some fractions stop and others repeat? Which ones stop? And how do you turn 0.272727… back into a fraction? This page answers all three, and finishes by proving something that surprises everyone: 0.999… is exactly 1.</p>
+  <span class="gcse">DfE GCSE subject content (Number): work interchangeably with terminating decimals and their corresponding fractions (such as 3.5 and 7/2 or 0.375 and 3/8); Higher tier: change recurring decimals into their corresponding fractions and vice versa</span>
+</header>
+
+<div class="recap">
+  <p><strong>What you need from KS3</strong></p>
+  <ul>
+    <li><strong>Place value</strong>: in 0.375 the digits are 3 tenths, 7 hundredths and 5 thousandths, so 0.375 = <span class="fr"><span>375</span><span>1000</span></span>. Recap fractions ↔ decimals on <a href="../ks3-interactive/fractions-decimals-percentages.html">fractions, decimals and percentages</a>.</li>
+    <li><strong>Short division</strong> (the "bus stop" method), including carrying remainders.</li>
+    <li><strong>Simplifying fractions</strong> by dividing top and bottom by a common factor, and writing a number as a product of <strong>prime factors</strong>: see <a href="../ks3-interactive/prime-factorisation.html">prime factorisation</a>.</li>
+    <li><strong>Multiplying by 10, 100, 1000</strong> moves every digit 1, 2, 3 places to the left.</li>
+  </ul>
+</div>
+
+<h2>1 · Terminating, recurring and dot notation</h2>
+<p>A <strong>terminating</strong> decimal stops: 0.5, 0.375, 2.04. A <strong>recurring</strong> decimal has a block of digits that repeats for ever: 0.333…, 0.181818…, 0.1666…. The repeating block can start straight after the point, or after a few non-repeating digits.</p>
+<p>Writing "…" is vague, so we use <strong>dot notation</strong>: put a dot over the <em>first and last</em> digit of the repeating block (one dot if the block is a single digit). So 0.181818… = <span class="dec">0.<span class="rep"><span class="dt">1</span><span class="dt">8</span></span></span> and 0.1666… = <span class="dec">0.<span class="pre">1</span><span class="rep"><span class="dt">6</span></span></span>. Build your own: type the digits that don't repeat and the block that does.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>0. <input type="text" id="dnPre" value="1" inputmode="numeric" maxlength="4" style="width:4.5em" aria-label="non-repeating digits"> then repeat <input type="text" id="dnRep" value="6" inputmode="numeric" maxlength="6" style="width:5.5em" aria-label="repeating block"></label>
+  </div>
+  <div class="chips" id="dnChips"></div>
+  <svg id="dnSvg" viewBox="0 0 420 150" width="420" height="150" aria-label="Decimal digits with the repeating block highlighted"></svg>
+  <div class="msg" id="dnMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Dot notation traps:</strong> for 0.142857142857… the dots go over the 1 and the 7 only (<span class="dec">0.<span class="rep"><span class="dt">1</span>4285<span class="dt">7</span></span></span>), not over every digit. And <span class="dec">0.<span class="pre">1</span><span class="rep"><span class="dt">6</span></span></span> (= 0.1666…) is different from <span class="dec">0.<span class="rep"><span class="dt">1</span><span class="dt">6</span></span></span> (= 0.161616…).</p>
+</div>
+
+<h2>2 · Fraction to decimal: short division</h2>
+<p>A fraction is a division: <span class="fr"><span>3</span><span>8</span></span> means 3 ÷ 8. Write 3 as 3.000… and divide with the bus stop method. Each step, the <span class="K">remainder</span> is carried to the next 0, making 10 times the remainder. Step through it.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><input type="number" id="bsN" value="3" min="1" max="29" step="1" style="width:4em" aria-label="numerator"> ÷ <input type="number" id="bsD" value="8" min="2" max="30" step="1" style="width:4em" aria-label="denominator"></label>
+    <button class="btn" id="bsPrev">◀ Back</button>
+    <button class="btn primary" id="bsNext">Next digit ▶</button>
+    <button class="btn" id="bsAll">All</button>
+  </div>
+  <div class="chips" id="bsChips"></div>
+  <svg id="bsSvg" viewBox="0 0 420 130" width="420" height="130" aria-label="Bus stop division"></svg>
+  <div class="work" id="bsWork"></div>
+</div>
+
+<p>For <span class="fr"><span>3</span><span>8</span></span> the remainder reaches 0 and the division stops: <strong>0.375</strong>, a terminating decimal. Now try <span class="fr"><span>1</span><span>7</span></span> or <span class="fr"><span>5</span><span>6</span></span>: the remainder never reaches 0.</p>
+
+<h2>3 · Why some decimals recur: remainders repeat <span class="tag g">Higher</span></h2>
+<p>When you divide by 7, the remainder at each step must be one of 0, 1, 2, 3, 4, 5 or 6. If it ever hits 0, the decimal stops. If it never hits 0, there are only <strong>six</strong> other possible remainders, so within six steps a remainder <em>must</em> come round again. And once a remainder repeats, every step after it repeats too, because each step depends only on the remainder before it. That's why the digits cycle. The "remainder clock" shows the journey.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>fraction <select id="rcF"></select></label>
+    <button class="btn" id="rcPrev">◀ Back</button>
+    <button class="btn primary" id="rcNext">Next step ▶</button>
+  </div>
+  <svg id="rcSvg" viewBox="0 0 420 300" width="420" height="300" aria-label="Remainders placed round a clock face"></svg>
+  <div class="work" id="rcWork"></div>
+</div>
+
+<p>So dividing by d, the repeating block can be at most d − 1 digits long. 1/7 uses all six possible non-zero remainders, so its block is six digits: <span class="dec">0.<span class="rep"><span class="dt">1</span>4285<span class="dt">7</span></span></span>. 1/13 has a six-digit block too, but uses only six of its twelve possible remainders (try 2/13 to meet the other six).</p>
+
+<h2>4 · Which fractions terminate?</h2>
+<p>A terminating decimal is a whole number over 10, 100, 1000 …: 0.375 = <span class="fr"><span>375</span><span>1000</span></span>. And 10 = 2 × 5, 100 = 2² × 5², 1000 = 2³ × 5³. These powers of 10 have no prime factors except <span class="R">2</span> and <span class="R">5</span>. So:</p>
+<div class="recap"><p>A fraction <strong>in its simplest form</strong> terminates exactly when its denominator has <span class="R">no prime factors other than 2 and 5</span>.</p></div>
+<p>If the denominator is only 2s and 5s, you can always top it up to a power of 10: <span class="fr"><span>3</span><span>8</span></span> = <span class="fr"><span>3</span><span>2³</span></span> = <span class="fr"><span>3 × 5³</span><span>2³ × 5³</span></span> = <span class="fr"><span>375</span><span>1000</span></span>. A factor of 3, 7, 11 … can never be turned into a power of 10, so those decimals recur. Tap any denominator on the grid, or type a fraction.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>fraction <input type="number" id="tmN" value="1" min="1" max="999" step="1" style="width:4.5em" aria-label="numerator"> / <input type="number" id="tmD" value="40" min="2" max="999" step="1" style="width:4.5em" aria-label="denominator"></label>
+  </div>
+  <svg id="tmSvg" viewBox="0 0 420 250" width="420" height="250" aria-label="Grid of denominators 2 to 49"></svg>
+  <div class="work" id="tmWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Exam trap: simplify first.</strong> <span class="fr"><span>3</span><span>12</span></span> has a 3 in its denominator (12 = 2² × 3), but <span class="fr"><span>3</span><span>12</span></span> = <span class="fr"><span>1</span><span>4</span></span>, which terminates (0.25). The test only works once the fraction is in its simplest form. Try 3/12 and 9/75 above.</p>
+</div>
+
+<h2>5 · Recurring decimal to fraction <span class="tag g">Higher</span></h2>
+<p>Here's the clever part. Call the decimal x. Multiply by 10, 100 or 1000 so the repeating block shifts exactly one block to the left. Then x and the new number have <strong>identical tails</strong>, and subtracting makes the endless tail vanish. Rule of thumb: block length 1 → × 10, block length 2 → × 100, block length 3 → × 1000.</p>
+
+<div class="lab">
+  <div class="chips" id="pmChips"></div>
+  <svg id="pmSvg" viewBox="0 0 420 200" width="420" height="200" aria-label="Decimal strips lined up for subtraction"></svg>
+  <div class="controls">
+    <button class="btn" id="pmPrev">◀ Back</button>
+    <button class="btn primary" id="pmNext">Next step ▶</button>
+  </div>
+  <div class="work" id="pmWork"></div>
+</div>
+
+<p>Notice the shortcut hiding in the answers: a block of 1 digit goes over 9, 2 digits over 99, 3 digits over 999. So <span class="dec">0.<span class="rep"><span class="dt">2</span><span class="dt">7</span></span></span> = <span class="fr"><span>27</span><span>99</span></span> = <span class="fr"><span>3</span><span>11</span></span>. But in an exam that says "prove" or "show that", you must write out the algebra.</p>
+
+<h2>6 · When the repeat starts later <span class="tag g">Higher</span></h2>
+<p>For a decimal like <span class="dec">0.<span class="pre">2</span><span class="rep"><span class="dt">3</span></span></span> = 0.2333…, multiplying x by 10 doesn't line the tails up: x = 0.2333… has a 2 before the threes. The trick is to pick <strong>two</strong> multiples of x whose tails match. Choose any two multipliers and see whether the parts after the point line up exactly.</p>
+
+<div class="lab">
+  <div class="chips" id="lmChips"></div>
+  <div class="controls">
+    <span style="font-size:.92rem;color:var(--muted)">pick two:</span>
+    <button class="btn" data-k="0">x</button><button class="btn" data-k="1">10x</button><button class="btn" data-k="2">100x</button><button class="btn" data-k="3">1000x</button>
+  </div>
+  <svg id="lmSvg" viewBox="0 0 420 150" width="420" height="150" aria-label="Two decimal strips compared"></svg>
+  <div class="msg" id="lmMsg"></div>
+  <div class="work" id="lmWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>The reliable recipe:</strong> multiply by 10 for each non-repeating digit to bring the repeat to just after the point; then multiply by a further 10, 100, … (one 0 per digit in the block) to shift one whole block. For 0.2333…: 10x = 2.333… and 100x = 23.333…, so 90x = 21. <strong>Common mistakes:</strong> subtracting x from 10x when the tails don't match (you get 9x = 2.1, which isn't a whole number: a sure sign something's wrong), and forgetting to simplify the final fraction.</p>
+</div>
+
+<h2>7 · Proof: 0.999… = 1 <span class="tag g">Higher</span></h2>
+<p>Use exactly the same method on <span class="dec">0.<span class="rep"><span class="dt">9</span></span></span>:</p>
+<div class="work">x = 0.9999…<br>10x = 9.9999…<br><span class="c">10x − x = 9.9999… − 0.9999…</span><br>9x = 9<br>x = <strong>1</strong></div>
+<p>Most people's instinct says 0.999… must be "just below" 1. But think about the gap. Slide to add nines. The gap shrinks by a factor of 10 every time, and with <em>infinitely</em> many nines there is no gap left at all: no positive number is smaller than every 0.000…01. Two numbers with nothing between them are the same number.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>number of nines <input type="range" id="nnK" min="1" max="8" value="1"><span id="nnKv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="nnSvg" viewBox="0 0 420 170" width="420" height="170" aria-label="Zooming number line near 1"></svg>
+  <div class="work" id="nnWork"></div>
+</div>
+
+<p>One more way to see it: <span class="fr"><span>1</span><span>3</span></span> = 0.333…, and 3 × <span class="fr"><span>1</span><span>3</span></span> = 1. But 3 × 0.333… = 0.999…. So 0.999… = 1.</p>
+
+<h2>8 · Practice</h2>
+<p>New questions each time. Higher-tier questions are tagged.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>question type <select id="prType">
+      <option value="mix">mixed</option><option value="term">terminate or recur?</option><option value="f2d">fraction → recurring decimal (Higher)</option><option value="d2f">recurring decimal → fraction (Higher)</option>
+    </select></label>
+  </div>
+  <p class="pq" id="prQ"></p>
+  <div class="ans" id="prPT"><button class="btn" id="prYes">Terminates</button><button class="btn" id="prNo">Recurs</button></div>
+  <div class="ans" id="prPF"><label class="dec" style="display:flex;align-items:center;gap:.4rem">0. <input type="text" id="prPre" inputmode="numeric" style="width:4.5em" aria-label="digits that do not repeat"> repeat <input type="text" id="prRep" inputmode="numeric" style="width:5em" aria-label="repeating block"></label><button class="btn primary" id="prGoF">Check</button></div>
+  <div class="ans" id="prPD"><label style="display:flex;align-items:center;gap:.4rem;font-family:var(--mono)"><input type="number" id="prP" style="width:5em" aria-label="numerator"> / <input type="number" id="prQd" style="width:5em" aria-label="denominator"></label><button class="btn primary" id="prGoD">Check</button></div>
+  <div class="controls">
+    <button class="btn" id="prShow">Show working</button>
+    <button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+  <div class="msg" id="prScore"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Write <span class="fr"><span>5</span><span>8</span></span> as a decimal</summary>
+  <div class="step"><strong>Set up:</strong> 5 ÷ 8, written as 5.000 ÷ 8.</div>
+  <div class="step"><strong>Divide:</strong> 8 into 5 goes 0 times, remainder 5. 8 into 50 = 6 remainder 2. 8 into 20 = 2 remainder 4. 8 into 40 = 5 remainder 0.</div>
+  <div class="step"><strong>Remainder 0, so it stops:</strong> <span class="fr"><span>5</span><span>8</span></span> = <strong>0.625</strong>. (Check: 8 = 2³, only 2s, so it had to terminate.)</div>
+</details>
+<details>
+  <summary>Write <span class="fr"><span>2</span><span>11</span></span> as a recurring decimal <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Divide 2.0000… by 11:</strong> 11 into 20 = 1 remainder 9. 11 into 90 = 8 remainder 2.</div>
+  <div class="step"><strong>Remainder 2 is where we started</strong> (the 2 in 2.000…), so the digits 1, 8 repeat for ever: 0.181818…</div>
+  <div class="step"><strong>Dot notation:</strong> <strong class="dec">0.<span class="rep"><span class="dt">1</span><span class="dt">8</span></span></strong></div>
+</details>
+<details>
+  <summary>Convert <span class="dec">0.<span class="rep"><span class="dt">4</span><span class="dt">5</span></span></span> to a fraction in its simplest form <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Let</strong> x = 0.454545…</div>
+  <div class="step"><strong>Block length 2, so × 100:</strong> 100x = 45.454545…</div>
+  <div class="step"><strong>Subtract:</strong> 100x − x = 45.4545… − 0.4545…, so 99x = 45.</div>
+  <div class="step"><strong>Divide and simplify:</strong> x = <span class="fr"><span>45</span><span>99</span></span> = <strong><span class="fr"><span>5</span><span>11</span></span></strong> (÷ 9 top and bottom).</div>
+</details>
+<details>
+  <summary>Prove algebraically that <span class="dec">0.<span class="pre">2</span><span class="rep"><span class="dt">5</span></span></span> = <span class="fr"><span>23</span><span>90</span></span> <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Let</strong> x = 0.2555…</div>
+  <div class="step"><strong>Move the repeat to just after the point:</strong> 10x = 2.555…</div>
+  <div class="step"><strong>Shift one more block (length 1):</strong> 100x = 25.555…</div>
+  <div class="step"><strong>Subtract:</strong> 100x − 10x = 25.555… − 2.555…, so 90x = 23.</div>
+  <div class="step"><strong>Divide:</strong> x = <span class="fr"><span>23</span><span>90</span></span> as required. (23 is prime and doesn't divide 90, so it's already simplest.)</div>
+</details>
+<details>
+  <summary>Convert <span class="dec">0.<span class="rep"><span class="dt">1</span>2<span class="dt">3</span></span></span> to a fraction <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Let</strong> x = 0.123123123…; the block has 3 digits, so × 1000: 1000x = 123.123123…</div>
+  <div class="step"><strong>Subtract:</strong> 999x = 123, so x = <span class="fr"><span>123</span><span>999</span></span>.</div>
+  <div class="step"><strong>Simplify</strong> (both divisible by 3): <strong><span class="fr"><span>41</span><span>333</span></span></strong>.</div>
+</details>
+<details>
+  <summary>Which of <span class="fr"><span>7</span><span>40</span></span>, <span class="fr"><span>5</span><span>12</span></span> and <span class="fr"><span>9</span><span>75</span></span> are terminating decimals?</summary>
+  <div class="step"><strong><span class="fr"><span>7</span><span>40</span></span>:</strong> already simplest; 40 = 2³ × 5. Only 2s and 5s, so it <strong>terminates</strong>: 0.175.</div>
+  <div class="step"><strong><span class="fr"><span>5</span><span>12</span></span>:</strong> simplest; 12 = 2² × 3. The 3 means it <strong>recurs</strong>: 0.41666… = <span class="dec">0.<span class="pre">41</span><span class="rep"><span class="dt">6</span></span></span>.</div>
+  <div class="step"><strong><span class="fr"><span>9</span><span>75</span></span>:</strong> 75 = 3 × 5², which has a 3, but simplify first: <span class="fr"><span>9</span><span>75</span></span> = <span class="fr"><span>3</span><span>25</span></span>, and 25 = 5². It <strong>terminates</strong>: 0.12.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A <strong>terminating</strong> decimal stops; a <strong>recurring</strong> decimal repeats a block for ever. Dot notation puts dots over the first and last digits of the block.</li>
+  <li>To change a fraction to a decimal, divide the numerator by the denominator. The remainder can only take a limited number of values, so it either reaches 0 (terminating) or repeats (recurring).</li>
+  <li>A fraction <strong>in its simplest form</strong> terminates exactly when its denominator's prime factors are only 2s and 5s, because then it can be rewritten over a power of 10.</li>
+  <li>To change a recurring decimal to a fraction (Higher): let x be the decimal, multiply to make two numbers with <strong>identical tails</strong>, subtract so the tails cancel, then divide and simplify.</li>
+  <li>If the repeat starts later, use two multipliers, like 100x − 10x = 90x.</li>
+  <li><strong>0.999… = 1</strong> exactly: the same subtraction gives 9x = 9.</li>
+</ul>
+
+<footer>Made for GCSE students. Converting between fractions and terminating decimals, and (Higher tier) between fractions and recurring decimals, is in the DfE GCSE mathematics subject content under Number. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE mathematics subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const F = () => `font-family="${css('--mono')}"`;
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const T = (x,y,txt,col,size=13,anchor='middle',weight=400) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" ${F()} fill="${col}">${txt}</text>`;
+const fr = (t,b) => `<span class="fr"><span>${t}</span><span>${b}</span></span>`;
+// decimal expansion of n/d (0 < n < d): non-repeating part, repeating block, remainder sequence
+function expand(n,d){ let r=n%d; const seen={}, digits=[], rems=[]; while(r!==0 && seen[r]===undefined){ seen[r]=digits.length; rems.push(r); r*=10; digits.push(Math.floor(r/d)); r%=d; }
+  if(r===0) return {pre:digits.join(''), rep:'', rems};
+  const i=seen[r]; return {pre:digits.slice(0,i).join(''), rep:digits.slice(i).join(''), rems}; }
+const digitsOf = (pre,rep,len) => { let s=pre; while(s.length<len) s+= rep || '0'; return rep? s.slice(0,len) : s; };
+const decHTML = (pre,rep,intPart='0') => { if(!rep) return `<span class="dec">${intPart}${pre?'.'+'<span class="pre">'+pre+'</span>':''}</span>`;
+  const blk = rep.length===1 ? `<span class="dt">${rep}</span>` : `<span class="dt">${rep[0]}</span>${rep.slice(1,-1)}<span class="dt">${rep[rep.length-1]}</span>`;
+  return `<span class="dec">${intPart}.${pre?'<span class="pre">'+pre+'</span>':''}<span class="rep">${blk}</span></span>`; };
+const primeF = n => { const f=[]; let m=n; for(let p=2;p*p<=m;p++) while(m%p===0){ f.push(p); m/=p; } if(m>1) f.push(m); return f; };
+const onlyDigits = s => (s||'').replace(/[^0-9]/g,'');
+
+/* 1. dot notation builder */
+const DN=[['','3'],['','18'],['1','6'],['','142857'],['8','3'],['41','6'],['','27'],['0','5'],['12','34']];
+const dnPre=$('dnPre'), dnRep=$('dnRep');
+$('dnChips').innerHTML=DN.map(([p,r],i)=>`<button class="btn" data-i="${i}">${decHTML(p,r)}</button>`).join('');
+$('dnChips').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ const [p,r]=DN[+b.dataset.i]; dnPre.value=p; dnRep.value=r; drawDN(); }));
+function drawDN(){
+  const pre=onlyDigits(dnPre.value).slice(0,4), rep=onlyDigits(dnRep.value).slice(0,6);
+  const ac=css('--accent'), hi=css('--hi'), mu=css('--muted'), fg=css('--fg');
+  const N=22, ds=digitsOf(pre,rep,N), cw=16, x0=30;
+  let s=T(x0,50,'0.',fg,20,'start',600);
+  for(let i=0;i<ds.length;i++){ const inPre=i<pre.length, blk=inPre?-1:Math.floor((i-pre.length)/Math.max(rep.length,1)), x=x0+30+i*cw;
+    if(!inPre && rep) s+=`<rect x="${x-cw/2+1}" y="30" width="${cw-2}" height="28" rx="3" fill="${hi}" fill-opacity="${blk%2?.08:.2}"/>`;
+    s+=T(x,50,ds[i],inPre?ac:rep?hi:fg,20,'middle',600); }
+  if(rep) s+=T(x0+30+N*cw-2,50,'…',mu,20,'start');
+  // dot-notation version
+  let y=115, x=x0; s+=T(x,y,'0.',fg,24,'start',600); x+=34;
+  for(const ch of pre){ s+=T(x,y,ch,ac,24,'middle',600); x+=18; }
+  for(let i=0;i<rep.length;i++){ s+=T(x,y,rep[i],hi,24,'middle',600); if(i===0||i===rep.length-1) s+=`<circle cx="${x}" cy="${y-24}" r="3" fill="${hi}"/>`; x+=18; }
+  s+=T(x+16,y,'in dot notation',mu,12,'start');
+  $('dnSvg').innerHTML=s;
+  const M=$('dnMsg');
+  if(!rep){ M.innerHTML=pre?`No repeating block: 0.${pre} is a <strong>terminating</strong> decimal.`:'Type some digits.'; return; }
+  const blocks=rep.length===1?'a single digit, so one dot':`${rep.length} digits, so dots over the first (${rep[0]}) and last (${rep[rep.length-1]})`;
+  M.innerHTML=`${pre?`<span class="R">${pre}</span> happens once, then `:''}<span class="S">${rep}</span> repeats for ever. The block is ${blocks}.`;
+}
+[dnPre,dnRep].forEach(e=>e.addEventListener('input',drawDN)); drawDN();
+
+/* 2. bus stop division */
+const bsN=$('bsN'), bsD=$('bsD'); let bsK=0;
+const BS=[[3,8],[5,8],[1,7],[5,6],[2,11],[7,12],[1,3],[7,20]];
+$('bsChips').innerHTML=BS.map(([n,d])=>`<button class="btn" data-n="${n}" data-d="${d}">${n}/${d}</button>`).join('');
+$('bsChips').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ bsN.value=b.dataset.n; bsD.value=b.dataset.d; bsK=0; drawBS(); }));
+function bsData(){ let n=Math.round(+bsN.value), d=Math.round(+bsD.value); if(!(d>=2&&d<=30)) d=8; if(!(n>=1&&n<d)) n=Math.min(Math.max(1,n||1),d-1);
+  // steps: remainder before each decimal digit
+  const steps=[]; let r=n; const seen={}; let cyc=-1;
+  for(let i=0;i<12;i++){ if(r===0) break; if(seen[r]!==undefined){ cyc=seen[r]; break; } seen[r]=i; const q=Math.floor(r*10/d), nr=(r*10)%d; steps.push({r,q,nr}); r=nr; }
+  return {n,d,steps,cyc,ends:r===0}; }
+function drawBS(){
+  const {n,d,steps,cyc,ends}=bsData(); bsK=Math.min(bsK,steps.length);
+  const ac=css('--accent'), hi=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg');
+  const dW=String(d).length*13, x0=20+dW+10, cw=26, nW=String(n).length*14+6, top=40, bot=88;
+  let s=T(x0-8,bot,d,fg,20,'end',600);
+  s+=`<path d="M${x0-2},${bot+8} Q${x0+6},${bot-12} ${x0},${bot-26} L${x0+nW+14+12*cw},${bot-26}" fill="none" stroke="${fg}" stroke-width="2"/>`;
+  s+=T(x0+6,bot,n,fg,20,'start',600)+T(x0+nW+4,bot,'.',fg,20,'middle',600);
+  s+=T(x0+6+nW/2-3,top+12,'0',fg,20,'middle',600)+T(x0+nW+4,top+12,'.',fg,20,'middle',600);
+  const repStart = cyc;
+  for(let i=0;i<Math.max(bsK, Math.min(steps.length,12));i++){ const x=x0+nW+14+i*cw+cw/2;
+    const shown=i<bsK, inRep = !ends && repStart>=0 && i>=repStart;
+    s+=T(x,bot,'0',shown?fg:mu,20,'middle',shown?600:400);
+    if(shown){ s+=T(x-9,bot-12,steps[i].r,tw,11,'end',700); s+=T(x,top+12,steps[i].q,inRep&&bsK===steps.length?hi:ac,20,'middle',700); }
+  }
+  if(bsK===steps.length && !ends) s+=T(x0+nW+14+steps.length*cw+4,top+12,'…',hi,20,'start',700);
+  $('bsSvg').innerHTML=s;
+  const L=steps.slice(0,bsK).map((st,i)=>`<div><span class="c">${st.r}</span>0 ÷ ${d} = <span class="a">${st.q}</span> remainder <span class="c">${st.nr}</span>${st.nr===0?' <span class="g">→ remainder 0: the decimal stops</span>':''}</div>`);
+  if(bsK===steps.length){ const e=expand(n,d);
+    L.push(ends?`<div><strong>${n}/${d} = ${decHTML(e.pre,'')}</strong>, a terminating decimal.</div>`:cyc<0?`<div><span class="x">No repeat yet after 12 digits</span>, but with only ${d-1} possible remainders one must come back. The block here is ${e.rep.length} digits long: <strong>${n}/${d} = ${decHTML(e.pre,e.rep)}</strong></div>`:`<div><span class="x">Remainder ${steps[cyc].r} has appeared before</span>, so from here the digits repeat. <strong>${n}/${d} = ${decHTML(e.pre,e.rep)}</strong></div>`); }
+  else if(bsK===0) L.push(`<div class="dim">${n} ÷ ${d}: ${d} doesn't go into ${n}, so write 0. and carry ${n} as the first remainder. Press Next digit.</div>`);
+  $('bsWork').innerHTML=L.join('');
+  $('bsPrev').disabled=bsK===0; $('bsNext').disabled=bsK===steps.length;
+}
+[bsN,bsD].forEach(e=>e.addEventListener('input',()=>{ bsK=0; drawBS(); }));
+$('bsPrev').addEventListener('click',()=>{ if(bsK>0){bsK--;drawBS();} });
+$('bsNext').addEventListener('click',()=>{ bsK++; drawBS(); });
+$('bsAll').addEventListener('click',()=>{ bsK=99; drawBS(); });
+drawBS();
+
+/* 3. remainder clock */
+const RC=[[1,7],[3,7],[1,13],[2,13],[1,6],[5,12],[1,11],[3,8],[1,17],[1,19]];
+const rcF=$('rcF'); let rcK=1;
+rcF.innerHTML=RC.map(([n,d],i)=>`<option value="${i}">${n}/${d}</option>`).join('');
+function drawRC(){
+  const [n,d]=RC[+rcF.value], e=expand(n,d), rems=e.rems.slice(), ends=!e.rep;
+  // full sequence of remainders visited: rems then either 0 or the repeated remainder
+  const loopTo = ends ? 0 : (()=>{ let r=rems[rems.length-1]*10%d; return r; })();
+  const path = rems.concat([loopTo]);
+  rcK=Math.min(Math.max(rcK,1),path.length);
+  const ac=css('--accent'), hi=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg'), ln=css('--line');
+  const cx=210, cy=150, R=115, P=r=>{ const a=-Math.PI/2+r*2*Math.PI/d; return [cx+R*Math.cos(a), cy+R*Math.sin(a)]; };
+  let s=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${ln}" stroke-dasharray="3 4"/>`;
+  for(let i=1;i<path.length && i<rcK;i++){ const [x1,y1]=P(path[i-1]), [x2,y2]=P(path[i]); const last=i===path.length-1;
+    s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${last&&!ends?hi:tw}" stroke-width="${last?3:2}" opacity=".85"/>`;
+    const mx=(x1+x2)/2, my=(y1+y2)/2; s+=`<circle cx="${mx}" cy="${my}" r="9" fill="${css('--panel')}" stroke="${last&&!ends?hi:tw}"/>`+T(mx,my+4,e.pre.concat(e.rep)[i-1]??'',last&&!ends?hi:ac,11,'middle',700); }
+  const visited=new Set(path.slice(0,rcK));
+  for(let r=0;r<d;r++){ const [x,y]=P(r), v=visited.has(r), z=r===0;
+    s+=`<circle cx="${x}" cy="${y}" r="${d>13?11:14}" fill="${z?css('--good'):v?tw:css('--panel')}" fill-opacity="${z?(v?.6:.15):v?.25:1}" stroke="${z?css('--good'):v?tw:mu}" stroke-width="${path[rcK-1]===r?3:1.2}"/>`+T(x,y+4,r,z?css('--good'):v?tw:mu,d>13?10:12,'middle',v?700:400); }
+  s+=T(8,22,`dividing by ${d}:`,fg,13,'start',700)+T(8,40,`${d} possible remainders`,mu,11,'start');
+  $('rcSvg').innerHTML=s;
+  const done=rcK===path.length;
+  let w=`remainders so far: ${path.slice(0,rcK).map((r,i)=>`<span class="c">${r}</span>`).join(' → ')}`;
+  w+=`<br>digits so far: 0.${(e.pre+e.rep).slice(0,rcK-1)}`;
+  if(done) w+= ends?`<br><span class="g">Reached remainder 0: the decimal terminates.</span> ${n}/${d} = ${decHTML(e.pre,'')}`:`<br><span class="b">Back to remainder ${loopTo}, already visited</span>, so the digits loop: ${n}/${d} = ${decHTML(e.pre,e.rep)}. Block length ${e.rep.length}, out of at most ${d-1}.`;
+  $('rcWork').innerHTML=w;
+  $('rcPrev').disabled=rcK<=1; $('rcNext').disabled=done;
+}
+rcF.addEventListener('input',()=>{ rcK=1; drawRC(); });
+$('rcPrev').addEventListener('click',()=>{ if(rcK>1){rcK--;drawRC();} });
+$('rcNext').addEventListener('click',()=>{ rcK++; drawRC(); });
+drawRC();
+
+/* 4. which fractions terminate */
+const tmN=$('tmN'), tmD=$('tmD');
+function drawTM(){
+  let n=Math.round(+tmN.value), d=Math.round(+tmD.value); const W=$('tmWork');
+  const ac=css('--accent'), hi=css('--hi'), mu=css('--muted'), fg=css('--fg'), ln=css('--line');
+  const g=(n>=1&&d>=2)?gcd(n,d):1, sd=d/g;
+  let s=T(210,14,'unit fractions 1/d: teal = terminates, orange = recurs',mu,11);
+  for(let k=2;k<=49;k++){ const i=k-2, c=i%8, r=Math.floor(i/8), x=12+c*50, y=24+r*36, ok=primeF(k).every(p=>p===2||p===5), sel=k===sd;
+    s+=`<rect data-d="${k}" x="${x}" y="${y}" width="46" height="32" rx="5" fill="${ok?ac:hi}" fill-opacity="${sel?.45:.14}" stroke="${sel?fg:ok?ac:hi}" stroke-width="${sel?2.5:1}" style="cursor:pointer"/>`;
+    s+=`<text x="${x+23}" y="${y+21}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${ok?ac:hi}" pointer-events="none">${k}</text>`; }
+  $('tmSvg').innerHTML=s;
+  $('tmSvg').querySelectorAll('rect[data-d]').forEach(el=>el.addEventListener('click',()=>{ tmN.value=1; tmD.value=el.dataset.d; drawTM(); }));
+  if(!(n>=1&&d>=2&&n<=999&&d<=999)){ W.innerHTML='Type a fraction with whole numbers (denominator at least 2).'; return; }
+  const sn=n/g, pf=primeF(sd), ok=pf.every(p=>p===2||p===5);
+  const pfH=pf.map(p=>`<span class="${p===2||p===5?'a':'b'}">${p}</span>`).join(' × ');
+  let w = g>1?`${n}/${d} simplifies to <strong>${sn}/${sd}</strong> (÷ ${g})<br>`:`${n}/${d} is in its simplest form<br>`;
+  w += `denominator ${sd} = ${pfH}<br>`;
+  const ip=Math.floor(sn/sd), rem=sn%sd, e=rem?expand(rem,sd):{pre:'',rep:''};
+  const decStr = rem===0 ? `<span class="dec">${ip}</span>` : decHTML(e.pre,e.rep,String(ip));
+  if(ok){ const a=pf.filter(p=>p===2).length, b=pf.filter(p=>p===5).length, k=Math.max(a,b), mult=Math.pow(2,k-a)*Math.pow(5,k-b);
+    w += sd===1?`<span class="g">The denominator is 1: it's a whole number.</span> ${decStr}`:`<span class="g">Only 2s and 5s, so it terminates.</span> × ${mult} top and bottom: ${sn}/${sd} = ${sn*mult}/${sd*mult} = ${decStr}`; }
+  else w += `<span class="x">It has a prime factor other than 2 and 5 (${[...new Set(pf.filter(p=>p!==2&&p!==5))].join(', ')}), so it recurs.</span> ${sn}/${sd} = ${decStr}`;
+  W.innerHTML=w;
+}
+[tmN,tmD].forEach(e=>e.addEventListener('input',drawTM)); drawTM();
+
+/* strips helper for sections 5 and 6 */
+function strip(pre,rep,j,len){ const D=digitsOf(pre,rep,len+j); const ip=String(parseInt(D.slice(0,j)||'0',10)); return {ip, dec:D.slice(j,j+len), offs:j}; }
+function drawStrip(y,label,pre,rep,j,colBase,opts={}){
+  const len=opts.len||13, st=strip(pre,rep,j,len), xp=150, cw=17, ac=css('--accent'), hi=css('--hi'), fg=css('--fg'), mu=css('--muted');
+  let s=T(8,y,label,colBase||fg,15,'start',700);
+  // integer part right-aligned before the point
+  for(let i=0;i<st.ip.length;i++) s+=T(xp-6-(st.ip.length-1-i)*cw,y,st.ip[i],fg,17,'middle',600);
+  s+=T(xp+3,y,'.',fg,17,'middle',700);
+  for(let i=0;i<st.dec.length;i++){ const orig=i+j, inPre=orig<pre.length, x=xp+14+i*cw;
+    s+=T(x,y,st.dec[i],inPre?ac:hi,17,'middle',600); }
+  s+=T(xp+14+len*cw-4,y,'…',mu,17,'start');
+  return s;
+}
+
+/* 5. pure recurring: x and 10^k x */
+const PM=[['','4'],['','27'],['','123'],['','09'],['','6'],['','36']];
+let pmI=1, pmStep=0;
+function pmChips(){ $('pmChips').innerHTML=PM.map(([p,r],i)=>`<button class="btn${i===pmI?' on':''}" data-i="${i}">${decHTML(p,r)}</button>`).join(''); $('pmChips').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ pmI=+b.dataset.i; pmStep=0; pmChips(); drawPM(); })); }
+function drawPM(){
+  const [pre,rep]=PM[pmI], L=rep.length, M=Math.pow(10,L), tw=css('--two'), ac=css('--accent'), mu=css('--muted'), fg=css('--fg');
+  const I=parseInt(rep,10), g=gcd(I,M-1);
+  let s=drawStrip(40,'x =',pre,rep,0,fg);
+  if(pmStep>=1) s=drawStrip(40,`${M}x =`,pre,rep,L,ac)+drawStrip(85,'x =',pre,rep,0,fg);
+  if(pmStep>=2){ s+=`<line x1="8" y1="100" x2="412" y2="100" stroke="${tw}" stroke-width="2"/>`+T(8,130,`${M-1}x =`,tw,15,'start',700)+T(144,130,String(I),tw,17,'end',700)+T(170,130,'.000000… the tails cancel',tw,13,'start',600);
+    s+=`<rect x="160" y="22" width="250" height="72" rx="6" fill="${css('--hi')}" fill-opacity=".08" stroke="${css('--hi')}" stroke-dasharray="4 3"/>`; }
+  if(pmStep>=3) s+=T(8,175,`x = ${I}/${M-1}${g>1?` = ${I/g}/${(M-1)/g}`:''}`,css('--good'),16,'start',700);
+  $('pmSvg').innerHTML=s;
+  const lines=[`Let x = ${decHTML(pre,rep)} = 0.${digitsOf(pre,rep,9)}…`,
+    `The block "${rep}" has ${L} digit${L>1?'s':''}, so multiply by ${M}: ${M}x = ${parseInt(rep,10)}.${digitsOf(pre,rep,9+L).slice(L)}…`,
+    `<span class="c">Subtract:</span> ${M}x − x = ${I}.${digitsOf(pre,rep,6+L).slice(L)}… − 0.${digitsOf(pre,rep,6)}…, so <span class="c">${M-1}x = ${I}</span>`,
+    `Divide: x = ${fr(I,M-1)}${g>1?` = <strong>${fr(I/g,(M-1)/g)}</strong> (÷ ${g})`:' <strong>(already simplest)</strong>'}`];
+  $('pmWork').innerHTML=lines.slice(0,pmStep+1).map(x=>`<div>${x}</div>`).join('');
+  $('pmPrev').disabled=pmStep===0; $('pmNext').disabled=pmStep===3;
+}
+$('pmPrev').addEventListener('click',()=>{ if(pmStep>0){pmStep--;drawPM();} });
+$('pmNext').addEventListener('click',()=>{ if(pmStep<3){pmStep++;drawPM();} });
+pmChips(); drawPM();
+
+/* 6. choose two multipliers */
+const LM=[['2','3'],['1','6'],['8','3'],['1','27'],['58','3'],['3','18']];
+let lmI=0, lmSel=[1,2];
+const lmBtns=[...document.querySelectorAll('button[data-k]')];
+function lmChips(){ $('lmChips').innerHTML=LM.map(([p,r],i)=>`<button class="btn${i===lmI?' on':''}" data-i="${i}">${decHTML(p,r)}</button>`).join(''); $('lmChips').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ lmI=+b.dataset.i; lmSel=[]; lmChips(); drawLM(); })); }
+lmBtns.forEach(b=>b.addEventListener('click',()=>{ const k=+b.dataset.k; if(lmSel.includes(k)) lmSel=lmSel.filter(v=>v!==k); else { lmSel.push(k); if(lmSel.length>2) lmSel.shift(); } drawLM(); }));
+function drawLM(){
+  const [pre,rep]=LM[lmI], tw=css('--two'), ac=css('--accent'), mu=css('--muted'), fg=css('--fg'), good=css('--good'), bad=css('--bad');
+  lmBtns.forEach(b=>b.classList.toggle('on',lmSel.includes(+b.dataset.k)));
+  const sel=lmSel.slice().sort((a,b)=>b-a), lab=k=>k===0?'x':Math.pow(10,k)+'x';
+  let s='';
+  sel.forEach((k,i)=>{ s+=drawStrip(40+i*45,lab(k)+' =',pre,rep,k,fg); });
+  const M=$('lmMsg'), W=$('lmWork');
+  if(sel.length<2){ $('lmSvg').innerHTML=s+T(210,120,sel.length?'pick one more':'pick two multiples of x',mu,13); M.className='msg'; M.textContent=''; W.innerHTML=`x = ${decHTML(pre,rep)}: ${pre.length} digit${pre.length>1?'s':''} before the repeat, block of ${rep.length}.`; return; }
+  const [a,b]=sel, match = b>=pre.length && (a-b)%rep.length===0;
+  const sa=strip(pre,rep,a,14), sb=strip(pre,rep,b,14);
+  s+=`<line x1="8" y1="100" x2="412" y2="100" stroke="${match?good:bad}" stroke-width="2"/>`;
+  const diff=parseInt(sa.ip,10)-parseInt(sb.ip,10), coef=Math.pow(10,a)-Math.pow(10,b);
+  if(match) s+=T(8,130,`${coef}x = ${diff}`,good,16,'start',700)+T(412,130,'tails match ✓',good,13,'end',700);
+  else s+=T(8,130,`${coef}x = ${diff}.${(()=>{ let x=(parseFloat('0.'+sa.dec)-parseFloat('0.'+sb.dec)); if(x<0){ return '…'; } return x.toFixed(4).slice(2); })()}…`,bad,16,'start',700)+T(412,130,'tails differ ✗',bad,13,'end',700);
+  $('lmSvg').innerHTML=s;
+  if(match){ const g=gcd(diff,coef); M.className='msg good'; M.textContent=`These line up: everything after the point is identical, so subtracting leaves a whole number.`;
+    W.innerHTML=`${lab(a)} − ${lab(b)}: ${parseInt(sa.ip,10)}.${sa.dec.slice(0,6)}… − ${parseInt(sb.ip,10)}.${sb.dec.slice(0,6)}…<br><span class="c">${coef}x = ${diff}</span><br>x = ${fr(diff,coef)}${g>1?` = <strong>${fr(diff/g,coef/g)}</strong>`:''}`; }
+  else { M.className='msg bad'; M.textContent = b<pre.length ? `${lab(b)} still has the non-repeating digit${pre.length>1?'s':''} after the point, so its tail is different. Use a bigger multiplier.` : `The repeating blocks are out of step: the multipliers must differ by a whole number of blocks (${rep.length} digit${rep.length>1?'s':''}, so a factor of ${Math.pow(10,rep.length)}).`;
+    W.innerHTML=`The subtraction would leave a decimal tail, not a whole number. Try again.`; }
+}
+lmChips(); drawLM();
+
+/* 7. 0.999... zoom */
+const nnK=$('nnK');
+function drawNN(){
+  const k=+nnK.value, ac=css('--accent'), hi=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg');
+  $('nnKv').textContent=' '+k;
+  const lo = 1-Math.pow(10,1-k), x0=30, x1=390, X=v=>x0+(v-lo)/(1-lo)*(x1-x0), y=90;
+  const nines='0.'+'9'.repeat(k), loStr = k===1?'0':'0.'+'9'.repeat(k-1);
+  let s=T(210,22,k===1?'from 0 to 1':`zoomed in: from ${loStr} to 1`,mu,12);
+  s+=`<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="${mu}" stroke-width="1.5"/>`;
+  for(let i=0;i<=10;i++){ const x=x0+i*(x1-x0)/10; s+=`<line x1="${x}" y1="${y-(i%5?5:9)}" x2="${x}" y2="${y+(i%5?5:9)}" stroke="${mu}"/>`; }
+  s+=T(x0,y+28,loStr,mu,12)+T(x1,y+28,'1',fg,14,'middle',700);
+  const px=X(1-Math.pow(10,-k));
+  s+=`<circle cx="${px}" cy="${y}" r="6" fill="${hi}"/>`+T(px-4,y-16,nines,hi,13,'end',700);
+  s+=`<line x1="${px}" y1="${y+40}" x2="${x1}" y2="${y+40}" stroke="${tw}" stroke-width="3"/>`+T((px+x1)/2,y+58,`gap = 0.${'0'.repeat(k-1)}1`,tw,12,'middle',700);
+  $('nnSvg').innerHTML=s;
+  $('nnWork').innerHTML=`${nines} is <span class="c">0.${'0'.repeat(k-1)}1</span> below 1 (that's 1/${Math.pow(10,k)<10000?Math.pow(10,k):String(Math.pow(10,k)).replace(/\B(?=(\d{3})+(?!\d))/g,'\u00A0')}).<br><span class="dim">Every picture looks the same: each extra 9 shrinks the gap 10 times. With infinitely many nines, the gap is smaller than every positive number, so it is 0.</span>`;
+}
+nnK.addEventListener('input',drawNN); drawNN();
+
+/* 8. practice */
+const TERMD=[8,12,15,16,20,24,25,30,32,40,45,48,50,60,64,75,80,125,14,35,22];
+const F2D=[[1,3],[2,3],[1,6],[5,6],[1,9],[4,9],[1,11],[3,11],[1,12],[5,12],[7,15],[1,18],[7,18],[5,22],[1,7],[2,7],[4,33],[1,30],[11,30],[1,27],[1,37]];
+const GEN={
+  term:()=>{ const d=pick(TERMD), n=rnd(1,d-1); const g=gcd(n,d), sd=d/g, pf=primeF(sd), ok=pf.every(p=>p===2||p===5);
+    return {kind:'T', q:`Does ${fr(n,d)} give a terminating decimal?`, ok, work:[g>1?`simplify: ${n}/${d} = ${n/g}/${sd}`:`${n}/${d} is already simplest`,`${sd} = ${pf.join(' × ')}`,ok?'only 2s and 5s: terminates':'another prime factor: recurs']}; },
+  f2d:()=>{ const [n,d]=pick(F2D), e=expand(n,d); return {kind:'F', q:`Write ${fr(n,d)} as a recurring decimal. <span class="tag g">Higher</span>`, n, d, e, work:[`divide ${n}.000… by ${d}`,`remainders: ${e.rems.join(', ')}, then ${e.rems[e.pre.length]} again`,`${n}/${d} = 0.${e.pre}${e.rep}${e.rep}… = ${decHTML(e.pre,e.rep)}`]}; },
+  d2f:()=>{ const [n,d]=pick(F2D.concat([[1,15],[13,30],[7,90],[23,99],[4,11],[41,333]])), e=expand(n,d), P=e.pre.length, L=e.rep.length;
+    const A=Math.pow(10,P+L), B=Math.pow(10,P), Ia=parseInt((e.pre+e.rep)||'0',10), Ib=parseInt(e.pre||'0',10);
+    return {kind:'D', q:`Write ${decHTML(e.pre,e.rep)} as a fraction in its simplest form. <span class="tag g">Higher</span>`, n, d, e,
+      work:[`x = 0.${digitsOf(e.pre,e.rep,8)}…`].concat(P?[`${B}x = ${Ib}.${digitsOf(e.pre,e.rep,8+P).slice(P)}…`]:[]).concat([`${A}x = ${Ia}.${digitsOf(e.pre,e.rep,8+P+L).slice(P+L)}…`,`${A}x − ${P?B+'x':'x'}: ${A-B}x = ${Ia-Ib}`,`x = ${Ia-Ib}/${A-B} = ${n}/${d}`])}; }
+};
+let PQ=null, prDone=false, prRight=0, prTried=0;
+function prNew(){ const t=$('prType').value, k=t==='mix'?pick(Object.keys(GEN)):t; PQ=GEN[k](); prDone=false;
+  $('prQ').innerHTML=PQ.q; $('prPT').hidden=PQ.kind!=='T'; $('prPF').hidden=PQ.kind!=='F'; $('prPD').hidden=PQ.kind!=='D';
+  ['prPre','prRep','prP','prQd'].forEach(i=>$(i).value=''); $('prMsg').textContent=''; $('prMsg').className='msg'; $('prWork').hidden=true; }
+function mark(ok,msg){ const M=$('prMsg'); if(!prDone) prTried++; M.className='msg '+(ok?'good':'bad'); M.innerHTML=msg; if(ok&&!prDone){ prRight++; prDone=true; } $('prScore').textContent=`Score: ${prRight} out of ${prTried} questions`; }
+$('prYes').addEventListener('click',()=>{ if(PQ&&PQ.kind==='T') mark(PQ.ok, PQ.ok?'Correct: after simplifying, the denominator has only 2s and 5s.':'Not quite. Simplify first, then look for a prime factor other than 2 or 5 in the denominator.'); });
+$('prNo').addEventListener('click',()=>{ if(PQ&&PQ.kind==='T') mark(!PQ.ok, !PQ.ok?'Correct: the simplified denominator has a prime factor other than 2 and 5.':'Not quite. Did you simplify first? The simplified denominator has only 2s and 5s, so it terminates.'); });
+$('prGoF').addEventListener('click',()=>{ if(!PQ||PQ.kind!=='F') return; const pre=onlyDigits($('prPre').value), rep=onlyDigits($('prRep').value), e=PQ.e;
+  if(!rep){ mark(false,'This one recurs: type the repeating block in the second box.'); return; }
+  const same = digitsOf(pre,rep,60)===digitsOf(e.pre,e.rep,60);
+  if(same && pre===e.pre && rep===e.rep) mark(true,`Correct: ${PQ.n}/${PQ.d} = ${decHTML(e.pre,e.rep)}.`);
+  else if(same) mark(false,`That's the right value, but use the shortest block, starting as early as possible: ${decHTML(e.pre,e.rep)}.`);
+  else if(digitsOf('',pre+rep,60)===digitsOf(e.pre,e.rep,60)) mark(false,`Right digits, but ${e.pre} doesn't repeat: only "${e.rep}" does. Put ${e.pre} in the first box.`);
+  else if(rep.length>e.rep.length && digitsOf(pre,rep,8)===digitsOf(e.pre,e.rep,8)) mark(false,'The first digits are right, but check how the block repeats. Do the division a few more steps.');
+  else mark(false,`Not quite. Divide ${PQ.n} by ${PQ.d} step by step and watch for a remainder you've seen before.`); });
+$('prGoD').addEventListener('click',()=>{ if(!PQ||PQ.kind!=='D') return; const p=parseInt($('prP').value), q=parseInt($('prQd').value);
+  if(isNaN(p)||isNaN(q)||q===0){ mark(false,'Type a fraction: top and bottom.'); return; }
+  const e=PQ.e, P=e.pre.length, L=e.rep.length, Ia=parseInt((e.pre+e.rep),10), Ib=parseInt(e.pre||'0',10), A=Math.pow(10,P+L), B=Math.pow(10,P);
+  if(p*PQ.d===q*PQ.n){ if(gcd(p,q)===1) mark(true,`Correct: ${PQ.n}/${PQ.d}.`); else mark(false,`Right value, but simplify: ${p}/${q} = ${PQ.n}/${PQ.d}.`); }
+  else if(P>0 && p*(A-1)===q*(Ia) ) mark(false,`That treats the whole of ${e.pre}${e.rep} as repeating. Only ${e.rep} repeats: use ${A}x − ${B}x.`);
+  else if(p===Ia && (q===Math.pow(10,P+L))) mark(false,`That's ${e.pre}${e.rep}/${A}, the terminating decimal 0.${e.pre}${e.rep}. The digits go on for ever, so subtract to cancel the tail.`);
+  else mark(false,`Not quite. Let x be the decimal, multiply to line up the tails${P?` (try ${B}x and ${A}x)`:` (× ${A})`}, then subtract.`); });
+$('prShow').addEventListener('click',()=>{ if(!PQ) return; $('prWork').innerHTML=PQ.work.map(x=>`<div>${x}</div>`).join(''); $('prWork').hidden=false; prDone=true; });
+$('prNew').addEventListener('click',prNew); $('prType').addEventListener('change',prNew); prNew();
+
+function redrawAll(){ drawDN(); drawBS(); drawRC(); drawTM(); drawPM(); drawLM(); drawNN(); }
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll); }
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const D=(pre,rep)=>decHTML(pre,rep);
+const QS=[
+  {q:'Which fraction gives a terminating decimal?',opts:['7/20','1/3','5/6','2/7'],a:0,fb:'20 = 2² × 5: only 2s and 5s, so 7/20 terminates (0.35). The others have a 3 or a 7 in the denominator.'},
+  {q:'Write 1/11 as a recurring decimal.',opts:[D('','09'),D('','1'),D('','01'),D('','9')],a:0,fb:'1 ÷ 11 = 0.090909…: the block "09" repeats, so the dots go over the 0 and the 9.'},
+  {q:`Write ${D('','3')} as a fraction.`,opts:['1/3','3/10','3/100','33/100'],a:0,fb:'x = 0.333…, 10x = 3.333…, so 9x = 3 and x = 3/9 = 1/3.'},
+  {q:'How is 0.41666… written in dot notation?',opts:[D('41','6'),D('4','16'),D('','416'),D('','4166')],a:0,fb:'Only the 6 repeats, so a single dot over the 6. The 4 and 1 happen once.'},
+  {q:`Write ${D('','72')} as a fraction in its simplest form.`,opts:['8/11','72/100','4/5','7/9'],a:0,fb:'100x − x = 72, so x = 72/99 = 8/11 (÷ 9).'},
+  {q:`To convert ${D('','123')} to a fraction, multiply x by…`,opts:['1000','100','10','3'],a:0,fb:'The block has 3 digits, so × 1000 shifts it exactly one block: 1000x − x = 999x = 123.'},
+  {q:`Write ${D('1','3')} as a fraction.`,opts:['2/15','13/99','13/90','1/3'],a:0,fb:'10x = 1.333…, 100x = 13.333…, so 90x = 12 and x = 12/90 = 2/15.'},
+  {q:'Why must 1/7 give a recurring decimal?',opts:['Only 6 non-zero remainders are possible, so one must repeat','Because 7 is odd','Because 7 is bigger than 5','Because calculators round it'],a:0,fb:'Dividing by 7, the remainder is 1 to 6 (it never reaches 0 because 7 is not made of 2s and 5s). Within 6 steps a remainder repeats, and so do the digits.'},
+  {q:'Which statement is true?',opts:[`${D('','9')} = 1`,`${D('','9')} is a tiny bit less than 1`,`${D('','9')} = 0.9`,`${D('','9')} is not a real number`],a:0,fb:'x = 0.999…, 10x = 9.999…, so 9x = 9 and x = 1 exactly.'},
+  {q:'Write 3/40 as a decimal.',opts:['0.075','0.75','0.0075','0.3'],a:0,fb:'40 = 2³ × 5. Multiply top and bottom by 25: 3/40 = 75/1000 = 0.075.'}
+];
+const qz=$('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.innerHTML=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

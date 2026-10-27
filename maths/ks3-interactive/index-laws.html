@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Index Laws</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive "lab" panels; graph-paper neutrals, teal = copies from the first power, orange = copies from the second, plum = the resulting index. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.A{color:var(--accent);font-weight:600}.B{color:var(--hi);font-weight:600}.R{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.law{font-family:var(--mono);font-size:1.3rem;text-align:center;padding:.6rem .8rem;border-radius:8px;background:var(--two-soft);color:var(--two);margin:.6rem 0 0;font-weight:600}
+.blocks{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:.8rem;min-height:36px;font-family:var(--mono)}
+.blk{width:30px;height:30px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:.9rem;flex:none}
+.blk.a{background:var(--accent)}.blk.b{background:var(--hi)}.blk.r{background:var(--two)}
+.blk.x{opacity:.3;text-decoration:line-through}
+.sep{color:var(--muted);font-size:1.2rem;padding:0 .2rem}
+.grpbox{display:inline-flex;gap:4px;padding:5px;border:2px solid var(--two);border-radius:7px;margin:0 2px}
+.fracv{display:inline-flex;flex-direction:column;align-items:center;gap:6px;vertical-align:middle}
+.fracv .line{width:100%;height:2px;background:var(--fg)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono,th.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+.ok{color:var(--good);font-family:var(--mono)}.no{color:var(--bad);font-family:var(--mono)}
+.stair td{text-align:center;font-family:var(--mono);font-size:1.05rem}
+.stair td.arrow{color:var(--hi);font-size:.85rem}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.spot{display:grid;gap:.6rem;margin-top:.8rem}
+.spot .item{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:center;border:1px solid var(--line);border-radius:8px;padding:.6rem .9rem;font-family:var(--mono);font-size:1.05rem}
+.spot .item .btns{display:flex;gap:.4rem}
+.spot .item.right{border-color:var(--good);background:var(--accent-soft)}
+.spot .item.wrong{border-color:var(--bad);background:var(--hi-soft)}
+.spot .why{grid-column:1/-1;font:.9rem var(--body);color:var(--muted)}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Algebra · KS3 → GCSE</div>
+  <h1>Index Laws</h1>
+  <p class="lede">Three rules that turn multiplying, dividing and powering powers into adding, subtracting and multiplying small numbers. None of them needs memorising: each one is just counting how many copies of the base you have.</p>
+  <span class="gcse">National curriculum KS3: use the index laws for multiplication and division of integer powers; GCSE extends to zero, negative and fractional indices</span>
+</header>
+
+<h2>1 · A power is a count</h2>
+<p>Remember what the index means (see powers and roots): <span class="m">a⁵</span> is five copies of a multiplied together. Nothing more. Every law on this page comes from writing the copies out, doing something obvious, and counting what's left. Let's agree a picture: each block is one copy of the base <span class="m">a</span>.</p>
+
+<div class="lab">
+  <div class="controls"><label>a<sup><span id="cN">5</span></sup> &nbsp; index = <input type="range" id="cI" min="1" max="10" value="5"></label></div>
+  <div class="blocks" id="cBlocks"></div>
+  <div class="work" id="cWork"></div>
+</div>
+
+<h2>2 · Law 1: multiplying powers</h2>
+<p>a³ × a² is three copies, then two more copies, all multiplied together. That's five copies: a⁵. The indices <strong>add</strong>. The bases must be the same letter: you're counting copies of one thing.</p>
+
+<div class="law">aᵐ × aⁿ = aᵐ⁺ⁿ</div>
+<div class="lab">
+  <div class="controls">
+    <label>m = <input type="range" id="m1" min="1" max="7" value="3"></label>
+    <label>n = <input type="range" id="n1" min="1" max="7" value="2"></label>
+  </div>
+  <div class="blocks" id="b1"></div>
+  <div class="work" id="w1"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Not a × rule.</strong> a³ × a² is <em>not</em> a⁶. Three blocks and two blocks are five blocks. If you're tempted to multiply the indices, picture the blocks lined up and count them.</p>
+</div>
+
+<h2>3 · Law 2: dividing powers</h2>
+<p>a⁵ ÷ a² is five copies on top of a fraction and two underneath. Each copy below cancels one above (a ÷ a = 1). Two pairs cancel, three copies survive: a³. The indices <strong>subtract</strong>.</p>
+
+<div class="law">aᵐ ÷ aⁿ = aᵐ⁻ⁿ</div>
+<div class="lab">
+  <div class="controls">
+    <label>m = <input type="range" id="m2" min="0" max="7" value="5"></label>
+    <label>n = <input type="range" id="n2" min="0" max="7" value="2"></label>
+  </div>
+  <div class="blocks" id="b2"></div>
+  <div class="work" id="w2"></div>
+</div>
+
+<p>Slide n past m and watch what happens: more copies underneath than on top. That's where zero and negative indices come from, in section 5.</p>
+
+<h2>4 · Law 3: a power of a power</h2>
+<p>(a³)² means "a³, squared": two copies of a³. Each a³ is itself three copies of a, so you have 2 groups of 3, which is 6 copies: a⁶. The indices <strong>multiply</strong>. This is the one law where multiplying is correct, because you have groups of groups.</p>
+
+<div class="law">(aᵐ)ⁿ = aᵐⁿ</div>
+<div class="lab">
+  <div class="controls">
+    <label>m = <input type="range" id="m3" min="1" max="5" value="3"></label>
+    <label>n = <input type="range" id="n3" min="1" max="5" value="2"></label>
+  </div>
+  <div class="blocks" id="b3"></div>
+  <div class="work" id="w3"></div>
+</div>
+
+<h3>Side rules that follow</h3>
+<div class="tbl"><table>
+  <tr><th>Rule</th><th class="mono">Statement</th><th>Why</th></tr>
+  <tr><td>Power of a product</td><td class="mono">(ab)ⁿ = aⁿbⁿ</td><td>(ab)³ = ab × ab × ab = a·a·a × b·b·b. The power lands on <em>each</em> factor, including a number: (2x)³ = 8x³.</td></tr>
+  <tr><td>Power of a fraction</td><td class="mono">(a/b)ⁿ = aⁿ/bⁿ</td><td>Same idea on top and bottom: (x/3)² = x²/9.</td></tr>
+  <tr><td>Coefficients</td><td class="mono">3a² × 4a⁵ = 12a⁷</td><td>Multiply the numbers normally, apply the law to the letters: 3 × 4 = 12, a² × a⁵ = a⁷.</td></tr>
+  <tr><td>Different letters</td><td class="mono">a²b × ab³ = a³b⁴</td><td>Each letter gets its own count: a² × a = a³, b × b³ = b⁴.</td></tr>
+</table></div>
+
+<h2>5 · Zero and negative indices</h2>
+<p>Law 2 with n bigger than m forces something new. a³ ÷ a³ = a⁰ by the law, but it's also three copies cancelling three copies, which is 1. So <strong>a⁰ = 1</strong>. And a² ÷ a⁵ = a⁻³ by the law, but drawn out it's two cancelling two with three left <em>underneath</em>: 1/a³. So <strong>a⁻ⁿ = 1/aⁿ</strong>: a negative index means "on the bottom".</p>
+
+<div class="lab">
+  <div class="controls"><label>Base <input type="number" id="zb" value="2" min="2" max="10"></label></div>
+  <div class="tbl" id="stair"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Negative index ≠ negative number.</strong> 2⁻³ = 1/8, which is positive. The minus moves the power to the denominator; it doesn't make anything negative. And a⁰ = 1, not 0: zero copies multiplied is the starting point for multiplication, which is 1.</p>
+</div>
+
+<h2>6 · Fractional indices (GCSE)</h2>
+<p>What could a<sup>½</sup> mean? Use Law 1: a<sup>½</sup> × a<sup>½</sup> = a<sup>½+½</sup> = a¹ = a. So a<sup>½</sup> is the number that multiplies by itself to give a. That's the square root. Likewise a<sup>⅓</sup> is the cube root, and a<sup>⅔</sup> = (a<sup>⅓</sup>)² is "cube root, then square".</p>
+
+<div class="law">a<sup>1/n</sup> = ⁿ√a &nbsp;&nbsp;&nbsp; a<sup>m/n</sup> = (ⁿ√a)ᵐ</div>
+<div class="lab">
+  <div class="controls">
+    <label>Evaluate <select id="frB"><option value="8">8</option><option value="16">16</option><option value="27">27</option><option value="32">32</option><option value="64">64</option><option value="81">81</option><option value="125">125</option></select></label>
+    <label>to the power <input type="number" id="frM" value="2" min="-6" max="6" style="width:3.5em"> / <input type="number" id="frN" value="3" min="1" max="6" style="width:3.5em"></label>
+  </div>
+  <div class="work" id="frWork"></div>
+</div>
+<p>Order matters for your sanity, not for the answer: root first (small numbers), then power. 8<sup>⅔</sup> as (∛8)² is 2² = 4; as ∛(8²) it's ∛64 = 4. Same answer, but one route goes through 64.</p>
+
+<h2>7 · Spot the error</h2>
+<p>Each line below is either right or wrong. Decide, then click. These are the mistakes that appear on exam scripts every year.</p>
+<div class="spot" id="spot"></div>
+
+<h2>8 · Where index laws live</h2>
+<div class="grid2">
+  <div class="use"><h3>Standard form</h3>
+    <p>(3 × 10⁸) × (2 × 10⁵) = 6 × 10¹³. Multiplying huge numbers becomes 3 × 2 and 8 + 5. Dividing is 8 − 5.</p></div>
+  <div class="use"><h3>Computing: binary sizes</h3>
+    <p>2¹⁰ bytes in a KiB, 2²⁰ in a MiB. A MiB divided by a KiB is 2²⁰ ÷ 2¹⁰ = 2¹⁰ = 1024. A 2⁵-bit address space squared is 2¹⁰ possibilities… law 3.</p></div>
+  <div class="use"><h3>Algebra ahead</h3>
+    <p>Differentiation (the first page in this series) rests on xⁿ → nxⁿ⁻¹. Simplifying algebraic fractions like 6x⁵/2x² = 3x³ is Law 2.</p></div>
+  <div class="use"><h3>Compound growth</h3>
+    <p>1.05¹⁰ × 1.05⁵ = 1.05¹⁵: fifteen years of 5% growth is ten years then five. (1.05¹²)² is 24 years.</p></div>
+  <div class="use"><h3>Units</h3>
+    <p>Area m², volume m³. Speed m/s = m·s⁻¹; acceleration m·s⁻². Negative indices are how scientists write "per".</p></div>
+  <div class="use"><h3>Logarithms (A-level)</h3>
+    <p>Logs turn the index laws inside out: log(ab) = log a + log b is Law 1 read backwards. Every slide rule ever built ran on it.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Simplify 4x³ × 3x⁵</summary>
+  <div class="step"><strong>Numbers:</strong> 4 × 3 = 12.</div>
+  <div class="step"><strong>Letters, Law 1:</strong> x³ × x⁵ = x⁸.</div>
+  <div class="step"><strong>Answer:</strong> <strong>12x⁸</strong>. (Not 12x¹⁵, not 7x⁸.)</div>
+</details>
+<details>
+  <summary>Simplify 15a⁷ ÷ 3a²</summary>
+  <div class="step"><strong>Numbers:</strong> 15 ÷ 3 = 5.</div>
+  <div class="step"><strong>Letters, Law 2:</strong> a⁷ ÷ a² = a⁵.</div>
+  <div class="step"><strong>Answer:</strong> <strong>5a⁵</strong>.</div>
+</details>
+<details>
+  <summary>Simplify (2y⁴)³</summary>
+  <div class="step"><strong>The power lands on everything inside:</strong> 2³ × (y⁴)³.</div>
+  <div class="step"><strong>Law 3 for the letter:</strong> (y⁴)³ = y¹².</div>
+  <div class="step"><strong>Answer:</strong> 8y¹². The commonest slip is leaving the 2 alone and writing 2y¹².</div>
+</details>
+<details>
+  <summary>Exam-style (GCSE): evaluate 27<sup>−2/3</sup></summary>
+  <div class="step"><strong>Negative: flip it.</strong> 27<sup>−2/3</sup> = 1 / 27<sup>2/3</sup>.</div>
+  <div class="step"><strong>Denominator 3: cube root.</strong> ∛27 = 3.</div>
+  <div class="step"><strong>Numerator 2: square.</strong> 3² = 9.</div>
+  <div class="step"><strong>Answer:</strong> <strong>1/9</strong>. Three moves, each from one law.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>A power counts copies of the base. Multiplying powers of the same base puts the copies together, so indices add. Dividing cancels copies in pairs, so indices subtract. A power of a power is groups of groups, so indices multiply. Pushing Law 2 past zero gives a⁰ = 1 and a⁻ⁿ = 1/aⁿ; pushing Law 1 into fractions gives a<sup>1/n</sup> as the nth root. Coefficients are handled with ordinary arithmetic, and each letter is counted separately. When in doubt, draw the blocks.</p>
+
+<footer>Made for KS3/KS4 students. Index laws for integer powers are in the England national curriculum at key stage 3 under Algebra; zero, negative and fractional indices are GCSE. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';const sup=n=>String(n).replace(/-/,'⁻').replace(/[0-9]/g,d=>SUP[d]);
+const blk=(cls,txt='a')=>`<div class="blk ${cls}">${txt}</div>`;
+const times='<span class="sep">×</span>';
+const rep=(k,cls,txt)=>Array(k).fill(blk(cls,txt)).join(times);
+
+/* 1 */
+const cI=document.getElementById('cI');
+function drawC(){const n=+cI.value;document.getElementById('cN').textContent=n;document.getElementById('cBlocks').innerHTML=rep(n,'a');document.getElementById('cWork').innerHTML=`a${sup(n)} = ${Array(n).fill('a').join(' × ')}   (${n} cop${n===1?'y':'ies'})`;}
+cI.addEventListener('input',drawC);drawC();
+
+/* 2 multiply */
+const m1=document.getElementById('m1'),n1=document.getElementById('n1');
+function draw1(){const m=+m1.value,n=+n1.value;
+  document.getElementById('b1').innerHTML=rep(m,'a')+times+rep(n,'b')+`<span class="sep">=</span>`+rep(m+n,'r');
+  document.getElementById('w1').innerHTML=`<span class="a">a${sup(m)}</span> × <span class="b">a${sup(n)}</span> = <span class="a">${Array(m).fill('a').join('·')}</span> × <span class="b">${Array(n).fill('a').join('·')}</span><br>= ${m} copies + ${n} copies = ${m+n} copies<br>= <strong class="c">a${sup(m+n)}</strong>      (with a = 2: ${2**m} × ${2**n} = ${2**(m+n)} ✓)`;}
+m1.addEventListener('input',draw1);n1.addEventListener('input',draw1);draw1();
+
+/* 3 divide */
+const m2=document.getElementById('m2'),n2=document.getElementById('n2');
+function draw2(){const m=+m2.value,n=+n2.value,k=Math.min(m,n);
+  const top=Array(m).fill(0).map((_,i)=>blk(i<k?'a x':'a')).join(times)||blk('r','1');
+  const bot=Array(n).fill(0).map((_,i)=>blk(i<k?'b x':'b')).join(times)||blk('r','1');
+  let res;if(m>n)res=rep(m-n,'r');else if(m===n)res=blk('r','1');else res=`<span class="fracv">${blk('r','1')}<span class="line"></span><span style="display:flex;gap:4px">${Array(n-m).fill(blk('r')).join('')}</span></span>`;
+  document.getElementById('b2').innerHTML=`<span class="fracv"><span style="display:flex;gap:4px;align-items:center">${top}</span><span class="line"></span><span style="display:flex;gap:4px;align-items:center">${bot}</span></span><span class="sep">=</span>${res}`;
+  let w=`<span class="a">a${sup(m)}</span> ÷ <span class="b">a${sup(n)}</span>: ${k} pair${k===1?'':'s'} cancel (a ÷ a = 1)<br>`;
+  if(m>n)w+=`${m-n} cop${m-n===1?'y':'ies'} left on top = <strong class="c">a${sup(m-n)}</strong>`;
+  else if(m===n)w+=`nothing left anywhere = <strong class="c">1</strong>, and the law says a⁰, so <strong>a⁰ = 1</strong>`;
+  else w+=`${n-m} cop${n-m===1?'y':'ies'} left <em>underneath</em> = <strong class="c">1/a${sup(n-m)}</strong>, and the law says a${sup(m-n)}, so <strong>a${sup(m-n)} = 1/a${sup(n-m)}</strong>`;
+  w+=`<br>law: a${sup(m)}⁻${sup(n).replace('⁻','')} = a${sup(m-n)}      (with a = 2: ${2**m} ÷ ${2**n} = ${m>=n?2**(m-n):'1/'+2**(n-m)} ✓)`;
+  document.getElementById('w2').innerHTML=w;}
+m2.addEventListener('input',draw2);n2.addEventListener('input',draw2);draw2();
+
+/* 4 power of power */
+const m3=document.getElementById('m3'),n3=document.getElementById('n3');
+function draw3(){const m=+m3.value,n=+n3.value;
+  document.getElementById('b3').innerHTML=Array(n).fill(`<span class="grpbox">${Array(m).fill(blk('a')).join('')}</span>`).join(times)+`<span class="sep">=</span>`+rep(m*n,'r');
+  document.getElementById('w3').innerHTML=`(<span class="a">a${sup(m)}</span>)<span class="b">${sup(n)}</span> = ${n} group${n===1?'':'s'} of ${m} copies<br>= ${m} × ${n} = ${m*n} copies<br>= <strong class="c">a${sup(m*n)}</strong>      (with a = 2: (${2**m})${sup(n)} = ${(2**m)**n} = 2${sup(m*n)} ✓)`;}
+m3.addEventListener('input',draw3);n3.addEventListener('input',draw3);draw3();
+
+/* 5 staircase */
+const zb=document.getElementById('zb');
+function drawStair(){const b=Math.max(2,Math.min(10,+zb.value|0));const ks=[3,2,1,0,-1,-2,-3];const val=k=>k>=0?String(b**k):`1/${b**(-k)}`;
+  document.getElementById('stair').innerHTML=`<table class="stair"><tr>${ks.map(k=>`<th class="mono" style="text-align:center">${b}${sup(k)}</th>`).join('')}</tr><tr>${ks.map(k=>`<td style="color:${k<0?css('--two'):k===0?css('--hi'):'inherit'};font-weight:${k===0?'700':'500'}">${val(k)}</td>`).join('')}</tr><tr>${ks.map((k,i)=>`<td class="arrow">${i<ks.length-1?'÷'+b+' →':''}</td>`).join('')}</tr></table>`;}
+zb.addEventListener('input',drawStair);drawStair();
+
+/* 6 fractional */
+const frB=document.getElementById('frB'),frM=document.getElementById('frM'),frN=document.getElementById('frN');
+function drawFr(){const b=+frB.value,m=+frM.value|0,n=Math.max(1,+frN.value|0);
+  const root=Math.round(Math.pow(b,1/n)*1e9)/1e9;const isInt=Number.isInteger(root);
+  let w=`${b}<sup>${m}/${n}</sup>`;
+  if(m<0)w+=`  = 1 / ${b}<sup>${-m}/${n}</sup>   ← negative: flip to the bottom<br>`;else w+='<br>';
+  const am=Math.abs(m);
+  w+=`denominator ${n}: take the ${n===2?'square':n===3?'cube':n+'th'} root.  ${n===2?'√':n===3?'∛':n+'√'}${b} = ${isInt?root:root.toFixed(3)+' (not a whole number: pick a base that is a perfect '+(n===2?'square':n===3?'cube':n+'th power')+')'}<br>`;
+  if(isInt){const val=Math.pow(root,am);w+=`numerator ${am}: raise to the power ${am}.  ${root}${sup(am)} = ${val}<br>`;w+=`= <strong>${m<0?'1/'+val:val}</strong>`;}
+  document.getElementById('frWork').innerHTML=w;}
+[frB,frM,frN].forEach(e=>e.addEventListener('input',drawFr));drawFr();
+
+/* 7 spot the error */
+const SPOT=[
+  {s:'x³ × x⁴ = x¹²',ok:false,why:'Multiplying powers adds the indices: x⁷. Three blocks and four blocks are seven blocks.'},
+  {s:'y⁸ ÷ y² = y⁴',ok:false,why:'Dividing subtracts: y⁶. Two pairs cancel, six remain.'},
+  {s:'(a²)⁵ = a¹⁰',ok:true,why:'Five groups of two copies: 10 copies.'},
+  {s:'2³ × 2² = 4⁵',ok:false,why:'The base stays as 2: 2⁵ = 32. (4⁵ = 1024.) Never multiply the bases.'},
+  {s:'(3x)² = 3x²',ok:false,why:'The square hits the 3 as well: 9x².'},
+  {s:'5⁰ = 1',ok:true,why:'Any non-zero base to the power 0 is 1.'},
+  {s:'4⁻² = −16',ok:false,why:'Negative index means reciprocal: 1/4² = 1/16. Positive.'},
+  {s:'x² + x³ = x⁵',ok:false,why:'No law for adding. x² + x³ cannot be simplified (they are unlike terms).'},
+  {s:'6a⁵ ÷ 2a = 3a⁴',ok:true,why:'6 ÷ 2 = 3, and a⁵ ÷ a¹ = a⁴.'},
+  {s:'a² × b³ = (ab)⁵',ok:false,why:'Different bases: nothing to combine. It stays a²b³.'},
+  {s:'16<sup>½</sup> = 4',ok:true,why:'Index ½ means square root. √16 = 4.'},
+  {s:'(2x³)² = 4x⁶',ok:true,why:'2² = 4 and (x³)² = x⁶.'}
+];
+const spotEl=document.getElementById('spot');
+SPOT.sort(()=>Math.random()-0.5).forEach(it=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<span>${it.s}</span><span class="btns"><button class="btn" data-v="1">Right</button><button class="btn" data-v="0">Wrong</button></span>`;
+  d.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{const said=b.dataset.v==='1';d.classList.add(said===it.ok?'right':'wrong');d.querySelectorAll('button').forEach(x=>x.disabled=true);const w=document.createElement('div');w.className='why';w.textContent=(said===it.ok?'Correct. ':'Not quite. ')+(it.ok?'This is right: ':'This is wrong: ')+it.why;d.appendChild(w);}));spotEl.appendChild(d);});
+
+/* quiz */
+const QS=[
+  {q:'Simplify a⁴ × a⁶',opts:['a¹⁰','a²⁴','a²','2a¹⁰'],a:0,fb:'Same base, multiplying: add indices. 4 + 6 = 10.'},
+  {q:'Simplify b⁹ ÷ b³',opts:['b⁶','b³','b¹²','b²⁷'],a:0,fb:'Dividing subtracts: 9 − 3 = 6.'},
+  {q:'Simplify (c³)⁴',opts:['c¹²','c⁷','c⁸¹','c¹'],a:0,fb:'Power of a power multiplies: 3 × 4 = 12.'},
+  {q:'Simplify 3x² × 5x⁴',opts:['15x⁶','8x⁶','15x⁸','8x⁸'],a:0,fb:'Numbers multiply (15), indices add (6).'},
+  {q:'Simplify (4y²)³',opts:['64y⁶','4y⁶','12y⁶','64y⁵'],a:0,fb:'4³ = 64 and (y²)³ = y⁶. The cube applies to the 4 too.'},
+  {q:'Evaluate 3⁻²',opts:['1/9','−9','−6','1/6'],a:0,fb:'Negative index means reciprocal: 1/3² = 1/9.'},
+  {q:'Evaluate 64<sup>2/3</sup>',opts:['16','8','4','512'],a:0,fb:'Cube root of 64 is 4; 4² = 16.'},
+  {q:'Which pair are like terms you could add?',opts:['2x³ and 5x³','x³ and x²','x³ and y³','x² and 2x'],a:0,fb:'Only identical letter-and-power parts add: 2x³ + 5x³ = 7x³. Index laws are for × and ÷.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.innerHTML=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',drawStair);}
+new MutationObserver(drawStair).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

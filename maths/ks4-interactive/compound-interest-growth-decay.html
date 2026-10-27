@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Compound Interest, Growth and Decay</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one or more interactive SVG panels drawn from JS (bar charts, a multiplier chain, area squares, a draggable graph). Graph-paper neutrals. Colours on this page: teal = simple interest and anything linear (the same amount added or taken each time), orange = compound amounts and anything exponential (multiplied by the same number each time), plum = the "extra" that compounding produces (interest on interest), targets, and the cursor/backwards arrows. Soft grey (--line) blocks are the original principal. Green/red are only used for right/wrong feedback. The orange "Higher" pill marks Higher-tier-only content. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+a{color:var(--accent)}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.S{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.X{color:var(--two);font-weight:600}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;line-height:1.5}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none;cursor:ew-resize}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);max-width:100%;min-width:0}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn:disabled{opacity:.5;cursor:default}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:clamp(1.15rem,4.5vw,1.6rem);text-align:center;margin:.6rem 0}
+.pq{font-size:1.05rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:.95rem;line-height:1.85;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.85rem}
+.vt td,.vt th{text-align:right;padding:.3rem .35rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .66rem var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);vertical-align:bottom}
+.vt td:first-child,.vt th:first-child{text-align:left}
+.vt tr.on td{background:var(--two-soft);color:var(--two);font-weight:600}
+.vt .s{color:var(--accent)}.vt .c{color:var(--hi)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;max-width:100%;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}
+.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Ratio, proportion and rates of change</div>
+  <h1>Compound Interest, Growth and Decay</h1>
+  <p class="lede">Put money in a savings account and the bank pays you <em>interest</em>. Leave it there and next year you earn interest on your interest too. That snowball effect is called <strong>compound</strong> growth, and the same maths describes populations, bacteria, car values and radioactive materials. One idea runs through all of it: multiply by the same number again and again.</p>
+  <span class="gcse">GCSE subject content: set up, solve and interpret the answers in growth and decay problems, including compound interest; solve problems involving percentage change, including original value problems; (Higher) recognise, sketch and interpret graphs of exponential functions y = kˣ</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start: a quick recap</strong></p>
+  <ul>
+    <li><strong>Percentages as decimals.</strong> 1% = 1/100 = 0.01, so 4% = 0.04 and 15% = 0.15. To find 4% of £250, work out 0.04 × 250 = £10.</li>
+    <li><strong>Simple interest</strong> pays the <em>same</em> amount every year, worked out on the money you first put in. Revise it on the <a href="../ks3-interactive/simple-interest.html">Simple Interest</a> page.</li>
+    <li><strong>Percentage increase and decrease with a multiplier</strong>: to increase by 20%, multiply by 1.2. Revise it on the <a href="../ks3-interactive/percentage-change.html">Percentage Change</a> page.</li>
+    <li><strong>Words you'll need.</strong> The <strong>principal</strong> (P) is the amount you start with. The <strong>rate</strong> (r) is the percentage added each year (or each hour, day…). The <strong>amount</strong> (A) is what you have at the end.</li>
+  </ul>
+</div>
+
+<h2>1 · Simple vs compound: interest on interest</h2>
+<p>Two friends each save £1000 for 5 years at 10% a year.</p>
+<ul>
+  <li>Sam's account pays <span class="S">simple interest</span>: 10% of the <em>original</em> £1000, which is £100 every year. Same amount, every year.</li>
+  <li>Cara's account pays <span class="C">compound interest</span>: each year the bank works out 10% of whatever is <em>in the account now</em> and adds it on. Year 1: 10% of £1000 = £100, giving £1100. Year 2: 10% of £1100 = £110, giving £1210. Each year's interest is a bit bigger than the last, because it is worked out on a bigger amount.</li>
+</ul>
+<p>The difference is the <span class="X">interest on interest</span>: in year 2 Cara also earns 10% on the £100 she earned in year 1. Change the numbers and step through the years. Grey is the money put in, <span class="S">teal</span> is simple interest, <span class="C">orange</span> is the part of the compound interest that matches it, and <span class="X">plum</span> is the extra that compounding produces.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>principal P <input type="range" id="siP" min="100" max="5000" step="100" value="1000"><span id="siPv" style="font-family:var(--mono)"></span></label>
+    <label>rate r <input type="range" id="siR" min="1" max="20" step="1" value="10"><span id="siRv" style="font-family:var(--mono)"></span></label>
+    <label>years <input type="range" id="siN" min="0" max="10" step="1" value="5"><span id="siNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="siSvg" viewBox="0 0 560 300" width="560" height="300" aria-label="Bar chart comparing simple and compound interest year by year"></svg>
+  <table class="vt" id="siTable"></table>
+  <div class="work" id="siWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>The key difference.</strong> Simple interest grows by <em>adding</em> the same amount each year. Compound interest grows by <em>multiplying</em> by the same number each year. Over a few years the gap is small; over 10, 20 or 40 years it becomes huge. Almost all real savings accounts, loans and credit cards use compound interest.</p>
+</div>
+
+<h2>2 · Multipliers: one number per year</h2>
+<p>Working out "10% of the amount, then add it on" every year is slow. Here's the shortcut. The amount you start the year with is 100% of itself. Adding 10% gives 100% + 10% = 110% of it. And 110% as a decimal is 110 ÷ 100 = 1.1. So</p>
+<p class="big">add 10% &nbsp;=&nbsp; × 1.1</p>
+<p>The number you multiply by is called the <strong>multiplier</strong>. For a decrease you take away: losing 15% leaves 100% − 15% = 85%, so the multiplier is 0.85. A multiplier bigger than 1 means growth; smaller than 1 means a decrease.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><select id="muDir"><option value="up">increase</option><option value="down">decrease</option></select> by <input type="range" id="muR" min="0.5" max="50" step="0.5" value="3"><span id="muRv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="muSvg" viewBox="0 0 560 170" width="560" height="170" aria-label="Bars comparing 100% with the new percentage"></svg>
+  <div class="work" id="muWork"></div>
+</div>
+
+<h3>Try it: write the multiplier</h3>
+<div class="lab">
+  <p class="pq" id="muQ"></p>
+  <div class="controls">
+    <label>multiplier <input type="text" id="muA" inputmode="decimal" autocomplete="off"></label>
+    <button class="btn primary" id="muGo">Check</button>
+    <button class="btn" id="muNew">New question</button>
+  </div>
+  <div class="msg" id="muMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistake: 3% is 0.03, not 0.3.</strong> A 3% increase has multiplier 1.03. The multiplier 1.3 would be a 30% increase. Always check: "per cent" means "out of 100", so divide by 100.</p>
+</div>
+
+<h2>3 · The compound interest formula</h2>
+<p>£2000 is saved at 4% compound interest. Each year the amount is multiplied by 1.04. Press the button to add years and watch the chain of multipliers grow.</p>
+
+<div class="lab">
+  <svg id="chSvg" viewBox="0 0 560 210" width="560" height="210" aria-label="Chain of yearly amounts each multiplied by 1.04"></svg>
+  <div class="controls">
+    <button class="btn primary" id="chAdd">Add a year</button>
+    <button class="btn" id="chReset">Reset</button>
+  </div>
+  <div class="work" id="chWork"></div>
+</div>
+
+<p>After 3 years the money has been multiplied by 1.04 three times: 1.04 × 1.04 × 1.04, which is 1.04³ (see index notation). After n years it has been multiplied by 1.04ⁿ. In general, with principal P and a rate of r% per year:</p>
+<p class="big">A = P × (1 + r/100)ⁿ</p>
+<p>Here <strong>(1 + r/100)</strong> is just the multiplier (1 + 4/100 = 1.04) and <strong>n</strong> is the number of years (or whatever time period the rate is per). The <em>interest earned</em> is the amount minus the principal: A − P. On a calculator, use the power key: <span class="m">2000 × 1.04 ^ 3</span> (it may be labelled x<sup>y</sup> or x<sup>■</sup>).</p>
+
+<h3>Try it: use the formula</h3>
+<div class="lab">
+  <p class="pq" id="fqQ"></p>
+  <div class="controls">
+    <label>£ <input type="text" id="fqA" inputmode="decimal" autocomplete="off" style="width:8em"></label>
+    <button class="btn primary" id="fqGo">Check</button>
+    <button class="btn" id="fqShow">Show working</button>
+    <button class="btn" id="fqNew">New question</button>
+  </div>
+  <div class="msg" id="fqMsg"></div>
+  <div class="work" id="fqWork" hidden></div>
+</div>
+
+<div class="callout">
+  <p><strong>Exam traps with the formula</strong></p>
+  <ul>
+    <li><strong>Amount or interest?</strong> "How much is in the account" means A. "How much interest is earned" means A − P. Read the last line of the question twice.</li>
+    <li><strong>Power, not times.</strong> 3 years at 4% is × 1.04³, not × 1.04 × 3 and not × 1.12.</li>
+    <li><strong>Round only at the end</strong>, to the nearest penny (2 decimal places for money). Rounding every year can make the last penny wrong.</li>
+  </ul>
+</div>
+
+<h2>4 · Depreciation and decay: multipliers below 1</h2>
+<p>Most things you buy lose value over time. A car might lose 15% of its value each year. That's called <strong>depreciation</strong>. It works exactly like compound interest, but the multiplier is less than 1: losing 15% leaves 85%, so multiply by 0.85 each year. Anything that shrinks by the same percentage each time is called <strong>exponential decay</strong>.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>new car £ <input type="number" id="dpP" value="18000" min="1" step="100" style="width:6.5em"></label>
+    <label>loses <input type="range" id="dpR" min="1" max="40" step="1" value="15"><span id="dpRv" style="font-family:var(--mono)"></span> a year</label>
+    <label>after <input type="range" id="dpN" min="0" max="10" step="1" value="3"><span id="dpNv" style="font-family:var(--mono)"></span> years</label>
+  </div>
+  <svg id="dpSvg" viewBox="0 0 560 290" width="560" height="290" aria-label="Bar chart of the car's value each year"></svg>
+  <div class="readout">
+    <div class="t"><b>Value</b><span id="dpVal"></span></div>
+    <div><b>Total lost</b><span id="dpLost"></span></div>
+    <div class="f"><b>Wrong: n × r%</b><span id="dpWrong"></span></div>
+  </div>
+  <div class="work" id="dpWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Two things to notice.</strong></p>
+  <ul>
+    <li>3 years of 15% depreciation is <em>not</em> 45% off. Each year's 15% is taken from a smaller value, so the total loss is less: 1 − 0.85³ = 0.385875, a 38.6% loss (to 3 s.f.). The <span class="S">teal dashed line</span> shows the wrong "take off 15% of the original every year" method.</li>
+    <li>Exponential decay never reaches zero. Taking 15% off always leaves 85% of something. The straight-line method would reach £0 after under 7 years.</li>
+  </ul>
+</div>
+
+<h2>5 · Population growth and other growth and decay</h2>
+<p>The same formula works for anything that changes by a fixed <em>percentage</em> each time period, not just money:</p>
+<p class="big">new amount = start × (multiplier)<sup>number of periods</sup></p>
+<p>The time period doesn't have to be years. If bacteria increase by 30% <em>per hour</em>, then n is the number of hours. Pick a situation and slide the time. The <span class="C">orange square</span> has an area equal to the amount now; the dashed square is the amount at the start.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>situation <select id="pgC"></select></label>
+    <label>time <input type="range" id="pgT" min="0" max="30" step="1" value="5"><span id="pgTv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="pgSvg" viewBox="0 0 560 270" width="560" height="270" aria-label="Squares comparing the starting amount with the amount now"></svg>
+  <div class="work" id="pgWork"></div>
+  <p class="pq" id="pgQ" style="margin-top:1rem"></p>
+  <div class="controls">
+    <label>answer <input type="text" id="pgA" inputmode="decimal" autocomplete="off" style="width:8em"></label>
+    <button class="btn primary" id="pgGo">Check</button>
+    <button class="btn" id="pgNew">New question</button>
+  </div>
+  <div class="msg" id="pgMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Rounding to suit the context.</strong> You can't have 26 530.2 people, so a population is rounded to a whole number (or to 3 s.f. if the question says so). Money is rounded to the nearest penny. A mass might be given to 3 s.f. Always keep the full calculator value until the last step.</p>
+</div>
+
+<h2>6 · How many years? Trial and the bank-account table</h2>
+<p>Sometimes the question is turned round: "£5000 is invested at 3.5% compound interest. After how many years will it first be worth more than £6000?" You can't just divide, because the growth isn't the same each year. Instead, <strong>try values of n</strong> until the amount first passes the target. Type a number of years to test it:</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>£5000 at <select id="yrR"><option value="3.5">3.5%</option><option value="5">5%</option><option value="8">8%</option></select></label>
+    <label>target <select id="yrT"><option value="6000">more than £6000</option><option value="7500">more than £7500</option><option value="10000">more than £10 000 (double)</option></select></label>
+  </div>
+  <div class="controls">
+    <label>try n = <input type="number" id="yrTry" min="0" max="40" step="1" value="3" style="width:4.5em"></label>
+    <button class="btn" id="yrTryGo">Test it</button>
+  </div>
+  <div class="msg" id="yrTryMsg"></div>
+  <p style="margin-bottom:.4rem">Or build the bank-account table one year at a time, like a bank statement:</p>
+  <div class="controls">
+    <button class="btn primary" id="yrNext">Next year</button>
+    <button class="btn" id="yrReset">Reset table</button>
+  </div>
+  <svg id="yrSvg" viewBox="0 0 560 230" width="560" height="230" aria-label="Bar chart of the account each year against the target"></svg>
+  <table class="vt" id="yrTable"></table>
+  <div class="controls" style="margin-top:1rem">
+    <label>So the answer is n = <input type="number" id="yrA" min="0" step="1" style="width:4.5em"> years</label>
+    <button class="btn primary" id="yrGo">Check</button>
+  </div>
+  <div class="msg" id="yrMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Show the two years either side.</strong> In an exam, write down the value for the last year that is <em>below</em> the target and the first year that is <em>above</em> it, e.g. "1.035⁵ × 5000 = £5938.43 (not enough), 1.035⁶ × 5000 = £6146.28 (more than £6000), so 6 years." That is your evidence.</p>
+</div>
+
+<h2>7 · Reverse problems and repeated percentage change <span class="tag g">Higher</span></h2>
+<p><strong>Working backwards.</strong> If you know the amount <em>after</em> compound growth and need the original, undo the multiplying by <em>dividing</em> by the same multiplier: original = A ÷ (multiplier)ⁿ. It's tempting to take 4% off for each year instead, but that doesn't work: 4% of the bigger, later amount is more than the 4% that was added.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>final amount £ <input type="number" id="rvF" value="2812.16" min="0" step="any" style="width:7em"></label>
+    <label>after <select id="rvD"><option value="up">an increase</option><option value="down">a decrease</option></select> of <input type="number" id="rvR" value="4" min="0" max="99" step="any" style="width:4.5em">% a year</label>
+    <label>for <input type="range" id="rvN" min="1" max="10" step="1" value="3"><span id="rvNv" style="font-family:var(--mono)"></span> years</label>
+  </div>
+  <svg id="rvSvg" viewBox="0 0 560 170" width="560" height="170" aria-label="Forward and backward arrows between the original and final amount"></svg>
+  <div class="work" id="rvWork"></div>
+</div>
+
+<p><strong>Repeated percentage change.</strong> When a price goes up 20% and then down 20%, it does <em>not</em> get back to where it started. The second change is a percentage of a different (bigger) amount. Multiply the multipliers to get one overall multiplier: 1.2 × 0.8 = 0.96, which is a 4% decrease overall.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>1st <select id="rp1d"><option value="up">increase</option><option value="down">decrease</option></select> <input type="range" id="rp1" min="0" max="50" step="1" value="20"><span id="rp1v" style="font-family:var(--mono)"></span></label>
+    <label>2nd <select id="rp2d"><option value="up">increase</option><option value="down" selected>decrease</option></select> <input type="range" id="rp2" min="0" max="50" step="1" value="20"><span id="rp2v" style="font-family:var(--mono)"></span></label>
+    <label>3rd <select id="rp3d"><option value="up">increase</option><option value="down">decrease</option></select> <input type="range" id="rp3" min="0" max="50" step="1" value="0"><span id="rp3v" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="rpSvg" viewBox="0 0 560 220" width="560" height="220" aria-label="Bars showing a price of 100 after each change"></svg>
+  <div class="work" id="rpWork"></div>
+</div>
+
+<h2>8 · Exponential growth vs linear growth <span class="tag g">Higher</span></h2>
+<p>Plot the amount against time and the two kinds of growth look completely different. <span class="S">Linear growth</span> (adding the same amount each year, like simple interest) is a straight line. <span class="C">Exponential growth</span> (multiplying by the same number each year, like compound interest) is a curve that gets steeper and steeper. Its equation has the form <span class="m">y = A × kˣ</span>, where x is the time and k is the multiplier. Graphs like <span class="m">y = kˣ</span> are called <strong>exponential functions</strong>: the variable x is in the power (the <em>exponent</em>).</p>
+<p>Start both at 100. Change the linear "amount added per year" and the exponential percentage rate, then drag across the graph to compare them at any time.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>linear: add <input type="range" id="exL" min="-20" max="50" step="1" value="20"><span id="exLv" style="font-family:var(--mono)"></span> per year</label>
+    <label>exponential: <input type="range" id="exR" min="-30" max="30" step="1" value="10"><span id="exRv" style="font-family:var(--mono)"></span> per year</label>
+    <label>show <input type="range" id="exY" min="5" max="30" step="1" value="20"><span id="exYv" style="font-family:var(--mono)"></span> years</label>
+  </div>
+  <svg id="exSvg" class="drag" viewBox="0 0 560 340" width="560" height="340" aria-label="Graph of linear and exponential growth with a draggable time cursor"></svg>
+  <div class="readout">
+    <div class="f"><b>Linear at cursor</b><span id="exLin"></span></div>
+    <div class="t"><b>Exponential at cursor</b><span id="exExp"></span></div>
+    <div class="p"><b>Overtaking</b><span id="exCross"></span></div>
+  </div>
+  <div class="msg" id="exMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Recognising y = kˣ (k positive).</strong></p>
+  <ul>
+    <li>It always passes through <strong>(0, 1)</strong>, because k⁰ = 1. (With a start value A, y = A × kˣ passes through (0, A).)</li>
+    <li>If k &gt; 1 it is <strong>growth</strong>: a curve that rises more and more steeply. Whatever straight line you compare it with, the exponential eventually overtakes it.</li>
+    <li>If 0 &lt; k &lt; 1 it is <strong>decay</strong>: it falls steeply at first, then levels off, getting closer and closer to the x-axis but never touching it. y is never 0 or negative.</li>
+  </ul>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>£3000 is invested at 2.5% per year compound interest for 4 years. Find the amount and the interest earned.</summary>
+  <div class="step"><strong>Multiplier:</strong> 100% + 2.5% = 102.5% = 1.025.</div>
+  <div class="step"><strong>Formula:</strong> A = P × (multiplier)ⁿ = 3000 × 1.025⁴.</div>
+  <div class="step"><strong>Calculate:</strong> 1.025⁴ = 1.103812890…, so A = 3000 × 1.103812890… = 3311.438671…</div>
+  <div class="step"><strong>Round to the nearest penny:</strong> A = <strong>£3311.44</strong>.</div>
+  <div class="step"><strong>Interest earned:</strong> 3311.44 − 3000 = <strong>£311.44</strong>.</div>
+  <div class="step"><strong>Sense check:</strong> simple interest would be 4 × 2.5% = 10% of £3000 = £300. Compound should be a little more ✓</div>
+</details>
+<details>
+  <summary>Compare £800 for 3 years at 5% simple interest and at 5% compound interest.</summary>
+  <div class="step"><strong>Simple:</strong> 5% of £800 = £40 a year. 3 × £40 = £120. Total = 800 + 120 = <strong>£920</strong>.</div>
+  <div class="step"><strong>Compound, year by year:</strong> 800 × 1.05 = 840; 840 × 1.05 = 882; 882 × 1.05 = 926.10.</div>
+  <div class="step"><strong>Compound, in one go:</strong> 800 × 1.05³ = 800 × 1.157625 = <strong>£926.10</strong>. Same answer.</div>
+  <div class="step"><strong>Difference:</strong> 926.10 − 920 = <strong>£6.10</strong> more with compound interest: the interest earned on earlier interest.</div>
+</details>
+<details>
+  <summary>A car costs £15 000. It depreciates by 12% per year. Find its value after 5 years, to the nearest pound.</summary>
+  <div class="step"><strong>Multiplier:</strong> 100% − 12% = 88% = 0.88. (Less than 1, because it's a decrease.)</div>
+  <div class="step"><strong>Formula:</strong> value = 15 000 × 0.88⁵.</div>
+  <div class="step"><strong>Calculate:</strong> 0.88⁵ = 0.527731916…, so value = 15 000 × 0.527731916… = 7915.978…</div>
+  <div class="step"><strong>Answer:</strong> <strong>£7916</strong> to the nearest pound.</div>
+  <div class="step"><strong>Watch out:</strong> 5 × 12% = 60% off would give £6000. That's wrong, because each year's 12% is taken from a smaller value.</div>
+</details>
+<details>
+  <summary>A town has 40 000 people. The population grows by 3% each year. Estimate the population after 10 years, to 3 s.f.</summary>
+  <div class="step"><strong>Multiplier:</strong> 1.03.</div>
+  <div class="step"><strong>Formula:</strong> population = 40 000 × 1.03¹⁰.</div>
+  <div class="step"><strong>Calculate:</strong> 1.03¹⁰ = 1.343916…, so population = 53 756.655…</div>
+  <div class="step"><strong>Round to 3 s.f.:</strong> <strong>53 800</strong> people.</div>
+  <div class="step"><strong>Interpret:</strong> this assumes the growth rate stays at 3% every year, which real populations may not do. That's why it's an estimate.</div>
+</details>
+<details>
+  <summary>£2000 is invested at 6% compound interest. After how many whole years will it first be worth more than £2500?</summary>
+  <div class="step"><strong>Try values of n</strong> with 2000 × 1.06ⁿ:</div>
+  <div class="step">n = 1: £2120.00 &nbsp; n = 2: £2247.20 &nbsp; n = 3: £2382.03 (still below £2500)</div>
+  <div class="step">n = 4: 2000 × 1.06⁴ = £2524.95 (more than £2500)</div>
+  <div class="step"><strong>Answer: 4 years.</strong> Write down both n = 3 and n = 4 as your evidence.</div>
+  <div class="step"><strong>Trap:</strong> with simple interest it would take 500 ÷ 120 = 4.17 years, so 5 whole years. Compound is quicker, so don't use the simple-interest shortcut.</div>
+</details>
+<details>
+  <summary><span class="tag g">Higher</span> After depreciating by 20% a year for 5 years, a machine is worth £4096. What was it worth when new?</summary>
+  <div class="step"><strong>Set up:</strong> original × 0.8⁵ = 4096.</div>
+  <div class="step"><strong>Undo by dividing:</strong> original = 4096 ÷ 0.8⁵ = 4096 ÷ 0.32768.</div>
+  <div class="step"><strong>Answer:</strong> <strong>£12 500</strong>.</div>
+  <div class="step"><strong>Check:</strong> 12 500 × 0.8⁵ = 12 500 × 0.32768 = 4096 ✓</div>
+  <div class="step"><strong>Wrong method:</strong> adding 20% back on each year (4096 × 1.2⁵ = £10 192.19) doesn't undo it. Divide by 0.8, don't multiply by 1.2.</div>
+</details>
+<details>
+  <summary><span class="tag g">Higher</span> A jacket's price is increased by 10%, then reduced by 10% in a sale. What is the overall percentage change?</summary>
+  <div class="step"><strong>Multipliers:</strong> increase 10% → × 1.1; decrease 10% → × 0.9.</div>
+  <div class="step"><strong>Overall multiplier:</strong> 1.1 × 0.9 = 0.99.</div>
+  <div class="step"><strong>Interpret:</strong> 0.99 = 99%, so the price is now 1% lower: a <strong>1% decrease</strong> overall.</div>
+  <div class="step"><strong>Why not 0%?</strong> The 10% off is 10% of the <em>higher</em> price, so it takes off more than the 10% that was added. Check with £100: £100 → £110 → £99.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li><strong>Simple interest</strong> adds the same amount every year. <strong>Compound interest</strong> works out the interest on the current amount, so you also earn interest on interest.</li>
+  <li>A percentage change is one <strong>multiplier</strong>: increase by r% → × (1 + r/100); decrease by r% → × (1 − r/100). 3% is 0.03, so the multipliers are 1.03 and 0.97.</li>
+  <li>Compound growth over n periods: <strong>A = P × (1 + r/100)ⁿ</strong>. The interest is A − P. Round only at the end, to the nearest penny for money.</li>
+  <li><strong>Depreciation and decay</strong> use a multiplier less than 1. The total loss is not n × r%, and the value never reaches zero.</li>
+  <li>The same method works for populations, bacteria and radioactive decay; the time period can be years, hours or days. Round to suit the context.</li>
+  <li>To find <strong>how many years</strong>, try values of n (or build the year-by-year table) and quote the year either side of the target.</li>
+  <li>Higher: to <strong>reverse</strong> compound change, divide by the multiplier to the power n. For <strong>repeated changes</strong>, multiply the multipliers together. Exponential graphs y = A × kˣ curve upwards for k &gt; 1 and decay towards the x-axis for 0 &lt; k &lt; 1; linear growth is a straight line.</li>
+</ul>
+
+<footer>Made for GCSE students. Compound interest, growth and decay is in the DfE GCSE mathematics subject content under Ratio, proportion and rates of change. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">Subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat(v.toFixed(d)).toString()) : '—';
+const r2 = v => Math.round((v + (v>=0?1e-9:-1e-9))*100)/100;
+const gbp = v => (v < -0.004 ? '−' : '') + '£' + Math.abs(r2(v)).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+const gbp0 = v => (v < -0.5 ? '−' : '') + '£' + Math.round(Math.abs(v)).toLocaleString('en-GB');
+const whole = v => Math.round(v).toLocaleString('en-GB');
+const sf3v = v => Number(v.toPrecision(3));
+const sf3 = v => sf3v(v).toLocaleString('en-GB',{maximumFractionDigits:6});
+const sup = n => String(n).split('').map(c=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[+c]).join('');
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v = parseFloat(String(el.value).replace(/[−–]/g,'-').replace(/[£,\s%]/g,'')); return isFinite(v) ? v : NaN; };
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const near = (u,v,t) => Math.abs(u-v) <= t;
+function niceStep(max,target){ const raw=max/target, p=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/p; return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p; }
+const rect = (x,y,w,h,fill,op=1) => h>0.01 ? `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" fill-opacity="${op}"/>` : '';
+const txt = (x,y,s,col,size=11,anchor='middle',weight=400) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" fill="${col}" ${F()}>${s}</text>`;
+function yAxis(L,R,T,Bpx,yMax,step,label){ let s=''; const Y=v=>T+(Bpx-T)*(1-v/yMax);
+  for(let v=0; v<=yMax+1e-9; v+=step){ s+=`<line x1="${L}" y1="${Y(v)}" x2="${R}" y2="${Y(v)}" stroke="${css('--grid')}"/>`+txt(L-5,Y(v)+4,label(v),css('--muted'),10,'end'); }
+  s+=`<line x1="${L}" y1="${Bpx}" x2="${R}" y2="${Bpx}" stroke="${css('--muted')}" stroke-width="1.5"/>`; return s; }
+const shortMoney = v => v>=10000 && v%1000===0 ? '£'+(v/1000)+'k' : '£'+v.toLocaleString('en-GB');
+
+/* 1. simple vs compound bars */
+const siP=$('siP'), siR=$('siR'), siN=$('siN');
+function drawSI(){
+  const P=+siP.value, r=+siR.value, n=+siN.value, m=1+r/100;
+  $('siPv').textContent=' '+gbp0(P); $('siRv').textContent=' '+r+'%'; $('siNv').textContent=' '+n;
+  const W=560, L=58, R=550, T=40, Bp=262;
+  const top=P*Math.pow(m,n)*1.06, step=niceStep(top,5), yMax=Math.ceil(top/step)*step;
+  const Y=v=>T+(Bp-T)*(1-v/yMax);
+  const gw=(R-L)/(n+1), bw=Math.min(22,gw*0.36);
+  const ac=css('--accent'), hi=css('--hi'), tw=css('--two'), ln=css('--line'), mu=css('--muted');
+  let s=yAxis(L,R,T,Bp,yMax,step,shortMoney);
+  for(let k=0;k<=n;k++){
+    const cx=L+gw*(k+0.5), sim=P*(1+r*k/100), com=P*Math.pow(m,k);
+    s+=rect(cx-bw-1,Y(P),bw,Bp-Y(P),ln)+rect(cx-bw-1,Y(sim),bw,Y(P)-Y(sim),ac);
+    s+=rect(cx+1,Y(P),bw,Bp-Y(P),ln)+rect(cx+1,Y(sim),bw,Y(P)-Y(sim),hi)+rect(cx+1,Y(com),bw,Y(sim)-Y(com),tw);
+    s+=txt(cx,Bp+15,k,mu,10);
+  }
+  s+=txt((L+R)/2,Bp+31,'years',mu,11);
+  const lg=(x,col,lab)=>`<rect x="${x}" y="10" width="11" height="11" fill="${col}"/>`+txt(x+15,20,lab,mu,11,'start');
+  s+=lg(L,ln,'put in')+lg(L+75,ac,'simple interest')+lg(L+210,hi,'compound')+lg(L+305,tw,'interest on interest');
+  $('siSvg').innerHTML=s;
+  let h=`<tr><th>Year</th><th class="s">Simple total</th><th class="c">Compound: interest that year</th><th class="c">Compound total</th></tr>`;
+  for(let k=0;k<=n;k++){ const com=P*Math.pow(m,k), prev=P*Math.pow(m,k-1);
+    h+=`<tr class="${k===n&&n>0?'on':''}"><td>${k}</td><td class="s">${gbp(P*(1+r*k/100))}</td><td class="c">${k===0?'—':gbp(com-prev)}</td><td class="c">${gbp(com)}</td></tr>`; }
+  $('siTable').innerHTML=h;
+  const W1=$('siWork');
+  if(n===0){ W1.innerHTML='Year 0: both accounts start with '+gbp(P)+'. Slide "years" to add interest.'; return; }
+  const prev=P*Math.pow(m,n-1), com=P*Math.pow(m,n), sim=P*(1+r*n/100);
+  W1.innerHTML=`<span class="a">Simple, every year: ${r}% of ${gbp(P)} = ${gbp(P*r/100)}. After ${n} year${n>1?'s':''}: ${gbp(P)} + ${n} × ${gbp(P*r/100)} = ${gbp(sim)}</span><br>`+
+    `<span class="b">Compound, year ${n}: ${r}% of ${gbp(prev)} = ${gbp(com-prev)}, so ${gbp(prev)} + ${gbp(com-prev)} = ${gbp(com)}</span><br>`+
+    `<span class="c">Compound is ahead by ${gbp(com-sim)}: interest earned on earlier interest.</span>`;
+}
+[siP,siR,siN].forEach(e=>e.addEventListener('input',drawSI)); drawSI();
+
+/* 2. multipliers */
+const muDir=$('muDir'), muR=$('muR');
+function drawMU(){
+  const up=muDir.value==='up', r=+muR.value, pct=up?100+r:100-r, m=pct/100;
+  $('muRv').textContent=' '+fmt(r)+'%';
+  const L=20, unit=300/100, hi=css('--hi'), tw=css('--two'), ln=css('--line'), mu=css('--muted'), fg=css('--fg');
+  let s=rect(L,22,100*unit,40,ln)+txt(L+8,47,'100%  (the original)',fg,13,'start');
+  s+=txt(L,16,'before',mu,11,'start')+txt(L,96,'after',mu,11,'start');
+  if(up){ s+=rect(L,102,100*unit,40,hi,.75)+rect(L+100*unit,102,r*unit,40,tw,.85)+txt(L+8,127,'100%',css('--panel'),13,'start',600);
+    s+=txt(L+100*unit+r*unit+6,127,`+ ${fmt(r)}% = ${fmt(pct)}%`,tw,13,'start',600); }
+  else { s+=rect(L,102,pct*unit,40,hi,.75)+`<rect x="${L+pct*unit}" y="102" width="${r*unit}" height="40" fill="none" stroke="${tw}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+    s+=txt(L+8,127,`${fmt(pct)}%`,css('--panel'),13,'start',600)+txt(L+100*unit+8,127,`− ${fmt(r)}% removed`,tw,13,'start',600); }
+  s+=txt(L,164,`multiplier = ${fmt(pct)} ÷ 100 = ${fmt(m,4)}`,hi,13,'start',600);
+  $('muSvg').innerHTML=s;
+  $('muWork').innerHTML=`${up?'Increase':'Decrease'} by ${fmt(r)}%: 100% ${up?'+':'−'} ${fmt(r)}% = ${fmt(pct)}%<br>${fmt(pct)}% as a decimal: ${fmt(pct)} ÷ 100 = <strong>${fmt(m,4)}</strong><br><span class="b">new amount = original × ${fmt(m,4)}</span> &nbsp;(${m>1?'bigger than 1: growth':m<1?'less than 1: decrease':'exactly 1: no change'})`;
+}
+[muDir,muR].forEach(e=>e.addEventListener('input',drawMU)); drawMU();
+
+let MQ=null;
+function muNew(){ const up=Math.random()<0.5, r=pick([2,3,4,5,7,8,9,12,15,20,25,30,40,2.5,1.5,0.5]);
+  MQ={up,r,m:up?1+r/100:1-r/100}; $('muQ').textContent=`What is the multiplier for a ${fmt(r)}% ${up?'increase':'decrease'}?`;
+  $('muA').value=''; $('muMsg').className='msg'; $('muMsg').textContent=''; }
+function muCheck(){ if(!MQ)return; const u=num($('muA')), M=$('muMsg'), {up,r,m}=MQ; let ok=false,t='';
+  if(!isFinite(u)){M.className='msg bad';M.textContent='Type a decimal, e.g. 1.05.';return;}
+  if(near(u,m,1e-9)){ok=true;t=`Correct: 100% ${up?'+':'−'} ${fmt(r)}% = ${fmt(up?100+r:100-r)}%, which is ${fmt(m,4)}.`;}
+  else if(near(u,up?1-r/100:1+r/100,1e-9)) t=`That's the multiplier for a ${fmt(r)}% ${up?'decrease':'increase'}. ${up?'An increase needs a multiplier bigger than 1.':'A decrease needs a multiplier less than 1.'}`;
+  else if(near(u,r/100,1e-9)) t=`${fmt(r/100,4)} is only the ${fmt(r)}% part. Start from 100% = 1 and ${up?'add it on':'take it away'}.`;
+  else if(r<10 && near(u,up?1+r/10:1-r/10,1e-9)) t=`${fmt(r)}% is ${fmt(r)} ÷ 100 = ${fmt(r/100,4)}, not ${fmt(r/10,3)}. Your answer would be a ${fmt(r*10)}% change.`;
+  else if(near(u,up?100+r:100-r,1e-9)) t=`Right percentage, but divide by 100: ${fmt(up?100+r:100-r)}% = ${fmt(m,4)}.`;
+  else if(near(u,r,1e-9)) t=`A multiplier is a decimal near 1. Start from 100% and ${up?'add':'subtract'} ${fmt(r)}%, then divide by 100.`;
+  else if(near(u,1,1e-9)) t='× 1 leaves the amount unchanged.';
+  else t=`Not quite. Work out 100% ${up?'+':'−'} ${fmt(r)}%, then divide by 100.`;
+  M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'':'Not quite. ')+t.replace(/^Not quite\. /,''); }
+$('muGo').addEventListener('click',muCheck); $('muA').addEventListener('keydown',e=>{if(e.key==='Enter')muCheck();});
+$('muNew').addEventListener('click',muNew); muNew();
+
+/* 3. multiplier chain */
+let chN=0; const CHP=2000, CHM=1.04, CHMAX=8;
+function drawCH(){
+  const hi=css('--hi'), tw=css('--two'), mu=css('--muted'), ln=css('--line'), fg=css('--fg');
+  const pos=i=> i<5 ? [10+i*112,22] : [10+(i-5)*112+56,132];
+  const nw=76, nh=50; let s='';
+  for(let i=1;i<=CHMAX;i++){ const [x0,y0]=pos(i-1),[x1,y1]=pos(i); const on=i<=chN, col=on?tw:ln;
+    if(i!==5){ s+=`<line x1="${x0+nw}" y1="${y0+nh/2}" x2="${x1-3}" y2="${y1+nh/2}" stroke="${col}" stroke-width="2"/><path d="M${x1-3},${y1+nh/2} l-6,-4 v8 z" fill="${col}"/>`;
+      s+=txt((x0+nw+x1)/2,y0+nh/2-8,'×1.04',on?tw:mu,10,'middle',on?600:400); }
+    else { s+=`<path d="M${x0+nw/2},${y0+nh} C${x0+nw/2},${y0+nh+40} ${x1+nw/2},${y1-40} ${x1+nw/2},${y1-3}" fill="none" stroke="${col}" stroke-width="2"/><path d="M${x1+nw/2},${y1-3} l-4,-6 h8 z" fill="${col}"/>`;
+      s+=txt((x0+x1)/2+nw/2+30,(y0+nh+y1)/2+4,'×1.04',on?tw:mu,11,'middle',on?600:400); }
+  }
+  for(let i=0;i<=CHMAX;i++){ const [x,y]=pos(i), on=i<=chN;
+    s+=`<rect x="${x}" y="${y}" width="${nw}" height="${nh}" rx="7" fill="${on?css('--hi-soft'):'none'}" stroke="${on?hi:ln}" stroke-width="${i===chN?2.5:1.5}" ${on?'':'stroke-dasharray="4 3"'}/>`;
+    s+=txt(x+nw/2,y+18,'year '+i,mu,10)+txt(x+nw/2,y+37,on?gbp(CHP*Math.pow(CHM,i)):'?',on?hi:mu,12,'middle',600); }
+  $('chSvg').innerHTML=s;
+  $('chAdd').disabled=chN>=CHMAX;
+  const A=CHP*Math.pow(CHM,chN);
+  $('chWork').innerHTML=chN===0?`Start: <span class="b">£2000</span>. Press "Add a year".`:
+    `£2000${' × 1.04'.repeat(chN)}<br>= £2000 × 1.04${chN>1?sup(chN):''} = £2000 × ${fmt(Math.pow(CHM,chN),8)}${Math.pow(CHM,chN).toFixed(8).replace(/0+$/,'').length>10?'…':''}<br>= <span class="b"><strong>${gbp(A)}</strong></span> to the nearest penny<br><span class="c">interest earned = ${gbp(A)} − £2000 = ${gbp(A-CHP)}</span>`;
+}
+$('chAdd').addEventListener('click',()=>{if(chN<CHMAX){chN++;drawCH();}});
+$('chReset').addEventListener('click',()=>{chN=0;drawCH();});
+drawCH();
+
+/* 3b. formula practice */
+let FQ=null;
+function fqNew(){ const P=pick([500,750,850,1200,2500,3000,4000,6000]), r=pick([1.5,2,2.5,3,3.5,4,5,6]), n=rnd(2,8), m=1+r/100, A=P*Math.pow(m,n);
+  FQ={P,r,n,m,A};
+  $('fqQ').textContent=`£${P.toLocaleString('en-GB')} is invested at ${r}% per year compound interest. How much is in the account after ${n} years? Give your answer to the nearest penny.`;
+  $('fqA').value=''; $('fqMsg').className='msg'; $('fqMsg').textContent=''; $('fqWork').hidden=true;
+  $('fqWork').innerHTML=`multiplier = 1 + ${r}/100 = ${fmt(m,4)}<br>A = ${P} × ${fmt(m,4)}${sup(n)}<br>= ${P} × ${fmt(Math.pow(m,n),8)}…<br>= ${fmt(A,6)}…<br>= <strong>${gbp(A)}</strong> to the nearest penny`; }
+function fqCheck(){ if(!FQ)return; const u=num($('fqA')), M=$('fqMsg'), {P,r,n,m,A}=FQ;
+  if(!isFinite(u)){M.className='msg bad';M.textContent='Type an amount, e.g. 2163.20.';return;}
+  let ok=false, t='';
+  if(near(u,r2(A),0.0051)){ok=true;t=`Correct: ${gbp(A)}.`;}
+  else { const W=[[P*(1+r*n/100),`That's simple interest (${n} × ${r}% of the original). Compound interest multiplies by ${fmt(m,4)} each year: ${P} × ${fmt(m,4)}${sup(n)}.`],
+      [A-P,`That's just the interest earned. The question asks how much is in the account, so add the £${P} back: A = P × ${fmt(m,4)}${sup(n)}.`],
+      [P*Math.pow(m,n-1),`That's ${n-1} years. The power should be ${n}.`],[P*Math.pow(m,n+1),`That's ${n+1} years. The power should be ${n}.`],
+      [P*m*n,`You multiplied by ${n} instead of raising to the power ${n}. Use the power key: ${P} × ${fmt(m,4)} ^ ${n}.`],
+      [P*Math.pow(1+r/10,n),`Check the multiplier: ${r}% = ${fmt(r/100,4)}, so it's ${fmt(m,4)}, not ${fmt(1+r/10,3)}.`],
+      [P*Math.pow(1+r,n),`The multiplier is 1 + ${r}/100 = ${fmt(m,4)}, not 1 + ${r}.`],
+      [P*Math.pow(r/100,n),`× ${fmt(r/100,4)} would leave only ${r}% of the money. Use 1 + ${r}/100 = ${fmt(m,4)}.`],
+      [P*Math.pow(1-r/100,n),`That's a ${r}% decrease each year. Interest is added, so the multiplier is ${fmt(m,4)}.`]];
+    for(const [v,mm] of W){ if(near(u,v,Math.max(0.0051,Math.abs(v)*0.0005))){t=mm;break;} }
+    if(!t && near(u,A,0.05)) t=`Very close. Keep the full calculator value and round only at the end: ${fmt(A,5)}… → ${gbp(A)}.`;
+    if(!t) t='Write the multiplier first, then A = P × multiplier^n. Press "Show working" if stuck.'; }
+  M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'':'Not quite. ')+t; if(ok)$('fqWork').hidden=false; }
+$('fqGo').addEventListener('click',fqCheck); $('fqA').addEventListener('keydown',e=>{if(e.key==='Enter')fqCheck();});
+$('fqShow').addEventListener('click',()=>{$('fqWork').hidden=!$('fqWork').hidden;}); $('fqNew').addEventListener('click',fqNew); fqNew();
+
+/* 4. depreciation */
+const dpP=$('dpP'), dpR=$('dpR'), dpN=$('dpN');
+function drawDP(){
+  let P=num(dpP); if(!(P>0))P=18000;
+  const r=+dpR.value, n=+dpN.value, m=1-r/100;
+  $('dpRv').textContent=' '+r+'%'; $('dpNv').textContent=' '+n;
+  const L=62, R=550, T=20, Bp=258, step=niceStep(P*1.05,5), yMax=Math.ceil(P*1.05/step)*step, Y=v=>T+(Bp-T)*(1-v/yMax);
+  const gw=(R-L)/11, bw=gw*0.6, hi=css('--hi'), ac=css('--accent'), mu=css('--muted');
+  let s=yAxis(L,R,T,Bp,yMax,step,v=>shortMoney(v)), pts=[];
+  for(let k=0;k<=10;k++){ const cx=L+gw*(k+0.5), v=P*Math.pow(m,k);
+    s+=rect(cx-bw/2,Y(v),bw,Bp-Y(v),hi,k===n?.95:.3)+txt(cx,Bp+15,k,k===n?css('--fg'):mu,10,'middle',k===n?700:400);
+    pts.push(`${cx},${Y(Math.max(0,P*(1-r*k/100)))}`); }
+  s+=`<polyline points="${pts.join(' ')}" fill="none" stroke="${ac}" stroke-width="2" stroke-dasharray="6 4"/>`;
+  const cx=L+gw*(n+0.5), v=P*Math.pow(m,n);
+  s+=txt(Math.min(Math.max(cx,L+40),R-40),Y(v)-7,gbp0(v),hi,12,'middle',700)+txt((L+R)/2,Bp+30,'years',mu,11);
+  $('dpSvg').innerHTML=s;
+  const wrong=P*(1-r*n/100);
+  $('dpVal').textContent=gbp(v); $('dpLost').textContent=`${gbp(P-v)} (${fmt((1-Math.pow(m,n))*100,1)}%)`; $('dpWrong').textContent=wrong<=0?'£0.00 (impossible)':gbp(wrong);
+  $('dpWork').innerHTML=`multiplier = 100% − ${r}% = ${100-r}% = <strong>${fmt(m,2)}</strong><br><span class="b">value = ${gbp0(P).replace('£','£')} × ${fmt(m,2)}${n===1?'':sup(n)} = ${gbp(v)}</span><br>fraction left = ${fmt(m,2)}${n===1?'':sup(n)} = ${fmt(Math.pow(m,n),6)}, so ${fmt((1-Math.pow(m,n))*100,1)}% has been lost<br><span class="x">✗ ${n} × ${r}% = ${n*r}% off would give ${wrong<=0?'£0 or less':gbp(wrong)}${n>1?': too low':''}</span>`;
+}
+[dpP,dpR,dpN].forEach(e=>e.addEventListener('input',drawDP)); drawDP();
+
+/* 5. population and other contexts */
+const PG=[
+  {name:'Town population: 25 000, growing 2% a year',start:25000,pct:2,tu:'year',tmax:30,what:'population',rd:'whole',unit:' people'},
+  {name:'Bacteria: 500, increasing 30% an hour',start:500,pct:30,tu:'hour',tmax:12,what:'number of bacteria',rd:'whole',unit:' bacteria'},
+  {name:'Radioactive isotope: 80 g, decaying 12% a day',start:80,pct:-12,tu:'day',tmax:30,what:'mass',rd:'3sf',unit:' g'},
+  {name:'Phone: worth £600, losing 20% a year',start:600,pct:-20,tu:'year',tmax:10,what:'value',rd:'penny',unit:''},
+  {name:'Fish in a lake: 4000, falling 6% a year',start:4000,pct:-6,tu:'year',tmax:25,what:'number of fish',rd:'whole',unit:' fish'},
+  {name:'House: worth £240 000, rising 3.5% a year',start:240000,pct:3.5,tu:'year',tmax:25,what:'value',rd:'pound',unit:''}
+];
+const pgC=$('pgC'), pgT=$('pgT');
+PG.forEach((c,i)=>{const o=document.createElement('option');o.value=i;o.textContent=c.name;pgC.appendChild(o);});
+const pgRound=(c,v)=>c.rd==='whole'?Math.round(v):c.rd==='3sf'?sf3v(v):c.rd==='penny'?r2(v):Math.round(v);
+const pgShow=(c,v)=>c.rd==='whole'?whole(v)+c.unit:c.rd==='3sf'?sf3(v)+c.unit:c.rd==='penny'?gbp(v):gbp0(v);
+const pgPhrase=c=>c.rd==='whole'?'to the nearest whole number':c.rd==='3sf'?'to 3 s.f.':c.rd==='penny'?'to the nearest penny':'to the nearest pound';
+const pgStart=c=>c.rd==='penny'||c.rd==='pound'?gbp0(c.start):c.start.toLocaleString('en-GB')+c.unit;
+function drawPG(){
+  const c=PG[+pgC.value]; if(+pgT.max!==c.tmax){pgT.max=c.tmax; if(+pgT.value>c.tmax)pgT.value=c.tmax;}
+  const t=+pgT.value, m=1+c.pct/100, v=c.start*Math.pow(m,t);
+  $('pgTv').textContent=` ${t} ${c.tu}${t===1?'':'s'}`;
+  const vmax=Math.max(c.start,c.start*Math.pow(m,c.tmax)), S=220, side=x=>S*Math.sqrt(x/vmax);
+  const x0=30, yb=245, hi=css('--hi'), mu=css('--muted'), fg=css('--fg');
+  const s0=side(c.start), s1=side(v);
+  let s=`<rect x="${x0}" y="${yb-s1}" width="${s1}" height="${s1}" fill="${hi}" fill-opacity=".35" stroke="${hi}" stroke-width="2"/>`;
+  s+=`<rect x="${x0}" y="${yb-s0}" width="${s0}" height="${s0}" fill="none" stroke="${fg}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  const tx=x0+Math.max(s0,s1,40)+24;
+  s+=txt(tx,60,'start: '+pgStart(c),mu,13,'start')+txt(tx,90,`after ${t} ${c.tu}${t===1?'':'s'}: ${pgShow(c,v)}`,hi,13,'start',700);
+  s+=txt(tx,120,`multiplier ${fmt(m,4)} per ${c.tu}`,mu,12,'start')+txt(tx,145,`× ${fmt(Math.pow(m,t),4)} overall`,mu,12,'start');
+  s+=txt(tx,175,m>1?'growth: the square keeps getting bigger':'decay: shrinking, but never zero',mu,12,'start');
+  $('pgSvg').innerHTML=s;
+  $('pgWork').innerHTML=`multiplier = 100% ${c.pct>0?'+':'−'} ${Math.abs(c.pct)}% = <strong>${fmt(m,4)}</strong> (per ${c.tu})<br><span class="b">${c.what} = ${c.start.toLocaleString('en-GB')} × ${fmt(m,4)}${t===1?'':sup(t)} = ${fmt(v,4)}…</span><br>= <strong>${pgShow(c,v)}</strong> ${pgPhrase(c)}`;
+}
+let PQ=null;
+function pgNew(){ const ci=+pgC.value, c=PG[ci]; let t; do{t=rnd(2,Math.min(c.tmax,15));}while(t===+pgT.value);
+  PQ={c,t,v:c.start*Math.pow(1+c.pct/100,t)};
+  $('pgQ').textContent=`Try it: for this situation, work out the ${c.what} after ${t} ${c.tu}s. Give your answer ${pgPhrase(c)}${c.rd==='3sf'?'':'.'}`;
+  $('pgA').value=''; $('pgMsg').className='msg'; $('pgMsg').textContent=''; }
+function pgCheck(){ if(!PQ)return; const u=num($('pgA')), M=$('pgMsg'), {c,t,v}=PQ, m=1+c.pct/100, R=pgRound(c,v);
+  if(!isFinite(u)){M.className='msg bad';M.textContent='Type a number.';return;}
+  const tol=c.rd==='penny'?0.0051:c.rd==='3sf'?Math.abs(R)*1e-6+1e-9:0.01;
+  let ok=false,tx='';
+  if(near(u,R,tol)){ok=true;tx=`Correct: ${c.start.toLocaleString('en-GB')} × ${fmt(m,4)}${sup(t)} = ${fmt(v,4)}… = ${pgShow(c,v)}.`;}
+  else{ const W=[[c.start*(1+c.pct*t/100),`That treats it like simple interest (${t} × ${Math.abs(c.pct)}% of the start). The change compounds: use × ${fmt(m,4)}${sup(t)}.`],
+     [c.start*Math.pow(1-c.pct/100,t),`Wrong direction: this is ${c.pct>0?'growth':'decay'}, so the multiplier is ${fmt(m,4)}.`],
+     [c.start*Math.pow(m,t-1),`That's ${t-1} ${c.tu}s. The power is ${t}.`],[c.start*Math.pow(m,t+1),`That's ${t+1} ${c.tu}s. The power is ${t}.`],
+     [Math.abs(v-c.start),`That's only the change. The question asks for the ${c.what} itself.`]];
+    for(const [w,mm] of W){ if(near(u,w,Math.max(0.6,Math.abs(w)*0.002))&&!near(w,v,Math.abs(v)*0.002)){tx=mm;break;} }
+    if(!tx && near(u,v,Math.max(1,Math.abs(v)*0.01))) tx=`Close: check the rounding. ${fmt(v,4)}… ${pgPhrase(c)} is ${pgShow(c,v)}.`;
+    if(!tx) tx=`Use ${c.start.toLocaleString('en-GB')} × ${fmt(m,4)}^${t}.`; }
+  M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'':'Not quite. ')+tx; }
+pgC.addEventListener('input',()=>{drawPG();pgNew();}); pgT.addEventListener('input',drawPG);
+$('pgGo').addEventListener('click',pgCheck); $('pgA').addEventListener('keydown',e=>{if(e.key==='Enter')pgCheck();});
+$('pgNew').addEventListener('click',pgNew); drawPG(); pgNew();
+
+/* 6. how many years */
+const yrR=$('yrR'), yrT=$('yrT'); let yrK=0; const YP=5000;
+const yrAns=()=>{const m=1+(+yrR.value)/100, T=+yrT.value; let n=0; while(YP*Math.pow(m,n)<=T)n++; return n;};
+function drawYR(){
+  const r=+yrR.value, m=1+r/100, T=+yrT.value, N=yrAns(), maxN=N+1;
+  const L=62, R=550, Tp=18, Bp=200, top=Math.max(T,YP*Math.pow(m,maxN))*1.05, step=niceStep(top,4), yMax=Math.ceil(top/step)*step, Y=v=>Tp+(Bp-Tp)*(1-v/yMax);
+  const gw=(R-L)/(maxN+1), bw=Math.min(24,gw*0.6), hi=css('--hi'), tw=css('--two'), mu=css('--muted');
+  let s=yAxis(L,R,Tp,Bp,yMax,step,shortMoney);
+  for(let k=0;k<=maxN;k++){ const cx=L+gw*(k+0.5); if(k<=yrK){const v=YP*Math.pow(m,k); s+=rect(cx-bw/2,Y(v),bw,Bp-Y(v),hi,v>T?.95:.5);} if(maxN<=20||k%2===0) s+=txt(cx,Bp+14,k,mu,10); }
+  s+=`<line x1="${L}" y1="${Y(T)}" x2="${R}" y2="${Y(T)}" stroke="${tw}" stroke-width="2" stroke-dasharray="7 4"/>`+txt(R-2,Y(T)-5,'target '+shortMoney(T),tw,11,'end',600);
+  $('yrSvg').innerHTML=s;
+  let h=`<tr><th>Year</th><th>Start of year</th><th>Interest (${r}%)</th><th>End of year</th></tr>`;
+  for(let k=1;k<=yrK;k++){ const a=YP*Math.pow(m,k-1), b=YP*Math.pow(m,k); h+=`<tr class="${b>T&&a<=T?'on':''}"><td>${k}</td><td>${gbp(a)}</td><td>${gbp(b-a)}</td><td>${gbp(b)}${b>T&&a<=T?' ✓':''}</td></tr>`; }
+  if(yrK===0) h+=`<tr><td colspan="4" style="text-align:left;color:${mu}">Press "Next year" to start the statement.</td></tr>`;
+  $('yrTable').innerHTML=h;
+  const passed=YP*Math.pow(m,yrK)>T; $('yrNext').disabled=passed;
+}
+$('yrNext').addEventListener('click',()=>{yrK++;drawYR();});
+$('yrReset').addEventListener('click',()=>{yrK=0;drawYR();});
+[yrR,yrT].forEach(e=>e.addEventListener('input',()=>{yrK=0;$('yrMsg').textContent='';$('yrTryMsg').textContent='';drawYR();}));
+$('yrTryGo').addEventListener('click',()=>{const n=Math.round(num($('yrTry'))), M=$('yrTryMsg'), r=+yrR.value, m=1+r/100, T=+yrT.value;
+  if(!(n>=0&&n<=60)){M.className='msg bad';M.textContent='Try a whole number of years from 0 to 60.';return;}
+  const v=YP*Math.pow(m,n); M.className='msg'; M.textContent=`n = ${n}: 5000 × ${fmt(m,3)}${sup(n)} = ${gbp(v)}. ${v>T?'That is more than '+shortMoney(T)+'. Is it the first year that is? Try n = '+(n-1)+' too.':'Not yet more than '+shortMoney(T)+': try a bigger n.'}`;});
+$('yrTry').addEventListener('keydown',e=>{if(e.key==='Enter')$('yrTryGo').click();});
+$('yrGo').addEventListener('click',()=>{const u=num($('yrA')), M=$('yrMsg'), r=+yrR.value, m=1+r/100, T=+yrT.value, N=yrAns();
+  if(!isFinite(u)){M.className='msg bad';M.textContent='Type a whole number of years.';return;}
+  const lin=Math.ceil((T-YP)/(YP*r/100)-1e-9);
+  let t; if(u===N)t=`Correct: after ${N-1} years it's ${gbp(YP*Math.pow(m,N-1))} (not enough); after ${N} years it's ${gbp(YP*Math.pow(m,N))}.`;
+  else if(u===N-1)t=`At the end of year ${u} the account has ${gbp(YP*Math.pow(m,u))}, which is not yet more than ${shortMoney(T)}.`;
+  else if(u===N+1)t=`It has already passed ${shortMoney(T)} at the end of year ${N}: ${gbp(YP*Math.pow(m,N))}. You want the first year.`;
+  else if(u===lin)t=`That's the answer with simple interest (${shortMoney(T-YP)} ÷ ${gbp(YP*r/100)} a year). Compound interest grows faster, so it takes fewer years.`;
+  else t=`Check: 5000 × ${fmt(m,3)}${sup(Math.max(0,Math.round(u)))} = ${gbp(YP*Math.pow(m,Math.max(0,Math.round(u))))}. Keep trying values of n.`;
+  M.className='msg '+(u===N?'good':'bad'); M.textContent=(u===N?'':'Not quite. ')+t;});
+drawYR();
+
+/* 7a. reverse */
+const rvF=$('rvF'), rvD=$('rvD'), rvR=$('rvR'), rvN=$('rvN');
+function drawRV(){
+  const F0=num(rvF), up=rvD.value==='up', r=num(rvR), n=+rvN.value; $('rvNv').textContent=' '+n;
+  const hi=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg'), ln=css('--line');
+  const ok=F0>0 && r>=0 && r<100 && isFinite(r), m=ok?(up?1+r/100:1-r/100):1, mn=Math.pow(m,n), O=ok?F0/mn:NaN;
+  const mS=`${fmt(m,4)}${n>1?sup(n):''}`;
+  let s=`<rect x="20" y="45" width="150" height="70" rx="8" fill="${css('--hi-soft')}" stroke="${hi}" stroke-width="2"/><rect x="390" y="45" width="150" height="70" rx="8" fill="none" stroke="${fg}" stroke-width="1.5"/>`;
+  s+=txt(95,72,'original',mu,12)+txt(95,96,ok?gbp(O):'?',hi,14,'middle',700)+txt(465,72,`after ${n} year${n>1?'s':''}`,mu,12)+txt(465,96,ok?gbp(F0):'?',fg,14,'middle',700);
+  s+=`<path d="M175,58 L384,58" stroke="${hi}" stroke-width="2.5"/><path d="M386,58 l-9,-5 v10 z" fill="${hi}"/>`+txt(280,48,'× '+mS,hi,13,'middle',600);
+  s+=`<path d="M386,102 L177,102" stroke="${tw}" stroke-width="2.5"/><path d="M175,102 l9,-5 v10 z" fill="${tw}"/>`+txt(280,124,'÷ '+mS,tw,13,'middle',600);
+  s+=txt(280,155,'undo multiplying by dividing',mu,11);
+  $('rvSvg').innerHTML=s;
+  if(!ok){$('rvWork').innerHTML='Type a final amount above 0 and a rate from 0 to 99%.';return;}
+  const w1=F0*Math.pow(up?1-r/100:1+r/100,n), w2=F0*(1+(up?-1:1)*r*n/100);
+  $('rvWork').innerHTML=`multiplier = ${fmt(m,4)} each year, so original × ${mS} = ${gbp(F0)}<br><span class="c">original = ${gbp(F0)} ÷ ${mS} = ${gbp(F0)} ÷ ${fmt(mn,8)} = <strong>${gbp(O)}</strong></span><br><span class="b">check: ${gbp(O)} × ${mS} = ${gbp(O*mn)} ✓</span><br><span class="x">✗ ${up?'taking':'adding'} ${fmt(r)}% ${up?'off':'on'} each year: ${gbp(F0)} × ${fmt(up?1-r/100:1+r/100,4)}${n>1?sup(n):''} = ${gbp(w1)}</span><br><span class="x">✗ ${up?'subtracting':'adding'} ${n} × ${fmt(r)}% = ${fmt(n*r)}% of ${gbp(F0)}: ${gbp(w2)}</span>`;
+}
+[rvF,rvD,rvR,rvN].forEach(e=>e.addEventListener('input',drawRV)); drawRV();
+
+/* 7b. repeated change */
+const RP=[1,2,3].map(i=>({d:$('rp'+i+'d'),v:$('rp'+i)}));
+function drawRP(){
+  const ms=RP.map((o,i)=>{const r=+o.v.value; $('rp'+(i+1)+'v').textContent=' '+r+'%'; return {r,up:o.d.value==='up',m:o.d.value==='up'?1+r/100:1-r/100};});
+  const vals=[100]; ms.forEach(o=>vals.push(vals[vals.length-1]*o.m));
+  const L=50, R=550, T=18, Bp=180, yMax=Math.ceil(Math.max(...vals)*1.1/50)*50, Y=v=>T+(Bp-T)*(1-v/yMax);
+  const hi=css('--hi'), tw=css('--two'), mu=css('--muted'), gw=(R-L)/4;
+  let s=yAxis(L,R,T,Bp,yMax,50,v=>v);
+  s+=`<line x1="${L}" y1="${Y(100)}" x2="${R}" y2="${Y(100)}" stroke="${tw}" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+  vals.forEach((v,k)=>{const cx=L+gw*(k+0.5), bw=gw*0.5; s+=rect(cx-bw/2,Y(v),bw,Bp-Y(v),k===0?css('--line'):hi,k===3?.95:.6)+txt(cx,Y(v)-5,fmt(v,2),k===0?mu:hi,11,'middle',600);
+    s+=txt(cx,Bp+14,k===0?'start':k===1?'after 1st':k===2?'after 2nd':'after 3rd',mu,10);
+    if(k>0)s+=txt(cx,Bp+28,'× '+fmt(ms[k-1].m,2),tw,10);});
+  $('rpSvg').innerHTML=s;
+  const M=ms[0].m*ms[1].m*ms[2].m, pc=(M-1)*100, naive=ms.reduce((a,o)=>a+(o.up?o.r:-o.r),0);
+  $('rpWork').innerHTML=`overall multiplier = ${ms.map(o=>fmt(o.m,2)).join(' × ')} = <strong>${fmt(M,6)}</strong><br><span class="b">${Math.abs(pc)<1e-9?'no overall change':`${fmt(Math.abs(pc),4)}% ${pc>0?'increase':'decrease'} overall`}</span> (£100 → ${gbp(100*M)})<br><span class="x">✗ adding the percentages gives ${naive===0?'"no change"':fmt(Math.abs(naive))+'% '+(naive>0?'increase':'decrease')}${Math.abs(naive-pc)<1e-9?' (happens to match here)':': wrong, because each change is a percentage of a different amount'}</span>`;
+}
+RP.forEach(o=>{o.d.addEventListener('input',drawRP);o.v.addEventListener('input',drawRP);}); drawRP();
+
+/* 8. exponential vs linear graph */
+const exL=$('exL'), exR=$('exR'), exY=$('exY'), exSvg=$('exSvg'); let exX=5;
+const EXL=56, EXR=548, EXT=16, EXB=300;
+function exCross(a,k,Y){ // first x where exponential overtakes linear after linear was ahead
+  let prev=null; for(let x=0.001;x<=Y;x+=0.001){ const d=100*Math.pow(k,x)-(100+a*x); if(prev!==null&&prev<0&&d>=0)return x; prev=d; } return null; }
+function drawEX(){
+  const a=+exL.value, r=+exR.value, Yr=+exY.value, k=1+r/100;
+  $('exLv').textContent=' '+(a<0?'−':'')+Math.abs(a); $('exRv').textContent=' '+(r>0?'+':r<0?'−':'')+Math.abs(r)+'%'; $('exYv').textContent=' '+Yr;
+  if(exX>Yr)exX=Yr;
+  const lin=x=>100+a*x, ex=x=>100*Math.pow(k,x);
+  let top=Math.max(110,lin(Yr),ex(Yr)); const step=niceStep(top,5), yMax=Math.ceil(top/step)*step;
+  const X=x=>EXL+(EXR-EXL)*x/Yr, Y=v=>EXT+(EXB-EXT)*(1-v/yMax);
+  const ac=css('--accent'), hi=css('--hi'), tw=css('--two'), mu=css('--muted');
+  let s=yAxis(EXL,EXR,EXT,EXB,yMax,step,v=>v.toLocaleString('en-GB'));
+  const xs=niceStep(Yr,6); for(let x=0;x<=Yr+1e-9;x+=xs) s+=`<line x1="${X(x)}" y1="${EXT}" x2="${X(x)}" y2="${EXB}" stroke="${css('--grid')}"/>`+txt(X(x),EXB+15,x,mu,10);
+  s+=`<line x1="${EXL}" y1="${EXT}" x2="${EXL}" y2="${EXB}" stroke="${mu}" stroke-width="1.5"/>`+txt((EXL+EXR)/2,EXB+32,'time x (years)',mu,11);
+  let lp=[], ep=[]; for(let i=0;i<=200;i++){const x=Yr*i/200; const lv=lin(x); if(lv>=0) lp.push(`${X(x)},${Y(lv)}`); ep.push(`${X(x)},${Y(ex(x))}`);}
+  s+=`<polyline points="${lp.join(' ')}" fill="none" stroke="${ac}" stroke-width="3"/><polyline points="${ep.join(' ')}" fill="none" stroke="${hi}" stroke-width="3"/>`;
+  s+=`<circle cx="${X(0)}" cy="${Y(100)}" r="4.5" fill="${css('--fg')}"/>`+txt(X(0)+8,Y(100)-8,'(0, 100)',css('--fg'),11,'start');
+  const cx=X(exX), lv=lin(exX), ev=ex(exX);
+  s+=`<line x1="${cx}" y1="${EXT}" x2="${cx}" y2="${EXB}" stroke="${tw}" stroke-width="2" stroke-dasharray="5 4"/>`;
+  if(lv>=0) s+=`<circle cx="${cx}" cy="${Y(lv)}" r="6" fill="${ac}"/>`;
+  s+=`<circle cx="${cx}" cy="${Y(ev)}" r="6" fill="${hi}"/><rect x="${cx-9}" y="${EXB-10}" width="18" height="20" rx="4" fill="${tw}"/>`;
+  s+=txt(EXL+8,EXT+14,`linear: y = 100 ${a<0?'−':'+'} ${Math.abs(a)}x`,ac,12,'start',600)+txt(EXL+8,EXT+31,`exponential: y = 100 × ${fmt(k,2)}ˣ`,hi,12,'start',600);
+  exSvg.innerHTML=s;
+  $('exLin').textContent=lv<0?'below 0 (impossible)':`${fmt(lv,1)} at x = ${fmt(exX,1)}`;
+  $('exExp').textContent=`${fmt(ev,1)} at x = ${fmt(exX,1)}`;
+  const c=exCross(a,k,Yr);
+  $('exCross').textContent=c!==null?`at x ≈ ${fmt(c,1)}`:(k>1&&a>=0?'not in this time range':'—');
+  const M=$('exMsg');
+  if(k>1&&a>0&&c!==null) M.textContent=`The straight line starts ahead (adding ${a} beats ${r}% of 100 = ${r} at first), but the exponential overtakes at about x = ${fmt(c,1)} and then pulls away.`;
+  else if(k>1&&a>0) M.textContent=`Show more years: an exponential with k > 1 always overtakes a straight line eventually.`;
+  else if(k<1) M.textContent=`k = ${fmt(k,2)} < 1: exponential decay. The curve flattens towards the x-axis but never reaches 0.${a<0?' The straight line hits 0 at x = '+fmt(-100/a,1)+'.':''}`;
+  else if(k===1) M.textContent='k = 1: multiplying by 1 changes nothing, so the "exponential" is flat at 100.';
+  else M.textContent=`The exponential is ahead from the start: ${r}% of 100 is more than ${a}, and the gap keeps growing.`;
+}
+function exMove(e){ const r=exSvg.getBoundingClientRect(), px=(e.clientX-r.left)/r.width*560; const Yr=+exY.value; exX=Math.max(0,Math.min(Yr,(px-EXL)/(EXR-EXL)*Yr)); exX=Math.round(exX*10)/10; drawEX(); }
+let exDrag=false;
+exSvg.addEventListener('pointerdown',e=>{exDrag=true;exSvg.setPointerCapture(e.pointerId);exMove(e);});
+exSvg.addEventListener('pointermove',e=>{if(exDrag)exMove(e);});
+exSvg.addEventListener('pointerup',()=>{exDrag=false;}); exSvg.addEventListener('pointercancel',()=>{exDrag=false;});
+[exL,exR,exY].forEach(e=>e.addEventListener('input',drawEX)); drawEX();
+
+const redrawAll=()=>{drawSI();drawMU();drawCH();drawDP();drawPG();drawYR();drawRV();drawRP();drawEX();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'What is the multiplier for a 6% increase?',opts:['1.06','1.6','0.06','0.94'],a:0,fb:'100% + 6% = 106% = 1.06. (1.6 would be a 60% increase; 0.94 is a 6% decrease.)'},
+  {q:'What is the multiplier for a 15% decrease?',opts:['0.85','1.15','0.15','0.015'],a:0,fb:'100% − 15% = 85% = 0.85. Multiplying by 0.15 would leave only 15%.'},
+  {q:'£500 is invested at 4% compound interest. How much is in the account after 2 years?',opts:['£540.80','£540.00','£520.00','£40.80'],a:0,fb:'500 × 1.04² = 500 × 1.0816 = £540.80. £540 is simple interest; £40.80 is only the interest.'},
+  {q:'Which gives the amount after n years with principal P at r% compound interest?',opts:['P × (1 + r/100)ⁿ','P × (1 + r/100) × n','P × (1 + nr/100)','P × (1 + r)ⁿ'],a:0,fb:'Multiply by the multiplier (1 + r/100) once for each year: n times, so raise it to the power n. P × (1 + nr/100) is simple interest.'},
+  {q:'A car loses 10% of its value each year. After 3 years, what percentage of its original value has it lost?',opts:['27.1%','30%','33.1%','72.9%'],a:0,fb:'0.9³ = 0.729, so 72.9% is left and 100% − 72.9% = 27.1% has been lost. Not 30%: each 10% is taken from a smaller value.'},
+  {q:'A town of 20 000 people grows by 2% a year. What is the population after 3 years, to the nearest whole number?',opts:['21 224','21 200','20 600','21 218'],a:0,fb:'20 000 × 1.02³ = 20 000 × 1.061208 = 21 224.16, so 21 224. (21 200 is simple growth: 3 × 2% = 6%.)'},
+  {q:'£1000 is invested at 10% compound interest. After how many whole years is it first worth more than £1500?',opts:['5','4','6','3'],a:0,fb:'1000 × 1.1⁴ = £1464.10 (not enough); 1000 × 1.1⁵ = £1610.51 (more than £1500). So 5 years.'},
+  {q:'Which multiplier describes exponential decay?',opts:['0.97','1.03','1.3','1'],a:0,fb:'A multiplier less than 1 makes the amount smaller each time: decay. 0.97 means losing 3% each time.'},
+  {q:'Higher: a price is increased by 25% and then decreased by 20%. What is the overall change?',opts:['No overall change','5% increase','5% decrease','45% decrease'],a:0,fb:'1.25 × 0.8 = 1, so the price is back where it started. You can\'t just add the percentages.'},
+  {q:'Higher: after 2 years at 10% compound interest an account holds £605. How much was invested?',opts:['£500','£484','£550','£495'],a:0,fb:'original = 605 ÷ 1.1² = 605 ÷ 1.21 = £500. £484 comes from taking 10% off twice (605 × 0.9²), which does not undo the growth.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>3D Shapes, Plans and Elevations</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive SVG panels; the 3D shapes are drawn with a home-made rotate-and-project routine and can be dragged to turn them. Colours on this page: teal = faces, the top of a shape and the plan (view from above); orange = edges, slices/cross-sections, the base face of a folding net and the front elevation (front faces of cubes); plum = vertices and the side elevation (side faces of cubes). Dashed lines = hidden edges you can't see from where you are. Green/red = right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.M{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.P{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.lab svg.still{touch-action:auto}
+.lab svg.drag{cursor:grab}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn:disabled{opacity:.45;cursor:default}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.readout small{display:block;font-size:.8rem;color:var(--muted)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse}
+.vt td,.vt th{text-align:center;padding:.4rem .5rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left}
+.vt td.on{background:var(--two-soft);color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{font:inherit;font-size:.88rem;padding:.35rem .8rem;border:0;border-right:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.vopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.6rem;margin-top:.8rem}
+.vopts button{background:var(--bg);border:2px solid var(--line);border-radius:8px;padding:.4rem;cursor:pointer;color:var(--muted);font:inherit;font-size:.8rem}
+.vopts button:hover{border-color:var(--accent)}
+.vopts button.right{border-color:var(--good);background:var(--accent-soft)}
+.vopts button.wrong{border-color:var(--bad);opacity:.6}
+.vopts svg{display:block;width:100%;max-width:120px;height:auto;margin:0 auto}
+.score{font-family:var(--mono);font-size:.9rem;color:var(--muted)}
+.cap{font-size:.85rem;color:var(--muted);text-align:center;margin:.3rem 0 0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Geometry and measures · KS3</div>
+  <h1>3D Shapes, Plans and Elevations</h1>
+  <p class="lede">A cereal box, a tin of beans, a Toblerone bar, a football: all solid shapes you can pick up. This page shows how to describe them (faces, edges and vertices), give them their proper names, unfold them into flat nets, work out how much card covers them, draw them on isometric paper, and read the flat “views” that architects and engineers use to describe them.</p>
+  <span class="gcse">National curriculum KS3: use the properties of faces, surfaces, edges and vertices of cubes, cuboids, prisms, cylinders, pyramids, cones and spheres to solve problems in 3-D; calculate surface area of cuboids and other right prisms; draw and interpret 3-D shapes, nets, plans and elevations</span>
+</header>
+
+<h2>1 · Flat or solid? 2D and 3D</h2>
+<p>A <strong>2D shape</strong> (two-dimensional) is flat. It has a length and a width and nothing else, like a square drawn on paper or the shadow of your hand. You can draw it, but you can't pick it up.</p>
+<p>A <strong>3D shape</strong> (three-dimensional) has a third measurement as well: <strong>depth</strong> (you might also call it thickness or height). That's what lets you hold it. A 3D shape is often called a <strong>solid</strong>, even if it's hollow inside like a cereal box.</p>
+<p>The quickest way to feel the difference: take a flat shape and pull it out of the page. Slide the depth up from 0. Drag the picture to turn it round.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>flat shape <select id="exShape">
+      <option value="square">square</option><option value="rect">rectangle</option><option value="tri">triangle</option><option value="hex">hexagon</option><option value="circle">circle</option>
+    </select></label>
+    <label>depth <input type="range" id="exD" min="0" max="2.6" step="0.1" value="0"><span id="exDv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="exSvg" class="drag" viewBox="0 0 360 280" width="360" height="280" role="img" aria-label="A flat shape being pulled out into a 3D solid"></svg>
+  <div class="msg" id="exMsg"></div>
+</div>
+
+<p>Notice two things. A square pulled out to the same depth as its side becomes a <strong>cube</strong>. And pulling a shape straight out always gives a solid that looks the same all the way through, like a stick of rock. Hold on to that idea: it's exactly what a <em>prism</em> is (section 3).</p>
+
+<h2>2 · Faces, edges and vertices</h2>
+<p>To describe a 3D shape we count three things. Think of a dice:</p>
+<ul>
+  <li>A <strong class="M">face</strong> is a flat surface. It's a side the shape could rest on if you put it on the table. A dice has 6 faces.</li>
+  <li>An <strong class="C">edge</strong> is a line where two faces meet. Run your finger along it. A dice has 12 edges.</li>
+  <li>A <strong class="P">vertex</strong> is a corner, where edges meet. The plural is <strong>vertices</strong>. A dice has 8 vertices.</li>
+</ul>
+<p>Some shapes also have a <strong>curved surface</strong>, like the side of a tin. Pick a shape, choose what to highlight, and drag to spin it. Dashed lines are edges hidden round the back.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>shape <select id="vwSel">
+      <option value="cube">cube</option><option value="cuboid">cuboid</option><option value="tri">triangular prism</option><option value="pent">pentagonal prism</option><option value="hex">hexagonal prism</option><option value="tet">triangular-based pyramid</option><option value="sqp">square-based pyramid</option><option value="hexp">hexagonal pyramid</option><option value="cyl">cylinder</option><option value="cone">cone</option><option value="sph">sphere</option>
+    </select></label>
+    <div class="seg" id="vwMode" role="group" aria-label="highlight"><button data-m="faces" aria-pressed="true">Faces</button><button data-m="edges" aria-pressed="false">Edges</button><button data-m="vertices" aria-pressed="false">Vertices</button></div>
+    <label><input type="checkbox" id="vwHid" checked> show hidden edges</label>
+  </div>
+  <svg id="vwSvg" class="drag" viewBox="0 0 360 300" width="360" height="300" role="img" aria-label="Rotatable 3D shape"></svg>
+  <div class="readout">
+    <div class="f"><b>Faces</b><span id="vwF"></span></div>
+    <div class="t"><b>Edges</b><span id="vwE"></span></div>
+    <div class="p"><b>Vertices</b><span id="vwV"></span></div>
+  </div>
+  <div class="msg" id="vwMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistake: counting only what you can see.</strong> From any one direction you can see at most 3 faces of a cube, but it has 6. Look at the “facing you” numbers above: they're always smaller than the totals. Count the back too: spin the shape, or count the dashed hidden edges.</p>
+</div>
+
+<h3>A pattern to discover</h3>
+<p>Every shape you pick above with only flat faces is added to this table. These shapes are called <strong>polyhedra</strong> (one is a <strong>polyhedron</strong>): solids with flat faces and straight edges. Try at least four, then press the button and look at the last column.</p>
+<div class="lab">
+  <div class="tbl"><table class="vt" id="eulTable"></table></div>
+  <div class="controls"><button class="btn primary" id="eulGo">Work out F + V − E</button></div>
+  <div class="msg" id="eulMsg"></div>
+</div>
+<p>This is <strong>Euler's formula</strong> (say “oiler”): for every polyhedron without holes, <span class="m">F + V − E = 2</span>. It's a brilliant way to check your counting. If you count a pentagonal prism as 7 faces, 10 vertices and 14 edges, then 7 + 10 − 14 = 3, not 2, so you've missed an edge somewhere. (It's 15.)</p>
+
+<h2>3 · Naming 3D shapes: prisms, pyramids and curved solids</h2>
+<p>Imagine slicing straight through a shape, like cutting a cucumber or a loaf of bread. The flat shape you see on the cut is called a <strong>cross-section</strong>.</p>
+<p>A <strong>prism</strong> is a solid with the <em>same cross-section all the way along</em> (a <strong>constant cross-section</strong>). It has two identical end faces, joined by rectangles. A prism is named after its cross-section: a Toblerone is a <em>triangular</em> prism, an unsharpened pencil is a <em>hexagonal</em> prism. A cuboid is a rectangular prism, and a cube is a square prism.</p>
+<p>A <strong>pyramid</strong> has a flat <strong>base</strong> and triangles that all meet at one point at the top, the <strong>apex</strong>. A pyramid is named after its base: the ones in Egypt are square-based pyramids. Slide the knife through each shape and watch the cross-section.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>shape <select id="xsSel">
+      <option value="cuboid">cuboid (a box)</option><option value="tri">triangular prism (Toblerone)</option><option value="hex">hexagonal prism (pencil)</option><option value="cyl">cylinder (tin on its side)</option><option value="sqp">square-based pyramid</option><option value="cone">cone</option>
+    </select></label>
+    <label>slice position <input type="range" id="xsT" min="0.03" max="0.97" step="0.01" value="0.3"></label>
+  </div>
+  <svg id="xsSvg" class="drag" viewBox="0 0 540 290" width="540" height="290" role="img" aria-label="A solid being sliced, with its cross-section shown beside it"></svg>
+  <div class="msg" id="xsMsg"></div>
+</div>
+
+<div class="tbl"><table>
+  <tr><th>Name (example)</th><th>F</th><th>E</th><th>V</th></tr>
+  <tr><td>Cube<br><small style="color:var(--muted)">dice, sugar cube</small></td><td class="mono">6</td><td class="mono">12</td><td class="mono">8</td></tr>
+  <tr><td>Cuboid<br><small style="color:var(--muted)">cereal box, brick</small></td><td class="mono">6</td><td class="mono">12</td><td class="mono">8</td></tr>
+  <tr><td>Triangular prism<br><small style="color:var(--muted)">Toblerone, tent</small></td><td class="mono">5</td><td class="mono">9</td><td class="mono">6</td></tr>
+  <tr><td>Hexagonal prism<br><small style="color:var(--muted)">pencil, some nuts and bolts</small></td><td class="mono">8</td><td class="mono">18</td><td class="mono">12</td></tr>
+  <tr><td>Square-based pyramid<br><small style="color:var(--muted)">Egyptian pyramids</small></td><td class="mono">5</td><td class="mono">8</td><td class="mono">5</td></tr>
+  <tr><td>Triangular-based pyramid (tetrahedron)<br><small style="color:var(--muted)">some tea bags, a four-sided dice</small></td><td class="mono">4</td><td class="mono">6</td><td class="mono">4</td></tr>
+  <tr><td>Cylinder<br><small style="color:var(--muted)">tin of beans, candle</small></td><td class="mono">2 flat<br>+ 1 curved</td><td class="mono">2</td><td class="mono">0</td></tr>
+  <tr><td>Cone<br><small style="color:var(--muted)">ice-cream cone, traffic cone</small></td><td class="mono">1 flat<br>+ 1 curved</td><td class="mono">1</td><td class="mono">1</td></tr>
+  <tr><td>Sphere<br><small style="color:var(--muted)">football, marble</small></td><td class="mono">1 curved</td><td class="mono">0</td><td class="mono">0</td></tr>
+</table></div>
+<p>F = faces, E = edges, V = vertices. Shortcut for prisms: if the cross-section has <em>n</em> sides, the prism has <em>n</em> + 2 faces, 3<em>n</em> edges and 2<em>n</em> vertices. For a pyramid with an <em>n</em>-sided base: <em>n</em> + 1 faces, 2<em>n</em> edges, <em>n</em> + 1 vertices. The edges of curved shapes are where a curved surface meets a flat one, so a cylinder's 2 edges are the two circles.</p>
+
+<h2>4 · Nets: unfolding a shape</h2>
+<p>Carefully open out a cereal box along its edges and lay it flat. The flat shape you get is called a <strong>net</strong>: a 2D pattern that folds up to make a 3D shape. Every face of the solid appears exactly once in the net. Slide to fold each net, and drag to look at it from different sides.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>net of a <select id="fdNet">
+      <option value="cube">cube</option><option value="tri">triangular prism</option><option value="sqp">square-based pyramid</option><option value="tet">triangular-based pyramid</option>
+    </select></label>
+    <label>flat <input type="range" id="fdT" min="0" max="100" step="1" value="0"> folded</label>
+    <button class="btn primary" id="fdPlay">Fold it</button>
+  </div>
+  <svg id="fdSvg" class="drag" viewBox="0 0 360 300" width="360" height="300" role="img" aria-label="A net folding into a 3D shape"></svg>
+  <div class="msg" id="fdMsg"></div>
+</div>
+
+<p>Look at what each net is made of. The <strong>prism</strong> net has two copies of its cross-section (the triangles) plus one rectangle for each side of the triangle. The <strong>pyramid</strong> nets have the base plus one triangle for each side of the base. That's a quick way to sketch a net for any prism or pyramid.</p>
+
+<h3>Will this net make a cube?</h3>
+<p>A cube needs 6 squares, but not every arrangement of 6 joined squares folds into a cube. There are exactly <strong>11</strong> different cube nets (not counting turning or flipping one over). Picture the folding in your head, then decide. After you answer, use the slider to fold it and see for yourself.</p>
+
+<div class="lab">
+  <div class="twin">
+    <div><svg id="gmNet" class="still" viewBox="0 0 260 260" width="260" height="260" role="img" aria-label="Six squares arranged as a possible cube net"></svg><p class="cap">the net</p></div>
+    <div><svg id="gmFold" class="drag" viewBox="0 0 260 260" width="260" height="260" role="img" aria-label="The net folding up"></svg><p class="cap">fold it: <input type="range" id="gmT" min="0" max="100" value="0" disabled aria-label="fold amount"></p></div>
+  </div>
+  <div class="controls">
+    <button class="btn primary" id="gmYes">Yes, it makes a cube</button><button class="btn primary" id="gmNo">No, it doesn't</button><button class="btn" id="gmNext">Next net</button>
+    <span class="score" id="gmScore"></span>
+  </div>
+  <div class="msg" id="gmMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Two quick tests for cube nets.</strong> A net with a 2 × 2 block of squares can never be a cube net (four squares would meet at one corner, but a cube's corners only have three faces). And a net with 5 or more squares in a row can't work either: the 5th square wraps round and lands on top of the 1st.</p>
+</div>
+
+<h2>5 · Surface area from a net</h2>
+<p>The <strong>surface area</strong> of a 3D shape is the total area of all its faces: how much card or paper would cover it exactly. Because the net <em>is</em> all the faces laid flat, surface area = area of the net. Area is measured in square units, such as <span class="m">cm²</span>.</p>
+<p>For a cuboid the faces come in 3 matching pairs: top and bottom, front and back, left and right. Work out one of each pair, double, and add.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>length <input type="range" id="saL" min="1" max="6" step="1" value="4"><span id="saLv" style="font-family:var(--mono)"></span></label>
+    <label>width <input type="range" id="saW" min="1" max="6" step="1" value="2"><span id="saWv" style="font-family:var(--mono)"></span></label>
+    <label>height <input type="range" id="saH" min="1" max="6" step="1" value="3"><span id="saHv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="saSvg" class="still" viewBox="0 0 360 380" width="360" height="380" role="img" aria-label="Net of a cuboid with face areas"></svg>
+  <div class="work" id="saWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistake: surface area vs volume.</strong> Surface area is the <em>outside</em> (wrapping paper, in cm²). Volume is the <em>space inside</em> (how much it holds, in cm³). For a 4 cm × 2 cm × 3 cm box the surface area is 52 cm² but the volume is 24 cm³. Different questions, different units.</p>
+  <p><strong>Another one:</strong> counting each face only once. A cuboid has 6 faces, so your sum should have 6 areas in it (3 pairs).</p>
+</div>
+
+<h2>6 · Drawing 3D shapes on isometric paper</h2>
+<p>Drawing a solid on squared paper is awkward. <strong>Isometric paper</strong> has dots (or lines) arranged in a pattern of triangles, which makes 3D drawings easy and accurate. Rules:</p>
+<ul>
+  <li>Hold the paper so the dots make <strong>vertical columns</strong>.</li>
+  <li><strong>Vertical edges stay vertical.</strong></li>
+  <li>Edges that go left–right or front–back are drawn <strong>sloping at 30°</strong>, along the dots, never horizontal.</li>
+  <li>One unit of length is the gap between two neighbouring dots, in any of these directions.</li>
+</ul>
+<p>Step through the drawing of a cuboid.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>length <input type="range" id="isoL" min="1" max="5" step="1" value="4"><span id="isoLv" style="font-family:var(--mono)"></span></label>
+    <label>width <input type="range" id="isoW" min="1" max="4" step="1" value="2"><span id="isoWv" style="font-family:var(--mono)"></span></label>
+    <label>height <input type="range" id="isoH" min="1" max="4" step="1" value="3"><span id="isoHv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="controls">
+    <label>step <input type="range" id="isoStep" min="1" max="5" step="1" value="1"><span id="isoStepv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="isoHid"> show hidden edges (dashed)</label>
+  </div>
+  <svg id="isoSvg" class="still" viewBox="0 0 400 340" width="400" height="340" role="img" aria-label="A cuboid drawn on isometric dot paper"></svg>
+  <div class="msg" id="isoMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes on isometric paper:</strong> drawing an edge horizontal (no edge is ever horizontal on isometric paper), turning the paper sideways so the dots make rows instead of columns, and drawing the hidden edges (on an isometric drawing you only draw what you can see).</p>
+</div>
+
+<h2>7 · Plans and elevations</h2>
+<p>Architects and engineers can't hand a builder a 3D model, so they describe a shape with flat 2D <strong>views</strong>:</p>
+<ul>
+  <li>The <strong class="M">plan</strong> is the view from directly above, like a bird looking down. It shows the “footprint”.</li>
+  <li>The <strong class="C">front elevation</strong> is the view looking straight at the front.</li>
+  <li>The <strong class="P">side elevation</strong> is the view looking straight at the side.</li>
+</ul>
+<p>Each view is flat: you can't see depth in it at all. Lines inside a view show where there's a step, an edge between parts that are nearer and further away. Build a shape below: tap a square of the floor (or a cube) to add a cube there, switch to “Remove” to take the top cube off. The three views redraw as you build. The arrows show which way you look for the front (F) and the side (S).</p>
+
+<div class="lab">
+  <div class="controls">
+    <div class="seg" id="bdMode" role="group" aria-label="tap mode"><button data-m="add" aria-pressed="true">Add cube</button><button data-m="rem" aria-pressed="false">Remove cube</button></div>
+    <button class="btn" id="bdClear">Clear</button><button class="btn" id="bdRand">Random shape</button>
+    <label><input type="checkbox" id="bdNums"> show heights on the plan</label>
+  </div>
+  <svg id="bdIso" class="still" viewBox="0 0 330 310" width="330" height="310" role="img" aria-label="Cube stack builder on an isometric grid"></svg>
+  <svg id="bdViews" class="still" viewBox="0 0 344 150" width="344" height="150" role="img" aria-label="Plan, front elevation and side elevation"></svg>
+  <div class="msg" id="bdMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes with plans and elevations.</strong></p>
+  <p>Mixing up front and side: check which way the arrow points, and imagine your eye at the end of it. The front elevation shows the faces coloured orange, the side elevation the plum ones, the plan the teal tops.</p>
+  <p>Trying to show hidden cubes: a view only shows what you'd see. A short column in front of a tall one doesn't make the view taller or add squares. It just adds a line where the step is.</p>
+  <p>Drawing a view back to front: the left of the front elevation is the left as you look along the F arrow.</p>
+</div>
+
+<h3>Practice: match the view to the shape</h3>
+<div class="lab">
+  <svg id="mtIso" class="still" viewBox="0 0 260 240" width="260" height="240" role="img" aria-label="A stack of cubes"></svg>
+  <p id="mtQ" style="text-align:center;font-weight:600;margin:.4rem 0"></p>
+  <div class="vopts" id="mtOpts"></div>
+  <div class="controls"><button class="btn" id="mtNext">Next shape</button><span class="score" id="mtScore"></span></div>
+  <div class="msg" id="mtMsg"></div>
+</div>
+
+<h2>8 · Building a shape from its plan and elevations</h2>
+<p>Now the reverse: you're given the three views and have to build the shape. A good method:</p>
+<ol>
+  <li>The <strong>plan</strong> tells you which floor squares have at least one cube.</li>
+  <li>The <strong>front elevation</strong> tells you the tallest column in each left-to-right position.</li>
+  <li>The <strong>side elevation</strong> tells you the tallest column in each front-to-back row.</li>
+  <li>Build each square up to the <em>smaller</em> of its two heights, then use the inner lines in the views to fix any steps.</li>
+</ol>
+<p>Build the mystery shape. Your three views are checked against the targets as you go.</p>
+
+<div class="lab">
+  <p class="cap" style="text-align:left;margin-top:0">Target views:</p>
+  <svg id="chTarget" class="still" viewBox="0 0 300 130" width="300" height="130" role="img" aria-label="Target plan and elevations"></svg>
+  <div class="controls">
+    <div class="seg" id="chMode" role="group" aria-label="tap mode"><button data-m="add" aria-pressed="true">Add cube</button><button data-m="rem" aria-pressed="false">Remove cube</button></div>
+    <button class="btn" id="chClear">Clear</button><button class="btn" id="chNew">New puzzle</button><button class="btn" id="chShow">Show an answer</button>
+  </div>
+  <svg id="chIso" class="still" viewBox="0 0 260 250" width="260" height="250" role="img" aria-label="Your cube stack"></svg>
+  <p class="cap" style="text-align:left">Your views:</p>
+  <svg id="chViews" class="still" viewBox="0 0 300 130" width="300" height="130" role="img" aria-label="Your plan and elevations"></svg>
+  <div class="msg" id="chMsg"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Count the faces, edges and vertices of a pentagonal prism, and check with Euler's formula</summary>
+  <div class="step"><strong>Faces:</strong> 2 pentagon ends + 1 rectangle for each of the 5 sides of the pentagon = 2 + 5 = <strong>7</strong>.</div>
+  <div class="step"><strong>Edges:</strong> 5 round the front pentagon + 5 round the back pentagon + 5 running along the length joining them = <strong>15</strong>.</div>
+  <div class="step"><strong>Vertices:</strong> 5 corners at the front + 5 at the back = <strong>10</strong>.</div>
+  <div class="step"><strong>Check:</strong> F + V − E = 7 + 10 − 15 = 2 ✓. The shortcut agrees too: n = 5 gives n + 2 = 7, 3n = 15, 2n = 10.</div>
+</details>
+<details>
+  <summary>Find the surface area of a cuboid 6 cm long, 4 cm wide and 3 cm high</summary>
+  <div class="step"><strong>Top and bottom:</strong> each 6 × 4 = 24 cm², so 2 × 24 = 48 cm².</div>
+  <div class="step"><strong>Front and back:</strong> each 6 × 3 = 18 cm², so 2 × 18 = 36 cm².</div>
+  <div class="step"><strong>The two ends:</strong> each 4 × 3 = 12 cm², so 2 × 12 = 24 cm².</div>
+  <div class="step"><strong>Total:</strong> 48 + 36 + 24 = <strong>108 cm²</strong>. (Its volume is 6 × 4 × 3 = 72 cm³: a different measurement, in different units.)</div>
+</details>
+<details>
+  <summary>Find the surface area of a triangular prism. The ends are right-angled triangles with sides 3 cm, 4 cm and 5 cm; the prism is 10 cm long.</summary>
+  <div class="step"><strong>Sketch the net:</strong> 2 triangles + 3 rectangles, one for each side of the triangle.</div>
+  <div class="step"><strong>Triangles:</strong> the 3 cm and 4 cm sides are at right angles, so each triangle is ½ × 3 × 4 = 6 cm². Two of them: 12 cm².</div>
+  <div class="step"><strong>Rectangles:</strong> 3 × 10 = 30 cm², 4 × 10 = 40 cm², 5 × 10 = 50 cm². Together: 120 cm².</div>
+  <div class="step"><strong>Total:</strong> 12 + 120 = <strong>132 cm²</strong>. Check: 5 faces, 5 areas in the sum ✓.</div>
+</details>
+<details>
+  <summary>Draw the plan, front elevation and side elevation of this cube stack</summary>
+  <svg id="weIso" viewBox="0 0 260 250" width="260" height="250" style="display:block;max-width:100%;height:auto;margin:.5rem auto" role="img" aria-label="Worked example cube stack"></svg>
+  <div class="step"><strong>Read the shape:</strong> the front row has columns of 2, 1 and 1 cubes from left to right. Behind the left-hand column there's a column of 3.</div>
+  <div class="step"><strong>Plan (from above):</strong> 4 squares in an L: three along the front, one behind on the left. There's a line between the front-left square and the one behind it, because their tops are at different heights (2 and 3). The front-left top is also higher than the one next to it (2 vs 1), so there's a line there too.</div>
+  <div class="step"><strong>Front elevation (along F):</strong> the left column looks 3 tall (the back column shows above the front one), the other two are 1 tall. There's a line at height 2 in the left column, where the front column ends and the back one carries on.</div>
+  <div class="step"><strong>Side elevation (along S, from the left):</strong> the back row is on your left and is 3 tall; the front row is on your right and is 2 tall. No inner lines: everything you see is the same flat side.</div>
+  <svg id="weViews" viewBox="0 0 300 130" width="300" height="130" style="display:block;max-width:100%;height:auto;margin:.5rem auto" role="img" aria-label="Worked example views"></svg>
+</details>
+<details>
+  <summary>Build the shape: the plan is a 2 × 2 square, the front elevation has heights 2 then 1, the side elevation has heights 1 then 2</summary>
+  <svg id="weViews2" viewBox="0 0 270 110" width="270" height="110" style="display:block;max-width:100%;height:auto;margin:.5rem auto" role="img" aria-label="Given views"></svg>
+  <div class="step"><strong>Plan:</strong> all 4 floor squares have at least one cube.</div>
+  <div class="step"><strong>Front elevation:</strong> the left column is 2 tall, the right column is 1 tall. So both right-hand squares (front and back) have exactly 1 cube, since they can't be taller than 1 and the plan says they're not empty.</div>
+  <div class="step"><strong>Side elevation (from the left):</strong> the back row is on the left and is 1 tall, the front row is on the right and is 2 tall. So the back-left square has 1 cube, and somewhere in the front row there's a column of 2. The front-right square is only 1, so the front-left square has <strong>2</strong>.</div>
+  <div class="step"><strong>Answer:</strong> front-left 2, everything else 1: <strong>5 cubes</strong>. Check all three views ✓.</div>
+  <svg id="weIso2" viewBox="0 0 220 200" width="220" height="200" style="display:block;max-width:100%;height:auto;margin:.5rem auto" role="img" aria-label="The answer"></svg>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>2D shapes are flat (length and width); 3D shapes also have depth, so you can hold them.</li>
+  <li>A face is a flat surface, an edge is where two faces meet, a vertex is a corner. Count the hidden ones too.</li>
+  <li>For any polyhedron, F + V − E = 2 (Euler's formula). Use it to check your counts.</li>
+  <li>A prism has the same cross-section all the way along and is named after it; a pyramid has a base and triangles meeting at an apex and is named after its base. Cylinders, cones and spheres have curved surfaces.</li>
+  <li>A net is a flat pattern that folds into a solid. There are 11 cube nets; a 2 × 2 block or 5 in a row means it's not one.</li>
+  <li>Surface area = total area of all the faces = area of the net, in cm². It is not the volume (cm³).</li>
+  <li>On isometric paper, vertical edges stay vertical and the others slope at 30°; hidden edges aren't drawn.</li>
+  <li>The plan is the view from above, the front and side elevations are views from the front and side. Lines inside a view show steps. You can rebuild a shape from its three views.</li>
+</ul>
+
+<footer>Made for KS3 students. Properties of 3D shapes, nets, surface area, and plans and elevations are in the England national curriculum at key stage 3 under Geometry and measures. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $=id=>document.getElementById(id);
+const fx=v=>Math.round(v*10)/10;
+const PI=Math.PI,C30=Math.sqrt(3)/2;
+const MONO=()=>`font-family="${css('--mono')}"`,BODY=()=>`font-family="${css('--body')}"`;
+const rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+/* ---------- 3D toolkit: rotate (yaw about the vertical, then pitch) and project straight onto the screen ---------- */
+function rot(p,yaw,pitch){const ca=Math.cos(yaw),sa=Math.sin(yaw),cb=Math.cos(pitch),sb=Math.sin(pitch);
+  const x1=p[0]*ca+p[2]*sa,z1=-p[0]*sa+p[2]*ca;return [x1,p[1]*cb-z1*sb,p[1]*sb+z1*cb];}
+const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
+const dot3=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const mean=pts=>{const m=[0,0,0];pts.forEach(p=>{m[0]+=p[0];m[1]+=p[1];m[2]+=(p[2]||0);});return m.map(v=>v/pts.length);};
+const ngon=(n,r,ph)=>Array.from({length:n},(_,k)=>[r*Math.cos(ph+2*PI*k/n),r*Math.sin(ph+2*PI*k/n)]);
+const rect=(a,b)=>[[-a/2,-b/2],[a/2,-b/2],[a/2,b/2],[-a/2,b/2]];
+
+// work out outward normals, edges (with the faces either side), and the real F/E/V counts
+function prep(S){
+  const c=mean(S.V);
+  S.N=S.Fc.map(f=>{let n=[0,0,0];for(let k=0;k<f.length;k++){const a=S.V[f[k]],b=S.V[f[(k+1)%f.length]];
+      n[0]+=(a[1]-b[1])*(a[2]+b[2]);n[1]+=(a[2]-b[2])*(a[0]+b[0]);n[2]+=(a[0]-b[0])*(a[1]+b[1]);}
+    const L=Math.hypot(n[0],n[1],n[2]);if(L<1e-9)return [0,0,0];n=n.map(v=>v/L);
+    if(dot3(n,sub(mean(f.map(i=>S.V[i])),c))<0)n=n.map(v=>-v);return n;});
+  S.curved=S.curved||S.Fc.map(()=>false);S.group=S.group||S.Fc.map((_,i)=>i);
+  const m=new Map();
+  S.Fc.forEach((f,fi)=>f.forEach((a,k)=>{const b=f[(k+1)%f.length];const key=Math.min(a,b)+','+Math.max(a,b);
+    if(!m.has(key))m.set(key,{a,b,f:[]});m.get(key).f.push(fi);}));
+  S.E=[...m.values()];
+  S.E.forEach(e=>{e.smooth=e.f.length===2&&S.curved[e.f[0]]&&S.curved[e.f[1]];e.g=e.f.map(f=>S.group[f]).sort((x,y)=>x-y).join('-');});
+  S.vf=S.V.map(()=>[]);S.Fc.forEach((f,fi)=>f.forEach(v=>S.vf[v].push(fi)));
+  if(!S.realV)S.realV=S.V.map((_,i)=>i);
+  if(!S.counts)S.counts={F:S.Fc.length,E:S.E.filter(e=>!e.smooth).length,V:S.V.length};
+  return S;}
+// prism: a 2D base pulled out to depth d along an axis
+function prismS(base,d,axis,curved){const n=base.length;
+  const mp=(u,v,w)=>axis==='z'?[u,v,w]:axis==='x'?[w,v,u]:[u,w,v];
+  const V=base.map(([u,v])=>mp(u,v,-d/2)).concat(base.map(([u,v])=>mp(u,v,d/2)));
+  const Fc=[base.map((_,k)=>k),base.map((_,k)=>n+k)];
+  for(let k=0;k<n;k++)Fc.push([k,(k+1)%n,n+(k+1)%n,n+k]);
+  const S={V,Fc};
+  if(curved){S.curved=Fc.map((_,i)=>i>=2);S.group=Fc.map((_,i)=>i<2?i:2);S.counts={F:3,E:2,V:0};S.realV=[];}
+  return prep(S);}
+// pyramid: base flat at the bottom, apex on top
+function pyrS(base,h,curved){const n=base.length;const V=base.map(([u,v])=>[u,-h/2,v]);V.push([0,h/2,0]);
+  const Fc=[base.map((_,k)=>k)];for(let k=0;k<n;k++)Fc.push([k,(k+1)%n,n]);
+  const S={V,Fc};
+  if(curved){S.curved=Fc.map((_,i)=>i>0);S.group=Fc.map((_,i)=>i>0?1:0);S.counts={F:2,E:1,V:1};S.realV=[n];}
+  return prep(S);}
+
+function frontFaces(S,yaw,pitch){return S.N.map(n=>rot(n,yaw,pitch)[2]>1e-6);}
+function renderSolid(S,yaw,pitch,o){
+  const P=S.V.map(p=>rot(p,yaw,pitch));const X=p=>fx(o.cx+o.s*p[0]),Y=p=>fx(o.cy-o.s*p[1]);
+  const fr=frontFaces(S,yaw,pitch);const ev=S.E.map(e=>e.f.some(f=>fr[f]));
+  const fg=css('--fg'),mu=css('--muted'),ac=o.fill||css('--accent'),hi=css('--hi'),tw=css('--two');
+  const mode=o.mode||'none',eCol=mode==='edges'?hi:fg,eW=mode==='edges'?3.4:1.8;
+  const seg=(e,dash)=>`<line x1="${X(P[e.a])}" y1="${Y(P[e.a])}" x2="${X(P[e.b])}" y2="${Y(P[e.b])}" stroke="${dash?(mode==='edges'?hi:mu):eCol}" stroke-width="${dash?1.5:eW}"${dash?' stroke-dasharray="5 4"':''} stroke-linecap="round"/>`;
+  let s='';
+  if(o.hidden)S.E.forEach((e,k)=>{if(!ev[k]&&!e.smooth)s+=seg(e,true);});
+  const depth=i=>S.Fc[i].reduce((t,v)=>t+P[v][2],0)/S.Fc[i].length;
+  S.Fc.map((_,i)=>i).filter(i=>fr[i]).sort((a,b)=>depth(a)-depth(b)).forEach(i=>{
+    const op=mode==='faces'?[0.22,0.4,0.58][S.group[i]%3]:(o.fillOp!=null?o.fillOp:0.16);
+    s+=`<polygon points="${S.Fc[i].map(v=>X(P[v])+','+Y(P[v])).join(' ')}" fill="${ac}" fill-opacity="${op}"${S.curved[i]?` stroke="${ac}" stroke-opacity="${op}" stroke-width=".6"`:''}/>`;});
+  S.E.forEach((e,k)=>{if(e.smooth){if(e.f.length===2&&fr[e.f[0]]!==fr[e.f[1]])s+=seg(e,false);}else if(ev[k])s+=seg(e,false);});
+  if(mode==='vertices')S.realV.forEach(v=>{const vis=S.vf[v].some(f=>fr[f]);
+    if(vis)s+=`<circle cx="${X(P[v])}" cy="${Y(P[v])}" r="6.5" fill="${tw}" stroke="${css('--panel')}" stroke-width="1.5"/>`;
+    else if(o.hidden)s+=`<circle cx="${X(P[v])}" cy="${Y(P[v])}" r="5" fill="${css('--panel')}" stroke="${tw}" stroke-width="2" stroke-dasharray="3 2"/>`;});
+  return s;}
+function visCounts(S,yaw,pitch){const fr=frontFaces(S,yaw,pitch);
+  return {F:new Set(S.Fc.map((_,i)=>i).filter(i=>fr[i]).map(i=>S.group[i])).size,
+    E:new Set(S.E.filter(e=>!e.smooth&&e.f.some(f=>fr[f])).map(e=>e.g)).size,
+    V:S.realV.filter(v=>S.vf[v].some(f=>fr[f])).length};}
+function renderSphere(yaw,pitch,o){const R=1.35,ac=css('--accent');
+  let s=`<circle cx="${o.cx}" cy="${o.cy}" r="${fx(R*o.s)}" fill="${ac}" fill-opacity="${o.mode==='faces'?0.4:0.16}" stroke="${css('--fg')}" stroke-width="1.8"/>`;
+  const pts=Array.from({length:61},(_,k)=>rot([R*Math.cos(2*PI*k/60),0,R*Math.sin(2*PI*k/60)],yaw,pitch));
+  for(let k=0;k<60;k++){const a=pts[k],b=pts[k+1],front=a[2]+b[2]>0;if(!front&&!o.hidden)continue;
+    s+=`<line x1="${fx(o.cx+o.s*a[0])}" y1="${fx(o.cy-o.s*a[1])}" x2="${fx(o.cx+o.s*b[0])}" y2="${fx(o.cy-o.s*b[1])}" stroke="${css('--muted')}" stroke-width="1.2"${front?'':' stroke-dasharray="3 4"'}/>`;}
+  return s+`<text x="${o.cx}" y="${o.cy+R*o.s+20}" text-anchor="middle" font-size="12" fill="${css('--muted')}" ${BODY()}>(the line is just to show it turning: it isn't an edge)</text>`;}
+// drag to rotate, with pointer events so it works with touch
+function dragRotate(svg,view,draw){let last=null;
+  svg.addEventListener('pointerdown',e=>{last=[e.clientX,e.clientY];try{svg.setPointerCapture(e.pointerId);}catch(_){}});
+  svg.addEventListener('pointermove',e=>{if(!last)return;view.yaw+=(e.clientX-last[0])*0.012;view.pitch=Math.max(-1.45,Math.min(1.45,view.pitch+(e.clientY-last[1])*0.012));last=[e.clientX,e.clientY];draw();});
+  const end=()=>{last=null;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);}
+function segBind(el,cb){const bs=[...el.querySelectorAll('button')];bs.forEach(b=>b.addEventListener('click',()=>{bs.forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));cb(b.dataset.m);}));}
+
+/* 1. pull a flat shape into 3D */
+const exShape=$('exShape'),exD=$('exD'),exSvg=$('exSvg');const exV={yaw:-0.6,pitch:0.42};
+const EXB={square:{b:rect(2,2),n:'square'},rect:{b:rect(2.8,1.6),n:'rectangle'},tri:{b:ngon(3,1.3,PI/2),n:'triangle'},hex:{b:ngon(6,1.2,0),n:'hexagon'},circle:{b:ngon(40,1.15,0),n:'circle',c:true}};
+function drawEX(){const k=exShape.value,d=+exD.value;$('exDv').textContent=' '+d.toFixed(1);
+  const S=prismS(EXB[k].b,Math.max(d,0.001),'z',EXB[k].c);
+  exSvg.innerHTML=renderSolid(S,exV.yaw,exV.pitch,{cx:180,cy:140,s:55,mode:'none',hidden:false,fillOp:0.3});
+  const name=k==='square'?(Math.abs(d-2)<0.05?'a <strong>cube</strong> (every edge the same length)':'a <strong>cuboid</strong> (a square-based one)'):k==='rect'?'a <strong>cuboid</strong>':k==='tri'?'a <strong>triangular prism</strong>':k==='hex'?'a <strong>hexagonal prism</strong>':'a <strong>cylinder</strong>';
+  const M=$('exMsg');M.innerHTML=d<0.05?`Depth 0: this is a flat <strong>2D</strong> ${EXB[k].n}. It has length and width but no thickness at all, like a shape drawn on paper.`:`Depth ${d.toFixed(1)}: now it's a <strong>3D</strong> solid, ${name}. It has length, width <em>and</em> depth. Drag to turn it.`;}
+exShape.addEventListener('input',drawEX);exD.addEventListener('input',drawEX);dragRotate(exSvg,exV,drawEX);drawEX();
+
+/* 2. 3D viewer: faces, edges, vertices */
+const SOL={
+  cube:{n:'Cube',mk:()=>prismS(rect(2,2),2,'z'),d:'6 square faces, all the same size. A dice or a sugar cube.'},
+  cuboid:{n:'Cuboid',mk:()=>prismS(rect(3,1.6),1.4,'z'),d:'6 rectangular faces in 3 matching pairs. A cereal box or a brick.'},
+  tri:{n:'Triangular prism',mk:()=>prismS(ngon(3,1.05,PI/2),3,'x'),d:'2 triangles at the ends joined by 3 rectangles. A Toblerone bar.'},
+  pent:{n:'Pentagonal prism',mk:()=>prismS(ngon(5,1.2,PI/2),1.8,'y'),d:'2 pentagons joined by 5 rectangles.'},
+  hex:{n:'Hexagonal prism',mk:()=>prismS(ngon(6,1,0),3,'x'),d:'2 hexagons joined by 6 rectangles. An unsharpened pencil.'},
+  tet:{n:'Triangular-based pyramid',mk:()=>pyrS(ngon(3,1.35,PI/2),1.9),d:'A triangle base and 3 triangles meeting at the apex. Also called a tetrahedron.'},
+  sqp:{n:'Square-based pyramid',mk:()=>pyrS(ngon(4,1.5,PI/4),1.9),d:'A square base and 4 triangles meeting at the apex. The pyramids in Egypt.'},
+  hexp:{n:'Hexagonal pyramid',mk:()=>pyrS(ngon(6,1.35,0),1.9),d:'A hexagon base and 6 triangles meeting at the apex.'},
+  cyl:{n:'Cylinder',mk:()=>prismS(ngon(40,1.1,0),2.4,'y',true),d:'2 flat circles and 1 curved surface. Its 2 edges are the circles. A tin of beans.',fn:'2 flat + 1 curved'},
+  cone:{n:'Cone',mk:()=>pyrS(ngon(40,1.25,0),2.3,true),d:'1 flat circle and 1 curved surface, 1 circular edge, and 1 vertex (the point). An ice-cream cone.',fn:'1 flat + 1 curved'},
+  sph:{n:'Sphere',sphere:true,d:'Just 1 curved surface: no flat faces, no edges, no vertices. A football or a marble.'}};
+Object.values(SOL).forEach(D=>{if(D.mk)D.S=D.mk();});
+const vwSel=$('vwSel'),vwSvg=$('vwSvg'),vwHid=$('vwHid');const vw={yaw:-0.6,pitch:0.45,mode:'faces'};
+const seen=[];let eulShown=false;
+function drawEUL(){let s='<tr><th>Shape</th><th>F</th><th>V</th><th>E</th><th>F + V − E</th></tr>';
+  seen.forEach(k=>{const c=SOL[k].S.counts;s+=`<tr><td style="text-align:left;font-family:var(--body)">${SOL[k].n}</td><td>${c.F}</td><td>${c.V}</td><td>${c.E}</td><td class="${eulShown?'on':''}">${eulShown?c.F+c.V-c.E:'?'}</td></tr>`;});
+  $('eulTable').innerHTML=s;}
+function drawVW(){const k=vwSel.value,D=SOL[k];
+  if(D.sphere){vwSvg.innerHTML=renderSphere(vw.yaw,vw.pitch,{cx:180,cy:140,s:72,mode:vw.mode,hidden:vwHid.checked});
+    $('vwF').innerHTML='1 curved surface<small>no flat faces</small>';$('vwE').innerHTML='0<small>nowhere for faces to meet</small>';$('vwV').innerHTML='0<small>no corners</small>';}
+  else{const S=D.S;vwSvg.innerHTML=renderSolid(S,vw.yaw,vw.pitch,{cx:180,cy:150,s:58,mode:vw.mode,hidden:vwHid.checked});
+    const v=visCounts(S,vw.yaw,vw.pitch);
+    $('vwF').innerHTML=`${D.fn||S.counts.F}<small>${v.F} facing you</small>`;$('vwE').innerHTML=`${S.counts.E}<small>${v.E} you can see</small>`;$('vwV').innerHTML=`${S.counts.V}<small>${v.V} you can see</small>`;
+    if(!D.fn&&!seen.includes(k)){seen.push(k);drawEUL();}}
+  $('vwMsg').textContent=`${D.n}: ${D.d}`;}
+vwSel.addEventListener('input',drawVW);vwHid.addEventListener('input',drawVW);segBind($('vwMode'),m=>{vw.mode=m;drawVW();});dragRotate(vwSvg,vw,drawVW);
+drawEUL();drawVW();
+$('eulGo').addEventListener('click',()=>{eulShown=true;drawEUL();const M=$('eulMsg');
+  if(seen.length<3){M.className='msg';M.textContent='Look at a few more shapes first (try a prism and a pyramid), then check again.';return;}
+  M.className='msg good';M.textContent=`F + V − E = 2 for all ${seen.length} shapes! Pick more shapes and the new rows show it too. (Curved solids don't follow it: a cylinder gives 3 + 0 − 2 = 1.)`;});
+
+/* 3. cross-sections: prism or not? */
+const XS={
+  cuboid:{n:'cuboid',sec:'rectangle',kind:'prism',b:rect(1.5,1.3),L:3.2},
+  tri:{n:'triangular prism',sec:'triangle',kind:'prism',b:ngon(3,1.0,PI/2),L:3.2},
+  hex:{n:'hexagonal prism',sec:'hexagon',kind:'prism',b:ngon(6,0.85,0),L:3.4},
+  cyl:{n:'cylinder',sec:'circle',kind:'prism',b:ngon(40,0.85,0),L:3,c:true},
+  sqp:{n:'square-based pyramid',sec:'square',kind:'pyr',b:ngon(4,1.45,PI/4),h:2.3},
+  cone:{n:'cone',sec:'circle',kind:'pyr',b:ngon(40,1.2,0),h:2.3,c:true}};
+Object.values(XS).forEach(D=>{D.S=D.kind==='prism'?prismS(D.b,D.L,'x',D.c):pyrS(D.b,D.h,D.c);});
+const xsSel=$('xsSel'),xsT=$('xsT'),xsSvg=$('xsSvg');const xv={yaw:-0.75,pitch:0.4};
+function drawXS(){const D=XS[xsSel.value],t=+xsT.value,s=48,cx=165,cy=150,hi=css('--hi');
+  let sec,flat,scale=1;
+  if(D.kind==='prism'){const w=-D.L/2+t*D.L;sec=D.b.map(([u,v])=>[w,v,u]);flat=D.b;}
+  else{scale=1-t;const y=-D.h/2+t*D.h;sec=D.b.map(([u,v])=>[u*scale,y,v*scale]);flat=D.b.map(([u,v])=>[u*scale,v*scale]);}
+  let o=renderSolid(D.S,xv.yaw,xv.pitch,{cx,cy,s,mode:'none',hidden:true,fillOp:0.1});
+  const P=sec.map(p=>rot(p,xv.yaw,xv.pitch));
+  o+=`<polygon points="${P.map(p=>fx(cx+s*p[0])+','+fx(cy-s*p[1])).join(' ')}" fill="${hi}" fill-opacity=".45" stroke="${hi}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  // the cross-section at true size, beside the end face for comparison
+  const cx2=430,cy2=140,s2=60;
+  const pts=a=>a.map(([u,v])=>fx(cx2+s2*u)+','+fx(cy2-s2*v)).join(' ');
+  o+=`<line x1="315" y1="20" x2="315" y2="270" stroke="${css('--line')}"/>`;
+  o+=`<polygon points="${pts(D.b)}" fill="none" stroke="${css('--muted')}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  o+=`<polygon points="${pts(flat)}" fill="${hi}" fill-opacity=".35" stroke="${hi}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  o+=`<text x="${cx2}" y="26" text-anchor="middle" font-size="13" font-weight="600" fill="${hi}" ${BODY()}>cross-section</text><text x="${cx2}" y="268" text-anchor="middle" font-size="11" fill="${css('--muted')}" ${BODY()}>dashed: the ${D.kind==='prism'?'end face':'base'}</text>`;
+  xsSvg.innerHTML=o;
+  const M=$('xsMsg');
+  if(D.kind==='prism'){M.className='msg good';M.innerHTML=D.c?`Every slice is the same circle, wherever you cut. A cylinder has a constant cross-section like a prism, but because it has a curved surface it gets its own name: <strong>cylinder</strong>.`:`Every slice is the same ${D.sec}, the same size, wherever you cut: a <strong>constant cross-section</strong>. So this is a <strong>prism</strong>, named after its cross-section: a ${D.n}.`;}
+  else{M.className='msg bad';M.innerHTML=`The slices are ${D.sec}s, but they shrink as you go up (this one is ${Math.round(scale*100)}% as wide as the ${D.kind==='prism'?'end':'base'}). The cross-section is <em>not</em> constant, so a ${D.n} is <strong>not a prism</strong>.`;}}
+xsSel.addEventListener('input',drawXS);xsT.addEventListener('input',drawXS);dragRotate(xsSvg,xv,drawXS);drawXS();
+
+/* 4a. folding nets: each face hinges on its parent face */
+function rotAxis(p,a,b,th){const u0=sub(b,a),L=Math.hypot(...u0),u=u0.map(x=>x/L),v=sub(p,a);
+  const c=Math.cos(th),s=Math.sin(th),d=dot3(u,v),cr=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];
+  return [0,1,2].map(i=>a[i]+v[i]*c+cr[i]*s+u[i]*d*(1-c));}
+function mkNet(polys,par,ang){const faces=polys.map((p,i)=>({p,par:par[i],ang:ang[i]}));
+  faces.forEach(f=>{if(f.par<0)return;const q=faces[f.par].p;
+    const sh=f.p.filter(a=>q.some(b=>Math.abs(a[0]-b[0])<1e-6&&Math.abs(a[1]-b[1])<1e-6));
+    let a=sh[0],b=sh[1];const c=mean(f.p);
+    if((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])<0)[a,b]=[b,a]; // child on the left of the hinge, so it folds upwards
+    f.a=[a[0],a[1],0];f.b=[b[0],b[1],0];});
+  return faces;}
+function foldPts(faces,t){return faces.map(f=>f.p.map(v=>{let q=[v[0],v[1],0],g=f;while(g.par>=0){q=rotAxis(q,g.a,g.b,g.ang*t);g=faces[g.par];}return q;}));}
+function paintNet(faces,t,view,o){const pts=foldPts(faces,t).map(f=>f.map(q=>[q[0],q[2],q[1]]));
+  const m=mean(pts.flat());const R=pts.map(f=>f.map(q=>rot(sub(q,m),view.yaw,view.pitch)));
+  return R.map((_,i)=>i).sort((a,b)=>mean(R[a])[2]-mean(R[b])[2]).map(i=>`<polygon points="${R[i].map(p=>fx(o.cx+o.s*p[0])+','+fx(o.cy-o.s*p[1])).join(' ')}" fill="${o.fill(i)}" fill-opacity=".93" stroke="${o.stroke(i)}" stroke-width="2" stroke-linejoin="round"/>`).join('');}
+const sq=(x,y)=>[[x,y],[x+1,y],[x+1,y+1],[x,y+1]];const h3=Math.sqrt(3)/2;
+const NETS={
+  cube:{s:52,polys:[sq(1,0),sq(0,1),sq(1,1),sq(2,1),sq(1,2),sq(1,3)],par:[2,2,-1,2,2,4],ang:Array(6).fill(PI/2),txt:'6 squares. Each square folds up 90° from the one it is joined to.',done:'a cube: 6 faces, and every edge of the net has met a partner edge.'},
+  tri:{s:62,polys:[[[0,0],[1,0],[1,2],[0,2]],[[1,0],[2,0],[2,2],[1,2]],[[2,0],[3,0],[3,2],[2,2]],[[1,2],[2,2],[1.5,2+h3]],[[1,0],[2,0],[1.5,-h3]]],par:[1,-1,1,1,1],ang:[2*PI/3,0,2*PI/3,PI/2,PI/2],txt:'3 rectangles (one for each side of the triangle) and 2 triangles (the ends).',done:'a triangular prism: 5 faces.'},
+  sqp:{s:72,polys:[sq(0,0),[[0,0],[1,0],[0.5,-h3]],[[1,0],[1,1],[1+h3,0.5]],[[1,1],[0,1],[0.5,1+h3]],[[0,1],[0,0],[-h3,0.5]]],par:[-1,0,0,0,0],ang:[0].concat(Array(4).fill(PI-Math.acos(1/Math.sqrt(3)))),txt:'1 square base and 4 triangles, one on each side of the base.',done:'a square-based pyramid: the 4 triangles meet at the apex.'},
+  tet:{s:75,polys:[[[1,0],[1.5,h3],[0.5,h3]],[[0,0],[1,0],[0.5,h3]],[[1,0],[2,0],[1.5,h3]],[[0.5,h3],[1.5,h3],[1,2*h3]]],par:[-1,0,0,0],ang:[0].concat(Array(3).fill(PI-Math.acos(1/3))),txt:'4 triangles: a base and 3 sides.',done:'a triangular-based pyramid (tetrahedron): 4 triangular faces.'}};
+Object.values(NETS).forEach(N=>{N.faces=mkNet(N.polys,N.par,N.ang);});
+const fdNet=$('fdNet'),fdT=$('fdT'),fdSvg=$('fdSvg');const fdv={yaw:0.5,pitch:0.8};let fdAnim=null;
+function drawFD(){const N=NETS[fdNet.value],t=+fdT.value/100;
+  fdSvg.innerHTML=paintNet(N.faces,t,fdv,{cx:180,cy:150,s:N.s,fill:i=>N.par[i]<0?css('--hi-soft'):css('--accent-soft'),stroke:i=>N.par[i]<0?css('--hi'):css('--accent')});
+  $('fdMsg').innerHTML=t===0?`Flat net: ${N.txt} The orange face stays on the table.`:t===1?`Folded: ${N.done}`:`Folding… ${Math.round(t*100)}%`;
+  $('fdPlay').textContent=t===1?'Unfold it':'Fold it';}
+$('fdPlay').addEventListener('click',()=>{if(fdAnim)cancelAnimationFrame(fdAnim);const from=+fdT.value,to=from>=100?0:100,t0=performance.now();
+  const step=now=>{const k=Math.min(1,(now-t0)/1800);fdT.value=Math.round(from+(to-from)*k);drawFD();if(k<1)fdAnim=requestAnimationFrame(step);else fdAnim=null;};fdAnim=requestAnimationFrame(step);});
+fdNet.addEventListener('input',()=>{fdT.value=0;drawFD();});fdT.addEventListener('input',drawFD);dragRotate(fdSvg,fdv,drawFD);drawFD();
+
+/* 4b. will this net make a cube? All 35 shapes made of 6 squares, tested by actually folding them */
+const DIRS=[[1,0],[-1,0],[0,1],[0,-1]];
+function canon(P){let best=null;for(let s=0;s<8;s++){let Q=P.map(([x,y])=>{let a=s&4?-x:x,b=y;for(let r=0;r<(s&3);r++)[a,b]=[-b,a];return [a,b];});
+    const mx=Math.min(...Q.map(q=>q[0])),my=Math.min(...Q.map(q=>q[1]));Q=Q.map(q=>[q[0]-mx,q[1]-my]).sort((p,q)=>p[0]-q[0]||p[1]-q[1]);
+    const k=JSON.stringify(Q);if(!best||k<best.k)best={k,Q};}return best.Q;}
+function hexominoes(){let cur=[[[0,0]]];for(let n=1;n<6;n++){const next=new Map();
+    cur.forEach(P=>P.forEach(([x,y])=>DIRS.forEach(([dx,dy])=>{const c=[x+dx,y+dy];if(P.some(q=>q[0]===c[0]&&q[1]===c[1]))return;const Q=canon(P.concat([c]));next.set(JSON.stringify(Q),Q);})));
+    cur=[...next.values()];}return cur;}
+function analyseNet(cells){const idx=(x,y)=>cells.findIndex(c=>c[0]===x&&c[1]===y);
+  const deg=cells.map(([x,y])=>DIRS.filter(([dx,dy])=>idx(x+dx,y+dy)>=0).length);const root=deg.indexOf(Math.max(...deg));
+  const par=cells.map(()=>-2);par[root]=-1;const q=[root];
+  while(q.length){const i=q.shift();const [x,y]=cells[i];DIRS.forEach(([dx,dy])=>{const j=idx(x+dx,y+dy);if(j>=0&&par[j]===-2){par[j]=i;q.push(j);}});}
+  const faces=mkNet(cells.map(([x,y])=>sq(x,y)),par,cells.map(()=>PI/2));
+  const C=foldPts(faces,1).map(f=>mean(f).map(v=>Math.round(v*2)).join(','));
+  const clash=new Set();C.forEach((k,i)=>C.forEach((k2,j)=>{if(i!==j&&k===k2)clash.add(i);}));
+  const has2x2=cells.some(([x,y])=>idx(x+1,y)>=0&&idx(x,y+1)>=0&&idx(x+1,y+1)>=0);
+  let run=0;cells.forEach(([x,y])=>{if(idx(x-1,y)<0){let r=0;while(idx(x+r,y)>=0)r++;run=Math.max(run,r);}if(idx(x,y-1)<0){let r=0;while(idx(x,y+r)>=0)r++;run=Math.max(run,r);}});
+  return {cells,faces,root,ok:clash.size===0,clash,has2x2,run};}
+const HEX=hexominoes().map(c=>({c,ok:analyseNet(c).ok}));
+const HEXok=HEX.filter(h=>h.ok),HEXbad=HEX.filter(h=>!h.ok);
+const gmNet=$('gmNet'),gmFold=$('gmFold'),gmT=$('gmT');const gmv={yaw:0.3,pitch:0.8};let gm=null,gmRight=0,gmTot=0;
+function gmPick(){const pool=Math.random()<0.5?HEXok:HEXbad;let cells=pool[rnd(pool.length)].c;
+  const s=rnd(8);cells=cells.map(([x,y])=>{let a=s&4?-x:x,b=y;for(let r=0;r<(s&3);r++)[a,b]=[-b,a];return [a,b];});
+  const mx=Math.min(...cells.map(c=>c[0])),my=Math.min(...cells.map(c=>c[1]));cells=cells.map(c=>[c[0]-mx,c[1]-my]);
+  gm=analyseNet(cells);gm.answered=false;gmT.value=0;gmT.disabled=true;$('gmYes').disabled=false;$('gmNo').disabled=false;
+  const M=$('gmMsg');M.className='msg';M.textContent='Does this fold into a cube? Imagine the orange square stays on the table and the others fold up around it.';gmDraw();}
+function gmDraw(){if(!gm)return;const u=36,w=Math.max(...gm.cells.map(c=>c[0]))+1,h=Math.max(...gm.cells.map(c=>c[1]))+1,ox=130-w*u/2,oy=130-h*u/2;
+  const col=i=>gm.answered&&gm.clash.has(i)?css('--hi'):i===gm.root?css('--hi'):css('--accent');
+  const fill=i=>gm.answered&&gm.clash.has(i)?css('--hi-soft'):i===gm.root?css('--hi-soft'):css('--accent-soft');
+  gmNet.innerHTML=gm.cells.map(([x,y],i)=>`<rect x="${ox+x*u}" y="${oy+y*u}" width="${u}" height="${u}" fill="${fill(i)}" stroke="${col(i)}" stroke-width="2"/>`).join('');
+  gmFold.innerHTML=paintNet(gm.faces,+gmT.value/100,gmv,{cx:130,cy:130,s:30,fill,stroke:col});}
+function gmAnswer(says){if(gm.answered)return;gm.answered=true;gmTot++;const right=says===gm.ok;if(right)gmRight++;
+  const M=$('gmMsg');M.className='msg '+(right?'good':'bad');
+  const why=gm.ok?'Each square lands on a different face of the cube.':gm.has2x2?'It contains a 2 × 2 block: four squares meeting at one point can\'t all fit round one corner of a cube, which only has 3 faces.':gm.run>=5?`It has ${gm.run} squares in a row: going round the cube, the 5th square lands back on top of the 1st.`:'The squares shown in orange fold onto the same face of the cube, so another face is left open.';
+  M.textContent=(right?'Correct. ':'Not this time. ')+(gm.ok?'It does make a cube. ':'It does not make a cube. ')+why+' Slide to fold it.';
+  $('gmScore').textContent=`${gmRight} / ${gmTot} right`;gmT.disabled=false;$('gmYes').disabled=true;$('gmNo').disabled=true;gmDraw();}
+$('gmYes').addEventListener('click',()=>gmAnswer(true));$('gmNo').addEventListener('click',()=>gmAnswer(false));$('gmNext').addEventListener('click',gmPick);
+gmT.addEventListener('input',gmDraw);dragRotate(gmFold,gmv,gmDraw);gmPick();
+
+/* 5. surface area from a cuboid net */
+const saL=$('saL'),saW=$('saW'),saH=$('saH');
+function drawSA(){const l=+saL.value,w=+saW.value,h=+saH.value;$('saLv').textContent=` ${l} cm`;$('saWv').textContent=` ${w} cm`;$('saHv').textContent=` ${h} cm`;
+  const u=Math.min(330/(2*w+l),350/(2*h+2*w),40),W=(2*w+l)*u,H=(2*h+2*w)*u,ox=(360-W)/2,oy=(380-H)/2;
+  const ac=css('--accent'),hi=css('--hi'),tw=css('--two');
+  // faces: [x, y, width, height (in cm), colour, name]
+  const fcs=[[w,0,l,h,hi,'back'],[w,h,l,w,ac,'top'],[w,h+w,l,h,hi,'front'],[w,2*h+w,l,w,ac,'bottom'],[0,h+w,w,h,tw,'side'],[w+l,h+w,w,h,tw,'side']];
+  let s='';fcs.forEach(([x,y,a,b,c,nm])=>{const X=ox+x*u,Y=oy+y*u;
+    s+=`<rect x="${fx(X)}" y="${fx(Y)}" width="${fx(a*u)}" height="${fx(b*u)}" fill="${c}" fill-opacity=".18" stroke="${c}" stroke-width="2"/>`;
+    const big=a*u>=46&&b*u>=34;
+    s+=`<text x="${fx(X+a*u/2)}" y="${fx(Y+b*u/2+(big?-2:4))}" text-anchor="middle" font-size="${big?12:10}" font-weight="600" fill="${c}" ${MONO()}>${a*b}</text>`;
+    if(big)s+=`<text x="${fx(X+a*u/2)}" y="${fx(Y+b*u/2+13)}" text-anchor="middle" font-size="10" fill="${css('--muted')}" ${BODY()}>${nm}</text>`;});
+  s+=`<text x="${fx(ox+w*u+l*u/2)}" y="${fx(oy-5)}" text-anchor="middle" font-size="11" fill="${css('--fg')}" ${MONO()}>${l} cm</text>`;
+  s+=`<text x="${fx(ox+w*u-5)}" y="${fx(oy+h*u/2+4)}" text-anchor="end" font-size="11" fill="${css('--fg')}" ${MONO()}>${h} cm</text>`;
+  s+=`<text x="${fx(ox+w*u-5)}" y="${fx(oy+h*u+w*u/2+4)}" text-anchor="end" font-size="11" fill="${css('--fg')}" ${MONO()}>${w} cm</text>`;
+  $('saSvg').innerHTML=s;
+  const A=l*w,B=l*h,Cc=w*h,T=2*(A+B+Cc);
+  $('saWork').innerHTML=`<span class="a">top + bottom: 2 × (${l} × ${w}) = ${2*A}</span><br><span class="b">front + back: 2 × (${l} × ${h}) = ${2*B}</span><br><span class="c">two sides:    2 × (${w} × ${h}) = ${2*Cc}</span><br>surface area = ${2*A} + ${2*B} + ${2*Cc} = <strong>${T} cm²</strong><br><span style="color:var(--muted)">(volume is ${l} × ${w} × ${h} = ${l*w*h} cm³: not the same thing)</span>`;}
+[saL,saW,saH].forEach(e=>e.addEventListener('input',drawSA));drawSA();
+
+/* 6. isometric drawing, step by step */
+const isoIds=['isoL','isoW','isoH','isoStep'].map($),isoHid=$('isoHid');
+function drawISO(){const [l,w,h,st]=isoIds.map(e=>+e.value);['L','W','H','Step'].forEach((k,i)=>$('iso'+k+'v').textContent=' '+isoIds[i].value);
+  const u=34,Wd=400,Hd=340,ox=Wd/2+(w-l)*C30*u/2,oy=Hd/2+(h+(l+w)/2)*u/2;
+  const P=(x,y,z)=>[fx(ox+(x-y)*C30*u),fx(oy-z*u-(x+y)*u/2)];
+  let s='';const kmin=Math.ceil(-ox/(C30*u)),kmax=Math.floor((Wd-ox)/(C30*u));
+  for(let k=kmin;k<=kmax;k++){const X=ox+k*C30*u;let Y0=oy-k*u/2;Y0-=Math.ceil((Y0-6)/u)*u;for(let Y=Y0;Y<Hd-4;Y+=u)if(Y>4)s+=`<circle cx="${fx(X)}" cy="${fx(Y)}" r="1.8" fill="${css('--muted')}" fill-opacity=".55"/>`;}
+  const fg=css('--fg'),hi=css('--hi');
+  const ln=(a,b,stp)=>{if(st<stp)return '';const A=P(...a),B=P(...b);return `<line x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}" stroke="${st===stp?hi:fg}" stroke-width="${st===stp?3.5:2.2}" stroke-linecap="round"/>`;};
+  const poly=(pts,c)=>`<polygon points="${pts.map(p=>P(...p).join(',')).join(' ')}" fill="${c}"/>`;
+  if(st>=5)s+=poly([[0,0,h],[l,0,h],[l,w,h],[0,w,h]],css('--accent-soft'))+poly([[0,0,0],[l,0,0],[l,0,h],[0,0,h]],css('--hi-soft'))+poly([[0,0,0],[0,w,0],[0,w,h],[0,0,h]],css('--two-soft'));
+  if(isoHid.checked&&st>=4){const A=P(l,w,0);[[l,0,0],[0,w,0],[l,w,h]].forEach(b=>{const B=P(...b);s+=`<line x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}" stroke="${css('--muted')}" stroke-width="1.6" stroke-dasharray="5 4"/>`;});}
+  s+=ln([0,0,0],[0,0,h],1)+ln([0,0,0],[l,0,0],2)+ln([0,0,0],[0,w,0],2)+ln([l,0,0],[l,0,h],3)+ln([0,w,0],[0,w,h],3)+ln([0,0,h],[l,0,h],4)+ln([0,0,h],[0,w,h],4)+ln([l,0,h],[l,w,h],4)+ln([0,w,h],[l,w,h],4);
+  $('isoSvg').innerHTML=s;
+  const T=['',
+    `Step 1: start with the nearest vertical edge. Vertical lines stay vertical on isometric paper. Height ${h}, so it goes up ${h} dots.`,
+    `Step 2: from the bottom of that edge, draw the two bottom edges along the dots: ${l} units up to the right (the length) and ${w} up to the left (the width). They slope at 30°. Never draw them flat.`,
+    `Step 3: draw a vertical edge, ${h} tall, at the end of each bottom edge.`,
+    `Step 4: join the tops to finish the top face. Each top edge is parallel to an edge below it, so it follows the dots the same way.`,
+    `Step 5: shade the three faces you can see (top, front, side) differently so it looks solid. Hidden edges are normally left out${isoHid.checked?' (they are shown dashed here just so you can see where they are)':''}.`];
+  $('isoMsg').textContent=T[st];}
+isoIds.forEach(e=>e.addEventListener('input',drawISO));isoHid.addEventListener('input',drawISO);drawISO();
+
+/* 7. cube stacks: isometric drawing + plan and elevations */
+// H[i][j] = number of cubes in the column at i (left → right along the front) and j (front → back)
+const zeros=N=>Array.from({length:N},()=>Array(N).fill(0));
+function isoStack(H,N,M,o){const u=o.u,W=fx(2*(N+1.9)*C30*u+20),ox=W/2,oy=(M+N)*u+34,Ht=oy+(o.arrows?36:14);
+  const P=(x,y,z)=>fx(ox+(x-y)*C30*u)+','+fx(oy-z*u-(x+y)*u/2);
+  const XY=(x,y,z)=>[ox+(x-y)*C30*u,oy-z*u-(x+y)*u/2];
+  const fg=css('--fg');
+  const q=(a,fill,dc)=>`<polygon points="${a.map(p=>P(...p)).join(' ')}" fill="${fill}" stroke="${fg}" stroke-width="1.3" stroke-linejoin="round"${dc?` data-c="${dc}"`:''}/>`;
+  let s='';
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++)s+=`<polygon points="${[[i,j,0],[i+1,j,0],[i+1,j+1,0],[i,j+1,0]].map(p=>P(...p)).join(' ')}" fill="${css('--grid')}" stroke="${css('--line')}" stroke-width="1"${o.click?` data-c="${i},${j}" style="cursor:pointer"`:''}/>`;
+  const cubes=[];for(let i=0;i<N;i++)for(let j=0;j<N;j++)for(let k=0;k<H[i][j];k++)cubes.push([i,j,k]);
+  cubes.sort((a,b)=>(a[2]-a[0]-a[1])-(b[2]-b[0]-b[1]));
+  cubes.forEach(([i,j,k])=>{const dc=o.click?i+','+j:'';
+    s+=q([[i,j,k+1],[i+1,j,k+1],[i+1,j+1,k+1],[i,j+1,k+1]],css('--accent-soft'),dc);
+    s+=q([[i,j,k],[i+1,j,k],[i+1,j,k+1],[i,j,k+1]],css('--hi-soft'),dc);
+    s+=q([[i,j,k],[i,j+1,k],[i,j+1,k+1],[i,j,k+1]],css('--two-soft'),dc);});
+  if(o.arrows){const arr=(a,b,col,lab)=>{const [x1,y1]=XY(...a),[x2,y2]=XY(...b),t=Math.atan2(y2-y1,x2-x1),hd=9;
+      return `<line x1="${fx(x1)}" y1="${fx(y1)}" x2="${fx(x2)}" y2="${fx(y2)}" stroke="${col}" stroke-width="2.5"/><polygon points="${fx(x2)},${fx(y2)} ${fx(x2-hd*Math.cos(t-0.45))},${fx(y2-hd*Math.sin(t-0.45))} ${fx(x2-hd*Math.cos(t+0.45))},${fx(y2-hd*Math.sin(t+0.45))}" fill="${col}"/><text x="${fx(x1)}" y="${fx(y1+16)}" text-anchor="middle" font-size="13" font-weight="700" fill="${col}" ${BODY()}>${lab}</text>`;};
+    s+=arr([N/2,-1.9,0.3],[N/2,-0.4,0.3],css('--hi'),'F (front)')+arr([-1.9,N/2,0.3],[-0.4,N/2,0.3],css('--two'),'S (side)');
+    s+=`<text x="8" y="18" font-size="12" font-weight="600" fill="${css('--accent')}" ${BODY()}>Plan: look down from above</text>`;}
+  return {W,H:Ht,s};}
+function setIso(svg,r){svg.setAttribute('viewBox',`0 0 ${r.W} ${r.H}`);svg.innerHTML=r.s;}
+// a view as a grid of values (−1 = empty, otherwise the depth of the nearest cube / the height for the plan); g[row from bottom][column]
+function vgrid(type,H,N,M){const g=[];
+  if(type==='plan'){for(let r=0;r<N;r++){g.push([]);for(let c=0;c<N;c++)g[r].push(H[c][r]>0?H[c][r]:-1);}return {w:N,h:N,g};}
+  for(let z=0;z<M;z++){g.push([]);for(let c=0;c<N;c++){let d=-1;
+      if(type==='front'){for(let j=0;j<N;j++)if(H[c][j]>z){d=j;break;}}
+      else{const j=N-1-c;for(let i=0;i<N;i++)if(H[i][j]>z){d=i;break;}} // side view from the left: the back row appears on the left
+      g[z].push(d);}}
+  return {w:N,h:M,g};}
+const mirror=V=>({w:V.w,h:V.h,g:V.g.map(r=>r.slice().reverse())});
+// draw a view: faint unit squares, then bold lines wherever neighbouring squares differ (an outline or a step in depth)
+function drawGrid(V,x0,y0,u,col,nums){const Y=r=>y0+(V.h-1-r)*u;const val=(r,c)=>r<0||c<0||r>=V.h||c>=V.w?-1:V.g[r][c];const fg=css('--fg');
+  let s='';
+  for(let r=0;r<V.h;r++)for(let c=0;c<V.w;c++){s+=`<rect x="${x0+c*u}" y="${Y(r)}" width="${u}" height="${u}" fill="${V.g[r][c]>=0?col:'none'}" fill-opacity=".3" stroke="${css('--line')}" stroke-width="1"/>`;
+    if(nums&&V.g[r][c]>0)s+=`<text x="${x0+c*u+u/2}" y="${Y(r)+u/2+4}" text-anchor="middle" font-size="11" fill="${fg}" ${MONO()}>${V.g[r][c]}</text>`;}
+  for(let r=0;r<V.h;r++)for(let c=-1;c<V.w;c++)if(val(r,c)!==val(r,c+1))s+=`<line x1="${x0+(c+1)*u}" y1="${Y(r)}" x2="${x0+(c+1)*u}" y2="${Y(r)+u}" stroke="${fg}" stroke-width="2.4" stroke-linecap="round"/>`;
+  for(let c=0;c<V.w;c++)for(let r=-1;r<V.h;r++)if(val(r,c)!==val(r+1,c))s+=`<line x1="${x0+c*u}" y1="${Y(r)}" x2="${x0+(c+1)*u}" y2="${Y(r)}" stroke="${fg}" stroke-width="2.4" stroke-linecap="round"/>`;
+  return s;}
+function viewsSvg(H,N,M,o){const u=o.u,gap=24,pad=8,ph=Math.max(N,M)*u,W=pad*2+3*N*u+2*gap,Ht=ph+44;
+  const T=[['plan','Plan',css('--accent')],['front','Front elevation',css('--hi')],['side','Side elevation',css('--two')]];
+  let s='';T.forEach(([t,lab,col],k)=>{const V=vgrid(t,H,N,M),x0=pad+k*(N*u+gap),y0=20+ph-V.h*u;
+    s+=`<text x="${x0}" y="13" font-size="11" font-weight="600" fill="${col}" ${BODY()}>${lab}</text>`+drawGrid(V,x0,y0,u,col,t==='plan'&&o.nums);
+    s+=`<text x="${x0+N*u/2}" y="${20+ph+15}" text-anchor="middle" font-size="10" fill="${css('--muted')}" ${BODY()}>${t==='plan'?'front edge':'ground'}</text>`;
+    if(t==='plan'&&o.click)for(let i=0;i<N;i++)for(let j=0;j<N;j++)s+=`<rect x="${x0+i*u}" y="${y0+(N-1-j)*u}" width="${u}" height="${u}" fill="transparent" data-c="${i},${j}" style="cursor:pointer"/>`;});
+  return {W,H:Ht,s};}
+function makeBuilder(cfg){const B={H:zeros(cfg.N),mode:'add'};
+  B.draw=()=>{setIso(cfg.iso,isoStack(B.H,cfg.N,cfg.M,{u:cfg.u,arrows:true,click:true}));setIso(cfg.views,viewsSvg(B.H,cfg.N,cfg.M,{u:cfg.vu,nums:cfg.nums?cfg.nums.checked:false,click:true}));if(cfg.onChange)cfg.onChange(B);};
+  const tap=e=>{const t=e.target.closest('[data-c]');if(!t)return;const [i,j]=t.getAttribute('data-c').split(',').map(Number);
+    B.H[i][j]=B.mode==='add'?Math.min(cfg.M,B.H[i][j]+1):Math.max(0,B.H[i][j]-1);B.draw();};
+  cfg.iso.addEventListener('click',tap);cfg.views.addEventListener('click',tap);segBind(cfg.seg,m=>{B.mode=m;});
+  return B;}
+function randStack(N,M,minCubes){let H,n,cells;do{H=zeros(N);for(let i=0;i<N;i++)for(let j=0;j<N;j++)H[i][j]=Math.random()<0.62?1+rnd(M):0;
+    n=H.flat().reduce((a,b)=>a+b,0);cells=H.flat().filter(v=>v>0).length;}while(n<minCubes||cells<3);return H;}
+const B1=makeBuilder({iso:$('bdIso'),views:$('bdViews'),N:4,M:4,u:30,vu:22,nums:$('bdNums'),seg:$('bdMode'),
+  onChange:B=>{const n=B.H.flat().reduce((a,b)=>a+b,0);$('bdMsg').textContent=n===0?'Empty: tap a floor square to add a cube.':`${n} cube${n===1?'':'s'}. Tip: hide a short column behind a tall one, and watch which views change.`;}});
+B1.H[0][0]=2;B1.H[1][0]=1;B1.H[2][0]=1;B1.H[0][1]=3;B1.H[1][1]=1;
+$('bdClear').addEventListener('click',()=>{B1.H=zeros(4);B1.draw();});$('bdRand').addEventListener('click',()=>{B1.H=randStack(4,4,6);B1.draw();});$('bdNums').addEventListener('input',()=>B1.draw());
+B1.draw();
+
+/* 7b. practice: match the view to the shape */
+const VNAME={plan:'plan',front:'front elevation',side:'side elevation'};
+const optSvg=V=>{const u=24;return `<svg viewBox="0 0 ${V.w*u+12} ${V.h*u+12}" aria-hidden="true">${drawGrid(V,6,6,u,css('--muted'),false)}</svg>`;};
+let mt=null,mtRight=0,mtTot=0;
+function mtNew(){for(let tries=0;tries<300;tries++){const H=randStack(3,3,5),T=['front','side','plan'][rnd(3)];
+    const others=['front','side','plan'].filter(x=>x!==T);
+    const opts=[{k:T,V:vgrid(T,H,3,3)},{k:others[0],V:vgrid(others[0],H,3,3)},{k:others[1],V:vgrid(others[1],H,3,3)},{k:'mirror',V:mirror(vgrid(T,H,3,3))}];
+    const pics=opts.map(o=>JSON.stringify(o.V.g.map(r=>r.map(v=>v<0?-1:v))));
+    const shapes=opts.map(o=>drawGrid(o.V,0,0,10,'#000',false));
+    if(new Set(shapes).size===4&&new Set(pics).size===4){mt={H,T,opts:shuffle(opts),done:false};break;}}
+  mtRender();const M=$('mtMsg');M.className='msg';M.textContent='';}
+function mtRender(){if(!mt)return;setIso($('mtIso'),isoStack(mt.H,3,3,{u:26,arrows:true}));
+  $('mtQ').textContent=`Which is the ${VNAME[mt.T]} of this shape?`;
+  const box=$('mtOpts');box.innerHTML='';
+  mt.opts.forEach((o,i)=>{const b=document.createElement('button');b.innerHTML=optSvg(o.V)+`<span>option ${'ABCD'[i]}</span>`;
+    if(o.state)b.classList.add(o.state);b.disabled=mt.done;
+    b.addEventListener('click',()=>mtPick(o));box.appendChild(b);});}
+function mtPick(o){if(mt.done)return;const M=$('mtMsg');const T=mt.T;
+  if(!mt.tried){mt.tried=true;mtTot++;if(o.k===T)mtRight++;}
+  if(o.k===T){o.state='right';mt.done=true;M.className='msg good';
+    M.textContent=T==='plan'?'Correct. The plan is the bird\'s-eye view: it shows which floor squares are covered, with lines where neighbouring tops are at different heights.':T==='front'?'Correct. Look along the F arrow: each column\'s height is the tallest stack in that line, and a line marks where a nearer stack stops in front of a taller one.':'Correct. Look along the S arrow from the left: the back row is on your left, the front row on your right.';}
+  else{o.state='wrong';M.className='msg bad';
+    M.textContent=o.k==='mirror'?(T==='plan'?'That\'s the plan flipped left to right. Draw the plan with the front edge at the bottom and keep left on the left.':`That's the ${VNAME[T]} back to front, as if you looked from the opposite side. Imagine your eye at the end of the ${T==='front'?'F':'S'} arrow and keep its left on the left.`)
+      :o.k==='plan'?'That\'s the plan, the view from above. Elevations are views from the side, so they show the heights of the stacks.'
+      :T==='plan'?`That's the ${VNAME[o.k]}: it shows heights, so you're looking from the side. The plan is the view from directly above.`
+      :o.k==='side'?'That\'s the side elevation, looking along the S arrow. The front elevation is what you see looking along the F arrow.':'That\'s the front elevation, looking along the F arrow. The side elevation is what you see looking along the S arrow.';}
+  $('mtScore').textContent=`${mtRight} / ${mtTot} right first time`;mtRender();}
+$('mtNext').addEventListener('click',mtNew);mtNew();
+
+/* 8. build from the plan and elevations */
+let chH=randStack(3,3,5);
+const pic=(t,H)=>drawGrid(vgrid(t,H,3,3),0,0,10,'#000',false);
+function chTarget(){setIso($('chTarget'),viewsSvg(chH,3,3,{u:24,nums:false}));}
+const B2=makeBuilder({iso:$('chIso'),views:$('chViews'),N:3,M:3,u:30,vu:24,nums:null,seg:$('chMode'),
+  onChange:B=>{const ok=['plan','front','side'].map(t=>pic(t,B.H)===pic(t,chH));const M=$('chMsg');
+    const n=B.H.flat().reduce((a,b)=>a+b,0),n0=chH.flat().reduce((a,b)=>a+b,0);
+    if(ok.every(Boolean)){M.className='msg good';M.textContent=`All three views match. You've built it!${n!==n0?` (Yours uses ${n} cubes; the one I had in mind uses ${n0}. More than one shape can have the same three views.)`:''}`;}
+    else{M.className='msg';M.textContent=['Plan','Front','Side'].map((t,i)=>`${t} ${ok[i]?'✓':'✗'}`).join(' · ')+(n===0?'. Start with the plan: which floor squares need a cube?':'.');}}});
+$('chClear').addEventListener('click',()=>{B2.H=zeros(3);B2.draw();});
+$('chNew').addEventListener('click',()=>{chH=randStack(3,3,5);chTarget();B2.H=zeros(3);B2.draw();});
+$('chShow').addEventListener('click',()=>{B2.H=chH.map(r=>r.slice());B2.draw();});
+chTarget();B2.draw();
+
+/* worked examples: drawings */
+const WE1=[[2,3,0],[1,0,0],[1,0,0]],WE2=[[2,1],[1,1]];
+function drawWE(){setIso($('weIso'),isoStack(WE1,3,3,{u:28,arrows:true}));setIso($('weViews'),viewsSvg(WE1,3,3,{u:24,nums:false}));
+  setIso($('weViews2'),viewsSvg(WE2,2,2,{u:26,nums:false}));setIso($('weIso2'),isoStack(WE2,2,2,{u:30,arrows:true}));}
+drawWE();
+
+const redrawAll=()=>{drawEX();drawVW();drawXS();drawFD();gmDraw();drawSA();drawISO();B1.draw();mtRender();chTarget();B2.draw();drawWE();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'How many faces does a cuboid have?',opts:['6','4','8','12'],a:0,fb:'Top, bottom, front, back and two sides: 3 pairs, 6 faces. (12 is the number of edges, 8 the vertices.)'},
+  {q:'How many edges does a triangular prism have?',opts:['9','6','5','12'],a:0,fb:'3 round each triangular end (6) plus 3 running along the length: 9.'},
+  {q:'How many vertices does a square-based pyramid have?',opts:['5','4','8','6'],a:0,fb:'4 corners on the square base plus the apex at the top: 5.'},
+  {q:'A polyhedron has 8 faces and 12 vertices. Use F + V − E = 2 to find the number of edges.',opts:['18','20','22','16'],a:0,fb:'8 + 12 − E = 2, so 20 − E = 2 and E = 18. (It\'s a hexagonal prism.)'},
+  {q:'Which of these is NOT a prism?',opts:['square-based pyramid','cube','triangular prism','hexagonal prism'],a:0,fb:'A pyramid\'s cross-section shrinks towards the apex, so it isn\'t constant. A cube is a square prism.'},
+  {q:'How many faces does a cylinder have?',opts:['2 flat + 1 curved','2 flat only','1 curved only','0'],a:0,fb:'Two flat circles at the ends and one curved surface round the side.'},
+  {q:'Six squares are joined to make a net. It contains a 2 × 2 block of squares. Will it fold into a cube?',opts:['No, never','Yes, always','Only if the other two squares are opposite each other','Only if it has 4 in a row'],a:0,fb:'Four squares meeting at one point would all need to fit round one corner, but a cube\'s corners only have 3 faces.'},
+  {q:'What is the surface area of a cuboid 5 cm × 3 cm × 2 cm?',opts:['62 cm²','30 cm²','31 cm²','60 cm²'],a:0,fb:'2 × (5×3) + 2 × (5×2) + 2 × (3×2) = 30 + 20 + 12 = 62 cm². 30 is the volume (in cm³); 31 forgets to double each pair.'},
+  {q:'The plan of a 3D shape is the view from…',opts:['directly above','the front','the side','underneath'],a:0,fb:'The plan is the bird\'s-eye view from above. The views from the front and side are elevations.'},
+  {q:'A tower of 3 cubes stands directly behind a single cube. What does the front elevation look like?',opts:['one column 3 squares tall','a column of 1 next to a column of 3','one column 4 squares tall','a single square'],a:0,fb:'From the front they line up, so you see one column as tall as the tallest stack: 3. A line at height 1 shows where the front cube ends. Views show what you see, not how many cubes there are.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

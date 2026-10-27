@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Pythagoras and Trigonometry in 3D</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; most sections have a 3D solid drawn by the page's own SVG projection, which you rotate by dragging. Edges of the solid are text colour (hidden edges dashed grey). Colours on this page: teal = the first right-angled triangle, which lies flat in a face or plane (usually the base diagonal); orange = vertical heights and edges at right angles to the plane; plum = the 3D line you are finding (space diagonal, slant edge) and the second triangle that contains it. The flat 2D copy of each triangle uses the same colours. Green/red = right/wrong feedback only. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.D{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.parts-svg [data-part]{cursor:pointer}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.12rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.45rem;position:relative;top:-.12em;white-space:nowrap}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+summary .tag{font-size:.6rem}
+.grp{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.lab svg.drag{touch-action:none;cursor:grab}
+.lab svg.drag:active{cursor:grabbing}
+.hint{font-size:.85rem;color:var(--muted);margin:.4rem 0 0}
+.formula{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.7rem 1rem;margin:1.2rem 0;font-family:var(--mono);font-size:1.05rem;line-height:1.8}
+.formula b{font-family:var(--body)}
+.A{color:var(--accent);font-weight:600}.H{color:var(--hi);font-weight:600}.T{color:var(--two);font-weight:600}
+sup,sub{line-height:0}
+@media (max-width:540px){
+  table.stack tr:first-child{display:none}
+  table.stack tr{display:block;border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{display:block;border:0;padding:.15rem .3rem}
+  table.stack td[data-h]::before{content:attr(data-h) ": ";font:600 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+}
+.flat{display:block;max-width:100%;height:auto;margin:.4rem auto 0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Geometry and measures</div>
+  <h1>Pythagoras and Trigonometry in 3D <span class="tag g">Higher</span></h1>
+  <p class="lede">How long a pole fits in a box? How steep is the edge of a pyramid? In three dimensions, the right-angled triangles you need are still there, but they're tilted, so they look wrong in a flat drawing. The method is always the same: find the right-angled triangle, pull it out and draw it flat, then use Pythagoras or SOH CAH TOA as usual.</p>
+  <span class="gcse">GCSE subject content G20 (Higher): apply Pythagoras' theorem and the trigonometric ratios to find angles and lengths in right-angled triangles in three-dimensional figures.</span>
+</header>
+
+<h2>1 · Right angles that don't look like right angles <span class="tag g">Higher</span></h2>
+<p>You'll need Pythagoras (<a href="../ks3-interactive/pythagoras.html">KS3 Pythagoras</a>) and SOH CAH TOA (<a href="right-angled-trigonometry.html">Trigonometry and exact values</a>). A <strong>cuboid</strong> is a box shape: six rectangular faces, every corner a right angle. Its corners are usually labelled ABCD round the bottom and EFGH round the top, with E above A, F above B, and so on.</p>
+<p>Drag the box to turn it. Each button lights up a right-angled triangle hidden in the cuboid. In a slanted drawing the 90° corner rarely looks like 90°, but it is one, and that's what matters.</p>
+
+<div class="lab">
+  <div class="controls"><span class="grp" id="raBtns"></span></div>
+  <svg id="raSvg" class="drag" viewBox="0 0 420 300" width="420" height="300" aria-label="Rotatable cuboid"></svg>
+  <p class="hint">Drag to rotate. Hidden edges are dashed.</p>
+  <div class="msg" id="raMsg"></div>
+</div>
+
+<h2>2 · The space diagonal in two steps <span class="tag g">Higher</span></h2>
+<p>The <strong>space diagonal</strong> AG goes from one corner, through the inside of the box, to the opposite corner. It's the longest straight line that fits in the box. No face contains it, so you need two right-angled triangles, one after the other:</p>
+<ol>
+  <li>Across the <strong>base</strong>: AC is the hypotenuse of triangle ABC, so AC² = a² + b².</li>
+  <li><strong>Up</strong> through the box: AG is the hypotenuse of triangle ACG, which stands upright with the right angle at C (CG is vertical, AC lies flat on the floor). So AG² = AC² + c².</li>
+</ol>
+
+<div class="lab">
+  <div class="controls">
+    <label>length a <input type="range" id="sdA" min="2" max="12" value="6"><span id="sdAv" style="font-family:var(--mono)"></span></label>
+    <label>width b <input type="range" id="sdB" min="2" max="12" value="3"><span id="sdBv" style="font-family:var(--mono)"></span></label>
+    <label>height c <input type="range" id="sdC" min="1" max="12" value="2"><span id="sdCv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="sdSvg" class="drag" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <svg id="sdFlat" class="flat" viewBox="0 0 420 150" width="420" height="150"></svg>
+  <div class="controls">
+    <button class="btn" id="sdPrev">◀ Back</button>
+    <button class="btn primary" id="sdNext">Next step ▶</button>
+    <span class="hint" id="sdStep"></span>
+  </div>
+  <div class="work" id="sdWork"></div>
+</div>
+
+<p>Put the two steps together: AG² = AC² + c² = a² + b² + c². So you can do it in one go:</p>
+<div class="formula"><b>Space diagonal of a cuboid</b>  d = √(a² + b² + c²)</div>
+<div class="callout">
+  <p><strong>Common mistakes:</strong> finding only the base diagonal AC and stopping; forgetting the final square root; and, if you work in two steps, rounding AC before using it. Keep AC as a surd (√25) or the full calculator value.</p>
+</div>
+
+<h2>3 · The angle between a line and a plane <span class="tag g">Higher</span></h2>
+<p>A <strong>plane</strong> is a flat surface that goes on for ever, like the floor or a face of the box extended. What is "the angle between the line AG and the floor"? Imagine a light directly above shining down: the line casts a <strong>shadow</strong> on the floor (its <em>projection</em>). The angle between a line and a plane is the angle between the line and its shadow.</p>
+<p>To find it: from the top end of the line, drop a perpendicular to the plane (straight down onto the floor). That makes a right-angled triangle: the line is the hypotenuse, the shadow is the adjacent side, and the perpendicular is the opposite side. Choose a plane below and watch the triangle change.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>angle between AG and <select id="lpP"><option value="base">the base ABCD</option><option value="front">the front face ABFE</option><option value="side">the side face ADHE</option></select></label>
+  </div>
+  <svg id="lpSvg" class="drag" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <svg id="lpFlat" class="flat" viewBox="0 0 420 150" width="420" height="150"></svg>
+  <div class="work" id="lpWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Exam trap:</strong> the adjacent side must be the shadow (from the foot of the line to the foot of the perpendicular), lying <em>in</em> the plane. Using an edge such as AB instead of the diagonal AC gives the wrong angle. For AG and the base of an 8 × 6 × 5 box, tan θ = 5 ÷ 10 (θ = 26.6°), not 5 ÷ 8 (32.0°).</p>
+</div>
+
+<h2>4 · Pyramids <span class="tag g">Higher</span></h2>
+<p>In a <strong>right pyramid</strong> the apex (the top point) is directly above the centre of the base. The <strong>vertical height</strong> goes from the apex straight down to the centre, M. Three triangles come up again and again:</p>
+<ul>
+  <li><strong>Slant edge</strong> (apex to a corner): vertical height and <em>half the base diagonal</em>.</li>
+  <li><strong>Slant height of a face</strong> (apex to the middle of a base edge): vertical height and <em>half the base width</em>.</li>
+  <li>The <strong>angle between a slant edge and the base</strong>: tan θ = height ÷ half-diagonal.</li>
+</ul>
+
+<div class="lab">
+  <div class="controls">
+    <label>base length <input type="range" id="pyL" min="2" max="12" value="6"><span id="pyLv" style="font-family:var(--mono)"></span></label>
+    <label>base width <input type="range" id="pyW" min="2" max="12" value="6"><span id="pyWv" style="font-family:var(--mono)"></span></label>
+    <label>height <input type="range" id="pyH" min="1" max="14" value="10"><span id="pyHv" style="font-family:var(--mono)"></span></label>
+    <label>find <select id="pyF"><option value="edge">slant edge EC</option><option value="face">slant height of a face</option></select></label>
+  </div>
+  <svg id="pySvg" class="drag" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <svg id="pyFlat" class="flat" viewBox="0 0 420 150" width="420" height="150"></svg>
+  <div class="work" id="pyWork"></div>
+</div>
+
+<h2>5 · Wedges (triangular prisms) <span class="tag g">Higher</span></h2>
+<p>A <strong>wedge</strong> is a ramp: a rectangular base ABCD, a vertical back face DCFE, and a sloping face ABFE. Questions ask for the diagonal of the slope from A to F, or the angle that line makes with the base. Same method: it's the space diagonal of the box the wedge fits in, and the angle uses the base diagonal AC.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>width AB <input type="range" id="wgA" min="3" max="14" value="12"><span id="wgAv" style="font-family:var(--mono)"></span></label>
+    <label>depth BC <input type="range" id="wgB" min="2" max="12" value="5"><span id="wgBv" style="font-family:var(--mono)"></span></label>
+    <label>height CF <input type="range" id="wgC" min="1" max="10" value="4"><span id="wgCv" style="font-family:var(--mono)"></span></label>
+    <label>find <select id="wgF"><option value="diag">AF and angle FAC</option><option value="slope">angle of the slope (angle EAD)</option></select></label>
+  </div>
+  <svg id="wgSvg" class="drag" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <svg id="wgFlat" class="flat" viewBox="0 0 420 150" width="420" height="150"></svg>
+  <div class="work" id="wgWork"></div>
+</div>
+
+<h2>6 · Practice <span class="tag g">Higher</span></h2>
+<p>New question each time. Lengths to 3 s.f., angles to 1 d.p. Drag the diagram to see it from a better angle. The feedback tries to spot the mistake.</p>
+<div class="lab">
+  <p class="pq" id="prQ"></p>
+  <svg id="prSvg" class="drag" viewBox="0 0 420 280" width="420" height="280"></svg>
+  <div class="controls">
+    <label>answer <input type="text" id="prA" inputmode="decimal" autocomplete="off" style="width:6em"> <span id="prU"></span></label>
+    <button class="btn primary" id="prGo">Check</button>
+    <button class="btn" id="prShow">Show working</button>
+    <button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>A cuboid measures 3 cm by 4 cm by 12 cm. Find the length of its space diagonal. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Step 1, base diagonal:</strong> AC² = 3² + 4² = 9 + 16 = 25, so AC = 5 cm.</div>
+  <div class="step"><strong>Step 2, upright triangle ACG</strong> (right angle at C): AG² = AC² + CG² = 5² + 12² = 25 + 144 = 169.</div>
+  <div class="step">AG = √169 = <strong>13 cm</strong>. One go: √(3² + 4² + 12²) = √169 = 13 ✓.</div>
+</details>
+<details>
+  <summary>A cuboid ABCDEFGH has AB = 8 cm, BC = 6 cm and CG = 5 cm. Find the angle between AG and the base ABCD. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Shadow of AG on the base:</strong> G is directly above C, so the shadow is AC, and the triangle is ACG with the right angle at C.</div>
+  <div class="step">AC = √(8² + 6²) = √100 = 10 cm.</div>
+  <div class="step">From angle θ at A: CG = 5 is opposite, AC = 10 is adjacent → tan θ = 5 ÷ 10 = 0.5.</div>
+  <div class="step">θ = tan⁻¹(0.5) = 26.565…° = <strong>26.6°</strong> (1 d.p.). (Using AB = 8 instead of AC would give 32.0°: wrong.)</div>
+</details>
+<details>
+  <summary>A right pyramid has a square base of side 6 cm and vertical height 10 cm. Find the length of a slant edge and its angle with the base. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Half the base diagonal:</strong> diagonal = √(6² + 6²) = √72 = 6√2, so half is 3√2 = 4.242… cm (the distance from the centre M to a corner).</div>
+  <div class="step"><strong>Slant edge</strong> (triangle apex–M–corner, right angle at M): edge² = (3√2)² + 10² = 18 + 100 = 118, edge = √118 = 10.862… = <strong>10.9 cm</strong>.</div>
+  <div class="step"><strong>Angle:</strong> tan θ = 10 ÷ 3√2 = 2.357…, θ = 67.010…° = <strong>67.0°</strong>.</div>
+</details>
+<details>
+  <summary>A wedge has a 12 cm by 5 cm rectangular base and a vertical back edge of 4 cm. Find AF and the angle it makes with the base. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Base diagonal:</strong> AC = √(12² + 5²) = √169 = 13 cm.</div>
+  <div class="step"><strong>AF:</strong> F is directly above C, so AF² = 13² + 4² = 185, AF = √185 = 13.601… = <strong>13.6 cm</strong>.</div>
+  <div class="step"><strong>Angle FAC:</strong> tan θ = 4 ÷ 13, θ = 17.102…° = <strong>17.1°</strong>.</div>
+</details>
+<details>
+  <summary>Working backwards: a cuboid has edges 5 cm and 10 cm and a space diagonal of 15 cm. Find the third edge. <span class="tag g">Higher</span></summary>
+  <div class="step">d² = a² + b² + c² → 15² = 5² + 10² + c².</div>
+  <div class="step">225 = 25 + 100 + c² → c² = 100.</div>
+  <div class="step">c = <strong>10 cm</strong>. (Subtract the squares you know, just like finding a shorter side in 2D.)</div>
+</details>
+<details>
+  <summary>Same 8 × 6 × 5 cuboid: find the angle between AG and the front face ABFE. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Which plane?</strong> The front face contains A, B, F, E. The perpendicular from G to that face lands on F (GF = BC = 6 cm is at right angles to the front face).</div>
+  <div class="step"><strong>Shadow:</strong> AF, the diagonal of the front face: AF = √(8² + 5²) = √89 = 9.433… cm.</div>
+  <div class="step"><strong>Triangle AFG</strong> (right angle at F): tan θ = GF ÷ AF = 6 ÷ 9.433…, θ = 32.456…° = <strong>32.5°</strong>.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>Every 3D length or angle question hides right-angled triangles. Find one, draw it flat, label it, then use Pythagoras or SOH CAH TOA.</li>
+  <li>Space diagonal of a cuboid: base diagonal first (√(a² + b²)), then up: d = √(a² + b² + c²).</li>
+  <li>The angle between a line and a plane is the angle between the line and its projection (shadow) on the plane. Drop a perpendicular from the end of the line to the plane; the shadow is the adjacent side.</li>
+  <li>Pyramids: slant edge uses half the base diagonal; slant height of a face uses half the base width.</li>
+  <li>Wedges: the sloping diagonal is a space diagonal; its angle with the base uses the base diagonal.</li>
+  <li>Keep surds or full calculator values in the middle; round only at the end.</li>
+</ul>
+
+<footer>Made for GCSE students. Pythagoras' theorem and trigonometry in three-dimensional figures are Higher tier content in the DfE GCSE mathematics subject content under Geometry and measures. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const PI = Math.PI, RAD = PI/180;
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat((+v).toFixed(d)).toString()) : '—';
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(Math.abs(v)<1e-12) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); if(e>=n-1) return minus(String(Math.round(r))); return minus(r.toFixed(n-1-e)); };
+const long = v => isFinite(v) ? minus((Math.trunc(v*1000+(v<0?-1e-9:1e-9))/1000).toFixed(3)) + '…' : '—';
+const dp1 = v => isFinite(v) ? minus((+v).toFixed(1)) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v = parseFloat(String(el.value).replace(/−/g,'-').replace(/,/g,'')); return isFinite(v) ? v : NaN; };
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T = (x,y,s,col,o={}) => `<text x="${x}" y="${y}" font-size="${o.fs||13}" ${o.w?`font-weight="${o.w}"`:''} text-anchor="${o.a||'middle'}" fill="${col}" ${F()} ${o.extra||''}>${s}</text>`;
+const L = (x1,y1,x2,y2,col,w=2,dash) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+const C = (x,y,r,fill,stroke='none',w=0) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${w}"/>`;
+const poly = (pts,fill,stroke='none',w=0,op=1,dash) => `<polygon points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="${fill}" fill-opacity="${op}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+/* angle arc at vertex V between directions to A and B (screen coords), radius r */
+function angArc(V,A,B,r,col,w=1.6){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]), a2=Math.atan2(B[1]-V[1],B[0]-V[0]); let d=a2-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const p1=[V[0]+r*Math.cos(a1),V[1]+r*Math.sin(a1)], p2=[V[0]+r*Math.cos(a1+d),V[1]+r*Math.sin(a1+d)]; return `<path d="M${p1[0]},${p1[1]} A${r},${r} 0 0 ${d>0?1:0} ${p2[0]},${p2[1]}" fill="none" stroke="${col}" stroke-width="${w}"/>`; }
+function angLabelPos(V,A,B,r){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]); let d=Math.atan2(B[1]-V[1],B[0]-V[0])-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const m=a1+d/2; return [V[0]+r*Math.cos(m), V[1]+r*Math.sin(m)+4]; }
+/* right-angle square at V between A and B */
+function rightMark(V,A,B,s,col){ const u=[A[0]-V[0],A[1]-V[1]],v=[B[0]-V[0],B[1]-V[1]]; const lu=Math.hypot(...u)||1, lv=Math.hypot(...v)||1; const p=[V[0]+u[0]/lu*s,V[1]+u[1]/lu*s], q=[V[0]+v[0]/lv*s,V[1]+v[1]/lv*s], r=[p[0]+v[0]/lv*s,p[1]+v[1]/lv*s]; return `<polyline points="${p[0]},${p[1]} ${r[0]},${r[1]} ${q[0]},${q[1]}" fill="none" stroke="${col}" stroke-width="1.5"/>`; }
+const svgXY = (svg,ev) => { const vb=svg.viewBox.baseVal, r=svg.getBoundingClientRect(); const k=Math.min(r.width/vb.width, r.height/vb.height); const ox=(r.width-vb.width*k)/2, oy=(r.height-vb.height*k)/2; return [vb.x+(ev.clientX-r.left-ox)/k, vb.y+(ev.clientY-r.top-oy)/k]; };
+/* generic drag: pick(p) returns a handle key or null; move(key,p) updates */
+function dragger(svg,pick,move,end){ let key=null; svg.addEventListener('pointerdown',e=>{ const p=svgXY(svg,e); const k=pick(p); if(k===null||k===undefined) return; key=k; try{svg.setPointerCapture(e.pointerId);}catch(_){} e.preventDefault(); move(key,p); }); svg.addEventListener('pointermove',e=>{ if(key===null) return; e.preventDefault(); move(key,svgXY(svg,e)); }); const up=()=>{ if(key!==null&&end) end(key); key=null; }; svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',up); }
+const nearest = (p,pts,maxd) => { let best=null,bd=maxd; pts.forEach((q,i)=>{ const d=Math.hypot(p[0]-q[0],p[1]-q[1]); if(d<bd){bd=d;best=i;} }); return best; };
+const REDRAW=[]; const reg = f => { REDRAW.push(f); f(); return f; };
+const feedback = (el,ok,msg) => { el.className='msg '+(ok?'good':'bad'); el.textContent=msg; };
+
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const deg=x=>x/RAD;
+const rt=n=>Number.isInteger(Math.sqrt(n))?String(Math.sqrt(n)):'√'+n;
+const within=(u,v,ang)=>{ if(!isFinite(v)) return false; if(ang) return Math.abs(u-v)<=0.05+1e-9; const e=Math.floor(Math.log10(Math.abs(v))); return Math.abs(u-v)<=0.5*Math.pow(10,e-2)+1e-9; };
+const sub=(p,q)=>[p[0]-q[0],p[1]-q[1],p[2]-q[2]], add=(p,q)=>[p[0]+q[0],p[1]+q[1],p[2]+q[2]], mul=(p,k)=>[p[0]*k,p[1]*k,p[2]*k];
+const dot=(p,q)=>p[0]*q[0]+p[1]*q[1]+p[2]*q[2], crs=(p,q)=>[p[1]*q[2]-p[2]*q[1],p[2]*q[0]-p[0]*q[2],p[0]*q[1]-p[1]*q[0]];
+const nrm=p=>{const l=Math.hypot(...p)||1;return mul(p,1/l);};
+
+/* ---- tiny 3D renderer ----
+   model: {V:{name:[x,y,z]}, F:[[names...]], E:[[n1,n2]], lab:[names to label]}
+   extras: {tris:[{pts:[names|xyz], col}], lines:[{p,q,col,w,dash,lab}], right:[[V,P,Q]], arcs:[[V,P,Q,label]], dots:[names]} */
+function view3D(svg,opts={}){
+  const st={yaw:opts.yaw??-0.6,pitch:opts.pitch??0.42,model:null,extras:null,W:svg.viewBox.baseVal.width,H:svg.viewBox.baseVal.height};
+  let last=null;
+  dragger(svg,p=>{last=p;return 'r';},(k,p)=>{st.yaw+=(p[0]-last[0])*0.012;st.pitch=Math.max(-1.2,Math.min(1.5,st.pitch+(p[1]-last[1])*0.012));last=p;draw();});
+  function rot(p){const c=Math.cos(st.yaw),s=Math.sin(st.yaw),cp=Math.cos(st.pitch),sp=Math.sin(st.pitch);const x=p[0]*c-p[1]*s,y=p[0]*s+p[1]*c,z=p[2];return [x,z*cp+y*sp,-y*cp+z*sp];}
+  function draw(){
+    const M=st.model; if(!M)return; const X=st.extras||{};
+    const names=Object.keys(M.V), pts=names.map(n=>M.V[n]);
+    const cen=mul(pts.reduce((a,p)=>add(a,p),[0,0,0]),1/pts.length);
+    const R=Math.max(...pts.map(p=>Math.hypot(...sub(p,cen))))||1;
+    const k=Math.min(st.W,st.H)*0.44/R;
+    const P=q=>{const v=typeof q==='string'?M.V[q]:q;const r=rot(sub(v,cen));return [st.W/2+r[0]*k,st.H/2-r[1]*k];};
+    const fg=css('--fg'),mu=css('--muted');
+    // face visibility
+    const vis=M.F.map(f=>{const a=M.V[f[0]],b=M.V[f[1]],c=M.V[f[2]];const n=crs(sub(b,a),sub(c,a));return rot(n)[2]>1e-9;});
+    const edgeKey=(a,b)=>a<b?a+'|'+b:b+'|'+a; const ev={};
+    M.F.forEach((f,i)=>f.forEach((n,j)=>{const m=f[(j+1)%f.length];const key=edgeKey(n,m);ev[key]=(ev[key]||false)||vis[i];}));
+    let s='';
+    // faint face fill for visible faces
+    M.F.forEach((f,i)=>{if(vis[i])s+=poly(f.map(P),css('--grid'),'none',0,.35);});
+    // hidden edges first
+    Object.keys(ev).forEach(key=>{const [a,b]=key.split('|');const p=P(a),q=P(b);if(!ev[key])s+=L(p[0],p[1],q[0],q[1],mu,1.2,'4 4');});
+    (X.tris||[]).forEach(t=>{s+=poly(t.pts.map(P),t.col,'none',0,.22);});
+    Object.keys(ev).forEach(key=>{const [a,b]=key.split('|');const p=P(a),q=P(b);if(ev[key])s+=L(p[0],p[1],q[0],q[1],fg,1.8);});
+    (X.lines||[]).forEach(l=>{const p=P(l.p),q=P(l.q);s+=L(p[0],p[1],q[0],q[1],l.col,l.w||3.5,l.dash);
+      if(l.lab){const mx=(p[0]+q[0])/2,my=(p[1]+q[1])/2;let nx=-(q[1]-p[1]),ny=q[0]-p[0];const ln=Math.hypot(nx,ny)||1;nx/=ln;ny/=ln;const o=l.side||1;s+=T(mx+nx*14*o,my+ny*14*o+4,l.lab,l.col,{w:700,fs:12});}});
+    (X.right||[]).forEach(([v,a,b])=>{const V0=typeof v==='string'?M.V[v]:v,A0=typeof a==='string'?M.V[a]:a,B0=typeof b==='string'?M.V[b]:b;const sz=R*0.09;const u=mul(nrm(sub(A0,V0)),sz),w=mul(nrm(sub(B0,V0)),sz);const p1=P(add(V0,u)),p2=P(add(add(V0,u),w)),p3=P(add(V0,w));s+=`<polyline points="${p1} ${p2} ${p3}" fill="none" stroke="${fg}" stroke-width="1.4"/>`;});
+    (X.arcs||[]).forEach(([v,a,b,lab])=>{const V0=typeof v==='string'?M.V[v]:v,A0=typeof a==='string'?M.V[a]:a,B0=typeof b==='string'?M.V[b]:b;const u=nrm(sub(A0,V0));let w=sub(nrm(sub(B0,V0)),mul(u,dot(u,nrm(sub(B0,V0)))));w=nrm(w);const th=Math.acos(Math.max(-1,Math.min(1,dot(u,nrm(sub(B0,V0))))));const r=R*0.22;let pts=[];for(let i=0;i<=20;i++){const t=th*i/20;pts.push(P(add(V0,add(mul(u,r*Math.cos(t)),mul(w,r*Math.sin(t)))))); }
+      s+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${fg}" stroke-width="2"/>`;const lp=P(add(V0,add(mul(u,r*1.45*Math.cos(th/2)),mul(w,r*1.45*Math.sin(th/2)))));s+=T(lp[0],lp[1]+4,lab||'θ',fg,{w:700,fs:13});});
+    // vertex labels
+    const scen=[st.W/2,st.H/2];
+    (M.lab||names).forEach(n=>{const p=P(n);let dx=p[0]-scen[0],dy=p[1]-scen[1];const d=Math.hypot(dx,dy)||1;s+=T(p[0]+dx/d*14,p[1]+dy/d*14+4,n,mu,{fs:12,w:600});});
+    (X.dots||[]).forEach(n=>{const p=P(n);s+=C(p[0],p[1],3.5,fg);});
+    svg.innerHTML=s;
+  }
+  st.set=(m,x)=>{st.model=m;st.extras=x;draw();};
+  st.draw=draw; REDRAW.push(draw);
+  return st;
+}
+const cuboid=(a,b,c)=>({V:{A:[0,0,0],B:[a,0,0],C:[a,b,0],D:[0,b,0],E:[0,0,c],F:[a,0,c],G:[a,b,c],H:[0,b,c]},
+  F:[['A','D','C','B'],['E','F','G','H'],['A','B','F','E'],['D','H','G','C'],['A','E','H','D'],['B','C','G','F']]});
+const pyramid=(l,w,h)=>({V:{A:[0,0,0],B:[l,0,0],C:[l,w,0],D:[0,w,0],E:[l/2,w/2,h]},F:[['A','D','C','B'],['A','B','E'],['B','C','E'],['C','D','E'],['D','A','E']]});
+const wedge=(a,b,c)=>({V:{A:[0,0,0],B:[a,0,0],C:[a,b,0],D:[0,b,0],E:[0,b,c],F:[a,b,c]},F:[['A','D','C','B'],['D','E','F','C'],['A','B','F','E'],['A','E','D'],['B','C','F']]});
+
+/* flat 2D right triangle: base (adjacent) horizontal, height vertical; right angle at bottom-right */
+function flat(svg,base,height,o){
+  const W=420,H=150; const k=Math.min(300/base,110/height); const x0=(W-base*k)/2-30, y0=130;
+  const P0=[x0,y0],P1=[x0+base*k,y0],P2=[x0+base*k,y0-height*k];
+  let s=poly([P0,P1,P2],o.fill||css('--accent-soft'),'none',0,.5);
+  s+=L(P0[0],P0[1],P1[0],P1[1],o.cb,3.5)+L(P1[0],P1[1],P2[0],P2[1],o.ch,3.5)+L(P0[0],P0[1],P2[0],P2[1],o.chyp,3.5)+rightMark(P1,P0,P2,10,css('--muted'));
+  s+=T((P0[0]+P1[0])/2,y0+16,o.lb,o.cb,{w:700,fs:12})+T(P1[0]+8,(P1[1]+P2[1])/2+4,o.lh,o.ch,{w:700,fs:12,a:'start'})+T((P0[0]+P2[0])/2-10,(P0[1]+P2[1])/2-8,o.lhyp,o.chyp,{w:700,fs:12,a:'end'});
+  if(o.ang){s+=angArc(P0,P1,P2,28,css('--fg'));const lp=angLabelPos(P0,P1,P2,44);s+=T(lp[0]+4,lp[1],'θ',css('--fg'),{w:700,fs:12});}
+  s+=T(P0[0]-6,P0[1]+4,o.v[0],css('--muted'),{a:'end',fs:12,w:600})+T(P1[0]+6,P1[1]+14,o.v[1],css('--muted'),{a:'start',fs:12,w:600})+T(P2[0]+6,P2[1]-2,o.v[2],css('--muted'),{a:'start',fs:12,w:600});
+  svg.innerHTML=s;
+}
+const TE=()=>css('--accent'),OR=()=>css('--hi'),PL=()=>css('--two');
+
+/* 1. right angles in a cuboid */
+const ra=view3D($('raSvg'));
+const RA=[
+  ['face diagonal AC',m=>({tris:[{pts:['A','B','C'],col:TE()}],lines:[{p:'A',q:'C',col:TE()}],right:[['B','A','C']]}),'Triangle ABC lies flat on the base. The right angle at B is a corner of the rectangle.'],
+  ['face diagonal AF',m=>({tris:[{pts:['A','B','F'],col:TE()}],lines:[{p:'A',q:'F',col:TE()}],right:[['B','A','F']]}),'Triangle ABF lies in the front face. Right angle at B.'],
+  ['upright triangle ACG',m=>({tris:[{pts:['A','C','G'],col:PL()}],lines:[{p:'A',q:'C',col:TE()},{p:'C',q:'G',col:OR()},{p:'A',q:'G',col:PL()}],right:[['C','A','G']]}),'Triangle ACG cuts through the middle of the box. CG is vertical and AC is flat on the floor, so angle ACG is 90°, even though it looks nothing like a right angle from most views. Turn the box until AC points straight at you.'],
+  ['triangle AFG',m=>({tris:[{pts:['A','F','G'],col:PL()}],lines:[{p:'A',q:'F',col:TE()},{p:'F',q:'G',col:OR()},{p:'A',q:'G',col:PL()}],right:[['F','A','G']]}),'FG is perpendicular to the whole front face, so it is perpendicular to every line in that face, including AF. Angle AFG = 90°.']
+];
+let raSel=0;
+RA.forEach((r,i)=>{const b=document.createElement('button');b.className='btn';b.textContent=r[0];b.addEventListener('click',()=>{raSel=i;drawRA();});$('raBtns').appendChild(b);});
+function drawRA(){ra.set(cuboid(6,4,3),RA[raSel][1]());$('raMsg').textContent=RA[raSel][2];[...$('raBtns').children].forEach((b,i)=>b.classList.toggle('on',i===raSel));}
+drawRA();
+
+/* 2. space diagonal */
+const sd=view3D($('sdSvg')); const sdA=$('sdA'),sdB=$('sdB'),sdC=$('sdC'); let sdS=0;
+function drawSD(){
+  const a=+sdA.value,b=+sdB.value,c=+sdC.value; $('sdAv').textContent=' '+a; $('sdBv').textContent=' '+b; $('sdCv').textContent=' '+c;
+  const ac2=a*a+b*b, ac=Math.sqrt(ac2), d2=ac2+c*c, d=Math.sqrt(d2);
+  const lines=[{p:'A',q:'B',col:TE(),lab:'a = '+a,side:-1},{p:'B',q:'C',col:TE(),lab:'b = '+b,side:-1},{p:'C',q:'G',col:OR(),lab:'c = '+c}];
+  const x={lines,tris:[],right:[],dots:['A','G']};
+  if(sdS>=1){x.tris.push({pts:['A','B','C'],col:TE()});x.lines.push({p:'A',q:'C',col:TE(),lab:rt(ac2)});x.right.push(['B','A','C']);}
+  if(sdS>=2){x.tris.push({pts:['A','C','G'],col:PL()});x.lines.push({p:'A',q:'G',col:PL(),lab:'d'});x.right.push(['C','A','G']);}
+  sd.set(cuboid(a,b,c),x);
+  const fl=$('sdFlat');
+  if(sdS===0){fl.innerHTML=T(210,80,'The flat triangles appear here.',css('--muted'),{fs:13});}
+  else if(sdS===1) flat(fl,a,b,{cb:TE(),ch:TE(),chyp:TE(),lb:'a = '+a,lh:'b = '+b,lhyp:'AC',v:['A','B','C']});
+  else flat(fl,ac,c,{cb:TE(),ch:OR(),chyp:PL(),lb:'AC = '+rt(ac2),lh:'c = '+c,lhyp:'AG',v:['A','C','G'],fill:css('--two-soft')});
+  const W=[
+    `A box ${a} × ${b} × ${c}. We want the space diagonal AG (from corner A through the inside to corner G). Drag to look at it from different sides.`,
+    `<span class="a">Step 1: the base.</span> Triangle ABC has its right angle at B.<br>AC² = ${a}² + ${b}² = ${a*a} + ${b*b} = ${ac2}<br>AC = √${ac2}${Number.isInteger(ac)?' = '+ac:' = '+long(ac)+' (leave it as √'+ac2+' for now)'}`,
+    `<span class="c">Step 2: up.</span> Triangle ACG stands upright with its right angle at C.<br>AG² = AC² + CG² = ${ac2} + ${c}² = ${ac2} + ${c*c} = ${d2}<br>AG = √${d2} = ${Number.isInteger(d)?'<strong>'+d+'</strong>':long(d)+' = <strong>'+sf(d)+'</strong> (3 s.f.)'}`,
+    `<strong>In one go:</strong> AG = √(${a}² + ${b}² + ${c}²) = √(${a*a} + ${b*b} + ${c*c}) = √${d2} = <strong>${Number.isInteger(d)?d:sf(d)}</strong><br><span class="x">✗ stopping at AC = ${sf(ac)} only crosses the floor</span><br><span class="x">✗ forgetting the root gives ${d2}</span>`];
+  $('sdWork').innerHTML=W[sdS]; $('sdStep').textContent=`step ${sdS+1} of 4`;
+}
+[sdA,sdB,sdC].forEach(e=>e.addEventListener('input',drawSD));
+$('sdNext').addEventListener('click',()=>{sdS=Math.min(3,sdS+1);drawSD();}); $('sdPrev').addEventListener('click',()=>{sdS=Math.max(0,sdS-1);drawSD();});
+drawSD(); REDRAW.push(drawSD);
+
+/* 3. line and plane */
+const lp=view3D($('lpSvg')); const lpP=$('lpP');
+function drawLP(){
+  const a=8,b=6,c=5, p=lpP.value; let x,base,hgt,shadow,perp,W;
+  if(p==='base'){shadow='C';perp='CG';base=Math.hypot(a,b);hgt=c;x={tris:[{pts:['A','B','C','D'],col:TE()},{pts:['A','C','G'],col:PL()}],lines:[{p:'A',q:'C',col:TE(),lab:'AC = 10'},{p:'C',q:'G',col:OR(),lab:'5'},{p:'A',q:'G',col:PL()}],right:[['C','A','G']],arcs:[['A','C','G']]};
+    W=`Plane: the base ABCD (shaded teal). G is directly above C, so the perpendicular from G is GC and the shadow of AG is AC.<br>AC = √(8² + 6²) = 10<br>tan θ = GC ÷ AC = 5 ÷ 10 → θ = <strong>${fmt(deg(Math.atan(c/base)),1)}°</strong>`;}
+  else if(p==='front'){shadow='F';perp='GF';base=Math.hypot(a,c);hgt=b;x={tris:[{pts:['A','B','F','E'],col:TE()},{pts:['A','F','G'],col:PL()}],lines:[{p:'A',q:'F',col:TE(),lab:'AF = √89'},{p:'F',q:'G',col:OR(),lab:'6'},{p:'A',q:'G',col:PL()}],right:[['F','A','G']],arcs:[['A','F','G']]};
+    W=`Plane: the front face ABFE. The edge GF is at right angles to this face, so the perpendicular from G lands on F and the shadow of AG is AF.<br>AF = √(8² + 5²) = √89 = ${long(Math.sqrt(89))}<br>tan θ = GF ÷ AF = 6 ÷ √89 → θ = <strong>${fmt(deg(Math.atan(b/base)),1)}°</strong>`;}
+  else {shadow='H';perp='GH';base=Math.hypot(b,c);hgt=a;x={tris:[{pts:['A','D','H','E'],col:TE()},{pts:['A','H','G'],col:PL()}],lines:[{p:'A',q:'H',col:TE(),lab:'AH = √61'},{p:'H',q:'G',col:OR(),lab:'8'},{p:'A',q:'G',col:PL()}],right:[['H','A','G']],arcs:[['A','H','G']]};
+    W=`Plane: the side face ADHE. The edge GH is at right angles to this face, so the perpendicular from G lands on H and the shadow of AG is AH.<br>AH = √(6² + 5²) = √61 = ${long(Math.sqrt(61))}<br>tan θ = GH ÷ AH = 8 ÷ √61 → θ = <strong>${fmt(deg(Math.atan(a/base)),1)}°</strong>`;}
+  x.dots=['A','G'];
+  lp.set(cuboid(a,b,c),x);
+  flat($('lpFlat'),base,hgt,{cb:TE(),ch:OR(),chyp:PL(),lb:'shadow A'+shadow+' = '+fmt(base,2),lh:perp+' = '+hgt,lhyp:'AG = √125',v:['A',shadow,'G'],ang:true,fill:css('--two-soft')});
+  $('lpWork').innerHTML=`8 × 6 × 5 cuboid (AB = 8, BC = 6, CG = 5).<br>`+W+`<br><span class="c">AG itself = √(8² + 6² + 5²) = √125 = ${sf(Math.sqrt(125))} in every case: only the shadow changes.</span>`;
+}
+lpP.addEventListener('input',drawLP); drawLP(); REDRAW.push(drawLP);
+
+/* 4. pyramid */
+const py=view3D($('pySvg'),{pitch:0.3}); const pyL=$('pyL'),pyW=$('pyW'),pyH=$('pyH'),pyF=$('pyF');
+function drawPY(){
+  const l=+pyL.value,w=+pyW.value,h=+pyH.value; $('pyLv').textContent=' '+l; $('pyWv').textContent=' '+w; $('pyHv').textContent=' '+h;
+  const m=pyramid(l,w,h); m.V.M=[l/2,w/2,0]; m.lab=['A','B','C','D','E','M'];
+  let x, W;
+  if(pyF.value==='edge'){
+    const hd2=(l*l+w*w)/4, hd=Math.sqrt(hd2), e=Math.sqrt(hd2+h*h), th=deg(Math.atan(h/hd));
+    x={tris:[{pts:['M','C','E'],col:PL()}],lines:[{p:'A',q:'C',col:TE(),dash:'6 4',w:2},{p:'M',q:'C',col:TE(),lab:'½ diag'},{p:'M',q:'E',col:OR(),lab:'h = '+h},{p:'C',q:'E',col:PL()}],right:[['M','C','E']],arcs:[['C','M','E']],dots:['M']};
+    flat($('pyFlat'),hd,h,{cb:TE(),ch:OR(),chyp:PL(),lb:'MC = '+sf(hd),lh:'h = '+h,lhyp:'EC',v:['C','M','E'],ang:true,fill:css('--two-soft')});
+    W=`Base diagonal AC = √(${l}² + ${w}²) = √${l*l+w*w}; M is its midpoint, so MC = ½√${l*l+w*w} = ${long(hd)}<br>Triangle EMC, right angle at M (EM is vertical):<br>EC² = MC² + h² = ${fmt(hd2,2)} + ${h*h} = ${fmt(hd2+h*h,2)} → EC = <strong>${sf(e)}</strong><br>Angle with the base: tan θ = h ÷ MC = ${h} ÷ ${fmt(hd,3)} → θ = <strong>${th.toFixed(1)}°</strong><br><span class="x">✗ using the full diagonal ${sf(2*hd)} instead of half: the apex is above the centre</span>`;
+  } else {
+    m.V.N=[l/2,0,0]; m.lab.push('N');
+    const hw=w/2, s=Math.sqrt(hw*hw+h*h), th=deg(Math.atan(h/hw));
+    x={tris:[{pts:['M','N','E'],col:PL()}],lines:[{p:'M',q:'N',col:TE(),lab:'½ width'},{p:'M',q:'E',col:OR(),lab:'h = '+h},{p:'N',q:'E',col:PL()}],right:[['M','N','E']],arcs:[['N','M','E']],dots:['M','N']};
+    flat($('pyFlat'),hw,h,{cb:TE(),ch:OR(),chyp:PL(),lb:'MN = '+fmt(hw),lh:'h = '+h,lhyp:'EN',v:['N','M','E'],ang:true,fill:css('--two-soft')});
+    W=`N is the midpoint of AB. From the centre M to N is half the width: MN = ${w} ÷ 2 = ${fmt(hw)}<br>Triangle EMN, right angle at M:<br>EN² = ${fmt(hw)}² + ${h}² = ${fmt(hw*hw+h*h,2)} → slant height EN = <strong>${sf(s)}</strong><br>Angle between EN and the base: tan θ = ${h} ÷ ${fmt(hw)} → θ = <strong>${th.toFixed(1)}°</strong><br><span class="c">EN is also the height of the triangular face ABE, so face area = ½ × ${l} × ${sf(s)} = ${sf(0.5*l*s)}.</span>`;
+  }
+  py.set(m,x); $('pyWork').innerHTML=W;
+}
+[pyL,pyW,pyH,pyF].forEach(e=>e.addEventListener('input',drawPY)); drawPY(); REDRAW.push(drawPY);
+
+/* 5. wedge */
+const wg=view3D($('wgSvg')); const wgA=$('wgA'),wgB=$('wgB'),wgC=$('wgC'),wgF=$('wgF');
+function drawWG(){
+  const a=+wgA.value,b=+wgB.value,c=+wgC.value; $('wgAv').textContent=' '+a; $('wgBv').textContent=' '+b; $('wgCv').textContent=' '+c;
+  let x,W;
+  if(wgF.value==='diag'){
+    const ac2=a*a+b*b, d=Math.sqrt(ac2+c*c), th=deg(Math.atan(c/Math.sqrt(ac2)));
+    x={tris:[{pts:['A','C','F'],col:PL()}],lines:[{p:'A',q:'C',col:TE(),lab:rt(ac2)},{p:'C',q:'F',col:OR(),lab:''+c},{p:'A',q:'F',col:PL()}],right:[['C','A','F']],arcs:[['A','C','F']],dots:['A','F']};
+    flat($('wgFlat'),Math.sqrt(ac2),c,{cb:TE(),ch:OR(),chyp:PL(),lb:'AC = '+rt(ac2),lh:'CF = '+c,lhyp:'AF',v:['A','C','F'],ang:true,fill:css('--two-soft')});
+    W=`AC² = ${a}² + ${b}² = ${ac2}<br>AF² = AC² + CF² = ${ac2} + ${c*c} = ${ac2+c*c} → AF = <strong>${sf(d)}</strong><br>tan θ = CF ÷ AC = ${c} ÷ ${rt(ac2)} → angle FAC = <strong>${th.toFixed(1)}°</strong>`;
+  } else {
+    const th=deg(Math.atan(c/b));
+    x={tris:[{pts:['A','D','E'],col:PL()}],lines:[{p:'A',q:'D',col:TE(),lab:''+b},{p:'D',q:'E',col:OR(),lab:''+c},{p:'A',q:'E',col:PL()}],right:[['D','A','E']],arcs:[['A','D','E']],dots:['A','E']};
+    flat($('wgFlat'),b,c,{cb:TE(),ch:OR(),chyp:PL(),lb:'AD = '+b,lh:'DE = '+c,lhyp:'AE',v:['A','D','E'],ang:true,fill:css('--two-soft')});
+    W=`The slope's angle with the base is seen in the end triangle ADE (right angle at D).<br>tan θ = DE ÷ AD = ${c} ÷ ${b} → θ = <strong>${th.toFixed(1)}°</strong><br>AE = √(${b}² + ${c}²) = ${sf(Math.hypot(b,c))} (the length of the slope)<br><span class="c">Compare: AF makes a smaller angle with the base, ${deg(Math.atan(c/Math.hypot(a,b))).toFixed(1)}°, because it climbs the same height over a longer distance.</span>`;
+  }
+  wg.set(wedge(a,b,c),x); $('wgWork').innerHTML=W;
+}
+[wgA,wgB,wgC,wgF].forEach(e=>e.addEventListener('input',drawWG)); drawWG(); REDRAW.push(drawWG);
+
+/* 6. practice */
+const pr=view3D($('prSvg')); let PQ=null;
+function prNew(){
+  const t=pick(['diag','angle','pyrEdge','pyrAng','back']);
+  if(t==='diag'){const a=rnd(2,12),b=rnd(2,12),c=rnd(2,12);const d=Math.sqrt(a*a+b*b+c*c);
+    PQ={m:cuboid(a,b,c),x:{lines:[{p:'A',q:'G',col:PL(),lab:'?'},{p:'A',q:'B',col:TE(),lab:''+a,side:-1},{p:'B',q:'C',col:TE(),lab:''+b,side:-1},{p:'C',q:'G',col:OR(),lab:''+c}]},
+      q:`A cuboid is ${a} cm by ${b} cm by ${c} cm. Find the length of the space diagonal AG, to 3 s.f.`,ans:d,unit:'cm',
+      wrong:[[a*a+b*b+c*c,'That is AG². Take the square root.'],[Math.hypot(a,b),'That is only the base diagonal AC. Now go up: AG² = AC² + '+c+'².'],[Math.hypot(a,c),'That is a face diagonal. The space diagonal needs all three edges.'],[Math.hypot(b,c),'That is a face diagonal. The space diagonal needs all three edges.'],[a+b+c,'Lengths don\'t add like that. Use √(a² + b² + c²).']],
+      work:`AG = √(${a}² + ${b}² + ${c}²) = √${a*a+b*b+c*c} = ${long(d)} = <strong>${sf(d)} cm</strong>`};}
+  else if(t==='angle'){const a=rnd(3,12),b=rnd(3,12),c=rnd(2,10);const ac=Math.hypot(a,b),th=deg(Math.atan(c/ac));
+    PQ={m:cuboid(a,b,c),x:{lines:[{p:'A',q:'G',col:PL()},{p:'A',q:'C',col:TE(),dash:'6 4'},{p:'A',q:'B',col:TE(),lab:''+a,side:-1},{p:'B',q:'C',col:TE(),lab:''+b,side:-1},{p:'C',q:'G',col:OR(),lab:''+c}],arcs:[['A','C','G']]},ang:true,
+      q:`A cuboid has AB = ${a} cm, BC = ${b} cm and CG = ${c} cm. Find the angle between AG and the base ABCD, to 1 d.p.`,ans:th,unit:'°',
+      wrong:[[deg(Math.atan(c/a)),'You used AB as the adjacent. The shadow of AG on the base is the diagonal AC = √('+a+'² + '+b+'²).'],[deg(Math.atan(c/b)),'You used BC as the adjacent. The shadow of AG on the base is the diagonal AC.'],[deg(Math.atan(ac/c)),'Fraction upside down: tan θ = opposite (CG) ÷ adjacent (AC). That is the angle at G.'],[c/ac,'That is tan θ. Use tan⁻¹.'],[Math.atan(c/ac),'That is in radians. Switch your calculator to degrees.']],
+      work:`AC = √(${a}² + ${b}²) = ${long(ac)}<br>tan θ = CG ÷ AC = ${c} ÷ ${fmt(ac,4)}<br>θ = ${long(th)}° = <strong>${th.toFixed(1)}°</strong>`};}
+  else if(t==='pyrEdge'||t==='pyrAng'){const l=2*rnd(2,6),h=rnd(4,14);const m=pyramid(l,l,h);m.V.M=[l/2,l/2,0];m.lab=['A','B','C','D','E','M'];const hd=l/Math.SQRT2,e=Math.hypot(hd,h),th=deg(Math.atan(h/hd));
+    const x={lines:[{p:'M',q:'E',col:OR(),lab:'h = '+h,dash:'5 4'},{p:'A',q:'B',col:TE(),lab:''+l,side:-1},{p:'C',q:'E',col:PL(),lab:t==='pyrEdge'?'?':''}],dots:['M'],arcs:t==='pyrAng'?[['C','M','E']]:[]};
+    if(t==='pyrEdge')PQ={m,x,q:`A right pyramid has a square base of side ${l} cm and vertical height ${h} cm. Find the length of a slant edge EC, to 3 s.f.`,ans:e,unit:'cm',
+      wrong:[[Math.hypot(l/2,h),'That uses half the side, which gives the slant height of a face. The slant edge goes to a corner: use half the diagonal.'],[Math.hypot(l*Math.SQRT2,h),'That uses the whole diagonal. M is the centre, so use half of it.'],[Math.hypot(l,h),'That uses the side length. The edge goes from the centre to a corner: half the diagonal.'],[hd*hd+h*h,'That is EC². Take the square root.']],
+      work:`MC = half the diagonal = ½√(${l}² + ${l}²) = ${long(hd)}<br>EC = √(MC² + h²) = √(${fmt(hd*hd,2)} + ${h*h}) = ${long(e)} = <strong>${sf(e)} cm</strong>`};
+    else PQ={m,x,ang:true,q:`A right pyramid has a square base of side ${l} cm and vertical height ${h} cm. Find the angle between a slant edge and the base, to 1 d.p.`,ans:th,unit:'°',
+      wrong:[[deg(Math.atan(h/(l/2))),'That uses half the side (the angle of a face\'s slant height). The edge goes to a corner: use half the diagonal.'],[deg(Math.atan(h/(l*Math.SQRT2))),'That uses the full diagonal. Use half of it: M is the centre.'],[deg(Math.atan(hd/h)),'Upside down: tan θ = height ÷ half-diagonal.'],[Math.atan(h/hd),'Radians. Switch to degrees.']],
+      work:`MC = ½√(${l}² + ${l}²) = ${long(hd)}<br>tan θ = h ÷ MC = ${h} ÷ ${fmt(hd,4)}<br>θ = <strong>${th.toFixed(1)}°</strong>`};}
+  else {let a,b,c,d2;do{a=rnd(2,10);b=rnd(2,10);c=rnd(2,10);d2=a*a+b*b+c*c;}while(false);
+    PQ={m:cuboid(a,b,c),x:{lines:[{p:'A',q:'G',col:PL(),lab:'√'+d2},{p:'A',q:'B',col:TE(),lab:''+a,side:-1},{p:'B',q:'C',col:TE(),lab:''+b,side:-1},{p:'C',q:'G',col:OR(),lab:'?'}]},
+      q:`A cuboid has AB = ${a} cm, BC = ${b} cm and space diagonal AG = √${d2} cm. Find the height CG.`,ans:c,unit:'cm',
+      wrong:[[c*c,'That is CG². Take the square root.'],[Math.sqrt(d2+a*a+b*b),'Subtract the known squares: CG² = '+d2+' − '+a*a+' − '+b*b+'.'],[Math.sqrt(Math.abs(d2-a*a)),'Subtract both '+a+'² and '+b+'².']],
+      work:`AG² = a² + b² + c² → ${d2} = ${a*a} + ${b*b} + CG²<br>CG² = ${d2} − ${a*a} − ${b*b} = ${c*c}<br>CG = <strong>${c} cm</strong>`};}
+  $('prQ').textContent=PQ.q; $('prU').textContent=PQ.unit; $('prA').value=''; $('prMsg').className='msg'; $('prMsg').textContent=''; $('prWork').hidden=true; $('prWork').innerHTML=PQ.work;
+  pr.set(PQ.m,PQ.x);
+}
+function prCheck(){const u=parseFloat($('prA').value.replace(/−/g,'-').replace(/[^0-9.\-]/g,''));const M=$('prMsg');
+  if(!isFinite(u)){feedback(M,false,'Type a number.');return;}
+  if(within(u,PQ.ans,PQ.ang)){feedback(M,true,'Correct: '+(PQ.ang?PQ.ans.toFixed(1)+'°':sf(PQ.ans)+' cm')+'.');$('prWork').hidden=false;return;}
+  for(const [v,m] of PQ.wrong){if(Math.abs(v-PQ.ans)<1e-6)continue;if(within(u,v,PQ.ang)||Math.abs(u-v)<=Math.abs(v)*0.003){feedback(M,false,'Not quite. '+m);return;}}
+  feedback(M,false,Math.abs(u-PQ.ans)<=Math.abs(PQ.ans)*0.02?'Very close: check your rounding, and don\'t round in the middle.':'Not quite. Find the right-angled triangle, sketch it flat, then label it. "Show working" has the steps.');}
+$('prGo').addEventListener('click',prCheck); $('prA').addEventListener('keydown',e=>{if(e.key==='Enter')prCheck();});
+$('prShow').addEventListener('click',()=>{$('prWork').hidden=!$('prWork').hidden;}); $('prNew').addEventListener('click',prNew); prNew();
+
+/* quiz */
+const QS=[
+  {q:'A cuboid measures 2 cm × 3 cm × 6 cm. Its space diagonal is…',opts:['7 cm','11 cm','√13 cm','49 cm'],a:0,fb:'√(4 + 9 + 36) = √49 = 7 cm. 11 adds the lengths; 49 forgets the root.'},
+  {q:'The space diagonal of a cube with side 1 is…',opts:['√3','√2','3','1'],a:0,fb:'√(1² + 1² + 1²) = √3. (√2 is a face diagonal.)'},
+  {q:'The angle between a line and a plane is the angle between the line and…',opts:['its projection (shadow) on the plane','any edge in the plane','the vertical','the normal to the plane'],a:0,fb:'Drop a perpendicular from the end of the line to the plane: the angle is between the line and its shadow.'},
+  {q:'A cuboid has a 4 × 4 base and height 2. The angle between the space diagonal and the base, to 1 d.p., is…',opts:['19.5°','26.6°','70.5°','35.3°'],a:0,fb:'Base diagonal √32 = 5.656…, tan θ = 2 ÷ 5.656…, θ = 19.47… = 19.5°. 26.6° uses the edge 4 instead of the diagonal.'},
+  {q:'A right pyramid has a square base of side 8 cm and height 3 cm. The slant height of a face (apex to the midpoint of a base edge) is…',opts:['5 cm','√73 cm','√41 cm','11 cm'],a:0,fb:'Half the side is 4: √(4² + 3²) = √25 = 5 cm.'},
+  {q:'Which formula gives the space diagonal of an a × b × c cuboid?',opts:['√(a² + b² + c²)','a² + b² + c²','√(a² + b²) + c','√(a + b + c)'],a:0,fb:'Base diagonal √(a² + b²), then up: √(a² + b² + c²).'},
+  {q:'For the angle between AG and the base of cuboid ABCDEFGH, the adjacent side is…',opts:['AC (the base diagonal)','AB','CG','AG'],a:0,fb:'G is above C, so the shadow of AG on the base is AC. CG is the opposite; AG the hypotenuse.'},
+  {q:'A cuboid has edges 3 and 4 and space diagonal √50. The third edge is…',opts:['5','√43','7','25'],a:0,fb:'50 − 9 − 16 = 25, and √25 = 5.'},
+  {q:'A cube has side 10 cm. The angle between a space diagonal and the base, to 1 d.p., is…',opts:['35.3°','45.0°','54.7°','26.6°'],a:0,fb:'tan θ = 10 ÷ 10√2 = 1/√2, θ = 35.26… = 35.3°.'},
+  {q:'A right pyramid has a 6 cm square base and slant edges of 9 cm. Its vertical height to 3 s.f. is…',opts:['7.94 cm','8.49 cm','10.8 cm','6.00 cm'],a:0,fb:'Half-diagonal = 3√2, so h² = 81 − 18 = 63, h = 7.937… = 7.94 cm. (8.49 uses half the side.)'}
+];
+const redrawAll=()=>REDRAW.forEach(f=>f());
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

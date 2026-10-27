@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GCSE Interactive Maths</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f3f6fa;--fg:#15202b;--muted:#5b6b7c;--panel:#ffffff;--line:#d4dde7;--accent:#0b6e6e;--accent-soft:#d9efee;--hi:#c2410c;--two:#6d28d9;
+  --display:"Fraunces",Georgia,serif;--body:"IBM Plex Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#0f161d;--fg:#e6edf3;--muted:#94a3b4;--panel:#16202b;--line:#26323f;--accent:#3fbcb0;--accent-soft:#143634;--hi:#f0894f;--two:#b794f6;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding:0 max(16px,env(safe-area-inset-left)) 64px max(16px,env(safe-area-inset-right))}
+main{max-width:860px;margin:0 auto}
+h1,h2{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.6rem;font-weight:600;margin-top:2.8rem;padding-bottom:.4rem;border-bottom:2px solid var(--accent)}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.lede{font-size:1.15rem;color:var(--muted);max-width:62ch;margin:.8rem 0 0}
+.lede a{color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.9rem;margin-top:1.1rem}
+a.card{display:block;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;text-decoration:none;color:inherit;min-width:0;transition:border-color .15s,transform .15s}
+a.card:hover,a.card:focus-visible{border-color:var(--accent);transform:translateY(-1px);outline:none}
+a.card b{display:block;font-family:var(--display);font-size:1.1rem;font-weight:600;color:var(--accent);margin-bottom:.2rem}
+a.card span{font-size:.9rem;color:var(--muted)}
+a.card .tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-bottom:.4rem}
+a.card .tag.g{background:#fde8dc;color:var(--hi)}
+@media (prefers-color-scheme:dark){a.card .tag.g{background:#3a2314}}
+footer{margin-top:3.5rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Computing Hub · Mathematics</div>
+  <h1>GCSE Interactive Maths</h1>
+  <p class="lede">Self-contained interactive pages for Key Stage 4 (Years 10–11), one per topic, following the DfE GCSE mathematics subject content. Each page recaps what you need from KS3, then builds up with live visuals, worked examples and a quick quiz. Pages tagged <b>Higher</b> are Higher tier only; on other pages, Higher-only sections carry the same badge. Need a refresher? Start with the <a href="../ks3-interactive/index.html">KS3 pages</a>. No sign-in, no data collected.</p>
+</header>
+
+<h2>Number</h2>
+<div class="grid">
+  <a class="card" href="surds.html"><span class="tag g">Higher</span><b>Surds</b><span>Simplifying √72 = 6√2, adding and multiplying surds, rationalising denominators.</span></a>
+  <a class="card" href="fractional-negative-indices.html"><span class="tag">GCSE</span><b>Fractional and Negative Indices</b><span>Why a⁻ⁿ = 1/aⁿ and a^(1/n) is a root; root first, then power.</span></a>
+  <a class="card" href="recurring-decimals-fractions.html"><span class="tag">GCSE</span><b>Recurring Decimals and Fractions</b><span>Why decimals recur, which fractions terminate, converting back by subtraction.</span></a>
+  <a class="card" href="bounds-error-intervals.html"><span class="tag">GCSE</span><b>Bounds and Error Intervals</b><span>Error intervals from rounding and truncation, upper and lower bounds in calculations.</span></a>
+  <a class="card" href="product-rule-counting.html"><span class="tag">GCSE</span><b>The Product Rule for Counting</b><span>From listing to multiplying: PINs, menus, with and without repetition.</span></a>
+</div>
+
+<h2>Algebra</h2>
+<div class="grid">
+  <a class="card" href="double-brackets-factorising-quadratics.html"><span class="tag">GCSE</span><b>Double Brackets and Factorising Quadratics</b><span>The grid method, squaring brackets, difference of two squares, factorising in reverse.</span></a>
+  <a class="card" href="solving-quadratics.html"><span class="tag">GCSE</span><b>Solving Quadratics</b><span>Factorising, completing the square with tiles, the formula and the discriminant.</span></a>
+  <a class="card" href="simultaneous-equations.html"><span class="tag">GCSE</span><b>Simultaneous Equations</b><span>Elimination and substitution, setting up from context, linear with quadratic.</span></a>
+  <a class="card" href="inequalities-regions.html"><span class="tag">GCSE</span><b>Inequalities and Regions</b><span>Number lines, solving and flipping, quadratic inequalities, shading graphical regions.</span></a>
+  <a class="card" href="recognising-graphs.html"><span class="tag">GCSE</span><b>Graphs of Functions</b><span>Quadratic, cubic, reciprocal, exponential, trigonometric and circle graphs.</span></a>
+  <a class="card" href="gradients-tangents-area-under-graphs.html"><span class="tag">GCSE</span><b>Gradients, Tangents and Areas</b><span>Rate of change, tangents to curves, area under a graph by trapezia.</span></a>
+  <a class="card" href="graph-transformations.html"><span class="tag g">Higher</span><b>Transformations of Graphs</b><span>f(x) + a, f(x + a), −f(x) and f(−x) on any graph.</span></a>
+  <a class="card" href="sequences.html"><span class="tag">GCSE</span><b>Sequences</b><span>Arithmetic, geometric and Fibonacci-type sequences; quadratic nth term.</span></a>
+  <a class="card" href="functions-composite-inverse.html"><span class="tag g">Higher</span><b>Composite and Inverse Functions</b><span>Function machines, fg(x) inner first, finding f⁻¹(x).</span></a>
+  <a class="card" href="algebraic-fractions-proof.html"><span class="tag">GCSE</span><b>Algebraic Fractions and Proof</b><span>Cancel factors not terms, combining fractions, proving with 2n and 2n + 1.</span></a>
+  <a class="card" href="iteration.html"><span class="tag g">Higher</span><b>Iteration</b><span>Change of sign, rearranging to x = g(x), iterating towards a root.</span></a>
+</div>
+
+<h2>Ratio, Proportion and Rates of Change</h2>
+<div class="grid">
+  <a class="card" href="compound-interest-growth-decay.html"><span class="tag">GCSE</span><b>Compound Interest, Growth and Decay</b><span>Multipliers year by year, P × (1 + r/100)ⁿ, depreciation, exponential graphs.</span></a>
+  <a class="card" href="proportion-algebraically.html"><span class="tag">GCSE</span><b>Proportion with Algebra</b><span>y = kx, y = k/x, y ∝ x² and more: find k, then use the formula.</span></a>
+  <a class="card" href="rates-of-change-graphs.html"><span class="tag">GCSE</span><b>Rates of Change in Context</b><span>Distance–time and velocity–time graphs, filling containers, speed from a tangent.</span></a>
+</div>
+
+<h2>Geometry and Measures</h2>
+<div class="grid">
+  <a class="card" href="right-angled-trigonometry.html"><span class="tag">GCSE</span><b>Trigonometry and Exact Values</b><span>Multi-step SOH CAH TOA, elevation and depression, exact sin, cos and tan values.</span></a>
+  <a class="card" href="sine-cosine-rules.html"><span class="tag g">Higher</span><b>Sine and Cosine Rules</b><span>Any triangle: sine rule, cosine rule, area = ½ab sin C, choosing the rule.</span></a>
+  <a class="card" href="trigonometry-3d.html"><span class="tag g">Higher</span><b>Pythagoras and Trigonometry in 3D</b><span>Space diagonals and angles with planes in a cuboid you can rotate.</span></a>
+  <a class="card" href="circle-theorems.html"><span class="tag g">Higher</span><b>Circle Theorems</b><span>Drag points on a circle and watch each theorem hold; giving reasons.</span></a>
+  <a class="card" href="arcs-sectors-segments.html"><span class="tag">GCSE</span><b>Arcs, Sectors and Segments</b><span>Arc length and sector area as θ/360 of a circle; segment areas.</span></a>
+  <a class="card" href="volume-surface-area-solids.html"><span class="tag">GCSE</span><b>Cylinders, Cones, Spheres and Pyramids</b><span>Volume and surface area, slant heights, frustums, answers in terms of π.</span></a>
+  <a class="card" href="similar-shapes-area-volume.html"><span class="tag g">Higher</span><b>Similar Shapes: Area and Volume</b><span>Length factor k, area factor k², volume factor k³, and working backwards.</span></a>
+  <a class="card" href="vectors.html"><span class="tag">GCSE</span><b>Vectors and Vector Proof</b><span>Column vectors on a grid, adding and scaling, paths, collinearity proofs.</span></a>
+  <a class="card" href="bearings.html"><span class="tag">GCSE</span><b>Bearings</b><span>Three-figure bearings, back bearings, scale drawings and bearings with trigonometry.</span></a>
+  <a class="card" href="negative-enlargement.html"><span class="tag">GCSE</span><b>Enlargement with Negative Scale Factors</b><span>Images through the centre and upside down; finding centre and scale factor.</span></a>
+  <a class="card" href="loci-constructions.html"><span class="tag">GCSE</span><b>Loci and Constructions</b><span>Distance from points and lines, equidistance, combining loci into regions.</span></a>
+</div>
+
+<h2>Probability</h2>
+<div class="grid">
+  <a class="card" href="tree-diagrams.html"><span class="tag">GCSE</span><b>Tree Diagrams</b><span>Independent and dependent events, with and without replacement, “at least one”.</span></a>
+  <a class="card" href="conditional-probability.html"><span class="tag g">Higher</span><b>Conditional Probability</b><span>P(A | B) from tables, Venn diagrams and trees; testing independence.</span></a>
+  <a class="card" href="venn-diagrams-set-notation.html"><span class="tag">GCSE</span><b>Venn Diagrams and Set Notation</b><span>∈, ∩, ∪ and A′ shaded live, three-set diagrams, algebra in Venn diagrams.</span></a>
+  <a class="card" href="relative-frequency.html"><span class="tag">GCSE</span><b>Relative Frequency</b><span>Estimating from data, reliability and more trials, judging bias, frequency trees.</span></a>
+</div>
+
+<h2>Statistics</h2>
+<div class="grid">
+  <a class="card" href="sampling.html"><span class="tag">GCSE</span><b>Sampling</b><span>Populations, random samples, bias, sample size, stratified sampling, capture–recapture.</span></a>
+  <a class="card" href="grouped-data-estimated-mean.html"><span class="tag">GCSE</span><b>Grouped Data and the Estimated Mean</b><span>Modal class, midpoints, why the mean is an estimate, frequency polygons.</span></a>
+  <a class="card" href="cumulative-frequency-box-plots-histograms.html"><span class="tag g">Higher</span><b>Cumulative Frequency, Box Plots, Histograms</b><span>Quartiles from curves, box plots, frequency density for unequal classes.</span></a>
+  <a class="card" href="comparing-distributions.html"><span class="tag">GCSE</span><b>Comparing Distributions</b><span>One average and one spread, in context; box plots side by side.</span></a>
+</div>
+
+<footer>Built with the DfE <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE mathematics subject content</a>. Each page works offline as a single HTML file; the only external resource is the Google Fonts stylesheet, and the pages fall back to system fonts without it.</footer>
+</main>
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

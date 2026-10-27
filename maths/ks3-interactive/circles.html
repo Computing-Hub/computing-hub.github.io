@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Circles</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one or more interactive SVG panels drawn from JS. Graph-paper neutrals. Colours on this page: teal = the radius r (and anything built from it, including shaded areas in soft teal), plum = the diameter d and every other straight edge (chords, tangents, the flat sides of semicircles and composite shapes), orange = curved lengths round the edge (circumference, arcs, the unrolled wheel). In the sector-rearranging picture, teal and orange slices are the two halves of the circle. Green/red are only used for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.D{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.parts-svg [data-part]{cursor:pointer}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Geometry and measures · KS3</div>
+  <h1>Circles</h1>
+  <p class="lede">Wheels, pizzas, clocks, coins, the rim of a mug: circles are everywhere. In this page you'll learn the names of every part of a circle, discover for yourself a strange number called <strong>π</strong> (pi) that hides inside every circle, and use it to work out the distance round a circle and the space inside it, even for half and quarter circles.</p>
+  <span class="gcse">National curriculum KS3: know the formulae for the circumference and area of a circle; calculate perimeters of 2D shapes; identify and name parts of circles, including chord, tangent, arc, sector and segment</span>
+</header>
+
+<h2>1 · Meet the circle: its parts</h2>
+<p>Push a pin into some card, tie a piece of string to it, put a pencil at the other end and walk the pencil round with the string tight. You've drawn a <strong>circle</strong>: every point on it is exactly the same distance from the pin. A pair of compasses does the same job.</p>
+<p>Circles have lots of parts with special names, and you'll need them all. Hover over (or tap) a part of the circle, or press a button, to see what it is called and what it means.</p>
+
+<div class="lab">
+  <svg id="ptSvg" class="parts-svg" viewBox="0 0 420 330" width="420" height="330" aria-label="A labelled circle"></svg>
+  <div class="chips" id="ptBtns"></div>
+  <div class="info" id="ptInfo"></div>
+</div>
+
+<h3>Radius and diameter</h3>
+<p>The two most important lengths are the <span class="R">radius</span> (centre to edge, the length of the string) and the <span class="D">diameter</span> (edge to edge, straight through the centre). A diameter is two radii joined end to end (<em>radii</em> is the plural of radius), so</p>
+<p class="big"><span class="D">d</span> = 2 × <span class="R">r</span> &nbsp;&nbsp; and &nbsp;&nbsp; <span class="R">r</span> = <span class="D">d</span> ÷ 2</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>radius r = <input type="range" id="rdR" min="0.5" max="10" step="0.5" value="3"><span id="rdRv" style="font-family:var(--mono)"></span> cm</label>
+  </div>
+  <svg id="rdSvg" viewBox="0 0 420 240" width="420" height="240"></svg>
+  <div class="work" id="rdWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Read the question carefully.</strong> Questions sometimes give you the radius and sometimes the diameter. Before using any formula, write down <em>both</em>: "r = 5 cm, so d = 10 cm". Mixing them up is the most common circle mistake of all.</p>
+</div>
+
+<h2>2 · Discovering π</h2>
+<p>Here's a question. If you know how wide a circle is (its diameter), can you work out how far it is round the edge (its circumference)? Let's experiment. Imagine painting the rim of a wheel, then rolling it exactly one full turn along the ground. The paint leaves a line on the ground exactly as long as the circumference. How many diameters long is that line?</p>
+
+<div class="lab">
+  <svg id="rwSvg" viewBox="0 0 560 210" width="560" height="210"></svg>
+  <div class="controls">
+    <button class="btn primary" id="rwPlay">Roll one turn</button>
+    <label>how far rolled <input type="range" id="rwT" min="0" max="1000" value="0"></label>
+  </div>
+  <div class="readout">
+    <div class="t"><b>Painted line so far</b><span id="rwLen"></span></div>
+    <div class="p"><b>Measured in diameters</b><span id="rwD"></span></div>
+  </div>
+</div>
+
+<p>One full turn takes you three diameters <em>and a little bit more</em>. Is that just for this wheel? Try measuring other circles. People did exactly this with string and rulers thousands of years ago. Type any radius you like and add it to the table.</p>
+
+<div class="lab">
+  <div class="twin">
+    <svg id="msSvg" viewBox="0 0 300 230" width="300" height="230"></svg>
+    <div class="tbl"><table class="vt" id="msTable"></table></div>
+  </div>
+  <div class="controls">
+    <label>my circle: radius <input type="number" id="msR" value="10" min="0.1" step="any"> cm</label>
+    <button class="btn" id="msAdd">Measure it</button>
+  </div>
+  <div class="msg" id="msMsg"></div>
+</div>
+
+<p>Every circle, from a 1p coin to the London Eye, gives the same answer: the circumference is about <strong>3.14</strong> times the diameter. (The tiny wobbles come from rounding the measurement to the nearest mm or 10 cm.) This number is so important that it has its own name and symbol, the Greek letter <strong>π</strong>, said "pie".</p>
+<p class="big">π = <span class="C">C</span> ÷ <span class="D">d</span> = 3.14159265…</p>
+<p>The digits of π go on for ever without repeating, so we can never write it down exactly. That's why your calculator has a <span class="m">π</span> button: it holds π to about 10 digits. For rough work, π ≈ 3.14 or even π ≈ 3 is fine.</p>
+
+<h2>3 · Circumference: C = πd = 2πr</h2>
+<p>Since circumference ÷ diameter = π, turn it round: <strong>circumference = π × diameter</strong>. And because the diameter is 2 radii, you can also write it using the radius:</p>
+<p class="big"><span class="C">C</span> = π<span class="D">d</span> &nbsp;&nbsp;or&nbsp;&nbsp; <span class="C">C</span> = 2π<span class="R">r</span></p>
+<p>Both are the same formula. Use whichever matches what you're given. Try it with the calculator below and look at the three ways of handling π:</p>
+<ul>
+  <li><strong>π button</strong>: the most accurate. Round your final answer, usually to 1 d.p. (one decimal place).</li>
+  <li><strong>π ≈ 3.14</strong>: fine without a calculator, but it drifts from the true answer as circles get bigger.</li>
+  <li><strong>In terms of π</strong>: don't multiply by π at all; leave the symbol in the answer, like <span class="m">10π cm</span>. This is <em>exact</em>, because nothing has been rounded. If a question says "give your answer in terms of π", do this.</li>
+</ul>
+
+<div class="lab">
+  <div class="controls">
+    <label>I know the <select id="ccG"><option value="r">radius</option><option value="d">diameter</option></select></label>
+    <label>= <input type="number" id="ccV" value="5" min="0" step="any"> cm</label>
+    <label>using <select id="ccP"><option value="pi">the π button</option><option value="314">π ≈ 3.14</option><option value="exact">in terms of π</option></select></label>
+  </div>
+  <svg id="ccSvg" viewBox="0 0 420 250" width="420" height="250"></svg>
+  <div class="work" id="ccWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes with circumference</strong></p>
+  <ul>
+    <li>Doing π × r and forgetting to double: π × r is only <em>half</em> the circumference.</li>
+    <li>Using the diameter in 2πr: that gives twice the right answer. Use πd with d, or 2πr with r.</li>
+    <li>Rounding too early. Keep the full calculator value until the very last line, then round.</li>
+  </ul>
+</div>
+
+<h2>4 · Area: A = πr²</h2>
+<p>The <strong>area</strong> is the amount of flat space inside the circle: how much pizza you get, not how much crust. Area is measured in <em>square</em> units such as cm² (square centimetres).</p>
+<p>Here's a beautiful way to see the formula. Cut a circle into equal slices like a pizza (each slice is a <strong>sector</strong>). Lay them in a row, alternately pointing up and down. Nothing is lost or added, so the area is the same. With lots of thin slices the row turns into an almost perfect rectangle. Slide the controls.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>slices <input type="range" id="raN" min="0" max="3" step="1" value="1"><span id="raNv" style="font-family:var(--mono)"></span></label>
+    <label>rearrange <input type="range" id="raT" min="0" max="100" value="100"></label>
+    <button class="btn primary" id="raPlay">Animate</button>
+  </div>
+  <svg id="raSvg" viewBox="0 0 560 410" width="560" height="410"></svg>
+  <div class="work" id="raWork"></div>
+</div>
+
+<p>So what are the measurements of that rectangle?</p>
+<ul>
+  <li><strong>Height:</strong> each slice is a radius long, so the height is <span class="R">r</span>.</li>
+  <li><strong>Width:</strong> the curved crust is shared out: half of it is along the top and half along the bottom. So the width is <em>half the circumference</em>: ½ × 2π<span class="R">r</span> = π<span class="R">r</span>.</li>
+  <li><strong>Area of rectangle</strong> = width × height = π<span class="R">r</span> × <span class="R">r</span> = π<span class="R">r</span>².</li>
+</ul>
+<p class="big">A = π<span class="R">r</span>²</p>
+<p>Read πr² as "π times r squared": square the radius <em>first</em>, then multiply by π (BIDMAS: indices before multiplication). Another way to picture it: r² is a square with sides r, and the circle's area is just over 3 of those squares (π of them, in fact).</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>radius r = <input type="number" id="arR" value="5" min="0" step="any"> cm</label>
+  </div>
+  <svg id="arSvg" viewBox="0 0 520 210" width="520" height="210"></svg>
+  <div class="work" id="arWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes with area</strong></p>
+  <ul>
+    <li><strong>Using the diameter.</strong> The formula needs the <em>radius</em>. If you're given d, halve it first.</li>
+    <li><strong>Squaring π × r.</strong> πr² means π × (r × r), not (π × r)². On a calculator type <span class="m">π × 5 x²</span>, or work out r² first.</li>
+    <li><strong>Mixing up the formulas.</strong> 2πr is a length (circumference, cm). πr² is an area (cm²). The ² in the answer's unit matches the ² on the r.</li>
+    <li><strong>Wrong units.</strong> Areas are in cm², m², mm²; lengths are in cm, m, mm.</li>
+  </ul>
+</div>
+
+<h2>5 · Working backwards</h2>
+<p>Sometimes you know the circumference or the area and need the radius. Write down the formula, put in what you know, and undo each step with the inverse operation (see the rearranging formulae page).</p>
+<ul>
+  <li>From the <strong>circumference</strong>: C = 2πr, so <span class="m">r = C ÷ (2π)</span>. (Or d = C ÷ π, then halve.)</li>
+  <li>From the <strong>area</strong>: A = πr², so <span class="m">r² = A ÷ π</span>, then <span class="m">r = √(A ÷ π)</span>. Don't forget the square root!</li>
+</ul>
+
+<div class="lab">
+  <div class="controls">
+    <label>I know the <select id="bwT"><option value="C">circumference</option><option value="A">area</option></select></label>
+    <label>= <input type="number" id="bwV" value="50" min="0" step="any"> <span id="bwU">cm</span></label>
+  </div>
+  <svg id="bwSvg" viewBox="0 0 420 230" width="420" height="230"></svg>
+  <div class="work" id="bwWork"></div>
+</div>
+
+<h2>6 · Semicircles, quarter circles and composite shapes</h2>
+<p>A <strong>semicircle</strong> is half a circle; a <strong>quarter circle</strong> is a quarter. A <strong>composite shape</strong> is made by joining simple shapes, like a rectangle with a semicircle on top (an arched window) or a running track.</p>
+<p><strong>Area</strong> is easy: take the right fraction of πr² and add on any other pieces. <strong>Perimeter</strong> (the total distance round the outside) needs more care: the curved part is a fraction of the circumference, but you must also add every <span class="D">straight edge</span>. Forgetting them is the classic mistake. In the picture, curved edges are <span class="C">orange</span> and straight edges are <span class="D">plum</span>: the perimeter is all of them added together.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>shape <select id="cpS"><option value="semi">semicircle</option><option value="quarter">quarter circle</option><option value="arch">arched window</option><option value="track">running track</option></select></label>
+    <label>radius r = <input type="range" id="cpR" min="1" max="10" step="0.5" value="4"><span id="cpRv" style="font-family:var(--mono)"></span></label>
+    <label id="cpLwrap"><span id="cpLname">height h</span> = <input type="range" id="cpL" min="1" max="20" step="1" value="6"><span id="cpLv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="cpSvg" viewBox="0 0 400 270" width="400" height="270"></svg>
+  <div class="readout">
+    <div class="t"><b>Curved edge</b><span id="cpCur"></span></div>
+    <div class="p"><b>Straight edges</b><span id="cpStr"></span></div>
+    <div><b>Perimeter</b><span id="cpPer"></span></div>
+    <div class="f"><b>Area</b><span id="cpArea"></span></div>
+  </div>
+  <div class="work" id="cpWork"></div>
+</div>
+
+<h2>7 · Extension: arcs and sectors</h2>
+<p>An <strong>arc</strong> is part of the circumference and a <strong>sector</strong> is a slice. A full turn is 360°, so a sector with angle θ (the Greek letter theta) is the fraction <span class="m">θ/360</span> of the whole circle. Take that fraction of the circumference for the arc, and that fraction of the area for the sector.</p>
+<p class="big">arc = <span class="m">θ/360</span> × 2πr &nbsp;&nbsp; sector = <span class="m">θ/360</span> × πr²</p>
+<p>Check: θ = 180° gives ½, a semicircle; θ = 90° gives ¼, a quarter circle; θ = 360° is the whole circle.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>angle θ = <input type="range" id="scA" min="5" max="360" step="5" value="60"><span id="scAv" style="font-family:var(--mono)"></span></label>
+    <label>radius r = <input type="range" id="scR" min="1" max="12" step="1" value="9"><span id="scRv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="scSvg" viewBox="0 0 400 280" width="400" height="280"></svg>
+  <div class="work" id="scWork"></div>
+</div>
+
+<h2>8 · Practice: mixed circle questions</h2>
+<p>Time to try it yourself. Each question is new. Use the π button and round to 1 d.p. unless the question says "in terms of π" (then just type the number in front of π, e.g. <span class="m">12</span> for 12π). If you go wrong, the feedback tries to spot <em>which</em> mistake you made.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>question type <select id="prType">
+      <option value="mix">mixed</option><option value="C">circumference</option><option value="A">area</option><option value="pi">in terms of π</option><option value="back">working backwards</option><option value="part">semicircles and quarters</option>
+    </select></label>
+  </div>
+  <p class="pq" id="prQ"></p>
+  <svg id="prSvg" viewBox="0 0 400 220" width="400" height="220"></svg>
+  <div class="controls">
+    <label>answer <input type="text" id="prA" inputmode="decimal" autocomplete="off" style="width:7em"> <span id="prUnit"></span></label>
+    <button class="btn primary" id="prGo">Check</button>
+    <button class="btn" id="prShow">Show working</button>
+    <button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+  <div class="msg" id="prScore"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>A bicycle wheel has radius 33 cm. Find its circumference to 1 d.p.</summary>
+  <div class="step"><strong>What do I know?</strong> r = 33 cm, so d = 2 × 33 = 66 cm.</div>
+  <div class="step"><strong>Formula:</strong> C = πd (or C = 2πr: same thing).</div>
+  <div class="step"><strong>Substitute:</strong> C = π × 66 = 207.345… cm (π button).</div>
+  <div class="step"><strong>Round:</strong> C = <strong>207.3 cm</strong> to 1 d.p.</div>
+  <div class="step"><strong>Sense check:</strong> about 3 × 66 = 198, a bit more. ✓ (With π ≈ 3.14 you'd get 207.24 → 207.2 cm, slightly off.) So the bike moves about 2 metres every time the wheel turns once.</div>
+</details>
+<details>
+  <summary>A pizza has diameter 30 cm. Find its area to 1 d.p.</summary>
+  <div class="step"><strong>What do I know?</strong> d = 30 cm. The area formula needs the radius: r = 30 ÷ 2 = 15 cm.</div>
+  <div class="step"><strong>Formula:</strong> A = πr².</div>
+  <div class="step"><strong>Square the radius first:</strong> r² = 15 × 15 = 225.</div>
+  <div class="step"><strong>Multiply by π:</strong> A = π × 225 = 706.858… cm².</div>
+  <div class="step"><strong>Round:</strong> A = <strong>706.9 cm²</strong> to 1 d.p.</div>
+  <div class="step"><strong>Watch out:</strong> using the diameter, π × 30² = 2827.4, which is four times too big.</div>
+</details>
+<details>
+  <summary>A circle has radius 6 cm. Give its circumference and area in terms of π.</summary>
+  <div class="step"><strong>Circumference:</strong> C = 2πr = 2 × π × 6 = <strong>12π cm</strong>. (Write the number first, then π.)</div>
+  <div class="step"><strong>Area:</strong> A = πr² = π × 6² = π × 36 = <strong>36π cm²</strong>.</div>
+  <div class="step"><strong>Why bother?</strong> 12π and 36π are exact. As decimals they would be 37.7 cm and 113.1 cm² (1 d.p.), which are rounded.</div>
+</details>
+<details>
+  <summary>A circular pond has area 50 m². Find its radius to 1 d.p.</summary>
+  <div class="step"><strong>Formula with what you know:</strong> πr² = 50.</div>
+  <div class="step"><strong>Undo × π:</strong> r² = 50 ÷ π = 15.915… </div>
+  <div class="step"><strong>Undo the square:</strong> r = √15.915… = 3.989… m.</div>
+  <div class="step"><strong>Round:</strong> r = <strong>4.0 m</strong> to 1 d.p. (Keep the .0: it shows the accuracy.)</div>
+  <div class="step"><strong>Check:</strong> π × 3.989…² = 50 ✓. Forgetting the square root would give 15.9 m, a pond far too big.</div>
+</details>
+<details>
+  <summary>A garden is a 10 m × 6 m rectangle with a semicircle on one 6 m end. Find its perimeter and area to 1 d.p.</summary>
+  <div class="step"><strong>Sketch it.</strong> The semicircle's diameter is the 6 m end, so d = 6 m and r = 3 m. That 6 m end is <em>inside</em> the shape now, so it is not part of the perimeter.</div>
+  <div class="step"><strong>Curved edge:</strong> half of πd = ½ × π × 6 = 3π = 9.424… m.</div>
+  <div class="step"><strong>Straight edges:</strong> 10 + 6 + 10 = 26 m (the two long sides and the far end).</div>
+  <div class="step"><strong>Perimeter:</strong> 26 + 9.424… = 35.424… = <strong>35.4 m</strong> (1 d.p.).</div>
+  <div class="step"><strong>Area:</strong> rectangle 10 × 6 = 60 m²; semicircle ½ × π × 3² = 4.5π = 14.137… m². Total = 74.137… = <strong>74.1 m²</strong> (1 d.p.).</div>
+</details>
+<details>
+  <summary>Extension: a sector has angle 60° and radius 9 cm. Find its arc length, perimeter and area.</summary>
+  <div class="step"><strong>Fraction of the circle:</strong> 60/360 = 1/6.</div>
+  <div class="step"><strong>Arc:</strong> 1/6 × 2 × π × 9 = 1/6 × 18π = 3π = 9.424… = <strong>9.4 cm</strong> (1 d.p.).</div>
+  <div class="step"><strong>Perimeter of the sector:</strong> arc + two radii = 9.424… + 9 + 9 = 27.424… = <strong>27.4 cm</strong>.</div>
+  <div class="step"><strong>Area:</strong> 1/6 × π × 9² = 1/6 × 81π = 13.5π = 42.411… = <strong>42.4 cm²</strong> (1 d.p.).</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>The parts of a circle: <strong>centre</strong>, <strong>radius</strong> (centre to edge), <strong>diameter</strong> (edge to edge through the centre), <strong>circumference</strong> (the distance round), <strong>chord</strong> (a straight line joining two points on the circle), <strong>tangent</strong> (a straight line touching the circle at one point), <strong>arc</strong> (part of the circumference), <strong>sector</strong> (a "pizza slice" between two radii) and <strong>segment</strong> (the piece cut off by a chord).</li>
+  <li>d = 2r and r = d ÷ 2. Always write both down before you start.</li>
+  <li>For every circle, circumference ÷ diameter is the same number, <strong>π = 3.14159…</strong></li>
+  <li>Circumference: <strong>C = πd = 2πr</strong> (a length, in cm). Area: <strong>A = πr²</strong> (in cm²), which you can see by rearranging sectors into a rectangle πr wide and r tall.</li>
+  <li>Use the π button and round at the end (e.g. to 1 d.p.), or give an exact answer <strong>in terms of π</strong>, like 12π cm.</li>
+  <li>Work backwards with inverse operations: r = C ÷ 2π, and r = √(A ÷ π).</li>
+  <li>For semicircles, quarter circles and composite shapes, the perimeter is the curved part <strong>plus all the straight edges</strong>; the area is the fraction of πr² plus any other pieces.</li>
+  <li>Extension: arc length = θ/360 × 2πr and sector area = θ/360 × πr².</li>
+</ul>
+
+<footer>Made for KS3 students. Circles, circumference and area are in the England national curriculum at key stage 3 under Geometry and measures. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const PI = Math.PI;
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat(v.toFixed(d)).toString()) : '—';
+const dp1 = v => isFinite(v) ? minus(v.toFixed(1)) : '—';
+const long = v => isFinite(v) ? minus((Math.floor(v*1000+1e-9)/1000).toFixed(3)) + '…' : '—';
+const piStr = k => { const s = fmt(k,4); return (s === '1' ? '' : s) + 'π'; };
+const isNice = k => Math.abs(k*1000 - Math.round(k*1000)) < 1e-9;
+const F = () => `font-family="${css('--mono')}"`;
+const pt = (cx,cy,r,a) => [cx + r*Math.cos(a*PI/180), cy + r*Math.sin(a*PI/180)];
+function arcD(cx,cy,r,a0,a1){ const [x0,y0]=pt(cx,cy,r,a0),[x1,y1]=pt(cx,cy,r,a1); return `M${x0},${y0} A${r},${r} 0 ${(a1-a0)>180?1:0} 1 ${x1},${y1}`; }
+function sectorD(cx,cy,r,a0,a1){ const [x0,y0]=pt(cx,cy,r,a0),[x1,y1]=pt(cx,cy,r,a1); return `M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${(a1-a0)>180?1:0} 1 ${x1},${y1} Z`; }
+const num = el => { const v = parseFloat(String(el.value).replace('−','-')); return isFinite(v) ? v : NaN; };
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* 1. parts of a circle */
+const PARTS = {
+  centre:{name:'Centre',col:'--accent',def:'The point exactly in the middle. Every point on the circle is the same distance from it. It is where the compass point (or the pin) goes.'},
+  radius:{name:'Radius',col:'--accent',def:'A straight line from the centre to the edge, or its length. Every radius of a circle is the same length. Think of a spoke on a bicycle wheel. Plural: radii.'},
+  diameter:{name:'Diameter',col:'--two',def:'A straight line from edge to edge that passes through the centre. It is two radii end to end, so d = 2r. It is the width of the circle, like measuring across a pizza.'},
+  circumference:{name:'Circumference',col:'--hi',def:'The distance all the way round the edge: the circle\'s perimeter. The crust of a pizza, or the rim of a wheel.'},
+  chord:{name:'Chord',col:'--two',def:'A straight line joining two points on the circle. It does not have to go through the centre. The diameter is the longest possible chord.'},
+  tangent:{name:'Tangent',col:'--two',def:'A straight line outside the circle that just touches it at exactly one point. A wheel resting on the road: the road is a tangent. It meets the radius at a right angle.'},
+  arc:{name:'Arc',col:'--hi',def:'Part of the circumference: a curved piece of the edge. Like one piece of crust on a slice of pizza.'},
+  sector:{name:'Sector',col:'--accent',def:'A region between two radii and an arc: a slice of pizza or a piece of a pie chart.'},
+  segment:{name:'Segment',col:'--accent',def:'The region between a chord and an arc: what you get if you cut a straight line across a pizza without going through the middle.'}
+};
+let ptSel = 'radius';
+const ptSvg = $('ptSvg');
+function drawPT(){
+  const cx=190, cy=170, r=120, mu=css('--muted'), fg=css('--fg');
+  const on = k => ptSel===k;
+  const col = k => on(k) ? css(PARTS[k].col) : mu;
+  const w = k => on(k) ? 5 : 2;
+  const lab = (k,x,y,anchor='start') => `<text x="${x}" y="${y}" font-size="${on(k)?15:12}" font-weight="${on(k)?700:400}" ${F()} fill="${on(k)?css(PARTS[k].col):mu}" text-anchor="${anchor}" pointer-events="none">${k}</text>`;
+  const hit = d => `<path d="${d}" stroke="transparent" stroke-width="18" fill="none"/>`;
+  let s='';
+  // regions
+  const sec = sectorD(cx,cy,r,285,320);
+  const [c1x,c1y]=pt(cx,cy,r,60),[c2x,c2y]=pt(cx,cy,r,130);
+  const seg = `M${c1x},${c1y} A${r},${r} 0 0 1 ${c2x},${c2y} Z`;
+  s+=`<g data-part="sector"><path d="${sec}" fill="${on('sector')?css('--accent'):css('--grid')}" fill-opacity="${on('sector')?0.35:0.9}" stroke="none"/></g>`;
+  s+=`<g data-part="segment"><path d="${seg}" fill="${on('segment')?css('--accent'):css('--grid')}" fill-opacity="${on('segment')?0.35:0.9}" stroke="none"/></g>`;
+  // circumference
+  s+=`<g data-part="circumference"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${on('circumference')?css('--hi'):fg}" stroke-width="${on('circumference')?5:2}"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="transparent" stroke-width="16"/></g>`;
+  // arc
+  const ad = arcD(cx,cy,r,145,190);
+  s+=`<g data-part="arc"><path d="${ad}" fill="none" stroke="${on('arc')?css('--hi'):mu}" stroke-width="${on('arc')?7:4}" stroke-linecap="round"/>${hit(ad)}</g>`;
+  // tangent
+  const td = `M${cx-120},${cy-r} L${cx+120},${cy-r}`;
+  s+=`<g data-part="tangent"><path d="${td}" stroke="${col('tangent')}" stroke-width="${w('tangent')}" stroke-linecap="round"/>${hit(td)}<circle cx="${cx}" cy="${cy-r}" r="3.5" fill="${col('tangent')}"/></g>`;
+  // chord
+  const cd = `M${c1x},${c1y} L${c2x},${c2y}`;
+  s+=`<g data-part="chord"><path d="${cd}" stroke="${col('chord')}" stroke-width="${w('chord')}" stroke-linecap="round"/>${hit(cd)}</g>`;
+  // diameter
+  const [d1x,d1y]=pt(cx,cy,r,200),[d2x,d2y]=pt(cx,cy,r,20);
+  const dd = `M${d1x},${d1y} L${d2x},${d2y}`;
+  s+=`<g data-part="diameter"><path d="${dd}" stroke="${col('diameter')}" stroke-width="${w('diameter')}" stroke-linecap="round"/>${hit(dd)}</g>`;
+  // radius
+  const [rx,ry]=pt(cx,cy,r,320);
+  const rd = `M${cx},${cy} L${rx},${ry}`;
+  s+=`<g data-part="radius"><path d="${rd}" stroke="${col('radius')}" stroke-width="${w('radius')}" stroke-linecap="round"/>${hit(rd)}</g>`;
+  // centre
+  s+=`<g data-part="centre"><circle cx="${cx}" cy="${cy}" r="${on('centre')?7:5}" fill="${on('centre')?css('--accent'):fg}"/><circle cx="${cx}" cy="${cy}" r="14" fill="transparent"/></g>`;
+  // labels
+  s+=lab('centre',cx-10,cy+22,'end')+lab('radius',246,140)+lab('diameter',90,155)+lab('chord',150,255)+lab('segment',184,312,'middle')
+    +lab('arc',58,212,'end')+lab('sector',214,104)+lab('tangent',316,cy-r+4)+lab('circumference',290,296);
+  ptSvg.innerHTML=s;
+  const P=PARTS[ptSel];
+  $('ptInfo').innerHTML=`<strong style="color:${css(P.col)}">${P.name}</strong><br>${P.def}`;
+  $('ptBtns').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.part===ptSel));
+}
+Object.keys(PARTS).forEach(k=>{const b=document.createElement('button');b.className='btn';b.type='button';b.dataset.part=k;b.textContent=PARTS[k].name;b.addEventListener('click',()=>{ptSel=k;drawPT();});$('ptBtns').appendChild(b);});
+const ptPick = e => { const g = e.target.closest && e.target.closest('[data-part]'); if(g && g.dataset.part!==ptSel){ ptSel=g.dataset.part; drawPT(); } };
+ptSvg.addEventListener('pointerover', ptPick);
+ptSvg.addEventListener('pointerdown', ptPick);
+drawPT();
+
+/* 1b. radius and diameter */
+const rdR=$('rdR');
+function drawRD(){
+  const r=+rdR.value; $('rdRv').textContent=' '+fmt(r);
+  const k=9.5, cx=210, cy=115, R=r*k;
+  const ac=css('--accent'), tw=css('--two');
+  let s=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="${css('--accent-soft')}" fill-opacity=".5" stroke="${css('--fg')}" stroke-width="2"/>`;
+  s+=`<line x1="${cx-R}" y1="${cy}" x2="${cx}" y2="${cy}" stroke="${ac}" stroke-width="4"/><line x1="${cx}" y1="${cy}" x2="${cx+R}" y2="${cy}" stroke="${ac}" stroke-width="4" stroke-dasharray="8 4"/>`;
+  s+=`<circle cx="${cx}" cy="${cy}" r="4" fill="${css('--fg')}"/>`;
+  s+=`<text x="${cx-R/2}" y="${cy-8}" font-size="13" ${F()} fill="${ac}" text-anchor="middle" font-weight="600">r = ${fmt(r)}</text><text x="${cx+R/2}" y="${cy-8}" font-size="13" ${F()} fill="${ac}" text-anchor="middle" font-weight="600">r = ${fmt(r)}</text>`;
+  const by=Math.min(cy+R+18,225);
+  s+=`<line x1="${cx-R}" y1="${by}" x2="${cx+R}" y2="${by}" stroke="${tw}" stroke-width="3"/><line x1="${cx-R}" y1="${by-7}" x2="${cx-R}" y2="${by+7}" stroke="${tw}" stroke-width="2"/><line x1="${cx+R}" y1="${by-7}" x2="${cx+R}" y2="${by+7}" stroke="${tw}" stroke-width="2"/>`;
+  s+=`<text x="${cx+R+10}" y="${by+5}" font-size="13" ${F()} fill="${tw}" font-weight="600">d = ${fmt(2*r)}</text>`;
+  $('rdSvg').innerHTML=s;
+  $('rdWork').innerHTML=`<span class="a">radius r = ${fmt(r)} cm</span><br><span class="c">diameter d = 2 × ${fmt(r)} = ${fmt(2*r)} cm</span><br>and back again: r = ${fmt(2*r)} ÷ 2 = ${fmt(r)} cm`;
+}
+rdR.addEventListener('input',drawRD); drawRD();
+
+/* 2a. roll the wheel */
+const rwT=$('rwT'); let rwAnim=null;
+function drawRW(){
+  const t=+rwT.value/1000, r=70, d=2*r, x0=40, gy=172, cy=gy-r;
+  const s=t*PI*d, cx=x0+s, al=s/r;
+  const hi=css('--hi'), tw=css('--two'), mu=css('--muted'), fg=css('--fg');
+  let o=`<line x1="10" y1="${gy}" x2="555" y2="${gy}" stroke="${mu}" stroke-width="1.5"/>`;
+  // diameter blocks
+  for(let i=0;i<3;i++){const a=x0+i*d,b=a+d;o+=`<line x1="${a}" y1="${gy+12}" x2="${b}" y2="${gy+12}" stroke="${tw}" stroke-width="4"/><line x1="${a}" y1="${gy+5}" x2="${a}" y2="${gy+19}" stroke="${tw}" stroke-width="2"/><text x="${(a+b)/2}" y="${gy+32}" text-anchor="middle" font-size="12" ${F()} fill="${tw}">${i+1}d</text>`;}
+  o+=`<line x1="${x0+3*d}" y1="${gy+5}" x2="${x0+3*d}" y2="${gy+19}" stroke="${tw}" stroke-width="2"/>`;
+  // painted line
+  if(s>0) o+=`<line x1="${x0}" y1="${gy}" x2="${x0+s}" y2="${gy}" stroke="${hi}" stroke-width="5" stroke-linecap="butt"/>`;
+  if(t>=0.999) o+=`<text x="${x0+3*d+(PI-3)*d/2}" y="${gy+32}" text-anchor="middle" font-size="12" ${F()} fill="${hi}">+0.14d</text>`;
+  // wheel
+  o+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${css('--panel')}" stroke="${mu}" stroke-width="1"/>`;
+  const P=u=>[cx-r*Math.sin(al-u), cy+r*Math.cos(al-u)];
+  const poly=(u0,u1)=>{let p=[];for(let i=0;i<=60;i++){const u=u0+(u1-u0)*i/60;p.push(P(u).join(','));}return p.join(' ');};
+  if(al<2*PI-1e-6) o+=`<polyline points="${poly(al,2*PI)}" fill="none" stroke="${hi}" stroke-width="5"/>`;
+  if(al>1e-6) o+=`<polyline points="${poly(0,al)}" fill="none" stroke="${mu}" stroke-width="2" stroke-dasharray="3 3"/>`;
+  // rotating diameter
+  const [ax,ay]=[cx-r*Math.sin(al+PI/2), cy+r*Math.cos(al+PI/2)], [bx,by]=[cx-r*Math.sin(al-PI/2), cy+r*Math.cos(al-PI/2)];
+  o+=`<line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="${tw}" stroke-width="3"/><circle cx="${cx}" cy="${cy}" r="4" fill="${fg}"/>`;
+  const [mx,my]=P(0); o+=`<circle cx="${mx}" cy="${my}" r="6" fill="${hi}" stroke="${css('--panel')}" stroke-width="2"/>`;
+  o+=`<text x="12" y="20" font-size="12" ${F()} fill="${mu}">wheel diameter d (plum); painted rim (orange)</text>`;
+  $('rwSvg').innerHTML=o;
+  $('rwLen').textContent=`${fmt(t*100,0)}% of one turn`;
+  $('rwD').textContent=t>=0.999?`π = 3.14159… diameters`:`${fmt(t*PI,2)} diameters`;
+}
+rwT.addEventListener('input',()=>{if(rwAnim){cancelAnimationFrame(rwAnim);rwAnim=null;}drawRW();});
+$('rwPlay').addEventListener('click',()=>{if(rwAnim)cancelAnimationFrame(rwAnim);if(reduceMotion){rwT.value=1000;drawRW();return;}const t0=performance.now();const step=now=>{const t=Math.min(1,(now-t0)/4000);rwT.value=Math.round(t*1000);drawRW();rwAnim=t<1?requestAnimationFrame(step):null;};rwAnim=requestAnimationFrame(step);});
+drawRW();
+
+/* 2b. measure-the-circle table */
+const MS=[
+  {name:'1p coin',r:1.015,u:'cm',prec:0.1},
+  {name:'CD',r:6,u:'cm',prec:0.1},
+  {name:'dinner plate',r:13.5,u:'cm',prec:0.1},
+  {name:'bike wheel',r:33,u:'cm',prec:0.1},
+  {name:'London Eye',r:60,u:'m',prec:0.1}
+];
+const measured = row => Math.round(2*PI*row.r/row.prec)*row.prec;
+function drawMS(){
+  const tr=css('--two'), hi=css('--hi'), ac=css('--accent'), mu=css('--muted');
+  let h=`<tr><th>Circle</th><th>r</th><th>d</th><th>C measured</th><th>C ÷ d</th></tr>`;
+  MS.forEach((row,i)=>{const d=2*row.r,C=measured(row);h+=`<tr><td>${row.name}</td><td>${fmt(row.r,3)}</td><td class="on">${fmt(d,3)}</td><td style="color:${hi}">${fmt(C,1)} ${row.u}</td><td><strong>${fmt(C/d,4)}</strong></td></tr>`;});
+  const avg=MS.reduce((a,row)=>a+measured(row)/(2*row.r),0)/MS.length;
+  h+=`<tr><td><em>average</em></td><td></td><td></td><td></td><td><strong>${fmt(avg,4)}</strong></td></tr>`;
+  $('msTable').innerHTML=h;
+  const L=MS[MS.length-1], d=2*L.r, C=measured(L);
+  // picture: circle + string comparison
+  const R=48, cx=70, cy=70;
+  let s=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${hi}" stroke-width="4"/><line x1="${cx-R}" y1="${cy}" x2="${cx+R}" y2="${cy}" stroke="${tr}" stroke-width="3"/><circle cx="${cx}" cy="${cy}" r="3" fill="${css('--fg')}"/>`;
+  s+=`<text x="150" y="40" font-size="12" ${F()} fill="${mu}">${L.name}</text><text x="150" y="60" font-size="12" ${F()} fill="${tr}">d = ${fmt(d,3)} ${L.u}</text><text x="150" y="80" font-size="12" ${F()} fill="${hi}">C ≈ ${fmt(C,1)} ${L.u}</text>`;
+  const unit=2*R*0.88, x0=14, y1=160, y2=190;
+  s+=`<line x1="${x0}" y1="${y1}" x2="${x0+unit*C/d}" y2="${y1}" stroke="${hi}" stroke-width="5"/><text x="${x0}" y="${y1-9}" font-size="11" ${F()} fill="${hi}">C, straightened out</text>`;
+  for(let i=0;i<3;i++){const a=x0+i*unit;s+=`<line x1="${a+1}" y1="${y2}" x2="${a+unit-1}" y2="${y2}" stroke="${tr}" stroke-width="5"/>`;}
+  s+=`<text x="${x0}" y="${y2+20}" font-size="11" ${F()} fill="${tr}">3 diameters, and a bit left over</text>`;
+  $('msSvg').innerHTML=s;
+}
+$('msAdd').addEventListener('click',()=>{const r=num($('msR'));const M=$('msMsg');if(!(r>0)){M.className='msg bad';M.textContent='Type a radius bigger than 0.';return;}if(r>100000){M.className='msg bad';M.textContent='That\'s a very big circle! Try something under 100 000 cm.';return;}MS.push({name:`my circle ${MS.length-4}`,r:r,u:'cm',prec:0.1});if(MS.length>10)MS.splice(5,1);M.className='msg';const C=measured(MS[MS.length-1]);M.textContent=`Radius ${fmt(r,3)} cm: diameter ${fmt(2*r,3)} cm, circumference measured to the nearest mm ≈ ${fmt(C,1)} cm, and ${fmt(C,1)} ÷ ${fmt(2*r,3)} ≈ ${fmt(C/(2*r),4)}.${r<1?' (Tiny circles wobble more, because 1 mm is a big part of them.)':''}`;drawMS();});
+drawMS();
+
+/* 3. circumference calculator */
+const ccG=$('ccG'),ccV=$('ccV'),ccP=$('ccP');
+function drawCC(){
+  const v=num(ccV), giv=ccG.value, mode=ccP.value, W=$('ccWork');
+  const ac=css('--accent'),tw=css('--two'),hi=css('--hi'),mu=css('--muted');
+  const cx=150,cy=125,R=95;
+  let s=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${hi}" stroke-width="5"/><circle cx="${cx}" cy="${cy}" r="4" fill="${css('--fg')}"/>`;
+  if(giv==='r') s+=`<line x1="${cx}" y1="${cy}" x2="${cx+R}" y2="${cy}" stroke="${ac}" stroke-width="3"/><text x="${cx+R/2}" y="${cy-8}" text-anchor="middle" font-size="13" ${F()} fill="${ac}">r = ${isFinite(v)?fmt(v,3):'?'}</text>`;
+  else s+=`<line x1="${cx-R}" y1="${cy}" x2="${cx+R}" y2="${cy}" stroke="${tw}" stroke-width="3"/><text x="${cx}" y="${cy-8}" text-anchor="middle" font-size="13" ${F()} fill="${tw}">d = ${isFinite(v)?fmt(v,3):'?'}</text>`;
+  if(!(v>0)){ $('ccSvg').innerHTML=s; W.innerHTML='Type a length bigger than 0.'; return; }
+  const d = giv==='r'?2*v:v;
+  let C, line;
+  if(mode==='pi'){C=PI*d;line=`C = π × ${fmt(d,3)} = ${long(C)}<br>C = <strong>${dp1(C)} cm</strong> (to 1 d.p.)`;}
+  else if(mode==='314'){C=3.14*d;line=`C ≈ 3.14 × ${fmt(d,3)} = ${fmt(C,4)}<br>C ≈ <strong>${dp1(C)} cm</strong> (to 1 d.p.)<br><span class="c">π button gives ${dp1(PI*d)} cm: ${dp1(C)===dp1(PI*d)?'the same to 1 d.p. here.':'a little different, because 3.14 is not quite π.'}</span>`;}
+  else {C=PI*d;line=`C = π × ${fmt(d,3)} = <strong>${piStr(d)} cm</strong> (exact)<br><span class="c">just put the number in front of π. As a decimal that would be ${dp1(C)} cm.</span>`;}
+  s+=`<path d="${arcD(cx,cy,R+14,200,340)}" fill="none" stroke="${hi}" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${cx}" y="${cy-R-22}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${hi}">C = ${mode==='exact'?piStr(d):dp1(C)} cm</text>`;
+  s+=`<text x="270" y="60" font-size="12" ${F()} fill="${mu}">round the edge:</text><text x="270" y="80" font-size="12" ${F()} fill="${hi}">just over 3 × d</text><text x="270" y="110" font-size="12" ${F()} fill="${tw}">d = ${fmt(d,3)} cm</text><text x="270" y="130" font-size="12" ${F()} fill="${mu}">3 × d = ${fmt(3*d,3)}</text>`;
+  $('ccSvg').innerHTML=s;
+  W.innerHTML=(giv==='r'?`<span class="a">r = ${fmt(v,3)}</span>, so <span class="c">d = 2 × ${fmt(v,3)} = ${fmt(d,3)} cm</span><br>`:`<span class="c">d = ${fmt(d,3)} cm</span><br>`)+`<span class="b">C = πd</span><br>`+line+`<br><span class="a">sense check: a bit more than 3 × ${fmt(d,3)} = ${fmt(3*d,3)} ✓</span>`;
+}
+[ccG,ccV,ccP].forEach(e=>e.addEventListener('input',drawCC)); drawCC();
+
+/* 4a. sector rearrangement */
+const raN=$('raN'),raT=$('raT'); let raAnim=null;
+function drawRA(){
+  const n=[4,8,16,32][+raN.value], t=+raT.value/100; $('raNv').textContent=' '+n;
+  const r=90, th=360/n, h=th/2*PI/180, s=Math.sin(h), c=Math.cos(h);
+  const ccx=280, ccy=110, top=262;
+  const x0=280-(n-1)*r*s/2;
+  const ac=css('--accent'), hi=css('--hi'), pn=css('--panel'), mu=css('--muted');
+  const shape=`M0,0 L${r*c},${-r*s} A${r},${r} 0 0 1 ${r*c},${r*s} Z`;
+  let o=`<circle cx="${ccx}" cy="${ccy}" r="${r}" fill="none" stroke="${css('--line')}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  const rw=PI*r, rx=280-rw/2;
+  o+=`<rect x="${rx}" y="${top}" width="${rw}" height="${r}" fill="none" stroke="${css('--line')}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  const e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  for(let k=0;k<n;k++){
+    const phi=(k+0.5)*th, bottom=k<n/2;
+    let tx,ty,rot;
+    if(bottom){const j=n/2-1-k;tx=x0+j*2*r*s;ty=top;rot=90;}
+    else{const j=k-n/2;tx=x0+r*s+j*2*r*s;ty=top+r*c;rot=270;}
+    const X=ccx+(tx-ccx)*e, Y=ccy+(ty-ccy)*e, A=phi+(rot-phi)*e;
+    o+=`<path d="${shape}" transform="translate(${X},${Y}) rotate(${A})" fill="${bottom?ac:hi}" fill-opacity=".55" stroke="${pn}" stroke-width="1"/>`;
+  }
+  if(t>0.95){
+    const lo=top+r+22;
+    o+=`<line x1="${rx}" y1="${lo}" x2="${rx+rw}" y2="${lo}" stroke="${hi}" stroke-width="2"/><line x1="${rx}" y1="${lo-6}" x2="${rx}" y2="${lo+6}" stroke="${hi}" stroke-width="2"/><line x1="${rx+rw}" y1="${lo-6}" x2="${rx+rw}" y2="${lo+6}" stroke="${hi}" stroke-width="2"/>`;
+    o+=`<text x="280" y="${lo+20}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${hi}">≈ πr  (half the circumference)</text>`;
+    const lx=rx-26;
+    o+=`<line x1="${lx}" y1="${top}" x2="${lx}" y2="${top+r}" stroke="${ac}" stroke-width="2"/><text x="${lx-8}" y="${top+r/2+5}" text-anchor="end" font-size="14" font-weight="600" ${F()} fill="${ac}">r</text>`;
+  }
+  $('raSvg').innerHTML=o;
+  const W=$('raWork'), bump=(1-c)*100, width=n*r*s/r;
+  W.innerHTML=`${n} slices. Each slice's straight sides are radii, so the row is <span class="a">r</span> tall.<br>Bottom edge = ${n/2} curved bits = half the circumference = <span class="b">πr</span>.<br>How wavy is the top? Bumps are ${fmt(bump,1)}% of r high. ${n>=32?'Almost flat: it\'s practically a rectangle.':'More slices make it straighter.'}<br><span class="c">area = width × height = πr × r = πr²</span>`;
+}
+raN.addEventListener('input',drawRA);
+raT.addEventListener('input',()=>{if(raAnim){cancelAnimationFrame(raAnim);raAnim=null;}drawRA();});
+$('raPlay').addEventListener('click',()=>{if(raAnim)cancelAnimationFrame(raAnim);if(reduceMotion){raT.value=100;drawRA();return;}const t0=performance.now();const step=now=>{const t=Math.min(1,(now-t0)/2500);raT.value=Math.round(t*100);drawRA();raAnim=t<1?requestAnimationFrame(step):null;};raAnim=requestAnimationFrame(step);});
+drawRA();
+
+/* 4b. area calculator with r² squares */
+const arR=$('arR');
+function drawAR(){
+  const r=num(arR), ac=css('--accent'), mu=css('--muted'), as=css('--accent-soft');
+  const R=80, cx=100, cy=105;
+  let s=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="${ac}" fill-opacity=".18" stroke="${css('--fg')}" stroke-width="2"/>`;
+  s+=`<rect x="${cx}" y="${cy-R}" width="${R}" height="${R}" fill="none" stroke="${ac}" stroke-width="2.5"/><line x1="${cx}" y1="${cy}" x2="${cx+R}" y2="${cy}" stroke="${ac}" stroke-width="3"/><text x="${cx+R/2}" y="${cy+16}" text-anchor="middle" font-size="12" ${F()} fill="${ac}">r</text><text x="${cx+R/2}" y="${cy-R/2+5}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${ac}">r²</text>`;
+  const x0=215, sq=R*0.88;
+  for(let i=0;i<3;i++) s+=`<rect x="${x0+i*sq}" y="${cy-sq/2}" width="${sq-3}" height="${sq}" fill="${ac}" fill-opacity=".3" stroke="${ac}" stroke-width="1.5"/><text x="${x0+i*sq+sq/2}" y="${cy+5}" text-anchor="middle" font-size="13" ${F()} fill="${ac}">r²</text>`;
+  s+=`<rect x="${x0+3*sq}" y="${cy-sq/2}" width="${(PI-3)*sq}" height="${sq}" fill="${ac}" fill-opacity=".3" stroke="${ac}" stroke-width="1.5"/>`;
+  s+=`<text x="${x0}" y="${cy+sq/2+22}" font-size="12" ${F()} fill="${mu}">circle = 3.14159… of the r² squares</text>`;
+  $('arSvg').innerHTML=s;
+  const W=$('arWork');
+  if(!(r>0)){W.innerHTML='Type a radius bigger than 0.';return;}
+  const A=PI*r*r, d=2*r;
+  W.innerHTML=`<span class="a">r = ${fmt(r,3)} cm</span><br>A = πr²<br>r² = ${fmt(r,3)} × ${fmt(r,3)} = ${fmt(r*r,4)}<br>A = π × ${fmt(r*r,4)} = ${long(A)}<br>A = <strong>${dp1(A)} cm²</strong> (to 1 d.p.) &nbsp; or exactly <strong>${isNice(r*r)?piStr(r*r):'πr²'} cm²</strong>`+
+   `<br><br><span class="x">✗ π × d² = π × ${fmt(d,3)}² = ${dp1(PI*d*d)}</span> (used the diameter: 4 times too big)`+
+   `<br><span class="x">✗ (π × r)² = ${fmt(PI*r,3)}² = ${dp1((PI*r)**2)}</span> (squared π as well)`+
+   `<br><span class="x">✗ 2 × π × r = ${dp1(2*PI*r)}</span> (that's the circumference, a length in cm)`;
+}
+arR.addEventListener('input',drawAR); drawAR();
+
+/* 5. working backwards */
+const bwT=$('bwT'),bwV=$('bwV');
+function drawBW(){
+  const v=num(bwV), isC=bwT.value==='C'; $('bwU').textContent=isC?'cm':'cm²';
+  const ac=css('--accent'),hi=css('--hi'),mu=css('--muted');
+  const cx=140,cy=115,R=90;
+  let s=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="${isC?'none':ac}" fill-opacity=".2" stroke="${isC?hi:css('--fg')}" stroke-width="${isC?5:2}"/><line x1="${cx}" y1="${cy}" x2="${cx+R*Math.cos(-0.6)}" y2="${cy+R*Math.sin(-0.6)}" stroke="${ac}" stroke-width="3"/><circle cx="${cx}" cy="${cy}" r="4" fill="${css('--fg')}"/>`;
+  const W=$('bwWork');
+  if(!(v>0)){$('bwSvg').innerHTML=s;W.innerHTML='Type a value bigger than 0.';return;}
+  let r, lines;
+  if(isC){r=v/(2*PI);lines=`<span class="b">C = 2πr</span><br>${fmt(v,3)} = 2 × π × r<br>r = ${fmt(v,3)} ÷ (2 × π)<br>r = ${fmt(v,3)} ÷ ${long(2*PI)} = ${long(r)}<br>r = <strong>${dp1(r)} cm</strong> (to 1 d.p.), so d = ${dp1(2*r)} cm<br><span class="c">check: 2 × π × ${fmt(r,4)} = ${fmt(2*PI*r,2)} ✓</span><br><span class="x">✗ ${fmt(v,3)} ÷ π = ${dp1(v/PI)} is the diameter, not the radius</span>`;}
+  else{r=Math.sqrt(v/PI);lines=`<span class="a">A = πr²</span><br>${fmt(v,3)} = π × r²<br>r² = ${fmt(v,3)} ÷ π = ${long(v/PI)}<br>r = √${fmt(v/PI,4)} = ${long(r)}<br>r = <strong>${dp1(r)} cm</strong> (to 1 d.p.)<br><span class="c">check: π × ${fmt(r,4)}² = ${fmt(PI*r*r,2)} ✓</span><br><span class="x">✗ stopping at ${dp1(v/PI)} forgets the square root (that's r², not r)</span>`;}
+  s+=`<text x="${cx+R*0.5}" y="${cy-R*0.45}" font-size="13" font-weight="600" ${F()} fill="${ac}">r = ?</text>`;
+  s+=`<text x="255" y="90" font-size="13" ${F()} fill="${isC?hi:ac}">${isC?'C':'A'} = ${fmt(v,3)} ${isC?'cm':'cm²'}</text><text x="255" y="120" font-size="13" font-weight="600" ${F()} fill="${ac}">r ≈ ${dp1(r)} cm</text>`;
+  $('bwSvg').innerHTML=s; W.innerHTML=lines;
+}
+[bwT,bwV].forEach(e=>e.addEventListener('input',drawBW)); drawBW();
+
+/* 6. composite shapes */
+const cpS=$('cpS'),cpR=$('cpR'),cpL=$('cpL');
+function drawCP(){
+  const sh=cpS.value, r=+cpR.value, L=+cpL.value;
+  $('cpRv').textContent=' '+fmt(r); $('cpLv').textContent=' '+fmt(L);
+  $('cpLwrap').hidden=!(sh==='arch'||sh==='track'); $('cpLname').textContent=sh==='arch'?'height h':'straight length L';
+  const ac=css('--accent'),hi=css('--hi'),tw=css('--two'),mu=css('--muted');
+  let bb;
+  if(sh==='semi')bb=[-r,r,0,r]; else if(sh==='quarter')bb=[0,r,0,r]; else if(sh==='arch')bb=[-r,r,0,L+r]; else bb=[-L/2-r,L/2+r,-r,r];
+  const k=Math.min(300/(bb[1]-bb[0]),190/(bb[3]-bb[2]));
+  const xm=(bb[0]+bb[1])/2, ym=(bb[2]+bb[3])/2;
+  const X=x=>200+(x-xm)*k, Y=y=>130-(y-ym)*k, P=(x,y)=>`${X(x)},${Y(y)}`, Rk=r*k;
+  const A=(x,y)=>`A${Rk},${Rk} 0 0 0 ${P(x,y)}`;
+  const seg=(x1,y1,x2,y2,col,lab,off=[0,0])=>`<line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="${col}" stroke-width="4" stroke-linecap="round"/>`+(lab?`<text x="${(X(x1)+X(x2))/2+off[0]}" y="${(Y(y1)+Y(y2))/2+off[1]}" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${col}">${lab}</text>`:'');
+  const dash=(x1,y1,x2,y2)=>`<line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="${mu}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  let fill,curve,s='',cur,curTxt,str,strTxt,area,areaTxt;
+  if(sh==='semi'){
+    fill=`M${P(-r,0)} L${P(r,0)} ${A(-r,0)} Z`; curve=`M${P(r,0)} ${A(-r,0)}`;
+    s+=seg(-r,0,r,0,tw,`d = ${fmt(2*r)}`,[0,18])+`<line x1="${X(0)}" y1="${Y(0)}" x2="${X(r*Math.SQRT1_2)}" y2="${Y(r*Math.SQRT1_2)}" stroke="${ac}" stroke-width="2" stroke-dasharray="5 3"/><text x="${X(r*0.32)}" y="${Y(r*0.42)}" font-size="12" ${F()} fill="${ac}">r</text>`;
+    cur=PI*r; curTxt=`½ × π × ${fmt(2*r)} = ${long(cur)}`; str=2*r; strTxt=`d = ${fmt(2*r)}`; area=PI*r*r/2; areaTxt=`½ × π × ${fmt(r)}² = ${long(area)}`;
+  } else if(sh==='quarter'){
+    fill=`M${P(0,0)} L${P(r,0)} ${A(0,r)} Z`; curve=`M${P(r,0)} ${A(0,r)}`;
+    s+=seg(0,0,r,0,tw,`r = ${fmt(r)}`,[0,18])+seg(0,0,0,r,tw,`r = ${fmt(r)}`,[-34,4]);
+    cur=PI*r/2; curTxt=`¼ × 2 × π × ${fmt(r)} = ${long(cur)}`; str=2*r; strTxt=`${fmt(r)} + ${fmt(r)} = ${fmt(2*r)}`; area=PI*r*r/4; areaTxt=`¼ × π × ${fmt(r)}² = ${long(area)}`;
+  } else if(sh==='arch'){
+    fill=`M${P(-r,0)} L${P(r,0)} L${P(r,L)} ${A(-r,L)} Z`; curve=`M${P(r,L)} ${A(-r,L)}`;
+    s+=dash(-r,L,r,L)+seg(-r,0,r,0,tw,`${fmt(2*r)}`,[0,18])+seg(r,0,r,L,tw,`h = ${fmt(L)}`,[36,4])+seg(-r,0,-r,L,tw,`${fmt(L)}`,[-22,4]);
+    cur=PI*r; curTxt=`½ × π × ${fmt(2*r)} = ${long(cur)}`; str=2*r+2*L; strTxt=`${fmt(2*r)} + ${fmt(L)} + ${fmt(L)} = ${fmt(str)}`; area=2*r*L+PI*r*r/2; areaTxt=`${fmt(2*r)} × ${fmt(L)} + ½ × π × ${fmt(r)}² = ${fmt(2*r*L)} + ${long(PI*r*r/2)}`;
+  } else {
+    fill=`M${P(-L/2,-r)} L${P(L/2,-r)} ${A(L/2,r)} L${P(-L/2,r)} ${A(-L/2,-r)} Z`; curve=`M${P(L/2,-r)} ${A(L/2,r)} M${P(-L/2,r)} ${A(-L/2,-r)}`;
+    s+=dash(-L/2,-r,-L/2,r)+dash(L/2,-r,L/2,r)+seg(-L/2,r,L/2,r,tw,`L = ${fmt(L)}`,[0,-8])+seg(-L/2,-r,L/2,-r,tw,`${fmt(L)}`,[0,18])+`<line x1="${X(L/2)}" y1="${Y(0)}" x2="${X(L/2+r)}" y2="${Y(0)}" stroke="${ac}" stroke-width="2" stroke-dasharray="5 3"/><text x="${X(L/2+r/2)}" y="${Y(0)-6}" text-anchor="middle" font-size="12" ${F()} fill="${ac}">r</text>`;
+    cur=2*PI*r; curTxt=`two semicircles = one circle = π × ${fmt(2*r)} = ${long(cur)}`; str=2*L; strTxt=`${fmt(L)} + ${fmt(L)} = ${fmt(str)}`; area=2*r*L+PI*r*r; areaTxt=`${fmt(L)} × ${fmt(2*r)} + π × ${fmt(r)}² = ${fmt(2*r*L)} + ${long(PI*r*r)}`;
+  }
+  $('cpSvg').innerHTML=`<path d="${fill}" fill="${ac}" fill-opacity=".18" stroke="none"/><path d="${curve}" fill="none" stroke="${hi}" stroke-width="4" stroke-linecap="round"/>`+s;
+  const per=cur+str;
+  $('cpCur').textContent=dp1(cur)+' cm'; $('cpStr').textContent=fmt(str)+' cm'; $('cpPer').textContent=dp1(per)+' cm'; $('cpArea').textContent=dp1(area)+' cm²';
+  $('cpWork').innerHTML=`<span class="b">curved: ${curTxt}</span><br><span class="c">straight: ${strTxt}</span><br>perimeter = ${long(cur)} + ${fmt(str)} = ${long(per)} = <strong>${dp1(per)} cm</strong> (1 d.p.)<br><span class="a">area = ${areaTxt} = ${long(area)} = <strong>${dp1(area)} cm²</strong></span><br><span class="x">✗ forgetting the straight edges would give ${dp1(cur)} cm</span>`;
+}
+[cpS,cpR,cpL].forEach(e=>e.addEventListener('input',drawCP)); drawCP();
+
+/* 7. arcs and sectors */
+const scA=$('scA'),scR=$('scR');
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+function drawSC(){
+  const th=+scA.value, r=+scR.value; $('scAv').textContent=' '+th+'°'; $('scRv').textContent=' '+r;
+  const ac=css('--accent'),hi=css('--hi'),mu=css('--muted');
+  const cx=200,cy=140,R=110, a0=-90, a1=-90+th;
+  let s=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${css('--line')}" stroke-width="2"/>`;
+  if(th>=360) s+=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="${ac}" fill-opacity=".22" stroke="${hi}" stroke-width="5"/>`;
+  else{
+    s+=`<path d="${sectorD(cx,cy,R,a0,a1)}" fill="${ac}" fill-opacity=".22" stroke="none"/><path d="${arcD(cx,cy,R,a0,a1)}" fill="none" stroke="${hi}" stroke-width="5"/>`;
+    const [x0,y0]=pt(cx,cy,R,a0),[x1,y1]=pt(cx,cy,R,a1);
+    s+=`<line x1="${cx}" y1="${cy}" x2="${x0}" y2="${y0}" stroke="${ac}" stroke-width="3"/><line x1="${cx}" y1="${cy}" x2="${x1}" y2="${y1}" stroke="${ac}" stroke-width="3"/>`;
+    s+=`<path d="${arcD(cx,cy,26,a0,a1)}" fill="none" stroke="${css('--fg')}" stroke-width="1.5"/>`;
+    const [lx,ly]=pt(cx,cy,44,a0+th/2); s+=`<text x="${lx}" y="${ly+4}" text-anchor="middle" font-size="12" ${F()} fill="${css('--fg')}">${th}°</text>`;
+  }
+  s+=`<circle cx="${cx}" cy="${cy}" r="3.5" fill="${css('--fg')}"/>`;
+  const [rx,ry]=pt(cx,cy,R/2,-90); s+=`<text x="${rx-8}" y="${ry}" text-anchor="end" font-size="12" ${F()} fill="${ac}">r = ${r}</text>`;
+  $('scSvg').innerHTML=s;
+  const g=gcd(th,360), fr=th/360, fs=`${th/g}/${360/g}`;
+  const ak=fr*2*r, sk=fr*r*r, arc=ak*PI, sec=sk*PI;
+  $('scWork').innerHTML=`fraction of the circle = ${th}/360 = <strong>${fs}</strong><br><span class="b">arc = ${fs} × 2 × π × ${r} = ${isNice(ak)?piStr(ak)+' = ':''}${long(arc)} ≈ <strong>${dp1(arc)} cm</strong></span><br><span class="a">sector area = ${fs} × π × ${r}² = ${isNice(sk)?piStr(sk)+' = ':''}${long(sec)} ≈ <strong>${dp1(sec)} cm²</strong></span><br><span class="c">sector perimeter = arc + 2 radii = ${long(arc)} + ${2*r} ≈ <strong>${dp1(arc+2*r)} cm</strong></span>`;
+}
+[scA,scR].forEach(e=>e.addEventListener('input',drawSC)); drawSC();
+
+/* 8. practice generator */
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const GROUPS={C:['Cr','Cd'],A:['Ar','Ad'],pi:['Cpi','Api'],back:['rC','rA'],part:['semiP','semiA','quarterP']};
+const GEN={
+  Cr:()=>{const r=rnd(3,15);return{q:`Find the circumference of a circle with radius ${r} cm. Give your answer to 1 d.p.`,pic:{s:'circle',show:'r',v:r},unit:'cm',ans:2*PI*r,a314:2*3.14*r,
+    work:[`r = ${r}, so d = ${2*r}`,`C = πd = π × ${2*r}`,`= ${long(2*PI*r)}`,`C = ${dp1(2*PI*r)} cm`],
+    wrong:[[PI*r,'You worked out π × r. That\'s only half way round. C = 2πr: double the radius first.'],[PI*r*r,'That\'s the area (πr²). Circumference is a length round the edge: C = 2πr.'],[2*PI*2*r,'You used the diameter in 2πr. With the radius it\'s 2 × π × r; with the diameter it\'s just π × d.']]};},
+  Cd:()=>{const d=rnd(3,30);return{q:`Find the circumference of a circle with diameter ${d} cm. Give your answer to 1 d.p.`,pic:{s:'circle',show:'d',v:d},unit:'cm',ans:PI*d,a314:3.14*d,
+    work:[`d = ${d}`,`C = πd = π × ${d}`,`= ${long(PI*d)}`,`C = ${dp1(PI*d)} cm`],
+    wrong:[[2*PI*d,'You doubled the diameter. The diameter is already two radii, so C = π × d.'],[PI*d/2,'You halved it. π × d is the full circumference; half of that is a semicircle\'s curve.'],[PI*d*d/4,'That\'s the area. Circumference is a length: C = πd.']]};},
+  Ar:()=>{const r=rnd(3,15);return{q:`Find the area of a circle with radius ${r} cm. Give your answer to 1 d.p.`,pic:{s:'circle',show:'r',v:r},unit:'cm²',ans:PI*r*r,a314:3.14*r*r,
+    work:[`r = ${r}`,`A = πr²`,`r² = ${r} × ${r} = ${r*r}`,`A = π × ${r*r} = ${long(PI*r*r)}`,`A = ${dp1(PI*r*r)} cm²`],
+    wrong:[[2*PI*r,'That\'s the circumference (2πr). For area, square the radius: πr².'],[PI*4*r*r,'You used the diameter in πr². Use the radius.'],[(PI*r)**2,'You squared π × r. Only r is squared: work out r² first, then × π.'],[PI*r,'You forgot to square the radius: π × r × r.']]};},
+  Ad:()=>{const d=2*rnd(2,12);const r=d/2;return{q:`Find the area of a circle with diameter ${d} cm. Give your answer to 1 d.p.`,pic:{s:'circle',show:'d',v:d},unit:'cm²',ans:PI*r*r,a314:3.14*r*r,
+    work:[`d = ${d}, so r = ${d} ÷ 2 = ${r}`,`A = πr²`,`r² = ${r} × ${r} = ${r*r}`,`A = π × ${r*r} = ${long(PI*r*r)}`,`A = ${dp1(PI*r*r)} cm²`],
+    wrong:[[PI*d*d,'You used the diameter in πr². Halve it first: r = '+r+'.'],[PI*d,'That\'s the circumference (πd). Area is πr².'],[(PI*r)**2,'You squared π × r. Only r is squared.'],[PI*r,'You forgot to square the radius.'],[(PI*d)**2,'You used the diameter and squared π as well. Use r = '+r+' and square only r.']]};},
+  Cpi:()=>{const r=rnd(2,15);return{q:`Find the circumference of a circle with radius ${r} cm. Give your answer in terms of π.`,pic:{s:'circle',show:'r',v:r},unit:'π cm',ans:2*r,exact:true,
+    work:[`r = ${r}, so d = ${2*r}`,`C = πd = π × ${2*r}`,`C = ${2*r}π cm`],
+    wrong:[[r,'πr is only half the circumference. C = 2πr, so the number is 2 × '+r+'.'],[r*r,'r² belongs to the area formula. Circumference is 2πr.']]};},
+  Api:()=>{const r=rnd(2,12);return{q:`Find the area of a circle with radius ${r} cm. Give your answer in terms of π.`,pic:{s:'circle',show:'r',v:r},unit:'π cm²',ans:r*r,exact:true,
+    work:[`r = ${r}`,`A = πr² = π × ${r}²`,`A = ${r*r}π cm²`],
+    wrong:[[2*r,'2πr is the circumference. Area is πr²: square the radius.'],[4*r*r,'You used the diameter. Square the radius: '+r+'² = '+(r*r)+'.'],[r,'You forgot to square the radius.']]};},
+  rC:()=>{const C=rnd(10,100);const r=C/(2*PI);return{q:`A circle has circumference ${C} cm. Find its radius to 1 d.p.`,pic:{s:'circle',show:'C',v:C},unit:'cm',ans:r,a314:C/(2*3.14),
+    work:[`C = 2πr`,`${C} = 2 × π × r`,`r = ${C} ÷ (2π) = ${long(r)}`,`r = ${dp1(r)} cm`],
+    wrong:[[C/PI,'That\'s the diameter (C ÷ π). Halve it to get the radius.'],[C/2,'You divided by 2 but not by π: r = C ÷ (2π).'],[Math.sqrt(C/PI),'That\'s the area method. For circumference, C = 2πr, so r = C ÷ 2π (no square root).'],[C*2*PI,'You multiplied. To undo × 2π, divide by 2π.']]};},
+  rA:()=>{const A=rnd(20,300);const r=Math.sqrt(A/PI);return{q:`A circle has area ${A} cm². Find its radius to 1 d.p.`,pic:{s:'circle',show:'A',v:A},unit:'cm',ans:r,a314:Math.sqrt(A/3.14),
+    work:[`A = πr²`,`${A} = π × r²`,`r² = ${A} ÷ π = ${long(A/PI)}`,`r = √${fmt(A/PI,4)} = ${long(r)}`,`r = ${dp1(r)} cm`],
+    wrong:[[A/PI,'That\'s r², not r. Take the square root as the last step.'],[Math.sqrt(A),'Divide by π before you square-root: r = √(A ÷ π).'],[A/(2*PI),'You used the circumference formula. Area is πr², so r = √(A ÷ π).'],[2*r,'That\'s the diameter. The radius is half of it.']]};},
+  semiP:()=>{const d=2*rnd(2,10);return{q:`Find the perimeter of a semicircle with diameter ${d} cm. Give your answer to 1 d.p.`,pic:{s:'semi',show:'d',v:d},unit:'cm',ans:PI*d/2+d,a314:3.14*d/2+d,
+    work:[`curved edge = ½ × π × ${d} = ${long(PI*d/2)}`,`straight edge = d = ${d}`,`perimeter = ${long(PI*d/2)} + ${d} = ${long(PI*d/2+d)}`,`perimeter = ${dp1(PI*d/2+d)} cm`],
+    wrong:[[PI*d/2,'That\'s only the curved edge. The perimeter also includes the straight edge (the diameter): add '+d+'.'],[PI*d+d,'You used the whole circumference. The curve of a semicircle is half of πd.'],[PI*d,'That\'s the full circumference, with no straight edge.'],[PI*d/2+d/2,'You added the radius. The straight edge of a semicircle is the whole diameter.'],[PI*d*d/8,'That\'s the area. Perimeter is a length.']]};},
+  semiA:()=>{const r=rnd(2,12);return{q:`Find the area of a semicircle with radius ${r} cm. Give your answer to 1 d.p.`,pic:{s:'semi',show:'r',v:r},unit:'cm²',ans:PI*r*r/2,a314:3.14*r*r/2,
+    work:[`whole circle = π × ${r}² = ${long(PI*r*r)}`,`semicircle = ½ × ${long(PI*r*r)} = ${long(PI*r*r/2)}`,`area = ${dp1(PI*r*r/2)} cm²`],
+    wrong:[[PI*r*r,'That\'s the whole circle. A semicircle is half: ÷ 2.'],[PI*4*r*r/2,'You used the diameter in πr². Use the radius.'],[PI*r+2*r,'That\'s the perimeter. Area is ½ × πr².'],[PI*r,'That\'s the curved edge (a length). Area is ½ × πr².']]};},
+  quarterP:()=>{const r=rnd(2,15);return{q:`Find the perimeter of a quarter circle with radius ${r} cm. Give your answer to 1 d.p.`,pic:{s:'quarter',show:'r',v:r},unit:'cm',ans:PI*r/2+2*r,a314:3.14*r/2+2*r,
+    work:[`curved edge = ¼ × 2 × π × ${r} = ${long(PI*r/2)}`,`straight edges = ${r} + ${r} = ${2*r}`,`perimeter = ${long(PI*r/2)} + ${2*r} = ${long(PI*r/2+2*r)}`,`perimeter = ${dp1(PI*r/2+2*r)} cm`],
+    wrong:[[PI*r/2,'That\'s only the curved edge. Add the two straight edges (two radii).'],[PI*r/2+r,'A quarter circle has two straight edges, both radii: add 2 × '+r+'.'],[2*PI*r+2*r,'You used the whole circumference. Take a quarter of it.'],[PI*r*r/4,'That\'s the area. Perimeter is a length.']]};}
+};
+let PQ=null, prDone=false, prRight=0, prTried=0;
+function drawPR(){
+  if(!PQ)return;
+  const ac=css('--accent'),hi=css('--hi'),tw=css('--two'),fg=css('--fg');
+  const p=PQ.pic, cx=200, cy=115, R=85; let s='';
+  if(p.s==='circle'){
+    s+=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="${p.show==='A'?ac:'none'}" fill-opacity=".2" stroke="${p.show==='C'?hi:fg}" stroke-width="${p.show==='C'?5:2}"/><circle cx="${cx}" cy="${cy}" r="3.5" fill="${fg}"/>`;
+    if(p.show==='r')s+=`<line x1="${cx}" y1="${cy}" x2="${cx+R}" y2="${cy}" stroke="${ac}" stroke-width="3"/><text x="${cx+R/2}" y="${cy-8}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${ac}">${p.v} cm</text>`;
+    else if(p.show==='d')s+=`<line x1="${cx-R}" y1="${cy}" x2="${cx+R}" y2="${cy}" stroke="${tw}" stroke-width="3"/><text x="${cx}" y="${cy-8}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${tw}">${p.v} cm</text>`;
+    else if(p.show==='C')s+=`<text x="${cx}" y="${cy-R-10}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${hi}">C = ${p.v} cm</text><line x1="${cx}" y1="${cy}" x2="${cx+R}" y2="${cy}" stroke="${ac}" stroke-width="2" stroke-dasharray="5 3"/><text x="${cx+R/2}" y="${cy-8}" text-anchor="middle" font-size="13" ${F()} fill="${ac}">r = ?</text>`;
+    else s+=`<text x="${cx}" y="${cy+30}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${ac}">A = ${p.v} cm²</text><line x1="${cx}" y1="${cy}" x2="${cx+R}" y2="${cy}" stroke="${ac}" stroke-width="2" stroke-dasharray="5 3"/><text x="${cx+R/2}" y="${cy-8}" text-anchor="middle" font-size="13" ${F()} fill="${ac}">r = ?</text>`;
+  } else if(p.s==='semi'){
+    const by=170, Rs=120;
+    s+=`<path d="M${cx-Rs},${by} L${cx+Rs},${by} A${Rs},${Rs} 0 0 0 ${cx-Rs},${by} Z" fill="${ac}" fill-opacity=".18" stroke="none"/><path d="M${cx+Rs},${by} A${Rs},${Rs} 0 0 0 ${cx-Rs},${by}" fill="none" stroke="${hi}" stroke-width="4"/><line x1="${cx-Rs}" y1="${by}" x2="${cx+Rs}" y2="${by}" stroke="${tw}" stroke-width="4"/>`;
+    if(p.show==='d')s+=`<text x="${cx}" y="${by+20}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${tw}">${p.v} cm</text>`;
+    else s+=`<line x1="${cx}" y1="${by}" x2="${cx+Rs}" y2="${by}" stroke="${ac}" stroke-width="3" stroke-dasharray="6 3"/><text x="${cx+Rs/2}" y="${by+20}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${ac}">${p.v} cm</text>`;
+  } else {
+    const ox=130, oy=190, Rq=160;
+    s+=`<path d="M${ox},${oy} L${ox+Rq},${oy} A${Rq},${Rq} 0 0 0 ${ox},${oy-Rq} Z" fill="${ac}" fill-opacity=".18" stroke="none"/><path d="M${ox+Rq},${oy} A${Rq},${Rq} 0 0 0 ${ox},${oy-Rq}" fill="none" stroke="${hi}" stroke-width="4"/><line x1="${ox}" y1="${oy}" x2="${ox+Rq}" y2="${oy}" stroke="${tw}" stroke-width="4"/><line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy-Rq}" stroke="${tw}" stroke-width="4"/><text x="${ox+Rq/2}" y="${oy+20}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${tw}">${p.v} cm</text>`;
+  }
+  $('prSvg').innerHTML=s;
+}
+function prNew(){
+  const t=$('prType').value; const pool=t==='mix'?Object.keys(GEN):GROUPS[t];
+  let key; do{key=pool[Math.floor(Math.random()*pool.length)];}while(PQ&&pool.length>1&&key===PQ.key);
+  PQ=GEN[key](); PQ.key=key; prDone=false;
+  $('prQ').textContent=PQ.q; $('prUnit').textContent=PQ.unit; $('prA').value='';
+  $('prMsg').className='msg'; $('prMsg').textContent=''; $('prWork').hidden=true;
+  $('prWork').innerHTML=PQ.work.join('<br>')+(PQ.exact?'':'<br><span class="c">(1 d.p.)</span>');
+  drawPR();
+}
+function prCheck(){
+  if(!PQ)return; const M=$('prMsg');
+  const raw=$('prA').value.replace(/π|pi/gi,'').replace('−','-').replace(/[a-z²\s]/gi,'');
+  const u=parseFloat(raw);
+  if(!isFinite(u)){M.className='msg bad';M.textContent=PQ.exact?'Type the number that goes in front of π, e.g. 12 for 12π.':'Type a number, e.g. 31.4.';return;}
+  const firstTry=!prDone; const ans=PQ.ans; let ok=false, msg='';
+  if(PQ.exact){
+    if(Math.abs(u-ans)<1e-6){ok=true;msg=`Correct: ${piStr(ans)} ${PQ.unit.replace('π ','')}. Exact, no rounding needed.`;}
+    else if(Math.abs(u-ans*PI)<0.051){msg=`That's the decimal value. "In terms of π" means leave π in the answer: just type the number in front of π.`;}
+  } else {
+    if(Math.abs(u-ans)<0.051){ok=true;msg=`Correct: ${dp1(ans)} ${PQ.unit}.`;}
+    else if(Math.abs(u-PQ.a314)<0.051){ok=true;msg=`Accepted: that's what π ≈ 3.14 gives. With the π button it's ${dp1(ans)} ${PQ.unit}, which is more accurate.`;}
+    else if(Math.abs(u-ans)<0.2){msg=`Very close: check your rounding. To 1 d.p. the answer is ${dp1(ans)}… look at the second decimal place. (Did you round too early?)`;}
+  }
+  if(!ok&&!msg){
+    for(const [v,m] of PQ.wrong){ if(Math.abs(v-ans)<0.1)continue; const close=PQ.exact?Math.abs(u-v)<1e-6:(Math.abs(u-v)<0.051||Math.abs(u-v)<Math.abs(v)*0.004); if(close){msg=m;break;} }
+  }
+  if(!ok&&!msg) msg='Not quite. Write down r and d first, choose the formula, then substitute. Press "Show working" if you\'re stuck.';
+  if(firstTry){prTried++;if(ok)prRight++;}
+  prDone=true;
+  M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'':'Not quite. ')+msg;
+  if(ok)$('prWork').hidden=false;
+  $('prScore').textContent=`Score: ${prRight} right first time out of ${prTried}.`;
+}
+$('prGo').addEventListener('click',prCheck);
+$('prA').addEventListener('keydown',e=>{if(e.key==='Enter')prCheck();});
+$('prShow').addEventListener('click',()=>{$('prWork').hidden=!$('prWork').hidden;});
+$('prNew').addEventListener('click',prNew);
+$('prType').addEventListener('change',prNew);
+prNew();
+
+const redrawAll=()=>{drawPT();drawRD();drawRW();drawMS();drawCC();drawRA();drawAR();drawBW();drawCP();drawSC();drawPR();};
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'A circle has radius 7 cm. What is its diameter?',opts:['14 cm','3.5 cm','7 cm','49 cm'],a:0,fb:'The diameter is two radii: d = 2 × 7 = 14 cm.'},
+  {q:'A straight line joining two points on a circle, not through the centre, is called a…',opts:['chord','tangent','radius','sector'],a:0,fb:'A chord joins two points on the circle. A tangent only touches at one point; the diameter is the chord through the centre.'},
+  {q:'For any circle, circumference ÷ diameter is…',opts:['π ≈ 3.14','exactly 3','2','different for each circle'],a:0,fb:'Every circle gives the same ratio, π = 3.14159…: a little more than 3.'},
+  {q:'Circumference of a circle with diameter 10 cm, to 1 d.p.?',opts:['31.4 cm','78.5 cm','62.8 cm','15.7 cm'],a:0,fb:'C = πd = π × 10 = 31.415… = 31.4 cm. (62.8 uses 2πr with the diameter; 78.5 cm² is the area.)'},
+  {q:'Area of a circle with radius 3 cm, in terms of π?',opts:['9π cm²','6π cm²','3π cm²','36π cm²'],a:0,fb:'A = πr² = π × 3² = 9π cm². 6π is the circumference; 36π uses the diameter.'},
+  {q:'Area of a circle with diameter 8 cm, to 1 d.p.?',opts:['50.3 cm²','201.1 cm²','25.1 cm²','157.9 cm²'],a:0,fb:'Halve first: r = 4. A = π × 4² = 16π = 50.265… = 50.3 cm². Using d gives 201.1, four times too big; (π × 4)² = 157.9 squares π as well.'},
+  {q:'Perimeter of a semicircle with diameter 10 cm, to 1 d.p.?',opts:['25.7 cm','15.7 cm','41.4 cm','39.3 cm'],a:0,fb:'Curved edge ½ × π × 10 = 15.707…, plus the straight edge 10: 25.707… = 25.7 cm. 15.7 forgets the straight edge.'},
+  {q:'A circle has circumference 50 cm. Its radius, to 1 d.p., is…',opts:['8.0 cm','15.9 cm','25.0 cm','4.0 cm'],a:0,fb:'r = C ÷ 2π = 50 ÷ 6.283… = 7.957… = 8.0 cm. 15.9 is 50 ÷ π, which is the diameter.'},
+  {q:'A circle has area 100 cm². Its radius, to 1 d.p., is…',opts:['5.6 cm','31.8 cm','10.0 cm','15.9 cm'],a:0,fb:'r² = 100 ÷ π = 31.83…, so r = √31.83… = 5.641… = 5.6 cm. 31.8 forgets the square root.'},
+  {q:'Extension: a sector has angle 90° and radius 4 cm. Its area is…',opts:['4π cm²','16π cm²','2π cm²','8π cm²'],a:0,fb:'90/360 = ¼ of the circle: ¼ × π × 4² = ¼ × 16π = 4π cm². (2π cm is the arc length.)'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

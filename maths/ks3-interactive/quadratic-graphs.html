@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Quadratic Graphs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive SVG grids; graph-paper neutrals, teal = the curve, orange = turning point / line of symmetry, plum = plotted points. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.5rem;text-align:center;margin:.6rem 0}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse}
+.vt td,.vt th{text-align:center;padding:.4rem .4rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left}
+.vt td.on{background:var(--two-soft);color:var(--two);font-weight:600}
+.vt td.err{background:var(--hi-soft);color:var(--bad);text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Algebra · KS3</div>
+  <h1>Quadratic Graphs</h1>
+  <p class="lede">Square the x and the graph stops being a line. It becomes a smooth U-shaped curve, the <strong>parabola</strong>: the path of every thrown ball, the shape of every satellite dish, and the first curve you'll plot from a table of values.</p>
+  <span class="gcse">National curriculum KS3: recognise, sketch and produce graphs of quadratic functions of one variable with appropriate scaling, using equations in x and y and the Cartesian plane</span>
+</header>
+
+<h2>1 · Why it curves</h2>
+<p>On a straight line, each step of 1 in x adds the same amount to y. For <span class="m">y = x²</span> that stops being true: from 0 to 1 the y goes up by 1, from 1 to 2 it goes up by 3, from 2 to 3 by 5. The steps keep growing, so the graph gets steeper and steeper. Going left of zero, (−1)² = 1, (−2)² = 4: the same values again, mirrored. That mirror is what makes the U.</p>
+<p>Plot it one point at a time. The table fills from the left; watch the differences in the bottom row.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>points plotted <input type="range" id="p1N" min="0" max="9" value="4"></label>
+    <label><input type="checkbox" id="p1Curve"> draw the smooth curve</label>
+  </div>
+  <div class="twin">
+    <svg id="p1Svg" viewBox="0 0 400 400" width="400" height="400"></svg>
+    <div><table class="vt" id="p1Table"></table><div class="work" id="p1Work"></div></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Join with a smooth curve, not a ruler.</strong> The points are samples of a curve; a ruler between them gives a jagged shape that loses marks. The bottom of y = x² is at (0, 0), rounded, not pointed: draw through it smoothly. And it never goes below the x-axis, because a square is never negative.</p>
+</div>
+
+<h2>2 · The negative-number trap</h2>
+<p>Most wrong quadratic graphs come from one calculator slip: typing <span class="m">−3²</span> instead of <span class="m">(−3)²</span>. The first gives −9, the second +9. In a table of values, every negative x must be squared <em>in brackets</em>. Here's the same table done both ways. One of them is not a parabola.</p>
+
+<div class="lab">
+  <div class="controls"><label>y = <select id="trE"><option value="0,0">x²</option><option value="0,-3">x² − 3</option><option value="1,0">x² + x</option><option value="-2,0">x² − 2x</option></select></label></div>
+  <div class="twin">
+    <div><div style="font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--good)">With brackets: (−3)² = 9</div><table class="vt" id="trGood"></table><svg id="trGoodSvg" viewBox="0 0 300 300" width="300" height="300"></svg></div>
+    <div><div style="font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--bad)">Without: −3² read as −9</div><table class="vt" id="trBad"></table><svg id="trBadSvg" viewBox="0 0 300 300" width="300" height="300"></svg></div>
+  </div>
+  <div class="msg">If your plotted points don't make a symmetric U, the first thing to check is the negative x-values.</div>
+</div>
+
+<h2>3 · Symmetry and the turning point</h2>
+<p>Every parabola has a vertical <strong>line of symmetry</strong>. The point where the curve turns round, on that line, is the <strong>turning point</strong> (or vertex): the lowest point for a U, the highest for an upside-down one. Because of the symmetry, the table of values reads the same forwards and backwards from the turning point, which is a free check on your arithmetic.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>y = x² <select id="syB"><option value="0">+ 0x</option><option value="2">+ 2x</option><option value="-2">− 2x</option><option value="4">+ 4x</option><option value="-4">− 4x</option><option value="-6">− 6x</option></select> <select id="syC"><option value="0">+ 0</option><option value="1">+ 1</option><option value="-3">− 3</option><option value="-4">− 4</option><option value="3">+ 3</option><option value="-1">− 1</option></select></label>
+  </div>
+  <svg id="sySvg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <table class="vt" id="syTable"></table>
+  <div class="readout">
+    <div class="t"><b>Line of symmetry</b><span id="syLine"></span></div>
+    <div class="t"><b>Turning point</b><span id="syTP"></span></div>
+    <div class="f"><b>y-intercept</b><span id="syInt"></span></div>
+    <div class="p"><b>Crosses x-axis at</b><span id="syRoots"></span></div>
+  </div>
+</div>
+
+<p>Where the curve crosses the x-axis, y = 0. Those crossing points are the <strong>roots</strong>, and they're the solutions of x² + bx + c = 0. At GCSE you'll solve that by factorising; for now, the graph shows you the answer.</p>
+
+<h2>4 · Moving and stretching the basic curve</h2>
+<p>All quadratic graphs are the same U, moved or stretched. Two simple changes to <span class="m">y = x²</span>:</p>
+<ul>
+  <li><span class="m">y = x² + c</span> slides the whole curve <strong>up or down</strong> by c. The turning point moves from (0, 0) to (0, c). Same as the intercept on a straight line.</li>
+  <li><span class="m">y = ax²</span> <strong>stretches</strong> it: a bigger a makes a narrower, steeper U; a between 0 and 1 makes a wider one. A <strong>negative a flips it</strong> into an upside-down U with a maximum instead of a minimum.</li>
+</ul>
+
+<div class="lab">
+  <div class="controls">
+    <label>a = <input type="range" id="stA" min="-3" max="3" step="0.5" value="1"><span id="stAv" style="font-family:var(--mono)"></span></label>
+    <label>c = <input type="range" id="stC" min="-6" max="6" step="1" value="0"><span id="stCv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="stGhost" checked> show y = x² for comparison</label>
+  </div>
+  <div class="big" id="stEq"></div>
+  <svg id="stSvg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="readout">
+    <div class="t"><b>Turning point</b><span id="stTP"></span></div>
+    <div><b>Shape</b><span id="stShape"></span></div>
+    <div><b>Compared with x²</b><span id="stCmp"></span></div>
+  </div>
+</div>
+
+<h2>5 · Reading values off the curve</h2>
+<p>Once drawn, a graph answers questions in both directions. Given x, go up to the curve and across to read y. Given y, go across to the curve and down: there are usually <strong>two</strong> answers, one each side of the line of symmetry. That's new. A straight line gives one x for each y; a parabola can give two, one or none.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>y = x² − 4.  Read <select id="rdMode"><option value="x">y when x =</option><option value="y">x when y =</option></select> <input type="range" id="rdV" min="-4" max="5" step="0.5" value="1.5"><span id="rdVv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="rdSvg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="work" id="rdWork"></div>
+</div>
+
+<h2>6 · Where parabolas appear</h2>
+<div class="grid2">
+  <div class="use"><h3>Throwing anything</h3>
+    <p>A ball, a jet of water, a long-jumper: height against distance is an upside-down parabola, because gravity adds the same downward speed every second. The turning point is the highest point of the flight.</p></div>
+  <div class="use"><h3>Area problems</h3>
+    <p>A rectangle with perimeter 20 has sides x and 10 − x, so area = 10x − x². The graph peaks at x = 5: a square. Maximising anything with a quadratic rule means finding the turning point.</p></div>
+  <div class="use"><h3>Satellite dishes and headlights</h3>
+    <p>A parabola reflects every incoming parallel ray to one point, the focus. Dishes collect signals there; headlights put a bulb there and send light out in a parallel beam.</p></div>
+  <div class="use"><h3>Braking distance</h3>
+    <p>Double your speed and braking distance goes up four times, because kinetic energy is ½mv². The Highway Code's stopping distances follow a quadratic.</p></div>
+  <div class="use"><h3>Computing</h3>
+    <p>An algorithm that compares every item with every other (bubble sort) does roughly n² steps: its running time is a parabola in n. Doubling the data quadruples the wait. That's why n² algorithms are avoided on big inputs.</p></div>
+  <div class="use"><h3>GCSE and beyond</h3>
+    <p>Solving quadratics by factorising, completing the square (which finds the turning point exactly) and the formula are all about these curves. Differentiation finds the turning point as the place where the gradient is zero.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Draw y = x² − 2 for x from −3 to 3</summary>
+  <div class="step"><strong>Table, squaring in brackets:</strong> x = −3 → 9 − 2 = 7; −2 → 2; −1 → −1; 0 → −2; 1 → −1; 2 → 2; 3 → 7.</div>
+  <div class="step"><strong>Symmetry check:</strong> 7, 2, −1, −2, −1, 2, 7 reads the same both ways ✓</div>
+  <div class="step"><strong>Plot and join with a smooth curve.</strong> Turning point (0, −2); crosses the x-axis at about ±1.4 (that's √2).</div>
+</details>
+<details>
+  <summary>Complete the table for y = x² + 2x − 3 and find the turning point</summary>
+  <div class="step"><strong>Table:</strong> x = −4 → 16 − 8 − 3 = 5; −3 → 0; −2 → −3; −1 → −4; 0 → −3; 1 → 0; 2 → 5.</div>
+  <div class="step"><strong>Symmetry:</strong> the values −3, −4, −3 are centred on x = −1. Line of symmetry x = −1, <strong>turning point (−1, −4)</strong>.</div>
+  <div class="step"><strong>Roots:</strong> y = 0 at x = −3 and x = 1. (Later: (x + 3)(x − 1) = 0.)</div>
+</details>
+<details>
+  <summary>Use the graph of y = x² − 4 to solve x² − 4 = 5</summary>
+  <div class="step"><strong>Draw the line y = 5</strong> across the graph.</div>
+  <div class="step"><strong>It meets the curve twice,</strong> at x = −3 and x = 3.</div>
+  <div class="step"><strong>Check:</strong> (−3)² − 4 = 5 ✓ and 3² − 4 = 5 ✓. Two solutions, one either side of the symmetry line.</div>
+</details>
+<details>
+  <summary>Exam-style: a ball's height is h = 20t − 5t² metres after t seconds. Sketch the graph and find the maximum height.</summary>
+  <div class="step"><strong>Shape:</strong> the t² coefficient is negative, so it's an upside-down U: a maximum.</div>
+  <div class="step"><strong>Roots:</strong> h = 0 when t(20 − 5t) = 0, so t = 0 (launch) or t = 4 (landing).</div>
+  <div class="step"><strong>Symmetry:</strong> the peak is halfway between the roots, at t = 2. h = 40 − 20 = <strong>20 m</strong>.</div>
+  <div class="step"><strong>Sketch:</strong> starts at origin, peaks at (2, 20), lands at (4, 0). Only t from 0 to 4 makes physical sense.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>A quadratic graph is a parabola, a symmetric U (or an upside-down U if the x² coefficient is negative), drawn as a smooth curve through points from a table of values in which every negative x is squared in brackets. It has a vertical line of symmetry, a turning point on that line, a y-intercept at the constant term, and crosses the x-axis at the roots, where the equation equals zero. Adding c slides the curve up or down; multiplying by a stretches or flips it. Reading across from a y-value can give two x-values, which is how graphs solve quadratic equations.</p>
+
+<footer>Made for KS3 students. Quadratic graphs are in the England national curriculum at key stage 3 under Algebra. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=v=>Number.isInteger(v)?String(v):parseFloat(v.toFixed(2)).toString();
+const br=v=>v<0?`(${v})`:`${v}`;
+function mk(S,R,padv){const pad=padv||24,cell=(S-2*pad)/(2*R);const sx=x=>pad+(x+R)*cell,sy=y=>pad+(R-y)*cell;
+  const grid=(yR=R)=>{const f=`font-family="${css('--mono')}"`;let s='';const cy=(S-2*pad)/(2*yR);const syy=y=>pad+(yR-y)*cy;
+    for(let i=-R;i<=R;i++)s+=`<line x1="${sx(i)}" y1="${pad}" x2="${sx(i)}" y2="${S-pad}" stroke="${css('--grid')}"/>`;
+    for(let j=-yR;j<=yR;j++)s+=`<line x1="${pad}" y1="${syy(j)}" x2="${S-pad}" y2="${syy(j)}" stroke="${css('--grid')}"/>`;
+    s+=`<line x1="${pad}" y1="${syy(0)}" x2="${S-pad}" y2="${syy(0)}" stroke="${css('--muted')}" stroke-width="1.5"/><line x1="${sx(0)}" y1="${pad}" x2="${sx(0)}" y2="${S-pad}" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+    for(let i=-R;i<=R;i+=R>6?2:1){if(i===0)continue;s+=`<text x="${sx(i)}" y="${syy(0)+12}" text-anchor="middle" font-size="9" fill="${css('--muted')}" ${f}>${i}</text>`;}
+    const ystep=yR>8?Math.ceil(yR/5):yR>4?2:1;for(let j=-yR;j<=yR;j+=ystep){if(j===0)continue;s+=`<text x="${sx(0)-4}" y="${syy(j)+3}" text-anchor="end" font-size="9" fill="${css('--muted')}" ${f}>${j}</text>`;}
+    return s;};
+  return {sx,sy,grid,pad};}
+function curvePath(f,sx,sy,xmin,xmax,n=120){let d='';for(let i=0;i<=n;i++){const x=xmin+(xmax-xmin)*i/n;d+=(i?'L':'M')+sx(x)+','+sy(f(x));}return d;}
+const dot=(sx,sy,x,y,c,r=5,label)=>`<circle cx="${sx(x)}" cy="${sy(y)}" r="${r}" fill="${c}"/>`+(label?`<text x="${sx(x)+8}" y="${sy(y)-7}" font-size="11" font-weight="600" fill="${c}" font-family="${css('--mono')}">${label}</text>`:'');
+function render(svg,inner,S,pad){svg.innerHTML=`<defs><clipPath id="c${svg.id}"><rect x="${pad}" y="${pad}" width="${S-2*pad}" height="${S-2*pad}"/></clipPath></defs>`+inner.grid+`<g clip-path="url(#c${svg.id})">${inner.body}</g>`;}
+
+/* 1. build y = x² */
+const p1N=document.getElementById('p1N'),p1Curve=document.getElementById('p1Curve');
+function draw1(){const n=+p1N.value;const xs=[-4,-3,-2,-1,0,1,2,3,4];const S=400,R=4,{sx,grid,pad}=mk(S,R);const yR=16,sy=y=>pad+(yR-y)*(S-2*pad)/(2*yR);
+  let body='';if(p1Curve.checked)body+=`<path d="${curvePath(x=>x*x,sx,sy,-4.2,4.2)}" fill="none" stroke="${css('--accent')}" stroke-width="2.5"/>`;
+  xs.slice(0,n).forEach(x=>body+=dot(sx,sy,x,x*x,css('--two'),5,n<=5?`(${x}, ${x*x})`:''));
+  render(document.getElementById('p1Svg'),{grid:grid(yR),body},S,pad);
+  const ys=xs.map(x=>x*x);
+  document.getElementById('p1Table').innerHTML=`<tr><th>x</th>${xs.map((x,i)=>`<td class="${i<n?'on':''}">${x}</td>`).join('')}</tr><tr><th>x²</th>${xs.map((x,i)=>`<td class="${i<n?'on':''}">${i<n?ys[i]:'·'}</td>`).join('')}</tr><tr><th>step</th><td></td>${xs.slice(1).map((x,i)=>`<td style="color:var(--hi);font-size:.85rem">${i+1<n?(ys[i+1]-ys[i]>=0?'+':'')+(ys[i+1]-ys[i]):''}</td>`).join('')}</tr>`;
+  const k=Math.max(0,n-1),x=xs[k];
+  document.getElementById('p1Work').innerHTML=n===0?'Slide to start plotting.':`x = ${x}: y = ${br(x)}² = ${br(x)} × ${br(x)} = <strong>${x*x}</strong>${x<0?'   ← negative × negative = positive':''}<br><span class="b">The steps −7, −5, −3, −1, +1, +3, +5, +7 change every time: not a straight line.</span>`;}
+p1N.addEventListener('input',draw1);p1Curve.addEventListener('input',draw1);draw1();
+
+/* 2. trap */
+const trE=document.getElementById('trE');
+function drawTR(){const [b,c]=trE.value.split(',').map(Number);const xs=[-3,-2,-1,0,1,2,3];const good=x=>x*x+b*x+c,bad=x=>(x<0?-(x*x):x*x)+b*x+c;
+  const tbl=(f,errFn)=>`<tr><th>x</th>${xs.map(x=>`<td>${x}</td>`).join('')}</tr><tr><th>y</th>${xs.map(x=>`<td class="${errFn&&x<0?'err':''}">${f(x)}</td>`).join('')}</tr>`;
+  document.getElementById('trGood').innerHTML=tbl(good,false);document.getElementById('trBad').innerHTML=tbl(bad,true);
+  [['trGoodSvg',good,css('--good')],['trBadSvg',bad,css('--bad')]].forEach(([id,f,col])=>{const S=300,R=3,{sx,grid,pad}=mk(S,R,20);const yR=12,sy=y=>pad+(yR-y)*(S-2*pad)/(2*yR);let body='';xs.forEach(x=>body+=dot(sx,sy,x,f(x),col,4));
+    let d='';xs.forEach((x,i)=>d+=(i?'L':'M')+sx(x)+','+sy(f(x)));body+=`<path d="${d}" fill="none" stroke="${col}" stroke-width="1.5" stroke-dasharray="4 3" opacity=".7"/>`;render(document.getElementById(id),{grid:grid(yR),body},S,pad);});}
+trE.addEventListener('change',drawTR);drawTR();
+
+/* 3. symmetry */
+const syB=document.getElementById('syB'),syC=document.getElementById('syC');
+function drawSY(){const b=+syB.value,c=+syC.value;const f=x=>x*x+b*x+c;const h=-b/2,k=f(h);const xs=[];for(let x=Math.round(h)-3;x<=Math.round(h)+3;x++)xs.push(x);
+  const S=400,R=6,{sx,grid,pad}=mk(S,R);const yR=12,sy=y=>pad+(yR-y)*(S-2*pad)/(2*yR);
+  let body=`<line x1="${sx(h)}" y1="${pad}" x2="${sx(h)}" y2="${S-pad}" stroke="${css('--hi')}" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+  body+=`<path d="${curvePath(f,sx,sy,-6.5,6.5)}" fill="none" stroke="${css('--accent')}" stroke-width="2.5"/>`;
+  xs.forEach(x=>body+=dot(sx,sy,x,f(x),css('--two'),4));body+=dot(sx,sy,h,k,css('--hi'),7,`(${fmt(h)}, ${fmt(k)})`);
+  const disc=b*b-4*c;const roots=disc<0?[]:disc===0?[h]:[(-b-Math.sqrt(disc))/2,(-b+Math.sqrt(disc))/2];
+  roots.forEach(r=>body+=dot(sx,sy,r,0,css('--fg'),4));
+  render(document.getElementById('sySvg'),{grid:grid(yR),body},S,pad);
+  document.getElementById('syTable').innerHTML=`<tr><th>x</th>${xs.map(x=>`<td>${x}</td>`).join('')}</tr><tr><th>y</th>${xs.map(x=>`<td class="${x===h?'on':''}">${f(x)}</td>`).join('')}</tr>`;
+  document.getElementById('syLine').textContent=`x = ${fmt(h)}`;document.getElementById('syTP').textContent=`(${fmt(h)}, ${fmt(k)})  minimum`;
+  document.getElementById('syInt').textContent=`(0, ${c})  the constant term`;
+  document.getElementById('syRoots').textContent=roots.length===0?'never (whole curve above the axis)':roots.length===1?`x = ${fmt(roots[0])} (touches)`:roots.map(r=>`x = ${fmt(r)}`).join(' and ');}
+syB.addEventListener('change',drawSY);syC.addEventListener('change',drawSY);drawSY();
+
+/* 4. stretch and shift */
+const stA=document.getElementById('stA'),stC=document.getElementById('stC'),stGhost=document.getElementById('stGhost');
+function drawST(){const a=+stA.value,c=+stC.value;document.getElementById('stAv').textContent=' '+fmt(a);document.getElementById('stCv').textContent=' '+fmt(c);
+  const S=400,R=5,{sx,grid,pad}=mk(S,R);const yR=10,sy=y=>pad+(yR-y)*(S-2*pad)/(2*yR);
+  let body='';if(stGhost.checked)body+=`<path d="${curvePath(x=>x*x,sx,sy,-5.5,5.5)}" fill="none" stroke="${css('--muted')}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  if(a!==0)body+=`<path d="${curvePath(x=>a*x*x+c,sx,sy,-5.5,5.5)}" fill="none" stroke="${css('--accent')}" stroke-width="2.5"/>`;else body+=`<line x1="${sx(-5.5)}" y1="${sy(c)}" x2="${sx(5.5)}" y2="${sy(c)}" stroke="${css('--accent')}" stroke-width="2.5"/>`;
+  body+=dot(sx,sy,0,c,css('--hi'),7,`(0, ${c})`);
+  render(document.getElementById('stSvg'),{grid:grid(yR),body},S,pad);
+  document.getElementById('stEq').innerHTML=`y = ${a===1?'':a===-1?'−':fmt(a).replace('-','−')}x²${c>0?' + '+c:c<0?' − '+(-c):''}`.replace('y = x²','y = x²');
+  if(a===0)document.getElementById('stEq').textContent=`y = ${c}  (a = 0: not a quadratic any more, just a flat line)`;
+  document.getElementById('stTP').textContent=a===0?'—':`(0, ${c})  ${a>0?'minimum':'maximum'}`;
+  document.getElementById('stShape').textContent=a===0?'flat':a>0?'U shape (opens upward)':'∩ shape (opens downward)';
+  document.getElementById('stCmp').textContent=a===0?'—':`${Math.abs(a)>1?'narrower':Math.abs(a)<1?'wider':'same width'}${a<0?', flipped':''}${c?`, shifted ${c>0?'up':'down'} ${Math.abs(c)}`:''}`;}
+[stA,stC,stGhost].forEach(e=>e.addEventListener('input',drawST));drawST();
+
+/* 5. reading */
+const rdMode=document.getElementById('rdMode'),rdV=document.getElementById('rdV');
+function drawRD(){const mode=rdMode.value,v=+rdV.value;document.getElementById('rdVv').textContent=' '+fmt(v);const f=x=>x*x-4;
+  const S=400,R=5,{sx,grid,pad}=mk(S,R);const yR=10,sy=y=>pad+(yR-y)*(S-2*pad)/(2*yR);
+  let body=`<path d="${curvePath(f,sx,sy,-5.5,5.5)}" fill="none" stroke="${css('--accent')}" stroke-width="2.5"/>`;const W=document.getElementById('rdWork');
+  if(mode==='x'){const y=f(v);body+=`<line x1="${sx(v)}" y1="${sy(0)}" x2="${sx(v)}" y2="${sy(y)}" stroke="${css('--two')}" stroke-width="2" stroke-dasharray="5 4"/><line x1="${sx(v)}" y1="${sy(y)}" x2="${sx(0)}" y2="${sy(y)}" stroke="${css('--two')}" stroke-width="2" stroke-dasharray="5 4"/>`+dot(sx,sy,v,y,css('--two'),6,`(${fmt(v)}, ${fmt(y)})`);
+    W.innerHTML=`Go up from x = ${fmt(v)} to the curve, then across: y = ${br(v)}² − 4 = ${fmt(v*v)} − 4 = <strong>${fmt(y)}</strong>. One answer.`;}
+  else{body+=`<line x1="${pad}" y1="${sy(v)}" x2="${S-pad}" y2="${sy(v)}" stroke="${css('--hi')}" stroke-width="2" stroke-dasharray="5 4"/>`;
+    if(v<-4)W.innerHTML=`The line y = ${fmt(v)} is below the turning point (0, −4): it never meets the curve. <strong>No solutions</strong> to x² − 4 = ${fmt(v)}.`;
+    else if(v===-4){body+=dot(sx,sy,0,-4,css('--two'),6,'(0, −4)');W.innerHTML=`The line y = −4 just touches the curve at the turning point. <strong>One solution</strong>: x = 0.`;}
+    else{const r=Math.sqrt(v+4);[-r,r].forEach(x=>body+=`<line x1="${sx(x)}" y1="${sy(v)}" x2="${sx(x)}" y2="${sy(0)}" stroke="${css('--two')}" stroke-width="2" stroke-dasharray="5 4"/>`+dot(sx,sy,x,v,css('--two'),6,`x = ${fmt(x)}`));
+      W.innerHTML=`Go across at y = ${fmt(v)}: the line meets the curve <strong>twice</strong>, at x ≈ ${fmt(-r)} and x ≈ ${fmt(r)}, one each side of the symmetry line.<br>Check: (${fmt(r)})² − 4 = ${fmt(v)} ✓. This solves the equation x² − 4 = ${fmt(v)}.`;}}
+  render(document.getElementById('rdSvg'),{grid:grid(yR),body},S,pad);}
+rdMode.addEventListener('change',drawRD);rdV.addEventListener('input',drawRD);drawRD();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{draw1();drawTR();drawSY();drawST();drawRD();});}
+new MutationObserver(()=>{draw1();drawTR();drawSY();drawST();drawRD();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'For y = x² + 1, what is y when x = −3?',opts:['10','−8','−10','7'],a:0,fb:'(−3)² = 9, then + 1 = 10. Square in brackets.'},
+  {q:'The graph of y = x² is…',opts:['a U-shaped curve with its lowest point at (0, 0)','a straight line through the origin','a U-shape with lowest point at (1, 1)','an upside-down U'],a:0,fb:'Squares are never negative, so the minimum is 0 at x = 0.'},
+  {q:'Which graph is an upside-down U?',opts:['y = −x² + 3','y = x² − 3','y = 3x²','y = x² + 3'],a:0,fb:'A negative x² coefficient flips the parabola.'},
+  {q:'Turning point of y = x² − 5?',opts:['(0, −5)','(−5, 0)','(0, 5)','(5, 0)'],a:0,fb:'Adding −5 slides y = x² down 5: the vertex moves from (0, 0) to (0, −5).'},
+  {q:'A table for y = x² − 2x gives y = 3, 0, −1, 0, 3 for x = −1, 0, 1, 2, 3. The line of symmetry is…',opts:['x = 1','x = 0','y = −1','x = −1'],a:0,fb:'The values mirror around x = 1 (where y = −1, the minimum).'},
+  {q:'Using the graph of y = x², how many solutions does x² = 9 have?',opts:['Two: x = 3 and x = −3','One: x = 3','None','Nine'],a:0,fb:'The line y = 9 crosses the parabola on both sides of the axis.'},
+  {q:'Compared with y = x², the graph of y = 3x² is…',opts:['narrower and steeper','wider','shifted up 3','shifted right 3'],a:0,fb:'Multiplying by 3 triples every y-value, pulling the arms in.'},
+  {q:'Where does y = x² + 2x − 8 cross the y-axis?',opts:['(0, −8)','(0, 2)','(−8, 0)','(0, 0)'],a:0,fb:'At x = 0 only the constant term survives: y = −8.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Algebraic Fractions and Proof</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive panel (step-through working with a "test it with a number" slider, an identity tester that graphs both sides, dot pictures for odd and even numbers, a counter-example checker). Colours on this page: teal = the expression you start with (the left-hand side, the numerators), orange = what is cancelled or combined (common factors, common denominators, the right-hand side), plum = the building block n in proofs and the values being tested. Green/red are only for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.ca{color:var(--accent);font-weight:600}.ch{color:var(--hi);font-weight:600}.ct{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+a{color:var(--accent)}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.15rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:.35em;margin-left:.35rem;line-height:1.4}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+h3 .tag,summary .tag{vertical-align:.15em}
+.lab svg.drag{touch-action:none}
+.lab svg.drag [data-h]{cursor:grab}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.callout.trap{background:var(--two-soft)}
+.work .s{display:block}
+.work .s[hidden]{display:none}
+.work .note{color:var(--muted);font-family:var(--body);font-size:.9rem}
+.next{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;background:var(--panel)}
+@media (max-width:560px){
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block;width:100%}
+  table.stack tr:first-child{display:none}
+  table.stack tr{border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{border:0;padding:.15rem .3rem}
+}
+.controls label{flex-wrap:wrap}
+.readout b.nt,th.nt{text-transform:none;letter-spacing:.02em}
+.vt.sm td,.vt.sm th{padding:.3rem .25rem;font-size:.82rem}
+.vt th{text-transform:none;letter-spacing:.02em;font-size:.8rem}
+.controls label{max-width:100%}.controls select{min-width:0;max-width:100%}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.25;margin:0 .15em}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .25em .05em}
+.frac>span:last-child{padding-top:.05em}
+.work .frac{font-size:.95em}
+.ck{font-family:var(--mono);font-size:.9rem;color:var(--muted);margin-top:.5rem}
+.ck b{color:var(--two)}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Algebra</div>
+  <h1>Algebraic Fractions and Proof</h1>
+  <p class="lede">Algebraic fractions follow exactly the same rules as number fractions: simplify by cancelling common factors, multiply straight across, and add over a common denominator. The second half of the page uses algebra to <em>prove</em> that something is always true, which no amount of checking with numbers can do.</p>
+  <span class="gcse">GCSE subject content: know the difference between an equation and an identity; argue mathematically to show algebraic expressions are equivalent; use algebra to support arguments; disprove by counter-example; <strong>Higher:</strong> simplify and manipulate algebraic fractions; solve equations involving algebraic fractions; construct algebraic proofs</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start.</strong> You need number fractions (see <a href="../ks3-interactive/fractions-decimals-percentages.html">Fractions, decimals and percentages</a>): ⁶⁄₉ = ⅔ because 3 is a common factor; ⅓ + ¼ = ⁴⁄₁₂ + ³⁄₁₂ = ⁷⁄₁₂. You also need to factorise: common factors, x² + bx + c and the difference of two squares (see <a href="double-brackets-factorising-quadratics.html">Double brackets and factorising quadratics</a>).</p>
+</div>
+
+<h2>1 · Simplifying algebraic fractions <span class="tag g">Higher</span></h2>
+<p>An <strong>algebraic fraction</strong> has letters in the numerator (top) or denominator (bottom), like <span class="m">(x² − 9)/(x + 3)</span>. To simplify, you can only cancel <strong>factors</strong>: things that multiply the whole top and the whole bottom. So <strong>factorise first</strong>, then cancel any bracket (or number, or letter) that appears as a factor of both.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Simplify <select id="s1E">
+      <option value="0">(6x + 9)/3</option><option value="1">(x² + 5x)/x</option><option value="2">(x² − 9)/(x + 3)</option><option value="3">(x² + 7x + 12)/(x² − 16)</option><option value="4">(2x² − 5x − 3)/(4x² − 1)</option>
+    </select></label>
+    <button class="btn primary" id="s1Next">Next step</button><button class="btn" id="s1All">Show all</button><button class="btn" id="s1Reset">Reset</button>
+  </div>
+  <div class="work" id="s1Work"></div>
+  <div class="controls"><label>test it with x = <input type="range" id="s1X" min="-5" max="5" step="0.5" value="2"><span id="s1Xv" style="font-family:var(--mono)"></span></label></div>
+  <div class="ck" id="s1Ck"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Cancel factors, never terms.</strong> In (x + 3)/3 the 3 on top is <em>added</em>, not multiplied, so it can't cancel: (x + 3)/3 ≠ x. Test with x = 6: (6 + 3)/3 = 3, not 6. Likewise (x² − 9)/(x + 3) is not x² − 3. If you can't see a bracket multiplying the whole top and the whole bottom, factorise until you can.</p>
+</div>
+
+<h2>2 · Multiplying and dividing <span class="tag g">Higher</span></h2>
+<p>Just like numbers: to <strong>multiply</strong>, multiply the tops and multiply the bottoms; to <strong>divide</strong>, flip the second fraction and multiply ("keep, change, flip"). Factorise everything first, so you can cancel <em>before</em> multiplying out: it keeps the algebra small.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Work out <select id="s2E">
+      <option value="0">(x² − 4)/(3x) × 6/(x + 2)</option><option value="1">(x + 5)/(x² − 25) ÷ 3/(x − 5)</option><option value="2">2x/(x + 1) ÷ 4x²/(x² − 1)</option>
+    </select></label>
+    <button class="btn primary" id="s2Next">Next step</button><button class="btn" id="s2All">Show all</button><button class="btn" id="s2Reset">Reset</button>
+  </div>
+  <div class="work" id="s2Work"></div>
+  <div class="controls"><label>test it with x = <input type="range" id="s2X" min="-5" max="5" step="0.5" value="3"><span id="s2Xv" style="font-family:var(--mono)"></span></label></div>
+  <div class="ck" id="s2Ck"></div>
+</div>
+
+<h2>3 · Adding and subtracting <span class="tag g">Higher</span></h2>
+<p>To add or subtract fractions you need a <strong>common denominator</strong>. For number denominators use the lowest common multiple; for letter or bracket denominators, multiply them together. Multiply each numerator by whatever its denominator was multiplied by, then combine the numerators. Put brackets round each numerator: with subtraction, the minus applies to the <em>whole</em> second numerator.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Work out <select id="s3E">
+      <option value="0">(x + 1)/3 + (x − 2)/4</option><option value="1">2/x + 3/(x + 1)</option><option value="2">5/(x − 2) − 3/(x + 1)</option><option value="3">(x + 4)/6 − (x − 2)/4</option>
+    </select></label>
+    <button class="btn primary" id="s3Next">Next step</button><button class="btn" id="s3All">Show all</button><button class="btn" id="s3Reset">Reset</button>
+  </div>
+  <div class="work" id="s3Work"></div>
+  <div class="controls"><label>test it with x = <input type="range" id="s3X" min="-5" max="5" step="0.5" value="4"><span id="s3Xv" style="font-family:var(--mono)"></span></label></div>
+  <div class="ck" id="s3Ck"></div>
+</div>
+
+<h2>4 · Solving equations with algebraic fractions <span class="tag g">Higher</span></h2>
+<p>In an <em>equation</em> you can get rid of the fractions altogether: multiply <strong>every term on both sides</strong> by the common denominator. What's left is a linear or quadratic equation you already know how to solve. Check your answers don't make any denominator zero.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Solve <select id="s4E">
+      <option value="0">(x + 3)/2 − (x − 1)/3 = 2</option><option value="1">6/x − 6/(x + 1) = 1</option><option value="2">4/(x + 1) + 3/(x − 2) = 2</option>
+    </select></label>
+    <button class="btn primary" id="s4Next">Next step</button><button class="btn" id="s4All">Show all</button><button class="btn" id="s4Reset">Reset</button>
+  </div>
+  <div class="work" id="s4Work"></div>
+</div>
+
+<div class="lab">
+  <p class="pq" id="eqQ"></p>
+  <div class="controls">
+    <label>x = <input type="text" id="eqA" inputmode="decimal" autocomplete="off" style="width:5em"></label>
+    <button class="btn primary" id="eqGo">Check</button><button class="btn" id="eqNew">New equation</button>
+  </div>
+  <div class="msg" id="eqMsg"></div>
+</div>
+
+<h2>5 · Identity or equation?</h2>
+<p>An <strong>equation</strong> is true only for particular values: 2x + 1 = 7 only when x = 3. An <strong>identity</strong> is true for <em>every</em> value of x, because both sides are the same expression written differently: <span class="m">2(x + 4) ≡ 2x + 8</span>. The symbol <strong>≡</strong> means "is identically equal to". Graph both sides: for an identity the two graphs are the same graph; for an equation they only meet at the solutions.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><select id="idE">
+      <option value="0">2(x + 4) and 2x + 8</option><option value="1">(x + 3)² and x² + 9</option><option value="2">(x + 3)² and x² + 6x + 9</option><option value="3">x² and 4x</option><option value="4">(x + 1)(x − 1) and x² − 1</option><option value="5">3(x − 2) and 3x − 2</option>
+    </select></label>
+    <label>x = <input type="range" id="idX" min="-5" max="5" step="0.5" value="1"><span id="idXv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="idSvg" viewBox="0 0 400 320" width="400" height="320" aria-label="Both sides graphed"></svg>
+  <div class="work" id="idWork"></div>
+</div>
+
+<h2>6 · Writing numbers with algebra</h2>
+<p>To prove things about <em>all</em> numbers of a type, write a general one with a letter. If n is any integer (whole number):</p>
+<div class="tbl"><table class="stack">
+  <tr><th>Type of number</th><th>Write it as</th><th>Why</th></tr>
+  <tr><td>any even number</td><td class="mono">2n</td><td>a multiple of 2</td></tr>
+  <tr><td>any odd number</td><td class="mono">2n + 1</td><td>one more than an even number</td></tr>
+  <tr><td>consecutive integers</td><td class="mono">n, n + 1, n + 2</td><td>each is one more than the last</td></tr>
+  <tr><td>consecutive even (or odd) numbers</td><td class="mono">2n, 2n + 2 (or 2n + 1, 2n + 3)</td><td>they go up in 2s</td></tr>
+  <tr><td>a multiple of 5</td><td class="mono">5n</td><td>5 × an integer</td></tr>
+  <tr><td>two <em>different</em> odd numbers</td><td class="mono">2m + 1 and 2n + 1</td><td>use two letters, or they'd be the same number</td></tr>
+</table></div>
+<p>Even numbers are pairs; an odd number is pairs plus one left over. See why odd + odd is always even:</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><select id="oeT"><option value="oo">odd + odd</option><option value="ee">even + even</option><option value="oe">odd + even</option><option value="ooo">odd × odd</option></select></label>
+    <label>m = <input type="range" id="oeM" min="0" max="5" step="1" value="2"><span id="oeMv" style="font-family:var(--mono)"></span></label>
+    <label>n = <input type="range" id="oeN" min="0" max="5" step="1" value="3"><span id="oeNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="oeSvg" viewBox="0 0 400 170" width="400" height="170" aria-label="Pairs of dots"></svg>
+  <div class="work" id="oeWork"></div>
+</div>
+
+<h2>7 · Proof and counter-examples</h2>
+<p>Checking examples is <em>not</em> a proof: a statement might work for the first million numbers and fail for the next. An <strong>algebraic proof</strong> <span class="tag g">Higher</span> uses a general n, so it covers every case at once. Write the numbers with algebra, simplify, then explain in words why the result has the property you want (for example, "3(n + 1) is 3 × an integer, so it is a multiple of 3").</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Prove that… <select id="pfE">
+      <option value="0">the sum of three consecutive integers is a multiple of 3</option><option value="1">the sum of two consecutive odd numbers is a multiple of 4</option><option value="2">the product of two odd numbers is odd</option><option value="3">(2n + 1)² − (2n − 1)² is a multiple of 8</option>
+    </select></label>
+  </div>
+  <div class="controls"><button class="btn primary" id="pfNext">Next step</button><button class="btn" id="pfAll">Show all</button><button class="btn" id="pfReset">Reset</button></div>
+  <div class="work" id="pfWork"></div>
+  <div class="tbl"><table class="vt sm" id="pfTab"></table></div>
+</div>
+
+<p>To <strong>disprove</strong> a statement you only need <em>one</em> example where it fails: a <strong>counter-example</strong>. Find one for each statement below.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Statement <select id="ceE">
+      <option value="0">n² + n + 41 is always prime</option><option value="1">all prime numbers are odd</option><option value="2">squaring a number always makes it bigger</option><option value="3">2n + 1 is always prime</option><option value="4">the sum of two square numbers is never a square number</option>
+    </select></label>
+  </div>
+  <div class="controls">
+    <label id="ceL">n = <input type="text" id="ceA" inputmode="decimal" autocomplete="off" style="width:5em"></label>
+    <label id="ceL2" hidden>and <input type="text" id="ceB" inputmode="decimal" autocomplete="off" style="width:5em"></label>
+    <button class="btn primary" id="ceGo">Test it</button>
+  </div>
+  <div class="msg" id="ceMsg"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Simplify (x² − 9)/(x² + x − 6) <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Factorise the top</strong> (difference of two squares): (x + 3)(x − 3).</div>
+  <div class="step"><strong>Factorise the bottom:</strong> product −6, sum 1: (x + 3)(x − 2).</div>
+  <div class="step"><strong>Cancel the common factor (x + 3):</strong> <strong>(x − 3)/(x − 2)</strong>.</div>
+  <div class="step"><strong>Check with x = 4:</strong> (16 − 9)/(16 + 4 − 6) = 7/14 = ½, and (4 − 3)/(4 − 2) = ½ ✓</div>
+</details>
+<details>
+  <summary>Write (x + 1)/3 + (x − 2)/4 as a single fraction <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Common denominator:</strong> 12.</div>
+  <div class="step"><strong>Convert:</strong> 4(x + 1)/12 + 3(x − 2)/12.</div>
+  <div class="step"><strong>Combine and expand:</strong> (4x + 4 + 3x − 6)/12 = <strong>(7x − 2)/12</strong>.</div>
+</details>
+<details>
+  <summary>Write 5/(x − 2) − 3/(x + 1) as a single fraction <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Common denominator:</strong> (x − 2)(x + 1).</div>
+  <div class="step"><strong>Numerators:</strong> 5(x + 1) − 3(x − 2) = 5x + 5 − 3x + 6. (The minus applies to both terms of 3(x − 2): −3 × −2 = +6.)</div>
+  <div class="step"><strong>Answer:</strong> <strong>(2x + 11)/((x − 2)(x + 1))</strong>. Check x = 4: 5/2 − 3/5 = 1.9, and 19/(2 × 5) = 1.9 ✓</div>
+</details>
+<details>
+  <summary>Solve 6/x − 6/(x + 1) = 1 <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Multiply every term by x(x + 1):</strong> 6(x + 1) − 6x = x(x + 1).</div>
+  <div class="step"><strong>Simplify:</strong> 6 = x² + x, so x² + x − 6 = 0.</div>
+  <div class="step"><strong>Factorise:</strong> (x + 3)(x − 2) = 0, so <strong>x = 2 or x = −3</strong>. Neither makes a denominator 0 ✓. Check x = 2: 3 − 2 = 1 ✓</div>
+</details>
+<details>
+  <summary>Show that 3(x + 4) − 2(x − 1) ≡ x + 14</summary>
+  <div class="step"><strong>Expand:</strong> 3x + 12 − 2x + 2. (−2 × −1 = +2.)</div>
+  <div class="step"><strong>Collect:</strong> x + 14, which is the right-hand side, so the identity holds for every x ✓</div>
+</details>
+<details>
+  <summary>Prove that the sum of three consecutive integers is a multiple of 3 <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Let</strong> the integers be n, n + 1 and n + 2, where n is any integer.</div>
+  <div class="step"><strong>Add:</strong> n + (n + 1) + (n + 2) = 3n + 3.</div>
+  <div class="step"><strong>Factorise:</strong> 3n + 3 = 3(n + 1).</div>
+  <div class="step"><strong>Conclude:</strong> n + 1 is an integer, so 3(n + 1) is a multiple of 3. ∎</div>
+</details>
+<details>
+  <summary>Show that "n² + n + 41 is always prime" is false</summary>
+  <div class="step"><strong>Look for a counter-example.</strong> It works for n = 0 to 39, which is why it fools people.</div>
+  <div class="step"><strong>Try n = 40:</strong> 40² + 40 + 41 = 1600 + 40 + 41 = 1681 = 41 × 41.</div>
+  <div class="step"><strong>So</strong> 1681 is not prime, and one counter-example is enough to disprove the statement.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li><span class="tag g">Higher</span> Simplify algebraic fractions by <strong>factorising, then cancelling common factors</strong>. Never cancel terms that are added.</li>
+  <li><span class="tag g">Higher</span> Multiply across; to divide, flip the second fraction and multiply. Factorise and cancel first.</li>
+  <li><span class="tag g">Higher</span> Add or subtract over a common denominator, with brackets round each numerator.</li>
+  <li><span class="tag g">Higher</span> In an equation, multiply every term by the common denominator to clear the fractions, then solve.</li>
+  <li>An <strong>identity</strong> (≡) is true for all values; an <strong>equation</strong> only for some. Show an identity by simplifying one side into the other.</li>
+  <li>Even: 2n; odd: 2n + 1; consecutive: n, n + 1, n + 2. <span class="tag g">Higher</span> A proof uses these, simplifies, and explains why the result has the property.</li>
+  <li>One counter-example is enough to disprove a statement; examples alone never prove one.</li>
+</ul>
+
+<footer>Made for GCSE students. Identities, algebraic argument and counter-examples are in the DfE GCSE mathematics subject content under Algebra; algebraic fractions and algebraic proof are Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">Subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => { if(!isFinite(v)) return '—'; let r=parseFloat((+v).toFixed(d)); if(Object.is(r,-0)) r=0; return minus(String(r)); };
+const fix = (v,d) => { if(!isFinite(v)) return '—'; let s=(+v).toFixed(d); if(/^-0(\.0*)?$/.test(s)) s=s.slice(1); return minus(s); };
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(v===0) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); return fix(r,Math.max(0,n-1-e)); };
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v=parseFloat(String(el.value).replace(/−/g,'-').replace(/\s/g,'')); return isFinite(v)?v:NaN; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a; };
+const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const sup = n => String(n).split('').map(c=>{const i='0123456789'.indexOf(c);return i>=0?'⁰¹²³⁴⁵⁶⁷⁸⁹'[i]:(c==='-'?'⁻':c);}).join('');
+/* polynomial from coefficients, highest power first: polyStr([1,-5,6]) = "x² − 5x + 6" */
+const polyStr = (cs,v='x') => { const n=cs.length-1; let s=''; cs.forEach((c,i)=>{ const p=n-i; if(Math.abs(c)<1e-12) return; const a=Math.abs(c); const body=p===0?fmt(a,4):((Math.abs(a-1)<1e-12?'':fmt(a,4))+v+(p>1?sup(p):'')); s+= s===''?(c<0?'−':'')+body:(c<0?' − ':' + ')+body; }); return s||'0'; };
+const xpm = (k,v='x') => Math.abs(k)<1e-12 ? v : `${v} ${k<0?'−':'+'} ${fmt(Math.abs(k),4)}`;
+const br = v => v<0 ? `(${fmt(v,4)})` : fmt(v,4);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const DRAW = [];
+const reg = f => { DRAW.push(f); f(); };
+function Plot(o){
+  const P=Object.assign({W:400,H:400,pad:26,gx:1,gy:1,lx:2,ly:2,xl:'x',yl:'y',xf:null,yf:null},o);
+  const W=P.W,H=P.H,pad=P.pad;
+  P.sx=x=>pad+(x-P.x0)/(P.x1-P.x0)*(W-2*pad);
+  P.sy=y=>H-pad-(y-P.y0)/(P.y1-P.y0)*(H-2*pad);
+  P.ix=px=>P.x0+(px-pad)/(W-2*pad)*(P.x1-P.x0);
+  P.iy=py=>P.y0+(H-pad-py)/(H-2*pad)*(P.y1-P.y0);
+  P.world=(svg,ev)=>{const r=svg.getBoundingClientRect();return [P.ix((ev.clientX-r.left)/r.width*W),P.iy((ev.clientY-r.top)/r.height*H)];};
+  const ticks=(a,b,st)=>{const out=[];for(let k=Math.ceil(a/st-1e-9);k*st<=b+1e-9;k++)out.push(Math.round(k*st*1e6)/1e6);return out;};
+  P.grid=()=>{const g=css('--grid'),mu=css('--muted'),f=F();let s='';
+    ticks(P.x0,P.x1,P.gx).forEach(x=>s+=`<line x1="${P.sx(x)}" y1="${P.sy(P.y0)}" x2="${P.sx(x)}" y2="${P.sy(P.y1)}" stroke="${g}"/>`);
+    ticks(P.y0,P.y1,P.gy).forEach(y=>s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(y)}" x2="${P.sx(P.x1)}" y2="${P.sy(y)}" stroke="${g}"/>`);
+    const ay=(P.y0<=0&&P.y1>=0)?0:P.y0, ax=(P.x0<=0&&P.x1>=0)?0:P.x0;
+    s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(ay)}" x2="${P.sx(P.x1)}" y2="${P.sy(ay)}" stroke="${mu}" stroke-width="1.5"/><line x1="${P.sx(ax)}" y1="${P.sy(P.y0)}" x2="${P.sx(ax)}" y2="${P.sy(P.y1)}" stroke="${mu}" stroke-width="1.5"/>`;
+    ticks(P.x0,P.x1,P.lx).forEach(x=>{if(Math.abs(x-ax)<1e-9&&ax===0)return;s+=`<text x="${P.sx(x)}" y="${P.sy(ay)+13}" text-anchor="middle" font-size="10" fill="${mu}" ${f}>${P.xf?P.xf(x):fmt(x)}</text>`;});
+    ticks(P.y0,P.y1,P.ly).forEach(y=>{if(Math.abs(y-ay)<1e-9&&ay===0)return;s+=`<text x="${P.sx(ax)-5}" y="${P.sy(y)+3}" text-anchor="end" font-size="10" fill="${mu}" ${f}>${P.yf?P.yf(y):fmt(y)}</text>`;});
+    if(ax===0&&ay===0)s+=`<text x="${P.sx(0)-5}" y="${P.sy(0)+13}" text-anchor="end" font-size="10" fill="${mu}" ${f}>0</text>`;
+    s+=`<text x="${P.sx(P.x1)-3}" y="${P.sy(ay)-5}" text-anchor="end" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.xl}</text><text x="${P.sx(ax)+6}" y="${P.sy(P.y1)+10}" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.yl}</text>`;
+    return s;};
+  P.clip=(svg,inner,over='')=>{svg.innerHTML=`<defs><clipPath id="cp${svg.id}"><rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${H-2*pad}"/></clipPath></defs>`+P.grid()+`<g clip-path="url(#cp${svg.id})">${inner}</g>`+over;};
+  P.path=(f,col,w=2.5,dash,a=P.x0,b=P.x1,n=400)=>{let d='',pen=false,prev=null;const span=P.y1-P.y0,mid=(P.y0+P.y1)/2;
+    for(let i=0;i<=n;i++){const x=a+(b-a)*i/n,y=f(x);
+      if(!isFinite(y)||Math.abs(y-mid)>span*3){pen=false;prev=null;continue;}
+      if(pen&&prev!==null&&Math.abs(y-prev)>span*1.5)pen=false;
+      d+=(pen?'L':'M')+P.sx(x).toFixed(1)+','+P.sy(y).toFixed(1);pen=true;prev=y;}
+    return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linejoin="round" stroke-linecap="round"/>`;};
+  P.seg=(x1,y1,x2,y2,col,w=2,dash)=>`<line x1="${P.sx(x1)}" y1="${P.sy(y1)}" x2="${P.sx(x2)}" y2="${P.sy(y2)}" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linecap="round"/>`;
+  P.dot=(x,y,col,r=5,label,dx=8,dy=-8,anchor='start')=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${col}"/>`+(label?`<text x="${P.sx(x)+dx}" y="${P.sy(y)+dy}" font-size="12" font-weight="600" fill="${col}" text-anchor="${anchor}" ${F()}>${label}</text>`:'');
+  P.ring=(x,y,col,r=5)=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${css('--panel')}" stroke="${col}" stroke-width="2.5"/>`;
+  P.text=(x,y,t,col,anchor='start',size=12,weight=600)=>`<text x="${P.sx(x)}" y="${P.sy(y)}" font-size="${size}" font-weight="${weight}" fill="${col}" text-anchor="${anchor}" ${F()}>${t}</text>`;
+  return P;
+}
+/* drag helper: calls onMove(ev) while a pointer is down on svg (or on an element with data-h) */
+function dragOn(svg,onMove,onDown){let on=false;
+  svg.addEventListener('pointerdown',e=>{if(onDown&&onDown(e)===false)return;on=true;try{svg.setPointerCapture(e.pointerId);}catch(_){}onMove(e);e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(on)onMove(e);});
+  const end=()=>{on=false;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);}
+/* step-through: lines is an array of html strings */
+function stepper(boxId,nextId,allId,resetId,onShow){const box=$(boxId);let lines=[],k=0;
+  const show=()=>{box.innerHTML=lines.map((l,i)=>`<span class="s"${i<k?'':' hidden'}>${l}</span>`).join('')+(k<lines.length?`<span class="s note">${k===0?'Press “Next step” to begin.':'…'}</span>`:'');if(nextId)$(nextId).disabled=k>=lines.length;if(onShow)onShow(k);};
+  if(nextId)$(nextId).addEventListener('click',()=>{if(k<lines.length)k++;show();});
+  if(allId)$(allId).addEventListener('click',()=>{k=lines.length;show();});
+  if(resetId)$(resetId).addEventListener('click',()=>{k=0;show();});
+  return {set(ls,start=0){lines=ls;k=start;show();},get k(){return k;}};}
+
+const fr=(t,b)=>`<span class="frac"><span>${t}</span><span>${b}</span></span>`;
+const val=(f,x)=>{ const v=f(x); return isFinite(v)&&Math.abs(v)<1e9?fmt(v,4):'undefined'; };
+/* a step-through panel with a numeric checker */
+function fracPanel(n,DATA){ const E='s'+n+'E', X='s'+n+'X';
+  const st=stepper('s'+n+'Work','s'+n+'Next','s'+n+'All','s'+n+'Reset');
+  const ck=()=>{ const D=DATA[+$(E).value], x=+$(X).value; $(X+'v').textContent=' '+minus(x);
+    let h=`x = <b>${minus(x)}</b>: start ${val(D.o,x)}, answer ${val(D.s,x)}`; if(D.w) h+=` &nbsp;|&nbsp; <span style="color:var(--bad)">${D.wl}: ${val(D.w,x)}</span>`; $('s'+n+'Ck').innerHTML=h; };
+  const load=()=>{ st.set(DATA[+$(E).value].L,1); ck(); };
+  $(E).addEventListener('change',load); $(X).addEventListener('input',ck); load(); }
+
+fracPanel(1,[
+ {L:[fr('6x + 9','3'),`Factorise the top: ${fr('<span class="b">3</span>(2x + 3)','<span class="b">3</span>')}`,'Cancel the common factor 3: <strong>2x + 3</strong>'],o:x=>(6*x+9)/3,s:x=>2*x+3,w:x=>2*x+9,wl:'✗ 2x + 9 (only 6x divided)'},
+ {L:[fr('x² + 5x','x'),`Factorise the top: ${fr('<span class="b">x</span>(x + 5)','<span class="b">x</span>')}`,'Cancel x: <strong>x + 5</strong>'],o:x=>(x*x+5*x)/x,s:x=>x+5,w:x=>x*x+5,wl:'✗ x² + 5'},
+ {L:[fr('x² − 9','x + 3'),`Difference of two squares on top: ${fr('<span class="b">(x + 3)</span>(x − 3)','<span class="b">(x + 3)</span>')}`,'Cancel (x + 3): <strong>x − 3</strong>'],o:x=>(x*x-9)/(x+3),s:x=>x-3,w:x=>x*x-3,wl:'✗ x² − 3 (cancelled the 3s)'},
+ {L:[fr('x² + 7x + 12','x² − 16'),`Factorise both: ${fr('(x + 3)<span class="b">(x + 4)</span>','<span class="b">(x + 4)</span>(x − 4)')}`,`Cancel (x + 4): <strong>${fr('x + 3','x − 4')}</strong>`],o:x=>(x*x+7*x+12)/(x*x-16),s:x=>(x+3)/(x-4),w:x=>(7*x+12)/(-16),wl:'✗ (7x + 12)/(−16) (cancelled x²)'},
+ {L:[fr('2x² − 5x − 3','4x² − 1'),`Factorise both: ${fr('<span class="b">(2x + 1)</span>(x − 3)','<span class="b">(2x + 1)</span>(2x − 1)')}`,`Cancel (2x + 1): <strong>${fr('x − 3','2x − 1')}</strong>`],o:x=>(2*x*x-5*x-3)/(4*x*x-1),s:x=>(x-3)/(2*x-1)}
+]);
+fracPanel(2,[
+ {L:[`${fr('x² − 4','3x')} × ${fr('6','x + 2')}`,`Factorise: ${fr('<span class="b">(x + 2)</span>(x − 2)','<span class="b">3</span>x')} × ${fr('<span class="b">3</span> × 2','<span class="b">(x + 2)</span>')}`,'Cancel (x + 2) and 3','<strong>'+fr('2(x − 2)','x')+'</strong>'],o:x=>(x*x-4)/(3*x)*6/(x+2),s:x=>2*(x-2)/x},
+ {L:[`${fr('x + 5','x² − 25')} ÷ ${fr('3','x − 5')}`,`Flip and multiply: ${fr('x + 5','x² − 25')} × ${fr('x − 5','3')}`,`Factorise: ${fr('<span class="b">(x + 5)</span>','<span class="b">(x + 5)(x − 5)</span>')} × ${fr('<span class="b">(x − 5)</span>','3')}`,'Everything with x cancels: <strong>⅓</strong> (for every allowed x!)'],o:x=>(x+5)/(x*x-25)/(3/(x-5)),s:x=>1/3,w:x=>(x+5)/(x*x-25)*3/(x-5),wl:'✗ forgot to flip'},
+ {L:[`${fr('2x','x + 1')} ÷ ${fr('4x²','x² − 1')}`,`Flip: ${fr('2x','x + 1')} × ${fr('x² − 1','4x²')}`,`Factorise: ${fr('<span class="b">2x</span>','<span class="b">(x + 1)</span>')} × ${fr('<span class="b">(x + 1)</span>(x − 1)','<span class="b">2x</span> × 2x')}`,'<strong>'+fr('x − 1','2x')+'</strong>'],o:x=>2*x/(x+1)/(4*x*x/(x*x-1)),s:x=>(x-1)/(2*x)}
+]);
+fracPanel(3,[
+ {L:[`${fr('x + 1','3')} + ${fr('x − 2','4')}`,'Common denominator: LCM of 3 and 4 is <span class="b">12</span>',`${fr('4(x + 1)','12')} + ${fr('3(x − 2)','12')}`,`${fr('4x + 4 + 3x − 6','12')}`,'<strong>'+fr('7x − 2','12')+'</strong>'],o:x=>(x+1)/3+(x-2)/4,s:x=>(7*x-2)/12,w:x=>(2*x-1)/7,wl:'✗ (2x − 1)/7 (added tops and bottoms)'},
+ {L:[`${fr('2','x')} + ${fr('3','x + 1')}`,'Common denominator: <span class="b">x(x + 1)</span>',`${fr('2(x + 1)','x(x + 1)')} + ${fr('3x','x(x + 1)')}`,`${fr('2x + 2 + 3x','x(x + 1)')}`,'<strong>'+fr('5x + 2','x(x + 1)')+'</strong>'],o:x=>2/x+3/(x+1),s:x=>(5*x+2)/(x*(x+1)),w:x=>5/(2*x+1),wl:'✗ 5/(2x + 1)'},
+ {L:[`${fr('5','x − 2')} − ${fr('3','x + 1')}`,'Common denominator: <span class="b">(x − 2)(x + 1)</span>',`${fr('5(x + 1) − 3(x − 2)','(x − 2)(x + 1)')}`,`${fr('5x + 5 − 3x <span class="b">+ 6</span>','(x − 2)(x + 1)')} &nbsp;<span class="note">−3 × −2 = +6</span>`,'<strong>'+fr('2x + 11','(x − 2)(x + 1)')+'</strong>'],o:x=>5/(x-2)-3/(x+1),s:x=>(2*x+11)/((x-2)*(x+1)),w:x=>(2*x-1)/((x-2)*(x+1)),wl:'✗ (2x − 1)/(…) (sign slip: −6)'},
+ {L:[`${fr('x + 4','6')} − ${fr('x − 2','4')}`,'Common denominator: LCM of 6 and 4 is <span class="b">12</span>',`${fr('2(x + 4) − 3(x − 2)','12')}`,`${fr('2x + 8 − 3x + 6','12')}`,'<strong>'+fr('14 − x','12')+'</strong>'],o:x=>(x+4)/6-(x-2)/4,s:x=>(14-x)/12,w:x=>(2-x)/12,wl:'✗ (2 − x)/12 (minus only on 3x)'}
+]);
+
+/* 4. solving */
+const st4=stepper('s4Work','s4Next','s4All','s4Reset');
+const S4=[
+ [`${fr('x + 3','2')} − ${fr('x − 1','3')} = 2`,'Multiply <em>every</em> term by 6 (the common denominator), including the 2 on the right','3(x + 3) − 2(x − 1) = 12','3x + 9 − 2x + 2 = 12','x + 11 = 12','<strong>x = 1</strong> &nbsp;check: 4/2 − 0/3 = 2 ✓'],
+ [`${fr('6','x')} − ${fr('6','x + 1')} = 1`,'Multiply every term by x(x + 1)','6(x + 1) − 6x = x(x + 1)','6 = x² + x','x² + x − 6 = 0 → (x + 3)(x − 2) = 0','<strong>x = 2 or x = −3</strong> &nbsp;check x = 2: 3 − 2 = 1 ✓'],
+ [`${fr('4','x + 1')} + ${fr('3','x − 2')} = 2`,'Multiply every term by (x + 1)(x − 2)','4(x − 2) + 3(x + 1) = 2(x + 1)(x − 2)','7x − 5 = 2(x² − x − 2) = 2x² − 2x − 4','2x² − 9x + 1 = 0: doesn\'t factorise, so use the formula','x = (9 ± √73)/4 → <strong>x = 4.39 or x = 0.11</strong> (2 d.p.)']
+];
+const s4Load=()=>st4.set(S4[+$('s4E').value],1); $('s4E').addEventListener('change',s4Load); s4Load();
+
+/* 4b. try it */
+let EQ=null;
+function eqNew(){ let p,q,a,b,x,c,sg; do{ p=rnd(2,5); q=rnd(2,5); a=rnd(-5,5); b=rnd(-5,5); x=rnd(-6,9); sg=Math.random()<.5?1:-1; c=(x+a)/p+sg*(x+b)/q; }while(p===q||!Number.isInteger(c));
+  EQ={p,q,a,b,x,c,sg}; $('eqQ').innerHTML=`Solve &nbsp;${fr(xpm(a),p)} ${sg>0?'+':'−'} ${fr(xpm(b),q)} = ${minus(c)}`; $('eqA').value=''; $('eqMsg').className='msg'; $('eqMsg').textContent=''; }
+$('eqGo').addEventListener('click',()=>{ const u=num($('eqA')),M=$('eqMsg'),{p,q,a,b,x,c,sg}=EQ; if(isNaN(u)){M.className='msg bad';M.textContent='Type a value for x (a fraction can be typed as a decimal).';return;}
+  const L=p*q/gcd(p,q), ok=Math.abs(u-x)<1e-9; M.className='msg '+(ok?'good':'bad');
+  if(ok){M.textContent=`Correct: x = ${minus(x)}. Multiply through by ${L}: ${L/p}(${xpm(a)}) ${sg>0?'+':'−'} ${L/q}(${xpm(b)}) = ${minus(c*L)}.`;return;}
+  // forgot to multiply the right-hand side
+  const A=L/p, B=sg*L/q; const solveFor=rhs=>(rhs-A*a-B*b)/(A+B);
+  if(Math.abs(u-solveFor(c))<1e-6) M.textContent=`Not quite. You multiplied the fractions by ${L} but not the right-hand side: it becomes ${minus(c)} × ${L} = ${minus(c*L)}.`;
+  else if(sg<0&&Math.abs(u-(c*L-A*a+B*b)/(A+B))<1e-6) M.textContent=`Not quite. The minus applies to the whole second numerator: −${L/q}(${xpm(b)}) = ${polyStr([-L/q,-L/q*b])}.`;
+  else M.textContent=`Not quite. Multiply every term by ${L}, expand the brackets carefully, then solve.`; });
+$('eqNew').addEventListener('click',eqNew); eqNew();
+
+/* 5. identity tester */
+const ID=[
+ {l:'2(x + 4)',r:'2x + 8',f:x=>2*(x+4),g:x=>2*x+8,id:1},{l:'(x + 3)²',r:'x² + 9',f:x=>(x+3)**2,g:x=>x*x+9,id:0,sol:'x = 0 only (6x = 0)'},
+ {l:'(x + 3)²',r:'x² + 6x + 9',f:x=>(x+3)**2,g:x=>x*x+6*x+9,id:1},{l:'x²',r:'4x',f:x=>x*x,g:x=>4*x,id:0,sol:'x = 0 or x = 4'},
+ {l:'(x + 1)(x − 1)',r:'x² − 1',f:x=>(x+1)*(x-1),g:x=>x*x-1,id:1},{l:'3(x − 2)',r:'3x − 2',f:x=>3*(x-2),g:x=>3*x-2,id:0,sol:'never: 3x − 6 is always 4 less than 3x − 2 (parallel lines), so there are no solutions'}
+];
+const PI5=Plot({x0:-5,x1:5,y0:-10,y1:20,H:320,gy:2,ly:5});
+function drawID(){ const D=ID[+$('idE').value],x=+$('idX').value; $('idXv').textContent=' '+minus(x); const ac=css('--accent'),hi=css('--hi'),tw=css('--two');
+  let s=PI5.path(D.g,hi,6)+PI5.path(D.f,ac,2.5,D.id?'7 5':false)+PI5.dot(x,D.f(x),tw,5)+PI5.dot(x,D.g(x),tw,5); PI5.clip($('idSvg'),s);
+  const L=D.f(x),R=D.g(x),eq=Math.abs(L-R)<1e-9;
+  $('idWork').innerHTML=`<span class="a">left: ${D.l} = ${fmt(L,3)}</span> &nbsp; <span class="b">right: ${D.r} = ${fmt(R,3)}</span> &nbsp; ${eq?'equal ✓':'not equal ✗'}<br>${D.id?`<strong>Identity: ${D.l} ≡ ${D.r}</strong>. The graphs are the same, so it's true for every x.`:`<strong>Not an identity.</strong> The graphs ${D.sol.startsWith('never')?'never meet':'only meet where the equation is true'}: ${D.sol}.`}`; }
+['idE','idX'].forEach(i=>$(i).addEventListener('input',drawID)); reg(drawID);
+
+/* 6. odd/even dots */
+function drawOE(){ const t=$('oeT').value,m=+$('oeM').value,n=+$('oeN').value; $('oeMv').textContent=' '+m; $('oeNv').textContent=' '+n; const ac=css('--accent'),hi=css('--hi'),tw=css('--two'),mu=css('--muted'),fg=css('--fg');
+  const A=t[0]==='o'?2*m+1:2*m, Bn=t==='ee'||t==='oe'?2*n:2*n+1; let s='';
+  const pairs=(x0,y0,k,extra,col)=>{ let o=''; for(let i=0;i<k;i++) o+=`<circle cx="${x0+i*16}" cy="${y0}" r="5.5" fill="${col}"/><circle cx="${x0+i*16}" cy="${y0+16}" r="5.5" fill="${col}"/>`; if(extra) o+=`<circle cx="${x0+k*16}" cy="${y0}" r="5.5" fill="${tw}"/>`; return o; };
+  if(t!=='ooo'){ s+=pairs(20,30,m,t[0]==='o',ac)+`<text x="20" y="18" font-size="12" fill="${ac}" ${F()}>${t[0]==='o'?'2m + 1':'2m'} = ${A}</text>`;
+    s+=pairs(210,30,n,t==='oo',hi)+`<text x="210" y="18" font-size="12" fill="${hi}" ${F()}>${t==='ee'||t==='oe'?'2n':'2n + 1'} = ${Bn}</text>`;
+    const sum=A+Bn, k=Math.floor(sum/2), ex=sum%2; s+=`<text x="20" y="100" font-size="12" fill="${fg}" ${F()}>together: ${sum}</text>`; let o=''; for(let i=0;i<k;i++) o+=`<circle cx="${20+i*16}" cy="${115}" r="5.5" fill="${i<m?ac:hi}"/><circle cx="${20+i*16}" cy="${131}" r="5.5" fill="${i<m?ac:hi}"/>`; if(ex) o+=`<circle cx="${20+k*16}" cy="115" r="5.5" fill="${tw}"/>`; s+=o;
+    $('oeWork').innerHTML=t==='oo'?`(2m + 1) + (2n + 1) = 2m + 2n + 2 = <strong>2(m + n + 1)</strong>: the two leftover dots make a pair, so the sum is always even.`:t==='ee'?`2m + 2n = <strong>2(m + n)</strong>: pairs plus pairs is still pairs, so even.`:`(2m + 1) + 2n = <strong>2(m + n) + 1</strong>: one dot is left over, so odd.`; }
+  else { const a=2*m+1,b=2*n+1; for(let i=0;i<b;i++) for(let j=0;j<a;j++){ const lone=i===b-1&&j===a-1; s+=`<circle cx="${20+j*14}" cy="${20+i*13}" r="4.5" fill="${lone?tw:(i<b-1?ac:hi)}"/>`; }
+    $('oeWork').innerHTML=`${a} × ${b} = ${a*b}: (2m + 1)(2n + 1) = 4mn + 2m + 2n + 1 = <strong>2(2mn + m + n) + 1</strong>: the grid is pairs everywhere except one corner dot, so odd × odd is always odd.`; }
+  $('oeSvg').innerHTML=s; }
+['oeT','oeM','oeN'].forEach(i=>$(i).addEventListener('input',drawOE)); reg(drawOE);
+
+/* 7a. proofs */
+const PF=[
+ {L:['Let the integers be <span class="c">n</span>, <span class="c">n + 1</span>, <span class="c">n + 2</span>, where n is any integer','Sum: n + (n + 1) + (n + 2) = 3n + 3','Factorise: 3n + 3 = <strong>3(n + 1)</strong>','n + 1 is an integer, so 3(n + 1) is a multiple of 3. ∎'],t:n=>[`${n}+${n+1}+${n+2}`,3*n+3,`3 × ${n+1}`]},
+ {L:['Let the odd numbers be <span class="c">2n + 1</span> and <span class="c">2n + 3</span> (consecutive odd numbers are 2 apart)','Sum: (2n + 1) + (2n + 3) = 4n + 4','Factorise: <strong>4(n + 1)</strong>','n + 1 is an integer, so the sum is a multiple of 4. ∎'],t:n=>[`${2*n+1}+${2*n+3}`,4*n+4,`4 × ${n+1}`]},
+ {L:['Let the odd numbers be <span class="c">2m + 1</span> and <span class="c">2n + 1</span> (two letters: they can be different)','Product: (2m + 1)(2n + 1) = 4mn + 2m + 2n + 1','Group the even part: = <strong>2(2mn + m + n) + 1</strong>','2(2mn + m + n) is even, and one more than an even number is odd. ∎'],t:n=>[`${2*n+1}×${2*n+3}`,(2*n+1)*(2*n+3),`2 × ${((2*n+1)*(2*n+3)-1)/2} + 1`]},
+ {L:['Expand: (2n + 1)² = 4n² + 4n + 1 and (2n − 1)² = 4n² − 4n + 1','Subtract (the minus applies to every term): 4n² + 4n + 1 − 4n² + 4n − 1','= <strong>8n</strong>','n is an integer, so 8n is a multiple of 8. ∎'],t:n=>[`${2*n+1}² − ${2*n-1}²`,8*n,`8 × ${n}`]}
+];
+const pfStep=stepper('pfWork','pfNext','pfAll','pfReset');
+const pfLoad=()=>{ const P=PF[+$('pfE').value]; pfStep.set(P.L,1); $('pfTab').innerHTML=`<tr><th>n</th><th>example</th><th>result</th><th>as a multiple</th></tr>`+[1,2,3,4,5].map(n=>{const r=P.t(n);return `<tr><td>${n}</td><td>${r[0].replace(/-/g,'−')}</td><td class="on">${r[1]}</td><td>${r[2]}</td></tr>`;}).join('')+`<tr><td colspan="4" style="text-align:left;font-family:var(--body);font-size:.8rem;color:var(--muted)">These examples suggest the pattern; only the algebra proves it for every n.</td></tr>`; };
+$('pfE').addEventListener('change',pfLoad); pfLoad();
+
+/* 7b. counter-examples */
+const isPrime=n=>{ if(!Number.isInteger(n)||n<2) return false; for(let d=2;d*d<=n;d++) if(n%d===0) return false; return true; };
+const smallest=n=>{ for(let d=2;d*d<=n;d++) if(n%d===0) return d; return n; };
+const CE=[
+ {lab:'n = ',two:0,test:(n)=>{ if(!Number.isInteger(n)||n<0) return [0,'Use a whole number n ≥ 0.']; const v=n*n+n+41; return isPrime(v)?[0,`${n}² + ${n} + 41 = ${v}, which is prime. Not a counter-example: keep looking (try bigger n).`]:[1,`${n}² + ${n} + 41 = ${v} = ${smallest(v)} × ${v/smallest(v)}, not prime. Counter-example found!`]; }},
+ {lab:'prime p = ',two:0,test:p=>{ if(!isPrime(p)) return [0,`${minus(p)} isn't prime, so it can't be a counter-example.`]; return p%2===0?[1,`${p} is prime and even. Counter-example found!`]:[0,`${p} is prime and odd: fits the statement. Is there an even prime?`]; }},
+ {lab:'number = ',two:0,test:x=>{ const s=x*x; return s>x?[0,`${minus(fmt(x,4))}² = ${fmt(s,6)}, which is bigger. Try 1, 0 or a number between 0 and 1.`]:[1,`${minus(fmt(x,4))}² = ${fmt(s,6)}, which is ${s===x?'equal to':'smaller than'} ${minus(fmt(x,4))}. Counter-example found!`]; }},
+ {lab:'n = ',two:0,test:n=>{ if(!Number.isInteger(n)||n<1) return [0,'Use a whole number n ≥ 1.']; const v=2*n+1; return isPrime(v)?[0,`2 × ${n} + 1 = ${v}, which is prime. Keep looking.`]:[1,`2 × ${n} + 1 = ${v} = ${smallest(v)} × ${v/smallest(v)}, not prime. Counter-example found!`]; }},
+ {lab:'square roots: a = ',two:1,test:(a,b)=>{ if(!Number.isInteger(a)||!Number.isInteger(b)||a<1||b<1) return [0,'Type two whole numbers a and b: we test a² + b².']; const s=a*a+b*b, r=Math.round(Math.sqrt(s)); return r*r===s?[1,`${a}² + ${b}² = ${s} = ${r}². Counter-example found! (Pythagoras' triples are full of these.)`]:[0,`${a}² + ${b}² = ${s}, not a square. Try 3 and 4.`]; }}
+];
+function ceLoad(){ const C=CE[+$('ceE').value]; $('ceL').firstChild.textContent=C.lab; $('ceL2').hidden=!C.two; $('ceA').value=''; $('ceB').value=''; $('ceMsg').className='msg'; $('ceMsg').textContent=''; }
+$('ceE').addEventListener('change',ceLoad);
+$('ceGo').addEventListener('click',()=>{ const C=CE[+$('ceE').value], a=num($('ceA')), b=num($('ceB')), M=$('ceMsg'); if(isNaN(a)||(C.two&&isNaN(b))){M.className='msg bad';M.textContent='Type a number to test.';return;} const [ok,t]=C.test(a,b); M.className='msg '+(ok?'good':'bad'); M.textContent=t; });
+ceLoad();
+
+const QS=[
+  {q:'Higher: simplify (3x + 12)/3.',opts:['x + 4','x + 12','3x + 4','x + 9'],a:0,fb:'Factorise: 3(x + 4)/3 = x + 4. Both terms on top must be divided by 3.'},
+  {q:'Higher: simplify (x² − 25)/(x − 5).',opts:['x + 5','x − 5','x² − 5','x + 25'],a:0,fb:'(x + 5)(x − 5)/(x − 5) = x + 5.'},
+  {q:'Higher: simplify (x + 6)/6.',opts:['It doesn\'t simplify to a single term','x','x + 1','1'],a:0,fb:'The 6 on top is added, not a factor, so nothing cancels. (It equals x/6 + 1, but not x.)'},
+  {q:'Higher: x/2 + x/3 = …',opts:['5x/6','2x/5','x/5','2x/6'],a:0,fb:'Common denominator 6: 3x/6 + 2x/6 = 5x/6.'},
+  {q:'Higher: 2/x × x²/4 = …',opts:['x/2','2x/4x','x²/2','2/x'],a:0,fb:'2x²/(4x) = x/2.'},
+  {q:'Higher: solve (x + 2)/3 = (x − 1)/2.',opts:['x = 7','x = −7','x = 1','x = 5'],a:0,fb:'Multiply both sides by 6: 2(x + 2) = 3(x − 1), 2x + 4 = 3x − 3, x = 7.'},
+  {q:'Which of these is an identity?',opts:['2(x + 3) ≡ 2x + 6','2x + 3 = 9','x² = 4','(x + 1)² = x² + 1'],a:0,fb:'2(x + 3) expands to 2x + 6 for every x. The others are only true for some values (or, for the last, only x = 0).'},
+  {q:'If n is an integer, which expression is always odd?',opts:['2n + 1','2n','n + 1','3n'],a:0,fb:'2n is even, so 2n + 1 is one more than an even number: odd.'},
+  {q:'Higher: n + (n + 1) + (n + 2) = 3(n + 1). This proves the sum of three consecutive integers is…',opts:['a multiple of 3','always even','always odd','a square number'],a:0,fb:'3 × an integer is a multiple of 3.'},
+  {q:'Which number is a counter-example to "all multiples of 3 are odd"?',opts:['6','9','15','7'],a:0,fb:'6 is a multiple of 3 and even. 7 isn\'t a multiple of 3, so it says nothing about the statement.'}
+];
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>DRAW.forEach(f=>f()));}
+new MutationObserver(()=>DRAW.forEach(f=>f())).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

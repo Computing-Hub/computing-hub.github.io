@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Vectors and Vector Proof</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; interactive SVG grids (graph-paper neutrals) with draggable arrow heads and tails, plus a geometry figure for paths and proofs. Colours on this page: teal = vector a (and anything built only from a); orange = vector b; plum = the result of a calculation (a + b, a − b, ka, a path, a position vector you are finding); grey dashed = construction lines such as the other route round a parallelogram. Green/red = right/wrong feedback only. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.D{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.parts-svg [data-part]{cursor:pointer}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.12rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.45rem;position:relative;top:-.12em;white-space:nowrap}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+summary .tag{font-size:.6rem}
+.grp{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.lab svg.drag{touch-action:none;cursor:grab}
+.lab svg.drag:active{cursor:grabbing}
+.hint{font-size:.85rem;color:var(--muted);margin:.4rem 0 0}
+.formula{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.7rem 1rem;margin:1.2rem 0;font-family:var(--mono);font-size:1.05rem;line-height:1.8}
+.formula b{font-family:var(--body)}
+.A{color:var(--accent);font-weight:600}.H{color:var(--hi);font-weight:600}.T{color:var(--two);font-weight:600}
+sup,sub{line-height:0}
+@media (max-width:540px){
+  table.stack tr:first-child{display:none}
+  table.stack tr{display:block;border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{display:block;border:0;padding:.15rem .3rem}
+  table.stack td[data-h]::before{content:attr(data-h) ": ";font:600 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+}
+.cv{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;border-left:2px solid currentColor;border-right:2px solid currentColor;border-radius:9px;padding:0 .45em;line-height:1.15;vertical-align:middle;font-family:var(--mono);font-size:.95em;min-width:2.2em;margin:.15em 0}
+.vec{position:relative;display:inline-block;font-weight:600}
+.vec::after{content:"→";position:absolute;left:0;right:0;top:-.6em;text-align:center;font-size:.68em;line-height:1}
+.pathpts{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+.big .cv{font-size:.7em}
+.opts2{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem}
+.opts2 button{font:inherit;font-size:1rem;padding:.3rem .7rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts2 button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts2 button.wrong{border-color:var(--bad);opacity:.6}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Geometry and measures</div>
+  <h1>Vectors and Vector Proof</h1>
+  <p class="lede">A vector is a movement: how far across and how far up, in one package. Vectors let you add journeys, stretch them, reverse them, and at Higher tier prove geometric facts (that three points lie on a straight line, or that two lines are parallel) with algebra instead of a protractor.</p>
+  <span class="gcse">GCSE subject content G24: describe translations as 2D vectors. G25: apply addition and subtraction of vectors, multiplication of vectors by a scalar, and diagrammatic and column representations of vectors; (Higher) use vectors to construct geometric arguments and proofs.</span>
+</header>
+
+<h2>1 · What a vector is, and how to write it</h2>
+<p>You met vectors at KS3 as the way to describe a <strong>translation</strong> (a slide; see <a href="../ks3-interactive/transformations.html">Transformations</a>). A <strong>vector</strong> has a size and a direction, and it doesn't care where it starts. We write it three ways:</p>
+<ul>
+  <li>As a <strong>column vector</strong>: top number = movement right (negative = left), bottom number = movement up (negative = down). <span class="cv"><span>3</span><span>−2</span></span> means 3 right, 2 down.</li>
+  <li>As an <strong>arrow</strong> on a diagram: the arrowhead shows the direction.</li>
+  <li>As a <strong>letter</strong>: printed in bold, <b>a</b>, and handwritten underlined, <u>a</u>. The vector from point A to point B is written <span class="vec">AB</span>.</li>
+</ul>
+<p>Drag the tail or the head of the arrow. Notice that moving the whole arrow doesn't change the vector: only its length and direction matter.</p>
+<div class="lab">
+  <svg id="v1Svg" class="drag" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="readout">
+    <div class="p"><b>Column vector</b><span id="v1C"></span></div>
+    <div><b>In words</b><span id="v1W"></span></div>
+  </div>
+</div>
+<div class="callout"><p><strong>Common mistakes:</strong> writing the column vector upside down (it's always across on top, up underneath, like coordinates); and getting <span class="vec">AB</span> and <span class="vec">BA</span> confused: <span class="vec">BA</span> = −<span class="vec">AB</span>, same length, opposite direction.</p></div>
+
+<h2>2 · Adding vectors: one journey after another</h2>
+<p>To add <b>a</b> + <b>b</b>, do <b>a</b> and then <b>b</b>: put the tail of <b>b</b> on the head of <b>a</b> ("tip to tail"). The <strong>resultant</strong> goes straight from the start to the finish. In columns, just add the tops and add the bottoms. Doing <b>b</b> first and then <b>a</b> lands in the same place (the dashed route), so <b>a</b> + <b>b</b> = <b>b</b> + <b>a</b>.</p>
+<div class="lab">
+  <svg id="v2Svg" class="drag" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <p class="hint">Drag the heads of a (teal) and b (orange).</p>
+  <div class="big" id="v2Eq"></div>
+</div>
+
+<h2>3 · Subtracting and multiplying by a number</h2>
+<p><strong>Multiplying by a scalar</strong> (an ordinary number) k stretches the vector: 2<b>a</b> is twice as long in the same direction, ½<b>a</b> half as long. A negative number flips the direction: −<b>a</b> is <b>a</b> reversed. <strong>Subtracting</strong> is adding the reverse: <b>a</b> − <b>b</b> = <b>a</b> + (−<b>b</b>).</p>
+<div class="lab">
+  <div class="controls">
+    <label>show <select id="v3Op"><option value="ka">k a</option><option value="amb">a − b</option><option value="bma">b − a</option><option value="kab">k a + b</option></select></label>
+    <label>k <input type="range" id="v3K" min="-3" max="3" step="0.5" value="2"><span id="v3Kv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="v3Svg" class="drag" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="big" id="v3Eq"></div>
+</div>
+
+<h2>4 · Magnitude: how long is a vector? <span class="tag g">Higher</span></h2>
+<p>The <strong>magnitude</strong> of a vector is its length, written |<b>a</b>|. The column vector gives a right-angled triangle (across and up), so Pythagoras finds the length. This isn't listed separately in the DfE content, but it's standard on the Higher route and simply uses Pythagoras.</p>
+<div class="formula">a = (x, y) as a column → |a| = √(x² + y²)</div>
+<div class="lab">
+  <svg id="v4Svg" class="drag" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="work" id="v4Work"></div>
+</div>
+
+<h2>5 · Parallel vectors</h2>
+<p>Two vectors are <strong>parallel</strong> when one is a multiple of the other. <span class="cv"><span>6</span><span>−9</span></span> = 3 × <span class="cv"><span>2</span><span>−3</span></span>, so they're parallel. To check, divide matching components: if both give the same number, they're parallel. A negative multiple is still parallel, just pointing the opposite way.</p>
+<div class="lab">
+  <p class="pq" id="v5Q"></p>
+  <div class="opts2" id="v5Opts"></div>
+  <div class="msg" id="v5Msg"></div>
+  <svg id="v5Svg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="controls"><button class="btn" id="v5New">New vector</button></div>
+</div>
+
+<h2>6 · Paths in a diagram <span class="tag g">Higher</span></h2>
+<p>In geometry questions you're given two vectors, usually <b>a</b> and <b>b</b>, along two sides of a shape, and asked to write other lines in terms of them. The rule: <strong>find a route</strong> from the start to the end along lines you know, and add up the vectors on the way, using a minus sign when you travel backwards along an arrow.</p>
+<p>Here OABC is a parallelogram with <span class="vec">OA</span> = <b>a</b> and <span class="vec">OC</span> = <b>b</b>. M is the midpoint of AB, and P is on OB with OP : PB = 1 : 2. Build a route by clicking points.</p>
+<div class="lab">
+  <p class="pq" id="v6Q"></p>
+  <svg id="v6Svg" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <div class="pathpts" id="v6Pts"></div>
+  <div class="work" id="v6Work"></div>
+  <div class="controls"><button class="btn" id="v6Undo">Undo step</button><button class="btn" id="v6New">New question</button></div>
+  <div class="msg" id="v6Msg"></div>
+</div>
+
+<h2>7 · Midpoints and ratios along a line <span class="tag g">Higher</span></h2>
+<p>If P lies on AB with AP : PB = m : n, then P is m/(m + n) of the way from A to B. So <span class="vec">AP</span> = m/(m+n) × <span class="vec">AB</span>, and to get the position vector of P go to A first: <span class="vec">OP</span> = <span class="vec">OA</span> + <span class="vec">AP</span>. For the midpoint (1 : 1) this gives <span class="vec">OM</span> = ½(<b>a</b> + <b>b</b>).</p>
+<div class="lab">
+  <div class="controls">
+    <label>m <input type="range" id="v7M" min="1" max="5" value="1"><span id="v7Mv" style="font-family:var(--mono)"></span></label>
+    <label>n <input type="range" id="v7N" min="1" max="5" value="2"><span id="v7Nv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="v7Svg" class="drag" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <p class="hint">Drag A and B.</p>
+  <div class="work" id="v7Work"></div>
+</div>
+<div class="callout"><p><strong>Trap:</strong> a ratio 1 : 2 means P is <em>one third</em> of the way along, not one half. Add the parts: 1 + 2 = 3, so the fraction is 1/3.</p></div>
+
+<h2>8 · Vector proof: collinear points and parallel lines <span class="tag g">Higher</span></h2>
+<p>Two key facts:</p>
+<ul>
+  <li><strong>Parallel lines:</strong> if <span class="vec">PQ</span> = k × <span class="vec">RS</span> for a number k, then PQ is parallel to RS (and k tells you how many times longer).</li>
+  <li><strong>Collinear points</strong> (on one straight line): if <span class="vec">PQ</span> = k × <span class="vec">PR</span>, the lines are parallel <em>and</em> share the point P, so P, Q and R lie on a straight line. You must mention both facts.</li>
+</ul>
+<p>Step through a full proof using the parallelogram from section 6: show that C, P and M are collinear.</p>
+<div class="lab">
+  <svg id="v8Svg" viewBox="0 0 420 300" width="420" height="300"></svg>
+  <div class="controls">
+    <button class="btn" id="v8Prev">◀ Back</button>
+    <button class="btn primary" id="v8Next">Next step ▶</button>
+    <span class="hint" id="v8Step"></span>
+  </div>
+  <div class="work" id="v8Work"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary><b>a</b> = (3, −1) and <b>b</b> = (−2, 4) as column vectors. Find <b>a</b> + <b>b</b> and 2<b>a</b> − <b>b</b>.</summary>
+  <div class="step"><b>a</b> + <b>b</b> = <span class="cv"><span>3 + (−2)</span><span>−1 + 4</span></span> = <span class="cv"><span>1</span><span>3</span></span></div>
+  <div class="step">2<b>a</b> = <span class="cv"><span>6</span><span>−2</span></span>, so 2<b>a</b> − <b>b</b> = <span class="cv"><span>6 − (−2)</span><span>−2 − 4</span></span> = <span class="cv"><span>8</span><span>−6</span></span>. (Subtracting a negative: 6 − (−2) = 8.)</div>
+</details>
+<details>
+  <summary>Find the magnitude of the vector (5, −12). <span class="tag g">Higher</span></summary>
+  <div class="step">|<b>v</b>| = √(5² + (−12)²) = √(25 + 144) = √169 = <strong>13</strong>.</div>
+  <div class="step">Squaring removes the minus sign: (−12)² = 144.</div>
+</details>
+<details>
+  <summary>The vector (k, 6) is parallel to (2, 3). Find k.</summary>
+  <div class="step">Parallel means (k, 6) = t × (2, 3) for some number t.</div>
+  <div class="step">Bottom: 6 = 3t, so t = 2. Top: k = 2t = <strong>4</strong>.</div>
+</details>
+<details>
+  <summary>OABC is a parallelogram, <span class="vec">OA</span> = <b>a</b>, <span class="vec">OC</span> = <b>b</b>, M is the midpoint of AB. Find <span class="vec">OM</span> and <span class="vec">CM</span>. <span class="tag g">Higher</span></summary>
+  <div class="step"><span class="vec">AB</span> is parallel and equal to <span class="vec">OC</span> (opposite sides of a parallelogram), so <span class="vec">AB</span> = <b>b</b> and <span class="vec">AM</span> = ½<b>b</b>.</div>
+  <div class="step"><span class="vec">OM</span> = <span class="vec">OA</span> + <span class="vec">AM</span> = <strong><b>a</b> + ½<b>b</b></strong>.</div>
+  <div class="step"><span class="vec">CM</span> = <span class="vec">CO</span> + <span class="vec">OM</span> = −<b>b</b> + <b>a</b> + ½<b>b</b> = <strong><b>a</b> − ½<b>b</b></strong>.</div>
+</details>
+<details>
+  <summary><span class="vec">OA</span> = <b>a</b>, <span class="vec">OB</span> = <b>b</b>, and P is on AB with AP : PB = 1 : 3. Find <span class="vec">OP</span>. <span class="tag g">Higher</span></summary>
+  <div class="step"><span class="vec">AB</span> = <span class="vec">AO</span> + <span class="vec">OB</span> = −<b>a</b> + <b>b</b> = <b>b</b> − <b>a</b>.</div>
+  <div class="step">P is 1/(1 + 3) = ¼ of the way from A: <span class="vec">AP</span> = ¼(<b>b</b> − <b>a</b>).</div>
+  <div class="step"><span class="vec">OP</span> = <b>a</b> + ¼(<b>b</b> − <b>a</b>) = <strong>¾<b>a</b> + ¼<b>b</b></strong>.</div>
+</details>
+<details>
+  <summary>Proof: in the parallelogram OABC above, P is on OB with OP : PB = 2 : 1. Show that C, P and M are collinear. <span class="tag g">Higher</span></summary>
+  <div class="step"><span class="vec">OB</span> = <b>a</b> + <b>b</b>, so <span class="vec">OP</span> = ⅔(<b>a</b> + <b>b</b>).</div>
+  <div class="step"><span class="vec">CP</span> = <span class="vec">CO</span> + <span class="vec">OP</span> = −<b>b</b> + ⅔<b>a</b> + ⅔<b>b</b> = ⅔<b>a</b> − ⅓<b>b</b> = ⅓(2<b>a</b> − <b>b</b>).</div>
+  <div class="step"><span class="vec">CM</span> = <b>a</b> − ½<b>b</b> (previous example) = ½(2<b>a</b> − <b>b</b>).</div>
+  <div class="step">So <span class="vec">CM</span> = 3/2 × <span class="vec">CP</span>: the lines CP and CM are parallel, and they share the point C. <strong>Therefore C, P and M are collinear.</strong></div>
+  <div class="step"><strong>Check it matters:</strong> with OP : PB = 1 : 2 instead, <span class="vec">CP</span> = ⅓<b>a</b> − ⅔<b>b</b>, which is not a multiple of 2<b>a</b> − <b>b</b>, so the points would <em>not</em> be collinear. Always finish with both reasons: "multiple, so parallel" and "common point".</div>
+</details>
+
+<h2>Quick check</h2>
+<p>In the quiz, column vectors are written sideways as (top, bottom) so they fit on a button.</p>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A vector has size and direction. Column vector: across on top, up underneath. Bold <b>a</b> in print, underlined <u>a</u> by hand, <span class="vec">AB</span> from A to B, and <span class="vec">BA</span> = −<span class="vec">AB</span>.</li>
+  <li>Add tip to tail (add the components); subtract by adding the reverse; multiplying by k stretches, and a negative k reverses.</li>
+  <li>Higher: magnitude |<b>a</b>| = √(x² + y²) by Pythagoras.</li>
+  <li>Vectors are parallel when one is a multiple of the other.</li>
+  <li>Higher: write paths by going round known sides (minus for going backwards). A point dividing AB in the ratio m : n is m/(m + n) of the way along <span class="vec">AB</span> = <b>b</b> − <b>a</b>.</li>
+  <li>Higher proof: <span class="vec">PQ</span> = k<span class="vec">RS</span> means parallel; <span class="vec">PQ</span> = k<span class="vec">PR</span> means parallel with a common point, so collinear.</li>
+</ul>
+
+<footer>Made for GCSE students. Column vectors, vector addition, subtraction and scalar multiplication are in the DfE GCSE mathematics subject content under Geometry and measures; vector geometry and proof are Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const PI = Math.PI, RAD = PI/180;
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat((+v).toFixed(d)).toString()) : '—';
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(Math.abs(v)<1e-12) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); if(e>=n-1) return minus(String(Math.round(r))); return minus(r.toFixed(n-1-e)); };
+const long = v => isFinite(v) ? minus((Math.trunc(v*1000+(v<0?-1e-9:1e-9))/1000).toFixed(3)) + '…' : '—';
+const dp1 = v => isFinite(v) ? minus((+v).toFixed(1)) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v = parseFloat(String(el.value).replace(/−/g,'-').replace(/,/g,'')); return isFinite(v) ? v : NaN; };
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T = (x,y,s,col,o={}) => `<text x="${x}" y="${y}" font-size="${o.fs||13}" ${o.w?`font-weight="${o.w}"`:''} text-anchor="${o.a||'middle'}" fill="${col}" ${F()} ${o.extra||''}>${s}</text>`;
+const L = (x1,y1,x2,y2,col,w=2,dash) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+const C = (x,y,r,fill,stroke='none',w=0) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${w}"/>`;
+const poly = (pts,fill,stroke='none',w=0,op=1,dash) => `<polygon points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="${fill}" fill-opacity="${op}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+/* angle arc at vertex V between directions to A and B (screen coords), radius r */
+function angArc(V,A,B,r,col,w=1.6){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]), a2=Math.atan2(B[1]-V[1],B[0]-V[0]); let d=a2-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const p1=[V[0]+r*Math.cos(a1),V[1]+r*Math.sin(a1)], p2=[V[0]+r*Math.cos(a1+d),V[1]+r*Math.sin(a1+d)]; return `<path d="M${p1[0]},${p1[1]} A${r},${r} 0 0 ${d>0?1:0} ${p2[0]},${p2[1]}" fill="none" stroke="${col}" stroke-width="${w}"/>`; }
+function angLabelPos(V,A,B,r){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]); let d=Math.atan2(B[1]-V[1],B[0]-V[0])-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const m=a1+d/2; return [V[0]+r*Math.cos(m), V[1]+r*Math.sin(m)+4]; }
+/* right-angle square at V between A and B */
+function rightMark(V,A,B,s,col){ const u=[A[0]-V[0],A[1]-V[1]],v=[B[0]-V[0],B[1]-V[1]]; const lu=Math.hypot(...u)||1, lv=Math.hypot(...v)||1; const p=[V[0]+u[0]/lu*s,V[1]+u[1]/lu*s], q=[V[0]+v[0]/lv*s,V[1]+v[1]/lv*s], r=[p[0]+v[0]/lv*s,p[1]+v[1]/lv*s]; return `<polyline points="${p[0]},${p[1]} ${r[0]},${r[1]} ${q[0]},${q[1]}" fill="none" stroke="${col}" stroke-width="1.5"/>`; }
+const svgXY = (svg,ev) => { const vb=svg.viewBox.baseVal, r=svg.getBoundingClientRect(); const k=Math.min(r.width/vb.width, r.height/vb.height); const ox=(r.width-vb.width*k)/2, oy=(r.height-vb.height*k)/2; return [vb.x+(ev.clientX-r.left-ox)/k, vb.y+(ev.clientY-r.top-oy)/k]; };
+/* generic drag: pick(p) returns a handle key or null; move(key,p) updates */
+function dragger(svg,pick,move,end){ let key=null; svg.addEventListener('pointerdown',e=>{ const p=svgXY(svg,e); const k=pick(p); if(k===null||k===undefined) return; key=k; try{svg.setPointerCapture(e.pointerId);}catch(_){} e.preventDefault(); move(key,p); }); svg.addEventListener('pointermove',e=>{ if(key===null) return; e.preventDefault(); move(key,svgXY(svg,e)); }); const up=()=>{ if(key!==null&&end) end(key); key=null; }; svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',up); }
+const nearest = (p,pts,maxd) => { let best=null,bd=maxd; pts.forEach((q,i)=>{ const d=Math.hypot(p[0]-q[0],p[1]-q[1]); if(d<bd){bd=d;best=i;} }); return best; };
+const REDRAW=[]; const reg = f => { REDRAW.push(f); f(); return f; };
+const feedback = (el,ok,msg) => { el.className='msg '+(ok?'good':'bad'); el.textContent=msg; };
+
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const TE=()=>css('--accent'),OR=()=>css('--hi'),PL=()=>css('--two'),FG=()=>css('--fg'),MU=()=>css('--muted');
+const R=7,S=400,pad=20,cell=(S-2*pad)/(2*R);
+const sx=x=>pad+(x+R)*cell, sy=y=>pad+(R-y)*cell;
+const toG=(svg,ev)=>{const p=svgXY(svg,ev);return [Math.round((p[0]-pad)/cell-R),Math.round(R-(p[1]-pad)/cell)];};
+const clampG=v=>Math.max(-R,Math.min(R,v));
+function grid(){let s='';for(let i=-R;i<=R;i++){s+=L(sx(i),sy(-R),sx(i),sy(R),css('--grid'),1)+L(sx(-R),sy(i),sx(R),sy(i),css('--grid'),1);}return s;}
+function arrow(x1,y1,x2,y2,col,w=3.5,dash){const X1=sx(x1),Y1=sy(y1),X2=sx(x2),Y2=sy(y2);const d=Math.hypot(X2-X1,Y2-Y1);if(d<1)return C(X1,Y1,4,col);const ux=(X2-X1)/d,uy=(Y2-Y1)/d,h=Math.min(13,d*0.45);const bx=X2-ux*h,by=Y2-uy*h;
+  return L(X1,Y1,bx,by,col,w,dash)+`<polygon points="${X2},${Y2} ${bx-uy*h*0.45},${by+ux*h*0.45} ${bx+uy*h*0.45},${by-ux*h*0.45}" fill="${col}"/>`;}
+const lab=(x,y,t,col,dx=8,dy=-8)=>T(sx(x)+dx,sy(y)+dy,t,col,{w:700,fs:13,a:'start'});
+const hnd=(x,y,col)=>C(sx(x),sy(y),6,col||FG(),css('--panel'),2);
+const cv=(x,y,col)=>`<span class="cv"${col?` style="color:${col}"`:''}><span>${minus(fmt(x))}</span><span>${minus(fmt(y))}</span></span>`;
+/* drag helper for named grid points */
+function gdrag(svg,pts,draw,o={}){let key=null;
+  svg.addEventListener('pointerdown',e=>{const p=svgXY(svg,e);let best=null,bd=22;Object.keys(pts).forEach(k=>{if(o.fixed&&o.fixed.includes(k))return;const d=Math.hypot(p[0]-sx(pts[k][0]),p[1]-sy(pts[k][1]));if(d<bd){bd=d;best=k;}});if(best===null)return;key=best;try{svg.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(key===null)return;e.preventDefault();const g=toG(svg,e).map(clampG);if(o.ok&&!o.ok(key,g))return;pts[key]=g;draw();});
+  const up=()=>{key=null;};svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);}
+
+/* 1. notation */
+const P1={T:[-3,-2],H:[2,1]};
+function drawV1(){const [tx,ty]=P1.T,[hx,hy]=P1.H,dx=hx-tx,dy=hy-ty;
+  let s=grid()+arrow(tx,ty,hx,hy,PL())+hnd(tx,ty)+hnd(hx,hy,PL())+lab(tx,ty,'A',FG(),-16,16)+lab(hx,hy,'B',FG());
+  if(dx!==0)s+=L(sx(tx),sy(ty),sx(hx),sy(ty),MU(),1.5,'4 4')+T((sx(tx)+sx(hx))/2,sy(ty)+(dy>=0?16:-8),(dx>0?dx+' right':(-dx)+' left'),MU(),{fs:11});
+  if(dy!==0)s+=L(sx(hx),sy(ty),sx(hx),sy(hy),MU(),1.5,'4 4')+T(sx(hx)+(dx>=0?6:-6),(sy(ty)+sy(hy))/2+4,(dy>0?dy+' up':(-dy)+' down'),MU(),{fs:11,a:dx>=0?'start':'end'});
+  $('v1Svg').innerHTML=s;
+  $('v1C').innerHTML=`<span class="vec">AB</span> = ${cv(dx,dy,PL())} &nbsp; <span class="vec">BA</span> = ${cv(-dx,-dy)}`;
+  $('v1W').textContent=dx===0&&dy===0?'zero vector: no movement':`${dx===0?'':(Math.abs(dx)+(dx>0?' right':' left'))}${dx!==0&&dy!==0?', ':''}${dy===0?'':(Math.abs(dy)+(dy>0?' up':' down'))}`;}
+gdrag($('v1Svg'),P1,drawV1); reg(drawV1);
+
+/* 2. addition */
+const S2=[-6,-5]; const P2={A:[-2,-3],B:[3,2]};
+function drawV2(){const a=[P2.A[0]-S2[0],P2.A[1]-S2[1]],b=[P2.B[0]-P2.A[0],P2.B[1]-P2.A[1]],r=[a[0]+b[0],a[1]+b[1]];
+  const alt=[S2[0]+b[0],S2[1]+b[1]];
+  let s=grid()+arrow(S2[0],S2[1],alt[0],alt[1],OR(),2,'5 4')+arrow(alt[0],alt[1],P2.B[0],P2.B[1],TE(),2,'5 4');
+  s+=arrow(S2[0],S2[1],P2.B[0],P2.B[1],PL(),4)+arrow(S2[0],S2[1],P2.A[0],P2.A[1],TE())+arrow(P2.A[0],P2.A[1],P2.B[0],P2.B[1],OR());
+  s+=lab((S2[0]+P2.A[0])/2,(S2[1]+P2.A[1])/2,'a',TE(),-18,-2)+lab((P2.A[0]+P2.B[0])/2,(P2.A[1]+P2.B[1])/2,'b',OR(),-18,-2)+lab((S2[0]+P2.B[0])/2,(S2[1]+P2.B[1])/2,'a + b',PL(),8,14);
+  s+=C(sx(S2[0]),sy(S2[1]),5,FG())+hnd(P2.A[0],P2.A[1],TE())+hnd(P2.B[0],P2.B[1],OR());
+  $('v2Svg').innerHTML=s;
+  $('v2Eq').innerHTML=`${cv(a[0],a[1],TE())} + ${cv(b[0],b[1],OR())} = ${cv(r[0],r[1],PL())}`;}
+gdrag($('v2Svg'),P2,drawV2,{ok:(k,g)=>!(g[0]===S2[0]&&g[1]===S2[1])}); reg(drawV2);
+
+/* 3. subtract & scalar */
+const P3={A:[2,1],B:[-1,3]}; const v3Op=$('v3Op'),v3K=$('v3K');
+function drawV3(){const a=P3.A,b=P3.B,k=+v3K.value,op=v3Op.value;$('v3Kv').textContent=' '+minus(fmt(k));
+  let s=grid()+arrow(0,0,a[0],a[1],TE(),2.5)+arrow(0,0,b[0],b[1],OR(),2.5)+lab(a[0],a[1],'a',TE())+lab(b[0],b[1],'b',OR())+hnd(a[0],a[1],TE())+hnd(b[0],b[1],OR());
+  let r,eq;
+  if(op==='ka'){r=[k*a[0],k*a[1]];s+=arrow(0,0,r[0],r[1],PL(),4)+lab(r[0],r[1],minus(fmt(k))+'a',PL(),8,14);eq=`${minus(fmt(k))} × ${cv(a[0],a[1],TE())} = ${cv(r[0],r[1],PL())}`+(k<0?' <span style="font-size:.6em">(negative: reversed)</span>':k===0?' <span style="font-size:.6em">(zero vector)</span>':'');}
+  if(op==='amb'){r=[a[0]-b[0],a[1]-b[1]];s+=arrow(a[0],a[1],r[0],r[1],OR(),2,'5 4')+lab((a[0]+r[0])/2,(a[1]+r[1])/2,'−b',OR(),8,14)+arrow(0,0,r[0],r[1],PL(),4)+lab(r[0],r[1],'a − b',PL(),8,14)+arrow(b[0],b[1],a[0],a[1],MU(),1.5,'2 4');eq=`${cv(a[0],a[1],TE())} − ${cv(b[0],b[1],OR())} = ${cv(r[0],r[1],PL())}`;}
+  if(op==='bma'){r=[b[0]-a[0],b[1]-a[1]];s+=arrow(b[0],b[1],r[0],r[1],TE(),2,'5 4')+lab((b[0]+r[0])/2,(b[1]+r[1])/2,'−a',TE(),8,14)+arrow(0,0,r[0],r[1],PL(),4)+lab(r[0],r[1],'b − a',PL(),8,14)+arrow(a[0],a[1],b[0],b[1],MU(),1.5,'2 4');eq=`${cv(b[0],b[1],OR())} − ${cv(a[0],a[1],TE())} = ${cv(r[0],r[1],PL())}`;}
+  if(op==='kab'){const ka=[k*a[0],k*a[1]];r=[ka[0]+b[0],ka[1]+b[1]];s+=arrow(0,0,ka[0],ka[1],TE(),2,'5 4')+arrow(ka[0],ka[1],r[0],r[1],OR(),2,'5 4')+arrow(0,0,r[0],r[1],PL(),4)+lab(r[0],r[1],minus(fmt(k))+'a + b',PL(),8,14);eq=`${minus(fmt(k))}${cv(a[0],a[1],TE())} + ${cv(b[0],b[1],OR())} = ${cv(r[0],r[1],PL())}`;}
+  $('v3Svg').innerHTML=s; $('v3Eq').innerHTML=eq;
+  $('v3K').disabled=!(op==='ka'||op==='kab');}
+gdrag($('v3Svg'),P3,drawV3,{ok:(k,g)=>!(g[0]===0&&g[1]===0)}); [v3Op,v3K].forEach(e=>e.addEventListener('input',drawV3)); reg(drawV3);
+
+/* 4. magnitude */
+const P4={H:[4,3]};
+const surd=n=>{if(n===0)return '0';let c=1,r=n;for(let f=2;f*f<=r;f++){while(r%(f*f)===0){r/=f*f;c*=f;}}return r===1?String(c):(c===1?'':c)+'√'+r;};
+function drawV4(){const [x,y]=P4.H;let s=grid();
+  if(x!==0)s+=L(sx(0),sy(0),sx(x),sy(0),TE(),2.5)+T((sx(0)+sx(x))/2,sy(0)+(y>=0?16:-8),String(Math.abs(x)),TE(),{w:700,fs:12});
+  if(y!==0)s+=L(sx(x),sy(0),sx(x),sy(y),OR(),2.5)+T(sx(x)+(x>=0?8:-8),(sy(0)+sy(y))/2+4,String(Math.abs(y)),OR(),{w:700,fs:12,a:x>=0?'start':'end'});
+  if(x!==0&&y!==0)s+=rightMark([sx(x),sy(0)],[sx(0),sy(0)],[sx(x),sy(y)],9,MU());
+  s+=arrow(0,0,x,y,PL(),4)+hnd(x,y,PL())+C(sx(0),sy(0),4,FG());
+  $('v4Svg').innerHTML=s; const n=x*x+y*y;
+  $('v4Work').innerHTML=`<b>v</b> = ${cv(x,y,PL())}<br>|<b>v</b>| = √(${minus(x)}² + ${minus(y)}²) = √(${x*x} + ${y*y}) = √${n} = <strong>${surd(n)}</strong>${Number.isInteger(Math.sqrt(n))?'':' ≈ '+fmt(Math.sqrt(n),3)}`;}
+gdrag($('v4Svg'),P4,drawV4); reg(drawV4);
+
+/* 5. parallel */
+let V5=null;
+function v5New(){const bases=[[2,3],[1,-2],[3,-1],[2,5],[-1,4],[4,1],[3,2]];const a=pick(bases);
+  const mults=shuffle([2,-1,3,-2,0.5]).slice(0,3);
+  const cands=mults.map(m=>({v:[a[0]*m,a[1]*m],par:true,m}));
+  const near=[[a[0]+1,a[1]],[a[1],a[0]],[a[0]*2,a[1]*2+1],[-a[0],a[1]]].filter(v=>!(v[0]*a[1]===v[1]*a[0]));
+  shuffle(near).slice(0,3).forEach(v=>cands.push({v,par:false}));
+  V5={a,cands:shuffle(cands),found:0,need:cands.filter(c=>c.par).length,shown:[]};
+  $('v5Q').innerHTML=`Click every vector that is parallel to <b>a</b> = ${cv(a[0],a[1],TE())}.`; $('v5Msg').textContent=''; $('v5Msg').className='msg';
+  const box=$('v5Opts');box.innerHTML='';
+  V5.cands.forEach(c=>{const b=document.createElement('button');b.innerHTML=cv(c.v[0],c.v[1]);b.addEventListener('click',()=>{if(b.disabled)return;
+    if(c.par){b.classList.add('right');b.disabled=true;V5.found++;V5.shown.push(c.v);const m=c.m;feedback($('v5Msg'),true,`Yes: ${cv(c.v[0],c.v[1])}`.replace(/<[^>]+>/g,' ')+`= ${minus(fmt(m))} × a${m<0?' (opposite direction)':''}. ${V5.found===V5.need?'That\'s all of them.':`${V5.need-V5.found} more to find.`}`);}
+    else{b.classList.add('wrong');const r1=a[0]===0?'—':fmt(c.v[0]/a[0],3),r2=a[1]===0?'—':fmt(c.v[1]/a[1],3);feedback($('v5Msg'),false,`Not parallel: top ÷ top = ${minus(r1)} but bottom ÷ bottom = ${minus(r2)}. The multipliers must match.`);V5.shown.push(c.v);}
+    drawV5();});box.appendChild(b);});
+  drawV5();}
+function drawV5(){if(!V5)return;let s=grid()+arrow(0,0,V5.a[0],V5.a[1],TE(),4)+lab(V5.a[0],V5.a[1],'a',TE());
+  V5.shown.forEach(v=>{const par=v[0]*V5.a[1]===v[1]*V5.a[0];const sc=Math.max(Math.abs(v[0]),Math.abs(v[1]))>R?R/Math.max(Math.abs(v[0]),Math.abs(v[1])):1;s+=arrow(0,0,v[0]*sc,v[1]*sc,par?PL():css('--bad'),2.5,par?'':'5 4');});
+  $('v5Svg').innerHTML=s;}
+$('v5New').addEventListener('click',v5New); v5New(); REDRAW.push(drawV5);
+
+/* 6. paths */
+const AV=[3.2,0.6],BV=[1.2,2.6]; const OX=40,OY=260,UNIT=48;
+const PTS={O:[0,0],A:[1,0],B:[1,1],C:[0,1],M:[1,0.5],P:[1/3,1/3]};
+const EDGES=[['O','A'],['A','M'],['M','B'],['B','C'],['C','O'],['O','P'],['P','B']];
+const scr=([p,q])=>[OX+(p*AV[0]+q*BV[0])*UNIT,OY-(p*AV[1]+q*BV[1])*UNIT];
+const hasEdge=(u,v)=>EDGES.some(([x,y])=>(x===u&&y===v)||(x===v&&y===u));
+const GL={'1/2':'½','1/3':'⅓','2/3':'⅔','1/4':'¼','3/4':'¾','1/5':'⅕','2/5':'⅖','3/5':'⅗','4/5':'⅘','1/6':'⅙','5/6':'⅚'};
+const fr=v=>{const sg=v<0?'−':'';const a=Math.abs(v);if(Math.abs(a-Math.round(a))<1e-9)return sg+Math.round(a);for(let d=2;d<=12;d++){const n=Math.round(a*d);if(Math.abs(a*d-n)<1e-9){const g=(x,y)=>y?g(y,x%y):x;const k=g(n,d);const key=(n/k)+'/'+(d/k);return sg+(GL[key]||key+' ');}}return sg+fmt(a,3);};
+const exprAB=(p,q)=>{const term=(c,l)=>{if(Math.abs(c)<1e-9)return '';const s=fr(c);return (s==='1'?'':s==='−1'?'−':s)+`<b>${l}</b>`;};
+  let a=term(p,'a'),b=term(q,'b');if(!a&&!b)return '<b>0</b>';if(a&&b)return a+(b.startsWith('−')?' − '+b.slice(1):' + '+b);return a||b;};
+let V6=null;
+const QUESTIONS=[['O','B'],['A','C'],['O','M'],['C','M'],['M','C'],['A','P'],['C','P'],['P','M'],['M','O'],['B','P']];
+function v6New(){const [s,e]=pick(QUESTIONS);V6={s,e,route:[s]};drawV6();$('v6Msg').textContent='';$('v6Msg').className='msg';}
+function v6Total(){let p=0,q=0;for(let i=1;i<V6.route.length;i++){const u=PTS[V6.route[i-1]],v=PTS[V6.route[i]];p+=v[0]-u[0];q+=v[1]-u[1];}return [p,q];}
+function drawV6(){if(!V6)return;const g=n=>scr(PTS[n]);let s='';
+  s+=poly(['O','A','B','C'].map(g),css('--accent-soft'),'none',0,.35);
+  EDGES.forEach(([u,v])=>{const p=g(u),q=g(v);s+=L(p[0],p[1],q[0],q[1],MU(),1.5);});
+  const ar=(u,v,col,w,lb)=>{const p=g(u),q=g(v);const d=Math.hypot(q[0]-p[0],q[1]-p[1]),ux=(q[0]-p[0])/d,uy=(q[1]-p[1])/d;const m=[(p[0]+q[0])/2+ux*7,(p[1]+q[1])/2+uy*7];
+    return L(p[0],p[1],q[0],q[1],col,w)+`<polygon points="${m[0]},${m[1]} ${m[0]-ux*12-uy*6},${m[1]-uy*12+ux*6} ${m[0]-ux*12+uy*6},${m[1]-uy*12-ux*6}" fill="${col}"/>`+(lb?T(m[0]-uy*16,m[1]+ux*16+4,lb,col,{w:700,fs:13}):'');};
+  s+=ar('O','A',TE(),3,'a')+ar('O','C',OR(),3,'b');
+  for(let i=1;i<V6.route.length;i++)s+=ar(V6.route[i-1],V6.route[i],PL(),4);
+  Object.keys(PTS).forEach(n=>{const p=g(n);const on=n===V6.s||n===V6.e;s+=C(p[0],p[1],on?7:5,on?PL():FG())+T(p[0]+(n==='O'||n==='C'?-12:12),p[1]+(n==='O'||n==='A'?16:-8),n,on?PL():FG(),{w:700,fs:14});});
+  $('v6Svg').innerHTML=s;
+  $('v6Q').innerHTML=`Find <span class="vec">${V6.s}${V6.e}</span> in terms of <b>a</b> and <b>b</b>. Start at ${V6.s}; click points along the lines to reach ${V6.e}.`;
+  const cur=V6.route[V6.route.length-1];const box=$('v6Pts');box.innerHTML='';
+  if(cur!==V6.e)Object.keys(PTS).forEach(n=>{if(!hasEdge(cur,n))return;const b=document.createElement('button');b.className='btn';b.textContent='→ '+n;b.addEventListener('click',()=>{V6.route.push(n);drawV6();v6Check();});box.appendChild(b);});
+  const steps=[];for(let i=1;i<V6.route.length;i++){const u=PTS[V6.route[i-1]],v=PTS[V6.route[i]];steps.push(`<span class="vec">${V6.route[i-1]}${V6.route[i]}</span> = ${exprAB(v[0]-u[0],v[1]-u[1])}`);}
+  const [p,q]=v6Total();
+  $('v6Work').innerHTML=(steps.length?steps.join('<br>')+`<br><span class="c">total <span class="vec">${V6.s}${cur}</span> = ${exprAB(p,q)}</span>`:'Known: <span class="vec">OA</span> = <b>a</b>, <span class="vec">OC</span> = <b>b</b>, so <span class="vec">AB</span> = <b>b</b> (parallel and equal) and <span class="vec">CB</span> = <b>a</b>. M is halfway along AB. P is ⅓ of the way from O to B.');}
+function v6Check(){const cur=V6.route[V6.route.length-1];if(cur!==V6.e)return;const [p,q]=v6Total();feedback($('v6Msg'),true,`You reached ${V6.e}: ${V6.s}${V6.e} = `+exprAB(p,q).replace(/<[^>]+>/g,'')+'. Any route gives the same answer: use Undo to try another route, or get a new question.');}
+$('v6Undo').addEventListener('click',()=>{if(V6.route.length>1)V6.route.pop();$('v6Msg').textContent='';drawV6();});
+$('v6New').addEventListener('click',v6New); v6New(); REDRAW.push(drawV6);
+
+/* 7. ratio point */
+const P7={A:[-5,1],B:[3,4]}; const v7M=$('v7M'),v7N=$('v7N');
+function drawV7(){const m=+v7M.value,n=+v7N.value;$('v7Mv').textContent=' '+m;$('v7Nv').textContent=' '+n;const A=P7.A,B=P7.B,f=m/(m+n);const Pp=[A[0]+f*(B[0]-A[0]),A[1]+f*(B[1]-A[1])];
+  let s=grid()+arrow(0,0,A[0],A[1],TE(),2.5)+arrow(0,0,B[0],B[1],OR(),2.5)+L(sx(A[0]),sy(A[1]),sx(B[0]),sy(B[1]),FG(),2);
+  for(let i=1;i<m+n;i++){const t=i/(m+n);const q=[A[0]+t*(B[0]-A[0]),A[1]+t*(B[1]-A[1])];s+=C(sx(q[0]),sy(q[1]),2.5,MU());}
+  s+=arrow(0,0,Pp[0],Pp[1],PL(),3.5)+C(sx(Pp[0]),sy(Pp[1]),6,PL())+lab(Pp[0],Pp[1],'P',PL())+hnd(A[0],A[1],TE())+hnd(B[0],B[1],OR())+lab(A[0],A[1],'A',TE(),-18,16)+lab(B[0],B[1],'B',OR())+lab(0,0,'O',FG(),-16,16);
+  $('v7Svg').innerHTML=s;
+  const fs=fr(f);const ca=1-f,cb=f;
+  $('v7Work').innerHTML=`AP : PB = ${m} : ${n}, so P is ${m}/${m+n}${fs!==m+'/'+(m+n)?' = '+fs:''} of the way from A to B<br><span class="vec">AB</span> = <b>b</b> − <b>a</b><br><span class="vec">AP</span> = ${fs} (<b>b</b> − <b>a</b>)<br><span class="vec">OP</span> = <b>a</b> + ${fs}(<b>b</b> − <b>a</b>) = <strong>${exprAB(ca,cb)}</strong><br><span class="c">check with this grid: <b>a</b> = ${cv(A[0],A[1])}, <b>b</b> = ${cv(B[0],B[1])}, OP = ${cv(+Pp[0].toFixed(3),+Pp[1].toFixed(3))}</span>`;}
+gdrag($('v7Svg'),P7,drawV7,{ok:(k,g)=>{const o=k==='A'?P7.B:P7.A;return !(g[0]===o[0]&&g[1]===o[1]);}}); [v7M,v7N].forEach(e=>e.addEventListener('input',drawV7)); reg(drawV7);
+
+/* 8. proof: C, P, M collinear with OP:PB = 2:1 */
+const PP={O:[0,0],A:[1,0],B:[1,1],C:[0,1],M:[1,0.5],P:[2/3,2/3]};
+const PF=[
+  'OABC is a parallelogram with <span class="vec">OA</span> = <b>a</b> and <span class="vec">OC</span> = <b>b</b>. M is the midpoint of AB, and P is on OB with OP : PB = 2 : 1. Prove that C, P and M are collinear.',
+  '<span class="vec">OB</span> = <span class="vec">OA</span> + <span class="vec">AB</span> = <b>a</b> + <b>b</b>, so <span class="vec">OP</span> = ⅔(<b>a</b> + <b>b</b>).',
+  '<span class="vec">CP</span> = <span class="vec">CO</span> + <span class="vec">OP</span> = −<b>b</b> + ⅔<b>a</b> + ⅔<b>b</b> = ⅔<b>a</b> − ⅓<b>b</b> = <strong>⅓(2<b>a</b> − <b>b</b>)</strong>',
+  '<span class="vec">CM</span> = <span class="vec">CB</span> + <span class="vec">BM</span> = <b>a</b> − ½<b>b</b> = <strong>½(2<b>a</b> − <b>b</b>)</strong>',
+  'Both are multiples of (2<b>a</b> − <b>b</b>): <span class="vec">CM</span> = 3/2 × <span class="vec">CP</span>. So CP is parallel to CM, and they share the point C. <strong>Therefore C, P and M are collinear.</strong> ∎ (Bonus: CP : PM = ⅓ : (½ − ⅓) = 2 : 1.)'
+];
+let v8S=0;
+function drawV8(){const g=n=>scr(PP[n]);let s=poly(['O','A','B','C'].map(g),css('--accent-soft'),'none',0,.35);
+  [['O','A'],['A','B'],['B','C'],['C','O'],['O','B']].forEach(([u,v])=>{const p=g(u),q=g(v);s+=L(p[0],p[1],q[0],q[1],MU(),1.5);});
+  const seg=(u,v,col,w=3.5,dash)=>{const p=g(u),q=g(v);return L(p[0],p[1],q[0],q[1],col,w,dash);};
+  s+=seg('O','A',TE(),3)+seg('O','C',OR(),3);
+  if(v8S>=1)s+=seg('O','P',PL(),3.5);
+  if(v8S>=2)s+=seg('C','P',PL(),4);
+  if(v8S>=3)s+=seg('C','M',PL(),2.5,'6 4');
+  if(v8S>=4){const c=g('C'),m=g('M');const dx=m[0]-c[0],dy=m[1]-c[1];s+=L(c[0]-dx*0.15,c[1]-dy*0.15,m[0]+dx*0.15,m[1]+dy*0.15,css('--good'),1.5,'2 4');}
+  Object.keys(PP).forEach(n=>{const p=g(n);s+=C(p[0],p[1],5,FG())+T(p[0]+(n==='O'||n==='C'?-12:12),p[1]+(n==='O'||n==='A'?16:-8),n,FG(),{w:700,fs:14});});
+  $('v8Svg').innerHTML=s; $('v8Work').innerHTML=PF.slice(0,v8S+1).join('<br>'); $('v8Step').textContent=`step ${v8S+1} of ${PF.length}`;}
+$('v8Next').addEventListener('click',()=>{v8S=Math.min(PF.length-1,v8S+1);drawV8();}); $('v8Prev').addEventListener('click',()=>{v8S=Math.max(0,v8S-1);drawV8();}); reg(drawV8);
+
+/* quiz */
+const QS=[
+  {q:'The vector from (1, 2) to (4, −1), as a column (top, bottom), is…',opts:['(3, −3)','(3, 3)','(−3, 3)','(5, 1)'],a:0,fb:'Across: 4 − 1 = 3. Up: −1 − 2 = −3.'},
+  {q:'(2, 5) + (−3, 1) = …',opts:['(−1, 6)','(5, 6)','(−1, 4)','(−6, 5)'],a:0,fb:'Add tops: 2 + (−3) = −1. Add bottoms: 5 + 1 = 6.'},
+  {q:'3 × (2, −1) = …',opts:['(6, −3)','(5, 2)','(6, −1)','(2, −3)'],a:0,fb:'Multiply both components by 3.'},
+  {q:'(4, 1) − (1, 3) = …',opts:['(3, −2)','(5, 4)','(3, 2)','(−3, 2)'],a:0,fb:'4 − 1 = 3 and 1 − 3 = −2.'},
+  {q:'Higher: the magnitude of (3, 4) is…',opts:['5','7','25','1'],a:0,fb:'√(9 + 16) = √25 = 5.'},
+  {q:'Which vector is parallel to (2, 3)?',opts:['(−4, −6)','(3, 2)','(4, 5)','(2, −3)'],a:0,fb:'(−4, −6) = −2 × (2, 3): a multiple, so parallel (opposite direction).'},
+  {q:'Higher: OA = a and OB = b. Then AB = …',opts:['b − a','a − b','a + b','½(a + b)'],a:0,fb:'AB = AO + OB = −a + b = b − a.'},
+  {q:'Higher: to prove A, B, C are collinear you show…',opts:['AB = k × AC (parallel with a common point)','AB = AC','AB and BC have the same length','AB is perpendicular to BC'],a:0,fb:'A multiple means parallel; sharing point A means they lie on one line.'},
+  {q:'Higher: OA = a, OB = b and M is the midpoint of AB. OM = …',opts:['½(a + b)','½(b − a)','a + b','b − ½a'],a:0,fb:'OM = a + ½(b − a) = ½a + ½b.'},
+  {q:'Compared with a, the vector −a has…',opts:['the same length, opposite direction','the same direction, half the length','a perpendicular direction','zero length'],a:0,fb:'Multiplying by −1 reverses the direction and keeps the length.'}
+];
+const redrawAll=()=>REDRAW.forEach(f=>f());
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

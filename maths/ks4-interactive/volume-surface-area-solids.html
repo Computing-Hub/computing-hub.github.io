@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Cylinders, Cones, Spheres and Pyramids</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each solid is sketched in SVG from JS (oblique view: circles drawn as ellipses, hidden edges dashed) beside its net or a comparison. Colours on this page: teal = circular faces and radii; orange = curved surfaces and their unrolled shapes (the rectangle of a cylinder, the sector of a cone); plum = heights, slant heights and other straight lengths; liquid in the pouring and Archimedes pictures is soft teal. In composite solids the second part is shaded soft plum. Green/red = right/wrong feedback only. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.D{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.parts-svg [data-part]{cursor:pointer}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.12rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.45rem;position:relative;top:-.12em;white-space:nowrap}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+summary .tag{font-size:.6rem}
+.grp{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.lab svg.drag{touch-action:none;cursor:grab}
+.lab svg.drag:active{cursor:grabbing}
+.hint{font-size:.85rem;color:var(--muted);margin:.4rem 0 0}
+.formula{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.7rem 1rem;margin:1.2rem 0;font-family:var(--mono);font-size:1.05rem;line-height:1.8}
+.formula b{font-family:var(--body)}
+.A{color:var(--accent);font-weight:600}.H{color:var(--hi);font-weight:600}.T{color:var(--two);font-weight:600}
+sup,sub{line-height:0}
+@media (max-width:540px){
+  table.stack tr:first-child{display:none}
+  table.stack tr{display:block;border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{display:block;border:0;padding:.15rem .3rem}
+  table.stack td[data-h]::before{content:attr(data-h) ": ";font:600 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+}
+.uc{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-family:var(--mono);font-size:.95rem}
+.uc b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bars{display:grid;gap:.35rem;margin-top:.8rem;font-family:var(--mono);font-size:.9rem}
+.bars .row{display:grid;grid-template-columns:9em 1fr;gap:.5rem;align-items:center}
+.bars .bar{height:16px;border-radius:3px;min-width:2px}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Geometry and measures</div>
+  <h1>Cylinders, Cones, Spheres and Pyramids</h1>
+  <p class="lede">A tin of beans, an ice-cream cone, a football, the Great Pyramid. You know how to find the volume of a box and of a prism; this page extends that to every common solid, shows <em>why</em> a cone holds exactly a third of a cylinder, unrolls curved surfaces into flat shapes you can measure, and finishes with litres and composite solids.</p>
+  <span class="gcse">GCSE subject content G16: know and apply formulae to calculate the volume of cuboids and other right prisms (including cylinders). G17: calculate surface area and volume of spheres, pyramids, cones and composite solids. N13: use standard units of measure, including volume and capacity.</span>
+</header>
+
+<h2>1 · Cylinders and their nets</h2>
+<p>Recap from KS3 (<a href="../ks3-interactive/perimeter-area-volume.html">Perimeter, area and volume</a> and <a href="../ks3-interactive/3d-shapes-plans-elevations.html">3D shapes</a>): a <strong>prism</strong> has the same cross-section all the way through, and its volume is <em>area of cross-section × length</em>. A <strong>cylinder</strong> is a prism with a circular cross-section, so</p>
+<div class="formula"><b>Volume of a cylinder</b> = πr² × h = πr²h</div>
+<p>For the <strong>surface area</strong>, unpeel the label from a tin. It comes off as a rectangle: one side is the height h, and the other wrapped exactly once round the circle, so it's the circumference, 2πr. Add the two circular ends:</p>
+<div class="formula"><b>Curved surface</b> = 2πr × h = 2πrh<br><b>Total surface area</b> = 2πr² + 2πrh</div>
+<div class="lab">
+  <div class="controls">
+    <label>r <input type="range" id="cyR" min="1" max="8" value="4"><span id="cyRv" style="font-family:var(--mono)"></span></label>
+    <label>h <input type="range" id="cyH" min="1" max="15" value="10"><span id="cyHv" style="font-family:var(--mono)"></span></label>
+    <label>unroll <input type="range" id="cyU" min="0" max="100" value="100"></label>
+  </div>
+  <svg id="cySvg" viewBox="0 0 440 300" width="440" height="300"></svg>
+  <div class="work" id="cyWork"></div>
+</div>
+
+<h2>2 · Cones: slant height and curved surface</h2>
+<p>A <strong>cone</strong> has a circular base and comes to a point (the apex). Three lengths matter: the radius r, the <strong>vertical height</strong> h (apex straight down to the centre of the base) and the <strong>slant height</strong> l (apex down the side to the edge). They make a right-angled triangle, so by Pythagoras (<a href="../ks3-interactive/pythagoras.html">KS3 Pythagoras</a>):</p>
+<div class="formula">l² = r² + h²</div>
+<p>Cut a cone up the side and flatten it: the curved surface becomes a <strong>sector</strong> of a circle with radius l. Its arc wraps round the base, so the arc is 2πr. The full circle of radius l would have circumference 2πl and area πl², so the sector is the fraction 2πr ÷ 2πl = r/l of it:</p>
+<div class="formula"><b>Curved surface of a cone</b> = r/l × πl² = πrl<br><b>Total surface area</b> = πrl + πr²</div>
+<div class="lab">
+  <div class="controls">
+    <label>r <input type="range" id="cnR" min="1" max="9" value="6"><span id="cnRv" style="font-family:var(--mono)"></span></label>
+    <label>h <input type="range" id="cnH" min="1" max="15" value="8"><span id="cnHv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="cnSvg" viewBox="0 0 440 300" width="440" height="300"></svg>
+  <div class="work" id="cnWork"></div>
+</div>
+<div class="callout"><p><strong>Trap:</strong> the curved surface uses the <em>slant</em> height l; the volume uses the <em>vertical</em> height h. If you're given one, use Pythagoras to get the other.</p></div>
+
+<h2>3 · Why a cone is a third of a cylinder (and a pyramid a third of a prism)</h2>
+<p>Take a cone and a cylinder with the same base and the same height. Fill the cone with water and pour it in. It takes exactly <strong>three</strong> cones to fill the cylinder. The same is true for any pyramid and the prism with the same base and height.</p>
+<div class="formula"><b>Cone</b>: V = ⅓πr²h    <b>Pyramid</b>: V = ⅓ × base area × h</div>
+<div class="lab">
+  <div class="controls">
+    <span class="grp"><button class="btn on" id="poCone">cone into cylinder</button><button class="btn" id="poPyr">pyramid into prism</button></span>
+    <button class="btn primary" id="poGo">Pour one in</button><button class="btn" id="poReset">Empty</button>
+  </div>
+  <svg id="poSvg" viewBox="0 0 440 260" width="440" height="260"></svg>
+  <div class="msg" id="poMsg"></div>
+</div>
+<p>(Why a third? One proof: a cube can be cut into exactly three identical square-based pyramids, each with its apex at the same corner. Each is ⅓ of the cube. Squash or stretch the cube and the pieces stay equal, so ⅓ works for any pyramid.)</p>
+
+<h2>4 · Spheres and hemispheres</h2>
+<p>A <strong>sphere</strong> is a perfectly round ball; a <strong>hemisphere</strong> is half of one. Archimedes found the formulas by fitting a sphere snugly inside a cylinder (radius r, height 2r). The sphere's volume is exactly ⅔ of the cylinder, and its surface area equals the cylinder's curved surface. A cone in the same cylinder is ⅓, so <em>cone + sphere = cylinder</em>.</p>
+<div class="formula"><b>Sphere</b>: V = ⁴⁄₃πr³    S = 4πr²<br><b>Hemisphere</b>: V = ⅔πr³    curved S = 2πr², total S = 2πr² + πr² = 3πr²</div>
+<div class="lab">
+  <div class="controls"><label>r <input type="range" id="spR" min="1" max="10" value="3"><span id="spRv" style="font-family:var(--mono)"></span></label></div>
+  <svg id="spSvg" viewBox="0 0 440 280" width="440" height="280"></svg>
+  <div class="bars" id="spBars"></div>
+  <div class="work" id="spWork"></div>
+</div>
+<p>The exam usually gives you the sphere and cone formulas, but you must know how to use them. Don't forget the flat circular face of a hemisphere when you find its total surface area.</p>
+
+<h2>5 · Frustums <span class="tag g">Higher</span></h2>
+<p>A <strong>frustum</strong> is what's left when you slice the top off a cone with a cut parallel to the base: a lampshade or a bucket. Volume of frustum = big cone − small cone. The small cone is similar to the big one, so its radius scales with its height: r = R × h/H (see <a href="similar-shapes-area-volume.html">Similar shapes</a>).</p>
+<div class="lab">
+  <div class="controls">
+    <label>base radius R <input type="range" id="frR" min="2" max="9" value="6"><span id="frRv" style="font-family:var(--mono)"></span></label>
+    <label>cone height H <input type="range" id="frH" min="4" max="16" value="12"><span id="frHv" style="font-family:var(--mono)"></span></label>
+    <label>cut off top <input type="range" id="frC" min="10" max="90" step="5" value="50"><span id="frCv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="frSvg" viewBox="0 0 440 290" width="440" height="290"></svg>
+  <div class="work" id="frWork"></div>
+</div>
+
+<h2>6 · Composite solids</h2>
+<p>A <strong>composite solid</strong> is made from simpler solids stuck together. <strong>Volume:</strong> add the volumes of the parts. <strong>Surface area:</strong> add only the surfaces you can see from outside; where two parts are joined, that face is hidden and doesn't count.</p>
+<div class="lab">
+  <div class="controls">
+    <label>solid <select id="csS"><option value="ice">ice cream (cone + hemisphere)</option><option value="silo">silo (cylinder + hemisphere)</option><option value="cap">capsule (cylinder + 2 hemispheres)</option><option value="pencil">pencil (cylinder + cone)</option></select></label>
+    <label>r <input type="range" id="csR" min="1" max="6" value="3"><span id="csRv" style="font-family:var(--mono)"></span></label>
+    <label>h <input type="range" id="csH" min="2" max="14" value="10"><span id="csHv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="csSvg" viewBox="0 0 440 300" width="440" height="300"></svg>
+  <div class="work" id="csWork"></div>
+</div>
+
+<h2>7 · Units: cm³, m³ and litres</h2>
+<p><strong>Capacity</strong> is how much a container holds, measured in litres (l) and millilitres (ml). A cube 10 cm × 10 cm × 10 cm holds exactly 1 litre, so <strong>1 litre = 1000 cm³</strong> and <strong>1 ml = 1 cm³</strong>. A cube 1 m on each side is 100 × 100 × 100 = 1 000 000 cm³, which is 1000 litres. Volume units jump by the cube of the length factor: 1 m = 100 cm, so 1 m³ = 100³ cm³.</p>
+<div class="lab">
+  <div class="controls">
+    <label>value <input type="text" id="unV" value="2.4" inputmode="decimal" style="width:6em"></label>
+    <label>unit <select id="unU"><option value="m3">m³</option><option value="l">litres</option><option value="cm3">cm³</option><option value="ml">ml</option></select></label>
+  </div>
+  <div class="uc" id="unOut"></div>
+  <svg id="unSvg" viewBox="0 0 440 170" width="440" height="170"></svg>
+  <div class="callout"><p><strong>Trap:</strong> 1 m³ is <em>not</em> 100 cm³. The cube has 100 cm on every edge: 100 × 100 × 100 = 1 000 000 cm³.</p></div>
+</div>
+
+<h2>8 · Practice</h2>
+<p>New question each time. Answers to 3 s.f., or as a number in front of π when asked (type 20 for 20π).</p>
+<div class="lab">
+  <div class="controls"><label>type <select id="prT"><option value="mix">mixed</option><option value="cyl">cylinders</option><option value="cone">cones</option><option value="sph">spheres and hemispheres</option><option value="pyr">pyramids</option><option value="unit">units</option></select></label></div>
+  <p class="pq" id="prQ"></p>
+  <svg id="prSvg" viewBox="0 0 400 220" width="400" height="220"></svg>
+  <div class="controls">
+    <label>answer <input type="text" id="prA" inputmode="decimal" autocomplete="off" style="width:7em"> <span id="prU"></span></label>
+    <button class="btn primary" id="prGo">Check</button>
+    <button class="btn" id="prShow">Show working</button>
+    <button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>A cylinder has radius 4 cm and height 10 cm. Find its volume and total surface area in terms of π.</summary>
+  <div class="step"><strong>Volume</strong> = πr²h = π × 4² × 10 = π × 16 × 10 = <strong>160π cm³</strong> (= 503 cm³ to 3 s.f.).</div>
+  <div class="step"><strong>Two ends</strong> = 2 × π × 4² = 32π. <strong>Curved</strong> = 2π × 4 × 10 = 80π.</div>
+  <div class="step"><strong>Total</strong> = 32π + 80π = <strong>112π cm²</strong> (= 352 cm² to 3 s.f.).</div>
+</details>
+<details>
+  <summary>A cone has radius 6 cm and vertical height 8 cm. Find its slant height, total surface area and volume.</summary>
+  <div class="step"><strong>Slant height:</strong> l² = 6² + 8² = 36 + 64 = 100, so l = 10 cm.</div>
+  <div class="step"><strong>Curved surface</strong> = πrl = π × 6 × 10 = 60π. <strong>Base</strong> = π × 6² = 36π. <strong>Total</strong> = <strong>96π cm²</strong> = 301.59… = 302 cm² (3 s.f.).</div>
+  <div class="step"><strong>Volume</strong> = ⅓πr²h = ⅓ × π × 36 × 8 = <strong>96π cm³</strong> = 302 cm³ (3 s.f.). (Same number as the area here by coincidence: different units!)</div>
+</details>
+<details>
+  <summary>A ball has radius 3 cm. Find its volume and surface area to 3 s.f.</summary>
+  <div class="step"><strong>Volume</strong> = ⁴⁄₃ × π × 3³ = ⁴⁄₃ × 27π = 36π = 113.097… = <strong>113 cm³</strong>.</div>
+  <div class="step"><strong>Surface area</strong> = 4 × π × 3² = 36π = <strong>113 cm²</strong> (3 s.f.). (r = 3 is the radius where they match numerically.)</div>
+</details>
+<details>
+  <summary>A solid hemisphere has radius 5 cm. Find its volume and total surface area to 3 s.f.</summary>
+  <div class="step"><strong>Volume</strong> = ½ × ⁴⁄₃πr³ = ⅔ × π × 125 = 250π/3 = 261.79… = <strong>262 cm³</strong>.</div>
+  <div class="step"><strong>Curved surface</strong> = ½ × 4πr² = 2π × 25 = 50π. <strong>Flat face</strong> = π × 25 = 25π.</div>
+  <div class="step"><strong>Total</strong> = 75π = 235.61… = <strong>236 cm²</strong>. (50π alone forgets the flat circle.)</div>
+</details>
+<details>
+  <summary>A square-based pyramid has base 6 cm by 6 cm and vertical height 10 cm. Find its volume.</summary>
+  <div class="step"><strong>Base area</strong> = 6 × 6 = 36 cm².</div>
+  <div class="step"><strong>Volume</strong> = ⅓ × 36 × 10 = <strong>120 cm³</strong>. (Without the ⅓ you'd get the cuboid, 360 cm³.)</div>
+</details>
+<details>
+  <summary>A cone with base radius 6 cm and height 12 cm has its top 6 cm cut off. Find the volume of the frustum in terms of π. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Small cone:</strong> height 6 is half of 12, so (similar shapes) its radius is half of 6: r = 3 cm.</div>
+  <div class="step"><strong>Big cone</strong> = ⅓ × π × 6² × 12 = 144π. <strong>Small cone</strong> = ⅓ × π × 3² × 6 = 18π.</div>
+  <div class="step"><strong>Frustum</strong> = 144π − 18π = <strong>126π cm³</strong> (= 396 cm³ to 3 s.f.).</div>
+</details>
+<details>
+  <summary>Composite: an ice cream is a cone (radius 3 cm, height 10 cm) topped with a hemisphere of radius 3 cm. Find its volume, and give it in litres.</summary>
+  <div class="step"><strong>Cone</strong> = ⅓ × π × 3² × 10 = 30π. <strong>Hemisphere</strong> = ⅔ × π × 3³ = 18π.</div>
+  <div class="step"><strong>Total</strong> = 48π = 150.79… = <strong>151 cm³</strong> (3 s.f.).</div>
+  <div class="step"><strong>Litres:</strong> ÷ 1000 → 0.150796… = <strong>0.151 litres</strong> (151 ml).</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>Cylinder: V = πr²h; curved surface 2πrh (unrolls to a 2πr × h rectangle); total 2πr² + 2πrh.</li>
+  <li>Cone: slant height l from l² = r² + h²; curved surface πrl (unrolls to a sector); V = ⅓πr²h, a third of the cylinder.</li>
+  <li>Pyramid: V = ⅓ × base area × height.</li>
+  <li>Sphere: V = ⁴⁄₃πr³, S = 4πr². Hemisphere: V = ⅔πr³, total S = 3πr² (don't forget the flat face).</li>
+  <li>Higher: frustum = big cone − small cone, using similar shapes to find the small cone.</li>
+  <li>Composite solids: add volumes; for surface area count only the outside faces.</li>
+  <li>1 litre = 1000 cm³, 1 ml = 1 cm³, 1 m³ = 1 000 000 cm³ = 1000 litres.</li>
+</ul>
+
+<footer>Made for GCSE students. Volume and surface area of cylinders, cones, spheres, pyramids and composite solids, and units of capacity, are in the DfE GCSE mathematics subject content under Geometry and measures. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const PI = Math.PI, RAD = PI/180;
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat((+v).toFixed(d)).toString()) : '—';
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(Math.abs(v)<1e-12) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); if(e>=n-1) return minus(String(Math.round(r))); return minus(r.toFixed(n-1-e)); };
+const long = v => isFinite(v) ? minus((Math.trunc(v*1000+(v<0?-1e-9:1e-9))/1000).toFixed(3)) + '…' : '—';
+const dp1 = v => isFinite(v) ? minus((+v).toFixed(1)) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v = parseFloat(String(el.value).replace(/−/g,'-').replace(/,/g,'')); return isFinite(v) ? v : NaN; };
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T = (x,y,s,col,o={}) => `<text x="${x}" y="${y}" font-size="${o.fs||13}" ${o.w?`font-weight="${o.w}"`:''} text-anchor="${o.a||'middle'}" fill="${col}" ${F()} ${o.extra||''}>${s}</text>`;
+const L = (x1,y1,x2,y2,col,w=2,dash) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+const C = (x,y,r,fill,stroke='none',w=0) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${w}"/>`;
+const poly = (pts,fill,stroke='none',w=0,op=1,dash) => `<polygon points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="${fill}" fill-opacity="${op}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+/* angle arc at vertex V between directions to A and B (screen coords), radius r */
+function angArc(V,A,B,r,col,w=1.6){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]), a2=Math.atan2(B[1]-V[1],B[0]-V[0]); let d=a2-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const p1=[V[0]+r*Math.cos(a1),V[1]+r*Math.sin(a1)], p2=[V[0]+r*Math.cos(a1+d),V[1]+r*Math.sin(a1+d)]; return `<path d="M${p1[0]},${p1[1]} A${r},${r} 0 0 ${d>0?1:0} ${p2[0]},${p2[1]}" fill="none" stroke="${col}" stroke-width="${w}"/>`; }
+function angLabelPos(V,A,B,r){ const a1=Math.atan2(A[1]-V[1],A[0]-V[0]); let d=Math.atan2(B[1]-V[1],B[0]-V[0])-a1; while(d<=-PI)d+=2*PI; while(d>PI)d-=2*PI; const m=a1+d/2; return [V[0]+r*Math.cos(m), V[1]+r*Math.sin(m)+4]; }
+/* right-angle square at V between A and B */
+function rightMark(V,A,B,s,col){ const u=[A[0]-V[0],A[1]-V[1]],v=[B[0]-V[0],B[1]-V[1]]; const lu=Math.hypot(...u)||1, lv=Math.hypot(...v)||1; const p=[V[0]+u[0]/lu*s,V[1]+u[1]/lu*s], q=[V[0]+v[0]/lv*s,V[1]+v[1]/lv*s], r=[p[0]+v[0]/lv*s,p[1]+v[1]/lv*s]; return `<polyline points="${p[0]},${p[1]} ${r[0]},${r[1]} ${q[0]},${q[1]}" fill="none" stroke="${col}" stroke-width="1.5"/>`; }
+const svgXY = (svg,ev) => { const vb=svg.viewBox.baseVal, r=svg.getBoundingClientRect(); const k=Math.min(r.width/vb.width, r.height/vb.height); const ox=(r.width-vb.width*k)/2, oy=(r.height-vb.height*k)/2; return [vb.x+(ev.clientX-r.left-ox)/k, vb.y+(ev.clientY-r.top-oy)/k]; };
+/* generic drag: pick(p) returns a handle key or null; move(key,p) updates */
+function dragger(svg,pick,move,end){ let key=null; svg.addEventListener('pointerdown',e=>{ const p=svgXY(svg,e); const k=pick(p); if(k===null||k===undefined) return; key=k; try{svg.setPointerCapture(e.pointerId);}catch(_){} e.preventDefault(); move(key,p); }); svg.addEventListener('pointermove',e=>{ if(key===null) return; e.preventDefault(); move(key,svgXY(svg,e)); }); const up=()=>{ if(key!==null&&end) end(key); key=null; }; svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',up); }
+const nearest = (p,pts,maxd) => { let best=null,bd=maxd; pts.forEach((q,i)=>{ const d=Math.hypot(p[0]-q[0],p[1]-q[1]); if(d<bd){bd=d;best=i;} }); return best; };
+const REDRAW=[]; const reg = f => { REDRAW.push(f); f(); return f; };
+const feedback = (el,ok,msg) => { el.className='msg '+(ok?'good':'bad'); el.textContent=msg; };
+
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const TE=()=>css('--accent'),OR=()=>css('--hi'),PL=()=>css('--two'),FG=()=>css('--fg'),MU=()=>css('--muted');
+const EK=0.32; // ellipse squash
+const ell=(cx,cy,rx,col,w=2,fill='none',op=1)=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${rx*EK}" fill="${fill}" fill-opacity="${op}" stroke="${col}" stroke-width="${w}"/>`;
+const halfEll=(cx,cy,rx,front,col,w=2,dash)=>`<path d="M${cx-rx},${cy} A${rx},${rx*EK} 0 0 ${front?0:1} ${cx+rx},${cy}" fill="none" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+const piS=k=>{const v=+k.toFixed(6);return (Math.abs(v-1)<1e-9?'':fmt(v,3))+'π';};
+/* cylinder sketch: base centre (cx,by), radius R px, height H px */
+function cylSVG(cx,by,R,H,o={}){
+  let s=`<path d="M${cx-R},${by-H} L${cx-R},${by} A${R},${R*EK} 0 0 0 ${cx+R},${by} L${cx+R},${by-H} Z" fill="${o.side||OR()}" fill-opacity="${o.sideOp??.18}"/>`;
+  s+=ell(cx,by-H,R,TE(),2,TE(),.18)+halfEll(cx,by,R,true,FG(),2)+halfEll(cx,by,R,false,MU(),1.5,'4 4')+L(cx-R,by-H,cx-R,by,FG(),2)+L(cx+R,by-H,cx+R,by,FG(),2);
+  return s;
+}
+function coneSVG(cx,by,R,H,o={}){
+  let s=`<path d="M${cx},${by-H} L${cx-R},${by} A${R},${R*EK} 0 0 0 ${cx+R},${by} Z" fill="${o.side||OR()}" fill-opacity="${o.sideOp??.18}"/>`;
+  s+=halfEll(cx,by,R,true,FG(),2)+halfEll(cx,by,R,false,MU(),1.5,'4 4')+L(cx,by-H,cx-R,by,FG(),2)+L(cx,by-H,cx+R,by,FG(),2);
+  return s;
+}
+
+/* 1. cylinder + net */
+const cyR=$('cyR'),cyH=$('cyH'),cyU=$('cyU');
+function drawCY(){
+  const r=+cyR.value,h=+cyH.value,u=+cyU.value/100; $('cyRv').textContent=' '+r+' cm'; $('cyHv').textContent=' '+h+' cm';
+  const k=Math.min(230/(2*PI*r),270/(h+4*r),16);
+  const R=r*k,H=h*k,cx=80,by=150+H/2;
+  let s=cylSVG(cx,by,R,H)+L(cx,by-H,cx+R,by-H,TE(),2.5)+T(cx+R/2,by-H-6,'r',TE(),{w:700})+L(cx+R+8,by-H,cx+R+8,by,PL(),2.5)+T(cx+R+14,by-H/2,'h',PL(),{w:700,a:'start'});
+  // net
+  const nx=170, W=2*PI*R*u, ny=(300-(H+4*R))/2+2*R; const nb=ny+H;
+  s+=`<rect x="${nx}" y="${ny}" width="${Math.max(W,1)}" height="${H}" fill="${OR()}" fill-opacity=".22" stroke="${OR()}" stroke-width="2"/>`;
+  s+=C(nx+R,ny-R,R,TE(),TE(),0).replace('fill="'+TE()+'"',`fill="${TE()}" fill-opacity=".2"`)+C(nx+R,nb+R,R,TE(),TE(),0).replace('fill="'+TE()+'"',`fill="${TE()}" fill-opacity=".2"`);
+  s+=`<circle cx="${nx+R}" cy="${ny-R}" r="${R}" fill="none" stroke="${TE()}" stroke-width="2"/><circle cx="${nx+R}" cy="${nb+R}" r="${R}" fill="none" stroke="${TE()}" stroke-width="2"/>`;
+  if(u>0.6)s+=T(nx+W/2,ny+H/2+4,u>=0.999?'2πr × h':'unrolling…',OR(),{w:700,fs:12});
+  if(u>=0.999)s+=T(nx+W/2,nb+14,'2πr = '+fmt(2*PI*r,1),OR(),{fs:11});
+  $('cySvg').innerHTML=s;
+  $('cyWork').innerHTML=`<span class="a">two ends</span> = 2 × π × ${r}² = ${2*r*r}π<br><span class="b">curved</span> = 2π × ${r} × ${h} = ${2*r*h}π<br>total surface area = ${2*r*r+2*r*h}π = <strong>${sf((2*r*r+2*r*h)*PI)} cm²</strong><br>volume = π × ${r}² × ${h} = ${r*r*h}π = <strong>${sf(r*r*h*PI)} cm³</strong>`;
+}
+[cyR,cyH,cyU].forEach(e=>e.addEventListener('input',drawCY)); reg(drawCY);
+
+/* 2. cone + net */
+const cnR=$('cnR'),cnH=$('cnH');
+function drawCN(){
+  const r=+cnR.value,h=+cnH.value,l=Math.hypot(r,h); $('cnRv').textContent=' '+r+' cm'; $('cnHv').textContent=' '+h+' cm';
+  const k=Math.min(12,180/15,95/9),R=r*k,H=h*k,cx=105,by=250;
+  let s=coneSVG(cx,by,R,H)+L(cx,by-H,cx,by,PL(),2.5,'5 4')+L(cx,by,cx+R,by,TE(),2.5)+L(cx,by-H,cx+R,by,PL(),3.5);
+  s+=rightMark([cx,by],[cx+10,by],[cx,by-10],8,MU())+T(cx-6,by-H/2,'h',PL(),{w:700,a:'end'})+T(cx+R/2,by+16,'r',TE(),{w:700})+T(cx+R/2+10,by-H/2,'l',PL(),{w:700,a:'start'});
+  // net: sector radius l, angle 360 r/l
+  const ang=360*r/l, L2=Math.min(100,l*k*0.62), sx=320, sy=150, a0=90-ang/2;
+  const P=a=>[sx+L2*Math.cos(a*RAD),sy-L2*Math.sin(a*RAD)];
+  const p0=P(a0),p1=P(a0+ang);
+  s+=`<circle cx="${sx}" cy="${sy}" r="${L2}" fill="none" stroke="${css('--line')}" stroke-dasharray="4 4"/>`;
+  s+=ang>=359.9?`<circle cx="${sx}" cy="${sy}" r="${L2}" fill="${OR()}" fill-opacity=".25" stroke="${OR()}" stroke-width="2"/>`:`<path d="M${sx},${sy} L${p0[0]},${p0[1]} A${L2},${L2} 0 ${ang>180?1:0} 0 ${p1[0]},${p1[1]} Z" fill="${OR()}" fill-opacity=".25" stroke="${OR()}" stroke-width="2"/>`;
+  s+=L(sx,sy,p0[0],p0[1],PL(),2.5)+T((sx+p0[0])/2+8,(sy+p0[1])/2,'l',PL(),{w:700,a:'start'})+T(sx,sy+L2+18,'net of the curved surface: '+fmt(ang,1)+'°',MU(),{fs:11});
+  $('cnSvg').innerHTML=s;
+  $('cnWork').innerHTML=`<span class="c">l² = ${r}² + ${h}² = ${r*r+h*h}, so l = ${Number.isInteger(l)?l:'√'+(r*r+h*h)+' = '+fmt(l,3)} cm</span><br>sector fraction = arc ÷ full circumference = 2π × ${r} ÷ (2π × ${fmt(l,3)}) = ${fmt(r/l,4)} (angle ${fmt(ang,1)}°)<br><span class="b">curved surface = πrl = π × ${r} × ${fmt(l,3)} = ${sf(PI*r*l)} cm²</span><br>total surface = ${sf(PI*r*l)} + π × ${r}² = <strong>${sf(PI*r*l+PI*r*r)} cm²</strong><br>volume = ⅓ × π × ${r}² × ${h} = ${piS(r*r*h/3)} = <strong>${sf(PI*r*r*h/3)} cm³</strong>`;
+}
+[cnR,cnH].forEach(e=>e.addEventListener('input',drawCN)); reg(drawCN);
+
+/* 3. pouring */
+let poMode='cone', poN=0, poAnim=null, poLevel=0;
+function drawPO(){
+  const cx=120,by=225,R=70,H=170,tx=320;
+  let s='';
+  // container (cylinder or prism) with liquid level poLevel (0..1)
+  const lv=poLevel*H;
+  if(poMode==='cone'){
+    if(lv>0)s+=`<path d="M${cx-R},${by-lv} L${cx-R},${by} A${R},${R*EK} 0 0 0 ${cx+R},${by} L${cx+R},${by-lv} Z" fill="${TE()}" fill-opacity=".45"/>`+ell(cx,by-lv,R,TE(),1.5,TE(),.35);
+    s+=ell(cx,by-H,R,FG(),2)+halfEll(cx,by,R,true,FG(),2)+halfEll(cx,by,R,false,MU(),1.5,'4 4')+L(cx-R,by-H,cx-R,by,FG(),2)+L(cx+R,by-H,cx+R,by,FG(),2);
+    s+=coneSVG(tx,by,R,H,{side:TE(),sideOp:poN<3?.35:.05});
+  } else {
+    const W=2*R, D=R*0.6, box=(x,y)=>[x,y];
+    // prism (cuboid) drawn oblique
+    const F=[[cx-R,by],[cx+R,by],[cx+R,by-H],[cx-R,by-H]], o=[D*0.7,-D*0.5];
+    if(lv>0){s+=poly([[cx-R,by],[cx+R,by],[cx+R,by-lv],[cx-R,by-lv]],TE(),'none',0,.45)+poly([[cx-R,by-lv],[cx+R,by-lv],[cx+R+o[0],by-lv+o[1]],[cx-R+o[0],by-lv+o[1]]],TE(),'none',0,.3)+poly([[cx+R,by],[cx+R+o[0],by+o[1]],[cx+R+o[0],by-lv+o[1]],[cx+R,by-lv]],TE(),'none',0,.35);}
+    s+=poly(F,'none',FG(),2)+L(cx-R,by-H,cx-R+o[0],by-H+o[1],FG(),2)+L(cx+R,by-H,cx+R+o[0],by-H+o[1],FG(),2)+L(cx+R,by,cx+R+o[0],by+o[1],FG(),2)+L(cx-R+o[0],by-H+o[1],cx+R+o[0],by-H+o[1],FG(),2)+L(cx+R+o[0],by+o[1],cx+R+o[0],by-H+o[1],FG(),2);
+    // pyramid: same base, apex above base centre
+    const b=[[tx-R,by],[tx+R,by],[tx+R+o[0],by+o[1]],[tx-R+o[0],by+o[1]]], ap=[tx+o[0]/2,by-H+o[1]/2];
+    s+=poly([b[0],b[1],ap],TE(),'none',0,poN<3?.3:.05)+poly([b[1],b[2],ap],TE(),'none',0,poN<3?.4:.05)+L(b[0][0],b[0][1],b[1][0],b[1][1],FG(),2)+L(b[1][0],b[1][1],b[2][0],b[2][1],FG(),2)+L(b[2][0],b[2][1],b[3][0],b[3][1],MU(),1.5,'4 4')+L(b[3][0],b[3][1],b[0][0],b[0][1],MU(),1.5,'4 4');
+    [b[0],b[1],b[2]].forEach(p=>s+=L(p[0],p[1],ap[0],ap[1],FG(),2)); s+=L(b[3][0],b[3][1],ap[0],ap[1],MU(),1.5,'4 4');
+  }
+  for(let i=1;i<=2;i++)s+=L(cx-R-14,by-H*i/3,cx-R-4,by-H*i/3,MU(),1.5)+T(cx-R-18,by-H*i/3+4,i+'/3',MU(),{fs:10,a:'end'});
+  s+=T(tx,30,`pours: ${poN}`,FG(),{w:700,fs:13});
+  $('poSvg').innerHTML=s;
+}
+function poGo(){ if(poN>=3)return; poN++; const target=poN/3, start=poLevel; if(poAnim)cancelAnimationFrame(poAnim);
+  const M=$('poMsg'); M.className='msg'+(poN===3?' good':''); M.textContent=poN===3?`Three ${poMode==='cone'?'cones':'pyramids'} exactly fill it: ${poMode==='cone'?'cone = ⅓πr²h':'pyramid = ⅓ × base × h'}.`:`${poN} pour${poN>1?'s':''}: the ${poMode==='cone'?'cylinder':'prism'} is ${poN}/3 full.`;
+  if(reduceMotion){poLevel=target;drawPO();return;}
+  const t0=performance.now(); const step=now=>{const t=Math.min(1,(now-t0)/700);poLevel=start+(target-start)*t;drawPO();poAnim=t<1?requestAnimationFrame(step):null;};poAnim=requestAnimationFrame(step);}
+const poSet=m=>{poMode=m;poN=0;poLevel=0;$('poCone').classList.toggle('on',m==='cone');$('poPyr').classList.toggle('on',m==='pyr');$('poMsg').textContent='';drawPO();};
+$('poGo').addEventListener('click',poGo); $('poReset').addEventListener('click',()=>poSet(poMode)); $('poCone').addEventListener('click',()=>poSet('cone')); $('poPyr').addEventListener('click',()=>poSet('pyr'));
+reg(drawPO);
+
+/* 4. spheres / Archimedes */
+const spR=$('spR');
+function drawSP(){
+  const r=+spR.value; $('spRv').textContent=' '+r+' cm';
+  const R=90,cx=150,by=250,cy=by-R;
+  let s=`<path d="M${cx-R},${by-2*R} L${cx-R},${by} A${R},${R*EK} 0 0 0 ${cx+R},${by} L${cx+R},${by-2*R} Z" fill="${OR()}" fill-opacity=".08"/>`;
+  s+=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="${TE()}" fill-opacity=".3" stroke="${TE()}" stroke-width="2.5"/>`+halfEll(cx,cy,R,true,TE(),1.5)+halfEll(cx,cy,R,false,TE(),1,'3 3');
+  s+=ell(cx,by-2*R,R,FG(),2)+halfEll(cx,by,R,true,FG(),2)+halfEll(cx,by,R,false,MU(),1.5,'4 4')+L(cx-R,by-2*R,cx-R,by,FG(),2)+L(cx+R,by-2*R,cx+R,by,FG(),2);
+  s+=L(cx,cy,cx+R,cy,TE(),2.5)+T(cx+R/2,cy-6,'r',TE(),{w:700})+L(cx+R+12,by-2*R,cx+R+12,by,PL(),2.5)+T(cx+R+18,cy,'2r',PL(),{w:700,a:'start'});
+  // hemisphere on right
+  const hx=360,hy=200,HR=60;
+  s+=`<path d="M${hx-HR},${hy} A${HR},${HR} 0 0 1 ${hx+HR},${hy} A${HR},${HR*EK} 0 0 1 ${hx-HR},${hy} Z" fill="${OR()}" fill-opacity=".2" stroke="${FG()}" stroke-width="2"/>`+ell(hx,hy,HR,TE(),2,TE(),.25)+T(hx,hy+40,'hemisphere',MU(),{fs:11});
+  $('spSvg').innerHTML=s;
+  const cyl=2*r**3, sph=4/3*r**3, cone=2/3*r**3;
+  const bar=(lab,v,col)=>`<div class="row"><span>${lab}</span><div class="bar" style="width:${v/cyl*100}%;background:${col}"></div></div>`;
+  $('spBars').innerHTML=bar('cylinder '+piS(cyl),cyl,MU())+bar('sphere '+piS(sph),sph,TE())+bar('cone '+piS(cone),cone,OR());
+  $('spWork').innerHTML=`cylinder = πr² × 2r = 2πr³ = ${piS(cyl)}<br><span class="a">sphere = ⅔ of the cylinder = ⁴⁄₃πr³ = ⁴⁄₃ × π × ${r}³ = ${piS(sph)} ≈ <strong>${sf(sph*PI)} cm³</strong></span><br>sphere surface = 4πr² = ${piS(4*r*r)} ≈ <strong>${sf(4*r*r*PI)} cm²</strong> (= the cylinder's curved surface, 2πr × 2r)<br><span class="b">hemisphere: V = ${piS(sph/2)} ≈ ${sf(sph/2*PI)} cm³; total S = 2πr² + πr² = ${piS(3*r*r)} ≈ ${sf(3*r*r*PI)} cm²</span>`;
+}
+spR.addEventListener('input',drawSP); reg(drawSP);
+
+/* 5. frustum */
+const frR=$('frR'),frH=$('frH'),frC=$('frC');
+function drawFR(){
+  const R=+frR.value,H=+frH.value,c=+frC.value/100; $('frRv').textContent=' '+R; $('frHv').textContent=' '+H; $('frCv').textContent=' '+Math.round(c*100)+'% of the height';
+  const h=H*c, r=R*c; const k=Math.min(240/H,150/R)*0.95, cx=210, by=265;
+  const Rp=R*k,Hp=H*k,rp=r*k,hp=h*k, cutY=by-Hp+hp;
+  let s=`<path d="M${cx-rp},${cutY} L${cx-Rp},${by} A${Rp},${Rp*EK} 0 0 0 ${cx+Rp},${by} L${cx+rp},${cutY} Z" fill="${OR()}" fill-opacity=".22"/>`;
+  s+=`<path d="M${cx},${by-Hp} L${cx-rp},${cutY} A${rp},${rp*EK} 0 0 0 ${cx+rp},${cutY} Z" fill="${css('--two-soft')}" fill-opacity=".7"/>`;
+  s+=L(cx,by-Hp,cx-rp,cutY,MU(),1.5,'4 4')+L(cx,by-Hp,cx+rp,cutY,MU(),1.5,'4 4')+L(cx-rp,cutY,cx-Rp,by,FG(),2)+L(cx+rp,cutY,cx+Rp,by,FG(),2)+ell(cx,cutY,rp,TE(),2)+halfEll(cx,by,Rp,true,FG(),2)+halfEll(cx,by,Rp,false,MU(),1.5,'4 4');
+  s+=L(cx,cutY,cx+rp,cutY,TE(),2.5)+L(cx,by,cx+Rp,by,TE(),2.5)+T(cx+rp+8,cutY-4,'r = '+fmt(r,2),TE(),{w:700,a:'start',fs:12})+T(cx+Rp/2,by+18,'R = '+R,TE(),{w:700,fs:12});
+  s+=L(cx+Rp+20,by-Hp,cx+Rp+20,by,PL(),2)+T(cx+Rp+26,by-Hp/2,'H = '+H,PL(),{a:'start',fs:12,w:700})+L(cx-Rp-14,by-Hp,cx-Rp-14,cutY,PL(),2)+T(cx-Rp-20,by-Hp+hp/2,'h = '+fmt(h,2),PL(),{a:'end',fs:12,w:700});
+  $('frSvg').innerHTML=s;
+  const big=R*R*H/3, small=r*r*h/3;
+  $('frWork').innerHTML=`small cone: height h = ${fmt(h,2)} is ${fmt(c,2)} of H, so its radius r = ${fmt(c,2)} × ${R} = ${fmt(r,2)} (similar triangles)<br>big cone = ⅓ × π × ${R}² × ${H} = ${piS(big)}<br>small cone = ⅓ × π × ${fmt(r,2)}² × ${fmt(h,2)} = ${piS(small)}<br><strong>frustum = ${piS(big-small)} ≈ ${sf((big-small)*PI)}</strong><br><span class="c">The small cone is ${fmt(c,2)}³ = ${fmt(c**3,4)} of the big one's volume (volume scale factor k³).</span>`;
+}
+[frR,frH,frC].forEach(e=>e.addEventListener('input',drawFR)); reg(drawFR);
+
+/* 6. composite */
+const csS=$('csS'),csR=$('csR'),csH=$('csH');
+function drawCS(){
+  const t=csS.value,r=+csR.value,h=+csH.value; $('csRv').textContent=' '+r+' cm'; $('csHv').textContent=' '+h+' cm';
+  const tot=t==='cap'?h+2*r:t==='pencil'?h+h*0.6:h+r; const k=Math.min(250/tot,60/r*1.2,24), cx=200, R=r*k, H=h*k;
+  let s='',V='',S='',vol=0,sa=0;
+  const hemiUp=(cx,y,R)=>`<path d="M${cx-R},${y} A${R},${R} 0 0 1 ${cx+R},${y} A${R},${R*EK} 0 0 1 ${cx-R},${y} Z" fill="${css('--two-soft')}" fill-opacity=".8" stroke="${FG()}" stroke-width="2"/>`;
+  const hemiDown=(cx,y,R)=>`<path d="M${cx-R},${y} A${R},${R} 0 0 0 ${cx+R},${y} A${R},${R*EK} 0 0 0 ${cx-R},${y} Z" fill="${css('--two-soft')}" fill-opacity=".8" stroke="${FG()}" stroke-width="2"/>`;
+  if(t==='ice'){const top=280-H; s+=`<path d="M${cx},280 L${cx-R},${top} A${R},${R*EK} 0 0 0 ${cx+R},${top} Z" fill="${OR()}" fill-opacity=".22" stroke="${FG()}" stroke-width="2"/>`+hemiUp(cx,top,R)+halfEll(cx,top,R,true,MU(),1.2,'4 4');
+    const l=Math.hypot(r,h);vol=r*r*h/3+2/3*r**3;sa=PI*r*l+2*PI*r*r;
+    V=`cone ⅓π × ${r}² × ${h} = ${piS(r*r*h/3)} + hemisphere ⅔π × ${r}³ = ${piS(2/3*r**3)}<br>volume = ${piS(r*r*h/3+2/3*r**3)} = <strong>${sf(vol*PI)} cm³</strong>`;
+    S=`curved cone πrl = π × ${r} × ${fmt(l,3)} + curved hemisphere 2πr² = ${piS(2*r*r)}<br>(the joining circle is hidden: no flat faces count)<br>surface = <strong>${sf(sa)} cm²</strong>`;vol*=1;}
+  if(t==='silo'){const by=285,top=by-H; s+=cylSVG(cx,by,R,H)+hemiUp(cx,top,R)+halfEll(cx,top,R,true,MU(),1.2,'4 4');
+    vol=r*r*h+2/3*r**3;sa=PI*r*r+2*PI*r*h+2*PI*r*r;
+    V=`cylinder π × ${r}² × ${h} = ${piS(r*r*h)} + hemisphere ${piS(2/3*r**3)}<br>volume = ${piS(vol)} = <strong>${sf(vol*PI)} cm³</strong>`;
+    S=`base πr² = ${piS(r*r)} + curved cylinder 2πrh = ${piS(2*r*h)} + curved hemisphere 2πr² = ${piS(2*r*r)}<br>surface = ${piS(r*r+2*r*h+2*r*r)} = <strong>${sf(sa)} cm²</strong>`;sa=sa;}
+  if(t==='cap'){const by=280-R,top=by-H; s+=hemiDown(cx,by,R)+cylSVG(cx,by,R,H)+hemiUp(cx,top,R)+halfEll(cx,top,R,true,MU(),1.2,'4 4');
+    vol=r*r*h+4/3*r**3;sa=2*PI*r*h+4*PI*r*r;
+    V=`cylinder ${piS(r*r*h)} + two hemispheres = one sphere ⁴⁄₃π × ${r}³ = ${piS(4/3*r**3)}<br>volume = ${piS(vol)} = <strong>${sf(vol*PI)} cm³</strong>`;
+    S=`curved cylinder 2πrh = ${piS(2*r*h)} + sphere 4πr² = ${piS(4*r*r)}<br>surface = ${piS(2*r*h+4*r*r)} = <strong>${sf(sa)} cm²</strong>`;}
+  if(t==='pencil'){const ch=h*0.6,chp=ch*k,by=285,top=by-H; s+=cylSVG(cx,by,R,H,{side:css('--two-soft'),sideOp:.8})+`<path d="M${cx},${top-chp} L${cx-R},${top} A${R},${R*EK} 0 0 0 ${cx+R},${top} Z" fill="${OR()}" fill-opacity=".22" stroke="${FG()}" stroke-width="2"/>`+T(cx+R+8,top-chp/2,'cone height '+fmt(ch,1),PL(),{a:'start',fs:11});
+    const l=Math.hypot(r,ch);vol=r*r*h+r*r*ch/3;sa=PI*r*r+2*PI*r*h+PI*r*l;
+    V=`cylinder ${piS(r*r*h)} + cone ⅓π × ${r}² × ${fmt(ch,1)} = ${piS(r*r*ch/3)}<br>volume = ${piS(vol)} = <strong>${sf(vol*PI)} cm³</strong>`;
+    S=`base πr² + curved cylinder 2πrh + cone πrl (l = √(${r}² + ${fmt(ch,1)}²) = ${fmt(l,3)})<br>surface = <strong>${sf(sa)} cm²</strong>`;}
+  $('csSvg').innerHTML=s; $('csWork').innerHTML=V+'<br>'+S;
+}
+[csS,csR,csH].forEach(e=>e.addEventListener('input',drawCS)); reg(drawCS);
+
+/* 7. units */
+const unV=$('unV'),unU=$('unU');
+const TOCM={m3:1e6,l:1000,cm3:1,ml:1};
+const big=v=>{if(!isFinite(v))return '—';const a=Math.abs(v);if(a!==0&&(a>=1e9||a<1e-6))return v.toExponential(3).replace('e+',' × 10^').replace('e-',' × 10^−');const s=parseFloat(v.toPrecision(8)).toString();const [i,d]=s.split('.');return minus(i.replace(/\B(?=(\d{3})+(?!\d))/g,' '))+(d?'.'+d:'');};
+function drawUN(){
+  const v=num(unV), cm=v*TOCM[unU.value];
+  $('unOut').innerHTML=isFinite(v)?`<div><b>cm³</b>${big(cm)}</div><div><b>ml</b>${big(cm)}</div><div><b>litres</b>${big(cm/1000)}</div><div><b>m³</b>${big(cm/1e6)}</div>`:'<div>Type a number.</div>';
+  // 1 litre cube picture
+  const s0=60,x0=40,y0=140,o=[24,-18];
+  let s=poly([[x0,y0],[x0+s0,y0],[x0+s0,y0-s0],[x0,y0-s0]],TE(),FG(),2,.2)+poly([[x0,y0-s0],[x0+s0,y0-s0],[x0+s0+o[0],y0-s0+o[1]],[x0+o[0],y0-s0+o[1]]],TE(),FG(),2,.3)+poly([[x0+s0,y0],[x0+s0+o[0],y0+o[1]],[x0+s0+o[0],y0-s0+o[1]],[x0+s0,y0-s0]],TE(),FG(),2,.4);
+  s+=T(x0+s0/2,y0+16,'10 cm',PL(),{fs:11,w:700})+T(x0+s0/2+12,y0-s0-28,'1 litre = 1000 cm³',TE(),{fs:12,w:700});
+  s+=T(300,80,'cm³ → litres: ÷ 1000',FG(),{fs:12})+T(300,104,'litres → m³: ÷ 1000',FG(),{fs:12})+T(300,128,'cm³ → m³: ÷ 1 000 000',FG(),{fs:12});
+  $('unSvg').innerHTML=s;
+}
+[unV,unU].forEach(e=>e.addEventListener('input',drawUN)); reg(drawUN);
+
+/* 8. practice */
+let PQ=null;
+const parseAns=s=>{s=String(s).replace(/−/g,'-').replace(/π|pi/gi,'').replace(/[\s,]/g,'');const m=s.match(/^(-?\d*\.?\d+)\/(\d*\.?\d+)$/);if(m)return parseFloat(m[1])/parseFloat(m[2]);return parseFloat(s.replace(/[^0-9.\-]/g,''));};
+function prNew(){
+  const sel=$('prT').value; const t=sel==='mix'?pick(['cylV','cylS','coneV','coneS','sphV','sphS','hemS','pyrV','unit']):pick({cyl:['cylV','cylS'],cone:['coneV','coneS'],sph:['sphV','sphS','hemS'],pyr:['pyrV'],unit:['unit']}[sel]);
+  const r=rnd(2,9),h=rnd(3,15),inPi=Math.random()<.35&&t!=='pyrV'&&t!=='unit';
+  let q,ans,wrong=[],work,unit,pic;
+  const piWrap=(k,txt)=>{ans=inPi?k:k*PI;return txt;};
+  if(t==='cylV'){q=`A cylinder has radius ${r} cm and height ${h} cm. Find its volume`;piWrap(r*r*h);unit='cm³';pic=['cyl',r,h];
+    wrong=[[2*r*h,'That is the curved surface (2πrh). Volume is πr²h.'],[4*r*r*h,'You used the diameter. Square the radius.'],[r*h,'Square the radius: πr²h.'],[r*r*h/3,'The ⅓ is for cones. A cylinder is πr²h.']];work=`V = π × ${r}² × ${h} = ${r*r*h}π`;}
+  if(t==='cylS'){q=`A closed cylinder has radius ${r} cm and height ${h} cm. Find its total surface area`;piWrap(2*r*r+2*r*h);unit='cm²';pic=['cyl',r,h];
+    wrong=[[2*r*h,'That is only the curved surface. Add the two circular ends, 2πr².'],[r*r+2*r*h,'There are two circular ends: 2πr².'],[r*r*h,'That is the volume.'],[2*r*r+r*h,'The curved surface is 2πrh (the rectangle is 2πr wide).']];work=`ends 2 × π × ${r}² = ${2*r*r}π; curved 2π × ${r} × ${h} = ${2*r*h}π; total ${2*r*r+2*r*h}π`;}
+  if(t==='coneV'){q=`A cone has radius ${r} cm and vertical height ${h} cm. Find its volume`;piWrap(r*r*h/3);unit='cm³';pic=['cone',r,h];
+    wrong=[[r*r*h,'Don\'t forget the ⅓: a cone is a third of the cylinder.'],[4*r*r*h/3,'You used the diameter.'],[r*Math.hypot(r,h),'That is the curved surface (πrl).']];work=`V = ⅓ × π × ${r}² × ${h} = ${fmt(r*r*h/3,3)}π`;}
+  if(t==='coneS'){let rr,hh;[[rr,hh]]=[pick([[3,4],[6,8],[5,12],[9,12],[8,15],[7,24],[12,5]])];const l=Math.hypot(rr,hh);q=`A cone has radius ${rr} cm and vertical height ${hh} cm. Find its total surface area`;piWrap(rr*l+rr*rr);unit='cm²';pic=['cone',rr,hh];
+    wrong=[[rr*hh+rr*rr,'The curved surface uses the slant height l, not the vertical height. l = √('+rr+'² + '+hh+'²) = '+l+'.'],[rr*l,'That is only the curved surface. Add the base πr².'],[rr*rr*hh/3,'That is the volume.']];work=`l = √(${rr}² + ${hh}²) = ${l}; curved πrl = ${rr*l}π; base πr² = ${rr*rr}π; total ${rr*l+rr*rr}π`;}
+  if(t==='sphV'){q=`A sphere has radius ${r} cm. Find its volume`;piWrap(4/3*r**3);unit='cm³';pic=['sph',r];
+    wrong=[[4*r*r,'That is the surface area (4πr²). Volume is ⁴⁄₃πr³.'],[4/3*8*r**3,'You used the diameter.'],[4/3*r*r,'Cube the radius: r³.'],[2/3*r**3,'That is a hemisphere.']];work=`V = ⁴⁄₃ × π × ${r}³ = ⁴⁄₃ × ${r**3}π = ${fmt(4/3*r**3,3)}π`;}
+  if(t==='sphS'){q=`A sphere has radius ${r} cm. Find its surface area`;piWrap(4*r*r);unit='cm²';pic=['sph',r];
+    wrong=[[4/3*r**3,'That is the volume.'],[r*r,'That is one circle. A sphere\'s surface is 4πr²: four of them.'],[16*r*r,'You used the diameter.']];work=`S = 4 × π × ${r}² = ${4*r*r}π`;}
+  if(t==='hemS'){q=`A solid hemisphere has radius ${r} cm. Find its total surface area`;piWrap(3*r*r);unit='cm²';pic=['hem',r];
+    wrong=[[2*r*r,'That is only the curved part. Add the flat circle πr².'],[4*r*r,'That is a whole sphere.'],[2/3*r**3,'That is the volume.']];work=`curved 2πr² = ${2*r*r}π; flat πr² = ${r*r}π; total ${3*r*r}π`;}
+  if(t==='pyrV'){const a=rnd(3,12),b=rnd(3,12);q=`A pyramid has a rectangular base ${a} cm by ${b} cm and vertical height ${h} cm. Find its volume`;ans=a*b*h/3;unit='cm³';pic=['pyr',a,h];
+    wrong=[[a*b*h,'Don\'t forget the ⅓: a pyramid is a third of the prism.'],[a*b*h/2,'The fraction is ⅓, not ½.']];work=`base = ${a} × ${b} = ${a*b}; V = ⅓ × ${a*b} × ${h} = ${fmt(a*b*h/3,3)}`;}
+  if(t==='unit'){const k=pick(['m3l','cml','lcm','m3cm']);pic=null;
+    if(k==='m3l'){const v=rnd(2,40)/10;q=`Convert ${fmt(v,1)} m³ to litres`;ans=v*1000;unit='litres';wrong=[[v*100,'1 m³ = 1000 litres, not 100.'],[v*1e6,'That is cm³. Divide by 1000 for litres.']];work=`1 m³ = 1000 litres, so ${fmt(v,1)} × 1000 = ${fmt(v*1000,1)} litres`;}
+    if(k==='cml'){const v=rnd(5,950)*10;q=`Convert ${v} cm³ to litres`;ans=v/1000;unit='litres';wrong=[[v/100,'1 litre = 1000 cm³: divide by 1000.'],[v*1000,'Going from small units to big units, the number gets smaller: divide.']];work=`${v} ÷ 1000 = ${fmt(v/1000,3)} litres`;}
+    if(k==='lcm'){const v=rnd(2,90)/10;q=`Convert ${fmt(v,1)} litres to cm³`;ans=v*1000;unit='cm³';wrong=[[v*100,'1 litre = 1000 cm³.'],[v/1000,'Going to smaller units, the number gets bigger: multiply.']];work=`${fmt(v,1)} × 1000 = ${fmt(v*1000,1)} cm³`;}
+    if(k==='m3cm'){const v=rnd(2,9);q=`Convert ${v} m³ to cm³`;ans=v*1e6;unit='cm³';wrong=[[v*100,'1 m³ is 100 × 100 × 100 cm³, not 100.'],[v*1e4,'Cube the 100: 100³ = 1 000 000.']];work=`1 m³ = 100³ = 1 000 000 cm³, so ${v} m³ = ${big(v*1e6)} cm³`;}}
+  const exact=inPi;
+  q+=exact?', in terms of π (type the number in front of π).':t==='unit'?'.':', to 3 s.f.';
+  if(!exact&&t!=='unit'&&t!=='pyrV'){wrong=wrong.map(([v,m])=>[v*PI,m]);}
+  PQ={q,ans,wrong,exact,unit:exact?'π '+unit:unit,pic,work:work+(exact||t==='unit'?'':`<br>= <strong>${sf(ans)} ${unit}</strong>`)};
+  $('prQ').textContent=q; $('prU').textContent=PQ.unit; $('prA').value=''; $('prMsg').className='msg'; $('prMsg').textContent=''; $('prWork').hidden=true; $('prWork').innerHTML=PQ.work;
+  drawPR();
+}
+function drawPR(){if(!PQ)return;const p=PQ.pic,svg=$('prSvg');if(!p){svg.innerHTML=T(200,110,'1 litre = 1000 cm³    1 m³ = 1000 litres',MU(),{fs:13});return;}
+  let s='';const k=Math.min(14,150/(p[2]||2*p[1]),80/p[1]),cx=200,by=200;
+  if(p[0]==='cyl'){s=cylSVG(cx,by,p[1]*k,p[2]*k)+L(cx,by-p[2]*k,cx+p[1]*k,by-p[2]*k,TE(),2.5)+T(cx+p[1]*k/2,by-p[2]*k-8,p[1]+' cm',TE(),{w:700,fs:12})+T(cx+p[1]*k+10,by-p[2]*k/2,p[2]+' cm',PL(),{w:700,fs:12,a:'start'});}
+  if(p[0]==='cone'){s=coneSVG(cx,by,p[1]*k,p[2]*k)+L(cx,by,cx,by-p[2]*k,PL(),2,'5 4')+L(cx,by,cx+p[1]*k,by,TE(),2.5)+T(cx+p[1]*k/2,by+16,p[1]+' cm',TE(),{w:700,fs:12})+T(cx-6,by-p[2]*k/2,p[2]+' cm',PL(),{w:700,fs:12,a:'end'});}
+  if(p[0]==='sph'||p[0]==='hem'){const R=80,cy=p[0]==='sph'?110:170;s=p[0]==='sph'?`<circle cx="${cx}" cy="${cy}" r="${R}" fill="${TE()}" fill-opacity=".2" stroke="${FG()}" stroke-width="2"/>`+halfEll(cx,cy,R,true,MU(),1.2)+halfEll(cx,cy,R,false,MU(),1,'3 3'):`<path d="M${cx-R},${cy} A${R},${R} 0 0 1 ${cx+R},${cy} A${R},${R*EK} 0 0 1 ${cx-R},${cy} Z" fill="${OR()}" fill-opacity=".2" stroke="${FG()}" stroke-width="2"/>`+ell(cx,cy,R,TE(),2,TE(),.2);
+    s+=L(cx,cy,cx+R,cy,TE(),2.5)+T(cx+R/2,cy-8,p[1]+' cm',TE(),{w:700,fs:12});}
+  if(p[0]==='pyr'){const W=110,o=[40,-28],H=130,b=[[cx-W/2,by],[cx+W/2,by],[cx+W/2+o[0],by+o[1]],[cx-W/2+o[0],by+o[1]]],ap=[cx+o[0]/2,by-H+o[1]/2];
+    s=poly([b[0],b[1],ap],OR(),'none',0,.2)+[[0,1],[1,2]].map(([i,j])=>L(b[i][0],b[i][1],b[j][0],b[j][1],FG(),2)).join('')+L(b[2][0],b[2][1],b[3][0],b[3][1],MU(),1.5,'4 4')+L(b[3][0],b[3][1],b[0][0],b[0][1],MU(),1.5,'4 4')+[0,1,2].map(i=>L(b[i][0],b[i][1],ap[0],ap[1],FG(),2)).join('')+L(b[3][0],b[3][1],ap[0],ap[1],MU(),1.5,'4 4')+L(ap[0],ap[1],ap[0],by+o[1]/2,PL(),2,'5 4')+T(ap[0]+6,(ap[1]+by)/2,'h',PL(),{w:700,a:'start'});}
+  svg.innerHTML=s;}
+const near=(u,v,exact)=>{if(exact)return Math.abs(u-v)<1e-3*Math.max(1,Math.abs(v));const e=Math.floor(Math.log10(Math.abs(v)));return Math.abs(u-v)<=0.5*10**(e-2)+1e-9;};
+function prCheck(){const u=parseAns($('prA').value),M=$('prMsg');if(!isFinite(u)){feedback(M,false,'Type a number.');return;}
+  if(near(u,PQ.ans,PQ.exact)){feedback(M,true,'Correct.');$('prWork').hidden=false;return;}
+  if(PQ.exact&&Math.abs(u-PQ.ans*PI)<=Math.abs(PQ.ans*PI)*0.002+0.05){feedback(M,false,'Not quite. That is the decimal value: type just the number in front of π.');return;}
+  for(const [v,m] of PQ.wrong){if(Math.abs(v-PQ.ans)<1e-9)continue;if(near(u,v,PQ.exact)||Math.abs(u-v)<=Math.abs(v)*0.004){feedback(M,false,'Not quite. '+m);return;}}
+  feedback(M,false,Math.abs(u-PQ.ans)<=Math.abs(PQ.ans)*0.02?'Very close: check your rounding.':'Not quite. Write the formula first, then substitute. "Show working" has the steps.');}
+$('prGo').addEventListener('click',prCheck); $('prA').addEventListener('keydown',e=>{if(e.key==='Enter')prCheck();});
+$('prShow').addEventListener('click',()=>{$('prWork').hidden=!$('prWork').hidden;}); $('prNew').addEventListener('click',prNew); $('prT').addEventListener('change',prNew); prNew(); REDRAW.push(drawPR);
+
+/* quiz */
+const QS=[
+  {q:'Volume of a cylinder with radius 2 cm and height 5 cm?',opts:['20π cm³','10π cm³','40π cm³','20 cm³'],a:0,fb:'πr²h = π × 4 × 5 = 20π cm³.'},
+  {q:'Curved surface area of a cylinder with radius 3 cm and height 10 cm?',opts:['60π cm²','90π cm²','30π cm²','78π cm²'],a:0,fb:'2πrh = 2 × π × 3 × 10 = 60π cm². (78π adds the two ends.)'},
+  {q:'A cone has radius 5 cm and vertical height 12 cm. Its slant height is…',opts:['13 cm','17 cm','√119 cm','7 cm'],a:0,fb:'l² = 5² + 12² = 169, l = 13 cm.'},
+  {q:'A cone and a cylinder have the same base and height. The cone\'s volume is…',opts:['⅓ of the cylinder','½ of the cylinder','⅔ of the cylinder','the same'],a:0,fb:'It takes three cones to fill the cylinder: V = ⅓πr²h.'},
+  {q:'Volume of a sphere with radius 3 cm?',opts:['36π cm³','27π cm³','12π cm³','108π cm³'],a:0,fb:'⁴⁄₃ × π × 27 = 36π cm³.'},
+  {q:'Surface area of a sphere with radius 5 cm?',opts:['100π cm²','25π cm²','500π/3 cm²','50π cm²'],a:0,fb:'4πr² = 4 × π × 25 = 100π cm².'},
+  {q:'Total surface area of a solid hemisphere with radius 4 cm?',opts:['48π cm²','32π cm²','64π cm²','16π cm²'],a:0,fb:'Curved 2πr² = 32π, plus flat πr² = 16π: total 48π cm².'},
+  {q:'1 litre is…',opts:['1000 cm³','100 cm³','1 000 000 cm³','10 cm³'],a:0,fb:'A 10 cm cube holds 1 litre: 10 × 10 × 10 = 1000 cm³.'},
+  {q:'2.5 m³ in litres is…',opts:['2500 litres','250 litres','25 000 litres','2 500 000 litres'],a:0,fb:'1 m³ = 1000 litres, so 2.5 × 1000 = 2500 litres.'},
+  {q:'A pyramid has a 5 cm by 4 cm base and height 9 cm. Its volume is…',opts:['60 cm³','180 cm³','90 cm³','20 cm³'],a:0,fb:'⅓ × (5 × 4) × 9 = ⅓ × 180 = 60 cm³.'}
+];
+const redrawAll=()=>REDRAW.forEach(f=>f());
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

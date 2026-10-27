@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Rearranging Formulae</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive "lab" panels; graph-paper neutrals, teal = the subject letter, orange = the layers wrapped round it, plum = the operation being undone. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.S{color:var(--accent);font-weight:600}.W{color:var(--hi);font-weight:600}.O{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--two)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn:disabled{opacity:.4;cursor:default}
+.eq{font-family:var(--mono);font-size:1.5rem;text-align:center;margin:.6rem 0}
+.eq.solved{color:var(--good)}
+.hist{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.hist .row{display:grid;grid-template-columns:1fr auto;gap:1rem}
+.hist .op{color:var(--two);font-size:.9rem;white-space:nowrap}
+.hist .a{color:var(--accent)}.hist .b{color:var(--hi)}
+.msg{font-size:.92rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.bad{color:var(--bad)}.msg.good{color:var(--good)}
+.onion{display:flex;justify-content:center;align-items:center;margin-top:.8rem;min-height:120px}
+.layer{border:2px solid var(--hi);border-radius:14px;padding:.45rem .7rem;display:inline-flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:1rem;background:var(--hi-soft)}
+.layer.peeled{opacity:.25;border-style:dashed}
+.layer.cur{border-color:var(--two);background:var(--two-soft)}
+.layer>.tag{font:600 .65rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.core{background:var(--accent);color:#fff;border-radius:10px;padding:.4rem .8rem;font-family:var(--mono);font-weight:700;font-size:1.2rem}
+.opgroup{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.opgroup .lbl{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:.3rem}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono,th.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+.ok{color:var(--good);font-family:var(--mono)}.no{color:var(--bad);font-family:var(--mono);text-decoration:line-through}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
+.twin>div{min-width:0}
+.twin .h{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Algebra · KS3 → GCSE</div>
+  <h1>Rearranging Formulae</h1>
+  <p class="lede">A formula is written for one job: <span class="m">v = u + at</span> gives you v. Rearranging rewrites it for a different job, so it gives you t instead. The moves are exactly the ones you use to solve an equation; the only difference is that the "numbers" are letters.</p>
+  <span class="gcse">National curriculum KS3: rearrange formulae to change the subject; GCSE extends to subjects appearing twice, powers and roots</span>
+</header>
+
+<h2>1 · The subject of a formula</h2>
+<p>The <strong>subject</strong> is the letter sitting alone on one side. In <span class="m">A = lw</span> the subject is A. If you know l and w, A pops out. But if you know A and l and want w, the formula is pointing the wrong way. You could substitute and solve every time, or you could rearrange once to get <span class="m">w = A/l</span> and use that forever.</p>
+
+<p>Here are the two routes side by side. Same numbers, same answer, but the rearranged formula does the thinking once rather than every time.</p>
+<div class="lab">
+  <div class="controls"><label>A = <input type="number" id="s1A" value="24"></label><label>l = <input type="number" id="s1l" value="6"></label></div>
+  <div class="twin">
+    <div><div class="h">Substitute, then solve</div><div class="hist" id="s1Left"></div></div>
+    <div><div class="h">Rearrange, then substitute</div><div class="hist" id="s1Right"></div></div>
+  </div>
+</div>
+
+<h2>2 · It's just an equation with letters</h2>
+<p>Compare the two columns. On the left, an equation with numbers. On the right, the same shape with letters. Every step is identical: the only difference is that you can't simplify <span class="m">c − b</span> into a single number the way you can simplify 11 − 3 into 8. So you leave it written as c − b.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Pattern <select id="twE">
+      <option value="ax+b">ax + b = c  →  solve 2x + 3 = 11</option>
+      <option value="x/a+b">x/a + b = c  →  solve x/4 + 1 = 3</option>
+      <option value="a(x+b)">a(x + b) = c  →  solve 3(x + 2) = 15</option>
+      <option value="a-bx">a − bx = c  →  solve 10 − 2x = 4</option>
+    </select></label>
+  </div>
+  <div class="twin">
+    <div><div class="h">With numbers</div><div class="hist" id="twNum"></div></div>
+    <div><div class="h">With letters (rearranging)</div><div class="hist" id="twLet"></div></div>
+  </div>
+</div>
+
+<h2>3 · Peel the onion</h2>
+<p>A useful way to plan the moves. Look at the formula from the point of view of the letter you want. What's been done to it, in what order? Each operation is a layer wrapped around it. To free the letter, peel the layers off from the <em>outside in</em>, which means undoing the operations in <strong>reverse</strong> order.</p>
+<p>In <span class="m">v = u + at</span>, the letter t was multiplied by a (inner layer), then u was added (outer layer). So first subtract u from both sides, then divide by a. Click "peel" to remove layers one at a time.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Formula <select id="onE">
+      <option value="vuat">v = u + at, make t the subject</option>
+      <option value="pnt">P = 2l + 2w, make w the subject</option>
+      <option value="cf">F = 9C/5 + 32, make C the subject</option>
+      <option value="spd">s = d/t, make t the subject</option>
+      <option value="ke">E = ½mv², make v the subject</option>
+      <option value="area">A = πr², make r the subject</option>
+      <option value="pyth">c² = a² + b², make a the subject</option>
+      <option value="ratio">y = (x + 3)/k, make x the subject</option>
+    </select></label>
+    <button class="btn primary" id="onPeel">Peel a layer</button>
+    <button class="btn" id="onReset">Reset</button>
+  </div>
+  <div class="onion" id="onion"></div>
+  <div class="eq" id="onEq"></div>
+  <div class="hist" id="onHist"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Powers and roots are layers too.</strong> If the subject is squared, the last layer to peel is the square, undone with a square root. <span class="m">A = πr²</span>: divide by π, then square-root. Remember both sides get rooted: r = √(A/π), with the whole fraction under the root. And when you take a square root in a rearrangement, write ± unless the context (a length, a speed) rules out the negative.</p>
+</div>
+
+<h2>4 · Do it yourself: the balance</h2>
+<p>Same balance as the equations page, but the weights have names. Choose the letter to make the subject, then click the operation to apply to both sides. The page checks each move is legal; you decide which move is useful.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Formula <select id="blE">
+      <option value="0">y = mx + c  →  x</option>
+      <option value="1">v = u + at  →  a</option>
+      <option value="2">P = 2(l + w)  →  l</option>
+      <option value="3">T = (a + b)/2  →  b</option>
+      <option value="4">F = 9C/5 + 32  →  C</option>
+      <option value="5">A = ½bh  →  h</option>
+      <option value="6">s = ut + ½at²  →  a</option>
+    </select></label>
+    <button class="btn" id="blReset">Reset</button>
+  </div>
+  <div class="eq" id="blEq"></div>
+  <div class="controls"><div class="opgroup" id="blOps"><span class="lbl">Both sides</span></div></div>
+  <div class="msg" id="blMsg"></div>
+  <div class="hist" id="blHist"></div>
+</div>
+
+<h2>5 · Checking a rearrangement</h2>
+<p>You can't "solve and check" because there's no single answer, but you can still check: pick easy numbers, put them into the original formula to get a consistent set, then put the same numbers into your rearranged version and see if it gives the right letter back.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Original <select id="ckE">
+      <option value="0">v = u + at</option><option value="1">P = 2l + 2w</option><option value="2">F = 9C/5 + 32</option><option value="3">A = ½bh</option>
+    </select></label>
+    <label>Your rearrangement for <span id="ckSub" style="font-family:var(--mono)"></span>: <input type="text" id="ckIn" style="width:12em" placeholder="e.g. (v - u)/a"></label>
+    <button class="btn primary" id="ckGo">Check</button>
+  </div>
+  <div class="hist" id="ckWork"></div>
+</div>
+
+<h2>6 · The common slips</h2>
+<div class="tbl"><table>
+  <tr><th>Formula → subject</th><th>Wrong</th><th>Right</th><th>What went wrong</th></tr>
+  <tr><td class="mono">v = u + at → t</td><td class="no">t = v − u/a</td><td class="ok">t = (v − u)/a</td><td>The whole of v − u is divided by a. Brackets or a long fraction line.</td></tr>
+  <tr><td class="mono">y = mx + c → x</td><td class="no">x = y − c − m</td><td class="ok">x = (y − c)/m</td><td>m was multiplying, so the inverse is dividing, not subtracting.</td></tr>
+  <tr><td class="mono">A = πr² → r</td><td class="no">r = √A/π</td><td class="ok">r = √(A/π)</td><td>Divide by π first, then root the whole thing.</td></tr>
+  <tr><td class="mono">s = d/t → t</td><td class="no">t = s/d</td><td class="ok">t = d/s</td><td>Multiply both sides by t first (st = d), then divide by s.</td></tr>
+  <tr><td class="mono">P = 2(l + w) → l</td><td class="no">l = P − 2w / 2</td><td class="ok">l = P/2 − w</td><td>Divide the whole of P by 2 (or expand first: P = 2l + 2w).</td></tr>
+  <tr><td class="mono">T = 3 − 2x → x</td><td class="no">x = (3 − T)/−2</td><td class="ok">x = (3 − T)/2</td><td>Both are actually equal! But the tidy answer avoids dividing by a negative: 3 − T = 2x.</td></tr>
+</table></div>
+
+<h2>7 · Where rearranging is needed</h2>
+<div class="grid2">
+  <div class="use"><h3>Science practicals</h3>
+    <p>You measure voltage and current and want resistance: V = IR → R = V/I. Density ρ = m/V → V = m/ρ to find the volume of an irregular object from its mass.</p></div>
+  <div class="use"><h3>Programming</h3>
+    <p>Code runs one way. If you have <code>fahrenheit = celsius * 9/5 + 32</code> and the user types Fahrenheit, you must rearrange on paper and write <code>celsius = (fahrenheit - 32) * 5/9</code>.</p></div>
+  <div class="use"><h3>Finance</h3>
+    <p>Simple interest I = Prt. A bank quotes the interest and the rate; how long until you earn £500? t = I/(Pr). Rearrange once, reuse for every customer.</p></div>
+  <div class="use"><h3>Geometry</h3>
+    <p>Circumference C = 2πr, but you measured the circumference of a tree and want the radius: r = C/(2π). Area of a trapezium rearranged gives the height from the area.</p></div>
+  <div class="use"><h3>Speed, distance, time</h3>
+    <p>s = d/t is the one everyone memorises as a triangle. The triangle <em>is</em> the three rearrangements: d = st and t = d/s. Rearranging lets you throw the triangle away.</p></div>
+  <div class="use"><h3>Spreadsheets</h3>
+    <p>Goal Seek in Excel is a brute-force rearrangement: "what input gives this output?" Doing the algebra gives an exact formula in a cell that updates instantly instead.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Make x the subject of y = 3x − 7</summary>
+  <div class="step"><strong>What's wrapped round x?</strong> × 3, then − 7. Peel in reverse: + 7, then ÷ 3.</div>
+  <div class="step"><strong>+ 7 both sides:</strong> y + 7 = 3x.</div>
+  <div class="step"><strong>÷ 3 both sides:</strong> <strong>x = (y + 7)/3</strong>. The whole of y + 7 over 3.</div>
+</details>
+<details>
+  <summary>Make t the subject of s = d/t</summary>
+  <div class="step"><strong>t is on the bottom.</strong> First move: multiply both sides by t to bring it up: st = d.</div>
+  <div class="step"><strong>Now t is multiplied by s.</strong> ÷ s both sides: <strong>t = d/s</strong>.</div>
+  <div class="step"><strong>Check with numbers:</strong> d = 100, t = 4 gives s = 25. Then d/s = 100/25 = 4 ✓</div>
+</details>
+<details>
+  <summary>Make r the subject of V = (4/3)πr³</summary>
+  <div class="step"><strong>Layers round r:</strong> cubed, then × π, then × 4/3. Peel: ÷ 4/3 (i.e. × 3/4), ÷ π, then cube-root.</div>
+  <div class="step"><strong>× 3 both sides:</strong> 3V = 4πr³. <strong>÷ 4π:</strong> 3V/(4π) = r³.</div>
+  <div class="step"><strong>Cube root both sides:</strong> <strong>r = ∛(3V/(4π))</strong>. Everything under the root.</div>
+</details>
+<details>
+  <summary>Exam-style (GCSE): make x the subject of y = (2x + 1)/(x − 3)</summary>
+  <div class="step"><strong>x appears twice</strong>, so there's an extra move: get every x-term on one side and factorise.</div>
+  <div class="step"><strong>Clear the fraction:</strong> y(x − 3) = 2x + 1 → yx − 3y = 2x + 1.</div>
+  <div class="step"><strong>x-terms left, everything else right:</strong> yx − 2x = 3y + 1.</div>
+  <div class="step"><strong>Factorise the x out:</strong> x(y − 2) = 3y + 1.</div>
+  <div class="step"><strong>Divide:</strong> <strong>x = (3y + 1)/(y − 2)</strong>.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>Rearranging a formula is solving an equation whose numbers are letters: do the same to both sides until the letter you want is alone. Plan by looking at what's been done to that letter and undoing it in reverse order, outermost layer first. A letter in a denominator comes up by multiplying through; a squared letter is freed last by square-rooting both sides, keeping everything under the root. Brackets around a whole numerator are not optional. And a quick substitution with easy numbers checks the result.</p>
+
+<footer>Made for KS3/KS4 students. Changing the subject of a formula is in the England national curriculum at key stage 3 under Algebra; subjects appearing twice and with powers are GCSE. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=v=>Number.isInteger(v)?String(v):parseFloat(v.toFixed(4)).toString();
+const row=(e,o)=>`<div class="row"><span>${e}</span><span class="op">${o}</span></div>`;
+
+/* 1. two routes */
+const s1A=document.getElementById('s1A'),s1l=document.getElementById('s1l');
+function draw1(){const A=+s1A.value,l=+s1l.value;if(!l){return;}
+  document.getElementById('s1Left').innerHTML=row('A = lw','formula')+row(`${A} = ${l}w`,'substitute A and l')+row(`w = ${fmt(A/l)}`,`÷ ${l} both sides`)+`<div class="row"><span class="b">next time: do all this again</span><span></span></div>`;
+  document.getElementById('s1Right').innerHTML=row('A = lw','formula')+row('A/l = w',`÷ l both sides`)+row('w = A/l','rearranged: w is the subject')+row(`w = ${A}/${l} = ${fmt(A/l)}`,'substitute')+`<div class="row"><span class="b">next time: just substitute</span><span></span></div>`;}
+s1A.addEventListener('input',draw1);s1l.addEventListener('input',draw1);draw1();
+
+/* 2. twin columns */
+const TW={
+  'ax+b':{num:[['2x + 3 = 11','start'],['2x = 8','− 3 both sides'],['x = 8/2 = 4','÷ 2 both sides']],let:[['ax + b = c','start'],['ax = c − b','− b both sides (can\'t simplify c − b, leave it)'],['x = (c − b)/a','÷ a both sides: brackets round the whole top']]},
+  'x/a+b':{num:[['x/4 + 1 = 3','start'],['x/4 = 2','− 1 both sides'],['x = 8','× 4 both sides']],let:[['x/a + b = c','start'],['x/a = c − b','− b both sides'],['x = a(c − b)','× a both sides: a multiplies the whole bracket']]},
+  'a(x+b)':{num:[['3(x + 2) = 15','start'],['x + 2 = 5','÷ 3 both sides'],['x = 3','− 2 both sides']],let:[['a(x + b) = c','start'],['x + b = c/a','÷ a both sides'],['x = c/a − b','− b both sides']]},
+  'a-bx':{num:[['10 − 2x = 4','start'],['10 = 4 + 2x','+ 2x both sides (keeps x positive)'],['6 = 2x','− 4 both sides'],['x = 3','÷ 2']],let:[['a − bx = c','start'],['a = c + bx','+ bx both sides'],['a − c = bx','− c both sides'],['x = (a − c)/b','÷ b']]}
+};
+const twE=document.getElementById('twE');
+function drawTW(){const T=TW[twE.value];document.getElementById('twNum').innerHTML=T.num.map(r=>row(r[0],r[1])).join('');document.getElementById('twLet').innerHTML=T.let.map(r=>row(r[0],r[1])).join('');}
+twE.addEventListener('change',drawTW);drawTW();
+
+/* 3. onion */
+const ON={
+  vuat:{sub:'t',layers:[['× a','at'],['+ u','u + at']],eqs:['v = u + at','v − u = at','(v − u)/a = t'],ops:['− u both sides','÷ a both sides'],final:'t = (v − u)/a'},
+  pnt:{sub:'w',layers:[['× 2','2w'],['+ 2l','2l + 2w']],eqs:['P = 2l + 2w','P − 2l = 2w','(P − 2l)/2 = w'],ops:['− 2l both sides','÷ 2 both sides'],final:'w = (P − 2l)/2  or  P/2 − l'},
+  cf:{sub:'C',layers:[['× 9','9C'],['÷ 5','9C/5'],['+ 32','9C/5 + 32']],eqs:['F = 9C/5 + 32','F − 32 = 9C/5','5(F − 32) = 9C','5(F − 32)/9 = C'],ops:['− 32 both sides','× 5 both sides','÷ 9 both sides'],final:'C = 5(F − 32)/9'},
+  spd:{sub:'t',layers:[['d divided by it','d/t']],eqs:['s = d/t','st = d','t = d/s'],ops:['× t both sides (bring t up)','÷ s both sides'],final:'t = d/s'},
+  ke:{sub:'v',layers:[['squared','v²'],['× m','mv²'],['× ½','½mv²']],eqs:['E = ½mv²','2E = mv²','2E/m = v²','√(2E/m) = v'],ops:['× 2 both sides','÷ m both sides','√ both sides'],final:'v = √(2E/m)'},
+  area:{sub:'r',layers:[['squared','r²'],['× π','πr²']],eqs:['A = πr²','A/π = r²','√(A/π) = r'],ops:['÷ π both sides','√ both sides (r is a length, so +)'],final:'r = √(A/π)'},
+  pyth:{sub:'a',layers:[['squared','a²'],['+ b²','a² + b²']],eqs:['c² = a² + b²','c² − b² = a²','√(c² − b²) = a'],ops:['− b² both sides','√ both sides'],final:'a = √(c² − b²)   (not c − b!)'},
+  ratio:{sub:'x',layers:[['+ 3','x + 3'],['÷ k','(x + 3)/k']],eqs:['y = (x + 3)/k','ky = x + 3','ky − 3 = x'],ops:['× k both sides','− 3 both sides'],final:'x = ky − 3'}
+};
+const onE=document.getElementById('onE');let onStage=0;
+function drawON(){const O=ON[onE.value];const n=O.layers.length;
+  // nested layers: innermost first in array; render outer→inner
+  let html=`<span class="core">${O.sub}</span>`;
+  O.layers.forEach((L,i)=>{const peeled=i>=n-onStage;const cur=!peeled&&i===n-onStage-1;html=`<span class="layer ${peeled?'peeled':''} ${cur?'cur':''}"><span class="tag">${L[0]}</span>${html}</span>`;});
+  document.getElementById('onion').innerHTML=html;
+  const e=document.getElementById('onEq');e.textContent=onStage>=n?O.final:O.eqs[onStage];e.className='eq'+(onStage>=n?' solved':'');
+  document.getElementById('onHist').innerHTML=row(O.eqs[0],'start')+O.ops.slice(0,onStage).map((o,i)=>row(O.eqs[i+1],o)).join('')+(onStage>=n?`<div class="row"><span class="a">${O.final}</span><span class="op">${O.sub} is the subject</span></div>`:`<div class="row"><span class="b">next: undo the outermost layer "${O.layers[n-onStage-1][0]}"</span><span></span></div>`);
+  document.getElementById('onPeel').disabled=onStage>=n;}
+document.getElementById('onPeel').addEventListener('click',()=>{onStage++;drawON();});
+document.getElementById('onReset').addEventListener('click',()=>{onStage=0;drawON();});
+onE.addEventListener('change',()=>{onStage=0;drawON();});drawON();
+
+/* 4. balance with letters: scripted op menus */
+const BL=[
+  {start:'y = mx + c',sub:'x',ops:[['− c','y − c = mx',1],['÷ m','(y − c)/m = x',2],['− y','0 = mx + c − y',0],['× m','my = m²x + mc',0]],final:'x = (y − c)/m'},
+  {start:'v = u + at',sub:'a',ops:[['− u','v − u = at',1],['÷ t','(v − u)/t = a',2],['÷ a','v/a = u/a + t',0],['− t','v − t = u + at − t',0]],final:'a = (v − u)/t'},
+  {start:'P = 2(l + w)',sub:'l',ops:[['÷ 2','P/2 = l + w',1],['− w','P/2 − w = l',2],['− 2','P − 2 = 2(l + w) − 2',0],['expand','P = 2l + 2w',1]],final:'l = P/2 − w'},
+  {start:'T = (a + b)/2',sub:'b',ops:[['× 2','2T = a + b',1],['− a','2T − a = b',2],['÷ 2','T/2 = (a + b)/4',0],['− b','T − b = (a + b)/2 − b',0]],final:'b = 2T − a'},
+  {start:'F = 9C/5 + 32',sub:'C',ops:[['− 32','F − 32 = 9C/5',1],['× 5','5(F − 32) = 9C',2],['÷ 9','5(F − 32)/9 = C',3],['÷ 5','F/5 = 9C/25 + 32/5',0]],final:'C = 5(F − 32)/9'},
+  {start:'A = ½bh',sub:'h',ops:[['× 2','2A = bh',1],['÷ b','2A/b = h',2],['− b','A − b = ½bh − b',0],['÷ ½','same as × 2: 2A = bh',1]],final:'h = 2A/b'},
+  {start:'s = ut + ½at²',sub:'a',ops:[['− ut','s − ut = ½at²',1],['× 2','2(s − ut) = at²',2],['÷ t²','2(s − ut)/t² = a',3],['÷ t','s/t = u + ½at',0]],final:'a = 2(s − ut)/t²'}
+];
+const blE=document.getElementById('blE');let bl={i:0,stage:0,hist:[]};
+function drawBL(){const F=BL[bl.i];const n=F.ops.filter(o=>o[2]>0).length;const done=bl.stage>=n;
+  const e=document.getElementById('blEq');e.textContent=done?F.final:(bl.hist.length?bl.hist[bl.hist.length-1].eq:F.start);e.className='eq'+(done?' solved':'');
+  const ops=document.getElementById('blOps');ops.innerHTML='<span class="lbl">Both sides</span>';
+  F.ops.forEach((o,k)=>{const b=document.createElement('button');b.className='btn';b.textContent=o[0];b.disabled=done;b.addEventListener('click',()=>{const m=document.getElementById('blMsg');
+    if(o[2]===bl.stage+1){bl.stage++;bl.hist.push({op:o[0]+' both sides',eq:o[1]});m.className='msg good';m.textContent='Good move.';}
+    else if(o[2]>0&&o[2]<=bl.stage){m.className='msg';m.textContent='Already done that.';}
+    else if(o[2]>bl.stage+1){m.className='msg bad';m.textContent=`Legal, but ${F.sub} isn't ready for that yet: peel the outer layer first.`;}
+    else{m.className='msg bad';m.textContent=`Legal (both sides), but it makes things worse: ${o[1]}. Think about what's wrapped round ${F.sub}.`;}
+    drawBL();});ops.appendChild(b);});
+  document.getElementById('blHist').innerHTML=row(F.start,'start')+bl.hist.map(h=>row(h.eq,h.op)).join('')+(done?`<div class="row"><span class="a">${F.final}</span><span class="op">${F.sub} is the subject</span></div>`:'');}
+blE.addEventListener('change',()=>{bl={i:+blE.value,stage:0,hist:[]};document.getElementById('blMsg').textContent='';drawBL();});
+document.getElementById('blReset').addEventListener('click',()=>{bl={i:+blE.value,stage:0,hist:[]};document.getElementById('blMsg').textContent='';drawBL();});drawBL();
+
+/* 5. numeric check of a rearrangement */
+const CK=[
+  {name:'v = u + at',sub:'t',vars:{u:3,a:2,t:5},target:v=>v.u+v.a*v.t,targetName:'v',hint:'(v - u)/a'},
+  {name:'P = 2l + 2w',sub:'w',vars:{l:4,w:3},target:v=>2*v.l+2*v.w,targetName:'P',hint:'(P - 2*l)/2'},
+  {name:'F = 9C/5 + 32',sub:'C',vars:{C:20},target:v=>9*v.C/5+32,targetName:'F',hint:'5*(F - 32)/9'},
+  {name:'A = ½bh',sub:'h',vars:{b:6,h:5},target:v=>0.5*v.b*v.h,targetName:'A',hint:'2*A/b'}
+];
+const ckE=document.getElementById('ckE'),ckIn=document.getElementById('ckIn');
+function ckLabel(){document.getElementById('ckSub').textContent=CK[+ckE.value].sub+' =';ckIn.placeholder='e.g. '+CK[+ckE.value].hint;document.getElementById('ckWork').innerHTML='';}
+function safeEval(expr,vars){ // only letters, digits, + - * / ( ) . sqrt
+  let s=expr.replace(/−/g,'-').replace(/×/g,'*').replace(/÷/g,'/').replace(/√/g,'sqrt').replace(/π/g,'pi').replace(/\^/g,'**');
+  if(!/^[a-zA-Z0-9+\-*/().\s]*$/.test(s))return NaN;
+  // implicit multiplication: 2l, 2(, )( , l w
+  s=s.replace(/(\d)([a-zA-Z(])/g,'$1*$2').replace(/\)(\w|\()/g,')*$1').replace(/([a-zA-Z])\(/g,'$1*(').replace(/([a-zA-Z])\s+([a-zA-Z])/g,'$1*$2');
+  s=s.replace(/\bsqrt\*\(/g,'Math.sqrt(').replace(/\bpi\b/g,'Math.PI');
+  const names=Object.keys(vars);try{return Function(...names,'"use strict";return ('+s+');')(...names.map(k=>vars[k]));}catch(e){return NaN;}}
+document.getElementById('ckGo').addEventListener('click',()=>{const K=CK[+ckE.value];const v={...K.vars};v[K.targetName]=K.target(v);const expr=ckIn.value.trim();const W=document.getElementById('ckWork');if(!expr){W.textContent='Type your rearranged expression first.';return;}
+  const got=safeEval(expr,v);const want=K.vars[K.sub];
+  let h=row(`easy numbers: ${Object.entries(K.vars).map(([k,x])=>k+' = '+x).join(', ')}`,'choose')+row(`${K.name} gives ${K.targetName} = ${fmt(v[K.targetName])}`,'original formula');
+  if(isNaN(got))h+=`<div class="row"><span class="b">Couldn't evaluate "${expr}". Use letters ${Object.keys(v).join(', ')}, numbers, + − × ÷ and brackets.</span><span></span></div>`;
+  else h+=row(`your ${K.sub} = ${expr} = ${fmt(got)}`,'your rearrangement')+`<div class="row"><span class="${Math.abs(got-want)<1e-9?'a':'b'}">${Math.abs(got-want)<1e-9?`matches ${K.sub} = ${want} ✓ your rearrangement works`:`should be ${K.sub} = ${want} ✗ check the order of your undoing and your brackets`}</span><span></span></div>`;
+  W.innerHTML=h;});
+ckE.addEventListener('change',ckLabel);ckLabel();
+ckIn.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('ckGo').click();});
+
+/* quiz */
+const QS=[
+  {q:'Make x the subject of y = 4x + 1',opts:['x = (y − 1)/4','x = y − 1 − 4','x = y/4 − 1','x = (y + 1)/4'],a:0,fb:'− 1 then ÷ 4, with the whole of y − 1 over 4.'},
+  {q:'Make t the subject of v = u + at',opts:['t = (v − u)/a','t = v − u/a','t = (v + u)/a','t = v/a − u'],a:0,fb:'Undo + u (subtract), then undo × a (divide). Brackets round v − u.'},
+  {q:'Make r the subject of C = 2πr',opts:['r = C/(2π)','r = C/2π… same thing, but written ambiguously','r = 2π/C','r = C − 2π'],a:0,fb:'r is multiplied by 2π, so divide by 2π. Write it with brackets so the 2π is clearly on the bottom.'},
+  {q:'Make x the subject of y = x/5 − 2',opts:['x = 5(y + 2)','x = 5y + 2','x = (y + 2)/5','x = 5y − 2'],a:0,fb:'+ 2 first (y + 2 = x/5), then × 5: the 5 multiplies the whole bracket.'},
+  {q:'Make r the subject of A = πr²',opts:['r = √(A/π)','r = √A/π','r = A/π²','r = (A/π)²'],a:0,fb:'÷ π, then square-root everything: √(A/π).'},
+  {q:'Make t the subject of s = d/t',opts:['t = d/s','t = s/d','t = sd','t = d − s'],a:0,fb:'× t first: st = d. Then ÷ s: t = d/s.'},
+  {q:'Make l the subject of P = 2(l + w)',opts:['l = P/2 − w','l = (P − w)/2','l = P − 2w','l = P/2 + w'],a:0,fb:'÷ 2 gives P/2 = l + w, then − w. (P − w)/2 is a common wrong answer: it only halves the P before subtracting w, which is right, but it also halves w, which is wrong.'},
+  {q:'Which first move frees x in y = 3 − x?',opts:['+ x to both sides','− 3 from both sides','÷ 3 both sides','× −1 both sides'],a:0,fb:'+ x gives y + x = 3, then − y gives x = 3 − y. Adding x avoids a negative x.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

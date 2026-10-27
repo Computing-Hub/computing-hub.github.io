@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Iteration</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive panel (SVG graphs drawn from JS with a draggable point, a decimal-search step-through, a calculator-style iteration table, a cobweb/staircase diagram, and practice inputs). Colours on this page: teal = the function or rearrangement being used (y = f(x), y = g(x)), orange = the iterations themselves (the staircase or cobweb path, the iterates in the table, the narrowing interval), plum = the line y = x, the root, and points being tested. Green/red mark positive/negative values of f and right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.ca{color:var(--accent);font-weight:600}.ch{color:var(--hi);font-weight:600}.ct{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+a{color:var(--accent)}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.15rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:.35em;margin-left:.35rem;line-height:1.4}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+h3 .tag,summary .tag{vertical-align:.15em}
+.lab svg.drag{touch-action:none}
+.lab svg.drag [data-h]{cursor:grab}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.callout.trap{background:var(--two-soft)}
+.work .s{display:block}
+.work .s[hidden]{display:none}
+.work .note{color:var(--muted);font-family:var(--body);font-size:.9rem}
+.next{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;background:var(--panel)}
+@media (max-width:560px){
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block;width:100%}
+  table.stack tr:first-child{display:none}
+  table.stack tr{border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{border:0;padding:.15rem .3rem}
+}
+.controls label{flex-wrap:wrap}
+.readout b.nt,th.nt{text-transform:none;letter-spacing:.02em}
+.vt.sm td,.vt.sm th{padding:.3rem .25rem;font-size:.82rem}
+.vt th{text-transform:none;letter-spacing:.02em;font-size:.8rem}
+.controls label{max-width:100%}.controls select{min-width:0;max-width:100%}
+.calc{font-family:var(--mono);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.6rem .8rem;margin-top:.6rem;font-size:.95rem}
+.calc .disp{font-size:1.4rem;text-align:right;font-variant-numeric:tabular-nums;color:var(--fg)}
+.calc .key{color:var(--muted);font-size:.85rem}
+.pos{color:var(--good);font-weight:600}.neg{color:var(--bad);font-weight:600}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Algebra</div>
+  <h1>Iteration <span class="tag g">Higher</span></h1>
+  <p class="lede">Some equations, like x³ + 2x − 5 = 0, have no neat method for solving them. <strong>Iteration</strong> gets as close to the answer as you like by repeating one simple calculation over and over, each time feeding the answer back in. Your calculator's ANS key does all the hard work.</p>
+  <span class="gcse">GCSE subject content (Higher): find approximate solutions to equations numerically using iteration; show a root lies in an interval by a change of sign; rearrange an equation into the form x = g(x)</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start.</strong> You'll need substitution with powers and roots (see <a href="../ks3-interactive/substitution.html">Substitution</a>), rearranging equations (<a href="../ks3-interactive/rearranging-formulae.html">Rearranging formulae</a>), rounding to decimal places and bounds (<a href="../ks3-interactive/rounding-and-estimation.html">Rounding and estimation</a>), and the idea that a <strong>root</strong> of f(x) = 0 is where the graph y = f(x) crosses the x-axis (<a href="recognising-graphs.html">Recognising graphs</a>). Subscripts label the steps: x₀ is the starting value, x₁ the next, and so on.</p>
+</div>
+
+<h2>1 · Equations you can't solve exactly <span class="tag g">Higher</span></h2>
+<p>A quadratic can always be solved with the formula, but a cubic like <span class="m">x³ + 2x − 5 = 0</span> has no GCSE method. We can still see on a graph that it has a root (a solution) somewhere between 1 and 2. Drag the plum point along the x-axis: the value of f(x) is <span class="pos">positive</span> on one side of the root and <span class="neg">negative</span> on the other.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><select id="eqS"><option value="0">x³ + 2x − 5 = 0</option><option value="1">x³ − 4x + 1 = 0</option><option value="2">x² − 5x + 3 = 0</option></select></label>
+  </div>
+  <svg id="g1Svg" class="drag" viewBox="0 0 400 360" width="400" height="360" aria-label="Graph of f"></svg>
+  <div class="work" id="g1Work"></div>
+</div>
+
+<h2>2 · A change of sign shows there's a root <span class="tag g">Higher</span></h2>
+<p>If f(a) and f(b) have <strong>opposite signs</strong>, the graph must cross the x-axis somewhere between a and b (as long as the graph is a continuous, unbroken curve). That proves there is a root in the interval. Repeating this with smaller and smaller steps (a <strong>decimal search</strong>) pins the root down one decimal place at a time.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><select id="dsE"><option value="0">x³ + 2x − 5 = 0, between 1 and 2</option><option value="1">x³ − 4x + 1 = 0, between 1 and 2</option><option value="2">x² − 5x + 3 = 0, between 4 and 5</option></select></label>
+    <button class="btn primary" id="dsNext">Next step</button><button class="btn" id="dsAll">Show all</button><button class="btn" id="dsReset">Reset</button>
+  </div>
+  <div class="work" id="dsWork"></div>
+  <svg id="dsSvg" viewBox="0 0 400 120" width="400" height="120" aria-label="Narrowing interval"></svg>
+</div>
+
+<div class="callout">
+  <p><strong>Two warnings.</strong> (1) The curve must be unbroken: y = 1/x changes sign between −1 and 1 but never crosses the axis (it jumps at x = 0). (2) No change of sign doesn't mean no root: if the curve dips below the axis and comes back up between a and b, f(a) and f(b) have the same sign but there are two roots in between.</p>
+  <p><strong>Exam phrasing:</strong> "f(1) = −2 &lt; 0 and f(2) = 7 &gt; 0. There is a change of sign, so there is a root between 1 and 2." State both values, their signs, and the conclusion.</p>
+</div>
+
+<h2>3 · Rearranging f(x) = 0 into x = g(x) <span class="tag g">Higher</span></h2>
+<p>To iterate, first rearrange the equation so that x is on its own on one side: <span class="m">x = g(x)</span>. There are usually several ways to do this, and they all describe the same root: it's where the line <span class="ct">y = x</span> meets the curve <span class="ca">y = g(x)</span>. Step through each rearrangement.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>rearrangement <select id="raE"></select></label>
+    <button class="btn primary" id="raNext">Next step</button><button class="btn" id="raAll">Show all</button><button class="btn" id="raReset">Reset</button>
+  </div>
+  <div class="twin" style="margin-top:.6rem">
+    <div class="work" id="raWork" style="margin-top:0"></div>
+    <svg id="raSvg" viewBox="0 0 400 400" width="400" height="400" aria-label="y = x and y = g(x)"></svg>
+  </div>
+</div>
+
+<h2>4 · The iterative formula, calculator-style <span class="tag g">Higher</span></h2>
+<p>Turn x = g(x) into an <strong>iterative formula</strong> <span class="m">xₙ₊₁ = g(xₙ)</span>: "the next value is g of this value". Start with a value x₀ near the root, put it in, get x₁, put that in, get x₂, and so on. On a calculator: type x₀ and press <strong>=</strong>; then type the formula using the <strong>ANS</strong> key for x and keep pressing <strong>=</strong>. Each press is one iteration.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>x<sub>n+1</sub> = <select id="ctE"></select></label>
+    <label>x₀ = <input type="number" id="ctX" value="1" step="0.1" style="width:5em"></label>
+  </div>
+  <div class="calc"><div class="key" id="ctKey"></div><div class="disp" id="ctDisp"></div></div>
+  <div class="controls"><button class="btn primary" id="ctEq">=</button><button class="btn" id="ctTen">press = 10 times</button><button class="btn" id="ctReset">AC (reset)</button></div>
+  <div class="tbl"><table class="vt sm" id="ctTab"></table></div>
+  <div class="msg" id="ctMsg"></div>
+</div>
+
+<h2>5 · Seeing it: staircases and cobwebs <span class="tag g">Higher</span></h2>
+<p>Draw y = x and y = g(x). From x₀ go up to the curve (that height is g(x₀) = x₁), across to the line y = x (so the height becomes the new x), up or down to the curve again, and repeat. If the path closes in on the crossing point, the iteration <strong>converges</strong>. It makes a <strong>staircase</strong> when g slopes the same way as y = x, and a <strong>cobweb</strong> spiral when g slopes the other way. If g is steeper than y = x near the root (gradient bigger than 1 or less than −1), the path spirals or steps <em>away</em>: the iteration <strong>diverges</strong>.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>x<sub>n+1</sub> = <select id="cwE"></select></label>
+    <label>x₀ = <input type="range" id="cwX" min="0" max="5" step="0.1" value="1"><span id="cwXv" style="font-family:var(--mono)"></span></label>
+    <label>steps <input type="range" id="cwN" min="0" max="12" step="1" value="6"><span id="cwNv" style="font-family:var(--mono)"></span></label>
+    <button class="btn primary" id="cwPlay">Animate</button>
+  </div>
+  <svg id="cwSvg" viewBox="0 0 400 400" width="400" height="400" aria-label="Cobweb or staircase diagram"></svg>
+  <div class="msg" id="cwMsg"></div>
+</div>
+
+<h2>6 · Giving the root to a required accuracy <span class="tag g">Higher</span></h2>
+<p>Keep iterating until the values stop changing at the accuracy you need: when two consecutive iterates round to the same value, that's your answer. For full marks, <strong>prove</strong> it with a change of sign at the bounds: to show the root is 1.33 to 2 d.p., show f(1.325) and f(1.335) have opposite signs, so the root lies between them and rounds to 1.33.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>x<sub>n+1</sub> = <select id="acE"></select></label>
+    <label>accuracy <select id="acD"><option value="1">1 d.p.</option><option value="2" selected>2 d.p.</option><option value="3">3 d.p.</option></select></label>
+  </div>
+  <div class="work" id="acWork"></div>
+</div>
+
+<div class="lab">
+  <p class="pq" id="prQ"></p>
+  <div class="controls">
+    <label>answer <input type="text" id="prA" inputmode="decimal" autocomplete="off" style="width:7em"></label>
+    <button class="btn primary" id="prGo">Check</button><button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="msg" id="prScore"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Show that x³ + 2x − 5 = 0 has a root between x = 1 and x = 2 <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Let</strong> f(x) = x³ + 2x − 5.</div>
+  <div class="step"><strong>f(1)</strong> = 1 + 2 − 5 = −2 &lt; 0. <strong>f(2)</strong> = 8 + 4 − 5 = 7 &gt; 0.</div>
+  <div class="step"><strong>Conclude:</strong> there is a change of sign (and f is continuous), so there is a root between 1 and 2.</div>
+</details>
+<details>
+  <summary>Show that x³ + 2x − 5 = 0 can be rearranged to give x = ∛(5 − 2x) <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Subtract 2x and add 5:</strong> x³ = 5 − 2x.</div>
+  <div class="step"><strong>Cube root both sides:</strong> x = ∛(5 − 2x), as required.</div>
+</details>
+<details>
+  <summary>Using xₙ₊₁ = ∛(5 − 2xₙ) with x₀ = 1, find x₁, x₂ and x₃ to 4 d.p. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>x₁</strong> = ∛(5 − 2 × 1) = ∛3 = 1.44224… = <strong>1.4422</strong></div>
+  <div class="step"><strong>x₂</strong> = ∛(5 − 2 × 1.44224…) = ∛2.11549… = 1.28372… = <strong>1.2837</strong></div>
+  <div class="step"><strong>x₃</strong> = ∛(5 − 2 × 1.28372…) = ∛2.43255… = 1.34489… = <strong>1.3449</strong></div>
+  <div class="step"><strong>Tip:</strong> use ANS so the calculator keeps every digit. Typing in the rounded 1.4422 can change later digits.</div>
+</details>
+<details>
+  <summary>Find the root of x³ + 2x − 5 = 0 to 2 d.p., and prove it <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Keep iterating:</strong> x₄ = 1.3220, x₅ = 1.3306, x₆ = 1.3274, x₇ = 1.3286, … The values settle at 1.328…, which rounds to <strong>1.33</strong>.</div>
+  <div class="step"><strong>Bounds:</strong> 1.33 to 2 d.p. means the root is between 1.325 and 1.335.</div>
+  <div class="step"><strong>Change of sign:</strong> f(1.325) = −0.0238 &lt; 0 and f(1.335) = 0.0493 &gt; 0. So the root lies in that interval and is <strong>1.33 (2 d.p.)</strong> ✓</div>
+</details>
+<details>
+  <summary>What happens with xₙ₊₁ = (5 − xₙ³)/2 and x₀ = 1? <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Iterate:</strong> x₁ = 2, x₂ = −1.5, x₃ = 4.1875, x₄ = −34.21…</div>
+  <div class="step"><strong>It diverges:</strong> the values get further from the root each time. Near x = 1.33 this g is much steeper than y = x, so each step overshoots by more. Use a different rearrangement.</div>
+</details>
+<details>
+  <summary>Solve x² − 5x + 3 = 0 by iterating xₙ₊₁ = 5 − 3/xₙ from x₀ = 4, and check with the formula <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Iterate:</strong> 4 → 4.25 → 4.2941… → 4.3014… → 4.3025… → 4.3027… → 4.30277…</div>
+  <div class="step"><strong>To 3 d.p.:</strong> x = 4.303.</div>
+  <div class="step"><strong>Formula check:</strong> x = (5 + √13)/2 = 4.30277… ✓ (Iteration finds only one root at a time: the other root, 0.697, needs a different rearrangement.)</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>If f(a) and f(b) have opposite signs and the graph is unbroken, there is a root between a and b. Quote both values and their signs.</li>
+  <li>Rearrange f(x) = 0 into x = g(x); the root is where y = x meets y = g(x). There are usually several possible rearrangements.</li>
+  <li>The iterative formula xₙ₊₁ = g(xₙ) is repeated from a starting value x₀. Use the calculator's ANS key so no accuracy is lost.</li>
+  <li>The iteration converges (staircase or cobweb closing in) when g is less steep than y = x near the root; otherwise it diverges and you need another rearrangement.</li>
+  <li>Stop when consecutive iterates agree to the required accuracy, then prove it with a change of sign at the bounds (e.g. 1.325 and 1.335 for 1.33).</li>
+</ul>
+
+<footer>Made for GCSE students. Finding approximate solutions to equations using iteration is in the DfE GCSE mathematics subject content under Algebra, at Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">Subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => { if(!isFinite(v)) return '—'; let r=parseFloat((+v).toFixed(d)); if(Object.is(r,-0)) r=0; return minus(String(r)); };
+const fix = (v,d) => { if(!isFinite(v)) return '—'; let s=(+v).toFixed(d); if(/^-0(\.0*)?$/.test(s)) s=s.slice(1); return minus(s); };
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(v===0) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); return fix(r,Math.max(0,n-1-e)); };
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v=parseFloat(String(el.value).replace(/−/g,'-').replace(/\s/g,'')); return isFinite(v)?v:NaN; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a; };
+const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const sup = n => String(n).split('').map(c=>{const i='0123456789'.indexOf(c);return i>=0?'⁰¹²³⁴⁵⁶⁷⁸⁹'[i]:(c==='-'?'⁻':c);}).join('');
+/* polynomial from coefficients, highest power first: polyStr([1,-5,6]) = "x² − 5x + 6" */
+const polyStr = (cs,v='x') => { const n=cs.length-1; let s=''; cs.forEach((c,i)=>{ const p=n-i; if(Math.abs(c)<1e-12) return; const a=Math.abs(c); const body=p===0?fmt(a,4):((Math.abs(a-1)<1e-12?'':fmt(a,4))+v+(p>1?sup(p):'')); s+= s===''?(c<0?'−':'')+body:(c<0?' − ':' + ')+body; }); return s||'0'; };
+const xpm = (k,v='x') => Math.abs(k)<1e-12 ? v : `${v} ${k<0?'−':'+'} ${fmt(Math.abs(k),4)}`;
+const br = v => v<0 ? `(${fmt(v,4)})` : fmt(v,4);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const DRAW = [];
+const reg = f => { DRAW.push(f); f(); };
+function Plot(o){
+  const P=Object.assign({W:400,H:400,pad:26,gx:1,gy:1,lx:2,ly:2,xl:'x',yl:'y',xf:null,yf:null},o);
+  const W=P.W,H=P.H,pad=P.pad;
+  P.sx=x=>pad+(x-P.x0)/(P.x1-P.x0)*(W-2*pad);
+  P.sy=y=>H-pad-(y-P.y0)/(P.y1-P.y0)*(H-2*pad);
+  P.ix=px=>P.x0+(px-pad)/(W-2*pad)*(P.x1-P.x0);
+  P.iy=py=>P.y0+(H-pad-py)/(H-2*pad)*(P.y1-P.y0);
+  P.world=(svg,ev)=>{const r=svg.getBoundingClientRect();return [P.ix((ev.clientX-r.left)/r.width*W),P.iy((ev.clientY-r.top)/r.height*H)];};
+  const ticks=(a,b,st)=>{const out=[];for(let k=Math.ceil(a/st-1e-9);k*st<=b+1e-9;k++)out.push(Math.round(k*st*1e6)/1e6);return out;};
+  P.grid=()=>{const g=css('--grid'),mu=css('--muted'),f=F();let s='';
+    ticks(P.x0,P.x1,P.gx).forEach(x=>s+=`<line x1="${P.sx(x)}" y1="${P.sy(P.y0)}" x2="${P.sx(x)}" y2="${P.sy(P.y1)}" stroke="${g}"/>`);
+    ticks(P.y0,P.y1,P.gy).forEach(y=>s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(y)}" x2="${P.sx(P.x1)}" y2="${P.sy(y)}" stroke="${g}"/>`);
+    const ay=(P.y0<=0&&P.y1>=0)?0:P.y0, ax=(P.x0<=0&&P.x1>=0)?0:P.x0;
+    s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(ay)}" x2="${P.sx(P.x1)}" y2="${P.sy(ay)}" stroke="${mu}" stroke-width="1.5"/><line x1="${P.sx(ax)}" y1="${P.sy(P.y0)}" x2="${P.sx(ax)}" y2="${P.sy(P.y1)}" stroke="${mu}" stroke-width="1.5"/>`;
+    ticks(P.x0,P.x1,P.lx).forEach(x=>{if(Math.abs(x-ax)<1e-9&&ax===0)return;s+=`<text x="${P.sx(x)}" y="${P.sy(ay)+13}" text-anchor="middle" font-size="10" fill="${mu}" ${f}>${P.xf?P.xf(x):fmt(x)}</text>`;});
+    ticks(P.y0,P.y1,P.ly).forEach(y=>{if(Math.abs(y-ay)<1e-9&&ay===0)return;s+=`<text x="${P.sx(ax)-5}" y="${P.sy(y)+3}" text-anchor="end" font-size="10" fill="${mu}" ${f}>${P.yf?P.yf(y):fmt(y)}</text>`;});
+    if(ax===0&&ay===0)s+=`<text x="${P.sx(0)-5}" y="${P.sy(0)+13}" text-anchor="end" font-size="10" fill="${mu}" ${f}>0</text>`;
+    s+=`<text x="${P.sx(P.x1)-3}" y="${P.sy(ay)-5}" text-anchor="end" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.xl}</text><text x="${P.sx(ax)+6}" y="${P.sy(P.y1)+10}" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.yl}</text>`;
+    return s;};
+  P.clip=(svg,inner,over='')=>{svg.innerHTML=`<defs><clipPath id="cp${svg.id}"><rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${H-2*pad}"/></clipPath></defs>`+P.grid()+`<g clip-path="url(#cp${svg.id})">${inner}</g>`+over;};
+  P.path=(f,col,w=2.5,dash,a=P.x0,b=P.x1,n=400)=>{let d='',pen=false,prev=null;const span=P.y1-P.y0,mid=(P.y0+P.y1)/2;
+    for(let i=0;i<=n;i++){const x=a+(b-a)*i/n,y=f(x);
+      if(!isFinite(y)||Math.abs(y-mid)>span*3){pen=false;prev=null;continue;}
+      if(pen&&prev!==null&&Math.abs(y-prev)>span*1.5)pen=false;
+      d+=(pen?'L':'M')+P.sx(x).toFixed(1)+','+P.sy(y).toFixed(1);pen=true;prev=y;}
+    return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linejoin="round" stroke-linecap="round"/>`;};
+  P.seg=(x1,y1,x2,y2,col,w=2,dash)=>`<line x1="${P.sx(x1)}" y1="${P.sy(y1)}" x2="${P.sx(x2)}" y2="${P.sy(y2)}" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linecap="round"/>`;
+  P.dot=(x,y,col,r=5,label,dx=8,dy=-8,anchor='start')=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${col}"/>`+(label?`<text x="${P.sx(x)+dx}" y="${P.sy(y)+dy}" font-size="12" font-weight="600" fill="${col}" text-anchor="${anchor}" ${F()}>${label}</text>`:'');
+  P.ring=(x,y,col,r=5)=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${css('--panel')}" stroke="${col}" stroke-width="2.5"/>`;
+  P.text=(x,y,t,col,anchor='start',size=12,weight=600)=>`<text x="${P.sx(x)}" y="${P.sy(y)}" font-size="${size}" font-weight="${weight}" fill="${col}" text-anchor="${anchor}" ${F()}>${t}</text>`;
+  return P;
+}
+/* drag helper: calls onMove(ev) while a pointer is down on svg (or on an element with data-h) */
+function dragOn(svg,onMove,onDown){let on=false;
+  svg.addEventListener('pointerdown',e=>{if(onDown&&onDown(e)===false)return;on=true;try{svg.setPointerCapture(e.pointerId);}catch(_){}onMove(e);e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(on)onMove(e);});
+  const end=()=>{on=false;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);}
+/* step-through: lines is an array of html strings */
+function stepper(boxId,nextId,allId,resetId,onShow){const box=$(boxId);let lines=[],k=0;
+  const show=()=>{box.innerHTML=lines.map((l,i)=>`<span class="s"${i<k?'':' hidden'}>${l}</span>`).join('')+(k<lines.length?`<span class="s note">${k===0?'Press “Next step” to begin.':'…'}</span>`:'');if(nextId)$(nextId).disabled=k>=lines.length;if(onShow)onShow(k);};
+  if(nextId)$(nextId).addEventListener('click',()=>{if(k<lines.length)k++;show();});
+  if(allId)$(allId).addEventListener('click',()=>{k=lines.length;show();});
+  if(resetId)$(resetId).addEventListener('click',()=>{k=0;show();});
+  return {set(ls,start=0){lines=ls;k=start;show();},get k(){return k;}};}
+
+const EQ=[
+ {s:'x³ + 2x − 5',f:x=>x**3+2*x-5,P:{x0:-1,x1:3,y0:-8,y1:12,gx:0.5,gy:2,lx:1,ly:4},roots:[1.3282688556686084],dsI:[1,2]},
+ {s:'x³ − 4x + 1',f:x=>x**3-4*x+1,P:{x0:-3,x1:3,y0:-6,y1:8,gx:0.5,gy:1,lx:1,ly:2},roots:[-2.114907541476756,0.25410168836505237,1.860805853111703],dsI:[1,2]},
+ {s:'x² − 5x + 3',f:x=>x*x-5*x+3,P:{x0:-1,x1:6,y0:-4,y1:8,gx:0.5,gy:1,lx:1,ly:2},roots:[0.6972243622680054,4.302775637731995],dsI:[4,5]}
+];
+const RA=[
+ {e:0,s:'∛(5 − 2xₙ)',key:'∛(5 − 2 ANS)',g:x=>Math.cbrt(5-2*x),x0:1,R:[0,2.5],L:['x³ + 2x − 5 = 0','x³ = 5 − 2x','x = ∛(5 − 2x)']},
+ {e:0,s:'5/(xₙ² + 2)',key:'5 ÷ (ANS² + 2)',g:x=>5/(x*x+2),x0:1,R:[0,2.5],L:['x³ + 2x − 5 = 0','x³ + 2x = 5','factorise: x(x² + 2) = 5','x = 5/(x² + 2)']},
+ {e:0,s:'(5 − xₙ³)/2',key:'(5 − ANS³) ÷ 2',g:x=>(5-x**3)/2,x0:1,R:[-2,5],L:['x³ + 2x − 5 = 0','2x = 5 − x³','x = (5 − x³)/2']},
+ {e:1,s:'(xₙ³ + 1)/4',key:'(ANS³ + 1) ÷ 4',g:x=>(x**3+1)/4,x0:0,R:[-0.5,2.5],L:['x³ − 4x + 1 = 0','4x = x³ + 1','x = (x³ + 1)/4']},
+ {e:1,s:'∛(4xₙ − 1)',key:'∛(4 ANS − 1)',g:x=>Math.cbrt(4*x-1),x0:2,R:[-0.5,2.5],L:['x³ − 4x + 1 = 0','x³ = 4x − 1','x = ∛(4x − 1)']},
+ {e:2,s:'5 − 3/xₙ',key:'5 − 3 ÷ ANS',g:x=>5-3/x,x0:4,R:[0,5.5],L:['x² − 5x + 3 = 0','x² = 5x − 3','divide every term by x: x = 5 − 3/x']},
+ {e:2,s:'(xₙ² + 3)/5',key:'(ANS² + 3) ÷ 5',g:x=>(x*x+3)/5,x0:0,R:[0,5.5],L:['x² − 5x + 3 = 0','5x = x² + 3','x = (x² + 3)/5']}
+];
+['raE','ctE','cwE','acE'].forEach(id=>{ $(id).innerHTML=RA.map((r,i)=>`<option value="${i}">${id==='raE'?'x = '+r.s.replace(/ₙ/g,''):r.s}</option>`).join(''); });
+$('acE').value=0; $('cwE').value=0;
+const sgnSpan=v=>v>0?`<span class="pos">${fmt(v,4)} &gt; 0</span>`:v<0?`<span class="neg">${fmt(v,4)} &lt; 0</span>`:'0';
+const iter=(g,x0,n)=>{ const a=[x0]; for(let i=0;i<n;i++){ const v=g(a[a.length-1]); a.push(v); if(!isFinite(v)||Math.abs(v)>1e6) break; } return a; };
+
+/* 1. graph with sign point */
+let g1x=1;
+function drawG1(){ const E=EQ[+$('eqS').value], P=Plot(Object.assign({H:360},E.P)), ac=css('--accent'),tw=css('--two'),good=css('--good'),bad=css('--bad');
+  const y=E.f(g1x); let s=P.path(E.f,ac,3)+P.seg(g1x,0,g1x,y,y>=0?good:bad,3);
+  s+=`<circle data-h="1" cx="${P.sx(g1x)}" cy="${P.sy(0)}" r="9" fill="${tw}" stroke="${css('--panel')}" stroke-width="2"/>`;
+  P.clip($('g1Svg'),s);
+  $('g1Work').innerHTML=`f(x) = ${E.s}<br>f(${fmt(g1x,2)}) = ${sgnSpan(E.f(g1x))}<br><span class="note">${E.roots.length>1?`this equation has ${E.roots.length} roots in view`:'one root, somewhere the sign flips'}</span>`; }
+$('eqS').addEventListener('change',()=>{const E=EQ[+$('eqS').value];g1x=(E.P.x0+E.P.x1)/2;drawG1();});
+dragOn($('g1Svg'),e=>{const E=EQ[+$('eqS').value], P=Plot(Object.assign({H:360},E.P)); const [x]=P.world($('g1Svg'),e); g1x=Math.max(E.P.x0,Math.min(E.P.x1,Math.round(x*20)/20)); drawG1();});
+reg(drawG1);
+
+/* 2. decimal search */
+let DS=null;
+function dsBuild(i){ const E=EQ[i]; let [a,b]=E.dsI; const L=[], ints=[[a,b]];
+  L.push(`f(${a}) = ${sgnSpan(E.f(a))}, f(${b}) = ${sgnSpan(E.f(b))}: <strong>change of sign, so a root lies between ${a} and ${b}</strong>`);
+  for(let lev=1;lev<=3;lev++){ const h=Math.pow(10,-lev); let found=null; const row=[];
+    for(let k=0;k<=10;k++){ const x=+(a+k*h).toFixed(lev); const v=E.f(x); row.push([x,v]); }
+    for(let k=0;k<10;k++){ if(Math.sign(row[k][1])!==Math.sign(row[k+1][1])){ found=[row[k][0],row[k+1][0]]; break; } }
+    const show=row.filter((r,k)=>k===0||k===10||(found&&(r[0]===found[0]||r[0]===found[1])));
+    L.push(`Try steps of ${h}: `+row.slice(0,11).map(([x,v])=>`f(${fix(x,lev)}) ${v>0?'<span class="pos">+</span>':'<span class="neg">−</span>'}`).join(', ')+`<br>sign changes between <strong>${fix(found[0],lev)} and ${fix(found[1],lev)}</strong>`);
+    a=found[0]; b=found[1]; ints.push([a,b]); }
+  L.push(`<span class="c">So the root is between ${fix(a,3)} and ${fix(b,3)}: x = ${fix((a+b)/2,2)} to 2 d.p. (both ends round to it)</span>`);
+  return {L,ints}; }
+function drawDSbar(k){ if(!DS) return; const ac=css('--accent'),hi=css('--hi'),mu=css('--muted'),tw=css('--two'); const [A,B]=DS.ints[0]; let s='';
+  const X=v=>20+(v-A)/(B-A)*360; s+=`<line x1="20" y1="20" x2="380" y2="20" stroke="${mu}"/>`+[A,B].map(v=>`<text x="${X(v)}" y="14" text-anchor="middle" font-size="11" fill="${mu}" ${F()}>${v}</text>`).join('');
+  DS.ints.slice(0,Math.max(1,Math.min(k,DS.ints.length))).forEach(([a,b],i)=>{ const y=30+i*22; s+=`<rect x="${X(a)}" y="${y}" width="${Math.max(2,X(b)-X(a))}" height="12" fill="${hi}" fill-opacity=".5"/><text x="${Math.min(X(b)+6,300)}" y="${y+10}" font-size="11" fill="${hi}" ${F()}>[${fmt(a,3)}, ${fmt(b,3)}]</text>`; });
+  $('dsSvg').innerHTML=s; }
+const dsStep=stepper('dsWork','dsNext','dsAll','dsReset',k=>drawDSbar(k));
+const dsLoad=()=>{ DS=dsBuild(+$('dsE').value); dsStep.set(DS.L,1); }; $('dsE').addEventListener('change',dsLoad); DRAW.push(()=>drawDSbar(dsStep.k)); dsLoad();
+
+/* 3. rearrangements */
+function drawRA(k){ const R=RA[+$('raE').value], E=EQ[R.e], [lo,hi]=R.R, P=Plot({x0:lo,x1:hi,y0:lo,y1:hi,gx:0.5,gy:0.5,lx:1,ly:1}), ac=css('--accent'),tw=css('--two');
+  let s=P.path(x=>x,tw,2)+(k>=R.L.length?P.path(R.g,ac,3):''); if(k>=R.L.length) E.roots.forEach(r=>{ if(Math.abs(R.g(r)-r)<1e-6&&r>lo&&r<hi) s+=P.dot(r,r,tw,6,`x ≈ ${fmt(r,3)}`); });
+  P.clip($('raSvg'),s,P.text(hi-0.1,hi-0.35,'y = x',tw,'end',11,400)); }
+const raStep=stepper('raWork','raNext','raAll','raReset',k=>drawRA(k));
+const raLoad=()=>{ const R=RA[+$('raE').value]; raStep.set(R.L.map((l,i)=>i===R.L.length-1?`<strong>${l}</strong>`:l),1); }; $('raE').addEventListener('change',raLoad); DRAW.push(()=>drawRA(raStep.k)); raLoad();
+
+/* 4. calculator */
+let CT={xs:[]};
+function ctReset(){ const R=RA[+$('ctE').value]; let x0=num($('ctX')); if(!isFinite(x0)){x0=R.x0;} CT={xs:[x0]}; drawCT(); }
+function drawCT(){ const R=RA[+$('ctE').value], xs=CT.xs, n=xs.length-1;
+  $('ctKey').textContent=n===0?`type ${fmt(xs[0],6)}, press =, then type ${R.key}`:`${R.key}  =`;
+  $('ctDisp').textContent=isFinite(xs[n])?minus(xs[n].toPrecision(10).replace(/\.?0+$/,'')):'Math ERROR';
+  const rows=xs.map((x,i)=>`<tr><td>x${'₀₁₂₃₄₅₆₇₈₉'[i]||sub(i)}</td><td>${isFinite(x)?fix(x,6):'—'}</td><td>${isFinite(x)?fix(x,4):'—'}</td></tr>`).slice(-12).join('');
+  $('ctTab').innerHTML=`<tr><th>n</th><th>xₙ (6 d.p.)</th><th>xₙ (4 d.p.)</th></tr>`+rows;
+  const M=$('ctMsg'); if(n>=2){ const d=Math.abs(xs[n]-xs[n-1]), d0=Math.abs(xs[n-1]-xs[n-2]); M.className='msg';
+    M.textContent=!isFinite(xs[n])||Math.abs(xs[n])>1e4?'The values are running away: this iteration diverges.':d<5e-7?`Settled: x ≈ ${fix(xs[n],6)}.`:d<d0?`Getting closer: the change this time was ${fmt(d,6)}.`:`The change grew (${fmt(d,4)}): this may be diverging.`; } else M.textContent=''; }
+const sub=i=>String(i).split('').map(c=>'₀₁₂₃₄₅₆₇₈₉'[+c]).join('');
+$('ctEq').addEventListener('click',()=>{ const R=RA[+$('ctE').value]; const x=CT.xs[CT.xs.length-1]; if(CT.xs.length>40||!isFinite(x)) return; CT.xs.push(R.g(x)); drawCT(); });
+$('ctTen').addEventListener('click',()=>{ const R=RA[+$('ctE').value]; for(let i=0;i<10;i++){ const x=CT.xs[CT.xs.length-1]; if(!isFinite(x)||Math.abs(x)>1e6) break; CT.xs.push(R.g(x)); } drawCT(); });
+$('ctReset').addEventListener('click',ctReset); $('ctX').addEventListener('input',ctReset);
+$('ctE').addEventListener('change',()=>{ $('ctX').value=RA[+$('ctE').value].x0; ctReset(); });
+ctReset();
+
+/* 5. cobweb */
+let cwAnim=null;
+function drawCW(){ const R=RA[+$('cwE').value], [lo,hi]=R.R, x0=+$('cwX').value, n=+$('cwN').value; $('cwXv').textContent=' '+fmt(x0,1); $('cwNv').textContent=' '+n;
+  const P=Plot({x0:lo,x1:hi,y0:lo,y1:hi,gx:0.5,gy:0.5,lx:1,ly:1}), ac=css('--accent'),hiC=css('--hi'),tw=css('--two');
+  let s=P.path(x=>x,tw,2)+P.path(R.g,ac,3); const xs=iter(R.g,x0,n); let d=`M${P.sx(xs[0])},${P.sy(Math.max(lo,Math.min(hi,0)))}`;
+  for(let i=0;i<xs.length-1;i++){ const x=xs[i], y=xs[i+1]; if(!isFinite(y)) break; d+=` L${P.sx(x)},${P.sy(y)} L${P.sx(y)},${P.sy(y)}`; }
+  s+=`<path d="${d}" fill="none" stroke="${hiC}" stroke-width="2"/>`+P.dot(xs[0],Math.max(lo,Math.min(hi,0)),hiC,5,'x₀',6,14);
+  const E=EQ[R.e]; E.roots.forEach(r=>{ if(Math.abs(R.g(r)-r)<1e-6&&r>lo&&r<hi) s+=P.ring(r,r,tw,6); });
+  P.clip($('cwSvg'),s);
+  const last=xs[xs.length-1], prev=xs[xs.length-2]; const M=$('cwMsg'); M.className='msg';
+  if(n===0){M.textContent='Increase the steps to start iterating.';return;}
+  const div=!isFinite(last)||last<lo-1||last>hi+1||(xs.length>3&&Math.abs(last-prev)>Math.abs(xs[1]-xs[0])*1.05);
+  const slope=(R.g(last+1e-5)-R.g(last-1e-5))/2e-5;
+  const fp=E.roots.filter(r=>Math.abs(R.g(r)-r)<1e-6).sort((p,q)=>Math.abs(p-last)-Math.abs(q-last))[0];
+  M.textContent=div?`Diverging: the path moves away from the crossing point. Here g is steeper than y = x near the root.`:`Converging${fp!==undefined&&Math.abs(last-fp)>0.01?' (slowly)':''} towards the root x ≈ ${fp!==undefined?fix(fp,3):fix(last,4)}; x${sub(xs.length-1)} = ${fix(last,4)}. Shape: ${slope<0?'a cobweb (g slopes down, so the iterates jump from one side of the root to the other)':'a staircase (g slopes up, so the iterates approach from one side)'}.`; }
+['cwX','cwN'].forEach(i=>$(i).addEventListener('input',()=>{if(cwAnim){clearInterval(cwAnim);cwAnim=null;}drawCW();}));
+$('cwE').addEventListener('change',()=>{ const R=RA[+$('cwE').value]; $('cwX').min=R.R[0]; $('cwX').max=R.R[1]; $('cwX').value=R.x0; drawCW(); });
+$('cwPlay').addEventListener('click',()=>{ if(cwAnim) clearInterval(cwAnim); if(reduceMotion){$('cwN').value=12;drawCW();return;} $('cwN').value=0; drawCW(); cwAnim=setInterval(()=>{ const v=+$('cwN').value+1; $('cwN').value=v; drawCW(); if(v>=12){clearInterval(cwAnim);cwAnim=null;} },450); });
+reg(drawCW);
+
+/* 6. accuracy */
+function drawAC(){ const R=RA[+$('acE').value], d=+$('acD').value, E=EQ[R.e], xs=iter(R.g,R.x0,60); let h=`x₀ = ${fmt(R.x0)}; x<sub>n+1</sub> = ${R.s}<br>`;
+  let stop=-1; for(let i=1;i<Math.min(xs.length,16);i++){ if(!isFinite(xs[i])||Math.abs(xs[i])>1e4) break; if(fix(xs[i],d)===fix(xs[i-1],d)&&i>1){ stop=i; break; } }
+  if(stop<0){ $('acWork').innerHTML=h+`<span class="x">This rearrangement doesn't settle (it ${Math.abs(xs[Math.min(5,xs.length-1)])>100?'diverges':'converges too slowly or not at all'}). Pick another.</span>`; return; }
+  h+=xs.slice(1,stop+1).map((x,i)=>`x${sub(i+1)} = ${fix(x,d+3)}…${i+1>=stop-1?` → ${fix(x,d)}`:''}`).join('<br>');
+  const r=+fix(xs[stop],d).replace('−','-'), lo=r-0.5*Math.pow(10,-d), hi=r+0.5*Math.pow(10,-d);
+  h+=`<br><span class="c">x${sub(stop-1)} and x${sub(stop)} agree to ${d} d.p.: root ≈ <strong>${fix(r,d)}</strong></span>`;
+  h+=`<br>Check bounds: f(${fix(lo,d+1)}) = ${sgnSpan(E.f(lo))}, f(${fix(hi,d+1)}) = ${sgnSpan(E.f(hi))}`;
+  h+=Math.sign(E.f(lo))!==Math.sign(E.f(hi))?`<br><strong>Change of sign, so the root is ${fix(r,d)} to ${d} d.p. ✓</strong>`:`<br><span class="x">No change of sign: iterate further before rounding.</span>`;
+  $('acWork').innerHTML=h; }
+['acE','acD'].forEach(i=>$(i).addEventListener('input',drawAC)); reg(drawAC);
+
+/* 6b. practice */
+let PQ=null,pqDone=false,pqR=0,pqT=0;
+function prNew(){ const ok=[0,1,3,4,5,6], i=pick(ok), R=RA[i], k=rnd(1,3), x0=R.x0+(Math.random()<.5?0:pick([0.5,-0.5,1]))*(R.e===0?0.5:1); const xs=iter(R.g,x0,k+1); if(!xs.slice(0,k+2).every(isFinite)) return prNew();
+  PQ={R,k,x0,xs}; pqDone=false; $('prQ').innerHTML=`Using <span class="m">x<sub>n+1</sub> = ${R.s}</span> with x₀ = ${fmt(x0)}, find x${sub(k)} to 4 d.p.`; $('prA').value=''; $('prMsg').className='msg'; $('prMsg').textContent=''; }
+$('prGo').addEventListener('click',()=>{ const u=num($('prA')),M=$('prMsg'),{k,xs}=PQ; if(isNaN(u)){M.className='msg bad';M.textContent='Type a decimal.';return;}
+  const want=+xs[k].toFixed(4), ok=Math.abs(u-want)<1e-9; let m;
+  if(ok) m=`Correct: x${sub(k)} = ${fix(xs[k],4)} (${fix(xs[k],6)}…).`;
+  else if(k+1<xs.length&&Math.abs(u-+xs[k+1].toFixed(4))<1e-9) m=`That's x${sub(k+1)}: one step too many. x₀ is the start, so x₁ comes from the first press of =.`;
+  else if(k>1&&Math.abs(u-+xs[k-1].toFixed(4))<1e-9) m=`That's x${sub(k-1)}: one more step needed.`;
+  else if(Math.abs(u-xs[k])<0.0006) m=`Very close: round to 4 d.p. carefully: ${fix(xs[k],6)}… → ${fix(xs[k],4)}. (Did you type in rounded values instead of using ANS?)`;
+  else m=`Not quite. Type x₀, press =, then enter the formula with ANS and press = ${k} time${k>1?'s':''}.`;
+  if(!pqDone){pqT++;if(ok)pqR++;} pqDone=true; M.className='msg '+(ok?'good':'bad'); M.textContent=ok?m:'Not quite. '+m.replace(/^Not quite\. /,''); $('prScore').textContent=`Score: ${pqR} right first time out of ${pqT}.`; });
+$('prNew').addEventListener('click',prNew); prNew();
+
+const QS=[
+  {q:'f(x) = x³ − 3x − 4. f(2) = −2 and f(3) = 14. What does this show?',opts:['There is a root between 2 and 3','The root is 2.5','There is no root','There are two roots between 2 and 3'],a:0,fb:'The sign changes from negative to positive, and f is continuous, so the graph crosses the x-axis between 2 and 3.'},
+  {q:'Which is a correct rearrangement of x³ + 2x − 5 = 0?',opts:['x = ∛(5 − 2x)','x = ∛(5 + 2x)','x = (5 + x³)/2','x = 5 − 2x³'],a:0,fb:'x³ = 5 − 2x, then cube-root both sides.'},
+  {q:'xₙ₊₁ = √(xₙ + 3) and x₀ = 2. Find x₁ to 3 d.p.',opts:['2.236','2.000','2.288','5.000'],a:0,fb:'x₁ = √(2 + 3) = √5 = 2.2360… = 2.236.'},
+  {q:'With the same formula, x₂ to 3 d.p. is…',opts:['2.288','2.236','2.300','5.236'],a:0,fb:'x₂ = √(2.2360… + 3) = √5.2360… = 2.2882… = 2.288.'},
+  {q:'An iteration gives 1.4142, 1.4142, 1.4142… The root to 2 d.p. is…',opts:['1.41','1.42','1.4','1.414'],a:0,fb:'1.4142… rounds to 1.41 (2 d.p.).'},
+  {q:'To show a root is 2.37 to 2 d.p., you check for a change of sign between…',opts:['2.365 and 2.375','2.36 and 2.38','2.37 and 2.38','2.3 and 2.4'],a:0,fb:'2.37 to 2 d.p. covers 2.365 ≤ x < 2.375: the lower and upper bounds.'},
+  {q:'An iteration gives 1, 3, −23, 6089, … This iteration…',opts:['diverges','converges to 1','converges to 3','has found the root'],a:0,fb:'The values move further and further apart: it diverges. Try another rearrangement.'},
+  {q:'On a staircase or cobweb diagram, a converging iteration closes in on…',opts:['where y = x meets y = g(x)','where y = g(x) crosses the y-axis','the turning point of g','x₀'],a:0,fb:'The root of x = g(x) is the intersection of y = x and y = g(x).'},
+  {q:'Using ANS on the calculator instead of typing rounded values…',opts:['keeps full accuracy','makes it converge faster','is not allowed','changes the root'],a:0,fb:'ANS stores every digit, so rounding errors don\'t build up.'},
+  {q:'f(x) = 1/x has f(−1) = −1 and f(1) = 1. Why is there no root between −1 and 1?',opts:['The graph is broken at x = 0','The values are too small','There is a root at 0','Because f(0) = 0'],a:0,fb:'A change of sign only guarantees a root for an unbroken (continuous) graph. 1/x jumps at x = 0.'}
+];
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>DRAW.forEach(f=>f()));}
+new MutationObserver(()=>DRAW.forEach(f=>f())).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

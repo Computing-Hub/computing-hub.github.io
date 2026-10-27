@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Distributions and Correlation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one interactive SVG panel (or more) drawn from JS. Graph-paper neutrals. Colours on this page: teal = the data itself (frequency bars, dots on dot plots, points on scatter graphs) and the first group when two groups are compared; plum = the median marker, and the second group in a comparison; orange = things calculated or drawn on top of the data (the mean marker, the line of best fit, its two drag handles and the estimates read off it). Outliers are drawn hollow (outlined, not filled) so they stand out from the rest of the data. In the comparison panel each group's mean marker uses that group's colour. Green/red are only used for right/wrong feedback, including the "mistake" (red) and "fixed" (green) versions in the common-mistakes panel. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+a{color:var(--accent)}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.D{color:var(--accent);font-weight:600}.MN{color:var(--hi);font-weight:600}.MD{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none;cursor:pointer}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.btn:disabled{opacity:.5;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.readout small{display:block;font-family:var(--body);font-size:.78rem;color:var(--muted)}
+.big{font-family:var(--display);font-size:1.5rem;font-weight:600;text-align:center;margin:.6rem 0}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem}
+.info strong{font-family:var(--display);font-size:1.08rem}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.sent{font-size:1.02rem;line-height:2.3;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.6rem .9rem;margin:.9rem 0 0}
+.sent select{font-size:.92rem;padding:.15rem .3rem}
+.fbl{margin:.5rem 0 0;padding-left:1.2rem;font-size:.95rem}
+.fbl li.good{color:var(--good)}.fbl li.bad{color:var(--bad)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left;max-width:100%}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.cards{display:grid;gap:.6rem;margin-top:.8rem}
+.card{border:1px solid var(--line);border-radius:8px;padding:.6rem .8rem;background:var(--bg);min-width:0}
+.card p{margin:0 0 .5rem;font-size:.95rem}
+.card .chips{margin-top:0}
+.card.good{border-color:var(--good)}.card.bad{border-color:var(--bad)}
+.card .why{font-size:.88rem;color:var(--muted);margin:.4rem 0 0}
+.piles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:.8rem;margin-top:1rem}
+.pile{border:2px dashed var(--line);border-radius:10px;padding:.6rem .8rem;min-height:4rem;min-width:0}
+.pile h3{margin:0 0 .4rem;font-size:1rem}
+.pile ul{margin:0;padding-left:1.1rem;font-size:.9rem}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Statistics · KS3</div>
+  <h1>Distributions and Correlation</h1>
+  <p class="lede">A list of numbers is hard to read. Draw it as a chart, though, and it has a <em>shape</em>: bunched up, spread out, lopsided, with the odd strange value sitting on its own. On this page you'll learn to describe that shape in words, compare two sets of data fairly, and read scatter graphs to spot when two things are linked, including the famous trap of thinking that one thing <em>causes</em> another just because they rise together.</p>
+  <span class="gcse">National curriculum KS3: describe, interpret and compare observed distributions of a single variable through appropriate graphical representation and appropriate measures of central tendency (mean, mode, median) and spread (range, consideration of outliers); use and interpret scatter graphs of bivariate data; recognise correlation</span>
+</header>
+
+<h2>1 · The shape of a set of data</h2>
+<p>Imagine a class of students each timing how long it takes them to solve the same puzzle, to the nearest minute. You get a long list of numbers like 3, 5, 4, 2, 6, 4, … On its own the list tells you very little. So we count how many students took 1 minute, how many took 2 minutes, and so on. That count is called the <strong>frequency</strong>. (Making a frequency table is covered on the <a href="frequency-tables.html">frequency tables</a> page, and drawing the charts on the <a href="statistical-charts.html">statistical charts</a> page.)</p>
+<p>Draw the frequencies as bars and the data suddenly has a <strong>shape</strong>. The word for the whole pattern (which values happen, and how often) is the <strong>distribution</strong> of the data. When you describe a distribution, you talk about three things:</p>
+<ul>
+  <li><strong>Centre</strong>: roughly where the middle of the data is. We measure it with an <strong>average</strong>: the <span class="MN">mean</span>, the <span class="MD">median</span> or the mode. (How to calculate each one is on the <a href="averages-and-range.html">averages and range</a> page.)</li>
+  <li><strong>Spread</strong>: how spread out the values are. At KS3 we measure it with the <strong>range</strong> = biggest value − smallest value.</li>
+  <li><strong>Shape</strong>: is it <strong>symmetrical</strong> (the left half is roughly a mirror image of the right half) or <strong>skewed</strong> (lopsided: most values bunched up at one end, with a long thin "tail" stretching out to the other end)?</li>
+</ul>
+<p>Drag the tops of the bars up and down to make your own distribution, or try the ready-made shapes. Watch the <span class="MN">mean</span> (orange) and the <span class="MD">median</span> (plum) markers, and read the description underneath.</p>
+
+<div class="lab">
+  <svg id="shSvg" class="drag" viewBox="0 0 400 285" width="400" height="285" aria-label="Bar chart of puzzle times that you can drag"></svg>
+  <div class="chips" id="shPre">
+    <button class="btn" type="button" data-p="sym">symmetrical</button>
+    <button class="btn" type="button" data-p="right">bunched low, tail to the right</button>
+    <button class="btn" type="button" data-p="left">bunched high, tail to the left</button>
+    <button class="btn" type="button" data-p="flat">flat</button>
+    <button class="btn" type="button" data-p="two">two humps</button>
+  </div>
+  <div class="controls">
+    <label><input type="checkbox" id="shOut"> add one outlier: a student who took 25 minutes</label>
+  </div>
+  <div class="readout">
+    <div><b>Students</b><span id="shN"></span></div>
+    <div class="t"><b>Mean</b><span id="shMean"></span></div>
+    <div class="p"><b>Median</b><span id="shMed"></span></div>
+    <div><b>Mode</b><span id="shMode"></span></div>
+    <div><b>Range</b><span id="shRange"></span></div>
+  </div>
+  <div class="info" id="shInfo"></div>
+</div>
+
+<p>Things to notice as you play:</p>
+<ul>
+  <li>For a <strong>symmetrical</strong> distribution, the mean and the median sit together in the middle.</li>
+  <li>For a <strong>skewed</strong> distribution, the long tail <em>pulls the mean towards it</em>. The median is much less affected. If the tail stretches to the right (towards big values) we say it is <strong>skewed to the right</strong>, also called <strong>positive skew</strong>. If the tail stretches to the left, it is <strong>skewed to the left</strong> or <strong>negative skew</strong>.</li>
+  <li>The direction of the skew is the direction of the <em>tail</em>, not the direction of the big pile. That catches lots of people out.</li>
+</ul>
+
+<h2>2 · Outliers: the value that doesn't fit</h2>
+<p>An <strong>outlier</strong> is a value that is much bigger or much smaller than the rest of the data. It sits on its own, far away from everything else. An outlier might be a mistake (someone typed 60 instead of 6) or it might be real but unusual (one friend gets a lot of pocket money).</p>
+<p>Here is the weekly pocket money of nine friends. Eight values are fixed. <strong>Drag the hollow dot</strong> (or tap anywhere along the line) to change the ninth friend's amount, and watch which measures react.</p>
+
+<div class="lab">
+  <svg id="olSvg" class="drag" viewBox="0 0 400 190" width="400" height="190" aria-label="Dot plot of pocket money with one movable dot"></svg>
+  <div class="readout">
+    <div class="t"><b>Mean</b><span id="olMean"></span><small id="olMean0"></small></div>
+    <div class="p"><b>Median</b><span id="olMed"></span><small id="olMed0"></small></div>
+    <div><b>Mode</b><span id="olMode"></span><small id="olMode0"></small></div>
+    <div><b>Range</b><span id="olRange"></span><small id="olRange0"></small></div>
+  </div>
+  <div class="msg" id="olMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>What an outlier does</strong></p>
+  <ul>
+    <li>The <strong>range</strong> is affected the most, because it is worked out from the two most extreme values, and an outlier <em>is</em> an extreme value.</li>
+    <li>The <strong>mean</strong> is pulled towards the outlier, because every value is added into the total.</li>
+    <li>The <strong>median</strong> hardly moves (here it doesn't move at all), because it only cares about the value in the middle of the list.</li>
+    <li>The <strong>mode</strong> usually doesn't change.</li>
+  </ul>
+  <p>So when data has an outlier, the median is usually a fairer "typical" value than the mean. If the outlier is a mistake, you should leave it out. If it is real, keep it, but say that it is there.</p>
+</div>
+
+<h2>3 · Comparing two distributions</h2>
+<p>A very common question gives you two sets of data and says "compare them". A good comparison always has <strong>two parts</strong>:</p>
+<ol>
+  <li><strong>Compare an average</strong> (usually the mean or the median): which group is higher or lower <em>on average</em>?</li>
+  <li><strong>Compare the spread</strong> (the range): which group is more <strong>consistent</strong>? Consistent means the values are all close together, so <em>the smaller range is more consistent</em>.</li>
+</ol>
+<p>And each part must be <strong>in context</strong>: say what the numbers mean in real life ("scored higher", "were faster"), not just "the mean is bigger". Pick a pair of data sets, look at the dot plots, then build your two sentences and press <em>Check</em>.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>data <select id="cmSet">
+      <option value="tests">test scores (out of 20)</option>
+      <option value="run">100 m running times (seconds)</option>
+      <option value="temp">daily top temperatures (°C)</option>
+    </select></label>
+  </div>
+  <svg id="cmSvg" viewBox="0 0 400 230" width="400" height="230" aria-label="Two dot plots, one for each group"></svg>
+  <div class="readout" id="cmStats"></div>
+  <p class="sent">On average, <select id="cmG1"></select> <span id="cmPh1"></span>, because the <select id="cmM"><option value="">choose…</option><option value="mean">mean</option><option value="median">median</option></select> is <select id="cmD"><option value="">choose…</option><option value="higher">higher</option><option value="lower">lower</option></select>.<br>
+  <select id="cmG2"></select> <span id="cmPh2"></span>, because the range is <select id="cmR"><option value="">choose…</option><option value="smaller">smaller</option><option value="larger">larger</option></select>.</p>
+  <div class="controls"><button class="btn primary" id="cmGo" type="button">Check</button><button class="btn" id="cmShow" type="button">Show a model answer</button></div>
+  <ul class="fbl" id="cmFb"></ul>
+</div>
+
+<div class="callout">
+  <p><strong>Watch the context.</strong> In a test, a higher mean is better. In a race, a <em>lower</em> mean time is better, because it means faster. "Better on average" depends on what is being measured, so always say it in words: "Club Dash were faster on average because their mean time was lower."</p>
+</div>
+
+<h2>4 · Scatter graphs and correlation</h2>
+<p>So far each piece of data was <em>one</em> number per person. Sometimes we measure <strong>two</strong> things about each person or object, like the hours each student revised <em>and</em> their test score. Data in pairs like this is called <strong>bivariate</strong> data ("bi" means two, "variate" means something that varies).</p>
+<p>To see if the two things are linked, plot each pair as one point on a <strong>scatter graph</strong>: one measurement across, the other up. (How to plot the points is on the <a href="statistical-charts.html">statistical charts</a> page.) Then step back and look at the cloud of points. The word for a link between the two is <strong>correlation</strong>:</p>
+<ul>
+  <li><strong>Positive correlation</strong>: as one goes up, the other <em>tends</em> to go up too. The points slope uphill from left to right.</li>
+  <li><strong>Negative correlation</strong>: as one goes up, the other <em>tends</em> to go down. The points slope downhill.</li>
+  <li><strong>No correlation</strong>: no pattern; the points are scattered all over the place.</li>
+</ul>
+<p>Correlation can also be <strong>strong</strong> (points close to a straight line) or <strong>weak</strong> (there's a trend, but the points are spread widely around it). Use the buttons and the slider.</p>
+
+<div class="lab">
+  <div class="chips" id="scDir">
+    <button class="btn" type="button" data-d="1">positive</button>
+    <button class="btn" type="button" data-d="-1">negative</button>
+    <button class="btn" type="button" data-d="0">none</button>
+  </div>
+  <div class="controls">
+    <label>strength: weak <input type="range" id="scK" min="1" max="10" step="1" value="7"> strong</label>
+  </div>
+  <div class="big" id="scLab"></div>
+  <svg id="scSvg" viewBox="0 0 400 320" width="400" height="320" aria-label="Scatter graph"></svg>
+  <div class="info" id="scInfo"></div>
+</div>
+
+<h3>Try it: name that correlation</h3>
+<p>Look at the cloud of points and describe it in two words: strength and direction.</p>
+<div class="lab">
+  <svg id="ngSvg" viewBox="0 0 400 280" width="400" height="280" aria-label="Scatter graph to describe"></svg>
+  <div class="chips" id="ngBtns"></div>
+  <div class="msg" id="ngMsg"></div>
+  <div class="controls"><button class="btn" id="ngNext" type="button">Next graph</button><span class="msg" id="ngScore" style="margin:0"></span></div>
+</div>
+
+<div class="callout">
+  <p><strong>Outliers on scatter graphs.</strong> A point that sits far away from the pattern of all the others is an outlier. It might be a measuring mistake, or a genuinely unusual case (an ice cream van on the day a school trip visited). Mention it when you describe the graph, and don't let it drag your line of best fit (next section).</p>
+</div>
+
+<h2>5 · Lines of best fit and estimating</h2>
+<p>When there is correlation, you can draw a <strong>line of best fit</strong>: a single straight line, drawn with a ruler, that follows the trend of the points as closely as possible. "By eye" means you judge it by looking; there is no formula to use at KS3. A good line of best fit:</p>
+<ul>
+  <li><strong>follows the direction of the trend</strong> (uphill for positive, downhill for negative);</li>
+  <li>has <strong>roughly the same number of points on each side</strong> of it, and passes close to as many as possible;</li>
+  <li><strong>does not have to go through (0, 0)</strong>, and does not have to go through any particular point (not even the first or last);</li>
+  <li><strong>ignores outliers</strong>.</li>
+</ul>
+<p>Below is a shop's record of the temperature each day and the number of ice creams it sold. Drag the two <span class="MN">orange handles</span> to place your line. The feedback checks your line against the rules above.</p>
+
+<div class="lab">
+  <svg id="lbSvg" class="drag" viewBox="0 0 400 330" width="400" height="330" aria-label="Scatter graph with a draggable line"></svg>
+  <div class="readout">
+    <div><b>Points above</b><span id="lbAbove"></span></div>
+    <div><b>Points below</b><span id="lbBelow"></span></div>
+    <div class="t"><b>Your line rises</b><span id="lbSlope"></span></div>
+  </div>
+  <div class="msg" id="lbMsg"></div>
+  <div class="controls">
+    <label><input type="checkbox" id="lbRes"> show distances to the line</label>
+    <label><input type="checkbox" id="lbOut"> show the outlier</label>
+  </div>
+  <div class="controls">
+    <button class="btn" id="lbOrigin" type="button">Force it through (0, 0)</button>
+    <button class="btn" id="lbBest" type="button">Show a good line</button>
+    <button class="btn" id="lbReset" type="button">Reset</button>
+  </div>
+  <h3>Use your line to estimate</h3>
+  <div class="controls">
+    <label>temperature <input type="range" id="lbX" min="0" max="35" step="1" value="23"><span id="lbXv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="msg" id="lbEst"></div>
+</div>
+
+<p>To read an estimate: start at the value you know on one axis, go straight to the line, then straight across (or down) to the other axis and read the value. Using the line <em>inside</em> the range of the data you collected is called <strong>interpolation</strong>, and it is fairly reliable. Using it <em>outside</em> that range is called <strong>extrapolation</strong>, and it is not reliable: the pattern may not carry on. This shop only measured days between 14 °C and 30 °C. Who knows what happens at 0 °C (the line says a negative number of ice creams!) or at 45 °C?</p>
+
+<h2>6 · Correlation does not mean causation</h2>
+<p>On hot days, ice cream sales go up. On hot days, the number of people with sunburn goes up too. So ice cream sales and sunburn have a strong positive correlation. Does eating ice cream give you sunburn? Of course not! Both are caused by a <strong>hidden third factor</strong>: hot, sunny weather.</p>
+
+<div class="lab">
+  <svg id="cuSvg" viewBox="0 0 400 200" width="400" height="200" aria-label="Diagram: hot weather causes both ice cream sales and sunburn"></svg>
+</div>
+
+<p><strong>Causation</strong> means one thing actually makes the other happen. Correlation only tells you that two things move together. They might move together because:</p>
+<ul>
+  <li>one really does cause the other (more time in the sun → more sunburn);</li>
+  <li>a third factor causes both (hot weather → ice creams <em>and</em> sunburn);</li>
+  <li>it's a coincidence (two things that both happened to rise over the same years).</li>
+</ul>
+<p>Sort each card. Does the first thing directly cause the second, or is it correlation only (a hidden third factor or coincidence)?</p>
+
+<div class="lab">
+  <div class="cards" id="csCards"></div>
+  <div class="piles">
+    <div class="pile"><h3>Causes it</h3><ul id="csP1"></ul></div>
+    <div class="pile"><h3>Correlation only</h3><ul id="csP2"></ul></div>
+  </div>
+  <div class="controls"><button class="btn" id="csReset" type="button">Start again</button><span class="msg" id="csScore" style="margin:0"></span></div>
+</div>
+
+<h2>7 · Common mistakes with scatter graphs</h2>
+<p>These are the mistakes examiners see again and again. Pick one to see it drawn (in red), then press <em>Show the fix</em> to see it done properly (in green).</p>
+
+<div class="lab">
+  <div class="chips" id="mkBtns"></div>
+  <svg id="mkSvg" viewBox="0 0 400 300" width="400" height="300" aria-label="A scatter graph showing a common mistake"></svg>
+  <div class="controls"><button class="btn primary" id="mkFix" type="button">Show the fix</button></div>
+  <div class="info" id="mkInfo"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Describe this distribution: the number of pets owned by 20 students</summary>
+  <div class="step"><strong>The data:</strong> 0 pets: 7 students; 1 pet: 6 students; 2 pets: 4 students; 3 pets: 2 students; 8 pets: 1 student. Check the total: 7 + 6 + 4 + 2 + 1 = 20 ✓</div>
+  <div class="step"><strong>Mean:</strong> total number of pets = 0 × 7 + 1 × 6 + 2 × 4 + 3 × 2 + 8 × 1 = 0 + 6 + 8 + 6 + 8 = 28. Mean = 28 ÷ 20 = <strong>1.4 pets</strong>.</div>
+  <div class="step"><strong>Median:</strong> with 20 values, the middle is between the 10th and 11th. Values 1 to 7 are 0 and values 8 to 13 are 1, so the 10th and 11th are both 1. Median = <strong>1 pet</strong>.</div>
+  <div class="step"><strong>Mode:</strong> 0 pets (7 students, the most). <strong>Range:</strong> 8 − 0 = <strong>8</strong>.</div>
+  <div class="step"><strong>Outlier:</strong> 8 pets is far bigger than everything else (the next biggest is 3). Without it: 19 students, total 28 − 8 = 20 pets, mean = 20 ÷ 19 = 1.05 (2 d.p.), median is the 10th value = 1, range = 3 − 0 = 3. The outlier moved the mean (1.05 → 1.4) and the range (3 → 8) but not the median.</div>
+  <div class="step"><strong>Shape:</strong> most students have 0 or 1 pets, with a tail stretching towards higher numbers, so the distribution is <strong>skewed to the right</strong> (positive skew). Notice the mean (1.4) is pulled above the median (1) towards the tail.</div>
+</details>
+<details>
+  <summary>Compare two basketball players' points in five games</summary>
+  <div class="step"><strong>Amir:</strong> 12, 15, 14, 13, 16. Total = 70, mean = 70 ÷ 5 = 14 points. Range = 16 − 12 = 4.</div>
+  <div class="step"><strong>Beth:</strong> 6, 22, 10, 25, 17. Total = 80, mean = 80 ÷ 5 = 16 points. Range = 25 − 6 = 19.</div>
+  <div class="step"><strong>Average, in context:</strong> On average, Beth scored more points per game, because her mean (16) is higher than Amir's (14).</div>
+  <div class="step"><strong>Spread, in context:</strong> Amir is more consistent, because his range (4) is smaller than Beth's (19): his scores are all close together, while Beth's go from 6 to 25.</div>
+  <div class="step"><strong>Who to pick?</strong> It depends. Beth scores more on average, but Amir is more reliable. Either answer is fine if you use the statistics to back it up.</div>
+</details>
+<details>
+  <summary>Estimate using a line of best fit, and spot extrapolation</summary>
+  <div class="step"><strong>The data</strong> (age of a car in years, value in £): (1, 14 500), (2, 12 000), (3, 11 500), (5, 8000), (6, 6000), (7, 5500).</div>
+  <div class="step"><strong>Describe:</strong> as cars get older their value goes down, so this is <strong>strong negative correlation</strong>: older cars tend to be worth less.</div>
+  <div class="step"><strong>Line of best fit:</strong> a line through (1, 14 000) and (7, 5000). Check the balance: at age 1 the line gives 14 000 (point 14 500 is above), age 2 → 12 500 (point below), age 3 → 11 000 (point above), age 5 → 8000 (point on the line), age 6 → 6500 (point below), age 7 → 5000 (point above). 3 above, 2 below, 1 on it: balanced ✓</div>
+  <div class="step"><strong>Slope:</strong> from age 1 to age 7 (6 years) the value falls 14 000 − 5000 = £9000, so the line drops 9000 ÷ 6 = £1500 per year.</div>
+  <div class="step"><strong>Estimate for a 4-year-old car:</strong> from age 1, go on 3 years: 14 000 − 3 × 1500 = 14 000 − 4500 = <strong>£9500</strong>. Age 4 is inside the data (1 to 7), so this is interpolation and is reliable.</div>
+  <div class="step"><strong>A 12-year-old car?</strong> 14 000 − 11 × 1500 = 14 000 − 16 500 = −£2500. A negative price is impossible. Age 12 is outside the data, so this is extrapolation and is not reliable: the line can't be trusted out there.</div>
+</details>
+<details>
+  <summary>"Towns with more libraries have more crime." Do libraries cause crime?</summary>
+  <div class="step"><strong>Is there correlation?</strong> Yes: the statement describes positive correlation between number of libraries and number of crimes.</div>
+  <div class="step"><strong>Is there a sensible direct cause?</strong> No. Libraries don't make people commit crimes, and crimes don't build libraries.</div>
+  <div class="step"><strong>Hidden third factor:</strong> the size of the town. Bigger towns have more people, so they have more libraries <em>and</em> more crimes.</div>
+  <div class="step"><strong>Answer:</strong> No. The correlation is real, but it is caused by a third factor (population), not by the libraries. Correlation does not mean causation.</div>
+</details>
+<details>
+  <summary>Spot and explain an outlier on a scatter graph</summary>
+  <div class="step"><strong>The data</strong> (height in cm, arm span in cm): (150, 148), (155, 156), (160, 159), (165, 166), (170, 120), (175, 174).</div>
+  <div class="step"><strong>The pattern:</strong> for five people the arm span is within 2 cm of the height (148 vs 150, 156 vs 155, 159 vs 160, 166 vs 165, 174 vs 175). That's strong positive correlation: taller people tend to have longer arm spans.</div>
+  <div class="step"><strong>The outlier:</strong> (170, 120). A 170 cm person would be expected to have an arm span of about 170 cm, but this is 50 cm less. It is far from the pattern.</div>
+  <div class="step"><strong>Explanation:</strong> probably a measuring or recording mistake (perhaps 170 was meant). Ignore it when drawing the line of best fit, and mention it in your description.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>The <strong>distribution</strong> of a set of data is its whole pattern. Describe it by its <strong>centre</strong> (an average: mean, median or mode), its <strong>spread</strong> (the range = biggest − smallest) and its <strong>shape</strong>.</li>
+  <li><strong>Symmetrical</strong>: both halves roughly mirror each other, and the mean and median are close. <strong>Skewed</strong>: bunched at one end with a long tail; the skew is named after the direction of the tail, and the tail pulls the mean towards it.</li>
+  <li>An <strong>outlier</strong> is a value far away from the rest. It changes the range and the mean a lot, the median hardly at all.</li>
+  <li>To <strong>compare two distributions</strong>, write one sentence about an average and one about the spread, both in context: "On average … because the mean is higher/lower; … is more consistent because the range is smaller."</li>
+  <li>A <strong>scatter graph</strong> plots bivariate data as points. <strong>Positive correlation</strong>: both go up together. <strong>Negative</strong>: one goes up as the other goes down. <strong>None</strong>: no pattern. <strong>Strong</strong> means close to a line; <strong>weak</strong> means a loose trend. Always describe it in context.</li>
+  <li>A <strong>line of best fit</strong> is one straight ruled line that follows the trend with roughly equal points on each side. It doesn't have to go through (0, 0), and you never join the dots.</li>
+  <li>Estimates from the line inside the data (<strong>interpolation</strong>) are fairly reliable; outside the data (<strong>extrapolation</strong>) they are not.</li>
+  <li><strong>Correlation does not mean causation</strong>: two things can rise together because of a hidden third factor or by coincidence.</li>
+</ul>
+
+<footer>Made for KS3 students. Describing and comparing distributions, scatter graphs and correlation are in the England national curriculum at key stage 3 under Statistics. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => isFinite(v) ? minus(parseFloat(v.toFixed(d)).toString()) : '—';
+const F = () => `font-family="${css('--mono')}"`;
+const txt = (x,y,s,col,o={}) => `<text x="${x}" y="${y}" font-size="${o.fs||12}"${o.a?` text-anchor="${o.a}"`:''}${o.w?` font-weight="${o.w}"`:''}${o.rot?` transform="rotate(${o.rot} ${x} ${y})"`:''} fill="${col}" ${F()}>${s}</text>`;
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const mean = a => a.reduce((s,v)=>s+v,0)/a.length;
+const median = a => { const b=[...a].sort((x,y)=>x-y), n=b.length; return n%2 ? b[(n-1)/2] : (b[n/2-1]+b[n/2])/2; };
+const range = a => Math.max(...a) - Math.min(...a);
+const modes = a => { const c=new Map(); a.forEach(v=>c.set(v,(c.get(v)||0)+1)); const mx=Math.max(...c.values()); const m=[...c.keys()].filter(k=>c.get(k)===mx).sort((x,y)=>x-y); return (m.length===c.size && c.size>1) ? [] : m; };
+const modeStr = a => { const m=modes(a); return m.length===0 ? 'none' : m.length>3 ? 'no clear mode' : m.map(v=>fmt(v)).join(' and '); };
+const corr = (xs,ys) => { const mx=mean(xs), my=mean(ys); let a=0,b=0,c=0; xs.forEach((x,i)=>{a+=(x-mx)*(ys[i]-my); b+=(x-mx)**2; c+=(ys[i]-my)**2;}); return (b===0||c===0) ? 0 : a/Math.sqrt(b*c); };
+const lsq = (xs,ys) => { const mx=mean(xs), my=mean(ys); let a=0,b=0; xs.forEach((x,i)=>{a+=(x-mx)*(ys[i]-my); b+=(x-mx)**2;}); const m=a/b; return {m, c:my-m*mx}; };
+/* seeded random numbers, so every setting always draws the same points */
+function rng(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function normals(r,n){ const out=[]; while(out.length<n){ const u=Math.max(r(),1e-9), v=r(); out.push(Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)); } return out; }
+function svgPt(svg,ev){ const r=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal; return [(ev.clientX-r.left)/r.width*vb.width, (ev.clientY-r.top)/r.height*vb.height]; }
+/* generic axes for scatter graphs: o = {id,W,H,L,R,T,B,x0,x1,y0,y1,xt,yt,xl,yl,xf,yf} */
+function axes(o){
+  const pw=o.W-o.L-o.R, ph=o.H-o.T-o.B;
+  const sx=x=>o.L+(x-o.x0)/(o.x1-o.x0)*pw, sy=y=>o.T+ph-(y-o.y0)/(o.y1-o.y0)*ph;
+  const ix=px=>o.x0+(px-o.L)/pw*(o.x1-o.x0), iy=py=>o.y0+(o.T+ph-py)/ph*(o.y1-o.y0);
+  const g=css('--grid'), mu=css('--muted'); let s='';
+  for(let x=o.x0; x<=o.x1+1e-9; x+=o.xt){ s+=`<line x1="${sx(x)}" y1="${o.T}" x2="${sx(x)}" y2="${o.T+ph}" stroke="${g}"/>`+txt(sx(x),o.T+ph+15,o.xf?o.xf(x):fmt(x),mu,{a:'middle',fs:11}); }
+  for(let y=o.y0; y<=o.y1+1e-9; y+=o.yt){ s+=`<line x1="${o.L}" y1="${sy(y)}" x2="${o.L+pw}" y2="${sy(y)}" stroke="${g}"/>`+txt(o.L-5,sy(y)+4,o.yf?o.yf(y):fmt(y),mu,{a:'end',fs:11}); }
+  const ax0 = (o.y0<0 && o.y1>0) ? sy(0) : o.T+ph;
+  s+=`<line x1="${o.L}" y1="${ax0}" x2="${o.L+pw}" y2="${ax0}" stroke="${mu}" stroke-width="1.5"/><line x1="${o.L}" y1="${o.T}" x2="${o.L}" y2="${o.T+ph}" stroke="${mu}" stroke-width="1.5"/>`;
+  s+=txt(o.L+pw/2,o.H-6,o.xl,mu,{a:'middle',w:600})+txt(13,o.T+ph/2,o.yl,mu,{a:'middle',w:600,rot:-90});
+  s+=`<defs><clipPath id="${o.id}"><rect x="${o.L}" y="${o.T}" width="${pw}" height="${ph}"/></clipPath></defs>`;
+  return {sx,sy,ix,iy,s,clip:`clip-path="url(#${o.id})"`,pw,ph};
+}
+const lineThrough = (A,m,c,col,w=3,dash) => `<line x1="${A.sx(A.x0)}" y1="${A.sy(m*A.x0+c)}" x2="${A.sx(A.x1)}" y2="${A.sy(m*A.x1+c)}" stroke="${col}" stroke-width="${w}"${dash?' stroke-dasharray="7 5"':''} stroke-linecap="round"/>`;
+
+/* 1. distribution shaper */
+const PRE={sym:[1,2,4,7,9,9,7,4,2,1],right:[3,9,11,8,5,3,2,1,1,0],left:[0,1,1,2,3,5,8,11,9,3],flat:[4,4,4,4,4,4,4,4,4,4],two:[1,5,8,4,1,1,4,8,5,1]};
+let shF=PRE.sym.slice(), shDrag=false;
+const SH={base:225,unit:15,c0:52,cw:28,bw:24,OUT:25};
+const shCX = i => SH.c0+i*SH.cw+SH.bw/2;
+const shVX = v => v<=10 ? shCX(0)+(v-1)*SH.cw : shCX(9)+(v-10)/15*(382-shCX(9));
+const expand = f => { const l=[]; f.forEach((c,i)=>{ for(let j=0;j<c;j++) l.push(i+1); }); return l; };
+function shapeOf(l){
+  if(l.length<3) return {name:'Not enough data yet',txt:'Drag some bars up: you need at least a few values to see a shape.'};
+  const m=mean(l), m2=mean(l.map(v=>(v-m)**2)), m3=mean(l.map(v=>(v-m)**3));
+  if(m2===0) return {name:'No spread at all',txt:'Every student took the same time, so the range is 0 and mean = median = mode.'};
+  const g=m3/Math.pow(m2,1.5);
+  if(g>0.3) return {name:'Skewed to the right (positive skew)',txt:'Most students were quick, bunched up at the low end, with a long tail of slower times stretching to the right. The tail pulls the mean up, so the mean is bigger than the median.'};
+  if(g<-0.3) return {name:'Skewed to the left (negative skew)',txt:'Most students were slow, bunched up at the high end, with a long tail of quicker times stretching to the left. The tail pulls the mean down, so the mean is smaller than the median.'};
+  return {name:'Roughly symmetrical',txt:'The left side is roughly a mirror image of the right side, so the mean and the median are close together in the middle.'};
+}
+function drawSH(){
+  const ac=css('--accent'), mu=css('--muted'), g=css('--grid'), hi=css('--hi'), tw=css('--two'), fg=css('--fg');
+  const out=$('shOut').checked, base=expand(shF), all=out?base.concat([SH.OUT]):base;
+  let s='';
+  for(let f=0; f<=12; f+=2){ const y=SH.base-f*SH.unit; s+=`<line x1="44" y1="${y}" x2="396" y2="${y}" stroke="${g}"/>`+txt(40,y+4,f,mu,{a:'end',fs:11}); }
+  s+=txt(13,SH.base-90,'frequency',mu,{a:'middle',w:600,rot:-90});
+  for(let i=0;i<10;i++){
+    const x=SH.c0+i*SH.cw, h=shF[i]*SH.unit;
+    s+=`<rect x="${x}" y="${SH.base-180}" width="${SH.bw}" height="180" fill="${g}" fill-opacity=".35"/>`;
+    if(h>0) s+=`<rect x="${x}" y="${SH.base-h}" width="${SH.bw}" height="${h}" fill="${ac}" fill-opacity=".8"/><line x1="${x}" y1="${SH.base-h}" x2="${x+SH.bw}" y2="${SH.base-h}" stroke="${fg}" stroke-width="3" stroke-linecap="round"/>`;
+    else s+=`<line x1="${x}" y1="${SH.base}" x2="${x+SH.bw}" y2="${SH.base}" stroke="${fg}" stroke-width="3" stroke-linecap="round"/>`;
+    s+=txt(shCX(i),SH.base+16,i+1,mu,{a:'middle',fs:11});
+  }
+  s+=`<line x1="44" y1="${SH.base}" x2="396" y2="${SH.base}" stroke="${mu}" stroke-width="1.5"/>`;
+  s+=txt(343,SH.base+5,'//',mu,{a:'middle',fs:13,w:600})+txt(382,SH.base+16,'25',mu,{a:'middle',fs:11});
+  if(out) s+=`<rect x="370" y="${SH.base-SH.unit}" width="24" height="${SH.unit}" fill="none" stroke="${ac}" stroke-width="2" stroke-dasharray="4 3"/>`+txt(382,SH.base-SH.unit-6,'outlier',ac,{a:'middle',fs:11,w:600});
+  s+=txt(220,SH.base+40,'time to solve the puzzle (minutes)',mu,{a:'middle',w:600});
+  if(all.length){
+    const mn=mean(all), md=median(all);
+    const lx=v=>clamp(shVX(v),70,360);
+    s+=`<line x1="${shVX(mn)}" y1="34" x2="${shVX(mn)}" y2="${SH.base}" stroke="${hi}" stroke-width="2.5" stroke-dasharray="6 4"/>`+txt(lx(mn),14,'mean '+fmt(mn),hi,{a:'middle',w:600});
+    s+=`<line x1="${shVX(md)}" y1="34" x2="${shVX(md)}" y2="${SH.base}" stroke="${tw}" stroke-width="2.5" stroke-dasharray="2 4"/>`+txt(lx(md),29,'median '+fmt(md),tw,{a:'middle',w:600});
+  }
+  $('shSvg').innerHTML=s;
+  // readouts
+  const show=(el,f,fmtF)=>{ if(!base.length){$(el).textContent='—';return;} const a=fmtF(f(base)); if(!out){$(el).textContent=a;return;} const b=fmtF(f(all)); $(el).textContent=a===b?`${b} (no change)`:`${a} → ${b}`; };
+  $('shN').textContent = out ? `${base.length} + 1 = ${all.length}` : String(base.length);
+  show('shMean',mean,v=>fmt(v)); show('shMed',median,v=>fmt(v)); show('shMode',a=>a,modeStr); show('shRange',range,v=>fmt(v));
+  const sh=shapeOf(base);
+  let extra='';
+  if(out && base.length){
+    const dm=mean(all)-mean(base), dmed=median(all)-median(base), dr=range(all)-range(base);
+    extra=`<br><br><strong>Adding the outlier (25 minutes):</strong> the range jumped by ${fmt(dr)} minutes, the mean went up by ${fmt(dm)}, and the median ${Math.abs(dmed)<1e-9?'did not change at all':'moved by only '+fmt(dmed)}. One unusual value changes the range and mean far more than the median.`;
+  }
+  $('shInfo').innerHTML=`<strong>${sh.name}</strong>${out&&base.length>=3?' (ignoring the outlier)':''}<br>${sh.txt}${extra}`;
+  document.querySelectorAll('#shPre button').forEach(b=>b.classList.toggle('on',PRE[b.dataset.p].every((v,i)=>v===shF[i])));
+}
+function shSet(ev){
+  const [px,py]=svgPt($('shSvg'),ev); const i=Math.floor((px-SH.c0+2)/SH.cw);
+  if(i<0||i>9) return;
+  const f=clamp(Math.round((SH.base-py)/SH.unit),0,12);
+  if(shF[i]!==f){ shF[i]=f; drawSH(); }
+}
+$('shSvg').addEventListener('pointerdown',e=>{ shDrag=true; try{$('shSvg').setPointerCapture(e.pointerId);}catch(_){} shSet(e); });
+$('shSvg').addEventListener('pointermove',e=>{ if(shDrag) shSet(e); });
+['pointerup','pointercancel'].forEach(t=>$('shSvg').addEventListener(t,()=>{ shDrag=false; }));
+document.querySelectorAll('#shPre button').forEach(b=>b.addEventListener('click',()=>{ shF=PRE[b.dataset.p].slice(); drawSH(); }));
+$('shOut').addEventListener('input',drawSH);
+drawSH();
+
+/* 2. outlier dot plot */
+const OL=[4,5,5,6,6,6,7,8]; let olV=7, olDrag=false;
+const olX = v => 30+v*8.5;
+function drawOL(){
+  const ac=css('--accent'), mu=css('--muted'), g=css('--grid'), hi=css('--hi'), tw=css('--two'), fg=css('--fg');
+  const all=OL.concat([olV]), axY=140;
+  let s='';
+  for(let v=0; v<=40; v+=5){ s+=`<line x1="${olX(v)}" y1="40" x2="${olX(v)}" y2="${axY}" stroke="${g}"/>`+txt(olX(v),axY+16,v,mu,{a:'middle',fs:11}); }
+  for(let v=0; v<=40; v++) s+=`<line x1="${olX(v)}" y1="${axY}" x2="${olX(v)}" y2="${axY+4}" stroke="${mu}"/>`;
+  s+=`<line x1="${olX(0)}" y1="${axY}" x2="${olX(40)}" y2="${axY}" stroke="${mu}" stroke-width="1.5"/>`;
+  s+=txt(200,axY+40,'pocket money per week (£)',mu,{a:'middle',w:600});
+  const cnt={};
+  OL.forEach(v=>{ cnt[v]=(cnt[v]||0)+1; s+=`<circle cx="${olX(v)}" cy="${axY-8-(cnt[v]-1)*14}" r="6" fill="${ac}"/>`; });
+  const k=(cnt[olV]||0), cy=axY-8-k*14, isOut=olV>=15;
+  s+=`<circle cx="${olX(olV)}" cy="${cy}" r="7" fill="${css('--panel')}" stroke="${ac}" stroke-width="3"/><circle cx="${olX(olV)}" cy="${cy}" r="16" fill="transparent"/>`;
+  s+=txt(clamp(olX(olV),40,360),cy-14,isOut?'outlier: £'+olV:'drag me',isOut?ac:mu,{a:'middle',fs:11,w:600});
+  const mn=mean(all), md=median(all);
+  s+=`<line x1="${olX(mn)}" y1="34" x2="${olX(mn)}" y2="${axY}" stroke="${hi}" stroke-width="2.5" stroke-dasharray="6 4"/>`+txt(clamp(olX(mn),60,350),14,'mean £'+fmt(mn),hi,{a:'middle',w:600});
+  s+=`<line x1="${olX(md)}" y1="34" x2="${olX(md)}" y2="${axY}" stroke="${tw}" stroke-width="2.5" stroke-dasharray="2 4"/>`+txt(clamp(olX(md),60,350),29,'median £'+fmt(md),tw,{a:'middle',w:600});
+  $('olSvg').innerHTML=s;
+  $('olMean').textContent='£'+fmt(mn); $('olMed').textContent='£'+fmt(md); $('olMode').textContent='£'+modeStr(all).replace(/ and /g,' and £'); $('olRange').textContent='£'+fmt(range(all));
+  $('olMean0').textContent='without it: £'+fmt(mean(OL)); $('olMed0').textContent='without it: £'+fmt(median(OL)); $('olMode0').textContent='without it: £'+modeStr(OL); $('olRange0').textContent='without it: £'+fmt(range(OL));
+  const M=$('olMsg');
+  M.innerHTML = isOut
+    ? `£${olV} is an <strong>outlier</strong>: far more than everyone else. Working: mean = (47 + ${olV}) ÷ 9 = ${47+olV} ÷ 9 = £${fmt(mn)}, range = ${olV} − 4 = £${olV - 4}. The median is the 5th of the 9 values in order, which is still £6.`
+    : `Drag the hollow dot further right (to £15 or more) to turn it into an outlier. The other eight values add up to £47.`;
+}
+function olSet(ev){ const [px]=svgPt($('olSvg'),ev); const v=clamp(Math.round((px-30)/8.5),0,40); if(v!==olV){olV=v;drawOL();} }
+$('olSvg').addEventListener('pointerdown',e=>{ olDrag=true; try{$('olSvg').setPointerCapture(e.pointerId);}catch(_){} olSet(e); });
+$('olSvg').addEventListener('pointermove',e=>{ if(olDrag) olSet(e); });
+['pointerup','pointercancel'].forEach(t=>$('olSvg').addEventListener(t,()=>{ olDrag=false; }));
+drawOL();
+
+/* 3. comparing two distributions */
+const CM={
+  tests:{A:{n:'Class 7R',v:[12,14,15,15,16,16,17,18]},B:{n:'Class 7S',v:[8,11,14,17,18,19,20,20]},better:'higher',ph1:'scored higher in the test',ph2:'were more consistent',lo:5,hi:20,t:1,lt:5,unit:'marks',ax:'test score (out of 20)'},
+  run:{A:{n:'Club Swift',v:[13.1,13.4,13.6,13.8,14.0,14.3]},B:{n:'Club Dash',v:[12.6,12.9,13.0,13.2,14.5,15.0]},better:'lower',ph1:'were faster',ph2:'were more consistent',lo:12,hi:15.5,t:0.1,lt:0.5,unit:'s',ax:'100 m time (seconds)'},
+  temp:{A:{n:'Seaview',v:[14,17,19,20,22,24,26]},B:{n:'Hillford',v:[21,22,22,23,23,24,25]},better:'higher',ph1:'was warmer',ph2:'had more consistent temperatures',lo:12,hi:28,t:1,lt:2,unit:'°C',ax:'top temperature (°C)'}
+};
+const cmSel=['cmG1','cmM','cmD','cmG2','cmR'].map($);
+function cmFill(){
+  const D=CM[$('cmSet').value];
+  ['cmG1','cmG2'].forEach(id=>{ $(id).innerHTML=`<option value="">choose…</option><option value="A">${D.A.n}</option><option value="B">${D.B.n}</option>`; });
+  $('cmPh1').textContent=D.ph1; $('cmPh2').textContent=D.ph2;
+  ['cmM','cmD','cmR'].forEach(id=>$(id).value='');
+  $('cmFb').innerHTML='';
+  drawCM();
+}
+function drawCM(){
+  const D=CM[$('cmSet').value];
+  const mu=css('--muted'), g=css('--grid');
+  const L=30, Rr=380, x=v=>L+(v-D.lo)/(D.hi-D.lo)*(Rr-L);
+  let s='';
+  for(let v=D.lo; v<=D.hi+1e-9; v+=D.t){ const major=Math.abs(v/D.lt-Math.round(v/D.lt))<1e-6; s+=`<line x1="${x(v)}" y1="${major?14:186}" x2="${x(v)}" y2="190" stroke="${major?g:mu}"/>`; if(major) s+=txt(x(v),206,fmt(v,1),mu,{a:'middle',fs:11}); }
+  s+=`<line x1="${L}" y1="190" x2="${Rr}" y2="190" stroke="${mu}" stroke-width="1.5"/>`+txt(205,226,D.ax,mu,{a:'middle',w:600});
+  [['A',css('--accent'),82],['B',css('--two'),168]].forEach(([k,col,base])=>{
+    const G=D[k], cnt={};
+    s+=txt(L,base-62,G.n,col,{w:600,fs:13});
+    G.v.forEach(v=>{ const key=v.toFixed(2); cnt[key]=(cnt[key]||0)+1; s+=`<circle cx="${x(v)}" cy="${base-8-(cnt[key]-1)*13}" r="5.5" fill="${col}"/>`; });
+    const lo=Math.min(...G.v), hi=Math.max(...G.v), mn=mean(G.v);
+    s+=`<line x1="${x(lo)}" y1="${base+4}" x2="${x(hi)}" y2="${base+4}" stroke="${col}" stroke-width="1.5"/><line x1="${x(lo)}" y1="${base}" x2="${x(lo)}" y2="${base+8}" stroke="${col}" stroke-width="1.5"/><line x1="${x(hi)}" y1="${base}" x2="${x(hi)}" y2="${base+8}" stroke="${col}" stroke-width="1.5"/>`;
+    s+=`<path d="M${x(mn)},${base+4} l-6,10 h12 z" fill="${col}"/>`+txt(clamp(x(mn)+10,40,330),base+15,'mean '+fmt(mn,1),col,{fs:11});
+  });
+  $('cmSvg').innerHTML=s;
+  const st=G=>({mn:mean(G.v),md:median(G.v),r:range(G.v)});
+  const a=st(D.A), b=st(D.B);
+  $('cmStats').innerHTML=`<div class="f"><b>${D.A.n}</b>mean ${fmt(a.mn,1)}<br>median ${fmt(a.md,2)}<br>range ${fmt(a.r,1)}</div><div class="p"><b>${D.B.n}</b>mean ${fmt(b.mn,1)}<br>median ${fmt(b.md,2)}<br>range ${fmt(b.r,1)}</div>`;
+}
+function cmAnswer(){
+  const D=CM[$('cmSet').value], a=mean(D.A.v), b=mean(D.B.v);
+  const avgWin = (D.better==='higher') === (a>b) ? 'A' : 'B';
+  const conWin = range(D.A.v) < range(D.B.v) ? 'A' : 'B';
+  return {D, avgWin, conWin, dir:D.better};
+}
+$('cmGo').addEventListener('click',()=>{
+  const {D,avgWin,conWin,dir}=cmAnswer(); const [g1,m,d,g2,r]=cmSel.map(e=>e.value); const out=[];
+  const nm=k=>D[k].n, G=D[avgWin], O=D[avgWin==='A'?'B':'A'];
+  if(!g1||!m||!d||!g2||!r){ $('cmFb').innerHTML='<li class="bad">Choose an option in every box first.</li>'; return; }
+  const mv = m==='mean' ? [mean(G.v),mean(O.v)] : [median(G.v),median(O.v)];
+  if(g1===avgWin && d===dir) out.push(['good',`Average ✓ ${nm(avgWin)} ${D.ph1}: the ${m} is ${dir} (${fmt(mv[0],1)} ${D.unit} compared with ${fmt(mv[1],1)} ${D.unit}).`]);
+  else if(g1===avgWin) out.push(['bad',`Right group, wrong direction. ${nm(avgWin)}'s ${m} is ${fmt(mv[0],1)} and ${nm(avgWin==='A'?'B':'A')}'s is ${fmt(mv[1],1)}, so it is ${dir}.${dir==='lower'?' In a race a lower time means faster.':''}`]);
+  else out.push(['bad',`Check the averages: ${nm(avgWin)} has the ${dir} ${m} (${fmt(mv[0],1)} against ${fmt(mv[1],1)}).${dir==='lower'?' Remember: for running times, lower is faster.':''}`]);
+  const rc=range(D[conWin].v), ro=range(D[conWin==='A'?'B':'A'].v);
+  if(g2===conWin && r==='smaller') out.push(['good',`Spread ✓ ${nm(conWin)} ${D.ph2}: the range is smaller (${fmt(rc,1)} compared with ${fmt(ro,1)}).`]);
+  else if(g2===conWin) out.push(['bad',`Right group, but a more consistent group has a smaller range, not a larger one (${fmt(rc,1)} against ${fmt(ro,1)}).`]);
+  else if(r==='larger') out.push(['bad',`A larger range means the values are more spread out, so that group is less consistent. Look for the smaller range.`]);
+  else out.push(['bad',`Check the ranges: ${nm(conWin)}'s is ${fmt(rc,1)} and the other group's is ${fmt(ro,1)}. Which is smaller?`]);
+  $('cmFb').innerHTML=out.map(([c,t])=>`<li class="${c}">${t}</li>`).join('');
+});
+$('cmShow').addEventListener('click',()=>{
+  const {D,avgWin,conWin,dir}=cmAnswer(); const G=D[avgWin], O=D[avgWin==='A'?'B':'A'], C=D[conWin], N=D[conWin==='A'?'B':'A'];
+  $('cmFb').innerHTML=`<li>"On average, ${G.n} ${D.ph1}, because the mean is ${dir} (${fmt(mean(G.v),1)} ${D.unit} compared with ${fmt(mean(O.v),1)} ${D.unit})."</li><li>"${C.n} ${D.ph2}, because the range is smaller (${fmt(range(C.v),1)} ${D.unit} compared with ${fmt(range(N.v),1)} ${D.unit})."</li>`;
+});
+$('cmSet').addEventListener('input',cmFill);
+cmFill();
+
+/* 4. scatter graph with strength and direction */
+const SCX=(()=>{ const r=rng(2024), xs=[]; for(let i=0;i<24;i++) xs.push(0.5+9*r()); return {xs, zs:normals(r,24)}; })();
+function genScatter(base,dir,k){ const sd=3+(10-k)*3.5; return base.xs.map((x,i)=>clamp(dir===0 ? 50+base.zs[i]*20 : 50+dir*7*(x-5)+base.zs[i]*sd,3,97)); }
+const CTX={
+  '1':{xl:'hours of revision',yl:'test score (%)',xf:x=>fmt(x),yf:y=>fmt(y),say:{strong:'the more hours students revised, the higher their test scores tended to be, and the points lie close to a line.',weak:'students who revised more tended to score higher, but the points are spread out widely and there are plenty of exceptions.',none:'the trend is so loose that you can hardly see a link.'}},
+  '-1':{xl:'age of car (years)',yl:'value (£1000s)',xf:x=>fmt(x),yf:y=>fmt(y/5),say:{strong:'the older the car, the lower its value tended to be, and the points lie close to a line.',weak:'older cars tended to be worth less, but the points are spread widely and there are plenty of exceptions.',none:'the trend is so loose that you can hardly see a link.'}},
+  '0':{xl:'shoe size',yl:'test score (%)',xf:x=>fmt(x+3),yf:y=>fmt(y),say:{none:'shoe size tells you nothing about test score: the points are scattered with no pattern.'}}
+};
+const strengthOf = r => Math.abs(r)>=0.7 ? 'strong' : Math.abs(r)>=0.3 ? 'weak' : 'none';
+const corrName = r => { const s=strengthOf(r); return s==='none' ? 'No correlation' : `${s[0].toUpperCase()+s.slice(1)} ${r>0?'positive':'negative'} correlation`; };
+let scDir=1;
+function drawSC(){
+  const k=+$('scK').value, ys=genScatter(SCX,scDir,k), r=corr(SCX.xs,ys), C=CTX[String(scDir)];
+  $('scK').disabled = scDir===0;
+  const A=axes({id:'scClip',W:400,H:320,L:46,R:14,T:12,B:44,x0:0,x1:10,y0:0,y1:100,xt:1,yt:20,xl:C.xl,yl:C.yl,xf:C.xf,yf:C.yf});
+  let s=A.s; const ac=css('--accent');
+  SCX.xs.forEach((x,i)=>{ s+=`<circle cx="${A.sx(x)}" cy="${A.sy(ys[i])}" r="5.5" fill="${ac}" fill-opacity=".85"/>`; });
+  $('scSvg').innerHTML=s;
+  const name=scDir===0?'No correlation':corrName(r), st=scDir===0?'none':strengthOf(r);
+  $('scLab').textContent=name;
+  $('scInfo').innerHTML=`<strong>In context:</strong> ${name.toLowerCase()} between ${C.xl} and ${C.yl.replace(/ \(.*\)/,'')}: ${C.say[st]}`;
+  document.querySelectorAll('#scDir button').forEach(b=>b.classList.toggle('on',+b.dataset.d===scDir));
+}
+document.querySelectorAll('#scDir button').forEach(b=>b.addEventListener('click',()=>{ scDir=+b.dataset.d; drawSC(); }));
+$('scK').addEventListener('input',drawSC);
+drawSC();
+
+/* 4b. name that correlation */
+const NG=[{s:18,d:1,k:9},{s:70,d:-1,k:4},{s:44,d:0,k:5},{s:18,d:1,k:4},{s:18,d:-1,k:9},{s:83,d:1,k:6}].map(p=>{ const r=rng(p.s), xs=[]; for(let i=0;i<24;i++) xs.push(0.5+9*r()); const base={xs,zs:normals(r,24)}; const ys=genScatter(base,p.d,p.k); return {xs,ys,ans:p.d===0?'No correlation':corrName(corr(xs,ys))}; });
+const NGOPT=['Strong positive correlation','Weak positive correlation','No correlation','Weak negative correlation','Strong negative correlation'];
+let ngI=0, ngDone=false, ngRight=0, ngTried=0;
+function drawNG(){
+  const P=NG[ngI];
+  const A=axes({id:'ngClip',W:400,H:280,L:40,R:14,T:12,B:40,x0:0,x1:10,y0:0,y1:100,xt:2,yt:20,xl:'x',yl:'y'});
+  let s=A.s; const ac=css('--accent');
+  P.xs.forEach((x,i)=>{ s+=`<circle cx="${A.sx(x)}" cy="${A.sy(P.ys[i])}" r="5" fill="${ac}" fill-opacity=".85"/>`; });
+  $('ngSvg').innerHTML=s;
+}
+function ngNew(){ ngDone=false; $('ngMsg').textContent='Which description fits best?'; $('ngMsg').className='msg'; $('ngBtns').querySelectorAll('button').forEach(b=>{b.disabled=false;b.classList.remove('on');}); drawNG(); }
+NGOPT.forEach(o=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=o; b.addEventListener('click',()=>{
+  const P=NG[ngI], ok=o===P.ans, M=$('ngMsg');
+  if(!ngDone){ ngTried++; if(ok) ngRight++; ngDone=true; }
+  M.className='msg '+(ok?'good':'bad');
+  const dirHint = P.ans.includes('positive') ? 'The points go uphill, so it is positive.' : P.ans.includes('negative') ? 'The points go downhill, so it is negative.' : 'There is no uphill or downhill pattern.';
+  const stHint = P.ans.startsWith('Strong') ? 'They lie close to a straight line, so it is strong.' : P.ans.startsWith('Weak') ? 'There is a trend, but the points are widely spread, so it is weak.' : '';
+  M.textContent = ok ? `Correct: ${P.ans.toLowerCase()}. ${dirHint} ${stHint}` : `Not quite. ${dirHint} ${stHint}`;
+  if(ok){ b.classList.add('on'); $('ngBtns').querySelectorAll('button').forEach(x=>x.disabled=true); }
+  $('ngScore').textContent=`Right first time: ${ngRight} out of ${ngTried}`;
+}); $('ngBtns').appendChild(b); });
+$('ngNext').addEventListener('click',()=>{ ngI=(ngI+1)%NG.length; ngNew(); });
+ngNew();
+
+/* 5. draggable line of best fit */
+const LBX=[14,16,17,19,20,21,22,24,25,26,28,30], LBY=[22,30,27,38,33,45,40,52,47,58,60,69], LBO=[17,72];
+const LBFIT=lsq(LBX,LBY);
+const lbSSmin=LBX.reduce((s,x,i)=>s+(LBY[i]-(LBFIT.m*x+LBFIT.c))**2,0);
+const LB0=[[5,30],[33,45]];
+let lbH=LB0.map(p=>p.slice()), lbDrag=-1, lbA=null;
+function lbLine(){ const [[x1,y1],[x2,y2]]=lbH; if(Math.abs(x2-x1)<1e-9) return null; const m=(y2-y1)/(x2-x1); return {m, c:y1-m*x1}; }
+function drawLB(){
+  const ac=css('--accent'), hi=css('--hi'), mu=css('--muted'), pn=css('--panel');
+  const A=axes({id:'lbClip',W:400,H:330,L:46,R:14,T:12,B:44,x0:0,x1:35,y0:0,y1:80,xt:5,yt:10,xl:'temperature (°C)',yl:'ice creams sold'}); A.x0=0; A.x1=35; lbA=A;
+  let s=A.s; const L=lbLine();
+  // data range band
+  s+=`<rect x="${A.sx(14)}" y="${A.sy(80)}" width="${A.sx(30)-A.sx(14)}" height="${A.ph}" fill="${css('--accent-soft')}" fill-opacity=".45"/>`+txt((A.sx(14)+A.sx(30))/2,A.sy(80)+14,'range of the data',mu,{a:'middle',fs:11});
+  if(L && $('lbRes').checked) LBX.forEach((x,i)=>{ s+=`<line x1="${A.sx(x)}" y1="${A.sy(LBY[i])}" x2="${A.sx(x)}" y2="${A.sy(L.m*x+L.c)}" stroke="${mu}" stroke-width="1.5" ${A.clip}/>`; });
+  LBX.forEach((x,i)=>{ s+=`<circle cx="${A.sx(x)}" cy="${A.sy(LBY[i])}" r="5.5" fill="${ac}"/>`; });
+  if($('lbOut').checked) s+=`<circle cx="${A.sx(LBO[0])}" cy="${A.sy(LBO[1])}" r="6" fill="${pn}" stroke="${ac}" stroke-width="2.5"/>`+txt(A.sx(LBO[0])+10,A.sy(LBO[1])+4,'outlier (school trip day)',ac,{fs:11,w:600});
+  if(L) s+=`<g ${A.clip}>${lineThrough(A,L.m,L.c,hi,3)}</g>`;
+  // estimate reading
+  const xr=+$('lbX').value;
+  if(L){ const yr=L.m*xr+L.c, ext=xr<14||xr>30, col=hi;
+    s+=`<g ${A.clip}><line x1="${A.sx(xr)}" y1="${A.sy(0)}" x2="${A.sx(xr)}" y2="${A.sy(yr)}" stroke="${col}" stroke-width="1.5" stroke-dasharray="4 3"/><line x1="${A.sx(xr)}" y1="${A.sy(yr)}" x2="${A.sx(0)}" y2="${A.sy(yr)}" stroke="${col}" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="${A.sx(xr)}" cy="${A.sy(yr)}" r="4" fill="${col}"/></g>`;
+    const M=$('lbEst');
+    M.className='msg '+(ext?'bad':'good');
+    M.innerHTML = ext
+      ? `At ${xr} °C your line gives ${fmt(yr,0)} ice creams. <strong>Extrapolation warning:</strong> ${xr} °C is outside the data (14 °C to 30 °C), so this estimate is not reliable${yr<0?'. A negative number of ice creams is impossible, which shows the line stops making sense out there':''}.`
+      : `At ${xr} °C your line gives about <strong>${fmt(yr,0)} ice creams</strong>. ${xr} °C is inside the data (14 °C to 30 °C), so this is interpolation: a fairly reliable estimate (as long as your line is a good fit).`;
+  }
+  lbH.forEach(([x,y])=>{ s+=`<circle cx="${A.sx(x)}" cy="${A.sy(y)}" r="10" fill="${hi}" fill-opacity=".9" stroke="${pn}" stroke-width="2.5"/><circle cx="${A.sx(x)}" cy="${A.sy(y)}" r="3" fill="${pn}"/>`; });
+  $('lbSvg').innerHTML=s;
+  $('lbXv').textContent=' '+xr+' °C';
+  // feedback
+  const M=$('lbMsg');
+  if(!L){ $('lbAbove').textContent=$('lbBelow').textContent=$('lbSlope').textContent='—'; M.className='msg bad'; M.textContent='Your line is vertical. Move one handle sideways.'; return; }
+  let ab=0, be=0, ss=0;
+  LBX.forEach((x,i)=>{ const d=LBY[i]-(L.m*x+L.c); ss+=d*d; if(d>1) ab++; else if(d<-1) be++; });
+  $('lbAbove').textContent=ab; $('lbBelow').textContent=be;
+  $('lbSlope').textContent=`${fmt(L.m,1)} per °C`;
+  const ratio=L.m/LBFIT.m, spread=Math.abs(lbH[1][0]-lbH[0][0]);
+  const atOrigin=lbH.some(([x,y])=>Math.abs(x)<0.6&&Math.abs(y)<0.6);
+  let ok=false, t;
+  if(spread<4) t='Spread your two handles further apart so the line is easier to control (use one handle near each end of the data).';
+  else if(L.m<=0) t='The points go uphill (positive correlation), but your line is flat or goes downhill. A line of best fit must follow the trend.';
+  else if(ratio<0.8) t=`Your line is too shallow: it rises ${fmt(L.m,1)} per °C, but the points rise faster than that. Lift the right-hand end or lower the left.${atOrigin?' Forcing the line through (0, 0) is what made it too shallow: a line of best fit does not have to go through the origin.':''}`;
+  else if(ratio>1.25) t=`Your line is too steep: it rises ${fmt(L.m,1)} per °C, but the points rise more slowly. Lower the right-hand end or lift the left.`;
+  else if(ab-be>=3) t=`Right direction and steepness, but ${ab} points are above and only ${be} below. Move the whole line up.`;
+  else if(be-ab>=3) t=`Right direction and steepness, but ${be} points are below and only ${ab} above. Move the whole line down.`;
+  else if(ss>2.5*lbSSmin) t='Balanced, but your line runs a long way from the points. Bring it closer to the middle of the cloud.';
+  else { ok=true; t=`A good line of best fit: it follows the uphill trend, has ${ab} points above and ${be} below, and passes close to the points.${atOrigin?'':' Notice it does not go through (0, 0), and it does not need to.'}`; }
+  M.className='msg '+(ok?'good':'bad'); M.textContent=t;
+}
+$('lbSvg').addEventListener('pointerdown',e=>{ if(!lbA) return; const [px,py]=svgPt($('lbSvg'),e); let best=-1, bd=40;
+  lbH.forEach(([x,y],i)=>{ const d=Math.hypot(lbA.sx(x)-px,lbA.sy(y)-py); if(d<bd){bd=d;best=i;} });
+  if(best<0) return; lbDrag=best; try{$('lbSvg').setPointerCapture(e.pointerId);}catch(_){} e.preventDefault(); });
+$('lbSvg').addEventListener('pointermove',e=>{ if(lbDrag<0) return; const [px,py]=svgPt($('lbSvg'),e);
+  lbH[lbDrag]=[clamp(Math.round(lbA.ix(px)*2)/2,0,35), clamp(Math.round(lbA.iy(py)*2)/2,0,80)]; drawLB(); });
+['pointerup','pointercancel'].forEach(t=>$('lbSvg').addEventListener(t,()=>{ lbDrag=-1; }));
+$('lbOrigin').addEventListener('click',()=>{ lbH=[[0,0],[30,61]]; drawLB(); });
+$('lbBest').addEventListener('click',()=>{ lbH=[[12,Math.round((LBFIT.m*12+LBFIT.c)*2)/2],[32,Math.round((LBFIT.m*32+LBFIT.c)*2)/2]]; drawLB(); });
+$('lbReset').addEventListener('click',()=>{ lbH=LB0.map(p=>p.slice()); drawLB(); });
+['lbRes','lbOut','lbX'].forEach(id=>$(id).addEventListener('input',drawLB));
+drawLB();
+
+/* 6a. third-factor diagram */
+function drawCU(){
+  const hi=css('--hi'), ac=css('--accent'), tw=css('--two'), mu=css('--muted'), pn=css('--panel'), fg=css('--fg');
+  const box=(x,y,w,t,col)=>`<rect x="${x-w/2}" y="${y-18}" width="${w}" height="36" rx="8" fill="${pn}" stroke="${col}" stroke-width="2.5"/>`+txt(x,y+5,t,col,{a:'middle',w:600,fs:13});
+  const arr=(x1,y1,x2,y2,col,dash)=>{ const a=Math.atan2(y2-y1,x2-x1), h=10; return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="2.5"${dash?' stroke-dasharray="6 5"':''}/>`+(dash?'':`<path d="M${x2},${y2} L${x2-h*Math.cos(a-0.45)},${y2-h*Math.sin(a-0.45)} L${x2-h*Math.cos(a+0.45)},${y2-h*Math.sin(a+0.45)} Z" fill="${col}"/>`); };
+  let s='';
+  s+=arr(170,50,95,128,fg)+arr(230,50,305,128,fg);
+  s+=txt(118,86,'causes',mu,{a:'end',fs:11})+txt(282,86,'causes',mu,{fs:11});
+  s+=arr(160,150,240,150,mu,true)+txt(200,140,'correlated',mu,{a:'middle',fs:11})+txt(200,172,'but no cause',css('--bad'),{a:'middle',fs:11,w:600});
+  s+=box(200,32,190,'hot sunny weather',hi)+box(80,150,150,'ice cream sales',ac)+box(320,150,130,'sunburn',tw);
+  $('cuSvg').innerHTML=s;
+}
+drawCU();
+
+/* 6b. correlation or causation card sorter */
+const CS=[
+  {t:'Ice cream sales rise, and so do cases of sunburn.',c:false,w:'Third factor: hot sunny weather causes both.'},
+  {t:'The longer people spend in strong sun without sun cream, the worse their sunburn.',c:true,w:'Sunlight on unprotected skin really does cause sunburn.'},
+  {t:'Children with bigger shoe sizes tend to be better at reading.',c:false,w:'Third factor: age. Older children have bigger feet and have had more years of reading practice.'},
+  {t:'The harder you press a car\'s accelerator, the faster it goes.',c:true,w:'Pressing the pedal sends more fuel or power to the engine, which directly speeds the car up.'},
+  {t:'The more fire engines that come to a fire, the more damage the fire does.',c:false,w:'Third factor: the size of the fire. Big fires cause more damage and need more fire engines.'},
+  {t:'Over 200 years, the number of pirates fell while world temperatures rose.',c:false,w:'Coincidence: two things that both changed over the same years, with no link between them.'},
+  {t:'Umbrella sales go up when more people have wet shoes.',c:false,w:'Third factor: rain. Rain makes people buy umbrellas and gets their shoes wet.'},
+  {t:'The more hours a kettle is switched on for, the more electricity it uses.',c:true,w:'A kettle uses electricity while it is on, so more time on directly means more electricity used.'}
+];
+let csAns={};
+function drawCS(){
+  const box=$('csCards'); box.innerHTML='';
+  CS.forEach((C,i)=>{
+    const a=csAns[i], d=document.createElement('div');
+    if(a!==undefined && a===C.c) return; // sorted correctly: lives in a pile
+    d.className='card'+(a!==undefined?' bad':'');
+    d.innerHTML=`<p>${C.t}</p><div class="chips"><button class="btn" type="button" data-v="1">Causes it</button><button class="btn" type="button" data-v="0">Correlation only</button></div>${a!==undefined?`<p class="why" style="color:${css('--bad')}">Not quite. Think again: ${C.c?'is there a direct, sensible way the first thing makes the second happen?':'could something else be causing both, or could it be chance?'}</p>`:''}`;
+    d.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ csAns[i]=b.dataset.v==='1'; drawCS(); }));
+    box.appendChild(d);
+  });
+  const pile=c=>CS.map((C,i)=>[C,i]).filter(([C,i])=>csAns[i]===C.c&&C.c===c).map(([C])=>`<li style="color:${css('--good')}">${C.t}<br><span style="color:${css('--muted')}">${C.w}</span></li>`).join('');
+  $('csP1').innerHTML=pile(true); $('csP2').innerHTML=pile(false);
+  const done=CS.filter((C,i)=>csAns[i]===C.c).length;
+  $('csScore').textContent = done===CS.length ? `All ${CS.length} sorted. Notice how many "obvious" links were really a third factor!` : `${done} of ${CS.length} sorted correctly`;
+}
+$('csReset').addEventListener('click',()=>{ csAns={}; drawCS(); });
+drawCS();
+
+/* 7. common mistakes */
+const LBFITO=lsq(LBX.concat([LBO[0]]),LBY.concat([LBO[1]]));
+const kOrigin=LBX.reduce((s,x,i)=>s+x*LBY[i],0)/LBX.reduce((s,x)=>s+x*x,0);
+const MK=[
+  {n:'Joining the dots',bad:'The points have been joined up in order with a zigzag. A scatter graph is not a line graph: the order of the points means nothing, and a zigzag doesn\'t show the trend.',fix:'Draw <strong>one straight line</strong> with a ruler that follows the overall trend, with roughly equal numbers of points on each side.'},
+  {n:'Forcing it through (0, 0)',bad:()=>`The line has been started at the origin. It rises only ${fmt(kOrigin,1)} per °C, too shallow for the points on the right, and at 0 °C there is no data anyway.`,fix:()=>`A line of best fit <strong>does not have to go through (0, 0)</strong>. Follow the points: this one rises about ${fmt(LBFIT.m,1)} per °C.`},
+  {n:'No context',bad:'"There is positive correlation." True, but it doesn\'t say what is going on, so it would not get full marks.',fix:'"There is <strong>strong positive correlation</strong>: on hotter days, the shop tends to sell <strong>more ice creams</strong>." Say the type and strength, then what it means in real life.'},
+  {n:'Trusting extrapolation',bad:()=>`The line has been extended to 0 °C and read off: ${fmt(LBFIT.c,0)} ice creams. A negative number of sales is impossible. 0 °C is far outside the data (14 °C to 30 °C).`,fix:()=>`Only estimate inside the range of the data, for example at 20 °C: ${fmt(LBFIT.m,2)} × 20 ${LBFIT.c<0?'−':'+'} ${fmt(Math.abs(LBFIT.c),2)} ≈ ${fmt(LBFIT.m*20+LBFIT.c,0)} ice creams (interpolation).`},
+  {n:'Letting an outlier pull the line',bad:()=>`The hollow point (a school trip day) has been included, and it drags the line up on the left. The line now rises only ${fmt(LBFITO.m,1)} per °C.`,fix:()=>`Ignore the outlier when you draw the line. Without it the line follows the other 12 points: about ${fmt(LBFIT.m,1)} per °C.`}
+];
+let mkI=0, mkFix=false;
+function drawMK(){
+  const P=MK[mkI], ext=mkI===3, bad=css('--bad'), good=css('--good'), ac=css('--accent'), pn=css('--panel');
+  const A=axes({id:'mkClip',W:400,H:300,L:46,R:14,T:12,B:44,x0:0,x1:35,y0:ext?-30:0,y1:80,xt:5,yt:ext?10:10,xl:'temperature (°C)',yl:'ice creams sold'}); A.x0=0; A.x1=35;
+  let s=A.s;
+  LBX.forEach((x,i)=>{ s+=`<circle cx="${A.sx(x)}" cy="${A.sy(LBY[i])}" r="5" fill="${ac}"/>`; });
+  if(mkI===4) s+=`<circle cx="${A.sx(LBO[0])}" cy="${A.sy(LBO[1])}" r="6" fill="${pn}" stroke="${ac}" stroke-width="2.5"/>`;
+  let g='';
+  if(mkFix){
+    if(mkI===3){ g+=lineThrough(A,LBFIT.m,LBFIT.c,good,3); const y=LBFIT.m*20+LBFIT.c; g+=`<line x1="${A.sx(20)}" y1="${A.sy(0)}" x2="${A.sx(20)}" y2="${A.sy(y)}" stroke="${good}" stroke-dasharray="4 3" stroke-width="1.5"/><line x1="${A.sx(20)}" y1="${A.sy(y)}" x2="${A.sx(0)}" y2="${A.sy(y)}" stroke="${good}" stroke-dasharray="4 3" stroke-width="1.5"/>`; }
+    else g+=lineThrough(A,LBFIT.m,LBFIT.c,good,3);
+  } else {
+    if(mkI===0){ const pts=LBX.map((x,i)=>`${A.sx(x)},${A.sy(LBY[i])}`).join(' '); g+=`<polyline points="${pts}" fill="none" stroke="${bad}" stroke-width="2.5"/>`; }
+    else if(mkI===1) g+=lineThrough(A,kOrigin,0,bad,3)+`<circle cx="${A.sx(0)}" cy="${A.sy(0)}" r="5" fill="${bad}"/>`;
+    else if(mkI===2) g+=lineThrough(A,LBFIT.m,LBFIT.c,css('--hi'),3);
+    else if(mkI===3){ g+=lineThrough(A,LBFIT.m,LBFIT.c,bad,3); g+=`<circle cx="${A.sx(0)}" cy="${A.sy(LBFIT.c)}" r="5" fill="${bad}"/>`; }
+    else g+=lineThrough(A,LBFITO.m,LBFITO.c,bad,3);
+  }
+  s+=`<g ${A.clip}>${g}</g>`;
+  $('mkSvg').innerHTML=s;
+  const t=v=>typeof v==='function'?v():v;
+  $('mkInfo').innerHTML = mkFix ? `<strong style="color:${good}">Fixed</strong><br>${t(P.fix)}` : `<strong style="color:${bad}">Mistake: ${P.n.toLowerCase()}</strong><br>${t(P.bad)}`;
+  $('mkFix').textContent = mkFix ? 'Show the mistake' : 'Show the fix';
+  $('mkBtns').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',i===mkI));
+}
+MK.forEach((P,i)=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=P.n; b.addEventListener('click',()=>{ mkI=i; mkFix=false; drawMK(); }); $('mkBtns').appendChild(b); });
+$('mkFix').addEventListener('click',()=>{ mkFix=!mkFix; drawMK(); });
+drawMK();
+
+const redrawAll=()=>{ drawSH(); drawOL(); drawCM(); drawSC(); drawNG(); drawLB(); drawCU(); drawCS(); drawMK(); };
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll); }
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'A chart shows most values bunched at the low end with a long tail stretching towards high values. Its shape is…',opts:['skewed to the right (positive skew)','skewed to the left (negative skew)','symmetrical','negative correlation'],a:0,fb:'The skew is named after the direction of the tail. The tail points towards high values (to the right), so it is skewed to the right, or positively skewed.'},
+  {q:'The data 3, 4, 4, 5, 34 has an outlier. Which average does the outlier affect the most?',opts:['the mean','the median','the mode','none of them'],a:0,fb:'Mean = 50 ÷ 5 = 10, far above most of the values. The median (4) and the mode (4) ignore how big the 34 is.'},
+  {q:'What is the range of 7, 12, 3, 9, 15?',opts:['12','15','9','3'],a:0,fb:'Range = biggest − smallest = 15 − 3 = 12.'},
+  {q:'Class A: mean 62, range 15. Class B: mean 58, range 40. Which comparison is correct?',opts:['On average Class A did better (62 > 58), and Class A were more consistent (range 15 < 40).','Class B did better because its range is bigger.','Class B were more consistent because 40 > 15.','Class A did better because its range is smaller.'],a:0,fb:'Compare the averages for "better on average" and the ranges for consistency. The smaller range is the more consistent group.'},
+  {q:'Two runners\' 100 m times: Sam has mean 14.2 s, Kai has mean 13.6 s. Which is correct?',opts:['On average Kai was faster','On average Sam was faster','They were equally fast','You can\'t compare means of times'],a:0,fb:'For times, lower is faster. Kai\'s mean (13.6 s) is lower than Sam\'s (14.2 s), so Kai was faster on average.'},
+  {q:'As the outside temperature rises, sales of hot chocolate fall. This is…',opts:['negative correlation','positive correlation','no correlation','proof that temperature causes the sales'],a:0,fb:'One goes up while the other goes down: negative correlation. (Correlation alone never proves causation.)'},
+  {q:'The points on a scatter graph lie close to a straight line that goes uphill. This is…',opts:['strong positive correlation','weak positive correlation','strong negative correlation','no correlation'],a:0,fb:'Uphill means positive; close to a straight line means strong.'},
+  {q:'Which is a rule for drawing a line of best fit?',opts:['Roughly equal numbers of points on each side, following the trend','It must go through (0, 0)','Join the points in order','It must go through the first and last points'],a:0,fb:'One straight ruled line that follows the trend with points balanced either side. It doesn\'t need to go through the origin or any particular point.'},
+  {q:'Data was collected for students who revised 1 to 8 hours. Using the line of best fit to estimate the score for 20 hours is unreliable because…',opts:['20 hours is outside the data, so it is extrapolation','the line is too steep','scatter graphs can\'t be used for estimates','the correlation must be negative'],a:0,fb:'Estimating outside the range of the data is extrapolation. The trend may not continue (nobody can score more than 100%!).'},
+  {q:'A line of best fit passes through (2, 30) and (6, 50). What does it estimate at x = 4?',opts:['40','35','45','80'],a:0,fb:'From x = 2 to x = 6 the line rises 20, so 5 per 1 across. At x = 4: 30 + 2 × 5 = 40 (exactly halfway between 30 and 50).'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

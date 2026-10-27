@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Solving Quadratics by Factorising</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive panels; graph-paper neutrals, teal = the quantity, orange = the conversion factor, plum = compound result. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ladder{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;justify-content:center;font-family:var(--mono);margin-top:.8rem}
+.ladder .u{padding:.5rem .8rem;border-radius:8px;border:2px solid var(--line);background:var(--bg);font-weight:600;min-width:3.6em;text-align:center}
+.ladder .u.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ladder .u.to{border-color:var(--two);background:var(--two-soft);color:var(--two)}
+.ladder .k{font-size:.8rem;color:var(--hi);display:flex;flex-direction:column;align-items:center;min-width:3.4em}
+.tri{display:grid;grid-template-columns:1fr 1fr;width:220px;margin:.8rem auto;font-family:var(--mono);font-size:1.2rem;text-align:center}
+.tri div{padding:.5rem;border:1px solid var(--line)}
+.tri .top{grid-column:1/-1;background:var(--accent-soft);color:var(--accent);font-weight:600;border-radius:8px 8px 0 0}
+.tri .bl{background:var(--hi-soft);color:var(--hi);font-weight:600;border-radius:0 0 0 8px}
+.tri .br{background:var(--two-soft);color:var(--two);font-weight:600;border-radius:0 0 8px 0}
+.tri .cover{opacity:.25;text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<style>
+.lab svg{touch-action:none}
+.pairs{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem;font-family:var(--mono)}
+.pairs span{padding:.3rem .6rem;border-radius:6px;border:1px solid var(--line);background:var(--bg);font-size:.95rem}
+.pairs span.hit{border-color:var(--good);background:var(--accent-soft);color:var(--good);font-weight:600}
+.pairs span.miss{opacity:.55;text-decoration:line-through}
+.gridm{display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;max-width:360px;margin:.8rem auto;font-family:var(--mono);text-align:center}
+.gridm div{padding:.6rem .4rem;border-radius:6px;font-size:1.05rem}
+.gridm .hd{background:var(--hi-soft);color:var(--hi);font-weight:600}
+.gridm .corner{background:transparent}
+.gridm .c1{background:var(--two-soft);color:var(--two);font-weight:600}
+.gridm .c2{background:var(--accent-soft);color:var(--accent)}
+.gridm .c3{background:var(--grid)}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.twin .h{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.steps .row{display:grid;grid-template-columns:1fr auto;gap:1rem}
+.steps .op{color:var(--two);font-size:.9rem;white-space:nowrap}
+.steps .todo{opacity:.3}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Algebra · GCSE</div>
+  <h1>Solving Quadratics by Factorising</h1>
+  <p class="lede">A linear equation has one answer. A quadratic like <span class="m">x² + 5x + 6 = 0</span> usually has two, and you can't get at them by "doing the same to both sides". Instead you rewrite the left side as two brackets multiplied together, then use the one fact that makes it all work: if two things multiply to give zero, one of them must be zero.</p>
+  <span class="gcse">GCSE (Foundation and Higher): factorise quadratic expressions of the form x² + bx + c; solve quadratic equations algebraically by factorising; Higher adds ax² + bx + c</span>
+</header>
+
+<h2>1 · The zero-product rule</h2>
+<p>Try to find two numbers that multiply to make 0. You can't, unless one of them <em>is</em> 0. 7 × 0 = 0, 0 × (−3) = 0, but 2 × 5 is never 0. This is the whole reason factorising solves equations: once you have <span class="m">(something) × (something else) = 0</span>, you know one of the brackets equals 0, and each bracket is a simple linear equation.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>A = <input type="range" id="zpA" min="-6" max="6" step="1" value="3"><span id="zpAv" style="font-family:var(--mono)"></span></label>
+    <label>B = <input type="range" id="zpB" min="-6" max="6" step="1" value="-2"><span id="zpBv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="big" id="zpBig" style="font-family:var(--mono);font-size:1.5rem;text-align:center;margin:.6rem 0"></div>
+  <div class="msg" id="zpMsg"></div>
+</div>
+
+<p>So if <span class="m">(x − 2)(x + 5) = 0</span>, then either x − 2 = 0 (so x = 2) or x + 5 = 0 (so x = −5). Two solutions, read straight off the brackets, with the signs flipped. The hard part is getting the brackets in the first place.</p>
+
+<h2>2 · Expanding two brackets: where b and c come from</h2>
+<p>Before factorising, see what expanding does. (x + 2)(x + 3) is a rectangle with sides x + 2 and x + 3; split it into four regions. The x² is the big square, the 6 is the little rectangle, and the two x-strips add up to 5x. So <strong>the number term is the two numbers multiplied; the x coefficient is the two numbers added.</strong> Factorising is finding the two numbers from their sum and product.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>(x + <input type="number" id="exP" value="2" min="-9" max="9" style="width:4em">)(x + <input type="number" id="exQ" value="3" min="-9" max="9" style="width:4em">)</label>
+  </div>
+  <div class="gridm" id="exGrid"></div>
+  <div class="work" id="exWork"></div>
+</div>
+
+<h2>3 · Factorising x² + bx + c</h2>
+<p>Given x² + 5x + 6, you need two numbers that <strong>multiply to 6</strong> and <strong>add to 5</strong>. List the factor pairs of 6 and check which pair adds to 5. Signs matter and the table below handles them: when c is negative the numbers have different signs; when c is positive they share the sign of b.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>x² + <input type="number" id="fcB" value="5" min="-20" max="20" style="width:4.5em">x + <input type="number" id="fcC" value="6" min="-60" max="60" style="width:4.5em"></label>
+    <select id="fcPick"><option value="">examples…</option><option value="5,6">x² + 5x + 6</option><option value="-7,12">x² − 7x + 12</option><option value="2,-15">x² + 2x − 15</option><option value="-3,-10">x² − 3x − 10</option><option value="0,-16">x² − 16 (difference of two squares)</option><option value="6,9">x² + 6x + 9 (perfect square)</option><option value="4,0">x² + 4x (no constant)</option><option value="1,1">x² + x + 1 (won't factorise)</option></select>
+  </div>
+  <div class="pairs" id="fcPairs"></div>
+  <div class="work" id="fcWork"></div>
+</div>
+
+<div class="tbl"><table>
+  <tr><th>Signs in x² + bx + c</th><th>The two numbers are…</th><th>Example</th></tr>
+  <tr><td class="mono">c positive, b positive</td><td>both positive</td><td class="mono">x² + 7x + 10 = (x + 2)(x + 5)</td></tr>
+  <tr><td class="mono">c positive, b negative</td><td>both negative</td><td class="mono">x² − 7x + 10 = (x − 2)(x − 5)</td></tr>
+  <tr><td class="mono">c negative</td><td>one of each; the bigger one takes b's sign</td><td class="mono">x² + 3x − 10 = (x + 5)(x − 2)</td></tr>
+  <tr><td class="mono">c = 0</td><td>take x out as a common factor</td><td class="mono">x² + 4x = x(x + 4)</td></tr>
+  <tr><td class="mono">b = 0, c negative square</td><td>difference of two squares: ±√</td><td class="mono">x² − 16 = (x + 4)(x − 4)</td></tr>
+</table></div>
+
+<div class="callout">
+  <p><strong>Always expand to check.</strong> (x + 2)(x + 3): x² + 3x + 2x + 6 = x² + 5x + 6 ✓. It takes ten seconds and catches every sign slip. The expanding panel above is the check for the factorising panel below it.</p>
+</div>
+
+<h2>4 · Solve it: factorise, then zero-product</h2>
+<p>Put the two ideas together. Make sure the equation equals 0 (rearrange if it doesn't), factorise the left side, set each bracket to 0, solve each, and substitute back. Step through any of these.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Equation <select id="svE">
+      <option value="5,6,0">x² + 5x + 6 = 0</option><option value="-7,12,0">x² − 7x + 12 = 0</option><option value="2,-15,0">x² + 2x − 15 = 0</option><option value="-3,-10,0">x² − 3x − 10 = 0</option><option value="0,-25,0">x² − 25 = 0</option><option value="6,0,0">x² + 6x = 0</option><option value="-6,9,0">x² − 6x + 9 = 0 (repeated root)</option>
+      <option value="3,0,10">x² + 3x = 10 (rearrange first)</option><option value="0,0,5|x">x² = 5x (rearrange first)</option><option value="-2,-24,0">x² − 2x − 24 = 0</option>
+    </select></label>
+    <button class="btn primary" id="svNext">Next step</button><button class="btn" id="svAll">Show all</button><button class="btn" id="svReset">Reset</button>
+  </div>
+  <div class="work steps" id="svWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>It must equal zero first.</strong> x² + 3x = 10 cannot be solved by factorising x² + 3x = x(x + 3) and writing x = 10 or x + 3 = 10. The zero-product rule only works for zero: 2 × 5 = 10 and 1 × 10 = 10 and plenty of others. Move everything to one side, get = 0, then factorise.</p>
+</div>
+
+<h2>5 · What the solutions mean on a graph</h2>
+<p>The solutions of x² + bx + c = 0 are exactly where the graph of y = x² + bx + c crosses the x-axis, because that's where y = 0. Factorised, the brackets tell you the crossing points directly: (x − 2)(x + 5) crosses at 2 and −5. Drag the roots and watch the equation rebuild itself.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>root p = <input type="range" id="grP" min="-6" max="6" step="1" value="-5"><span id="grPv" style="font-family:var(--mono)"></span></label>
+    <label>root q = <input type="range" id="grQ" min="-6" max="6" step="1" value="2"><span id="grQv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="grSvg" viewBox="0 0 420 380" width="420" height="380"></svg>
+  <div class="work" id="grWork"></div>
+</div>
+
+<h2>6 · When x² has a coefficient (Higher)</h2>
+<p>2x² + 7x + 3 doesn't start with a plain x², so the brackets start (2x …)(x …). One method that always works: multiply a × c (here 2 × 3 = 6), find two numbers that multiply to 6 and add to 7 (those are 1 and 6), split the middle term 7x into 1x + 6x, then factorise in pairs.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><input type="number" id="hiA" value="2" min="2" max="9" style="width:4em">x² + <input type="number" id="hiB" value="7" min="-30" max="30" style="width:4.5em">x + <input type="number" id="hiC" value="3" min="-30" max="30" style="width:4.5em"></label>
+    <select id="hiPick"><option value="">examples…</option><option value="2,7,3">2x² + 7x + 3</option><option value="3,-11,6">3x² − 11x + 6</option><option value="2,-x,-6|2,1,-6">2x² + x − 6</option><option value="6,7,-3">6x² + 7x − 3</option><option value="4,-9,0|4,0,-9">4x² − 9</option></select>
+  </div>
+  <div class="work" id="hiWork"></div>
+</div>
+
+<h2>7 · Where quadratics come from</h2>
+<div class="grid2">
+  <div class="use"><h3>Areas</h3>
+    <p>A rectangle is 3 cm longer than it is wide and has area 40 cm²: x(x + 3) = 40 → x² + 3x − 40 = 0 → (x + 8)(x − 5) = 0 → x = 5 (the −8 is rejected: a width can't be negative).</p></div>
+  <div class="use"><h3>Projectiles</h3>
+    <p>Height h = 20t − 5t². When does it land? 5t(4 − t) = 0 → t = 0 or 4. Factorising answers "when is it on the ground" in one line.</p></div>
+  <div class="use"><h3>Number puzzles</h3>
+    <p>"Two consecutive numbers multiply to 56": n(n + 1) = 56 → n² + n − 56 = 0 → (n + 8)(n − 7) = 0 → 7 and 8 (or −8 and −7).</p></div>
+  <div class="use"><h3>Computing</h3>
+    <p>Game physics solves quadratics every frame to find when a moving object hits a surface; graphics engines solve them to find where a ray meets a sphere. The two roots are "entering" and "leaving".</p></div>
+  <div class="use"><h3>Business</h3>
+    <p>Profit = revenue − cost often comes out quadratic in price. The roots are the break-even prices; the turning point between them is the price that maximises profit.</p></div>
+  <div class="use"><h3>Further maths</h3>
+    <p>When factorising fails (x² + x + 1), the quadratic formula and completing the square take over. Both still rely on the zero-product rule underneath.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Solve x² − 7x + 12 = 0</summary>
+  <div class="step"><strong>Two numbers that multiply to +12 and add to −7:</strong> both negative. Pairs of 12: 1 & 12, 2 & 6, 3 & 4. The pair −3, −4 adds to −7.</div>
+  <div class="step"><strong>Factorise:</strong> (x − 3)(x − 4) = 0.</div>
+  <div class="step"><strong>Zero product:</strong> x − 3 = 0 or x − 4 = 0, so <strong>x = 3 or x = 4</strong>. Check: 9 − 21 + 12 = 0 ✓, 16 − 28 + 12 = 0 ✓</div>
+</details>
+<details>
+  <summary>Solve x² + 2x = 15</summary>
+  <div class="step"><strong>Make it equal zero:</strong> x² + 2x − 15 = 0.</div>
+  <div class="step"><strong>Multiply to −15, add to +2:</strong> different signs, bigger one positive: +5 and −3.</div>
+  <div class="step"><strong>(x + 5)(x − 3) = 0 → x = −5 or x = 3.</strong> Check x = 3: 9 + 6 = 15 ✓</div>
+</details>
+<details>
+  <summary>Solve x² = 9x</summary>
+  <div class="step"><strong>Don't divide by x</strong> (you'd lose a solution). Rearrange: x² − 9x = 0.</div>
+  <div class="step"><strong>Common factor:</strong> x(x − 9) = 0.</div>
+  <div class="step"><strong>x = 0 or x = 9.</strong> Dividing both sides by x at the start would have thrown away x = 0.</div>
+</details>
+<details>
+  <summary>Exam-style: a rectangle has length (x + 4) cm and width x cm. Its area is 45 cm². Find x.</summary>
+  <div class="step"><strong>Form the equation:</strong> x(x + 4) = 45 → x² + 4x − 45 = 0.</div>
+  <div class="step"><strong>Factorise:</strong> multiply to −45, add to +4: +9 and −5. (x + 9)(x − 5) = 0.</div>
+  <div class="step"><strong>Solutions:</strong> x = −9 or x = 5. A width can't be negative, so <strong>x = 5</strong>. The rectangle is 9 by 5 ✓. Always say why you rejected the other root.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>If a product is zero, one factor is zero: that single fact turns a quadratic into two linear equations. To use it, get the equation equal to zero, then factorise x² + bx + c by finding two numbers that multiply to c and add to b, watching the signs. Set each bracket to zero and solve; the solutions are the sign-flipped bracket numbers, and they are the x-intercepts of the graph. Expand to check the factorising, substitute to check the solutions, and in a context, reject any root that makes no sense.</p>
+
+<footer>Made for GCSE students. Factorising quadratics and solving by factorisation are in the GCSE mathematics subject content (DfE); ax² + bx + c with a ≠ 1 is Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">Subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const F=()=>`font-family="${css('--mono')}"`;
+const sgn=(v,first)=>v<0?(first?'−':' − ')+Math.abs(v):(first?'':' + ')+v;
+const brk=v=>v===0?'x':`(x${v<0?' − '+(-v):' + '+v})`;
+const quad=(b,c)=>'x²'+(b?(b===1?' + x':b===-1?' − x':sgn(b)+'x'):'')+(c?sgn(c):'');
+const row=(e,o,cls='')=>`<div class="row ${cls}"><span>${e}</span><span class="op">${o||''}</span></div>`;
+
+/* 1 zero product */
+const zpA=document.getElementById('zpA'),zpB=document.getElementById('zpB');
+function drawZP(){const a=+zpA.value,b=+zpB.value;document.getElementById('zpAv').textContent=' '+a;document.getElementById('zpBv').textContent=' '+b;
+  document.getElementById('zpBig').innerHTML=`${a<0?'('+a+')':a} × ${b<0?'('+b+')':b} = <strong>${a*b}</strong>`;const m=document.getElementById('zpMsg');
+  if(a*b===0){m.className='msg good';m.textContent=`Zero. And look: ${a===0?'A':'B'} is 0. That's the only way to get a product of zero.`;}else{m.className='msg bad';m.textContent='Not zero. Neither number is zero, so the product can\'t be. Try making either slider 0.';}}
+zpA.addEventListener('input',drawZP);zpB.addEventListener('input',drawZP);drawZP();
+
+/* 2 expand grid */
+const exP=document.getElementById('exP'),exQ=document.getElementById('exQ');
+function drawEX(){const p=+exP.value|0,q=+exQ.value|0;
+  document.getElementById('exGrid').innerHTML=`<div class="corner"></div><div class="hd">x</div><div class="hd">${sgn(q,true)}</div><div class="hd">x</div><div class="c1">x²</div><div class="c2">${q===0?'0':q===1?'x':q===-1?'−x':sgn(q,true)+'x'}</div><div class="hd">${sgn(p,true)}</div><div class="c2">${p===0?'0':p===1?'x':p===-1?'−x':sgn(p,true)+'x'}</div><div class="c3">${p*q}</div>`;
+  document.getElementById('exWork').innerHTML=`${brk(p)}${brk(q)} = x² ${sgn(q)}x ${sgn(p)}x ${sgn(p*q)}<br>= <strong>${quad(p+q,p*q)}</strong><br><span class="c">x-coefficient = ${p} + ${q} = ${p+q} (the numbers added)</span>   <span class="a">constant = ${p} × ${q} = ${p*q} (the numbers multiplied)</span>`;}
+exP.addEventListener('input',drawEX);exQ.addEventListener('input',drawEX);drawEX();
+
+/* 3 factorise */
+function factorPairs(c){const out=[];const n=Math.abs(c);if(n===0)return out;for(let i=1;i*i<=n;i++)if(n%i===0){const j=n/i;if(c>0){out.push([i,j]);if(!(i===j))out.push([-i,-j]);else out.push([-i,-j]);}else{out.push([i,-j]);if(i!==j)out.push([-i,j]);}}return out;}
+function factorise(b,c){if(c===0)return {kind:'x',p:0,q:b};for(const [p,q] of factorPairs(c))if(p+q===b)return {kind:'ok',p,q};return {kind:'none'};}
+const fcB=document.getElementById('fcB'),fcC=document.getElementById('fcC'),fcPick=document.getElementById('fcPick');
+function drawFC(){const b=+fcB.value|0,c=+fcC.value|0;const P=document.getElementById('fcPairs'),W=document.getElementById('fcWork');
+  if(c===0){P.innerHTML='';W.innerHTML=`${quad(b,0)}: no constant term, so x is a common factor.<br>= <strong>x(x${sgn(b)})</strong>`;return;}
+  const pairs=factorPairs(c);const r=factorise(b,c);
+  P.innerHTML=pairs.map(([p,q])=>`<span class="${p+q===b?'hit':'miss'}">${p} × ${q} = ${c},  ${p} + ${q} = ${p+q}</span>`).join('');
+  if(r.kind==='none'){W.innerHTML=`${quad(b,c)}: need two numbers that multiply to ${c} and add to ${b}.<br>No pair works. <strong>This one doesn't factorise</strong> (with whole numbers). At A-level, the formula or completing the square would be used.`;return;}
+  const {p,q}=r;const special=b===0&&c<0?' This is a <em>difference of two squares</em>: x² − a² = (x + a)(x − a).':p===q?' A <em>perfect square</em>: (x '+sgn(p)+')².':'';
+  W.innerHTML=`${quad(b,c)}: need two numbers that multiply to <span class="a">${c}</span> and add to <span class="b">${b}</span>.<br>${c>0?(b>0?'c positive, b positive → both positive.':'c positive, b negative → both negative.'):'c negative → one positive, one negative; the larger takes the sign of b.'}<br>Found: ${p} and ${q}.  <strong>= ${brk(p)}${brk(q)}</strong>${special}<br><span class="c">check by expanding: x² ${sgn(q)}x ${sgn(p)}x ${sgn(p*q)} = ${quad(p+q,p*q)} ✓</span>`;}
+fcB.addEventListener('input',drawFC);fcC.addEventListener('input',drawFC);fcPick.addEventListener('change',()=>{if(fcPick.value){const [b,c]=fcPick.value.split(',');fcB.value=b;fcC.value=c;drawFC();}});drawFC();
+
+/* 4 solver */
+const svE=document.getElementById('svE');let svSteps=[],svStage=0;
+function buildSteps(val){let steps=[];let [b,c,rhs]=val.split('|')[0].split(',').map(Number);const rhsIsX=val.includes('|x');
+  if(rhsIsX){steps.push([`x² = 5x`,'start: not equal to zero']);steps.push([`x² − 5x = 0`,'− 5x both sides (do NOT divide by x: you\'d lose a root)']);b=-5;c=0;}
+  else if(rhs!==0){steps.push([`${quad(b,c)} = ${rhs}`,'start: not equal to zero']);c=c-rhs;steps.push([`${quad(b,c)} = 0`,`− ${rhs} both sides so the right side is 0`]);}
+  else steps.push([`${quad(b,c)} = 0`,'start: already equal to zero']);
+  const r=factorise(b,c);
+  if(r.kind==='x'){steps.push([`x(x${sgn(b)}) = 0`,'no constant: take out the common factor x']);steps.push([`x = 0   or   x${sgn(b)} = 0`,'zero product: one bracket is zero']);steps.push([`<strong>x = 0   or   x = ${-b}</strong>`,'solve each']);steps.push([`check: 0² ${sgn(b)}(0) = 0 ✓   (${-b})² ${sgn(b)}(${-b}) = ${(-b)*(-b)+b*(-b)} ✓`,'substitute back']);}
+  else{const {p,q}=r;steps.push([`find two numbers: × to give ${c}, + to give ${b} → ${p} and ${q}`,'factor hunt']);steps.push([`${brk(p)}${brk(q)} = 0`,'factorised (expand to check)']);
+    if(p===q){steps.push([`(x${sgn(p)})² = 0, so x${sgn(p)} = 0`,'both brackets the same: one repeated root']);steps.push([`<strong>x = ${-p}</strong> (repeated)`,'the graph just touches the x-axis']);}
+    else{steps.push([`x${sgn(p)} = 0   or   x${sgn(q)} = 0`,'zero product: one bracket is zero']);steps.push([`<strong>x = ${-p}   or   x = ${-q}</strong>`,'solve each (signs flip)']);}
+    const chk=x=>x*x+b*x+c;steps.push([`check: x = ${-p}: ${(-p)*(-p)} ${sgn(b*(-p))} ${sgn(c)} = ${chk(-p)} ✓${p!==q?`   x = ${-q}: ${(-q)*(-q)} ${sgn(b*(-q))} ${sgn(c)} = ${chk(-q)} ✓`:''}`,'substitute into the = 0 form']);}
+  return steps;}
+function svLoad(){svSteps=buildSteps(svE.value);svStage=0;drawSv();}
+function drawSv(){document.getElementById('svWork').innerHTML=svSteps.map((s,i)=>row(s[0],s[1],i>svStage?'todo':'')).join('');document.getElementById('svNext').disabled=svStage>=svSteps.length-1;}
+document.getElementById('svNext').addEventListener('click',()=>{svStage=Math.min(svSteps.length-1,svStage+1);drawSv();});
+document.getElementById('svAll').addEventListener('click',()=>{svStage=svSteps.length-1;drawSv();});
+document.getElementById('svReset').addEventListener('click',()=>{svStage=0;drawSv();});svE.addEventListener('change',svLoad);svLoad();
+
+/* 5 graph */
+const grP=document.getElementById('grP'),grQ=document.getElementById('grQ');
+function drawGR(){const p=+grP.value,q=+grQ.value;document.getElementById('grPv').textContent=' '+p;document.getElementById('grQv').textContent=' '+q;const b=-(p+q),c=p*q;const f=x=>(x-p)*(x-q);
+  const S=420,R=7,pad=26,cell=(S-2*pad)/(2*R);const sx=x=>pad+(x+R)*cell;const ymin=-16,ymax=24;const sy=y=>pad+(ymax-y)/(ymax-ymin)*(380-2*pad);let s='';
+  for(let i=-R;i<=R;i++)s+=`<line x1="${sx(i)}" y1="${pad}" x2="${sx(i)}" y2="${380-pad}" stroke="${css('--grid')}"/>`;for(let j=ymin;j<=ymax;j+=4)s+=`<line x1="${pad}" y1="${sy(j)}" x2="${S-pad}" y2="${sy(j)}" stroke="${css('--grid')}"/><text x="${pad-4}" y="${sy(j)+3}" text-anchor="end" font-size="9" ${F()} fill="${css('--muted')}">${j}</text>`;
+  s+=`<line x1="${pad}" y1="${sy(0)}" x2="${S-pad}" y2="${sy(0)}" stroke="${css('--muted')}" stroke-width="1.5"/><line x1="${sx(0)}" y1="${pad}" x2="${sx(0)}" y2="${380-pad}" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  for(let i=-R;i<=R;i+=2){if(i)s+=`<text x="${sx(i)}" y="${sy(0)+12}" text-anchor="middle" font-size="9" ${F()} fill="${css('--muted')}">${i}</text>`;}
+  let d='';for(let i=0;i<=200;i++){const x=-R-0.5+(2*R+1)*i/200;const y=f(x);if(y>=ymin-5&&y<=ymax+5)d+=(d?'L':'M')+sx(x)+','+sy(y);}
+  s+=`<g clip-path="inset(0)"><path d="${d}" fill="none" stroke="${css('--accent')}" stroke-width="2.5"/></g>`;
+  s+=`<circle cx="${sx(p)}" cy="${sy(0)}" r="7" fill="${css('--two')}"/><circle cx="${sx(q)}" cy="${sy(0)}" r="7" fill="${css('--hi')}"/><text x="${sx(p)}" y="${sy(0)-12}" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${css('--two')}">x = ${p}</text><text x="${sx(q)}" y="${sy(0)+(p===q?-12:24)}" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${css('--hi')}">x = ${q}</text>`;
+  document.getElementById('grSvg').innerHTML=s;
+  document.getElementById('grWork').innerHTML=`Roots ${p} and ${q} → brackets <span class="c">${brk(-p)}</span><span class="b">${brk(-q)}</span> (signs flipped)<br>Expand: y = <strong>${quad(b,c)}</strong>.  So ${quad(b,c)} = 0 has solutions x = ${p}${p!==q?' and x = '+q:' (repeated: the curve touches the axis)'}.<br>The y-intercept is c = ${c} = ${p} × ${q}: the product of the roots. The axis of symmetry is x = ${(p+q)/2}, halfway between them.`;}
+grP.addEventListener('input',drawGR);grQ.addEventListener('input',drawGR);drawGR();
+
+/* 6 a≠1 */
+const hiA=document.getElementById('hiA'),hiB=document.getElementById('hiB'),hiC=document.getElementById('hiC'),hiPick=document.getElementById('hiPick');
+const g=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;};
+function drawHI(){const a=+hiA.value|0,b=+hiB.value|0,c=+hiC.value|0;const W=document.getElementById('hiWork');const ac=a*c;
+  const head=`${a}x²${b?(b===1?' + x':b===-1?' − x':sgn(b)+'x'):''}${c?sgn(c):''}`;
+  if(c===0){const gg=g(a,b);W.innerHTML=`${head}: common factor ${gg}x.<br>= <strong>${gg}x(${a/gg}x${sgn(b/gg)})</strong> → x = 0 or x = ${-b/a}`;return;}
+  let found=null;for(const [p,q] of factorPairs(ac))if(p+q===b){found=[p,q];break;}
+  if(!found){W.innerHTML=`${head}: a × c = ${ac}. Need two numbers that multiply to ${ac} and add to ${b}: none. <strong>Doesn't factorise</strong> with whole numbers.`;return;}
+  const [p,q]=found;// split: a x² + p x + q x + c ; group (a x² + p x) + (q x + c)
+  const g1=g(a,p),g2=g(q,c);const f1=[a/g1,p/g1],f2=[q/g2,c/g2];// expect f1 == f2 (the common bracket)
+  let sgn2=1;if(f1[0]===-f2[0]&&f1[1]===-f2[1]){sgn2=-1;}
+  const common=`(${f1[0]===1?'':f1[0]}x${sgn(f1[1])})`;const other=`(${g1===1?'':g1}x${sgn(sgn2*g2)})`;
+  W.innerHTML=`${head}<br><span class="a">a × c = ${a} × ${c} = ${ac}.</span> Two numbers: × to ${ac}, + to ${b} → ${p} and ${q}<br>split the middle: ${a}x² ${sgn(p)}x ${sgn(q)}x ${sgn(c)}<br>group in pairs: ${g1===1?'':g1}x${common} ${sgn2*g2<0?'−':'+'} ${g2}${common}   ← same bracket appears twice<br>= <strong>${common}${other}</strong><br><span class="c">so ${head} = 0 → x = ${-f1[1]}/${f1[0]}${f1[0]===1?'':''} = ${(-f1[1]/f1[0]).toFixed(2).replace(/\.?0+$/,'')} or x = ${-(sgn2*g2)}/${g1} = ${(-(sgn2*g2)/g1).toFixed(2).replace(/\.?0+$/,'')}</span>`;}
+[hiA,hiB,hiC].forEach(e=>e.addEventListener('input',drawHI));hiPick.addEventListener('change',()=>{if(hiPick.value){const v=hiPick.value.split('|').pop().split(',');hiA.value=v[0];hiB.value=v[1];hiC.value=v[2];drawHI();}});drawHI();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',drawGR);}
+new MutationObserver(drawGR).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const QS=[
+  {q:'If (x − 4)(x + 1) = 0, then x = …',opts:['4 or −1','−4 or 1','4 or 1','−4 or −1'],a:0,fb:'Each bracket equals 0: x − 4 = 0 → 4; x + 1 = 0 → −1. Signs flip.'},
+  {q:'Factorise x² + 8x + 15',opts:['(x + 3)(x + 5)','(x + 1)(x + 15)','(x − 3)(x − 5)','(x + 8)(x + 15)'],a:0,fb:'3 × 5 = 15 and 3 + 5 = 8.'},
+  {q:'Factorise x² − 2x − 24',opts:['(x − 6)(x + 4)','(x + 6)(x − 4)','(x − 8)(x + 3)','(x − 12)(x + 2)'],a:0,fb:'× to −24, + to −2: −6 and +4.'},
+  {q:'Solve x² − 9x + 20 = 0',opts:['x = 4 or 5','x = −4 or −5','x = 4 or −5','x = 2 or 10'],a:0,fb:'(x − 4)(x − 5) = 0.'},
+  {q:'Solve x² = 7x',opts:['x = 0 or 7','x = 7','x = 0','x = ±√7'],a:0,fb:'x² − 7x = 0 → x(x − 7) = 0. Dividing by x loses the x = 0 root.'},
+  {q:'Solve x² − 49 = 0',opts:['x = 7 or −7','x = 7','x = 49','x = 24.5'],a:0,fb:'Difference of two squares: (x + 7)(x − 7) = 0.'},
+  {q:'The first step for x² + 5x = 14 is…',opts:['− 14 from both sides to get = 0','factorise x(x + 5)','÷ x','take the square root'],a:0,fb:'Zero-product only works when the product is zero. Rearrange to x² + 5x − 14 = 0 first.'},
+  {q:'y = (x + 2)(x − 6) crosses the x-axis at…',opts:['−2 and 6','2 and −6','0 and −12','−2 and −6'],a:0,fb:'y = 0 when a bracket is 0: x = −2 or x = 6.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);const div=document.createElement('div');div.className='q';div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});opts.appendChild(b);});qz.appendChild(div);});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

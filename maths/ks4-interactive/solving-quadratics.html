@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Solving Quadratic Equations</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive panel (SVG graphs and tile diagrams drawn from JS, sliders, step-through buttons, answer boxes with targeted feedback). Colours on this page: teal = the quadratic itself (the curve, the x² tile), orange = solutions/roots (where the curve meets the x-axis) and the x strips in the tile picture, plum = the completed-square corner (b/2)² and the turning point. Green/red are only for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.ca{color:var(--accent);font-weight:600}.ch{color:var(--hi);font-weight:600}.ct{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}
+.info{font-size:.98rem;line-height:1.6;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;min-height:5.5em}
+.info strong{font-family:var(--display);font-size:1.1rem}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse;font-size:.9rem}
+.vt td,.vt th{text-align:right;padding:.35rem .45rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .7rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt td:first-child,.vt th:first-child{text-align:left;font-family:var(--body)}
+.vt td.on{color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+a{color:var(--accent)}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.15rem .5rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:.35em;margin-left:.35rem;line-height:1.4}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+h3 .tag,summary .tag{vertical-align:.15em}
+.lab svg.drag{touch-action:none}
+.lab svg.drag [data-h]{cursor:grab}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.callout.trap{background:var(--two-soft)}
+.work .s{display:block}
+.work .s[hidden]{display:none}
+.work .note{color:var(--muted);font-family:var(--body);font-size:.9rem}
+.next{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:1rem 0;background:var(--panel)}
+@media (max-width:560px){
+  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block;width:100%}
+  table.stack tr:first-child{display:none}
+  table.stack tr{border-bottom:1px solid var(--line);padding:.35rem 0}
+  table.stack td{border:0;padding:.15rem .3rem}
+}
+.controls label{flex-wrap:wrap}
+.readout b.nt,th.nt{text-transform:none;letter-spacing:.02em}
+.vt.sm td,.vt.sm th{padding:.3rem .25rem;font-size:.82rem}
+.vt th{text-transform:none;letter-spacing:.02em;font-size:.8rem}
+.controls label{max-width:100%}.controls select{min-width:0;max-width:100%}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.25;margin:0 .15em}
+.frac>span:first-child{border-bottom:2px solid currentColor;padding:0 .25em .1em}
+.frac>span:last-child{padding-top:.1em}
+.typebtns{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Algebra</div>
+  <h1>Solving Quadratic Equations</h1>
+  <p class="lede">A quadratic equation, like x² − 5x + 6 = 0, usually has <em>two</em> answers. This page gives you three ways to find them: factorising, completing the square and the quadratic formula. It shows why each one works, what the answers mean on a graph, and how to choose the best method for the question in front of you.</p>
+  <span class="gcse">GCSE subject content: solve quadratic equations algebraically by factorising; find approximate solutions using a graph; <strong>Higher:</strong> solve by completing the square and by using the quadratic formula; identify turning points by completing the square</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start.</strong> You need to be able to factorise x² + bx + c (see <a href="double-brackets-factorising-quadratics.html">Double brackets and factorising quadratics</a>) and to know what the graph of a quadratic looks like: a symmetrical U-shaped curve called a <strong>parabola</strong> (see <a href="../ks3-interactive/quadratic-graphs.html">Quadratic graphs</a>). Remember that every positive number has <em>two</em> square roots: √9 = 3, but both 3² and (−3)² make 9.</p>
+</div>
+
+<h2>1 · What "solve" means: roots on a graph</h2>
+<p>A <strong>quadratic equation</strong> has an x² term and no higher power, and you want to find the value(s) of x that make it true. To <strong>solve</strong> <span class="m">ax² + bx + c = 0</span> means to find every x that makes the expression equal zero. On the graph of <span class="m">y = ax² + bx + c</span>, those are the points where y = 0: where the curve crosses the x-axis. The solutions are also called the <strong>roots</strong>.</p>
+<p>Drag the plum point along the curve. Where does y become 0? Then change the sliders: a parabola can cross the x-axis twice, touch it once, or miss it completely. That's why a quadratic has two, one or no solutions.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>a = <select id="g1A"><option>1</option><option>2</option><option>−1</option><option>0.5</option></select></label>
+    <label>b = <input type="range" id="g1B" min="-8" max="8" step="1" value="-2"><span id="g1Bv" style="font-family:var(--mono)"></span></label>
+    <label>c = <input type="range" id="g1C" min="-9" max="9" step="1" value="-3"><span id="g1Cv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="big" id="g1Eq"></div>
+  <svg id="g1Svg" class="drag" viewBox="0 0 400 400" width="400" height="400" aria-label="Graph of the quadratic"></svg>
+  <div class="readout">
+    <div class="p"><b>Your point</b><span id="g1Pt"></span></div>
+    <div class="t"><b>Roots (where y = 0)</b><span id="g1Roots"></span></div>
+  </div>
+</div>
+
+<p>Reading roots off a graph only gives <em>approximate</em> answers, often to 1 decimal place. The algebraic methods below give exact answers.</p>
+
+<h2>2 · Solving by factorising</h2>
+<p>If two numbers multiply to make 0, at least one of them must be 0. This is the <strong>zero-product rule</strong>. So once a quadratic is factorised, <span class="m">(x − 2)(x − 3) = 0</span>, either x − 2 = 0 or x − 3 = 0, giving x = 2 or x = 3. You met this in <a href="../ks3-interactive/solving-quadratics-factorising.html">Solving quadratics by factorising</a>; here's a quick step-through, including the traps.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Equation <select id="fsE">
+      <option value="0">x² − 5x + 6 = 0</option><option value="1">x² + 2x = 15</option><option value="2">x² = 7x</option><option value="3">x² − 49 = 0</option><option value="4">2x² + 5x − 3 = 0 (Higher)</option>
+    </select></label>
+    <button class="btn primary" id="fsNext">Next step</button><button class="btn" id="fsAll">Show all</button><button class="btn" id="fsReset">Reset</button>
+  </div>
+  <div class="work" id="fsWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Two traps.</strong> (1) The equation must equal <strong>zero</strong> before you factorise: x(x + 2) = 15 does <em>not</em> mean x = 15 or x + 2 = 15. (2) Never divide both sides by x: from x² = 7x you'd get x = 7 and lose the solution x = 0.</p>
+</div>
+
+<h2>3 · Completing the square <span class="tag g">Higher</span></h2>
+<p>Most quadratics don't factorise with whole numbers, so we need another method. <strong>Completing the square</strong> rewrites x² + bx + c in the form <span class="m">(x + p)² + q</span>. Here's the picture behind it. x² is a square tile; bx is a strip of width b. Cut the strip in half, move one half underneath, and you <em>almost</em> have a bigger square, of side x + b/2. One small corner is missing: a square of side b/2.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>b = <input type="range" id="tsB" min="1" max="10" step="1" value="6"><span id="tsBv" style="font-family:var(--mono)"></span></label>
+    <label>split and move <input type="range" id="tsT" min="0" max="100" value="100"></label>
+    <label><input type="checkbox" id="tsFill"> complete the square</label>
+    <button class="btn primary" id="tsPlay">Animate</button>
+  </div>
+  <svg id="tsSvg" viewBox="0 0 400 340" width="400" height="340" aria-label="Completing the square with tiles"></svg>
+  <div class="work" id="tsWork"></div>
+</div>
+
+<p>So adding the corner completes the square, and then we must take it away again to keep the value the same:</p>
+<p class="big">x² + bx = (x + <span class="ch">b/2</span>)² − <span class="ct">(b/2)²</span></p>
+<p><strong>Recipe:</strong> halve b to get the number in the bracket, then subtract that number squared. Any constant c just comes along for the ride: <span class="m">x² + 6x + 5</span> = <span class="m">(x + 3)² − 9 + 5</span> = <span class="m">(x + 3)² − 4</span>.</p>
+
+<h2>4 · Turning points and solving from the completed square <span class="tag g">Higher</span></h2>
+<p>The completed form tells you the <strong>turning point</strong> (the lowest point of a U-shaped parabola, also called the <em>vertex</em>). In <span class="m">y = (x + p)² + q</span>, the squared bracket is never negative, so it is smallest (zero) when x = −p. Then y = q. So the turning point is <strong>(−p, q)</strong>. Notice the sign flips for the x-coordinate but not for the y-coordinate.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>p = <input type="range" id="tpP" min="-5" max="5" step="1" value="-2"><span id="tpPv" style="font-family:var(--mono)"></span></label>
+    <label>q = <input type="range" id="tpQ" min="-8" max="6" step="1" value="-3"><span id="tpQv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="big" id="tpEq"></div>
+  <svg id="tpSvg" viewBox="0 0 400 400" width="400" height="400" aria-label="Parabola in completed square form"></svg>
+  <div class="readout">
+    <div class="p"><b>Turning point</b><span id="tpTP"></span></div>
+    <div class="t"><b>Roots</b><span id="tpRoots"></span></div>
+    <div><b>Expanded</b><span id="tpExp"></span></div>
+  </div>
+</div>
+
+<p><strong>Try it.</strong> Write the expression in the form (x + p)² + q.</p>
+<div class="lab">
+  <p class="big" id="ctQ"></p>
+  <div class="controls">
+    <label>(x + <input type="text" id="ctP" inputmode="numeric" autocomplete="off" style="width:4em">)² + <input type="text" id="ctQq" inputmode="numeric" autocomplete="off" style="width:4.5em"></label>
+    <button class="btn primary" id="ctGo">Check</button><button class="btn" id="ctNew">New one</button>
+  </div>
+  <div class="msg" id="ctMsg"></div>
+</div>
+
+<p>To <strong>solve</strong> by completing the square, rearrange to (x + p)² = number, then square-root both sides. Remember the <strong>±</strong>: both the positive and negative square roots work.</p>
+<div class="lab">
+  <div class="controls">
+    <label>Solve <select id="csE">
+      <option value="6,4">x² + 6x + 4 = 0</option><option value="-4,-1">x² − 4x − 1 = 0</option><option value="10,18">x² + 10x + 18 = 0</option><option value="-2,-8">x² − 2x − 8 = 0</option><option value="4,7">x² + 4x + 7 = 0</option>
+    </select></label>
+    <button class="btn primary" id="csNext">Next step</button><button class="btn" id="csAll">Show all</button><button class="btn" id="csReset">Reset</button>
+  </div>
+  <div class="work" id="csWork"></div>
+</div>
+
+<h2>5 · The quadratic formula <span class="tag g">Higher</span></h2>
+<p>Complete the square on the general equation <span class="m">ax² + bx + c = 0</span> once, with letters, and you get a formula that solves <em>every</em> quadratic. Step through the derivation; each line uses only the completing-the-square recipe from section 3.</p>
+
+<div class="lab">
+  <div class="controls"><button class="btn primary" id="dvNext">Next step</button><button class="btn" id="dvAll">Show all</button><button class="btn" id="dvReset">Reset</button></div>
+  <div class="work" id="dvWork"></div>
+</div>
+
+<p class="big">x = <span class="frac"><span>−b ± √(b² − 4ac)</span><span>2a</span></span></p>
+<p>Learn it by heart: it solves every quadratic, including ones that don't factorise. Use it like this: write down a, b and c <em>with their signs</em>, substitute with brackets around negatives, work out the part under the square root first, then do the + version and the − version.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>a = <input type="number" id="qfA" value="2" step="1"></label>
+    <label>b = <input type="number" id="qfB" value="-3" step="1"></label>
+    <label>c = <input type="number" id="qfC" value="-7" step="1"></label>
+  </div>
+  <div class="twin">
+    <div class="work" id="qfWork"></div>
+    <svg id="qfSvg" viewBox="0 0 400 400" width="400" height="400" aria-label="Graph showing the roots"></svg>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Formula mistakes examiners see every year</strong></p>
+  <ul>
+    <li><strong>Negative b:</strong> if b = −3 then −b = +3, and b² = (−3)² = +9, not −9. Type <span class="m">(−3)²</span> with brackets on a calculator.</li>
+    <li><strong>The fraction line goes under everything:</strong> divide the whole of −b ± √(…) by 2a, not just the square root.</li>
+    <li><strong>2a, not a:</strong> the bottom is 2 × a.</li>
+    <li><strong>Rounding too early:</strong> keep the full square root in your calculator until the last line.</li>
+  </ul>
+</div>
+
+<p><strong>Practice.</strong> Solve with the formula. Give both answers to 2 decimal places (either order).</p>
+<div class="lab">
+  <p class="big" id="fpQ"></p>
+  <div class="controls">
+    <label>x = <input type="text" id="fp1" inputmode="decimal" autocomplete="off" style="width:5.5em"></label>
+    <label>or x = <input type="text" id="fp2" inputmode="decimal" autocomplete="off" style="width:5.5em"></label>
+    <button class="btn primary" id="fpGo">Check</button><button class="btn" id="fpShow">Show working</button><button class="btn" id="fpNew">New question</button>
+  </div>
+  <div class="msg" id="fpMsg"></div>
+  <div class="work" id="fpWork" hidden></div>
+  <div class="msg" id="fpScore"></div>
+</div>
+
+<h2>6 · The discriminant: how many roots? <span class="tag g">Higher</span></h2>
+<p>The part under the square root, <span class="m">b² − 4ac</span>, is called the <strong>discriminant</strong>. It "discriminates" between the three cases before you do any more work:</p>
+<ul>
+  <li><strong>b² − 4ac &gt; 0:</strong> two different square roots (±), so <strong>two</strong> roots. The curve crosses the x-axis twice.</li>
+  <li><strong>b² − 4ac = 0:</strong> √0 = 0, so + and − give the same answer: <strong>one</strong> (repeated) root. The curve just touches the x-axis at its turning point.</li>
+  <li><strong>b² − 4ac &lt; 0:</strong> you can't square-root a negative number, so there are <strong>no real roots</strong>. The curve never reaches the x-axis.</li>
+</ul>
+
+<div class="lab">
+  <div class="controls">
+    <label>a = <select id="dsA"><option>1</option><option>2</option><option>−1</option></select></label>
+    <label>b = <input type="range" id="dsB" min="-8" max="8" step="1" value="4"><span id="dsBv" style="font-family:var(--mono)"></span></label>
+    <label>c = <input type="range" id="dsC" min="-8" max="8" step="1" value="2"><span id="dsCv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="big" id="dsEq"></div>
+  <svg id="dsSvg" viewBox="0 0 400 360" width="400" height="360" aria-label="Discriminant and roots"></svg>
+  <div class="work" id="dsWork"></div>
+</div>
+
+<h2>7 · Choosing a method and giving your answer</h2>
+<div class="tbl"><table class="stack">
+  <tr><th>If the equation…</th><th>use</th><th>example</th></tr>
+  <tr><td>has no x term, or is already (x + p)² = k</td><td>square-root both sides (±)</td><td class="mono">x² = 20 → x = ±2√5</td></tr>
+  <tr><td>factorises easily (product/sum pair exists)</td><td>factorising</td><td class="mono">x² − x − 12 = 0 → x = 4, −3</td></tr>
+  <tr><td>says "complete the square" or a = 1 with even b, exact answer wanted <span class="tag g">Higher</span></td><td>completing the square</td><td class="mono">x² + 8x + 3 = 0 → x = −4 ± √13</td></tr>
+  <tr><td>says "to 2 d.p." or "3 s.f.", or won't factorise <span class="tag g">Higher</span></td><td>the quadratic formula</td><td class="mono">2x² + x − 4 = 0</td></tr>
+</table></div>
+
+<p>A question that asks for an answer "to 2 decimal places" is a hint that the quadratic will <em>not</em> factorise. "Give your answer in <strong>surd form</strong>" means leave the square root in, simplified: <span class="m">√20 = √(4 × 5) = 2√5</span>, and cancel common factors: <span class="m">(6 ± 2√5)/2 = 3 ± √5</span>.</p>
+
+<div class="lab">
+  <p class="big" id="mtQ"></p>
+  <div class="typebtns" id="mtBtns"></div>
+  <div class="msg" id="mtMsg"></div>
+  <div class="controls"><button class="btn" id="mtNew">Next equation</button></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Solve x² − 7x + 10 = 0</summary>
+  <div class="step"><strong>Factorise:</strong> product 10, sum −7: −2 and −5. So (x − 2)(x − 5) = 0.</div>
+  <div class="step"><strong>Zero-product rule:</strong> x − 2 = 0 or x − 5 = 0.</div>
+  <div class="step"><strong>Answer:</strong> <strong>x = 2 or x = 5</strong>. Check: 2² − 14 + 10 = 0 ✓, 25 − 35 + 10 = 0 ✓</div>
+</details>
+<details>
+  <summary>Solve x² + 6x + 4 = 0, giving your answers in surd form <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Complete the square:</strong> half of 6 is 3, so x² + 6x = (x + 3)² − 9.</div>
+  <div class="step"><strong>Substitute:</strong> (x + 3)² − 9 + 4 = 0, so (x + 3)² − 5 = 0.</div>
+  <div class="step"><strong>Rearrange:</strong> (x + 3)² = 5.</div>
+  <div class="step"><strong>Square-root, with ±:</strong> x + 3 = ±√5.</div>
+  <div class="step"><strong>Answer:</strong> <strong>x = −3 + √5 or x = −3 − √5</strong> (≈ −0.76 and −5.24).</div>
+</details>
+<details>
+  <summary>Find the turning point of y = x² − 8x + 3 <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Complete the square:</strong> half of −8 is −4: x² − 8x = (x − 4)² − 16.</div>
+  <div class="step"><strong>So</strong> y = (x − 4)² − 16 + 3 = (x − 4)² − 13.</div>
+  <div class="step"><strong>Turning point:</strong> the bracket is 0 when x = 4, then y = −13. <strong>(4, −13)</strong>, a minimum because the x² is positive.</div>
+</details>
+<details>
+  <summary>Solve 2x² − 3x − 7 = 0, giving answers to 2 d.p. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Identify:</strong> a = 2, b = −3, c = −7.</div>
+  <div class="step"><strong>Discriminant:</strong> b² − 4ac = (−3)² − 4 × 2 × (−7) = 9 + 56 = 65.</div>
+  <div class="step"><strong>Substitute:</strong> x = (−(−3) ± √65) ÷ (2 × 2) = (3 ± √65) ÷ 4.</div>
+  <div class="step"><strong>Calculate:</strong> √65 = 8.0622…; (3 + 8.0622…) ÷ 4 = 2.7655… and (3 − 8.0622…) ÷ 4 = −1.2655…</div>
+  <div class="step"><strong>Answer:</strong> <strong>x = 2.77 or x = −1.27</strong> (2 d.p.).</div>
+</details>
+<details>
+  <summary>Solve 3x² + 5x − 1 = 0, leaving your answer in surd form <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>a = 3, b = 5, c = −1.</strong> Discriminant: 25 − 4 × 3 × (−1) = 25 + 12 = 37.</div>
+  <div class="step"><strong>Formula:</strong> x = (−5 ± √37) ÷ 6.</div>
+  <div class="step"><strong>Simplify?</strong> 37 is prime, so √37 doesn't simplify, and 5, 1 and 6 have no common factor. <strong>x = (−5 ± √37)/6</strong>.</div>
+</details>
+<details>
+  <summary>Exam-style: a rectangle is x cm wide and (x + 3) cm long. Its area is 20 cm². Find x to 2 d.p. <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Form the equation:</strong> x(x + 3) = 20, so x² + 3x − 20 = 0.</div>
+  <div class="step"><strong>It won't factorise</strong> (no pair multiplies to −20 and adds to 3), so use the formula with a = 1, b = 3, c = −20.</div>
+  <div class="step"><strong>Discriminant:</strong> 9 − 4 × 1 × (−20) = 89. x = (−3 ± √89) ÷ 2 = 3.2169… or −6.2169…</div>
+  <div class="step"><strong>Interpret:</strong> a width can't be negative, so reject −6.22. <strong>x = 3.22 cm</strong> (2 d.p.). Check: 3.2169… × 6.2169… = 20.0 ✓</div>
+</details>
+<details>
+  <summary>How many real roots does 2x² + 4x + 5 = 0 have? <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Discriminant:</strong> b² − 4ac = 4² − 4 × 2 × 5 = 16 − 40 = −24.</div>
+  <div class="step"><strong>Negative,</strong> so there are <strong>no real roots</strong>: the graph y = 2x² + 4x + 5 sits entirely above the x-axis.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>The solutions (roots) of ax² + bx + c = 0 are where y = ax² + bx + c crosses the x-axis. A quadratic has two, one or no real roots.</li>
+  <li><strong>Factorising:</strong> get = 0 first, factorise, then set each bracket to 0. Never divide by x.</li>
+  <li><span class="tag g">Higher</span> <strong>Completing the square:</strong> x² + bx + c = (x + b/2)² − (b/2)² + c. The turning point of y = (x + p)² + q is (−p, q). Solve by isolating the square and taking ± square roots.</li>
+  <li><span class="tag g">Higher</span> <strong>The quadratic formula</strong> x = (−b ± √(b² − 4ac)) / 2a comes from completing the square on ax² + bx + c = 0. Brackets around negatives; divide the whole top by 2a.</li>
+  <li><span class="tag g">Higher</span> The <strong>discriminant</strong> b² − 4ac is positive (2 roots), zero (1 root) or negative (no real roots).</li>
+  <li>"2 d.p." suggests the formula; "surd form" means leave simplified square roots; in context, reject answers that make no sense (negative lengths).</li>
+</ul>
+
+<footer>Made for GCSE students. Solving quadratic equations is in the DfE GCSE mathematics subject content under Algebra; completing the square, the quadratic formula and turning points by completing the square are Higher tier. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">Subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const minus = s => String(s).replace(/-/g,'−');
+const fmt = (v,d=2) => { if(!isFinite(v)) return '—'; let r=parseFloat((+v).toFixed(d)); if(Object.is(r,-0)) r=0; return minus(String(r)); };
+const fix = (v,d) => { if(!isFinite(v)) return '—'; let s=(+v).toFixed(d); if(/^-0(\.0*)?$/.test(s)) s=s.slice(1); return minus(s); };
+const sf = (v,n=3) => { if(!isFinite(v)) return '—'; if(v===0) return '0'; const r=Number((+v).toPrecision(n)); const e=Math.floor(Math.log10(Math.abs(r))); return fix(r,Math.max(0,n-1-e)); };
+const F = () => `font-family="${css('--mono')}"`;
+const num = el => { const v=parseFloat(String(el.value).replace(/−/g,'-').replace(/\s/g,'')); return isFinite(v)?v:NaN; };
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a; };
+const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const sup = n => String(n).split('').map(c=>{const i='0123456789'.indexOf(c);return i>=0?'⁰¹²³⁴⁵⁶⁷⁸⁹'[i]:(c==='-'?'⁻':c);}).join('');
+/* polynomial from coefficients, highest power first: polyStr([1,-5,6]) = "x² − 5x + 6" */
+const polyStr = (cs,v='x') => { const n=cs.length-1; let s=''; cs.forEach((c,i)=>{ const p=n-i; if(Math.abs(c)<1e-12) return; const a=Math.abs(c); const body=p===0?fmt(a,4):((Math.abs(a-1)<1e-12?'':fmt(a,4))+v+(p>1?sup(p):'')); s+= s===''?(c<0?'−':'')+body:(c<0?' − ':' + ')+body; }); return s||'0'; };
+const xpm = (k,v='x') => Math.abs(k)<1e-12 ? v : `${v} ${k<0?'−':'+'} ${fmt(Math.abs(k),4)}`;
+const br = v => v<0 ? `(${fmt(v,4)})` : fmt(v,4);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const DRAW = [];
+const reg = f => { DRAW.push(f); f(); };
+function Plot(o){
+  const P=Object.assign({W:400,H:400,pad:26,gx:1,gy:1,lx:2,ly:2,xl:'x',yl:'y',xf:null,yf:null},o);
+  const W=P.W,H=P.H,pad=P.pad;
+  P.sx=x=>pad+(x-P.x0)/(P.x1-P.x0)*(W-2*pad);
+  P.sy=y=>H-pad-(y-P.y0)/(P.y1-P.y0)*(H-2*pad);
+  P.ix=px=>P.x0+(px-pad)/(W-2*pad)*(P.x1-P.x0);
+  P.iy=py=>P.y0+(H-pad-py)/(H-2*pad)*(P.y1-P.y0);
+  P.world=(svg,ev)=>{const r=svg.getBoundingClientRect();return [P.ix((ev.clientX-r.left)/r.width*W),P.iy((ev.clientY-r.top)/r.height*H)];};
+  const ticks=(a,b,st)=>{const out=[];for(let k=Math.ceil(a/st-1e-9);k*st<=b+1e-9;k++)out.push(Math.round(k*st*1e6)/1e6);return out;};
+  P.grid=()=>{const g=css('--grid'),mu=css('--muted'),f=F();let s='';
+    ticks(P.x0,P.x1,P.gx).forEach(x=>s+=`<line x1="${P.sx(x)}" y1="${P.sy(P.y0)}" x2="${P.sx(x)}" y2="${P.sy(P.y1)}" stroke="${g}"/>`);
+    ticks(P.y0,P.y1,P.gy).forEach(y=>s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(y)}" x2="${P.sx(P.x1)}" y2="${P.sy(y)}" stroke="${g}"/>`);
+    const ay=(P.y0<=0&&P.y1>=0)?0:P.y0, ax=(P.x0<=0&&P.x1>=0)?0:P.x0;
+    s+=`<line x1="${P.sx(P.x0)}" y1="${P.sy(ay)}" x2="${P.sx(P.x1)}" y2="${P.sy(ay)}" stroke="${mu}" stroke-width="1.5"/><line x1="${P.sx(ax)}" y1="${P.sy(P.y0)}" x2="${P.sx(ax)}" y2="${P.sy(P.y1)}" stroke="${mu}" stroke-width="1.5"/>`;
+    ticks(P.x0,P.x1,P.lx).forEach(x=>{if(Math.abs(x-ax)<1e-9&&ax===0)return;s+=`<text x="${P.sx(x)}" y="${P.sy(ay)+13}" text-anchor="middle" font-size="10" fill="${mu}" ${f}>${P.xf?P.xf(x):fmt(x)}</text>`;});
+    ticks(P.y0,P.y1,P.ly).forEach(y=>{if(Math.abs(y-ay)<1e-9&&ay===0)return;s+=`<text x="${P.sx(ax)-5}" y="${P.sy(y)+3}" text-anchor="end" font-size="10" fill="${mu}" ${f}>${P.yf?P.yf(y):fmt(y)}</text>`;});
+    if(ax===0&&ay===0)s+=`<text x="${P.sx(0)-5}" y="${P.sy(0)+13}" text-anchor="end" font-size="10" fill="${mu}" ${f}>0</text>`;
+    s+=`<text x="${P.sx(P.x1)-3}" y="${P.sy(ay)-5}" text-anchor="end" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.xl}</text><text x="${P.sx(ax)+6}" y="${P.sy(P.y1)+10}" font-size="12" font-weight="600" fill="${mu}" ${f}>${P.yl}</text>`;
+    return s;};
+  P.clip=(svg,inner,over='')=>{svg.innerHTML=`<defs><clipPath id="cp${svg.id}"><rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${H-2*pad}"/></clipPath></defs>`+P.grid()+`<g clip-path="url(#cp${svg.id})">${inner}</g>`+over;};
+  P.path=(f,col,w=2.5,dash,a=P.x0,b=P.x1,n=400)=>{let d='',pen=false,prev=null;const span=P.y1-P.y0,mid=(P.y0+P.y1)/2;
+    for(let i=0;i<=n;i++){const x=a+(b-a)*i/n,y=f(x);
+      if(!isFinite(y)||Math.abs(y-mid)>span*3){pen=false;prev=null;continue;}
+      if(pen&&prev!==null&&Math.abs(y-prev)>span*1.5)pen=false;
+      d+=(pen?'L':'M')+P.sx(x).toFixed(1)+','+P.sy(y).toFixed(1);pen=true;prev=y;}
+    return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linejoin="round" stroke-linecap="round"/>`;};
+  P.seg=(x1,y1,x2,y2,col,w=2,dash)=>`<line x1="${P.sx(x1)}" y1="${P.sy(y1)}" x2="${P.sx(x2)}" y2="${P.sy(y2)}" stroke="${col}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash===true?'6 5':dash}"`:''} stroke-linecap="round"/>`;
+  P.dot=(x,y,col,r=5,label,dx=8,dy=-8,anchor='start')=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${col}"/>`+(label?`<text x="${P.sx(x)+dx}" y="${P.sy(y)+dy}" font-size="12" font-weight="600" fill="${col}" text-anchor="${anchor}" ${F()}>${label}</text>`:'');
+  P.ring=(x,y,col,r=5)=>`<circle cx="${P.sx(x)}" cy="${P.sy(y)}" r="${r}" fill="${css('--panel')}" stroke="${col}" stroke-width="2.5"/>`;
+  P.text=(x,y,t,col,anchor='start',size=12,weight=600)=>`<text x="${P.sx(x)}" y="${P.sy(y)}" font-size="${size}" font-weight="${weight}" fill="${col}" text-anchor="${anchor}" ${F()}>${t}</text>`;
+  return P;
+}
+/* drag helper: calls onMove(ev) while a pointer is down on svg (or on an element with data-h) */
+function dragOn(svg,onMove,onDown){let on=false;
+  svg.addEventListener('pointerdown',e=>{if(onDown&&onDown(e)===false)return;on=true;try{svg.setPointerCapture(e.pointerId);}catch(_){}onMove(e);e.preventDefault();});
+  svg.addEventListener('pointermove',e=>{if(on)onMove(e);});
+  const end=()=>{on=false;};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);}
+/* step-through: lines is an array of html strings */
+function stepper(boxId,nextId,allId,resetId,onShow){const box=$(boxId);let lines=[],k=0;
+  const show=()=>{box.innerHTML=lines.map((l,i)=>`<span class="s"${i<k?'':' hidden'}>${l}</span>`).join('')+(k<lines.length?`<span class="s note">${k===0?'Press “Next step” to begin.':'…'}</span>`:'');if(nextId)$(nextId).disabled=k>=lines.length;if(onShow)onShow(k);};
+  if(nextId)$(nextId).addEventListener('click',()=>{if(k<lines.length)k++;show();});
+  if(allId)$(allId).addEventListener('click',()=>{k=lines.length;show();});
+  if(resetId)$(resetId).addEventListener('click',()=>{k=0;show();});
+  return {set(ls,start=0){lines=ls;k=start;show();},get k(){return k;}};}
+
+const selNum = el => parseFloat(el.value.replace('−','-'));
+/* simplify √n = k√m */
+const surd = n => { let k=1; for(let f=2;f*f<=n;f++){ while(n%(f*f)===0){ n/=f*f; k*=f; } } return [k,n]; };
+const surdStr = (k,m) => m===1 ? String(k) : (k===1?'':k)+'√'+m;
+const frac = (n,d) => { if(d<0){n=-n;d=-d;} const g=gcd(n,d)||1; n/=g; d/=g; return d===1?fmt(n):`${fmt(n)}/${d}`; };
+/* exact roots of ax²+bx+c=0 as text */
+function exactRoots(a,b,c){ const D=b*b-4*a*c; if(D<0) return null; const s=Math.round(Math.sqrt(D));
+  if(s*s===D){ const r1=frac(-b+s,2*a), r2=frac(-b-s,2*a); return D===0?`x = ${r1}`:`x = ${r1} or x = ${r2}`; }
+  const [k,m]=surd(D); let A=-b, K=k, Dn=2*a; const g=gcd(gcd(A,K),Dn)||1; A/=g; K/=g; Dn/=g; if(Dn<0){A=-A;Dn=-Dn;}
+  const top=(A===0?'±':`${fmt(A)} ± `)+surdStr(K,m); return Dn===1?`x = ${top}`:`x = (${top})/${Dn}`; }
+
+/* 1. roots on a graph with draggable point */
+const P1=Plot({x0:-7,x1:7,y0:-10,y1:10}); let g1x=-2.5;
+function g1Coef(){ return [selNum($('g1A')), +$('g1B').value, +$('g1C').value]; }
+function drawG1(){ const [a,b,c]=g1Coef(); $('g1Bv').textContent=' '+fmt(b); $('g1Cv').textContent=' '+fmt(c);
+  const f=x=>a*x*x+b*x+c; $('g1Eq').textContent='y = '+polyStr([a,b,c]);
+  const ac=css('--accent'),hi=css('--hi'),tw=css('--two');
+  let s=P1.path(f,ac,3); const D=b*b-4*a*c; let rt='';
+  if(D>1e-12){const r=[(-b-Math.sqrt(D))/(2*a),(-b+Math.sqrt(D))/(2*a)].sort((u,v)=>u-v);r.forEach(x=>s+=P1.dot(x,0,hi,6));rt=`x ≈ ${fix(r[0],1)} and x ≈ ${fix(r[1],1)} (two roots)`;}
+  else if(Math.abs(D)<=1e-12){const x=-b/(2*a);s+=P1.dot(x,0,hi,6);rt=`x = ${fmt(x)} (one repeated root: the curve just touches)`;}
+  else rt='none: the curve never meets the x-axis';
+  const y=f(g1x); s+=P1.seg(g1x,0,g1x,y,tw,1.5,'4 3')+`<circle data-h="1" cx="${P1.sx(g1x)}" cy="${P1.sy(y)}" r="9" fill="${tw}" stroke="${css('--panel')}" stroke-width="2"/>`;
+  P1.clip($('g1Svg'),s);
+  $('g1Pt').textContent=`x = ${fix(g1x,1)}, y = ${fix(y,2)}${Math.abs(y)<0.15?'  ← y ≈ 0: a root!':''}`;
+  $('g1Roots').textContent=rt; }
+['g1A','g1B','g1C'].forEach(i=>$(i).addEventListener('input',drawG1));
+dragOn($('g1Svg'),e=>{const [x]=P1.world($('g1Svg'),e);g1x=Math.max(-7,Math.min(7,Math.round(x*10)/10));drawG1();});
+reg(drawG1);
+
+/* 2. factorising step-through */
+const FS=[
+ ['x² − 5x + 6 = 0','<span class="a">Already = 0.</span> Factorise: product 6, sum −5 → −2 and −3.','(x − 2)(x − 3) = 0','<span class="b">x − 2 = 0 or x − 3 = 0</span>','<strong>x = 2 or x = 3</strong>','check: 2² − 5(2) + 6 = 0 ✓; 3² − 5(3) + 6 = 0 ✓'],
+ ['x² + 2x = 15','<span class="x">Not = 0 yet!</span> Subtract 15 from both sides: x² + 2x − 15 = 0','Factorise: product −15, sum 2 → 5 and −3: (x + 5)(x − 3) = 0','<span class="b">x + 5 = 0 or x − 3 = 0</span>','<strong>x = −5 or x = 3</strong>','check: 25 − 10 = 15 ✓; 9 + 6 = 15 ✓'],
+ ['x² = 7x','<span class="x">Don\'t divide by x</span> (you would lose x = 0). Subtract 7x: x² − 7x = 0','Common factor x: x(x − 7) = 0','<span class="b">x = 0 or x − 7 = 0</span>','<strong>x = 0 or x = 7</strong>','check: 0 = 0 ✓; 49 = 49 ✓'],
+ ['x² − 49 = 0','Difference of two squares: (x + 7)(x − 7) = 0','<span class="b">x + 7 = 0 or x − 7 = 0</span>','<strong>x = −7 or x = 7</strong> (written x = ±7)','or directly: x² = 49, x = ±√49 = ±7'],
+ ['2x² + 5x − 3 = 0','a × c = −6; numbers 6 and −1 (product −6, sum 5)','Split: 2x² + 6x − x − 3 = 2x(x + 3) − 1(x + 3)','(2x − 1)(x + 3) = 0','<span class="b">2x − 1 = 0 or x + 3 = 0</span>','<strong>x = ½ or x = −3</strong>','check: 2(¼) + 2.5 − 3 = 0 ✓']
+];
+const fsStep=stepper('fsWork','fsNext','fsAll','fsReset');
+const fsLoad=()=>fsStep.set(FS[+$('fsE').value].map((l,i)=>i===0?`<span class="a">${l}</span>`:l),1);
+$('fsE').addEventListener('change',fsLoad); fsLoad();
+
+/* 3. tile picture */
+let tsAnim=null;
+function drawTS(){ const b=+$('tsB').value,t=+$('tsT').value/100,fill=$('tsFill').checked; $('tsBv').textContent=' '+b;
+  const ac=css('--accent'),hi=css('--hi'),tw=css('--two'),fg=css('--fg'),mu=css('--muted');
+  const X=170,u=11,h=b/2*u,x0=60,y0=40,e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  let s=`<rect x="${x0}" y="${y0}" width="${X}" height="${X}" fill="${ac}" fill-opacity=".25" stroke="${ac}" stroke-width="2"/><text x="${x0+X/2}" y="${y0+X/2+5}" text-anchor="middle" font-size="16" font-weight="600" fill="${ac}" ${F()}>x²</text>`;
+  s+=`<rect x="${x0+X}" y="${y0}" width="${h}" height="${X}" fill="${hi}" fill-opacity=".3" stroke="${hi}" stroke-width="2"/>`;
+  const tx=(x0+X+h)+(x0-(x0+X+h))*e, ty=y0+(X+h)*e, ang=-90*e;
+  s+=`<g transform="translate(${tx},${ty}) rotate(${ang})"><rect x="0" y="0" width="${h}" height="${X}" fill="${hi}" fill-opacity=".3" stroke="${hi}" stroke-width="2"/></g>`;
+  s+=`<text x="${x0+X/2}" y="${y0-10}" text-anchor="middle" font-size="13" fill="${fg}" ${F()}>x</text><text x="${x0-8}" y="${y0+X/2+4}" text-anchor="end" font-size="13" fill="${fg}" ${F()}>x</text>`;
+  if(t<0.05) s+=`<text x="${x0+X+h}" y="${y0-10}" text-anchor="middle" font-size="12" fill="${hi}" ${F()}>${b}</text><text x="${x0+X+2*h+8}" y="${y0+X/2}" font-size="12" fill="${hi}" ${F()}>bx = ${b}x</text>`;
+  else if(t>0.95){ s+=`<text x="${x0+X+h/2}" y="${y0-10}" text-anchor="middle" font-size="12" fill="${hi}" ${F()}>${frac(b,2)}</text><text x="${x0-8}" y="${y0+X+h/2+4}" text-anchor="end" font-size="12" fill="${hi}" ${F()}>${frac(b,2)}</text>`;
+    s+=`<rect x="${x0+X}" y="${y0+X}" width="${h}" height="${h}" fill="${fill?tw:'none'}" fill-opacity=".45" stroke="${tw}" stroke-width="2" ${fill?'':'stroke-dasharray="5 4"'}/>`;
+    s+=`<text x="${x0+X+h+8}" y="${y0+X+h/2+4}" font-size="12" font-weight="600" fill="${tw}" ${F()}>(${frac(b,2)})² = ${frac(b*b,4)}${fill?' added':' missing'}</text>`;
+    if(fill) s+=`<text x="${x0+(X+h)/2}" y="${y0+X+h+24}" text-anchor="middle" font-size="13" font-weight="600" fill="${fg}" ${F()}>side x + ${frac(b,2)}</text>`; }
+  $('tsSvg').innerHTML=s;
+  const p=frac(b,2), q=frac(b*b,4);
+  $('tsWork').innerHTML=`x² + ${b}x: square + strip ${b} wide<br><span class="b">halve the strip: two strips ${p} wide</span><br><span class="c">missing corner: (${p})² = ${q}</span><br><strong>x² + ${b}x = (x + ${p})² − ${q}</strong>`; }
+['tsB','tsT','tsFill'].forEach(i=>$(i).addEventListener('input',()=>{if(i==='tsT'&&tsAnim){cancelAnimationFrame(tsAnim);tsAnim=null;}drawTS();}));
+$('tsPlay').addEventListener('click',()=>{if(tsAnim)cancelAnimationFrame(tsAnim);$('tsFill').checked=false;if(reduceMotion){$('tsT').value=100;drawTS();return;}const t0=performance.now();const step=now=>{const t=Math.min(1,(now-t0)/2200);$('tsT').value=Math.round(t*100);drawTS();tsAnim=t<1?requestAnimationFrame(step):null;};tsAnim=requestAnimationFrame(step);});
+reg(drawTS);
+
+/* 4a. turning point graph */
+const P4=Plot({x0:-8,x1:8,y0:-9,y1:9});
+function drawTP(){ const p=+$('tpP').value,q=+$('tpQ').value; $('tpPv').textContent=' '+fmt(p); $('tpQv').textContent=' '+fmt(q);
+  const ac=css('--accent'),hi=css('--hi'),tw=css('--two');
+  const f=x=>(x+p)**2+q; let s=P4.path(f,ac,3)+P4.seg(-p,-9,-p,9,tw,1.2,'4 4')+P4.dot(-p,q,tw,7,`(${fmt(-p)}, ${fmt(q)})`,10,q>6?16:-10);
+  let rt;
+  if(q<0){ const r=Math.sqrt(-q); s+=P4.dot(-p-r,0,hi,6)+P4.dot(-p+r,0,hi,6); const [k,m]=surd(-q); const ss=surdStr(k,m); rt=`x = ${fmt(-p)} ± ${ss}${m===1?` → ${fmt(-p-r)}, ${fmt(-p+r)}`:` ≈ ${fix(-p-r,2)}, ${fix(-p+r,2)}`}`; }
+  else if(q===0){ s+=P4.dot(-p,0,hi,6); rt=`x = ${fmt(-p)} (touches)`; } else rt='none (turning point above the axis)';
+  P4.clip($('tpSvg'),s);
+  $('tpEq').innerHTML=`y = (${xpm(p)})² ${q<0?'−':'+'} ${Math.abs(q)}`;
+  $('tpTP').textContent=`(${fmt(-p)}, ${fmt(q)}) minimum`; $('tpRoots').textContent=rt; $('tpExp').textContent='y = '+polyStr([1,2*p,p*p+q]); }
+['tpP','tpQ'].forEach(i=>$(i).addEventListener('input',drawTP)); reg(drawTP);
+
+/* 4b. try completing the square */
+let CT={b:6,c:5};
+function ctNew(){ let b,c; do{b=2*rnd(-5,5);c=rnd(-9,9);}while(b===0||(b===CT.b&&c===CT.c)); CT={b,c}; $('ctQ').textContent=polyStr([1,b,c]); $('ctP').value='';$('ctQq').value='';$('ctMsg').className='msg';$('ctMsg').textContent=''; }
+$('ctGo').addEventListener('click',()=>{ const p=num($('ctP')),q=num($('ctQq')),M=$('ctMsg'),{b,c}=CT,P=b/2,Q=c-P*P;
+  if(isNaN(p)||isNaN(q)){M.className='msg bad';M.textContent='Fill in both boxes (use − for a minus).';return;}
+  const ok=p===P&&q===Q; M.className='msg '+(ok?'good':'bad');
+  if(ok){M.textContent=`Correct: ${polyStr([1,b,c])} = (${xpm(P)})² ${Q<0?'−':'+'} ${Math.abs(Q)}. Turning point (${fmt(-P)}, ${fmt(Q)}).`;return;}
+  let t='Not quite. ';
+  if(p===b) t+=`Halve b: the bracket is (x ${P<0?'−':'+'} ${Math.abs(P)}), not (x ${b<0?'−':'+'} ${Math.abs(b)}). `;
+  else if(p===-P) t+=`Sign: the number in the bracket has the same sign as b, so it's ${fmt(P)}. `;
+  else if(p!==P) t+=`The bracket number is half of b = ${fmt(b)}, so ${fmt(P)}. `;
+  if(p===P||p===-P||p===b){ if(q===c+P*P) t+=`You added ${P*P}; you must subtract (${fmt(P)})² = ${P*P}: q = ${fmt(c)} − ${P*P}.`;
+    else if(q===c) t+=`Don't forget to subtract the corner (${fmt(P)})² = ${P*P}.`;
+    else if(q!==Q) t+=`q = c − (b/2)² = ${fmt(c)} − ${P*P} = ${fmt(Q)}.`; }
+  M.textContent=t; });
+$('ctNew').addEventListener('click',ctNew); ctNew();
+
+/* 4c. solving by completing the square */
+const csStep=stepper('csWork','csNext','csAll','csReset');
+function csLoad(){ const [b,c]=$('csE').value.split(',').map(Number), p=b/2, q=c-p*p, L=[];
+  L.push(`<span class="a">${polyStr([1,b,c])} = 0</span>`);
+  L.push(`Half of ${fmt(b)} is ${fmt(p)}: ${polyStr([1,b,0])} = (${xpm(p)})² − ${p*p}`);
+  L.push(`(${xpm(p)})² − ${p*p} ${c<0?'−':'+'} ${Math.abs(c)} = 0 → (${xpm(p)})² ${q<0?'−':'+'} ${Math.abs(q)} = 0`);
+  L.push(`<span class="c">(${xpm(p)})² = ${fmt(-q)}</span>`);
+  if(-q<0){ L.push(`<span class="x">A square can't be negative, so there are no real solutions.</span> (The turning point (${fmt(-p)}, ${fmt(q)}) is above the x-axis.)`); }
+  else { const [k,m]=surd(-q); L.push(`Square-root both sides, with ±: ${xpm(p)} = ±${surdStr(k,m)}`);
+    if(m===1) L.push(`<strong>x = ${fmt(-p)} + ${k} = ${fmt(-p+k)} or x = ${fmt(-p)} − ${k} = ${fmt(-p-k)}</strong>`);
+    else { L.push(`<strong>x = ${fmt(-p)} ± ${surdStr(k,m)}</strong> (exact, surd form)${k>1?` — note √${-q} = ${surdStr(k,m)}`:''}`); L.push(`<span class="b">to 2 d.p.: x = ${fix(-p+Math.sqrt(-q),2)} or x = ${fix(-p-Math.sqrt(-q),2)}</span>`); } }
+  csStep.set(L,1); }
+$('csE').addEventListener('change',csLoad); csLoad();
+
+/* 5a. derivation */
+const dv=stepper('dvWork','dvNext','dvAll','dvReset');
+dv.set(['<span class="a">ax² + bx + c = 0</span>',
+ 'Divide by a: x² + (b/a)x + c/a = 0',
+ 'Complete the square (half of b/a is b/2a): <span class="c">(x + b/2a)² − b²/4a²</span> + c/a = 0',
+ 'Move the numbers over: (x + b/2a)² = b²/4a² − c/a',
+ 'Common denominator 4a²: (x + b/2a)² = (b² − 4ac)/4a²',
+ 'Square-root, with ±: x + b/2a = ±√(b² − 4ac) / 2a',
+ '<strong>Subtract b/2a: x = (−b ± √(b² − 4ac)) / 2a</strong>']);
+
+/* 5b. formula calculator */
+const P5=Plot({x0:-7,x1:7,y0:-10,y1:10});
+function drawQF(){ const a=num($('qfA')),b=num($('qfB')),c=num($('qfC')),W=$('qfWork');
+  if(![a,b,c].every(isFinite)){W.textContent='Type numbers for a, b and c.';return;}
+  const ac=css('--accent'),hi=css('--hi');
+  if(a===0){W.innerHTML='a can\'t be 0: then there is no x² term and it isn\'t a quadratic.';P5.clip($('qfSvg'),P5.path(x=>b*x+c,ac,3));return;}
+  const D=b*b-4*a*c; let s=P5.path(x=>a*x*x+b*x+c,ac,3);
+  let h=`a = ${fmt(a)}, b = ${fmt(b)}, c = ${fmt(c)}<br><span class="c">b² − 4ac = ${br(b)}² − 4 × ${br(a)} × ${br(c)} = ${fmt(b*b)} ${-4*a*c<0?'−':'+'} ${fmt(Math.abs(4*a*c))} = ${fmt(D)}</span><br>`;
+  if(D<0){ h+=`<span class="x">The discriminant is negative: √${fmt(D)} doesn't exist, so there are no real roots.</span>`; }
+  else { const r1=(-b+Math.sqrt(D))/(2*a), r2=(-b-Math.sqrt(D))/(2*a);
+    const mb=b===0?'0':'−'+br(b);
+    if(D===0) h+=`x = (${mb} ± √0) ÷ (2 × ${br(a)}) = ${fmt(-b)} ÷ ${fmt(2*a)}<br><strong>x = ${fmt(r1,4)}</strong> (one repeated root)`;
+    else { h+=`x = (${mb} ± √${fmt(D)}) ÷ (2 × ${br(a)}) = (${fmt(-b)} ± ${fmt(Math.sqrt(D),4)}…) ÷ ${fmt(2*a)}<br>`;
+    h+=`<span class="b">x = ${fix(r1,4)}… or x = ${fix(r2,4)}…</span><br><strong>x = ${fix(r1,2)} or x = ${fix(r2,2)}</strong> (2 d.p.)`; }
+    if(D>0&&Number.isInteger(a)&&Number.isInteger(b)&&Number.isInteger(c)) h+=`<br><span class="a">exact: ${exactRoots(a,b,c)}</span>`;
+    [r1,r2].forEach(x=>s+=P5.dot(x,0,hi,6)); }
+  W.innerHTML=h; P5.clip($('qfSvg'),s); }
+['qfA','qfB','qfC'].forEach(i=>$(i).addEventListener('input',drawQF)); reg(drawQF);
+
+/* 5c. formula practice */
+let FP=null,fpDone=false,fpRight=0,fpTried=0;
+function fpNew(){ let a,b,c,D; do{a=rnd(1,3);b=rnd(-9,9);c=rnd(-9,9);D=b*b-4*a*c;}while(D<=0||Number.isInteger(Math.sqrt(D))||c===0); FP={a,b,c,D}; fpDone=false;
+  $('fpQ').textContent=polyStr([a,b,c])+' = 0'; $('fp1').value='';$('fp2').value='';$('fpMsg').className='msg';$('fpMsg').textContent='';$('fpWork').hidden=true;
+  const r1=(-b+Math.sqrt(D))/(2*a),r2=(-b-Math.sqrt(D))/(2*a);
+  $('fpWork').innerHTML=`a = ${a}, b = ${fmt(b)}, c = ${fmt(c)}<br>b² − 4ac = ${br(b)}² − 4 × ${a} × ${br(c)} = ${D}<br>x = (${fmt(-b)} ± √${D}) ÷ ${2*a}<br>x = ${fix(r1,4)}… or ${fix(r2,4)}…<br><strong>x = ${fix(r1,2)} or x = ${fix(r2,2)}</strong>`; }
+function fpCheck(){ const u=num($('fp1')),v=num($('fp2')),M=$('fpMsg'); if(isNaN(u)||isNaN(v)){M.className='msg bad';M.textContent='Type both answers, e.g. 1.24 and −3.57.';return;}
+  const {a,b,c,D}=FP, sq=Math.sqrt(D), R=[(-b+sq)/(2*a),(-b-sq)/(2*a)];
+  const near=(x,y,t=0.0051)=>Math.abs(x-y)<t, both=(P,t)=>(near(u,P[0],t)&&near(v,P[1],t))||(near(u,P[1],t)&&near(v,P[0],t));
+  let ok=both(R), t='';
+  if(ok) t=`Correct: x = ${fix(R[0],2)} or x = ${fix(R[1],2)}.`;
+  else if(both(R,0.02)) t=`Very close — check your rounding to 2 d.p.: ${fix(R[0],2)} and ${fix(R[1],2)}. Don't round √${D} before the end.`;
+  else { const alts=[[[(b+sq)/(2*a),(b-sq)/(2*a)],`You used +b instead of −b. Here b = ${b}, so −b = ${fmt(-b)}.`],
+      [[-b+sq/(2*a),-b-sq/(2*a)],'You only divided the square root by 2a. The fraction line goes under the whole of −b ± √(b² − 4ac).'],
+      [[(-b+sq)/a,(-b-sq)/a],'You divided by a. The bottom of the formula is 2a.'],
+      [[-b+sq,-b-sq],'You forgot to divide by 2a at all.']];
+    const Dw=-b*b-4*a*c; if(Dw>0) alts.push([[(-b+Math.sqrt(Dw))/(2*a),(-b-Math.sqrt(Dw))/(2*a)],`b² must be positive: ${br(b)}² = ${b*b}. Use brackets on the calculator.`]);
+    const Dw2=b*b+4*a*c; if(Dw2>0) alts.push([[(-b+Math.sqrt(Dw2))/(2*a),(-b-Math.sqrt(Dw2))/(2*a)],`Check the sign of 4ac: −4 × ${a} × ${br(c)} = ${fmt(-4*a*c)}.`]);
+    for(const [P,m] of alts) if(both(P,0.011)){t=m;break;}
+    if(!t&&(near(u,R[0])||near(u,R[1])||near(v,R[0])||near(v,R[1]))) t='One answer is right. The other comes from the opposite sign in ±.';
+    if(!t) t=`Write down a, b, c with their signs, then the discriminant b² − 4ac (it should be ${D}).`; }
+  if(!fpDone){fpTried++;if(ok)fpRight++;} fpDone=true;
+  M.className='msg '+(ok?'good':'bad'); M.textContent=(ok?'':'Not quite. ')+t; if(ok)$('fpWork').hidden=false; $('fpScore').textContent=`Score: ${fpRight} right first time out of ${fpTried}.`; }
+$('fpGo').addEventListener('click',fpCheck); $('fpNew').addEventListener('click',fpNew); $('fpShow').addEventListener('click',()=>{$('fpWork').hidden=!$('fpWork').hidden;});
+fpNew();
+
+/* 6. discriminant */
+const P6=Plot({x0:-8,x1:8,y0:-8,y1:10,H:360});
+function drawDS(){ const a=selNum($('dsA')),b=+$('dsB').value,c=+$('dsC').value; $('dsBv').textContent=' '+fmt(b); $('dsCv').textContent=' '+fmt(c);
+  const ac=css('--accent'),hi=css('--hi'),D=b*b-4*a*c; let s=P6.path(x=>a*x*x+b*x+c,ac,3);
+  let v; if(D>0){const r=Math.sqrt(D);[(-b+r)/(2*a),(-b-r)/(2*a)].forEach(x=>s+=P6.dot(x,0,hi,6));v=`<span class="b">positive → two real roots</span>`;}
+  else if(D===0){s+=P6.dot(-b/(2*a),0,hi,7);v=`<span class="b">zero → one repeated root (the curve touches the x-axis)</span>`;}
+  else v=`<span class="x">negative → no real roots (the curve misses the x-axis)</span>`;
+  P6.clip($('dsSvg'),s); $('dsEq').textContent=`y = ${polyStr([a,b,c])}`;
+  $('dsWork').innerHTML=`b² − 4ac = ${br(b)}² − 4 × ${br(a)} × ${br(c)} = ${fmt(b*b)} ${-4*a*c<0?'−':'+'} ${fmt(Math.abs(4*a*c))} = <strong>${fmt(D)}</strong><br>${v}`; }
+['dsA','dsB','dsC'].forEach(i=>$(i).addEventListener('input',drawDS)); reg(drawDS);
+
+/* 7. choose a method */
+const MT=[
+ {e:'x² = 45',ok:['sqrt'],w:'No x term: x = ±√45 = ±3√5.'},
+ {e:'(x − 3)² = 10',ok:['sqrt'],w:'It is already a completed square: x − 3 = ±√10, so x = 3 ± √10.'},
+ {e:'x² + 7x + 12 = 0',ok:['fact'],w:'3 × 4 = 12 and 3 + 4 = 7: (x + 3)(x + 4) = 0, x = −3 or −4.'},
+ {e:'x² − 9x = 0',ok:['fact'],w:'Common factor x: x(x − 9) = 0, x = 0 or 9.'},
+ {e:'x² + 3x − 1 = 0 (answer to 2 d.p.)',ok:['form'],w:'No integer pair works and b is odd: the formula gives x = 0.30 or −3.30.'},
+ {e:'x² − 8x + 5 = 0 (exact answer)',ok:['cts','form'],w:'Both work. Completing the square is quickest with even b: (x − 4)² = 11, x = 4 ± √11.'},
+ {e:'3x² − 7x + 1 = 0 (answer to 3 s.f.)',ok:['form'],w:'a ≠ 1 and it doesn\'t factorise: the formula gives x = 2.18 or 0.153 (3 s.f.).'},
+ {e:'2x² + 5x − 3 = 0',ok:['fact','form'],w:'It factorises (Higher): (2x − 1)(x + 3) = 0, x = ½ or −3. The formula also works.'}
+];
+const MTN={sqrt:'Square-root both sides',fact:'Factorise',cts:'Complete the square',form:'Quadratic formula'};
+let mtI=-1;
+function mtNew(){ let i; do{i=rnd(0,MT.length-1);}while(i===mtI); mtI=i; $('mtQ').textContent=MT[i].e; $('mtMsg').className='msg'; $('mtMsg').textContent='Which method is best here?';
+  const box=$('mtBtns'); box.innerHTML=''; Object.keys(MTN).forEach(k=>{const b=document.createElement('button');b.className='btn';b.type='button';b.textContent=MTN[k];
+    b.addEventListener('click',()=>{const T=MT[mtI],M=$('mtMsg'),ok=T.ok.includes(k);M.className='msg '+(ok?'good':'bad');
+      M.textContent=ok?'Good choice. '+T.w:(k==='form'&&!T.ok.includes('form')?'The formula would work, but there is a much quicker way. ':k==='sqrt'?'Square-rooting directly only works when there is no separate x term. ':k==='fact'?'Look for a product/sum pair first: is there one? ':'Possible, but not the best here. ')+(ok?'':'Hint: '+T.w.split(':')[0]+'.');});
+    box.appendChild(b);}); }
+$('mtNew').addEventListener('click',mtNew); mtNew();
+
+const QS=[
+  {q:'Solve (x − 3)(x + 7) = 0.',opts:['x = 3 or x = −7','x = −3 or x = 7','x = 3 or x = 7','x = 21'],a:0,fb:'Set each bracket to 0: x − 3 = 0 gives 3; x + 7 = 0 gives −7. The signs flip.'},
+  {q:'Solve x² − 5x = 0.',opts:['x = 0 or x = 5','x = 5 only','x = 0 or x = −5','x = ±√5'],a:0,fb:'x(x − 5) = 0, so x = 0 or 5. Dividing by x would lose x = 0.'},
+  {q:'Higher: write x² + 10x + 7 in the form (x + p)² + q.',opts:['(x + 5)² − 18','(x + 5)² + 7','(x + 10)² − 93','(x + 5)² + 32'],a:0,fb:'Half of 10 is 5: (x + 5)² − 25 + 7 = (x + 5)² − 18.'},
+  {q:'Higher: the turning point of y = (x − 2)² + 5 is…',opts:['(2, 5)','(−2, 5)','(2, −5)','(5, 2)'],a:0,fb:'The bracket is 0 when x = 2; then y = 5. The x-coordinate flips sign, the y-coordinate doesn\'t.'},
+  {q:'Higher: for x² + 4x + 7 = 0, the discriminant b² − 4ac is…',opts:['−12, so no real roots','12, so two roots','−12, so two roots','44, so two roots'],a:0,fb:'16 − 4 × 1 × 7 = 16 − 28 = −12. Negative: no real roots.'},
+  {q:'Higher: solve x² + 4x − 3 = 0 to 2 d.p.',opts:['0.65 and −4.65','4.65 and −0.65','−1.35 and −6.65','1.29 and −9.29'],a:0,fb:'x = (−4 ± √28) ÷ 2 = 0.6457… or −4.6457…. Using +b flips the signs; dividing only the root by 2 gives −1.35 and −6.65.'},
+  {q:'Higher: the exact solutions of x² − 6x + 2 = 0 are…',opts:['x = 3 ± √7','x = −3 ± √7','x = 3 ± √11','x = 6 ± √7'],a:0,fb:'(x − 3)² − 9 + 2 = 0, so (x − 3)² = 7 and x = 3 ± √7.'},
+  {q:'How many times does y = x² − 6x + 9 meet the x-axis?',opts:['once','twice','never','three times'],a:0,fb:'x² − 6x + 9 = (x − 3)², which is 0 only at x = 3: the curve touches the axis once.'},
+  {q:'Higher: a student writes x = −b ± √(b² − 4ac) ÷ 2a. What is wrong?',opts:['Only the root is divided by 2a','It should be + b','It should be ÷ a','Nothing'],a:0,fb:'The whole of −b ± √(b² − 4ac) must be divided by 2a.'},
+  {q:'Which method suits "solve x² + 3x − 1 = 0, giving answers to 2 d.p."?',opts:['The quadratic formula','Factorising','Square-root both sides','Divide by x'],a:0,fb:'No pair of integers multiplies to −1 and adds to 3, and "2 d.p." hints at the formula.'}
+];
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>DRAW.forEach(f=>f()));}
+new MutationObserver(()=>DRAW.forEach(f=>f())).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

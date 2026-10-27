@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Linear Graphs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive SVG grids; graph-paper neutrals, teal = gradient m / the line, orange = intercept c, plum = plotted points. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.M{color:var(--accent);font-weight:600}.C{color:var(--hi);font-weight:600}.P{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.vt{font-family:var(--mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse}
+.vt td,.vt th{text-align:center;padding:.4rem .5rem;border-bottom:1px solid var(--line)}
+.vt th{font:600 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left}
+.vt td.on{background:var(--two-soft);color:var(--two);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Algebra · KS3</div>
+  <h1>Linear Graphs</h1>
+  <p class="lede">A rule like y = 2x + 1 turns every x into a y. Plot the pairs and they line up, literally, into a straight line. Two numbers describe the whole line: how steep it is (<span class="M">m</span>, the gradient) and where it crosses the y-axis (<span class="C">c</span>, the intercept).</p>
+  <span class="gcse">National curriculum KS3: plot graphs of linear functions using a table of values; recognise, sketch and interpret graphs of linear functions; understand gradient and y-intercept in y = mx + c</span>
+</header>
+
+<h2>1 · From a rule to a line</h2>
+<p>Start with the rule <span class="m">y = 2x + 1</span>. Pick some x-values, substitute each one (see the substitution page), and you get a <strong>table of values</strong>. Each column is a coordinate pair. Plot them. Step through and watch the line appear.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>y = <select id="tvE">
+      <option value="2,1">2x + 1</option><option value="1,-2">x − 2</option><option value="-1,3">−x + 3</option><option value="3,0">3x</option><option value="0.5,1">½x + 1</option><option value="-2,-1">−2x − 1</option>
+    </select></label>
+    <label>points plotted <input type="range" id="tvN" min="0" max="7" value="3"></label>
+    <label><input type="checkbox" id="tvLine"> draw the line</label>
+  </div>
+  <div class="twin">
+    <svg id="tvSvg" viewBox="0 0 400 400" width="400" height="400"></svg>
+    <div><table class="vt" id="tvTable"></table><div class="work" id="tvWork"></div></div>
+  </div>
+</div>
+
+<p>Three things to notice. The points are evenly spaced: every time x goes up by 1, y goes up by the same amount. That constant step is what makes the graph <em>straight</em>, and it's the number in front of x. And the point where x = 0 is where the line crosses the y-axis.</p>
+
+<h2>2 · Gradient: how steep</h2>
+<p>The <strong>gradient</strong> (<em>la pendiente</em>) measures steepness as <em>rise over run</em>: how far up for each step across. Draw a right-angled triangle anywhere on the line. Gradient = rise ÷ run. Because the line is straight, every triangle gives the same answer.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>m = <input type="range" id="grM" min="-4" max="4" step="0.5" value="2"><span id="grMv" style="font-family:var(--mono)"></span></label>
+    <label>run = <input type="range" id="grRun" min="1" max="4" step="1" value="1"></label>
+  </div>
+  <svg id="grSvg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="readout">
+    <div class="f"><b>Rise ÷ run</b><span id="grCalc"></span></div>
+    <div><b>Meaning</b><span id="grMean"></span></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Sign of the gradient.</strong> Positive m: the line goes uphill left to right. Negative m: downhill. m = 0: flat, a horizontal line like y = 3. The bigger the size of m, the steeper. A gradient of 1 is 45°; a gradient of ½ is gentler; a gradient of 3 is steep. Measure rise and run in <em>grid units</em>, not centimetres.</p>
+</div>
+
+<h2>3 · Intercept: where it starts</h2>
+<p>The <strong>y-intercept</strong> (<em>la ordenada en el origen</em>) is where the line crosses the y-axis. On the y-axis, x = 0, so put x = 0 into y = mx + c and the mx term vanishes: y = c. The intercept is simply the number on the end. The line "starts" at (0, c) and climbs from there at gradient m.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>m = <input type="range" id="mcM" min="-4" max="4" step="0.5" value="1"><span id="mcMv" style="font-family:var(--mono)"></span></label>
+    <label>c = <input type="range" id="mcC" min="-6" max="6" step="1" value="2"><span id="mcCv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="mcGhost" checked> show y = x for comparison</label>
+  </div>
+  <div class="big" id="mcEq"></div>
+  <svg id="mcSvg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="readout">
+    <div class="t"><b>Crosses y-axis at</b><span id="mcInt"></span></div>
+    <div class="f"><b>For each 1 across</b><span id="mcStep"></span></div>
+    <div><b>Crosses x-axis at</b><span id="mcX"></span></div>
+  </div>
+</div>
+
+<p>Play with the sliders until this is obvious: <strong class="C">c</strong> slides the line up and down without tilting it; <strong class="M">m</strong> tilts it around the intercept without moving the crossing point.</p>
+
+<h2>4 · Sketching without a table</h2>
+<p>Once you trust m and c, you can draw y = mx + c in two moves with no table at all. Mark (0, c). From there go 1 across and m up (or down if m is negative) to get a second point. Join and extend. Try it: the page gives you an equation, you place the two points.</p>
+
+<div class="lab">
+  <div class="big" id="skEq"></div>
+  <svg id="skSvg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="msg" id="skMsg"></div>
+  <div class="controls"><button class="btn" id="skNew">New line</button><button class="btn" id="skReset">Clear</button></div>
+</div>
+
+<h2>5 · Reading the equation off a graph</h2>
+<p>The reverse skill, which exams love: a line is drawn, find its equation. Read c where it crosses the y-axis. Pick two clear grid points on the line, draw the triangle, work out rise ÷ run for m. Write y = mx + c.</p>
+
+<div class="lab">
+  <svg id="rdSvg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="controls">
+    <label>y = <input type="number" id="rdM" step="0.5" style="width:4.5em"> x + <input type="number" id="rdC" step="1" style="width:4.5em"></label>
+    <button class="btn primary" id="rdGo">Check</button><button class="btn" id="rdNew">New graph</button>
+    <label><input type="checkbox" id="rdHint"> show a triangle</label>
+  </div>
+  <div class="msg" id="rdMsg"></div>
+</div>
+
+<h2>6 · Special lines and parallel lines</h2>
+<div class="tbl"><table>
+  <tr><th>Equation</th><th>What it looks like</th><th>Why</th></tr>
+  <tr><td class="mono">y = 3</td><td>Horizontal line through (0, 3)</td><td>Every point has y = 3 whatever x is. Gradient 0.</td></tr>
+  <tr><td class="mono">x = −2</td><td>Vertical line through (−2, 0)</td><td>Every point has x = −2. Can't be written as y = mx + c; its gradient is undefined.</td></tr>
+  <tr><td class="mono">y = x</td><td>45° line through the origin</td><td>m = 1, c = 0. The mirror line for swapping x and y.</td></tr>
+  <tr><td class="mono">y = −x</td><td>45° downhill through the origin</td><td>m = −1.</td></tr>
+  <tr><td class="mono">y = 2x + 1 and y = 2x − 4</td><td>Parallel</td><td>Same gradient, different intercepts. Parallel lines never meet because they climb at the same rate.</td></tr>
+  <tr><td class="mono">2y = 4x + 6</td><td>Looks unfamiliar</td><td>Divide by 2 first: y = 2x + 3. Always rearrange to y = … before reading m and c.</td></tr>
+</table></div>
+
+<div class="lab">
+  <div class="controls">
+    <label>Line 1: y = <input type="number" id="plM1" value="2" step="0.5" style="width:4em">x + <input type="number" id="plC1" value="1" step="1" style="width:4em"></label>
+    <label>Line 2: y = <input type="number" id="plM2" value="2" step="0.5" style="width:4em">x + <input type="number" id="plC2" value="-3" step="1" style="width:4em"></label>
+  </div>
+  <svg id="plSvg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="msg" id="plMsg"></div>
+</div>
+
+<h2>7 · Where straight lines show up</h2>
+<div class="grid2">
+  <div class="use"><h3>Taxi fares and phone bills</h3>
+    <p>£3 to start plus £2 per mile: cost = 2m + 3. The £3 is the intercept (cost before you move), the £2 is the gradient (cost per mile). Every "fixed charge plus rate" is y = mx + c.</p></div>
+  <div class="use"><h3>Science: conversion graphs</h3>
+    <p>°F = 1.8 °C + 32. Gradient 1.8, intercept 32. Hooke's law, Ohm's law and distance–time at constant speed are all straight lines through the origin: c = 0.</p></div>
+  <div class="use"><h3>Distance–time graphs</h3>
+    <p>Gradient = speed. A steep line is fast, flat is stopped, downhill is coming back. Reading gradients off a graph is reading speeds.</p></div>
+  <div class="use"><h3>Computing</h3>
+    <p><code>y = m*x + c</code> is a one-line function. Drawing a line on screen means computing y for each pixel column x. Linear interpolation in animation and audio is this formula.</p></div>
+  <div class="use"><h3>Statistics</h3>
+    <p>A line of best fit on a scatter graph is y = mx + c chosen to pass as close as possible to all the points. Its gradient says how much y changes per unit of x.</p></div>
+  <div class="use"><h3>Later maths</h3>
+    <p>Simultaneous equations are two lines and their crossing point. Differentiation (the first page of this series) finds the gradient of a <em>curve</em> by borrowing the straight-line idea of rise over run.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Draw y = 3x − 2 for x from −2 to 2</summary>
+  <div class="step"><strong>Table:</strong> x = −2 → −8; −1 → −5; 0 → −2; 1 → 1; 2 → 4.</div>
+  <div class="step"><strong>Plot</strong> (−2, −8), (−1, −5), (0, −2), (1, 1), (2, 4). They're in a line; join with a ruler and extend.</div>
+  <div class="step"><strong>Check:</strong> crosses the y-axis at −2 (that's c) and rises 3 for each 1 across (that's m) ✓</div>
+</details>
+<details>
+  <summary>Find the gradient of the line through (1, 2) and (4, 11)</summary>
+  <div class="step"><strong>Rise:</strong> 11 − 2 = 9. <strong>Run:</strong> 4 − 1 = 3.</div>
+  <div class="step"><strong>Gradient:</strong> 9 ÷ 3 = <strong>3</strong>. (Subtract in the same order top and bottom.)</div>
+</details>
+<details>
+  <summary>Write the equation of the line with gradient −2 through (0, 5)</summary>
+  <div class="step"><strong>m = −2</strong> is given. <strong>c = 5</strong> because (0, 5) is on the y-axis.</div>
+  <div class="step"><strong>y = −2x + 5.</strong> Check with another point: x = 1 gives y = 3, and from (0, 5) going 1 across and 2 down does land on (1, 3) ✓</div>
+</details>
+<details>
+  <summary>Exam-style: a line has gradient 3 and passes through (2, 1). Find its equation.</summary>
+  <div class="step"><strong>Start with what's known:</strong> y = 3x + c.</div>
+  <div class="step"><strong>The point must satisfy the equation.</strong> Substitute x = 2, y = 1: 1 = 3(2) + c → 1 = 6 + c → c = −5.</div>
+  <div class="step"><strong>Answer:</strong> <strong>y = 3x − 5</strong>. This is the method for any "gradient and a point" question.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>A linear rule y = mx + c produces points that lie on a straight line. m is the gradient, rise over run, the amount y changes for each step of 1 in x: positive uphill, negative downhill, zero flat. c is the y-intercept, the value of y when x = 0, where the line crosses the y-axis. You can plot from a table of values, or sketch in two moves from (0, c) and the gradient; you can read an equation off a drawn line by finding those same two numbers. Parallel lines share m. Always rearrange to y = … before reading off.</p>
+
+<footer>Made for KS3 students. Linear graphs, gradient and intercept are in the England national curriculum at key stage 3 under Algebra. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=v=>Number.isInteger(v)?String(v):parseFloat(v.toFixed(2)).toString();
+const R=6,S=400,pad=24,cell=(S-2*pad)/(2*R);
+const sx=x=>pad+(x+R)*cell,sy=y=>pad+(R-y)*cell;
+const toGrid=(svg,ev)=>{const r=svg.getBoundingClientRect();const px=(ev.clientX-r.left)/r.width*S,py=(ev.clientY-r.top)/r.height*S;return [Math.round((px-pad)/cell-R),Math.round(R-(py-pad)/cell)];};
+function grid(){const f=`font-family="${css('--mono')}"`;let s='';
+  for(let i=-R;i<=R;i++){s+=`<line x1="${sx(i)}" y1="${sy(-R)}" x2="${sx(i)}" y2="${sy(R)}" stroke="${css('--grid')}"/><line x1="${sx(-R)}" y1="${sy(i)}" x2="${sx(R)}" y2="${sy(i)}" stroke="${css('--grid')}"/>`;}
+  s+=`<line x1="${sx(-R)}" y1="${sy(0)}" x2="${sx(R)}" y2="${sy(0)}" stroke="${css('--muted')}" stroke-width="1.5"/><line x1="${sx(0)}" y1="${sy(-R)}" x2="${sx(0)}" y2="${sy(R)}" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  for(let i=-R;i<=R;i+=2){if(i===0)continue;s+=`<text x="${sx(i)}" y="${sy(0)+13}" text-anchor="middle" font-size="10" fill="${css('--muted')}" ${f}>${i}</text><text x="${sx(0)-5}" y="${sy(i)+3}" text-anchor="end" font-size="10" fill="${css('--muted')}" ${f}>${i}</text>`;}
+  s+=`<text x="${sx(R)-3}" y="${sy(0)-5}" text-anchor="end" font-size="12" font-weight="600" fill="${css('--muted')}" ${f}>x</text><text x="${sx(0)+6}" y="${sy(R)+10}" font-size="12" font-weight="600" fill="${css('--muted')}" ${f}>y</text>`;return s;}
+function line(m,c,color,w=2.5,dash){const x0=-R-1,x1=R+1;return `<line x1="${sx(x0)}" y1="${sy(m*x0+c)}" x2="${sx(x1)}" y2="${sy(m*x1+c)}" stroke="${color}" stroke-width="${w}" ${dash?'stroke-dasharray="6 5"':''}/>`;}
+function clipSvg(svg,inner){svg.innerHTML=`<defs><clipPath id="cp${svg.id}"><rect x="${pad}" y="${pad}" width="${S-2*pad}" height="${S-2*pad}"/></clipPath></defs>`+grid()+`<g clip-path="url(#cp${svg.id})">${inner}</g>`;}
+const dot=(x,y,c,r=6,label)=>`<circle cx="${sx(x)}" cy="${sy(y)}" r="${r}" fill="${c}"/>`+(label?`<text x="${sx(x)+9}" y="${sy(y)-8}" font-size="12" font-weight="600" fill="${c}" font-family="${css('--mono')}">${label}</text>`:'');
+const eqStr=(m,c)=>{let s='y = ';if(m===0)return s+fmt(c);s+=(m===1?'':m===-1?'−':fmt(m).replace('-','−'))+'x';if(c>0)s+=' + '+fmt(c);else if(c<0)s+=' − '+fmt(-c);return s;};
+const tri=(x0,m,run,color)=>{const y0=m*x0,x1=x0+run,y1=m*x1;return `<polyline points="${sx(x0)},${sy(y0)} ${sx(x1)},${sy(y0)} ${sx(x1)},${sy(y1)}" fill="none" stroke="${color}" stroke-width="2" stroke-dasharray="4 3"/><text x="${sx((x0+x1)/2)}" y="${sy(y0)+(m>=0?14:-6)}" text-anchor="middle" font-size="11" fill="${color}" font-family="${css('--mono')}">run ${run}</text><text x="${sx(x1)+6}" y="${sy((y0+y1)/2)+4}" font-size="11" fill="${color}" font-family="${css('--mono')}">rise ${fmt(m*run)}</text>`;};
+
+/* 1. table of values */
+const tvE=document.getElementById('tvE'),tvN=document.getElementById('tvN'),tvLine=document.getElementById('tvLine');
+function drawTV(){const [m,c]=tvE.value.split(',').map(Number);const n=+tvN.value;const xs=[-3,-2,-1,0,1,2,3];
+  let inner='';if(tvLine.checked)inner+=line(m,c,css('--accent'));
+  xs.slice(0,n).forEach(x=>inner+=dot(x,m*x+c,css('--two'),6,n<=4?`(${x}, ${fmt(m*x+c)})`:''));
+  clipSvg(document.getElementById('tvSvg'),inner);
+  document.getElementById('tvTable').innerHTML=`<tr><th>x</th>${xs.map((x,i)=>`<td class="${i<n?'on':''}">${x}</td>`).join('')}</tr><tr><th>y</th>${xs.map((x,i)=>`<td class="${i<n?'on':''}">${i<n?fmt(m*x+c):'·'}</td>`).join('')}</tr>`;
+  const k=Math.max(0,n-1),x=xs[k];
+  document.getElementById('tvWork').innerHTML=n===0?`${eqStr(m,c)}: slide to substitute values.`:`${eqStr(m,c)} with x = ${x}:<br>y = ${fmt(m)} × ${x<0?'('+x+')':x} ${c<0?'−':'+'} ${Math.abs(c)} = ${fmt(m*x)} ${c<0?'−':'+'} ${Math.abs(c)} = <strong>${fmt(m*x+c)}</strong> → plot (${x}, ${fmt(m*x+c)})<br><span class="c">each step of 1 in x changes y by ${fmt(m)}</span>`;}
+[tvE,tvN,tvLine].forEach(e=>e.addEventListener('input',drawTV));drawTV();
+
+/* 2. gradient */
+const grM=document.getElementById('grM'),grRun=document.getElementById('grRun');
+function drawGR(){const m=+grM.value,run=+grRun.value;document.getElementById('grMv').textContent=' '+fmt(m);
+  clipSvg(document.getElementById('grSvg'),line(m,0,css('--accent'))+tri(-2,m,run,css('--hi'))+tri(1,m,run,css('--two')));
+  document.getElementById('grCalc').textContent=`${fmt(m*run)} ÷ ${run} = ${fmt(m)}  (both triangles)`;
+  document.getElementById('grMean').textContent=m===0?'flat: y never changes':m>0?`uphill: up ${fmt(m)} for every 1 across`:`downhill: down ${fmt(-m)} for every 1 across`;}
+grM.addEventListener('input',drawGR);grRun.addEventListener('input',drawGR);drawGR();
+
+/* 3. m and c */
+const mcM=document.getElementById('mcM'),mcC=document.getElementById('mcC'),mcGhost=document.getElementById('mcGhost');
+function drawMC(){const m=+mcM.value,c=+mcC.value;document.getElementById('mcMv').textContent=' '+fmt(m);document.getElementById('mcCv').textContent=' '+fmt(c);
+  let inner='';if(mcGhost.checked)inner+=line(1,0,css('--muted'),1.5,true);inner+=line(m,c,css('--accent'))+dot(0,c,css('--hi'),7,`(0, ${c})`);
+  // triangle from intercept
+  if(m!==0)inner+=`<polyline points="${sx(0)},${sy(c)} ${sx(1)},${sy(c)} ${sx(1)},${sy(c+m)}" fill="none" stroke="${css('--two')}" stroke-width="2" stroke-dasharray="4 3"/>`;
+  clipSvg(document.getElementById('mcSvg'),inner);
+  document.getElementById('mcEq').innerHTML=`y = <span class="M">${fmt(m)}</span>x + <span class="C">${fmt(c)}</span>`.replace('+ <span class="C">-','− <span class="C">');
+  document.getElementById('mcInt').textContent=`(0, ${c})`;
+  document.getElementById('mcStep').textContent=m===0?'y stays the same':`y goes ${m>0?'up':'down'} ${fmt(Math.abs(m))}`;
+  document.getElementById('mcX').textContent=m===0?(c===0?'everywhere':'never'):`(${fmt(-c/m)}, 0)`;}
+[mcM,mcC,mcGhost].forEach(e=>e.addEventListener('input',drawMC));drawMC();
+
+/* 4. sketch game */
+const skSvg=document.getElementById('skSvg');let sk={m:1,c:0,pts:[]};
+function skNew(){const ms=[-3,-2,-1,-0.5,0.5,1,2,3];sk={m:ms[Math.floor(Math.random()*ms.length)],c:Math.floor(Math.random()*9)-4,pts:[]};document.getElementById('skEq').textContent=eqStr(sk.m,sk.c);skDraw();document.getElementById('skMsg').className='msg';document.getElementById('skMsg').textContent='Click the y-intercept first, then a second point on the line.';}
+function skDraw(){let inner='';sk.pts.forEach((p,i)=>inner+=dot(p[0],p[1],i===0?css('--hi'):css('--two'),7,`(${p[0]}, ${p[1]})`));if(sk.pts.length===2){const [p,q]=sk.pts;if(q[0]!==p[0]){const m=(q[1]-p[1])/(q[0]-p[0]),c=p[1]-m*p[0];inner+=line(m,c,css('--two'),2,true);}inner+=line(sk.m,sk.c,css('--accent'),2.5);}clipSvg(skSvg,inner);}
+skSvg.addEventListener('pointerdown',e=>{if(sk.pts.length>=2)return;const [x,y]=toGrid(skSvg,e);sk.pts.push([x,y]);const m=document.getElementById('skMsg');
+  if(sk.pts.length===1){const ok=x===0&&y===sk.c;m.className='msg '+(ok?'good':'bad');m.textContent=ok?`Intercept (0, ${sk.c}) ✓. Now go 1 across and ${fmt(sk.m)} ${sk.m>0?'up':'down'}, or any point on the line.`:(x!==0?`The intercept is on the y-axis, so x must be 0. You clicked (${x}, ${y}).`:`c = ${sk.c}, so the intercept is (0, ${sk.c}). You clicked (0, ${y}).`);}
+  else{const onLine=Math.abs(y-(sk.m*x+sk.c))<1e-9;const okInt=sk.pts[0][0]===0&&sk.pts[0][1]===sk.c;m.className='msg '+(onLine&&okInt?'good':'bad');m.textContent=onLine&&okInt?'Both points on the line. Your dashed line matches the real one.':onLine?'Second point is on the line, but the first wasn\'t the intercept. Compare the dashed line with the solid one.':`(${x}, ${y}) isn't on the line: y should be ${fmt(sk.m*x+sk.c)} when x = ${x}. The solid line is the correct one.`;}
+  skDraw();});
+document.getElementById('skNew').addEventListener('click',skNew);document.getElementById('skReset').addEventListener('click',()=>{sk.pts=[];skDraw();document.getElementById('skMsg').textContent='';});skNew();
+
+/* 5. read equation */
+const rdSvg=document.getElementById('rdSvg'),rdHint=document.getElementById('rdHint');let rd={m:1,c:0};
+function rdNew(){const ms=[-3,-2,-1,-0.5,0.5,1,2,3];rd={m:ms[Math.floor(Math.random()*ms.length)],c:Math.floor(Math.random()*9)-4};document.getElementById('rdM').value='';document.getElementById('rdC').value='';document.getElementById('rdMsg').textContent='';document.getElementById('rdMsg').className='msg';rdDraw();}
+function rdDraw(){let inner=line(rd.m,rd.c,css('--accent'));if(rdHint.checked){const run=Number.isInteger(rd.m)?1:2;inner+=`<polyline points="${sx(0)},${sy(rd.c)} ${sx(run)},${sy(rd.c)} ${sx(run)},${sy(rd.c+rd.m*run)}" fill="none" stroke="${css('--two')}" stroke-width="2" stroke-dasharray="4 3"/><text x="${sx(run/2)}" y="${sy(rd.c)+(rd.m>=0?14:-6)}" text-anchor="middle" font-size="11" fill="${css('--two')}" font-family="${css('--mono')}">run ${run}</text><text x="${sx(run)+6}" y="${sy(rd.c+rd.m*run/2)+4}" font-size="11" fill="${css('--two')}" font-family="${css('--mono')}">rise ${fmt(rd.m*run)}</text>`;}clipSvg(rdSvg,inner);}
+document.getElementById('rdGo').addEventListener('click',()=>{const m=parseFloat(document.getElementById('rdM').value),c=parseFloat(document.getElementById('rdC').value);const M=document.getElementById('rdMsg');if(isNaN(m)||isNaN(c)){M.textContent='Fill in both m and c.';return;}
+  const okM=Math.abs(m-rd.m)<1e-9,okC=Math.abs(c-rd.c)<1e-9;M.className='msg '+(okM&&okC?'good':'bad');
+  M.textContent=okM&&okC?`Correct: ${eqStr(rd.m,rd.c)}.`:!okC&&okM?`Gradient right. The line crosses the y-axis at ${rd.c}, so c = ${rd.c}.`:okC?`Intercept right. ${m===-rd.m?'Check the sign: the line goes '+(rd.m>0?'uphill':'downhill')+', so m is '+(rd.m>0?'positive':'negative')+'.':'Draw a triangle: for 1 across the line rises '+fmt(rd.m)+', so m = '+fmt(rd.m)+'.'}`:`Both off. It's ${eqStr(rd.m,rd.c)}: read c on the y-axis, then rise over run for m.`;});
+document.getElementById('rdNew').addEventListener('click',rdNew);rdHint.addEventListener('input',rdDraw);rdNew();
+
+/* 6. parallel */
+const plIds=['plM1','plC1','plM2','plC2'].map(i=>document.getElementById(i));
+function drawPL(){const [m1,c1,m2,c2]=plIds.map(e=>parseFloat(e.value)||0);let inner=line(m1,c1,css('--accent'))+line(m2,c2,css('--hi'));const M=document.getElementById('plMsg');
+  if(m1===m2){M.textContent=c1===c2?'Same gradient and same intercept: it\'s the same line.':`Same gradient (${fmt(m1)}), different intercepts: parallel. They never meet.`;}
+  else{const x=(c2-c1)/(m1-m2),y=m1*x+c1;inner+=dot(x,y,css('--two'),7,`(${fmt(x)}, ${fmt(y)})`);M.textContent=`Different gradients, so they cross once, at (${fmt(x)}, ${fmt(y)}). (That's what solving simultaneous equations finds.)`;}
+  clipSvg(document.getElementById('plSvg'),inner);}
+plIds.forEach(e=>e.addEventListener('input',drawPL));drawPL();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawTV();drawGR();drawMC();skDraw();rdDraw();drawPL();});}
+new MutationObserver(()=>{drawTV();drawGR();drawMC();skDraw();rdDraw();drawPL();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'In y = 4x − 3, the gradient is…',opts:['4','−3','x','4x'],a:0,fb:'m is the number multiplying x.'},
+  {q:'Where does y = 2x + 5 cross the y-axis?',opts:['(0, 5)','(5, 0)','(0, 2)','(2, 5)'],a:0,fb:'On the y-axis x = 0, so y = 5.'},
+  {q:'A line goes through (0, 1) and (2, 7). Its gradient is…',opts:['3','6','2','1/3'],a:0,fb:'Rise 7 − 1 = 6, run 2 − 0 = 2, gradient 6/2 = 3.'},
+  {q:'Which line is parallel to y = 3x + 2?',opts:['y = 3x − 7','y = −3x + 2','y = 2x + 3','y = x/3 + 2'],a:0,fb:'Parallel means the same gradient, 3. The intercept can be anything.'},
+  {q:'Which line slopes downhill?',opts:['y = −2x + 4','y = 2x − 4','y = x','y = 4'],a:0,fb:'Negative gradient means downhill left to right.'},
+  {q:'What is the gradient of 2y = 6x + 8?',opts:['3','6','8','2'],a:0,fb:'Divide by 2 first: y = 3x + 4. Read m from the y = … form.'},
+  {q:'A line has gradient 2 and passes through (3, 4). Its equation is…',opts:['y = 2x − 2','y = 2x + 4','y = 2x + 3','y = 2x − 1'],a:0,fb:'y = 2x + c with 4 = 2(3) + c gives c = −2.'},
+  {q:'Which is a horizontal line?',opts:['y = −1','x = −1','y = −x','y = x − 1'],a:0,fb:'y = −1 has gradient 0: every point is at height −1. x = −1 is vertical.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

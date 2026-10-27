@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Prime Factorisation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive "lab" panels; graph-paper neutrals, teal for primes, orange for composites/highlights, plum for a second number in HCF/LCM. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab canvas{width:100%;height:auto;display:block;max-width:100%}
+.controls{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:180px;max-width:50vw}
+input[type=number]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6.5em}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}
+.readout .p{color:var(--two)}
+/* sieve */
+.sieve{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:.5rem;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.sieve div{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:5px;background:var(--bg);border:1px solid var(--line);font-size:clamp(.7rem,2.4vw,1rem);transition:background .3s,color .3s,opacity .3s}
+.sieve .prime{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+.sieve .cross{opacity:.35;text-decoration:line-through}
+.sieve .cur{outline:3px solid var(--hi);outline-offset:-1px}
+.sieve .one{background:var(--grid);color:var(--muted)}
+/* tree */
+.tree{overflow-x:auto}
+.tree svg{display:block;margin:0 auto;max-width:100%;height:auto;font-family:var(--mono)}
+.tree .n{cursor:pointer}
+.tree .n rect{fill:var(--hi-soft);stroke:var(--hi);stroke-width:1.5}
+.tree .n:hover rect{stroke-width:3}
+.tree .n.p rect{fill:var(--accent);stroke:var(--accent)}
+.tree .n text{fill:var(--fg);font-size:15px;text-anchor:middle;dominant-baseline:central;font-weight:500}
+.tree .n.p text{fill:#fff;font-weight:600}
+.tree .e{stroke:var(--muted);stroke-width:1.5}
+.pick{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:.8rem;font-size:.92rem;color:var(--muted)}
+.pick button{font:inherit;font-family:var(--mono);padding:.3rem .7rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.pick button:hover{border-color:var(--hi)}
+.result{font-family:var(--mono);font-size:1.15rem;margin-top:.8rem;padding:.6rem .9rem;border-radius:8px;background:var(--accent-soft);min-height:2.6em}
+/* dots */
+.dots{display:grid;gap:3px;margin-top:.6rem;justify-content:start}
+.dots i{display:block;width:14px;height:14px;border-radius:50%;background:var(--accent)}
+.dots.bad i{background:var(--hi)}
+/* venn */
+.venn svg{display:block;max-width:100%;height:auto;margin:0 auto;font-family:var(--mono)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.lad{font-family:var(--mono);font-size:1.05rem;line-height:1.5;display:inline-grid;grid-template-columns:auto auto;gap:0 .6rem;margin-top:.6rem}
+.lad span{padding:.1rem .5rem;border-bottom:1px solid var(--line)}
+.lad span:nth-child(odd){color:var(--accent);font-weight:600;text-align:right;border-right:1px solid var(--line)}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Number · KS3</div>
+  <h1>Prime Factorisation</h1>
+  <p class="lede">Every whole number is built from primes, the way every molecule is built from atoms. Learn to take a number apart, write down its recipe, and use that recipe to find HCFs and LCMs without guessing.</p>
+  <span class="gcse">National curriculum KS3: prime numbers, prime factorisation (including product notation and index form), HCF and LCM</span>
+</header>
+
+<h2>1 · What is a prime?</h2>
+<p>A <strong>factor</strong> of a number divides into it exactly, with no remainder. The factors of 12 are 1, 2, 3, 4, 6 and 12. A <strong>prime</strong> is a whole number greater than 1 whose only factors are 1 and itself. 7 is prime: nothing except 1 and 7 goes into it. 9 is not: 3 × 3 = 9.</p>
+<p>Here's a way to <em>see</em> it. Try to arrange a number of dots into a neat rectangle (more than one row and more than one column). If you can, the number is <strong>composite</strong>. If the only arrangement is a single line, it's prime.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Number of dots <input type="range" id="dn" min="2" max="40" value="12"></label>
+    <span id="dlabel" style="font-family:var(--mono)"></span>
+  </div>
+  <div id="dotarea"></div>
+  <div class="readout">
+    <div><b>Factor pairs</b><span id="dpairs"></span></div>
+    <div class="t"><b>Verdict</b><span id="dverdict"></span></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>Why isn't 1 prime?</strong> Because the whole point of primes is that every number has <em>exactly one</em> prime recipe. If 1 counted, then 6 = 2 × 3 = 1 × 2 × 3 = 1 × 1 × 2 × 3 … and the recipe would never be unique. So by agreement 1 is neither prime nor composite. 2 is the only even prime.</p>
+</div>
+
+<h2>2 · Finding the primes: the sieve</h2>
+<p>Eratosthenes, a Greek librarian around 240 BC, found a way to filter out all the primes up to any limit with no division at all. Write out the numbers. Take the first unmarked number (2), keep it, and cross out all its multiples. Move to the next unmarked number (3), keep it, cross out its multiples. Repeat. What survives is prime.</p>
+
+<div class="lab">
+  <div class="controls">
+    <button class="btn primary" id="sieveStep">Next step</button>
+    <button class="btn" id="sieveRun">Run to the end</button>
+    <button class="btn" id="sieveReset">Reset</button>
+    <span id="sieveMsg" style="font-size:.92rem;color:var(--muted)"></span>
+  </div>
+  <div class="sieve" id="sieve"></div>
+  <div class="readout">
+    <div><b>Primes found</b><span id="sieveCount"></span></div>
+    <div><b>Shortcut</b><span>Once you pass √100 = 10, everything left is prime</span></div>
+  </div>
+</div>
+
+<p>There are 25 primes below 100. It's worth knowing the first few by heart: <span class="m">2, 3, 5, 7, 11, 13, 17, 19, 23, 29</span>. They are the building blocks for everything that follows.</p>
+
+<h2>3 · Taking a number apart: factor trees</h2>
+<p>Any composite number can be split into two factors. If a factor is prime, circle it and stop. If it isn't, split it again. Keep going until every branch ends in a prime. The primes at the ends are the number's <strong>prime factors</strong>.</p>
+<p><strong>Build one yourself.</strong> Type a number, then click any orange box to split it. You choose the factor pair. Try splitting the same number two different ways and compare what you end up with.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Number <input type="number" id="treeN" min="2" max="9999" value="60"></label>
+    <button class="btn" id="treeGo">Start tree</button>
+    <button class="btn" id="treeAuto">Finish it for me</button>
+  </div>
+  <div class="pick" id="treePick"></div>
+  <div class="tree" id="tree"></div>
+  <div class="result" id="treeOut"></div>
+</div>
+
+<p>However you split, you always end with the <em>same</em> collection of primes. That's the <strong>Fundamental Theorem of Arithmetic</strong>: every whole number above 1 has exactly one prime factorisation (ignoring order). 60 is always 2 × 2 × 3 × 5, whether you started with 6 × 10 or 4 × 15 or 2 × 30.</p>
+
+<h3>Writing it in index form</h3>
+<p>Repeated primes get collected using powers: <span class="m">2 × 2 × 3 × 5 = 2² × 3 × 5</span>. Index form is shorter and, as you'll see, makes HCF and LCM almost automatic. Convention: write the primes in increasing order.</p>
+
+<h3>The ladder method (division method)</h3>
+<p>Some people prefer repeated division to trees. Divide by the smallest prime that goes in, write the answer underneath, repeat until you reach 1. The primes down the left are the answer.</p>
+<p>The ladder is secretly a tree as well. Each division is a node with two children: the prime you divided by on the left (a leaf, it stops there) and the quotient on the right, which gets divided again. Because every node has at most two children it is a <strong>binary tree</strong>, and because every left branch stops at once, it leans all the way to the right. The ladder on the left and the tree on the right are the same working, drawn two ways.</p>
+<div class="lab">
+  <div class="controls">
+    <label>Number <input type="number" id="ladN" min="2" max="99999" value="360"></label>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:flex-start">
+    <div id="ladder"></div>
+    <div class="tree" id="ladTree" style="flex:1;min-width:0"></div>
+  </div>
+  <div class="result" id="ladOut"></div>
+</div>
+<p>Compare it with the free factor tree above. The free tree lets you split any way you like and can be bushy; the division tree always peels off the <em>smallest</em> prime first, so it is tall and thin. Both are binary trees, both end in the same leaves. If you've met binary trees in computing, this is the same data structure: the leaves, read left to right, are the prime factorisation in increasing order.</p>
+
+<h2>4 · What's it for? HCF and LCM</h2>
+<p>The prime recipe is a kind of X-ray of a number. Once you can see inside two numbers, two classic problems become easy.</p>
+<p>The <strong>highest common factor</strong> (HCF, <em>máximo común divisor</em> in Spanish) is the biggest number that divides into both. The <strong>lowest common multiple</strong> (LCM, <em>mínimo común múltiplo</em>) is the smallest number both divide into. Put the prime factors into a Venn diagram: shared primes go in the middle.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>A = <input type="number" id="vA" min="2" max="9999" value="60"></label>
+    <label>B = <input type="number" id="vB" min="2" max="9999" value="84"></label>
+  </div>
+  <div class="venn" id="venn"></div>
+  <div class="readout">
+    <div><b>A =</b><span id="vfa"></span></div>
+    <div class="p"><b>B =</b><span id="vfb"></span></div>
+    <div class="t"><b>HCF = product of the middle</b><span id="vhcf"></span></div>
+    <div><b>LCM = product of everything</b><span id="vlcm"></span></div>
+    <div><b>Check: HCF × LCM</b><span id="vchk"></span></div>
+  </div>
+</div>
+
+<p>Two rules fall out of the picture:</p>
+<ul>
+  <li><strong>HCF</strong>: multiply the primes in the <em>overlap</em>. In index form, take the <em>lower</em> power of each shared prime.</li>
+  <li><strong>LCM</strong>: multiply <em>every</em> prime in the diagram once. In index form, take the <em>higher</em> power of each prime that appears anywhere.</li>
+</ul>
+<p>And a neat check: <span class="m">HCF × LCM = A × B</span>, always.</p>
+
+<h2>5 · Where this shows up</h2>
+<div class="grid2">
+  <div class="use"><h3>Fractions</h3>
+    <p>Simplifying ⁶⁰⁄₈₄ means dividing top and bottom by their HCF (12) to get ⁵⁄₇. Adding ¹⁄₆ + ¹⁄₈ needs a common denominator: the LCM, 24.</p></div>
+  <div class="use"><h3>Timetables and cycles</h3>
+    <p>One bus every 12 minutes, another every 18. Both leave at 9:00; when do they next leave together? LCM(12, 18) = 36, so 9:36.</p></div>
+  <div class="use"><h3>Tiling and packing</h3>
+    <p>Largest square tile that covers a 60 cm × 84 cm floor with no cutting? HCF(60, 84) = 12 cm. Smallest square you can tile with 60 × 84 rectangles? LCM gives the side: 420 cm.</p></div>
+  <div class="use"><h3>Internet security</h3>
+    <p>RSA encryption, which protects card payments, multiplies two enormous primes (hundreds of digits). Multiplying is instant; factorising the result back would take the fastest computers longer than the age of the universe. That one-way gap is the lock.</p></div>
+  <div class="use"><h3>Simplifying surds (GCSE)</h3>
+    <p>√72: factorise 72 = 2³ × 3², pull out the square pairs, get 6√2. The factor tree is the first step every time.</p></div>
+  <div class="use"><h3>Spotting squares and cubes</h3>
+    <p>A number is a perfect square exactly when every power in its index form is even. 3600 = 2⁴ × 3² × 5² is square (√3600 = 2² × 3 × 5 = 60). 360 = 2³ × 3² × 5 isn't.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Write 504 as a product of its prime factors</summary>
+  <div class="step"><strong>Ladder.</strong> 504 ÷ 2 = 252. 252 ÷ 2 = 126. 126 ÷ 2 = 63. 2 no longer works; 63 ÷ 3 = 21. 21 ÷ 3 = 7. 7 is prime.</div>
+  <div class="step"><strong>Collect.</strong> 504 = 2 × 2 × 2 × 3 × 3 × 7.</div>
+  <div class="step"><strong>Index form.</strong> 504 = <strong>2³ × 3² × 7</strong>. Check: 8 × 9 × 7 = 504 ✓</div>
+</details>
+<details>
+  <summary>Find the HCF and LCM of 72 and 120</summary>
+  <div class="step"><strong>Factorise both.</strong> 72 = 2³ × 3². 120 = 2³ × 3 × 5.</div>
+  <div class="step"><strong>HCF: lower powers of shared primes.</strong> 2³ and 3¹ → 8 × 3 = <strong>24</strong>.</div>
+  <div class="step"><strong>LCM: higher powers of all primes.</strong> 2³, 3², 5 → 8 × 9 × 5 = <strong>360</strong>.</div>
+  <div class="step"><strong>Check.</strong> 24 × 360 = 8640 = 72 × 120 ✓</div>
+</details>
+<details>
+  <summary>Exam-style: is 2⁴ × 3 × 5² a multiple of 60?</summary>
+  <div class="step"><strong>Factorise 60.</strong> 60 = 2² × 3 × 5.</div>
+  <div class="step"><strong>Compare powers.</strong> The number has at least 2², at least 3¹, and at least 5¹. Every prime in 60 is covered with enough copies.</div>
+  <div class="step"><strong>Answer.</strong> Yes. (It's 1200, which is 60 × 20.) No multiplication needed: just read the recipes.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>Primes are the numbers that can't be split. Every other whole number splits into primes in exactly one way, which you can find with a factor tree or the ladder, and write compactly in index form. Lay two factorisations in a Venn diagram and the overlap gives the HCF, the whole thing gives the LCM. Those two tools run fractions, timetables, tiling and, scaled up to numbers with hundreds of digits, the encryption behind every online payment.</p>
+
+<footer>Made for KS3 students. Everything on this page is in the England national curriculum for mathematics at key stage 3, under Number. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
+const sup=n=>String(n).replace(/[0-9]/g,d=>SUP[d]);
+function isPrime(n){if(n<2)return false;for(let i=2;i*i<=n;i++)if(n%i===0)return false;return true;}
+function factorise(n){const out=[];let d=2;while(d*d<=n){while(n%d===0){out.push(d);n/=d;}d++;}if(n>1)out.push(n);return out;}
+function counts(arr){const m=new Map();arr.forEach(p=>m.set(p,(m.get(p)||0)+1));return m;}
+function indexForm(arr){if(arr.length===0)return '1';const m=counts(arr);return [...m.entries()].map(([p,k])=>k>1?`${p}${sup(k)}`:`${p}`).join(' × ');}
+function product(arr){return arr.reduce((a,b)=>a*b,1);}
+
+/* ---------- 1. dots ---------- */
+const dn=document.getElementById('dn');
+function drawDots(){
+  const n=+dn.value;document.getElementById('dlabel').textContent=n+' dots';
+  const area=document.getElementById('dotarea');area.innerHTML='';
+  const pairs=[];for(let a=2;a*a<=n;a++)if(n%a===0)pairs.push([a,n/a]);
+  const prime=pairs.length===0;
+  // show the most square arrangement, or a line
+  const [r,c]=prime?[1,n]:pairs[pairs.length-1];
+  const d=document.createElement('div');d.className='dots'+(prime?' bad':'');
+  d.style.gridTemplateColumns=`repeat(${c},14px)`;
+  for(let i=0;i<n;i++)d.appendChild(document.createElement('i'));
+  area.appendChild(d);
+  if(!prime&&pairs.length>1){const d2=document.createElement('div');d2.className='dots';const [r2,c2]=pairs[0];d2.style.gridTemplateColumns=`repeat(${c2},14px)`;d2.style.marginTop='.9rem';for(let i=0;i<n;i++)d2.appendChild(document.createElement('i'));area.appendChild(d2);}
+  document.getElementById('dpairs').textContent=prime?`only 1 × ${n}`:pairs.map(p=>`${p[0]} × ${p[1]}`).join(', ');
+  document.getElementById('dverdict').textContent=prime?`${n} is prime: a line is the only option`:`${n} is composite: it makes a rectangle`;
+}
+dn.addEventListener('input',drawDots);drawDots();
+
+/* ---------- 2. sieve ---------- */
+const sv=document.getElementById('sieve');const cells=[];
+for(let i=1;i<=100;i++){const c=document.createElement('div');c.textContent=i;sv.appendChild(c);cells.push(c);}
+let state;
+function sieveReset(){state={marked:new Array(101).fill(false),p:1,done:false};cells.forEach((c,i)=>{c.className='';if(i===0)c.classList.add('one');});document.getElementById('sieveMsg').textContent='Press "Next step" to find the first prime.';updateCount();}
+function sieveStep(){
+  if(state.done)return;
+  cells.forEach(c=>c.classList.remove('cur'));
+  let p=state.p+1;while(p<=100&&state.marked[p])p++;
+  if(p>100){state.done=true;document.getElementById('sieveMsg').textContent='Finished. Every number not crossed out is prime.';return;}
+  state.p=p;cells[p-1].classList.add('prime','cur');
+  let crossed=0;for(let m=p*p;m<=100;m+=p){if(!state.marked[m]){state.marked[m]=true;cells[m-1].classList.add('cross');crossed++;}}
+  state.marked[p]=true;
+  document.getElementById('sieveMsg').textContent=p>10?`${p} is prime. Its multiples were already crossed out by smaller primes.`:`${p} is prime. Crossed out ${crossed} multiples of ${p} (starting at ${p}² = ${p*p}).`;
+  // after passing 10 reveal the rest as prime
+  if(p>10){for(let i=p+1;i<=100;i++)if(!state.marked[i]){cells[i-1].classList.add('prime');state.marked[i]=true;}state.done=true;document.getElementById('sieveMsg').textContent=`${p} > √100, so every survivor is prime. Done.`;}
+  updateCount();
+}
+function updateCount(){document.getElementById('sieveCount').textContent=cells.filter(c=>c.classList.contains('prime')).length+' / 25';}
+document.getElementById('sieveStep').addEventListener('click',sieveStep);
+document.getElementById('sieveRun').addEventListener('click',()=>{while(!state.done)sieveStep();});
+document.getElementById('sieveReset').addEventListener('click',sieveReset);
+sieveReset();
+
+/* ---------- 3. factor tree ---------- */
+const treeEl=document.getElementById('tree'),pickEl=document.getElementById('treePick'),treeOut=document.getElementById('treeOut');
+let root=null,selected=null;
+function node(v){return {v,kids:null,prime:isPrime(v)};}
+function startTree(){const n=Math.max(2,Math.min(9999,Math.floor(+document.getElementById('treeN').value||60)));document.getElementById('treeN').value=n;root=node(n);selected=null;render();}
+function depth(t){return t.kids?1+Math.max(...t.kids.map(depth)):1;}
+function width(t){return t.kids?t.kids.reduce((a,k)=>a+width(k),0):1;}
+function leaves(t,out=[]){if(t.kids)t.kids.forEach(k=>leaves(k,out));else out.push(t);return out;}
+function render(){
+  if(!root)return;
+  const W=Math.max(320,width(root)*90),H=depth(root)*80+30,svg=[];
+  function place(t,x0,x1,y){const x=(x0+x1)/2;t.x=x;t.y=y;if(t.kids){let acc=x0;t.kids.forEach(k=>{const w=(x1-x0)*width(k)/width(t);place(k,acc,acc+w,y+80);acc+=w;});}}
+  place(root,0,W,30);
+  function draw(t){if(t.kids)t.kids.forEach(k=>{svg.push(`<line class="e" x1="${t.x}" y1="${t.y+16}" x2="${k.x}" y2="${k.y-16}"/>`);draw(k);});
+    const w=Math.max(44,String(t.v).length*12+16);
+    svg.push(`<g class="n ${t.prime?'p':''}${t===selected?' sel':''}" data-id="${t.id}"><rect x="${t.x-w/2}" y="${t.y-16}" width="${w}" height="32" rx="${t.prime?16:6}"/><text x="${t.x}" y="${t.y}">${t.v}</text></g>`);}
+  let id=0;(function tag(t){t.id=id++;if(t.kids)t.kids.forEach(tag);})(root);
+  draw(root);
+  treeEl.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${svg.join('')}</svg>`;
+  treeEl.querySelectorAll('.n').forEach(g=>g.addEventListener('click',()=>{const t=find(root,+g.dataset.id);if(!t.prime&&!t.kids){selected=t;showPick();}}));
+  const lv=leaves(root),allPrime=lv.every(l=>l.prime);
+  const vals=lv.map(l=>l.v).sort((a,b)=>a-b);
+  treeOut.innerHTML=allPrime?`${root.v} = ${vals.join(' × ')}<br>= <strong>${indexForm(vals)}</strong>`:`Click an orange box to split it. ${lv.filter(l=>!l.prime).length} left to split.`;
+  if(!selected)pickEl.innerHTML=allPrime?'All branches end in primes. Try a different first split and compare.':'';
+}
+function find(t,id){if(t.id===id)return t;if(t.kids)for(const k of t.kids){const f=find(k,id);if(f)return f;}return null;}
+function showPick(){
+  const n=selected.v,pairs=[];for(let a=2;a*a<=n;a++)if(n%a===0)pairs.push([a,n/a]);
+  pickEl.innerHTML=`Split ${n} as: `;
+  pairs.forEach(([a,b])=>{const btn=document.createElement('button');btn.textContent=`${a} × ${b}`;btn.addEventListener('click',()=>{selected.kids=[node(a),node(b)];selected=null;render();});pickEl.appendChild(btn);});
+}
+function autoFinish(){if(!root)startTree();(function go(t){if(t.prime)return;if(!t.kids){const f=factorise(t.v)[0];t.kids=[node(f),node(t.v/f)];}t.kids.forEach(go);})(root);selected=null;render();}
+document.getElementById('treeGo').addEventListener('click',startTree);
+document.getElementById('treeAuto').addEventListener('click',autoFinish);
+document.getElementById('treeN').addEventListener('change',startTree);
+startTree();
+
+/* ---------- ladder ---------- */
+const ladN=document.getElementById('ladN');
+function drawLadder(){
+  let n=Math.max(2,Math.min(99999,Math.floor(+ladN.value||2)));const f=factorise(n);
+  let cur=n;const rows=[];f.forEach(p=>{rows.push([p,cur]);cur/=p;});rows.push(['',1]);
+  document.getElementById('ladder').innerHTML=`<div class="lad">${rows.map(r=>`<span>${r[0]}</span><span>${r[1]}</span>`).join('')}</div>`;
+  // right-leaning binary tree: node = number, left child = prime divisor (leaf), right child = quotient
+  const step=62,W=Math.max(220,f.length*44+120),H=f.length*step+60,s=[];
+  const box=(x,y,v,prime)=>{const w=Math.max(44,String(v).length*12+16);return `<g class="n ${prime?'p':''}"><rect x="${x-w/2}" y="${y-16}" width="${w}" height="32" rx="${prime?16:6}"/><text x="${x}" y="${y}">${v}</text></g>`;};
+  let x=70,y=30,q=n;const nodes=[];
+  f.forEach((p,i)=>{const q2=q/p;const lx=x-40,rx=x+44,ny=y+step;
+    s.push(`<line class="e" x1="${x}" y1="${y+16}" x2="${lx}" y2="${ny-16}"/><line class="e" x1="${x}" y1="${y+16}" x2="${rx}" y2="${ny-16}"/>`);
+    nodes.push(box(x,y,q,false));nodes.push(box(lx,ny,p,true));
+    if(q2===1){nodes.push(box(rx,ny,1,false));}
+    q=q2;x=rx;y=ny;});
+  document.getElementById('ladTree').innerHTML=`<svg viewBox="0 0 ${Math.max(W,x+60)} ${H}" width="${Math.max(W,x+60)}" height="${H}">${s.join('')}${nodes.join('')}</svg>`;
+  document.getElementById('ladOut').innerHTML=`${n} = ${f.join(' × ')}<br>= <strong>${indexForm(f)}</strong>`;
+}
+ladN.addEventListener('input',drawLadder);drawLadder();
+
+/* ---------- venn ---------- */
+const vA=document.getElementById('vA'),vB=document.getElementById('vB');
+function drawVenn(){
+  const a=Math.max(2,Math.floor(+vA.value||2)),b=Math.max(2,Math.floor(+vB.value||2));
+  const fa=factorise(a),fb=factorise(b);
+  const ca=counts(fa),cb=counts(fb);
+  const mid=[],left=[],right=[];
+  const primes=[...new Set([...fa,...fb])].sort((x,y)=>x-y);
+  primes.forEach(p=>{const x=ca.get(p)||0,y=cb.get(p)||0,m=Math.min(x,y);for(let i=0;i<m;i++)mid.push(p);for(let i=0;i<x-m;i++)left.push(p);for(let i=0;i<y-m;i++)right.push(p);});
+  const hcf=product(mid),lcm=product([...left,...mid,...right]);
+  const txt=(arr,x,y,color)=>{if(arr.length===0)return `<text x="${x}" y="${y}" fill="${css('--muted')}" font-size="14" text-anchor="middle">—</text>`;
+    const per=4,lines=[];for(let i=0;i<arr.length;i+=per)lines.push(arr.slice(i,i+per).join('  '));
+    return lines.map((l,i)=>`<text x="${x}" y="${y+(i-(lines.length-1)/2)*22}" fill="${color}" font-size="18" font-weight="600" text-anchor="middle" dominant-baseline="central">${l}</text>`).join('');};
+  document.getElementById('venn').innerHTML=`<svg viewBox="0 0 520 300" width="520" height="300">
+    <circle cx="190" cy="150" r="125" fill="${css('--accent')}" fill-opacity=".18" stroke="${css('--accent')}" stroke-width="2"/>
+    <circle cx="330" cy="150" r="125" fill="${css('--two')}" fill-opacity=".18" stroke="${css('--two')}" stroke-width="2"/>
+    <text x="110" y="30" fill="${css('--accent')}" font-size="15" font-weight="600" text-anchor="middle">A = ${a}</text>
+    <text x="410" y="30" fill="${css('--two')}" font-size="15" font-weight="600" text-anchor="middle">B = ${b}</text>
+    <text x="260" y="285" fill="${css('--hi')}" font-size="13" text-anchor="middle">overlap = shared primes = HCF</text>
+    ${txt(left,125,150,css('--fg'))}${txt(mid,260,150,css('--hi'))}${txt(right,395,150,css('--fg'))}
+  </svg>`;
+  document.getElementById('vfa').textContent=indexForm(fa);
+  document.getElementById('vfb').textContent=indexForm(fb);
+  document.getElementById('vhcf').textContent=(mid.length?mid.join(' × ')+' = ':'')+hcf;
+  document.getElementById('vlcm').textContent=[...left,...mid,...right].sort((x,y)=>x-y).join(' × ')+' = '+lcm;
+  document.getElementById('vchk').textContent=`${hcf} × ${lcm} = ${hcf*lcm} = ${a} × ${b} ✓`;
+}
+vA.addEventListener('input',drawVenn);vB.addEventListener('input',drawVenn);drawVenn();
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',drawVenn);}
+new MutationObserver(drawVenn).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ---------- quiz ---------- */
+const QS=[
+  {q:'Which of these is prime?',opts:['51','53','57','91'],a:1,fb:'51 = 3 × 17, 57 = 3 × 19, 91 = 7 × 13. Only 53 has no factors other than 1 and itself.'},
+  {q:'Write 90 as a product of prime factors in index form.',opts:['2 × 3² × 5','2 × 3 × 15','2² × 3 × 5','3² × 10'],a:0,fb:'90 = 2 × 45 = 2 × 3 × 15 = 2 × 3 × 3 × 5. Collect the 3s: 2 × 3² × 5.'},
+  {q:'A = 2³ × 3 × 5 and B = 2 × 3² × 7. What is HCF(A, B)?',opts:['6','2 × 3² = 18','2³ × 3² × 5 × 7','2'],a:0,fb:'Shared primes with the lower power: 2¹ and 3¹, so HCF = 6.'},
+  {q:'Using the same A and B, what is LCM(A, B)?',opts:['2³ × 3² × 5 × 7 = 2520','6','2 × 3 = 6','2³ × 3 × 5 × 7'],a:0,fb:'Every prime at its higher power: 2³, 3², 5, 7 → 8 × 9 × 5 × 7 = 2520.'},
+  {q:'Why is 1 not counted as a prime number?',opts:['because it would break the "one recipe per number" rule','because it is odd','because it is too small to divide','because it has no factors'],a:0,fb:'If 1 were prime, 6 = 2×3 = 1×2×3 = 1×1×2×3 and factorisations would stop being unique.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Fractions, Decimals, Percentages</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive "lab" panels; graph-paper neutrals, teal = fraction, orange = decimal, plum = percentage, used consistently so the three forms are always colour-coded. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.F{color:var(--accent)}.D{color:var(--hi)}.P{color:var(--two)}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.1;margin:0 .15em;font-family:var(--mono)}
+.frac span:first-child{border-bottom:1.5px solid currentColor;padding:0 .2em}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto}
+.controls{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:220px;max-width:60vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-top:.9rem;text-align:center}
+.three>div{border-radius:8px;padding:.6rem .4rem;font-family:var(--mono);font-size:clamp(1.1rem,4vw,1.6rem);font-weight:600;font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:anywhere}
+.three b{display:block;font:600 .68rem var(--body);letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-bottom:.2rem}
+.three .f{background:var(--accent-soft);color:var(--accent)}.three .d{background:var(--hi-soft);color:var(--hi)}.three .p{background:var(--two-soft);color:var(--two)}
+.hund{display:grid;grid-template-columns:repeat(10,1fr);gap:2px;max-width:320px;margin:.6rem auto 0;aspect-ratio:1}
+.hund i{display:block;background:var(--grid);border-radius:2px;cursor:pointer}
+.hund i.on{background:var(--accent)}
+.hund i.part{background:linear-gradient(90deg,var(--accent) var(--pct),var(--grid) var(--pct))}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.routes{display:grid;grid-template-columns:1fr;gap:.6rem;margin:1rem 0}
+.route{display:grid;grid-template-columns:auto 1fr;gap:.8rem;align-items:center;border:1px solid var(--line);border-radius:8px;padding:.6rem .9rem;background:var(--panel)}
+.route .tag{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.route .how{font-size:.95rem}
+.route .how code{font-family:var(--mono);background:var(--bg);padding:.05em .3em;border-radius:4px}
+.ld{font-family:var(--mono);font-size:1.05rem;line-height:1.7;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto;white-space:pre}
+.bar{display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line);margin-top:.6rem}
+.bar div{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.85rem;color:#fff;min-width:0;overflow:hidden;white-space:nowrap}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Number · KS3</div>
+  <h1>Fractions, Decimals, Percentages</h1>
+  <p class="lede"><span class="F">¾</span>, <span class="D">0.75</span> and <span class="P">75%</span> are the same number wearing three outfits. Once you can change outfits without thinking, half of KS3 Number becomes easy: comparing, ordering, discounts, probabilities and test scores all come down to picking the most convenient form.</p>
+  <span class="gcse">National curriculum KS3: interchange terminating decimals and their corresponding fractions; define percentage as "number of parts per hundred"; interpret fractions and percentages as operators; recurring decimals at GCSE</span>
+</header>
+
+<h2>1 · One amount, three names</h2>
+<p>Here is a square cut into 100 equal pieces. Click or drag across it to shade some. The three boxes underneath describe the <em>same</em> shaded amount, just in three notations. Nothing about the quantity changes; only the way it is written.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Shaded <input type="range" id="hs" min="0" max="100" value="75"> out of 100</label>
+    <button class="btn" data-set="50">½</button><button class="btn" data-set="25">¼</button><button class="btn" data-set="10">⅒</button><button class="btn" data-set="20">⅕</button><button class="btn" data-set="33.333">⅓</button><button class="btn" data-set="12.5">⅛</button>
+  </div>
+  <div class="hund" id="hund"></div>
+  <div class="three">
+    <div class="f"><b>Fraction</b><span id="hF"></span></div>
+    <div class="d"><b>Decimal</b><span id="hD"></span></div>
+    <div class="p"><b>Percentage</b><span id="hP"></span></div>
+  </div>
+</div>
+
+<p>Each form says something slightly different about the same amount:</p>
+<ul>
+  <li><strong class="F">Fraction</strong> <span class="m">75/100</span>: 75 parts out of 100 equal parts, usually simplified to <span class="m">3/4</span>: 3 parts out of 4.</li>
+  <li><strong class="D">Decimal</strong> <span class="m">0.75</span>: 7 tenths and 5 hundredths. It's a fraction whose denominator is a power of ten, written with place value instead of a line.</li>
+  <li><strong class="P">Percentage</strong> <span class="m">75%</span>: 75 <em>per cent</em>, literally "per hundred" (Latin <em>per centum</em>; Spanish <em>por ciento</em>). The % sign is a disguised <span class="m">/100</span>.</li>
+</ul>
+
+<h2>2 · The six conversion routes</h2>
+<p>Three forms give six directions. Four are one-step; two need a little more. Percentages always go through 100.</p>
+
+<div class="routes">
+  <div class="route"><span class="tag"><span class="F">F</span> → <span class="D">D</span></span><span class="how"><strong>Divide top by bottom.</strong> ⅜ = 3 ÷ 8 = 0.375. (A fraction <em>is</em> a division.) If the denominator is 10, 100 or 1000, just read the place value: <code>7/100 = 0.07</code>.</span></div>
+  <div class="route"><span class="tag"><span class="D">D</span> → <span class="F">F</span></span><span class="how"><strong>Say it out loud, then simplify.</strong> 0.375 is "375 thousandths" → <code>375/1000</code> → ÷25 → <code>15/40</code> → ÷5 → <code>3/8</code>. The number of decimal places tells you the denominator: 1 d.p. → tenths, 2 d.p. → hundredths, 3 d.p. → thousandths.</span></div>
+  <div class="route"><span class="tag"><span class="D">D</span> → <span class="P">P</span></span><span class="how"><strong>Multiply by 100</strong> (move the point 2 places right). 0.375 → 37.5%. 1.2 → 120%.</span></div>
+  <div class="route"><span class="tag"><span class="P">P</span> → <span class="D">D</span></span><span class="how"><strong>Divide by 100</strong> (point 2 places left). 37.5% → 0.375. 4% → 0.04 (not 0.4!).</span></div>
+  <div class="route"><span class="tag"><span class="P">P</span> → <span class="F">F</span></span><span class="how"><strong>Write over 100, simplify.</strong> 37.5% → <code>37.5/100</code> → ×2 → <code>75/200</code> → ÷25 → <code>3/8</code>. Whole-number percentages are easier: 40% = 40/100 = 2/5.</span></div>
+  <div class="route"><span class="tag"><span class="F">F</span> → <span class="P">P</span></span><span class="how"><strong>Two options.</strong> If the denominator goes into 100, scale it up: ⅗ = 60/100 = 60%. Otherwise go via the decimal: ⅜ = 0.375 = 37.5%.</span></div>
+</div>
+
+<p>Type anything in any box and the other two update, with the working shown.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label class="F">Fraction <input type="text" id="cF" value="3/8" style="width:5em"></label>
+    <label class="D">Decimal <input type="text" id="cD" value="" style="width:6em" placeholder="0.375"></label>
+    <label class="P">Percent <input type="text" id="cP" value="" style="width:5.5em" placeholder="37.5">%</label>
+  </div>
+  <div class="three">
+    <div class="f"><b>Fraction</b><span id="oF"></span></div>
+    <div class="d"><b>Decimal</b><span id="oD"></span></div>
+    <div class="p"><b>Percentage</b><span id="oP"></span></div>
+  </div>
+  <div class="work" id="cWork"></div>
+</div>
+
+<h3>Ones to know by heart</h3>
+<p>These come up so often that converting them should be instant. Notice the families: halves, quarters, eighths double each other; fifths and tenths; thirds.</p>
+<div class="tbl"><table id="knowTbl">
+  <tr><th>Fraction</th><th>Decimal</th><th>Percentage</th><th>Family</th></tr>
+</table></div>
+
+<h2>3 · Simplifying and equivalent fractions</h2>
+<p>75/100 and 3/4 are the same number because you can divide top and bottom by the same thing (25) without changing the value. Dividing both by their highest common factor gets you to the simplest form in one go (see the prime factorisation page for HCF). The bar below shows why: cutting the same length into fewer, bigger pieces doesn't change the length.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Fraction <input type="number" id="sN" value="18" min="0" max="999"> / <input type="number" id="sD" value="24" min="1" max="999"></label>
+  </div>
+  <div id="sBars"></div>
+  <div class="work" id="sWork"></div>
+</div>
+
+<h2>4 · Decimals that never end</h2>
+<p>Divide 1 by 3 and you get 0.333…, with the 3s going on forever. That's a <strong>recurring decimal</strong>, written with a dot over the repeating digit: <span class="m">0.3̇</span>. A fraction gives a <strong>terminating</strong> decimal only when its simplified denominator has no prime factors other than 2 and 5 (the primes in 10). Anything else recurs.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Fraction <input type="number" id="rN" value="5" min="0" max="999"> / <input type="number" id="rD" value="7" min="1" max="999"></label>
+  </div>
+  <div class="ld" id="rLong"></div>
+  <div class="readout three" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+    <div class="d"><b>Decimal</b><span id="rDec"></span></div>
+    <div class="f"><b>Denominator's primes</b><span id="rPrimes"></span></div>
+    <div class="p"><b>Verdict</b><span id="rV" style="font-size:.95rem"></span></div>
+  </div>
+</div>
+
+<p>Why does the remainder pattern repeat? When you divide by 7, the only possible remainders are 0 to 6. After at most 7 steps a remainder must come round again, and from then on the digits repeat. That's why the repeating block for /7 is six digits long (142857) and never longer.</p>
+
+<div class="callout">
+  <p><strong>The famous one.</strong> 0.9̇ (0.999… forever) is exactly 1, not "just under". If ⅓ = 0.3̇, then multiply both sides by 3: 1 = 0.9̇. There is no gap between them to fit another number in.</p>
+</div>
+
+<h2>5 · Comparing and ordering</h2>
+<p>Which is bigger, ⅝ or 0.6 or 62%? You can't compare across forms. Convert everything to <em>one</em> form (decimals are usually easiest), then put them on a line.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Values (comma-separated, any form) <input type="text" id="ordIn" value="5/8, 0.6, 62%, 2/3, 0.65" style="width:20em;max-width:70vw"></label>
+  </div>
+  <svg id="ordSvg" viewBox="0 0 700 120" width="700" height="120"></svg>
+  <div class="work" id="ordWork"></div>
+</div>
+
+<h2>6 · Where it shows up</h2>
+<div class="grid2">
+  <div class="use"><h3>Shopping</h3>
+    <p>"20% off" means pay 80%, so multiply by 0.8. "⅓ off" means pay ⅔. Comparing a ⅓-off deal with a 30%-off one needs a conversion: ⅓ = 33.3%, so ⅓ off is the better discount.</p></div>
+  <div class="use"><h3>Test scores</h3>
+    <p>38 out of 50 is 38/50 = 76/100 = 76%. Percentages exist so that scores out of 50, 60 and 80 can be compared on one scale.</p></div>
+  <div class="use"><h3>Probability</h3>
+    <p>A probability is a fraction (1 in 4), a decimal (0.25) or a percentage (25%) interchangeably. Weather apps use %, bookmakers use fractions, statisticians use decimals.</p></div>
+  <div class="use"><h3>Computing</h3>
+    <p>A progress bar at 0.75 is drawn 75% wide. Opacity 0.5 is 50% transparent. CSS accepts both <code>width: 0.75</code>-style numbers and <code>75%</code>, and converts for you.</p></div>
+  <div class="use"><h3>Money and interest</h3>
+    <p>4.5% interest is a multiplier of 1.045 per year. Converting the percentage to a decimal multiplier is the first step of every compound-interest question.</p></div>
+  <div class="use"><h3>Cooking and measuring</h3>
+    <p>¾ of a cup, 0.75 litres, 75 cl: recipes switch form depending on the tool. Half of ¾ is ⅜, which is easier to see as a fraction than as 0.375.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Write 0.45 as a fraction in its simplest form</summary>
+  <div class="step"><strong>Say it.</strong> 0.45 is "45 hundredths": 45/100.</div>
+  <div class="step"><strong>Simplify.</strong> HCF of 45 and 100 is 5. 45 ÷ 5 = 9, 100 ÷ 5 = 20. So <strong>9/20</strong>.</div>
+  <div class="step"><strong>Check.</strong> 9 ÷ 20 = 0.45 ✓</div>
+</details>
+<details>
+  <summary>Write 7/8 as a percentage</summary>
+  <div class="step"><strong>8 doesn't go into 100 neatly</strong>, so go via the decimal: 7 ÷ 8 = 0.875.</div>
+  <div class="step"><strong>× 100:</strong> <strong>87.5%</strong>. (Or: ⅛ = 12.5%, so ⅞ = 7 × 12.5% = 87.5%.)</div>
+</details>
+<details>
+  <summary>Order from smallest to largest: 0.7, ¾, 72%, ⅔</summary>
+  <div class="step"><strong>Convert to decimals:</strong> 0.7, 0.75, 0.72, 0.666…</div>
+  <div class="step"><strong>Order the decimals:</strong> 0.666… &lt; 0.7 &lt; 0.72 &lt; 0.75.</div>
+  <div class="step"><strong>Write the answer in the original forms:</strong> <strong>⅔, 0.7, 72%, ¾</strong>. (Examiners want the originals, not your decimals.)</div>
+</details>
+<details>
+  <summary>Exam-style (GCSE): write 0.4̇5̇ as a fraction</summary>
+  <div class="step"><strong>Let x = 0.454545…</strong></div>
+  <div class="step"><strong>Two digits repeat, so multiply by 100:</strong> 100x = 45.454545…</div>
+  <div class="step"><strong>Subtract:</strong> 100x − x = 45.4545… − 0.4545… → 99x = 45.</div>
+  <div class="step"><strong>Solve and simplify:</strong> x = 45/99 = <strong>5/11</strong>. Check with the long-division tool above: 5/7 was a six-digit cycle, try 5/11.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>A fraction, a decimal and a percentage are three notations for one amount, and the 100-square shows all three at once. Fraction to decimal is a division; decimal to fraction is reading the place value then simplifying by the HCF; percentages are hundredths, so moving between percentage and decimal is a shift of two places. Fractions whose denominators contain primes other than 2 and 5 give recurring decimals, which repeat because the remainders must. To compare mixed forms, convert to one form first, then answer in the originals.</p>
+
+<footer>Made for KS3 students. FDP conversion is in the England national curriculum at key stage 3 under Number; recurring decimals to fractions are GCSE Higher. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;};
+const fmt=(v,d=4)=>parseFloat(v.toFixed(d)).toString();
+const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';const sup=n=>String(n).replace(/[0-9]/g,d=>SUP[d]);
+function factorise(n){const out=[];let d=2;while(d*d<=n){while(n%d===0){out.push(d);n/=d;}d++;}if(n>1)out.push(n);return out;}
+function fracOfDecimalStr(s){ // "0.375" -> [375,1000] simplified
+  s=s.trim();const m=s.match(/^(-?)(\d*)\.?(\d*)$/);if(!m||(m[2]===''&&m[3]===''))return null;
+  const sign=m[1]?-1:1,ip=m[2]||'0',fp=m[3]||'';const den=Math.pow(10,fp.length);const num=parseInt(ip+fp,10);const g=gcd(num,den);return [sign*num/g,den/g,den,num];
+}
+function simplify(n,d){const g=gcd(n,d);return [n/g,d/g,g];}
+function fracStr(n,d){return d===1?`${n}`:`${n}/${d}`;}
+
+/* ---------- 1. hundred square ---------- */
+const hund=document.getElementById('hund'),hs=document.getElementById('hs');
+const cells=[];for(let i=0;i<100;i++){const c=document.createElement('i');hund.appendChild(c);cells.push(c);}
+let dragging=false;
+function setFromCell(i){hs.value=i+1;drawH();}
+cells.forEach((c,i)=>{c.addEventListener('pointerdown',e=>{dragging=true;setFromCell(i);});c.addEventListener('pointerenter',()=>{if(dragging)setFromCell(i);});});
+window.addEventListener('pointerup',()=>dragging=false);
+document.querySelectorAll('[data-set]').forEach(b=>b.addEventListener('click',()=>{hs.value=b.dataset.set;drawH(parseFloat(b.dataset.set));}));
+function drawH(exact){
+  const v=exact!==undefined?exact:+hs.value;
+  cells.forEach((c,i)=>{c.className='';c.style.removeProperty('--pct');if(i+1<=Math.floor(v))c.classList.add('on');else if(i<v){c.classList.add('part');c.style.setProperty('--pct',((v-i)*100)+'%');}});
+  let F;
+  if(Number.isInteger(v)){const [n,d]=simplify(v,100);F=v===0?'0':fracStr(n,d)+(d!==100?`  <span style="font-size:.7em;opacity:.7">(=${v}/100)</span>`:'');}
+  else{const map={'33.333':'1/3','12.5':'1/8','66.667':'2/3'};F=map[String(v)]||fmt(v)+'/100';}
+  document.getElementById('hF').innerHTML=F;
+  document.getElementById('hD').textContent=v===33.333?'0.333…':v===66.667?'0.666…':fmt(v/100,5);
+  document.getElementById('hP').textContent=(v===33.333?'33.3…':v===66.667?'66.6…':fmt(v))+'%';
+}
+hs.addEventListener('input',()=>drawH());drawH();
+
+/* ---------- 2. converter ---------- */
+const cF=document.getElementById('cF'),cD=document.getElementById('cD'),cP=document.getElementById('cP');
+function decimalExpansion(n,d,max=12){ // returns {str, recurring:bool, block}
+  let ip=Math.floor(n/d),r=n%d,digs='',seen={},start=-1;
+  while(r!==0&&digs.length<max+8){if(seen[r]!==undefined){start=seen[r];break;}seen[r]=digs.length;r*=10;digs+=Math.floor(r/d);r%=d;}
+  if(r===0)return {str:ip+(digs?'.'+digs:''),recurring:false};
+  const pre=digs.slice(0,start),block=digs.slice(start);
+  return {str:`${ip}.${pre}${block}${block}${block}…`.slice(0,16)+'…',recurring:true,pre,block,ip,dot:`${ip}.${pre}${block.length===1?block+'̇':block[0]+'̇'+block.slice(1,-1)+block.slice(-1)+'̇'}`};
+}
+function showConv(n,d,source){
+  const [sn,sd]=simplify(n,d);
+  const ex=decimalExpansion(sn,sd);
+  const dec=ex.recurring?ex.dot:ex.str;
+  const pct=ex.recurring?fmt(sn/sd*100,3)+'…':fmt(sn/sd*100,6);
+  document.getElementById('oF').textContent=fracStr(sn,sd);
+  document.getElementById('oD').textContent=dec;
+  document.getElementById('oP').textContent=pct+'%';
+  let w=[];
+  if(source==='F'){
+    w.push(`<span class="F">${fracStr(n,d)}</span>${(n!==sn||d!==sd)?` simplifies to <span class="F">${fracStr(sn,sd)}</span> (÷${gcd(n,d)})`:''}`);
+    if(100%sd===0){w.push(`${sd} goes into 100: multiply top and bottom by ${100/sd} → ${sn*100/sd}/100 = <span class="P">${sn*100/sd}%</span>`);w.push(`and ${sn*100/sd}/100 as place value is <span class="D">${fmt(sn/sd,6)}</span>`);}
+    else{w.push(`${sd} doesn't go into 100, so divide: ${sn} ÷ ${sd} = <span class="D">${dec}</span>`);w.push(`× 100 → <span class="P">${pct}%</span>`);}
+  }else if(source==='D'){
+    const [,,den,num]=fracOfDecimalStr(cD.value);
+    w.push(`<span class="D">${cD.value.trim()}</span> is "${num} ${den===10?'tenths':den===100?'hundredths':den===1000?'thousandths':'÷ '+den}" → ${num}/${den}`);
+    if(gcd(num,den)>1)w.push(`÷${gcd(num,den)} top and bottom → <span class="F">${fracStr(sn,sd)}</span>`);
+    w.push(`× 100 (point two places right) → <span class="P">${pct}%</span>`);
+  }else{
+    w.push(`<span class="P">${cP.value.trim()}%</span> means ${cP.value.trim()} per hundred → ${cP.value.trim()}/100`);
+    w.push(`÷ 100 (point two places left) → <span class="D">${dec}</span>`);
+    w.push(`simplify ${n}/${d}${gcd(n,d)>1?` (÷${gcd(n,d)})`:''} → <span class="F">${fracStr(sn,sd)}</span>`);
+  }
+  document.getElementById('cWork').innerHTML=w.join('<br>');
+}
+function parseFrac(s){const m=s.trim().match(/^(\d+)\s*\/\s*(\d+)$/);if(!m||+m[2]===0)return null;return [+m[1],+m[2]];}
+cF.addEventListener('input',()=>{const f=parseFrac(cF.value);if(!f){return;}cD.value='';cP.value='';showConv(f[0],f[1],'F');});
+cD.addEventListener('input',()=>{const r=fracOfDecimalStr(cD.value);if(!r)return;cF.value='';cP.value='';showConv(Math.abs(r[0]),r[1],'D');});
+cP.addEventListener('input',()=>{const r=fracOfDecimalStr(cP.value);if(!r)return;cF.value='';cD.value='';
+  // percent p = num/den → fraction num/(den*100)
+  const num=r[3],den=r[2]*100;const g=gcd(num,den);showConv(num/g,den/g,'P');});
+showConv(3,8,'F');
+
+/* known table */
+const KNOWN=[[1,2,'halves'],[1,4,'quarters'],[3,4,'quarters'],[1,8,'eighths'],[3,8,'eighths'],[1,5,'fifths'],[2,5,'fifths'],[3,5,'fifths'],[1,10,'tenths'],[3,10,'tenths'],[1,3,'thirds'],[2,3,'thirds'],[1,100,'hundredths'],[1,1,'whole']];
+document.getElementById('knowTbl').insertAdjacentHTML('beforeend',KNOWN.map(([n,d,f])=>{const e=decimalExpansion(n,d);const dec=e.recurring?e.dot:e.str;const p=e.recurring?fmt(n/d*100,1)+'…':fmt(n/d*100);return `<tr><td class="mono F">${fracStr(n,d)}</td><td class="mono D">${dec}</td><td class="mono P">${p}%</td><td>${f}</td></tr>`;}).join(''));
+
+/* ---------- 3. simplify bars ---------- */
+const sN=document.getElementById('sN'),sD=document.getElementById('sD');
+function drawS(){
+  const n=Math.max(0,+sN.value|0),d=Math.max(1,+sD.value|0);
+  const [a,b,g]=simplify(n,d);
+  const bar=(num,den,color)=>{if(den>120)return `<p style="font-size:.9rem;color:var(--muted)">Too many pieces to draw (${den}).</p>`;let s='<div class="bar">';for(let i=0;i<den;i++)s+=`<div style="flex:1;background:${i<num?color:'var(--grid)'};border-right:1px solid var(--panel)"></div>`;return s+'</div>';};
+  document.getElementById('sBars').innerHTML=`<div style="font-family:var(--mono);font-size:.9rem;color:var(--muted);margin-top:.5rem">${n}/${d}: ${d} pieces, ${n} shaded</div>${bar(n,d,css('--accent'))}`+(g>1?`<div style="font-family:var(--mono);font-size:.9rem;color:var(--muted);margin-top:.8rem">${a}/${b}: ${b} pieces, ${a} shaded — same length</div>${bar(a,b,css('--hi'))}`:'');
+  document.getElementById('sWork').innerHTML=g>1?`HCF(${n}, ${d}) = ${g}<br>${n} ÷ ${g} = ${a},  ${d} ÷ ${g} = ${b}<br><strong>${n}/${d} = ${fracStr(a,b)}</strong>  (= ${fmt(n/d,4)})`:`HCF(${n}, ${d}) = 1, so <strong>${n}/${d}</strong> is already in its simplest form (= ${fmt(n/d,4)})`;
+}
+sN.addEventListener('input',drawS);sD.addEventListener('input',drawS);drawS();
+
+/* ---------- 4. long division / recurring ---------- */
+const rN=document.getElementById('rN'),rD=document.getElementById('rD');
+function drawR(){
+  const n=Math.max(0,+rN.value|0),d=Math.max(1,+rD.value|0);
+  const [sn,sd]=simplify(n,d);
+  let ip=Math.floor(n/d),r=n%d,rows=[],seen={},start=-1,digs='';
+  while(r!==0&&rows.length<14){if(seen[r]!==undefined){start=seen[r];break;}seen[r]=rows.length;const r10=r*10,q=Math.floor(r10/d);rows.push([r,r10,q,r10-q*d]);digs+=q;r=r10-q*d;}
+  let text=`${n} ÷ ${d}:  whole part ${ip}, remainder ${n%d}\n`;
+  rows.forEach((row,i)=>{const mark=start>=0&&i===start?'  ← remainder repeats from here':'';text+=`bring down 0: ${String(row[1]).padStart(4)} ÷ ${d} = ${row[2]}  remainder ${String(row[3]).padStart(2)}${i>=start&&start>=0?'  ●':''}${mark}\n`;});
+  if(r===0)text+=`remainder 0: it stops.`;
+  document.getElementById('rLong').textContent=text;
+  const ex=decimalExpansion(n,d);
+  document.getElementById('rDec').textContent=ex.recurring?`${ex.dot}  (block "${ex.block}", length ${ex.block.length})`:ex.str;
+  const pf=factorise(sd);
+  document.getElementById('rPrimes').textContent=sd===1?'none (whole number)':pf.join(' × ')+(sd!==d?`  (after simplifying to /${sd})`:'');
+  const only25=pf.every(p=>p===2||p===5);
+  document.getElementById('rV').textContent=only25?'only 2s and 5s → terminates':'has a prime other than 2 or 5 → recurs';
+}
+rN.addEventListener('input',drawR);rD.addEventListener('input',drawR);drawR();
+
+/* ---------- 5. ordering ---------- */
+const ordIn=document.getElementById('ordIn');
+function parseAny(s){s=s.trim();if(!s)return null;let v,form,how;
+  if(s.endsWith('%')){const x=parseFloat(s);if(!isFinite(x))return null;v=x/100;form='P';how=`${s} ÷ 100 = ${fmt(v,4)}`;}
+  else if(s.includes('/')){const f=parseFrac(s);if(!f)return null;v=f[0]/f[1];form='F';how=`${s} = ${f[0]} ÷ ${f[1]} = ${fmt(v,4)}${!decimalExpansion(f[0],f[1]).recurring?'':'…'}`;}
+  else{const x=parseFloat(s);if(!isFinite(x))return null;v=x;form='D';how=`${s} already a decimal`;}
+  return {s,v,form,how};}
+function drawOrd(){
+  const items=ordIn.value.split(',').map(parseAny).filter(Boolean);
+  const svg=document.getElementById('ordSvg'),W=document.getElementById('ordWork');
+  if(items.length<2){W.textContent='Enter at least two values.';svg.innerHTML='';return;}
+  const vs=items.map(i=>i.v),lo=Math.min(...vs),hi=Math.max(...vs),pad=(hi-lo||1)*0.15,a=lo-pad,b=hi+pad;
+  const sx=v=>40+(v-a)/(b-a)*620;const col={F:css('--accent'),D:css('--hi'),P:css('--two')};
+  let s=`<line x1="40" y1="70" x2="660" y2="70" stroke="${css('--muted')}" stroke-width="2"/>`;
+  s+=`<text x="40" y="100" font-size="12" font-family="${css('--mono')}" fill="${css('--muted')}">${fmt(a,3)}</text><text x="660" y="100" text-anchor="end" font-size="12" font-family="${css('--mono')}" fill="${css('--muted')}">${fmt(b,3)}</text>`;
+  const sorted=[...items].sort((p,q)=>p.v-q.v);
+  sorted.forEach((it,i)=>{const x=sx(it.v),y=i%2?30:50;s+=`<line x1="${x}" y1="${y+6}" x2="${x}" y2="70" stroke="${col[it.form]}" stroke-width="1"/><circle cx="${x}" cy="70" r="6" fill="${col[it.form]}"/><text x="${x}" y="${y}" text-anchor="middle" font-size="13" font-weight="600" font-family="${css('--mono')}" fill="${col[it.form]}">${it.s}</text>`;});
+  svg.innerHTML=s;
+  W.innerHTML=items.map(i=>`<span class="${i.form}">${i.how}</span>`).join('<br>')+`<br><strong>Smallest → largest: ${sorted.map(i=>`<span class="${i.form}">${i.s}</span>`).join(' &lt; ')}</strong>`;
+}
+ordIn.addEventListener('input',drawOrd);drawOrd();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawS();drawOrd();});}
+new MutationObserver(()=>{drawS();drawOrd();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ---------- quiz ---------- */
+const QS=[
+  {q:'0.6 as a fraction in simplest form is…',opts:['3/5','6/10','1/6','6/100'],a:0,fb:'0.6 is six tenths, 6/10, and ÷2 gives 3/5.'},
+  {q:'7/20 as a percentage is…',opts:['35%','7%','20%','3.5%'],a:0,fb:'20 goes into 100 five times: 7/20 = 35/100 = 35%.'},
+  {q:'4% as a decimal is…',opts:['0.04','0.4','4.0','0.004'],a:0,fb:'÷ 100 moves the point two places: 4 → 0.04.'},
+  {q:'Which fraction gives a recurring decimal?',opts:['5/12','7/8','9/20','3/16'],a:0,fb:'12 = 2² × 3 contains a 3, so 5/12 = 0.41666… recurs. The others have only 2s and 5s.'},
+  {q:'Largest of 0.35, 3/8, 34%?',opts:['3/8','0.35','34%','they are equal'],a:0,fb:'3/8 = 0.375, 34% = 0.34. So 3/8 is largest.'},
+  {q:'0.2̇ (0.222…) as a fraction is…',opts:['2/9','1/5','2/10','1/4'],a:0,fb:'x = 0.222…, 10x = 2.222…, subtract: 9x = 2, x = 2/9.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

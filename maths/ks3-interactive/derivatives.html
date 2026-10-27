@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Understanding Derivatives</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column (~68ch) with full-width interactive "lab" panels drawn on canvas; graph-paper neutrals, teal for curves, burnt orange for tangents. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --tangent:#c2410c; --tangent-soft:#fde8dc;
+  --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --tangent:#f0894f; --tangent-soft:#3a2314;
+  --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --tangent:#f0894f; --tangent-soft:#3a2314;
+  --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.1;margin:0 .15em}
+.frac span:first-child{border-bottom:1.5px solid currentColor;padding:0 .2em}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab canvas{width:100%;height:auto;display:block;max-width:100%}
+.controls{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:180px;max-width:50vw}
+select,input[type=number]{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--tangent)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+.use .m{font-size:.85rem}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+.opts button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--tangent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Calculus · Part 1 of 2</div>
+  <h1>Derivatives</h1>
+  <p class="lede">The mathematics of <em>how fast things change</em>. A derivative tells you the gradient of a curve at a single point, and that one idea powers speedometers, weather models, drug dosing, and the way AI learns.</p>
+  <span class="gcse">Builds on GCSE Higher: gradients of straight lines, drawing tangents to estimate gradient, rate of change</span>
+</header>
+
+<h2>Why do we need them?</h2>
+<p>You already know how to work out speed: distance ÷ time. If a car covers 120 km in 2 hours, its speed is 60 km/h. But that is its <em>average</em> speed. The speedometer doesn't show an average. It shows the speed <strong>right now</strong>, at this instant.</p>
+<p>Here's the problem. "Right now" lasts zero seconds, and the car travels zero metres in zero seconds. Zero ÷ zero is meaningless. Yet the speedometer clearly shows a number. How?</p>
+<p>The answer is the derivative (<em>la derivada</em>). It's the mathematical tool for finding the rate of change <em>at an instant</em>, invented by Newton and Leibniz, separately, in the 1660s–70s, to solve exactly this puzzle. Getting there takes five small steps.</p>
+
+<h2>Step 1 · Gradient of a straight line</h2>
+<p>Gradient (<em>la pendiente</em>) means steepness: how far up you go for each step across. Pick any two points on the line and divide <em>rise</em> by <em>run</em>.</p>
+<p style="font-family:var(--mono);text-align:center">
+  m = <span class="frac"><span>rise</span><span>run</span></span> = <span class="frac"><span>y₂ − y₁</span><span>x₂ − x₁</span></span>
+</p>
+<p>Through (1, 3) and (4, 9): rise 6, run 3, gradient 2. Try (2, 5) and (10, 21): rise 16, run 8, gradient 2 again. On a straight line it doesn't matter which two points you choose. The line is equally steep everywhere, and that single number describes all of it.</p>
+
+<h2>Step 2 · The problem with a curve</h2>
+<p>Now take <span class="m">y = x²</span>. Pick (1, 1) and (3, 9): gradient 4. Pick (1, 1) and (2, 4): gradient 3. Different answer. A curve has no single steepness: gentle near the bottom, steep further out. So "what is the gradient of y = x²?" has no answer.</p>
+<p>The question has to change to: <strong>what is the gradient at one particular point?</strong></p>
+
+<h2>Step 3 · Secante and tangente</h2>
+<p>Two words you'll remember from school in Spain. A line that <em>cuts</em> the curve at two points is a <strong>secant</strong> (<em>recta secante</em>, from the Latin <em>secare</em>, to cut). A line that just <em>touches</em> the curve at one point, matching its direction there, is the <strong>tangent</strong> (<em>recta tangente</em>, from <em>tangere</em>, to touch). The gradient of the curve at a point <em>is</em> the gradient of the tangent there.</p>
+<p>Move the slider. The orange line is the tangent at the chosen point. Watch how its gradient changes as you move, even though the curve itself is smooth.</p>
+
+<div class="lab">
+  <canvas id="c1" width="720" height="400"></canvas>
+  <div class="controls">
+    <label>Function
+      <select id="fn1">
+        <option value="sq">y = x²</option>
+        <option value="cube">y = x³ − 3x</option>
+        <option value="sin">y = 2 sin(x)</option>
+        <option value="exp">y = eˣ ÷ 4</option>
+      </select></label>
+    <label>x = <input type="range" id="x1" min="-3" max="3" step="0.05" value="1"></label>
+  </div>
+  <div class="readout">
+    <div><b>Point</b><span id="r1p"></span></div>
+    <div class="t"><b>Gradient (derivative)</b><span id="r1g"></span></div>
+    <div><b>Means</b><span id="r1m"></span></div>
+  </div>
+</div>
+
+<p>Notice: where the curve is flat (a peak or a trough), the gradient is <strong>zero</strong>. Where it climbs steeply, the gradient is large and positive. Where it falls, the gradient is negative.</p>
+<p>But there's a catch. Rise over run needs <em>two</em> points. A tangent touches at only one. One point gives rise 0 and run 0, and <span class="m">0 ÷ 0</span> is meaningless. So how do we ever calculate the gradient of a tangent?</p>
+
+<h2>Step 4 · The trick: squeeze a secant</h2>
+<p>We cheat. Start with a secant, which we <em>can</em> measure: the point we care about, plus a second point a small distance <span class="m">h</span> further along. Then make <span class="m">h</span> smaller and smaller. As the second point slides toward the first, the secant swings round until it lies on the tangent.</p>
+<p>Here it is in numbers, for <span class="m">y = x²</span> at x = 1:</p>
+<div class="tbl"><table>
+  <tr><th>Second point</th><th>h</th><th>Rise ÷ run</th><th>Secant gradient</th></tr>
+  <tr><td>x = 2</td><td>1</td><td>(4 − 1) ÷ 1</td><td>3</td></tr>
+  <tr><td>x = 1.5</td><td>0.5</td><td>(2.25 − 1) ÷ 0.5</td><td>2.5</td></tr>
+  <tr><td>x = 1.1</td><td>0.1</td><td>(1.21 − 1) ÷ 0.1</td><td>2.1</td></tr>
+  <tr><td>x = 1.01</td><td>0.01</td><td>(1.0201 − 1) ÷ 0.01</td><td>2.01</td></tr>
+  <tr><td>x = 1.001</td><td>0.001</td><td>(1.002001 − 1) ÷ 0.001</td><td>2.001</td></tr>
+</table></div>
+<p>The gradients are clearly heading to <strong>2</strong>. We never put h = 0 (that would be the forbidden 0 ÷ 0), but there's no doubt where the numbers are going. Now do it with the slider: the solid line is the secant, the dashed orange line is the tangent it's chasing.</p>
+
+<div class="lab">
+  <canvas id="c2" width="720" height="400"></canvas>
+  <div class="controls">
+    <label>h = <input type="range" id="h2" min="0.02" max="2" step="0.02" value="1.5"></label>
+    <label>at x = <input type="range" id="x2" min="-1.5" max="2" step="0.1" value="1"></label>
+  </div>
+  <div class="readout">
+    <div><b>Secant gradient</b><span id="r2s"></span></div>
+    <div class="t"><b>True derivative</b><span id="r2t"></span></div>
+    <div><b>Difference</b><span id="r2d"></span></div>
+  </div>
+</div>
+
+<h2>Step 5 · What a limit is</h2>
+<p>"Heading to 2 without ever reaching it" has a name: a <strong>limit</strong> (<em>límite</em>). A limit answers the question <em>where is this going?</em> rather than <em>what is it when you arrive?</em> Here's the cleanest example of why that matters.</p>
+<p>Take <span class="m">g(x) = (x² − 4) ÷ (x − 2)</span>. Put x = 2 in and you get 0 ÷ 0: undefined, a hole in the graph. But look at what happens on either side of the hole:</p>
+
+<div class="lab">
+  <canvas id="c4" width="720" height="340"></canvas>
+  <div class="controls">
+    <label>x = <input type="range" id="x4" min="1" max="3" step="0.001" value="1.5"></label>
+  </div>
+  <div class="readout">
+    <div><b>Numerator x² − 4</b><span id="r4n"></span></div>
+    <div><b>Denominator x − 2</b><span id="r4d"></span></div>
+    <div class="t"><b>g(x)</b><span id="r4g"></span></div>
+    <div><b>Distance from 4</b><span id="r4e"></span></div>
+  </div>
+</div>
+
+<p>From both sides g(x) is heading to 4. We write <span class="m">lim<sub>x→2</sub> g(x) = 4</span>, said "the limit as x tends to 2 of g of x is 4". The arrow means <em>approaches</em>, never <em>equals</em>. The function has no value at 2, yet its limit there is perfectly clear.</p>
+<p>Why 4? Because <span class="m">x² − 4 = (x − 2)(x + 2)</span>, so for every x <em>except</em> 2 the function is simply x + 2. The troublesome factor cancels. That cancelling move is the engine of all of calculus.</p>
+
+<div class="callout">
+  <p><strong>Three things that trip people up.</strong> (1) You never reach the value: h = 0.001 is a step, 0 is the destination. (2) A limit can exist where the function doesn't, like the hole above. (3) If the two sides disagree there is no limit: 1/x near 0 shoots to +∞ from the right and −∞ from the left, so 1/x has no gradient at 0.</p>
+</div>
+
+<h2>Step 6 · The derivative, defined properly</h2>
+<p>Put Steps 4 and 5 together. The secant gradient is rise over run with the second point at x + h:</p>
+<p style="font-family:var(--mono);font-size:1.05rem;text-align:center">
+  f′(x) = lim<sub>h→0</sub> <span class="frac"><span>f(x + h) − f(x)</span><span>h</span></span>
+</p>
+<p>In Spain this fraction is called the <em>cociente incremental</em> and the whole statement is <em>la derivada es el límite del cociente incremental</em>. Same idea, same formula.</p>
+<p>Do it by hand for <span class="m">y = x²</span>. Rise = (x + h)² − x² = 2xh + h². Divide by h: 2x + h. Now h → 0 and you are left with <strong>2x</strong>. At x = 1 that gives 2 (matching the table), at x = 3 it gives 6, at x = 0 it gives 0, the flat bottom of the bowl. The derivative is a <em>new function</em> that hands you the gradient at any x you like.</p>
+
+<h3>Reading the notation</h3>
+<p>Two ways of writing the derivative survive, from its two inventors.</p>
+<div class="tbl"><table>
+  <tr><th>Notation</th><th>Said</th><th>Where it comes from</th></tr>
+  <tr><td><span class="m">f′(x)</span>, <span class="m">y′</span></td><td>"f dash of x", "y prime"</td><td>Newton's school (via Lagrange). Compact; the one Spanish textbooks use most.</td></tr>
+  <tr><td><span class="m">dy/dx</span></td><td>"dee y by dee x"</td><td>Leibniz. The <span class="m">d</span> means "a tiny difference" (<em>diferencial</em>): a tiny change in y divided by a tiny change in x. It is rise over run with both pieces shrunk toward zero.</td></tr>
+  <tr><td><span class="m">∫ f(x) dx</span></td><td>"the integral of f of x, dee x"</td><td>Also Leibniz. The long S is a stretched letter <strong>S</strong> for <em>summa</em>, a sum. It means "add up all the tiny pieces f(x)·dx". It's the reverse operation to d/dx and belongs to the second page.</td></tr>
+</table></div>
+<p>Leibniz's symbols won because they behave like fractions. Writing speed as <span class="m">ds/dt</span> reminds you it is a tiny distance over a tiny time, and the long S reminds you that integration is just adding those tiny pieces back up: <span class="m">∫ (ds/dt) dt = s</span>, the dt's cancel.</p>
+
+<h2>The rules (so you never need the limit again)</h2>
+<p>Doing that algebra every time would be painful. Luckily a few patterns cover almost everything you'll meet.</p>
+
+<div class="tbl"><table>
+  <tr><th>Rule</th><th>Function</th><th>Derivative</th><th>Example</th></tr>
+  <tr><td>Power rule</td><td>xⁿ</td><td>n xⁿ⁻¹</td><td>x⁵ → 5x⁴</td></tr>
+  <tr><td>Constant multiple</td><td>k·f(x)</td><td>k·f′(x)</td><td>3x⁴ → 12x³</td></tr>
+  <tr><td>Constant</td><td>c</td><td>0</td><td>7 → 0</td></tr>
+  <tr><td>Sum</td><td>f(x) + g(x)</td><td>f′(x) + g′(x)</td><td>x² + 5x → 2x + 5</td></tr>
+  <tr><td>Negative powers</td><td>1/x = x⁻¹</td><td>−x⁻²</td><td>4/x → −4/x²</td></tr>
+  <tr><td>Roots</td><td>√x = x½</td><td>½ x⁻½</td><td>√x → 1/(2√x)</td></tr>
+</table></div>
+
+<p>The power rule is the one to memorise: <em>bring the power down to the front, then knock one off the power.</em> Test yourself:</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Differentiate <input type="number" id="pa" value="3" step="1" style="width:4.5em"> x<sup><input type="number" id="pn" value="4" step="1" style="width:3.5em"></sup></label>
+  </div>
+  <div class="readout">
+    <div><b>Expression</b><span id="pe"></span></div>
+    <div class="t"><b>Derivative</b><span id="pd"></span></div>
+    <div><b>Gradient at x = 2</b><span id="pg"></span></div>
+  </div>
+</div>
+
+<h2>Where derivatives are actually used</h2>
+<p>Every field that deals with change uses them. Some you'll recognise from other subjects.</p>
+
+<div class="grid2">
+  <div class="use"><h3>Physics: motion</h3>
+    <p>Differentiate displacement to get velocity. Differentiate velocity to get acceleration. If a ball's height is <span class="m">s = 20t − 5t²</span>, its velocity is <span class="m">v = 20 − 10t</span>, zero at t = 2 s (the top of the flight).</p></div>
+  <div class="use"><h3>Economics: marginal cost</h3>
+    <p>If making x items costs <span class="m">C(x)</span>, then <span class="m">C′(x)</span> is the cost of making <em>one more</em>. Firms expand production until marginal cost equals the price they can sell for.</p></div>
+  <div class="use"><h3>Medicine: dosing</h3>
+    <p>Drug concentration in the blood rises then falls. The derivative tells doctors how fast it's being cleared, which sets how often you take the next dose.</p></div>
+  <div class="use"><h3>Computing: machine learning</h3>
+    <p>Neural networks learn by <em>gradient descent</em>: compute the derivative of the error with respect to each weight, then nudge every weight downhill. Billions of derivatives per second.</p></div>
+  <div class="use"><h3>Engineering: optimisation</h3>
+    <p>Minimum material, maximum strength, least drag. Any "best" value sits where the derivative is zero, because that's where the quantity stops rising and starts falling.</p></div>
+  <div class="use"><h3>Biology &amp; epidemiology</h3>
+    <p>Population growth rate, the spread of an infection, the "R number": all describe how fast a count is changing. The classic growth curve's derivative is what makes exponentials so dangerous.</p></div>
+</div>
+
+<h2>Worked example: the biggest box</h2>
+<p>You have a 30 cm × 30 cm square of card. Cut equal squares from each corner and fold up the sides to make an open box. What cut size gives the <strong>largest volume</strong>? Try the slider first, then see how the derivative finds the answer exactly.</p>
+
+<div class="lab">
+  <canvas id="c3" width="720" height="380"></canvas>
+  <div class="controls">
+    <label>Cut size x = <input type="range" id="x3" min="0.5" max="14.5" step="0.1" value="3"> cm</label>
+  </div>
+  <div class="readout">
+    <div><b>Volume V(x)</b><span id="r3v"></span></div>
+    <div class="t"><b>V′(x)</b><span id="r3d"></span></div>
+    <div><b>Hint</b><span id="r3h"></span></div>
+  </div>
+</div>
+
+<details>
+  <summary>Solve it with the derivative</summary>
+  <div class="step"><strong>1. Write the volume.</strong> Base is (30 − 2x) by (30 − 2x), height x. So V = x(30 − 2x)² = 900x − 120x² + 4x³.</div>
+  <div class="step"><strong>2. Differentiate.</strong> V′ = 900 − 240x + 12x².</div>
+  <div class="step"><strong>3. Set it to zero.</strong> 12x² − 240x + 900 = 0 → divide by 12: x² − 20x + 75 = 0 → (x − 5)(x − 15) = 0.</div>
+  <div class="step"><strong>4. Pick the sensible root.</strong> x = 15 would leave no base at all. So <strong>x = 5 cm</strong>, giving V = 5 × 20² = <strong>2000 cm³</strong>.</div>
+  <div class="step"><strong>5. Check it's a maximum.</strong> V′ is positive just before 5 and negative just after: the volume rises then falls. Maximum confirmed.</div>
+</details>
+
+<h2>Worked example: a falling object</h2>
+<details open>
+  <summary>Height of a stone: h = 45 − 5t²</summary>
+  <div class="step"><strong>Question.</strong> A stone is dropped from a 45 m cliff. Its height after t seconds is h = 45 − 5t². How fast is it falling when it hits the ground?</div>
+  <div class="step"><strong>When does it land?</strong> h = 0 → 5t² = 45 → t = 3 s.</div>
+  <div class="step"><strong>Velocity is the derivative.</strong> dh/dt = −10t.</div>
+  <div class="step"><strong>At t = 3:</strong> dh/dt = −30. It hits the ground at <strong>30 m/s</strong> (the minus sign just means downward). That's about 108 km/h.</div>
+  <div class="step"><strong>Bonus.</strong> Differentiate again: d²h/dt² = −10. Acceleration is constant at −10 m/s², which is gravity. Two derivatives took you from "where is it" to "what force acts on it".</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>A straight line has one gradient; a curve has a different gradient at every point, given by its tangent. You can't measure a tangent from one point, so you measure a secant and take the <em>limit</em> as the two points squeeze together. That limit of the <em>cociente incremental</em> is the derivative: an instantaneous rate of change. The power rule does the work: bring the power down, reduce it by one. Setting a derivative to zero finds maximums and minimums, which is the basis of every optimisation problem from box design to training AI.</p>
+<p>Next: if a derivative takes you from distance to speed, what takes you back from speed to distance? That's <strong>integration</strong>, the second page.</p>
+
+<footer>Made for KS4/KS5 students. Drag, change, and break the sliders as much as you like. <a href="https://www.ocr.org.uk/qualifications/as-and-a-level/mathematics-a-h230-h240-from-2017/" target="_blank" rel="noopener">Calculus sits in A-level Maths (OCR H240)</a>; GCSE Higher covers tangent-drawing estimates only.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt = (v,d=2)=> (Math.abs(v)<1e-9?0:v).toFixed(d).replace(/\.?0+$/,'');
+
+const FNS = {
+  sq:  {f:x=>x*x, d:x=>2*x, name:'x²'},
+  cube:{f:x=>x*x*x-3*x, d:x=>3*x*x-3, name:'x³ − 3x'},
+  sin: {f:x=>2*Math.sin(x), d:x=>2*Math.cos(x), name:'2 sin x'},
+  exp: {f:x=>Math.exp(x)/4, d:x=>Math.exp(x)/4, name:'eˣ/4'}
+};
+
+function setupCanvas(c){
+  const dpr = Math.min(window.devicePixelRatio||1,2);
+  const W=c.width,H=c.height;
+  c.style.width='100%';
+  const ctx=c.getContext('2d');
+  return {ctx,W,H,dpr};
+}
+function sizeCanvas(c){
+  const rect=c.getBoundingClientRect();
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const aspect = c.dataset.aspect? +c.dataset.aspect : 0.55;
+  const w=Math.max(280,Math.floor(rect.width));
+  const h=Math.floor(w*aspect);
+  c.width=w*dpr;c.height=h*dpr;c.style.height=h+'px';
+  const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,W:w,H:h};
+}
+
+// Generic axes plotter
+function plot(c, opts){
+  const {ctx,W,H}=sizeCanvas(c);
+  const pad={l:40,r:16,t:14,b:28};
+  const xmin=opts.xmin,xmax=opts.xmax,ymin=opts.ymin,ymax=opts.ymax;
+  const sx=x=>pad.l+(x-xmin)/(xmax-xmin)*(W-pad.l-pad.r);
+  const sy=y=>H-pad.b-(y-ymin)/(ymax-ymin)*(H-pad.t-pad.b);
+  ctx.clearRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle=css('--grid');ctx.lineWidth=1;
+  ctx.font='12px '+css('--mono');ctx.fillStyle=css('--muted');
+  const xs=opts.xstep||1,ys=opts.ystep||1;
+  for(let x=Math.ceil(xmin/xs)*xs;x<=xmax+1e-9;x+=xs){ctx.beginPath();ctx.moveTo(sx(x),pad.t);ctx.lineTo(sx(x),H-pad.b);ctx.stroke();
+    ctx.textAlign='center';ctx.fillText(fmt(x,1),sx(x),H-pad.b+16);}
+  for(let y=Math.ceil(ymin/ys)*ys;y<=ymax+1e-9;y+=ys){ctx.beginPath();ctx.moveTo(pad.l,sy(y));ctx.lineTo(W-pad.r,sy(y));ctx.stroke();
+    ctx.textAlign='right';ctx.fillText(fmt(y,1),pad.l-6,sy(y)+4);}
+  // axes
+  ctx.strokeStyle=css('--muted');ctx.lineWidth=1.2;
+  if(ymin<0&&ymax>0){ctx.beginPath();ctx.moveTo(pad.l,sy(0));ctx.lineTo(W-pad.r,sy(0));ctx.stroke();}
+  if(xmin<0&&xmax>0){ctx.beginPath();ctx.moveTo(sx(0),pad.t);ctx.lineTo(sx(0),H-pad.b);ctx.stroke();}
+  else {ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.stroke();}
+  ctx.save();ctx.beginPath();ctx.rect(pad.l,pad.t,W-pad.l-pad.r,H-pad.t-pad.b);ctx.clip();
+  const out={ctx,sx,sy,W,H,pad,xmin,xmax,ymin,ymax};
+  opts.draw(out);
+  ctx.restore();
+  return out;
+}
+function curve(o,f,color,width=2.5){
+  const {ctx,sx,sy,xmin,xmax}=o;ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();
+  const n=300;for(let i=0;i<=n;i++){const x=xmin+(xmax-xmin)*i/n;const y=f(x);if(i===0)ctx.moveTo(sx(x),sy(y));else ctx.lineTo(sx(x),sy(y));}
+  ctx.stroke();
+}
+function line(o,x0,y0,m,color,dash){
+  const {ctx,sx,sy,xmin,xmax}=o;ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash(dash||[]);
+  ctx.beginPath();ctx.moveTo(sx(xmin),sy(y0+m*(xmin-x0)));ctx.lineTo(sx(xmax),sy(y0+m*(xmax-x0)));ctx.stroke();ctx.setLineDash([]);
+}
+function dot(o,x,y,color,r=6){const {ctx,sx,sy}=o;ctx.fillStyle=color;ctx.beginPath();ctx.arc(sx(x),sy(y),r,0,Math.PI*2);ctx.fill();}
+
+// Lab 1: tangent explorer
+const c1=document.getElementById('c1'),fn1=document.getElementById('fn1'),x1=document.getElementById('x1');
+function draw1(){
+  const F=FNS[fn1.value],x=+x1.value,y=F.f(x),m=F.d(x);
+  plot(c1,{xmin:-3.2,xmax:3.2,ymin:-4,ymax:6,draw:o=>{
+    curve(o,F.f,css('--accent'));
+    line(o,x,y,m,css('--tangent'));
+    dot(o,x,y,css('--tangent'));
+  }});
+  document.getElementById('r1p').textContent=`(${fmt(x)}, ${fmt(y)})`;
+  document.getElementById('r1g').textContent=fmt(m,2);
+  document.getElementById('r1m').textContent=Math.abs(m)<0.08?'flat: a turning point':m>0?'rising':'falling';
+}
+fn1.addEventListener('input',draw1);x1.addEventListener('input',draw1);
+
+// Lab 2: secant → tangent on x²
+const c2=document.getElementById('c2'),h2=document.getElementById('h2'),x2=document.getElementById('x2');
+function draw2(){
+  const f=x=>x*x,x=+x2.value,h=+h2.value,y=f(x),y2=f(x+h),ms=(y2-y)/h,mt=2*x;
+  plot(c2,{xmin:-2.5,xmax:4.5,ymin:-2,ymax:12,ystep:2,draw:o=>{
+    curve(o,f,css('--accent'));
+    line(o,x,y,mt,css('--tangent'),[6,5]);
+    line(o,x,y,ms,css('--fg'));
+    // rise/run triangle
+    const {ctx,sx,sy}=o;ctx.strokeStyle=css('--muted');ctx.lineWidth=1.2;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(sx(x),sy(y));ctx.lineTo(sx(x+h),sy(y));ctx.lineTo(sx(x+h),sy(y2));ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=css('--muted');ctx.font='12px '+css('--mono');ctx.textAlign='center';
+    ctx.fillText('h',sx(x+h/2),sy(y)+14);ctx.textAlign='left';ctx.fillText('rise',sx(x+h)+5,sy((y+y2)/2));
+    dot(o,x,y,css('--tangent'));dot(o,x+h,y2,css('--fg'));
+  }});
+  document.getElementById('r2s').textContent=fmt(ms,3);
+  document.getElementById('r2t').textContent=fmt(mt,3);
+  document.getElementById('r2d').textContent=fmt(ms-mt,3)+'  (= h)';
+}
+h2.addEventListener('input',draw2);x2.addEventListener('input',draw2);
+
+// Lab 4: limit explorer with a hole at x = 2
+const c4=document.getElementById('c4'),x4=document.getElementById('x4');
+function draw4(){
+  const x=+x4.value,g=x=>x+2,hole=Math.abs(x-2)<0.004;
+  plot(c4,{xmin:0.5,xmax:3.5,ymin:2,ymax:6,xstep:0.5,ystep:1,draw:o=>{
+    curve(o,g,css('--accent'));
+    const {ctx,sx,sy}=o;
+    // open circle for the hole
+    ctx.fillStyle=css('--panel');ctx.strokeStyle=css('--accent');ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.arc(sx(2),sy(4),6,0,Math.PI*2);ctx.fill();ctx.stroke();
+    // guide lines to the limit
+    ctx.strokeStyle=css('--muted');ctx.setLineDash([4,4]);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(sx(2),sy(o.ymin));ctx.lineTo(sx(2),sy(4));ctx.lineTo(sx(o.xmin),sy(4));ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=css('--muted');ctx.font='12px '+css('--mono');ctx.textAlign='left';
+    ctx.fillText('limit = 4',sx(o.xmin)+6,sy(4)-6);ctx.textAlign='center';ctx.fillText('hole at x = 2',sx(2),sy(o.ymin)-6);
+    if(!hole) dot(o,x,g(x),css('--tangent'));
+  }});
+  const n=x*x-4,d=x-2;
+  document.getElementById('r4n').textContent=fmt(n,4);
+  document.getElementById('r4d').textContent=fmt(d,4);
+  document.getElementById('r4g').textContent=hole?'0 ÷ 0: undefined':fmt(n/d,4);
+  document.getElementById('r4e').textContent=hole?'—':fmt(Math.abs(n/d-4),4);
+}
+x4.addEventListener('input',draw4);
+
+// Power rule tester
+const pa=document.getElementById('pa'),pn=document.getElementById('pn');
+function sup(n){return String(n).replace(/-/,'⁻').replace(/[0-9]/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]);}
+function drawP(){
+  const a=+pa.value||0,n=+pn.value||0;
+  document.getElementById('pe').textContent=`${a}x${sup(n)}`;
+  const k=a*n,m=n-1;
+  let d= k===0?'0': m===0?`${k}`: m===1?`${k}x`:`${k}x${sup(m)}`;
+  document.getElementById('pd').textContent=d;
+  document.getElementById('pg').textContent=fmt(k*Math.pow(2,m),3);
+}
+pa.addEventListener('input',drawP);pn.addEventListener('input',drawP);
+
+// Lab 3: box optimisation
+const c3=document.getElementById('c3'),x3=document.getElementById('x3');
+const V=x=>x*(30-2*x)**2, Vd=x=>900-240*x+12*x*x;
+function draw3(){
+  const x=+x3.value;
+  plot(c3,{xmin:0,xmax:15,ymin:0,ymax:2200,xstep:3,ystep:500,draw:o=>{
+    curve(o,V,css('--accent'));
+    line(o,x,V(x),Vd(x),css('--tangent'));
+    dot(o,x,V(x),css('--tangent'));
+    const {ctx,sx,sy}=o;ctx.fillStyle=css('--muted');ctx.font='12px '+css('--mono');ctx.textAlign='left';
+    ctx.fillText('V (cm³)',o.pad.l+6,o.pad.t+12);
+  }});
+  document.getElementById('r3v').textContent=fmt(V(x),0)+' cm³';
+  document.getElementById('r3d').textContent=fmt(Vd(x),0);
+  const d=Vd(x);
+  document.getElementById('r3h').textContent=Math.abs(d)<15?'gradient ≈ 0: this is the maximum':d>0?'still rising: cut bigger':'now falling: cut smaller';
+}
+x3.addEventListener('input',draw3);
+
+// Quiz
+const QS=[
+  {q:'The derivative of y = x³ is…',opts:['3x²','x²','3x','x⁴/4'],a:0,fb:'Bring the 3 down, knock the power down to 2.'},
+  {q:'If y = 5x² + 2x − 7, then dy/dx = …',opts:['10x + 2','10x − 7','5x + 2','10x + 2 − 7'],a:0,fb:'Constants vanish; each term is differentiated separately.'},
+  {q:'A curve has gradient zero at a point. The curve there is…',opts:['flat (a turning point)','vertical','crossing the x-axis','undefined'],a:0,fb:'Zero gradient means a horizontal tangent: a peak, trough or flat shoulder.'},
+  {q:'Displacement is s = 3t². Velocity at t = 4 is…',opts:['24','48','12','6'],a:0,fb:'v = ds/dt = 6t, so at t = 4, v = 24.'},
+  {q:'Which real-world quantity is a derivative?',opts:['Speed (rate of change of distance)','Total distance travelled','Area of a field','Number of students'],a:0,fb:'Speed measures how fast distance changes with time. The others are totals, not rates.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+
+function all(){draw1();draw2();draw4();drawP();draw3();}
+all();
+let t;window.addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(all,120);});
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',all);}
+new MutationObserver(all).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

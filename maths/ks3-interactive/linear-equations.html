@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Linear Equations</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive "lab" panels; graph-paper neutrals, teal = x bags, orange = unit weights, plum = the current operation. Balance scale drawn in SVG. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:180px;max-width:50vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.5em}
+input[type=text].wide{width:14em;max-width:60vw}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--two)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn:disabled{opacity:.4;cursor:default}
+.eq{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0;font-variant-numeric:tabular-nums}
+.eq.solved{color:var(--good)}
+.hist{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.hist .row{display:grid;grid-template-columns:1fr auto;gap:1rem}
+.hist .op{color:var(--two);font-size:.9rem;white-space:nowrap}
+.hist .a{color:var(--accent)}.hist .b{color:var(--hi)}
+.msg{font-size:.92rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.bad{color:var(--bad)}.msg.good{color:var(--good)}
+.opgroup{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.opgroup .lbl{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:.3rem}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.bar{display:flex;gap:2px;margin-top:.4rem;height:34px}
+.bar div{display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--mono);font-size:.9rem;font-weight:600;border-radius:4px;min-width:0;overflow:hidden}
+.bar .x{background:var(--accent)}.bar .u{background:var(--hi)}.bar .q{background:var(--two)}
+.barlbl{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:.8rem}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Algebra · KS3</div>
+  <h1>Linear Equations</h1>
+  <p class="lede">An equation is a balanced scale. On each pan sit some bags (each holding the same unknown number of weights) and some loose weights. Solving means finding out what's in a bag, and there is only one rule: <strong>whatever you do to one side, do to the other</strong>.</p>
+  <span class="gcse">National curriculum KS3: use algebraic methods to solve linear equations in one variable, including all forms that require rearrangement, with the unknown on one side or both sides</span>
+</header>
+
+<h2>1 · What an equation says</h2>
+<p><span class="m">x + 3 = 7</span> is a statement: "some number, plus three, makes seven". The = sign is not an instruction to work something out; it's a claim that the two sides weigh the same. An <strong>expression</strong> (like x + 3) is just one pan; an <strong>equation</strong> has two pans and an = between them.</p>
+<p>Put the equation on a scale. Teal bags hold x weights each (we don't know how many). Orange discs are single weights. If the scale balances, the equation is true. Drag the slider to try values of x and see which one balances.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Equation <select id="tryE"><option value="1,3,0,7">x + 3 = 7</option><option value="2,1,0,9">2x + 1 = 9</option><option value="3,0,0,12">3x = 12</option><option value="2,5,1,8">2x + 5 = x + 8</option></select></label>
+    <label>try x = <input type="range" id="tryX" min="0" max="8" value="2"><span id="tryXv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="trySvg" viewBox="0 0 640 260" width="640" height="260"></svg>
+  <div class="eq" id="tryEq"></div>
+  <div class="msg" id="tryMsg"></div>
+</div>
+
+<p>Trying values works for small numbers, but it's guessing. The rest of this page is the method that always works.</p>
+
+<h2>2 · The one rule: keep it balanced</h2>
+<p>If the scale balances and you take 3 weights off the <em>left</em> only, it tips. Take 3 off <em>both</em> sides and it still balances, but now the left pan is simpler. Repeat until a single bag sits alone on one side. Whatever is on the other side is what's in the bag.</p>
+<p>Solve this one yourself. Click an operation; it's applied to both pans at once. Try to reach <span class="m">x = …</span> in as few moves as you can.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Equation <select id="bE">
+      <option value="1,5,0,9">x + 5 = 9</option><option value="3,0,0,12">3x = 12</option><option value="2,3,0,11">2x + 3 = 11</option><option value="4,-5,0,7">4x − 5 = 7</option><option value="1,-6,0,-2">x − 6 = −2</option>
+      <option value="5,2,2,11">5x + 2 = 2x + 11</option><option value="3,7,1,13">3x + 7 = x + 13</option><option value="4,-3,1,9">4x − 3 = x + 9</option><option value="2,9,5,3">2x + 9 = 5x + 3</option><option value="6,-4,2,8">6x − 4 = 2x + 8</option>
+    </select></label>
+    <button class="btn" id="bReset">Reset</button>
+    <button class="btn" id="bUndo">Undo</button>
+  </div>
+  <svg id="bSvg" viewBox="0 0 640 260" width="640" height="260"></svg>
+  <div class="eq" id="bEq"></div>
+  <div class="controls">
+    <div class="opgroup"><span class="lbl">Both sides</span>
+      <button class="btn op" data-op="-1">− 1</button><button class="btn op" data-op="+1">+ 1</button>
+      <button class="btn op" data-op="-c">− the loose weights</button><button class="btn op" data-op="-x">− the smaller bags</button>
+      <button class="btn op" data-op="/">÷ number of bags</button>
+    </div>
+  </div>
+  <div class="msg" id="bMsg"></div>
+  <div class="hist" id="bHist"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Why not just "move it across and change the sign"?</strong> That shortcut is a <em>description</em> of subtracting from both sides, and it works, but students who only know the shortcut get lost when the unknown is on both sides or when there's a division. Think "both sides" and the shortcut becomes obvious instead of magic.</p>
+</div>
+
+<h2>3 · Inverse operations: undo in reverse order</h2>
+<p>Another way to see it. <span class="m">2x + 3 = 11</span> was built by taking x, multiplying by 2, then adding 3. To get x back, undo the operations in <strong>reverse</strong> order: subtract 3 first, then divide by 2. Like taking off shoes then socks: last on, first off.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><input type="number" id="ivA" value="2" min="-9" max="9"> x <select id="ivS"><option value="+">+</option><option value="-">−</option></select> <input type="number" id="ivB" value="3" min="0" max="30"> = <input type="number" id="ivC" value="11" min="-50" max="50"></label>
+  </div>
+  <div class="hist" id="ivWork"></div>
+</div>
+
+<h2>4 · Unknowns on both sides</h2>
+<p>When bags appear on both pans, the extra move is to <strong>remove the same number of bags from each side</strong>. Take away as many as the side with fewer bags has, so that bags remain on only one pan. Then it's a one-sided equation and you finish as before.</p>
+<p>A bar model shows it a different way. Two bars of equal length, one for each side. Line them up: the parts that match can be removed from both, and what's left must also match.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Equation <select id="bmE">
+      <option value="5,2,2,11">5x + 2 = 2x + 11</option><option value="3,7,1,13">3x + 7 = x + 13</option><option value="4,1,2,9">4x + 1 = 2x + 9</option><option value="6,3,2,15">6x + 3 = 2x + 15</option><option value="2,9,5,3">2x + 9 = 5x + 3</option>
+    </select></label>
+    <label>step <input type="range" id="bmS" min="0" max="3" value="0"></label>
+  </div>
+  <div id="bmBars"></div>
+  <div class="hist" id="bmWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Which side should the x end up on?</strong> Either, but life is easier if you remove the <em>smaller</em> number of bags so the remaining coefficient is positive. In 2x + 9 = 5x + 3, take 2x from both sides (leaving 9 = 3x + 3) rather than 5x (leaving −3x + 9 = 3). Both are correct; one avoids negatives.</p>
+</div>
+
+<h2>5 · Brackets, fractions and negatives</h2>
+<p>Three extras that appear in "all forms requiring rearrangement". Each is one preparatory step before the balance method takes over.</p>
+
+<div class="tbl"><table>
+  <tr><th>Form</th><th>First move</th><th>Then</th></tr>
+  <tr><td class="mono">3(x + 2) = 18</td><td>Expand: 3x + 6 = 18. (Or divide both sides by 3 first: x + 2 = 6.)</td><td class="mono">x = 4</td></tr>
+  <tr><td class="mono">x/4 − 1 = 2</td><td>+ 1 both sides: x/4 = 3. Then × 4 both sides.</td><td class="mono">x = 12</td></tr>
+  <tr><td class="mono">(x + 5)/2 = 7</td><td>× 2 both sides to clear the fraction: x + 5 = 14.</td><td class="mono">x = 9</td></tr>
+  <tr><td class="mono">7 − 2x = 1</td><td>− 7 both sides: −2x = −6. Then ÷ (−2).</td><td class="mono">x = 3</td></tr>
+  <tr><td class="mono">12 = 3x − 6</td><td>Unknown on the right is fine. + 6: 18 = 3x. ÷ 3.</td><td class="mono">6 = x, i.e. x = 6</td></tr>
+</table></div>
+
+<p>Type any linear equation and the solver shows every both-sides step, with a substitution check at the end.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Equation <input type="text" class="wide" id="svIn" value="3(x + 2) = 2x + 11" placeholder="e.g. 7 - 2x = 1"></label>
+    <select id="svPick"><option value="">examples…</option><option value="3(x + 2) = 18">3(x + 2) = 18</option><option value="7 - 2x = 1">7 − 2x = 1</option><option value="12 = 3x - 6">12 = 3x − 6</option><option value="5x - 4 = 2x + 8">5x − 4 = 2x + 8</option><option value="2(x - 3) = x + 1">2(x − 3) = x + 1</option><option value="4x + 1 = 4x + 5">4x + 1 = 4x + 5 (no solution)</option><option value="x/4 - 1 = 2">x/4 − 1 = 2</option></select>
+  </div>
+  <div class="hist" id="svWork"></div>
+</div>
+
+<h2>6 · Always check</h2>
+<p>Substitute your answer back into the <em>original</em> equation. If both sides come out the same, you're right. This takes ten seconds and turns a hopeful answer into a certain one. Every tool on this page ends with this step for a reason.</p>
+
+<h2>7 · Where equations come from</h2>
+<div class="grid2">
+  <div class="use"><h3>Number puzzles</h3>
+    <p>"I think of a number, treble it, subtract 4 and get 17." → 3x − 4 = 17 → x = 7. The equation is the puzzle written down.</p></div>
+  <div class="use"><h3>Geometry</h3>
+    <p>Angles in a triangle: x + 2x + 60 = 180 → 3x = 120 → x = 40. Perimeter 2(x + 3) + 2x = 30 → x = 6. Shapes generate equations constantly.</p></div>
+  <div class="use"><h3>Money</h3>
+    <p>Two phone tariffs: 10 + 0.05m and 4 + 0.08m. When do they cost the same? 10 + 0.05m = 4 + 0.08m → m = 200 minutes. Unknown on both sides, straight from real life.</p></div>
+  <div class="use"><h3>Science</h3>
+    <p>v = u + at with v = 30, u = 6, a = 4: 30 = 6 + 4t → t = 6 s. Every "find the time" question is an equation.</p></div>
+  <div class="use"><h3>Programming</h3>
+    <p>The computer can't rearrange, so <em>you</em> solve <code>total = 25 + 0.12*m</code> for m before writing <code>m = (total - 25)/0.12</code>. Rearranging a formula is solving an equation with letters instead of numbers.</p></div>
+  <div class="use"><h3>Break-even</h3>
+    <p>Cost 500 + 3n, income 8n. Break even when 500 + 3n = 8n → n = 100 items. Businesses solve this before they start.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Solve 4x − 7 = 13</summary>
+  <div class="step"><strong>+ 7 to both sides:</strong> 4x = 20.</div>
+  <div class="step"><strong>÷ 4 both sides:</strong> x = <strong>5</strong>.</div>
+  <div class="step"><strong>Check:</strong> 4(5) − 7 = 20 − 7 = 13 ✓</div>
+</details>
+<details>
+  <summary>Solve 5x + 2 = 2x + 11</summary>
+  <div class="step"><strong>− 2x from both sides</strong> (remove the smaller bags): 3x + 2 = 11.</div>
+  <div class="step"><strong>− 2 both sides:</strong> 3x = 9.</div>
+  <div class="step"><strong>÷ 3:</strong> x = <strong>3</strong>.</div>
+  <div class="step"><strong>Check:</strong> left 5(3) + 2 = 17; right 2(3) + 11 = 17 ✓</div>
+</details>
+<details>
+  <summary>Solve 3(2x − 1) = 4x + 9</summary>
+  <div class="step"><strong>Expand first:</strong> 6x − 3 = 4x + 9.</div>
+  <div class="step"><strong>− 4x both sides:</strong> 2x − 3 = 9.</div>
+  <div class="step"><strong>+ 3:</strong> 2x = 12. <strong>÷ 2:</strong> x = <strong>6</strong>.</div>
+  <div class="step"><strong>Check:</strong> 3(12 − 1) = 33; 4(6) + 9 = 33 ✓</div>
+</details>
+<details>
+  <summary>Exam-style: the angles of a triangle are x, x + 20 and 2x − 40 degrees. Find the largest angle.</summary>
+  <div class="step"><strong>Form the equation:</strong> angles sum to 180. x + (x + 20) + (2x − 40) = 180.</div>
+  <div class="step"><strong>Simplify:</strong> 4x − 20 = 180.</div>
+  <div class="step"><strong>Solve:</strong> 4x = 200, x = 50.</div>
+  <div class="step"><strong>Answer the actual question:</strong> angles are 50, 70, 60. Largest is <strong>70°</strong>. (Writing x = 50 and stopping loses the last mark.)</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>An equation is a balance; solving it means isolating one bag. The only rule is to do the same thing to both sides, and the strategy is to undo operations in reverse order: deal with added or subtracted numbers first, then divide by the coefficient. With unknowns on both sides, first remove the smaller number of bags from each pan. Brackets get expanded, fractions get multiplied away, and a negative coefficient is just one more division. Then substitute back and check.</p>
+
+<footer>Made for KS3 students. Solving linear equations in one variable, including with the unknown on both sides, is in the England national curriculum at key stage 3 under Algebra. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const br=v=>v<0?`(${v})`:`${v}`;
+const fmt=v=>Number.isInteger(v)?String(v):parseFloat(v.toFixed(3)).toString();
+function side(a,b){ // a x + b
+  const parts=[];if(a!==0)parts.push(a===1?'x':a===-1?'−x':`${a}x`);
+  if(b!==0||a===0)parts.push(parts.length?(b<0?`− ${-b}`:`+ ${b}`):String(b));
+  return parts.join(' ');
+}
+function eqStr(L,R){return `${side(L[0],L[1])} = ${side(R[0],R[1])}`;}
+
+/* ---- balance drawing ---- */
+function drawScale(svg,L,R,tilt){ // L=[a,b], R=[c,d]; tilt: -1 left heavy, 0 level, 1 right heavy
+  const W=640,cx=320,baseY=230,beamY=90;const ang=tilt*6;
+  const f=`font-family="${css('--mono')}"`;
+  const pan=(x,a,b,neg)=>{let s='';const items=[];
+    for(let i=0;i<Math.abs(a);i++)items.push({t:'x',neg:a<0});for(let i=0;i<Math.abs(b);i++)items.push({t:'u',neg:b<0});
+    const perRow=6,w=30,h=30;
+    items.slice(0,18).forEach((it,i)=>{const r=Math.floor(i/perRow),c=i%perRow,n=Math.min(perRow,items.length-r*perRow);const ix=x-(n*w)/2+c*w+w/2,iy=-14-r*(h+2);
+      if(it.t==='x')s+=`<rect x="${ix-12}" y="${iy-26}" width="24" height="26" rx="6" fill="${css('--accent')}" ${it.neg?'opacity=".45" stroke-dasharray="3 2" stroke="'+css('--fg')+'"':''}/><text x="${ix}" y="${iy-9}" text-anchor="middle" font-size="13" font-weight="600" fill="#fff" ${f}>x</text>`;
+      else s+=`<circle cx="${ix}" cy="${iy-12}" r="11" fill="${css('--hi')}" ${it.neg?'opacity=".45" stroke-dasharray="3 2" stroke="'+css('--fg')+'"':''}/><text x="${ix}" y="${iy-8}" text-anchor="middle" font-size="12" font-weight="600" fill="#fff" ${f}>1</text>`;});
+    if(items.length>18)s+=`<text x="${x}" y="-110" text-anchor="middle" font-size="12" fill="${css('--muted')}" ${f}>+${items.length-18} more</text>`;
+    s+=`<rect x="${x-95}" y="-14" width="190" height="10" rx="4" fill="${css('--muted')}"/>`;return s;};
+  const lx=cx-190,rx=cx+190;const dy=Math.tan(ang*Math.PI/180)*190;
+  let s=`<rect x="${cx-6}" y="${beamY}" width="12" height="${baseY-beamY}" fill="${css('--muted')}"/><rect x="${cx-70}" y="${baseY}" width="140" height="10" rx="4" fill="${css('--muted')}"/>`;
+  s+=`<g transform="rotate(${ang} ${cx} ${beamY})"><rect x="${lx}" y="${beamY-5}" width="${rx-lx}" height="10" rx="4" fill="${css('--fg')}"/><circle cx="${cx}" cy="${beamY}" r="9" fill="${css('--two')}"/></g>`;
+  s+=`<line x1="${lx}" y1="${beamY+dy}" x2="${lx}" y2="${beamY+dy+100}" stroke="${css('--muted')}" stroke-width="2"/><line x1="${rx}" y1="${beamY-dy}" x2="${rx}" y2="${beamY-dy+100}" stroke="${css('--muted')}" stroke-width="2"/>`;
+  s+=`<g transform="translate(0 ${beamY+dy+104})">${pan(lx,L[0],L[1])}</g><g transform="translate(0 ${beamY-dy+104})">${pan(rx,R[0],R[1])}</g>`;
+  svg.innerHTML=s;
+}
+
+/* 1. try values */
+const tryE=document.getElementById('tryE'),tryX=document.getElementById('tryX');
+function drawTry(){const [a,b,c,d]=tryE.value.split(',').map(Number);const x=+tryX.value;document.getElementById('tryXv').textContent=' '+x;
+  const L=a*x+b,R=c*x+d;const tilt=L>R?-1:L<R?1:0;
+  drawScale(document.getElementById('trySvg'),[a,b],[c,d],tilt);
+  document.getElementById('tryEq').innerHTML=`${eqStr([a,b],[c,d])}   <span style="color:var(--muted);font-size:.8em">with x = ${x}:  ${L} ${tilt===0?'=':'≠'} ${R}</span>`;
+  document.getElementById('tryEq').className='eq'+(tilt===0?' solved':'');
+  const m=document.getElementById('tryMsg');m.className='msg '+(tilt===0?'good':'bad');m.textContent=tilt===0?`Balanced. x = ${x} is the solution.`:tilt<0?`Left pan is heavier (${L} > ${R}). Try a smaller x.`:`Right pan is heavier (${L} < ${R}). Try a bigger x.`;}
+tryE.addEventListener('change',drawTry);tryX.addEventListener('input',drawTry);drawTry();
+
+/* 2. balance solver */
+const bE=document.getElementById('bE');let B={L:[0,0],R:[0,0],hist:[],start:null};
+function bLoad(){const [a,b,c,d]=bE.value.split(',').map(Number);B={L:[a,b],R:[c,d],hist:[],start:[[a,b],[c,d]]};drawB('');}
+function isSolved(){const {L,R}=B;return (L[0]===1&&L[1]===0&&R[0]===0)||(R[0]===1&&R[1]===0&&L[0]===0);}
+function drawB(note){
+  drawScale(document.getElementById('bSvg'),B.L,B.R,0);
+  const e=document.getElementById('bEq');e.textContent=eqStr(B.L,B.R);e.className='eq'+(isSolved()?' solved':'');
+  const m=document.getElementById('bMsg');m.className='msg '+(isSolved()?'good':'');
+  m.textContent=isSolved()?`Solved in ${B.hist.length} move${B.hist.length===1?'':'s'}. One bag alone: x = ${B.L[0]===1?B.R[1]:B.L[1]}. Check: ${B.start[0][0]}(${B.L[0]===1?B.R[1]:B.L[1]}) ${B.start[0][1]<0?'−':'+'} ${Math.abs(B.start[0][1])} = ${B.start[0][0]*(B.L[0]===1?B.R[1]:B.L[1])+B.start[0][1]} and ${B.start[1][0]}(${B.L[0]===1?B.R[1]:B.L[1]}) ${B.start[1][1]<0?'−':'+'} ${Math.abs(B.start[1][1])} = ${B.start[1][0]*(B.L[0]===1?B.R[1]:B.L[1])+B.start[1][1]} ✓`:note;
+  document.getElementById('bHist').innerHTML=[`<div class="row"><span>${eqStr(B.start[0],B.start[1])}</span><span class="op">start</span></div>`,...B.hist.map(h=>`<div class="row"><span>${h.eq}</span><span class="op">${h.op}</span></div>`)].join('');
+  document.querySelectorAll('.op').forEach(b=>b.disabled=isSolved());
+}
+function apply(op){
+  if(isSolved())return;let {L,R}=B;L=[...L];R=[...R];let label='',note='';
+  if(op==='-1'){L[1]-=1;R[1]-=1;label='− 1 both sides';}
+  else if(op==='+1'){L[1]+=1;R[1]+=1;label='+ 1 both sides';}
+  else if(op==='-c'){ // remove loose weights from the side that has bags (or the side with fewer bags' partner)
+    const target=L[0]!==0&&(R[0]===0||Math.abs(L[0])>=Math.abs(R[0]))?L:R;const k=target[1];if(k===0){drawB('No loose weights to remove on the bag side.');return;}
+    L[1]-=k;R[1]-=k;label=`${k<0?'+':'−'} ${Math.abs(k)} both sides`;}
+  else if(op==='-x'){if(L[0]===0||R[0]===0){drawB('Bags are already on one side only.');return;}const k=Math.abs(L[0])<=Math.abs(R[0])?L[0]:R[0];L[0]-=k;R[0]-=k;label=`− ${k===1?'x':k+'x'} both sides`;}
+  else if(op==='/'){const a=L[0]!==0?L[0]:R[0];if(a===0||Math.abs(a)===1){drawB(Math.abs(a)===1?'Already one bag.':'No bags to divide by.');return;}
+    if((L[0]!==0&&R[0]!==0)){drawB('Remove the bags from one side first, or the division gets messy.');return;}
+    const other=L[0]!==0?R:L;if(other[1]%a!==0){drawB(`${other[1]} ÷ ${a} isn't a whole number. Clear the loose weights from the bag side first.`);return;}
+    const sideWithBags=L[0]!==0?L:R;if(sideWithBags[1]!==0){drawB('Remove the loose weights from the bag side first, then divide.');return;}
+    other[1]/=a;sideWithBags[0]=1;label=`÷ ${a} both sides`;}
+  B.hist.push({op:label,eq:eqStr(L,R)});B.L=L;B.R=R;drawB('');
+}
+document.querySelectorAll('.op').forEach(b=>b.addEventListener('click',()=>apply(b.dataset.op)));
+document.getElementById('bReset').addEventListener('click',bLoad);
+document.getElementById('bUndo').addEventListener('click',()=>{if(!B.hist.length)return;B.hist.pop();const last=B.hist.length?B.hist[B.hist.length-1]:null;
+  // recompute from start
+  const s=B.start;B.L=[...s[0]];B.R=[...s[1]];const ops=B.hist.map(h=>h.op);B.hist=[];ops.forEach(o=>{ // replay by parsing labels
+    const m1=o.match(/^([−+]) (\d+) both/),mx=o.match(/^− (\d*)x both/),md=o.match(/^÷ (-?\d+)/);
+    if(mx){const k=mx[1]===''?1:+mx[1];B.L[0]-=k;B.R[0]-=k;}else if(md){const a=+md[1];if(B.L[0]!==0){B.R[1]/=a;B.L[0]=1;}else{B.L[1]/=a;B.R[0]=1;}}else if(m1){const k=(m1[1]==='−'?-1:1)*+m1[2];B.L[1]+=k;B.R[1]+=k;}
+    B.hist.push({op:o,eq:eqStr(B.L,B.R)});});drawB('');});
+bE.addEventListener('change',bLoad);bLoad();
+
+/* 3. inverse operations */
+const ivA=document.getElementById('ivA'),ivS=document.getElementById('ivS'),ivB=document.getElementById('ivB'),ivC=document.getElementById('ivC');
+function drawIV(){const a=+ivA.value|0,b=(ivS.value==='-'?-1:1)*(+ivB.value|0),c=+ivC.value|0;
+  const W=document.getElementById('ivWork');if(a===0){W.textContent='Coefficient can\'t be 0.';return;}
+  const s1=c-b,x=s1/a;
+  W.innerHTML=`<div class="row"><span>Built: x → × ${a} → ${b<0?'− '+(-b):'+ '+b} → ${side(a,b)}</span><span class="op">forwards</span></div>
+<div class="row"><span>${side(a,b)} = ${c}</span><span class="op">start</span></div>
+<div class="row"><span>${a===1?'x':a+'x'} = ${s1}</span><span class="op">undo the ${b<0?'−':'+'} ${Math.abs(b)}: ${b<0?'+':'−'} ${Math.abs(b)} both sides</span></div>
+<div class="row"><span>x = <strong>${fmt(x)}</strong></span><span class="op">undo the × ${a}: ÷ ${a} both sides</span></div>
+<div class="row"><span class="b">check: ${a}(${fmt(x)}) ${b<0?'−':'+'} ${Math.abs(b)} = ${fmt(a*x)} ${b<0?'−':'+'} ${Math.abs(b)} = ${fmt(a*x+b)} ${a*x+b===c?'✓':'✗'}</span><span></span></div>`;}
+[ivA,ivS,ivB,ivC].forEach(e=>e.addEventListener('input',drawIV));drawIV();
+
+/* 4. bar model both sides */
+const bmE=document.getElementById('bmE'),bmS=document.getElementById('bmS');
+function drawBM(){const [a,b,c,d]=bmE.value.split(',').map(Number);const st=+bmS.value;
+  const x=(d-b)/(a-c);const big=Math.max(a,c),small=Math.min(a,c);const bagSide=a>c?'L':'R';
+  const unit=Math.max(10,Math.min(40,420/(big*x+Math.max(b,d))));
+  const bar=(nx,nu,removedX,removedU,qx)=>{let s='<div class="bar">';for(let i=0;i<nx;i++)s+=`<div class="x" style="width:${x*unit}px;${i<removedX?'opacity:.18':''}">x</div>`;
+    if(nu>0)s+=`<div class="u" style="width:${nu*unit}px;${removedU?'opacity:.18':''}">${nu}</div>`;return s+'</div>';};
+  let L,R,work=[];
+  work.push(`<div class="row"><span>${eqStr([a,b],[c,d])}</span><span class="op">start: two bars, equal length</span></div>`);
+  const rmX=st>=1?small:0;
+  if(st>=1)work.push(`<div class="row"><span>${eqStr([a-small,b],[c-small,d])}</span><span class="op">− ${small===1?'x':small+'x'} both sides (matching bags fade)</span></div>`);
+  const k=st>=2?Math.min(b,d):0;
+  if(st>=2)work.push(`<div class="row"><span>${eqStr([a-small,b-k],[c-small,d-k])}</span><span class="op">− ${k} both sides (matching weights fade)</span></div>`);
+  if(st>=3){const coef=big-small;const rhs=bagSide==='L'?d-k:b-k;work.push(`<div class="row"><span>x = <strong>${fmt(rhs/coef)}</strong></span><span class="op">÷ ${coef} both sides</span></div><div class="row"><span class="b">check: ${a}(${fmt(x)}) + ${b} = ${a*x+b},  ${c}(${fmt(x)}) + ${d} = ${c*x+d} ✓</span><span></span></div>`);}
+  document.getElementById('bmBars').innerHTML=`<div class="barlbl">left: ${side(a,b)}</div>${bar(a,b,rmX,st>=2&&k===b)}<div class="barlbl">right: ${side(c,d)}</div>${bar(c,d,rmX,st>=2&&k===d)}`+(st>=2?`<div class="barlbl" style="color:var(--two)">what's left must match: ${side(a-small,b-k)} = ${side(c-small,d-k)}</div>`:'');
+  document.getElementById('bmWork').innerHTML=work.join('');}
+bmE.addEventListener('change',()=>{bmS.value=0;drawBM();});bmS.addEventListener('input',drawBM);drawBM();
+
+/* 5. general solver */
+function parseSide(s){ // returns [a,b] for linear in x; handles k(ax+b), x/n, numbers; else null
+  s=s.replace(/−/g,'-').replace(/\s+/g,'');if(!s)return null;
+  // expand brackets k(ax+b) or -(ax+b)
+  s=s.replace(/(-?\d*)\(([^()]*)\)/g,(m,k,inner)=>{const kk=k===''||k==='+'?1:k==='-'?-1:+k;const t=parseSide(inner);if(!t)return 'ERR';const a=kk*t[0],b=kk*t[1];return `${a>=0?'+':''}${a}x${b>=0?'+':''}${b}`;});
+  if(s.includes('ERR'))return null;
+  let a=0,b=0;const re=/([+-]?)(\d*\.?\d*)(x)?(?:\/(\d+))?/g;let m;let consumed=0;
+  const tokens=s.match(/[+-]?[^+-]+/g);if(!tokens)return null;
+  for(const t of tokens){const mm=t.match(/^([+-]?)(\d*\.?\d*)(x?)(?:\/(\d+))?$/);if(!mm)return null;const sign=mm[1]==='-'?-1:1;let num=mm[2]===''?1:parseFloat(mm[2]);if(mm[2]===''&&!mm[3])return null;const den=mm[4]?+mm[4]:1;num=sign*num/den;if(mm[3])a+=num;else b+=num;}
+  return [a,b];
+}
+const svIn=document.getElementById('svIn'),svPick=document.getElementById('svPick');
+function drawSV(){const W=document.getElementById('svWork');const parts=svIn.value.split('=');if(parts.length!==2){W.textContent='Type an equation with one = sign.';return;}
+  const L=parseSide(parts[0]),R=parseSide(parts[1]);if(!L||!R){W.textContent='Couldn\'t read that. Use forms like 3(x + 2) = 2x + 11, 7 - 2x = 1, x/4 - 1 = 2.';return;}
+  const rows=[];const row=(e,o)=>rows.push(`<div class="row"><span>${e}</span><span class="op">${o}</span></div>`);
+  let [a,b]=L,[c,d]=R;row(svIn.value.trim(),'start');
+  if(/\(/.test(svIn.value))row(eqStr([a,b],[c,d]),'expand the brackets');
+  if(a!==0&&c!==0){const k=Math.abs(a)<=Math.abs(c)?a:c;a-=k;c-=k;row(eqStr([a,b],[c,d]),`− ${Math.abs(k)===1?'':fmt(k)}x both sides (remove the smaller bags)`);}
+  if(a===0&&c===0){row(b===d?'true for every x: an identity, infinitely many solutions':'false: no value of x works (no solution)','');W.innerHTML=rows.join('');return;}
+  if(a===0){[a,b,c,d]=[c,d,a,b];row(eqStr([a,b],[c,d]),'swap sides so x is on the left (nothing changes)');}
+  if(b!==0){const k=b;d-=k;b=0;row(eqStr([a,0],[0,d]),`${k<0?'+':'−'} ${fmt(Math.abs(k))} both sides`);}
+  if(a!==1){d/=a;const ao=a;a=1;row(eqStr([1,0],[0,d]),`÷ ${fmt(ao)} both sides${ao<0?' (dividing by a negative)':''}`);}
+  const x=d;const lv=L[0]*x+L[1],rv=R[0]*x+R[1];
+  rows.push(`<div class="row"><span><strong>x = ${fmt(x)}</strong></span><span class="op">solution</span></div><div class="row"><span class="b">check in the original: left = ${fmt(lv)}, right = ${fmt(rv)} ${Math.abs(lv-rv)<1e-9?'✓':'✗'}</span><span></span></div>`);
+  W.innerHTML=rows.join('');}
+svIn.addEventListener('input',drawSV);svPick.addEventListener('change',()=>{if(svPick.value){svIn.value=svPick.value;drawSV();}});drawSV();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawTry();drawB('');});}
+new MutationObserver(()=>{drawTry();drawB('');}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'Solve x + 9 = 4',opts:['x = −5','x = 5','x = 13','x = −13'],a:0,fb:'− 9 both sides: x = 4 − 9 = −5.'},
+  {q:'Solve 3x − 4 = 11',opts:['x = 5','x = 7/3','x = 45','x = 3'],a:0,fb:'+ 4: 3x = 15. ÷ 3: x = 5.'},
+  {q:'First sensible step for 5x + 3 = 2x + 12?',opts:['− 2x from both sides','÷ 5 both sides','− 12 from both sides','+ 3 to both sides'],a:0,fb:'Get the bags onto one side first by removing the smaller number: 3x + 3 = 12.'},
+  {q:'Solve 7x + 2 = 3x + 18',opts:['x = 4','x = 5','x = 2','x = 16'],a:0,fb:'− 3x: 4x + 2 = 18. − 2: 4x = 16. ÷ 4: x = 4.'},
+  {q:'Solve 10 − 2x = 4',opts:['x = 3','x = −3','x = 7','x = −7'],a:0,fb:'− 10: −2x = −6. ÷ (−2): x = 3. Check: 10 − 6 = 4 ✓'},
+  {q:'Solve 2(x + 5) = 16',opts:['x = 3','x = 5.5','x = 11','x = 8'],a:0,fb:'Expand: 2x + 10 = 16. − 10: 2x = 6. x = 3. (Or ÷ 2 first: x + 5 = 8.)'},
+  {q:'x/3 + 2 = 6. x = ?',opts:['12','4/3','24','18'],a:0,fb:'− 2: x/3 = 4. × 3: x = 12.'},
+  {q:'Which equation has NO solution?',opts:['2x + 1 = 2x + 5','2x + 1 = 5','2x + 1 = x + 5','2x + 1 = 2x + 1'],a:0,fb:'Removing 2x from both sides leaves 1 = 5, which is false for every x. (The last one is true for every x.)'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

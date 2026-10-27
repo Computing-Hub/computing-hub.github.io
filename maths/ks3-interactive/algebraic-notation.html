@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Algebraic Notation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive "lab" panels; graph-paper neutrals, teal = x tiles, orange = unit tiles / numbers, plum = x² tiles. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto}
+.controls{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:200px;max-width:55vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+input[type=text].wide{width:16em;max-width:70vw}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.5rem;text-align:center;margin:.8rem 0;line-height:1.6}
+.tiles{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:.8rem;min-height:40px}
+.tile{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:600;color:#fff;border-radius:4px;font-size:.9rem}
+.tile.u{width:22px;height:22px;background:var(--hi)}
+.tile.x{width:22px;height:66px;background:var(--accent)}
+.tile.xx{width:66px;height:66px;background:var(--two)}
+.tile.neg{opacity:.45;outline:2px dashed currentColor;outline-offset:-3px}
+.grp{display:flex;gap:4px;padding:6px;border:1px dashed var(--line);border-radius:6px;align-items:flex-end}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+.no{color:var(--bad);font-family:var(--mono)}.yes{color:var(--good);font-family:var(--mono)}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.machine{display:grid;grid-template-columns:auto 1fr auto 1fr auto;gap:.5rem;align-items:center;font-family:var(--mono);font-size:1.05rem;margin-top:.8rem;text-align:center}
+.machine .box{background:var(--accent-soft);border:2px solid var(--accent);border-radius:8px;padding:.5rem .7rem;font-weight:600}
+.machine .arr{color:var(--muted)}
+.machine .in,.machine .out{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.5rem .7rem}
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.8rem}
+.pair{border:1px solid var(--line);border-radius:8px;padding:.6rem .8rem;min-width:0}
+.pair .h{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pair .v{font-family:var(--mono);font-size:1.15rem;margin-top:.2rem}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Algebra · KS3</div>
+  <h1>Algebraic Notation</h1>
+  <p class="lede">Algebra is arithmetic with a blank left in it. The letter is the blank. Everything that looks strange about <span class="m">3x² − 2x + 5</span> is a shorthand agreed on so that mathematicians everywhere write the same thing the same way.</p>
+  <span class="gcse">National curriculum KS3: use and interpret algebraic notation, including ab for a × b, 3y for y + y + y, a² and a³, a/b for a ÷ b, coefficients as fractions, brackets; substitute numerical values into formulae and expressions; understand and use the concepts of expression, equation, term, factor, formula, identity</span>
+</header>
+
+<h2>1 · The letter is a box</h2>
+<p>Before algebra you wrote <span class="m">▢ + 3 = 7</span> and worked out what goes in the box. Algebra replaces the box with a letter: <span class="m">x + 3 = 7</span>. The letter stands for a number that is unknown, or that is allowed to change. A <strong>function machine</strong> shows the idea: put any number in, the rule does the same thing to it every time.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Input x = <input type="range" id="fmX" min="-5" max="10" value="4"></label>
+    <select id="fmRule">
+      <option value="2x+1">× 2 then + 1</option><option value="3x-2">× 3 then − 2</option><option value="x2">square it</option><option value="x2+x">square it, then add the input</option><option value="(x+1)/2">+ 1 then ÷ 2</option>
+    </select>
+  </div>
+  <div class="machine">
+    <span class="in" id="fmIn">4</span><span class="arr">→</span><span class="box" id="fmBox">× 2, + 1</span><span class="arr">→</span><span class="out" id="fmOut">9</span>
+  </div>
+  <div class="readout">
+    <div class="f"><b>Rule in words</b><span id="fmWords"></span></div>
+    <div class="t"><b>Same rule in algebra</b><span id="fmAlg"></span></div>
+    <div><b>With x = <span id="fmXv"></span></b><span id="fmSub"></span></div>
+  </div>
+</div>
+
+<p>The algebra version is shorter than the words and, more importantly, it works for <em>every</em> input at once. "Double it and add one" is a sentence; <span class="m">2x + 1</span> is a machine.</p>
+
+<h2>2 · The conventions</h2>
+<p>These are the agreed shorthands. None of them is a rule of nature; they are habits that save ink and prevent confusion. Each one below has a reason.</p>
+
+<div class="tbl"><table>
+  <tr><th>We write</th><th>Instead of</th><th>Why</th></tr>
+  <tr><td class="mono">3x</td><td class="mono">3 × x</td><td>The × sign looks like the letter x. Multiplication is shown by writing things next to each other.</td></tr>
+  <tr><td class="mono">ab</td><td class="mono">a × b</td><td>Same idea. Letters go in alphabetical order: <span class="mono">ab</span>, not <span class="mono">ba</span> (they're equal, it's just tidier).</td></tr>
+  <tr><td class="mono">3x</td><td class="mono">x3</td><td>Number first, then the letter. The number is called the <strong>coefficient</strong>.</td></tr>
+  <tr><td class="mono">x</td><td class="mono">1x</td><td>A coefficient of 1 is left out. It's still there when you need it (for collecting terms).</td></tr>
+  <tr><td class="mono">x²</td><td class="mono">x × x</td><td>Powers show repeated multiplication (see powers and roots). <span class="mono">x²</span> is not <span class="mono">2x</span>.</td></tr>
+  <tr><td class="mono">a/b or <span class="frac"><span>a</span><span>b</span></span></td><td class="mono">a ÷ b</td><td>Division is written as a fraction. The ÷ sign almost disappears after primary school.</td></tr>
+  <tr><td class="mono">x/2 or ½x</td><td class="mono">x ÷ 2</td><td>Halving is the same as multiplying by ½. Both forms are accepted.</td></tr>
+  <tr><td class="mono">3(x + 2)</td><td class="mono">3 × (x + 2)</td><td>Brackets group things; a number next to a bracket multiplies the whole bracket.</td></tr>
+  <tr><td class="mono">−x</td><td class="mono">−1 × x</td><td>A minus in front means the coefficient is −1.</td></tr>
+</table></div>
+
+<h3>Translate it</h3>
+<p>Type an expression in "long" notation and see it tidied. Or type it tidy and see what it secretly means. Try <span class="m">x × 3 + y × y − 1x</span>.</p>
+<div class="lab">
+  <div class="controls">
+    <label>Expression <input type="text" class="wide" id="trIn" value="x × 3 + y × y − 1x + a × b ÷ 2"></label>
+  </div>
+  <div class="pairs">
+    <div class="pair"><div class="h">Tidy (conventional) form</div><div class="v" id="trTidy"></div></div>
+    <div class="pair"><div class="h">What it means, in full</div><div class="v" id="trFull"></div></div>
+  </div>
+  <div class="work" id="trNotes"></div>
+</div>
+
+<h2>3 · See the difference: 2x versus x²</h2>
+<p>This is the single most common confusion in KS3 algebra, and a picture fixes it. Use <strong>algebra tiles</strong>: a small orange square is 1, a teal strip is x (its length is unknown, so it isn't a whole number of oranges), and a plum square is x by x, which is x².</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Value of x <input type="range" id="tX" min="1" max="6" value="3"></label>
+  </div>
+  <div class="pairs">
+    <div class="pair"><div class="h">2x = x + x</div><div class="tiles" id="t2x"></div><div class="v" id="v2x"></div></div>
+    <div class="pair"><div class="h">x² = x × x</div><div class="tiles" id="tx2"></div><div class="v" id="vx2"></div></div>
+  </div>
+  <p style="font-size:.95rem;color:var(--muted);margin:.8rem 0 0">Two strips side by side versus a square with the strip as its side. They're only equal when x = 2 (try it). Everywhere else they're different numbers.</p>
+</div>
+
+<h2>4 · Build an expression from tiles</h2>
+<p>Any expression in x is a collection of tiles. Set how many of each you have and read off the expression. Negative tiles are shown faded with a dashed edge; a positive and a negative of the same kind cancel (a <em>zero pair</em>).</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>x² tiles <input type="number" id="bA" value="1" min="-5" max="5"></label>
+    <label>x tiles <input type="number" id="bB" value="3" min="-9" max="9"></label>
+    <label>unit tiles <input type="number" id="bC" value="-2" min="-12" max="12"></label>
+    <label>x = <input type="number" id="bX" value="2" min="-9" max="9"></label>
+  </div>
+  <div class="tiles" id="bTiles"></div>
+  <div class="big" id="bExpr"></div>
+  <div class="readout">
+    <div><b>Terms</b><span id="bTerms"></span></div>
+    <div><b>Coefficients</b><span id="bCoef"></span></div>
+    <div class="t"><b>Value when x = <span id="bXv"></span></b><span id="bVal"></span></div>
+  </div>
+</div>
+
+<h3>Words for the parts</h3>
+<div class="tbl"><table>
+  <tr><th>Word</th><th>Meaning</th><th>In 3x² − 2x + 5</th></tr>
+  <tr><td><strong>Term</strong></td><td>A piece separated by + or −. The sign travels with the term.</td><td class="mono">3x², −2x, +5</td></tr>
+  <tr><td><strong>Coefficient</strong></td><td>The number multiplying a letter.</td><td class="mono">3 (of x²), −2 (of x)</td></tr>
+  <tr><td><strong>Constant</strong></td><td>A term with no letter: it never changes.</td><td class="mono">5</td></tr>
+  <tr><td><strong>Variable</strong></td><td>The letter.</td><td class="mono">x</td></tr>
+  <tr><td><strong>Like terms</strong></td><td>Terms with exactly the same letters and powers; only these can be added.</td><td class="mono">3x and −2x are like; 3x² and 3x are not</td></tr>
+  <tr><td><strong>Expression</strong></td><td>Terms joined together, with no = sign.</td><td class="mono">3x² − 2x + 5</td></tr>
+  <tr><td><strong>Equation</strong></td><td>Two expressions set equal; true only for certain values. You <em>solve</em> it.</td><td class="mono">3x² − 2x + 5 = 9</td></tr>
+  <tr><td><strong>Formula</strong></td><td>An equation that gives one quantity in terms of others. You <em>substitute</em> into it.</td><td class="mono">A = πr²,  v = u + at</td></tr>
+  <tr><td><strong>Identity</strong></td><td>True for <em>every</em> value; written with ≡.</td><td class="mono">2(x + 3) ≡ 2x + 6</td></tr>
+</table></div>
+
+<h2>5 · Substitution</h2>
+<p>To <strong>substitute</strong> is to replace the letter with a number and work out the result. Write the number <em>in brackets</em> where the letter was; it prevents nearly every sign error. Remember the order of operations: powers before multiplying, multiplying before adding.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Expression <select id="suE"><option value="3x+2">3x + 2</option><option value="x2-4">x² − 4</option><option value="2x2">2x²</option><option value="(2x)2">(2x)²</option><option value="5-2x">5 − 2x</option><option value="x2+3x-1">x² + 3x − 1</option><option value="-x2">−x²</option></select></label>
+    <label>x = <input type="number" id="suX" value="-3" min="-9" max="9"></label>
+  </div>
+  <div class="work" id="suWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Three traps, all about x = −3.</strong> (1) <span class="m">x²</span> = (−3)² = +9, not −9. (2) <span class="m">2x²</span> means 2 × (x²) = 18; only the x is squared. (3) <span class="m">(2x)²</span> squares everything inside: (−6)² = 36. Try all three above.</p>
+</div>
+
+<h2>6 · Collecting like terms</h2>
+<p>You can only add tiles of the same shape. 3x + 2x is five strips: 5x. But 3x + 2 is three strips and two small squares, and that's as simple as it gets: you can't combine a strip with a square because you don't know how many squares make a strip.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Expression <input type="text" class="wide" id="ctIn" value="3x + 2 + 4x - 5 + x² - x"></label>
+  </div>
+  <div id="ctGroups"></div>
+  <div class="work" id="ctWork"></div>
+</div>
+
+<h2>7 · Why bother with letters?</h2>
+<div class="grid2">
+  <div class="use"><h3>Formulae you already use</h3>
+    <p>Area of a rectangle: A = lw. Speed: s = d/t. Perimeter of a square: P = 4s. Each one is a rule that works for every rectangle, journey or square ever, written once.</p></div>
+  <div class="use"><h3>Spreadsheets</h3>
+    <p><code>=B2*1.2</code> is algebra: B2 is the variable, 1.2 the coefficient. Fill it down a column and the same rule runs on 1000 rows.</p></div>
+  <div class="use"><h3>Programming</h3>
+    <p><code>total = price * quantity</code> is 3x-style algebra with longer names. Python even needs the × written as <code>*</code>, which is why <code>3x</code> is a syntax error in code but fine on paper.</p></div>
+  <div class="use"><h3>Science</h3>
+    <p>F = ma, E = mc², V = IR. Physics is written in algebra because the relationships hold for every mass, every current. Rearranging them is next year's topic.</p></div>
+  <div class="use"><h3>Patterns and sequences</h3>
+    <p>"Add 3 each time, starting at 5" is 3n + 2 for the nth term. The algebra lets you jump straight to the 100th term without writing out 99 others.</p></div>
+  <div class="use"><h3>Puzzles</h3>
+    <p>"I think of a number, double it, add 7 and get 23." Call it x: 2x + 7 = 23. The notation turns the puzzle into something you can solve mechanically.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Write "multiply a number by 4, then subtract 3" in algebra</summary>
+  <div class="step"><strong>Name the number.</strong> Let it be n.</div>
+  <div class="step"><strong>Multiply by 4:</strong> 4 × n, written <span class="m">4n</span> (number first, no × sign).</div>
+  <div class="step"><strong>Subtract 3:</strong> <strong>4n − 3</strong>. Not 3 − 4n, which would be "subtract from 3".</div>
+</details>
+<details>
+  <summary>Simplify a × b × 3 × a</summary>
+  <div class="step"><strong>Numbers to the front:</strong> 3 × a × a × b.</div>
+  <div class="step"><strong>Repeated letters become powers:</strong> a × a = a².</div>
+  <div class="step"><strong>Drop the × signs, letters in alphabetical order:</strong> <strong>3a²b</strong>.</div>
+</details>
+<details>
+  <summary>If p = 4 and q = −2, find 3p − q²</summary>
+  <div class="step"><strong>Substitute with brackets:</strong> 3(4) − (−2)².</div>
+  <div class="step"><strong>Powers first:</strong> (−2)² = 4. So 3(4) − 4.</div>
+  <div class="step"><strong>Multiply, then subtract:</strong> 12 − 4 = <strong>8</strong>.</div>
+</details>
+<details>
+  <summary>Exam-style: a rectangle has length 2x + 3 and width x. Write an expression for its perimeter and simplify it.</summary>
+  <div class="step"><strong>Perimeter = all four sides:</strong> (2x + 3) + x + (2x + 3) + x.</div>
+  <div class="step"><strong>Collect like terms:</strong> x-terms: 2x + x + 2x + x = 6x. Constants: 3 + 3 = 6.</div>
+  <div class="step"><strong>Answer:</strong> <strong>6x + 6</strong>. (Or 6(x + 1), factorised. Both are accepted; the question said simplify, so 6x + 6 is enough.)</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>A letter stands in for a number, and algebraic notation is a set of agreed shorthands: multiplication by juxtaposition with the number first, powers for repeated multiplication, fractions for division, brackets for grouping. 2x and x² are different shapes, not two ways of writing the same thing. An expression has terms, each with a coefficient; only like terms combine. Substituting means replacing the letter with a bracketed number and following the order of operations. Expression, equation, formula and identity are four different kinds of object, and knowing which one you're looking at tells you what you're allowed to do with it.</p>
+
+<footer>Made for KS3 students. Algebraic notation and conventions are in the England national curriculum at key stage 3 under Algebra. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';const sup=n=>String(n).replace(/[0-9]/g,d=>SUP[d]);
+const br=v=>v<0?`(${v})`:`${v}`;
+
+/* 1. function machine */
+const fmX=document.getElementById('fmX'),fmRule=document.getElementById('fmRule');
+const RULES={
+  '2x+1':{box:'× 2, + 1',words:'double it, then add one',alg:'2x + 1',f:x=>2*x+1,sub:x=>`2(${x}) + 1 = ${2*x} + 1 = ${2*x+1}`},
+  '3x-2':{box:'× 3, − 2',words:'treble it, then subtract two',alg:'3x − 2',f:x=>3*x-2,sub:x=>`3(${x}) − 2 = ${3*x} − 2 = ${3*x-2}`},
+  'x2':{box:'square',words:'multiply it by itself',alg:'x²',f:x=>x*x,sub:x=>`${br(x)}² = ${br(x)} × ${br(x)} = ${x*x}`},
+  'x2+x':{box:'square, + input',words:'square it, then add the number you started with',alg:'x² + x',f:x=>x*x+x,sub:x=>`${br(x)}² + ${br(x)} = ${x*x} + ${br(x)} = ${x*x+x}`},
+  '(x+1)/2':{box:'+ 1, ÷ 2',words:'add one, then halve',alg:'(x + 1) / 2',f:x=>(x+1)/2,sub:x=>`(${x} + 1) / 2 = ${x+1} / 2 = ${(x+1)/2}`}
+};
+function drawFM(){const x=+fmX.value,R=RULES[fmRule.value];
+  document.getElementById('fmIn').textContent=x;document.getElementById('fmBox').textContent=R.box;document.getElementById('fmOut').textContent=R.f(x);
+  document.getElementById('fmWords').textContent=R.words;document.getElementById('fmAlg').textContent=R.alg;document.getElementById('fmXv').textContent=x;document.getElementById('fmSub').textContent=R.sub(x);}
+fmX.addEventListener('input',drawFM);fmRule.addEventListener('change',drawFM);drawFM();
+
+/* 2. translator: parse sum of products */
+function parseExpr(s){
+  s=s.replace(/−/g,'-').replace(/×/g,'*').replace(/÷/g,'/').replace(/\s+/g,'');
+  if(!s)return null;
+  // split into signed terms
+  const terms=[];let cur='',sign=1,i=0;
+  if(s[0]==='-'){sign=-1;i=1;}else if(s[0]==='+'){i=1;}
+  for(;i<s.length;i++){const ch=s[i];if((ch==='+'||ch==='-')&&cur){terms.push({sign,body:cur});cur='';sign=ch==='-'?-1:1;}else cur+=ch;}
+  if(cur)terms.push({sign,body:cur});
+  const out=[];
+  for(const t of terms){
+    // body: factors separated by * or juxtaposed; / divides
+    let coef=t.sign,den=1,vars={};let ok=true;
+    const parts=t.body.split('/');
+    const mul=(str,intoDen)=>{
+      // tokenise: numbers, letters with optional ^n or superscript
+      const re=/(\d+\.?\d*)|([a-zA-Z])(?:\^(\d+)|([²³]))?|\*/g;let m,any=false;
+      let rest=str.replace(/\*/g,'');
+      while((m=re.exec(str))){any=true;if(m[0]==='*')continue;
+        if(m[1]){if(intoDen)den*=parseFloat(m[1]);else coef*=parseFloat(m[1]);}
+        else{const v=m[2],p=m[3]?+m[3]:m[4]==='²'?2:m[4]==='³'?3:1;if(intoDen){ok=false;}else vars[v]=(vars[v]||0)+p;}}
+      if(str.replace(re,'').length)ok=false;
+    };
+    mul(parts[0],false);for(let k=1;k<parts.length;k++)mul(parts[k],true);
+    if(!ok)return null;
+    out.push({coef,den,vars});
+  }
+  return out;
+}
+function termStr(t){
+  const letters=Object.keys(t.vars).sort().map(v=>t.vars[v]===1?v:v+sup(t.vars[v])).join('');
+  let c=t.coef;let cs;
+  if(t.den!==1){cs=`${Math.abs(c)}/${t.den}`;if(letters&&Math.abs(c)===1)cs=`${letters}/${t.den}`;else if(letters)cs=`${Math.abs(c)}${letters}/${t.den}`;return {sign:c<0?-1:1,body:cs};}
+  if(!letters)return {sign:c<0?-1:1,body:String(Math.abs(c))};
+  return {sign:c<0?-1:1,body:(Math.abs(c)===1?'':Math.abs(c))+letters};
+}
+function join(parts){return parts.map((p,i)=>(i===0?(p.sign<0?'−':''):(p.sign<0?' − ':' + '))+p.body).join('')||'0';}
+function fullStr(t){
+  const f=[];if(Math.abs(t.coef)!==1||Object.keys(t.vars).length===0)f.push(String(Math.abs(t.coef)));
+  Object.keys(t.vars).sort().forEach(v=>{for(let k=0;k<t.vars[v];k++)f.push(v);});
+  let b=f.join(' × ');if(t.den!==1)b=`(${b}) ÷ ${t.den}`;return {sign:t.coef<0?-1:1,body:b};
+}
+const trIn=document.getElementById('trIn');
+function drawTR(){
+  const T=parseExpr(trIn.value);
+  if(!T){document.getElementById('trTidy').textContent='?';document.getElementById('trFull').textContent='?';document.getElementById('trNotes').textContent='Use numbers, single letters, + − × ÷ and powers like x^2 or x². No brackets in this tool.';return;}
+  document.getElementById('trTidy').textContent=join(T.map(termStr));
+  document.getElementById('trFull').textContent=join(T.map(fullStr));
+  const notes=[];const raw=trIn.value;
+  if(/[×*]/.test(raw))notes.push('× signs dropped: multiplication is shown by writing things next to each other.');
+  if(/[÷/]/.test(raw))notes.push('÷ written as a fraction / .');
+  if(/1[a-zA-Z]/.test(raw))notes.push('A coefficient of 1 is not written.');
+  if(/[a-zA-Z]\s*[×*]?\s*\d/.test(raw.replace(/\^\d/g,'')))notes.push('Numbers go in front of letters.');
+  T.forEach(t=>{Object.entries(t.vars).forEach(([v,p])=>{if(p>1)notes.push(`${v} × ${v}${p>2?' × …':''} becomes ${v}${sup(p)}.`);});});
+  const lettersUnsorted=/([a-zA-Z])\s*[×*]?\s*([a-zA-Z])/.exec(raw.replace(/\^\d/g,''));
+  if(lettersUnsorted&&lettersUnsorted[1]>lettersUnsorted[2])notes.push('Letters put in alphabetical order (ba = ab).');
+  document.getElementById('trNotes').innerHTML=notes.length?[...new Set(notes)].join('<br>'):'Already in conventional form.';
+}
+trIn.addEventListener('input',drawTR);drawTR();
+
+/* 3. 2x vs x² */
+const tX=document.getElementById('tX');
+function tile(kind,neg){const d=document.createElement('div');d.className='tile '+kind+(neg?' neg':'');if(kind==='xx')d.textContent='x²';else if(kind==='x')d.textContent='x';return d;}
+function drawT(){
+  const x=+tX.value;const sc=14; // px per unit for this panel
+  const a=document.getElementById('t2x'),b=document.getElementById('tx2');a.innerHTML='';b.innerHTML='';
+  for(let i=0;i<2;i++){const t=tile('x');t.style.height=(x*sc)+'px';t.style.width='22px';a.appendChild(t);}
+  const s=tile('xx');s.style.width=(x*sc)+'px';s.style.height=(x*sc)+'px';b.appendChild(s);
+  // show the unit squares inside for comparison
+  const u1=document.createElement('div');u1.className='grp';for(let i=0;i<2*x;i++){const t=tile('u');t.style.width=sc+'px';t.style.height=sc+'px';u1.appendChild(t);}a.appendChild(u1);
+  const u2=document.createElement('div');u2.className='grp';u2.style.display='grid';u2.style.gridTemplateColumns=`repeat(${x},${sc}px)`;for(let i=0;i<x*x;i++){const t=tile('u');t.style.width=sc+'px';t.style.height=sc+'px';u2.appendChild(t);}b.appendChild(u2);
+  document.getElementById('v2x').textContent=`2 × ${x} = ${2*x}`;
+  document.getElementById('vx2').textContent=`${x} × ${x} = ${x*x}`;
+}
+tX.addEventListener('input',drawT);drawT();
+
+/* 4. build expression */
+const bA=document.getElementById('bA'),bB=document.getElementById('bB'),bC=document.getElementById('bC'),bX=document.getElementById('bX');
+function drawB(){
+  const a=+bA.value|0,b=+bB.value|0,c=+bC.value|0,x=+bX.value|0;
+  const T=document.getElementById('bTiles');T.innerHTML='';
+  const add=(kind,n)=>{for(let i=0;i<Math.abs(n);i++)T.appendChild(tile(kind,n<0));};
+  add('xx',a);add('x',b);add('u',c);
+  const parts=[];if(a)parts.push({sign:Math.sign(a),body:(Math.abs(a)===1?'':Math.abs(a))+'x²'});if(b)parts.push({sign:Math.sign(b),body:(Math.abs(b)===1?'':Math.abs(b))+'x'});if(c)parts.push({sign:Math.sign(c),body:String(Math.abs(c))});
+  document.getElementById('bExpr').textContent=join(parts);
+  document.getElementById('bTerms').textContent=parts.length?parts.map(p=>(p.sign<0?'−':'+')+p.body).join(',  '):'none';
+  document.getElementById('bCoef').textContent=`${a} (x²), ${b} (x), constant ${c}`;
+  document.getElementById('bXv').textContent=x;
+  const val=a*x*x+b*x+c;
+  document.getElementById('bVal').textContent=`${a}${br(x)}² + ${b}${br(x)} + ${br(c)} = ${a*x*x} + ${br(b*x)} + ${br(c)} = ${val}`;
+}
+[bA,bB,bC,bX].forEach(e=>e.addEventListener('input',drawB));drawB();
+
+/* 5. substitution */
+const suE=document.getElementById('suE'),suX=document.getElementById('suX');
+function drawSU(){
+  const x=+suX.value|0,e=suE.value;const B=br(x);let lines=[];
+  switch(e){
+    case '3x+2':lines=[`3x + 2`,`= 3${B} + 2`,`= ${3*x} + 2   ← multiply first`,`= <strong>${3*x+2}</strong>`];break;
+    case 'x2-4':lines=[`x² − 4`,`= ${B}² − 4`,`= ${x*x} − 4   ← power first; a negative squared is positive`,`= <strong>${x*x-4}</strong>`];break;
+    case '2x2':lines=[`2x²  (means 2 × x², only the x is squared)`,`= 2 × ${B}²`,`= 2 × ${x*x}`,`= <strong>${2*x*x}</strong>`];break;
+    case '(2x)2':lines=[`(2x)²  (the bracket is squared, so 2x is squared)`,`= (2 × ${B})²`,`= ${br(2*x)}²`,`= <strong>${4*x*x}</strong>`];break;
+    case '5-2x':lines=[`5 − 2x`,`= 5 − 2${B}`,`= 5 − ${br(2*x)}`,`= <strong>${5-2*x}</strong>   ← subtracting a negative adds`];break;
+    case 'x2+3x-1':lines=[`x² + 3x − 1`,`= ${B}² + 3${B} − 1`,`= ${x*x} + ${br(3*x)} − 1`,`= <strong>${x*x+3*x-1}</strong>`];break;
+    case '-x2':lines=[`−x²  (means −(x²): square first, then negate)`,`= −${B}²`,`= −${x*x}`,`= <strong>${-x*x}</strong>   ← always ≤ 0, whatever x is`];break;
+  }
+  document.getElementById('suWork').innerHTML=lines.join('<br>');
+}
+suE.addEventListener('change',drawSU);suX.addEventListener('input',drawSU);drawSU();
+
+/* 6. collecting like terms */
+const ctIn=document.getElementById('ctIn');
+function drawCT(){
+  const T=parseExpr(ctIn.value);const G=document.getElementById('ctGroups'),W=document.getElementById('ctWork');
+  if(!T){G.innerHTML='';W.textContent='Use + and − between terms, e.g. 3x + 2 + 4x − 5 + x².';return;}
+  const groups={};T.forEach(t=>{const key=Object.keys(t.vars).sort().map(v=>v+(t.vars[v]>1?sup(t.vars[v]):'')).join('')||'1';const k2=key+(t.den!==1?'/'+t.den:'');(groups[k2]=groups[k2]||[]).push(t);});
+  const order=Object.keys(groups).sort((p,q)=>{const deg=k=>k==='1'?-1:(k.match(/[²³⁴⁵⁶⁷⁸⁹]/)?2:1);return deg(q)-deg(p)||p.localeCompare(q);});
+  let html='',work=[],result=[];
+  order.forEach(k=>{const ts=groups[k];const sum=ts.reduce((s,t)=>s+t.coef,0);
+    const kind=k==='1'?'u':/[²³]/.test(k)?'xx':'x';
+    html+=`<div class="grp" style="margin:.4rem .4rem 0 0;display:inline-flex;flex-wrap:wrap;align-items:flex-end"><span style="font:600 .7rem var(--body);color:var(--muted);align-self:flex-start;margin-right:4px">${k==='1'?'constants':k+' terms'}</span>${ts.map(t=>Array(Math.min(9,Math.abs(t.coef))).fill(0).map(()=>`<div class="tile ${kind} ${t.coef<0?'neg':''}" style="${kind==='x'?'height:40px':kind==='xx'?'width:40px;height:40px':''}"></div>`).join('')+(Math.abs(t.coef)>9?'…':'')).join('<span style="margin:0 6px;color:var(--muted)">+</span>')}</div>`;
+    work.push(`${k==='1'?'constants':k+' terms'}: ${ts.map(t=>(t.coef<0?'−':'+')+' '+Math.abs(t.coef)+(k==='1'?'':k)).join(' ').replace(/^\+ /,'')} = ${sum}${k==='1'?'':k}`);
+    if(sum!==0)result.push({sign:Math.sign(sum),body:(Math.abs(sum)===1&&k!=='1'?'':Math.abs(sum))+(k==='1'?'':k)});
+    else work[work.length-1]+='  (they cancel)';});
+  G.innerHTML=html;
+  W.innerHTML=work.join('<br>')+`<br><strong>Simplified: ${join(result)}</strong>`;
+}
+ctIn.addEventListener('input',drawCT);drawCT();
+
+/* quiz */
+const QS=[
+  {q:'Which means the same as 4 × n?',opts:['4n','n4','4 + n','n⁴'],a:0,fb:'Number first, no × sign: 4n. n⁴ would be n × n × n × n.'},
+  {q:'Simplify b × a × 5',opts:['5ab','ab5','5ba','5a + b'],a:0,fb:'Number to the front, letters in alphabetical order, no × signs.'},
+  {q:'When x = 4, which is larger?',opts:['x² (= 16)','2x (= 8)','they are equal','cannot tell'],a:0,fb:'x² = 4 × 4 = 16; 2x = 4 + 4 = 8. Only equal when x = 2 (or 0).'},
+  {q:'What is the coefficient of x in 7 − 3x + x²?',opts:['−3','3','7','1'],a:0,fb:'The sign travels with the term: the x term is −3x, so the coefficient is −3.'},
+  {q:'If y = −2, what is 3y²?',opts:['12','−12','36','−36'],a:0,fb:'Square first: (−2)² = 4. Then 3 × 4 = 12. Only the y is squared.'},
+  {q:'Simplify 5a + 3 − 2a + 4',opts:['3a + 7','10a','7a + 7','3a − 1'],a:0,fb:'a terms: 5a − 2a = 3a. Constants: 3 + 4 = 7. Different shapes stay separate.'},
+  {q:'Which of these is an identity?',opts:['3(x + 2) ≡ 3x + 6','3x + 2 = 11','A = lw','3x + 2'],a:0,fb:'An identity is true for every x. 3x + 2 = 11 is an equation (only x = 3 works); A = lw is a formula; 3x + 2 is just an expression.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Relative Frequency and Expected Outcomes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has one or more interactive panels (simulations with tally tables, bar charts and a converging line graph, a mystery dice, data tables, a frequency tree and multi-part exam questions, all drawn from JS), plus typed "try it" inputs. Graph-paper neutrals. Colours on this page: teal = experimental results, i.e. relative frequencies from data (bars, the running line, the current run); plum = theoretical probability, the "true" value (dashed lines and markers); orange = the estimate or expected number being found (highlighted bar segments, answers); muted grey = earlier runs and everything else. Counters in the mystery bag are drawn in their literal colours (red, blue, green) with letters R, B, G. Green/red text is only right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.4rem;position:relative;top:-.15em}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.X{color:var(--accent);font-weight:600}.T{color:var(--two);font-weight:600}.E{color:var(--hi);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.lab svg.drag{touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted);max-width:100%}
+input[type=range]{accent-color:var(--accent);width:150px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+input.good{border-color:var(--good);box-shadow:0 0 0 1px var(--good)}
+input.bad{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad)}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn:disabled{opacity:.45;cursor:default}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--hi);background:var(--hi-soft);color:var(--hi);font-weight:600}
+button.btn.no{border-color:var(--bad);color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem;align-items:center}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout>div{min-width:0;overflow-wrap:anywhere}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.3rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.05rem;font-weight:500;margin:.4rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:.95rem;line-height:1.8;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tbl{overflow-x:auto}
+table.tw{font-family:var(--mono);table-layout:fixed}
+table.tw th,table.tw td{text-align:center;padding:.35rem .15rem;vertical-align:middle}
+table.tw th{font:600 .7rem var(--body);letter-spacing:.04em}
+table.tw th:first-child{text-align:left;width:24%}
+table.tw td.tot{font-weight:600;background:var(--bg)}
+table.tw td.x{color:var(--accent);font-weight:600}
+table.tw td.h{background:var(--hi-soft);color:var(--hi);font-weight:700}
+.tq{border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem}
+.tq p{margin:.2rem 0 .4rem}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line);overflow-wrap:anywhere}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer;text-align:left}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.recap{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:.9rem 1.1rem;margin:1.5rem 0}
+.recap p{margin:.3rem 0}.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a,main a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Probability</div>
+  <h1>Relative Frequency and Expected Outcomes</h1>
+  <p class="lede">Some probabilities can't be worked out on paper: will a drawing pin land point up, will a bus be late, is this dice loaded? Instead we experiment and count. This page shows how to turn data into an estimate, why more trials give a better one, how to judge bias, how to combine results, and how to predict what will happen.</p>
+  <span class="gcse">GCSE subject content: record, describe and analyse the frequency of outcomes of probability experiments using tables and frequency trees; apply ideas of randomness, fairness and equally likely events to calculate expected outcomes of multiple future experiments; relate relative expected frequencies to theoretical probability; understand that empirical unbiased samples tend towards theoretical probability distributions, with increasing sample size</span>
+</header>
+
+<div class="recap">
+  <p><strong>Before you start</strong></p>
+  <ul>
+    <li>The KS3 page <a href="../ks3-interactive/theoretical-experimental-probability.html">theoretical and experimental probability</a> introduces trials, relative frequency, fairness and expected frequency. This page goes further, into exam-style data questions.</li>
+    <li>Probabilities of all the outcomes add up to 1. See <a href="../ks3-interactive/mutually-exclusive-outcomes.html">mutually exclusive outcomes</a>.</li>
+    <li>Converting between fractions and decimals, and finding a fraction of an amount. See <a href="../ks3-interactive/fractions-decimals-percentages.html">fractions, decimals and percentages</a>.</li>
+  </ul>
+</div>
+
+<h2>1 · Relative frequency: probability from data</h2>
+<p>A <strong>theoretical probability</strong> comes from reasoning: a fair dice has 6 equally likely faces, so P(6) = 1/6. When outcomes aren't equally likely and you can't reason it out, you do an <strong>experiment</strong>: repeat it many times (each repeat is a <strong>trial</strong>) and count how often the event happens (its <strong>frequency</strong>). Then</p>
+<p class="big">relative frequency = <span class="X">frequency</span> ÷ <span class="X">number of trials</span></p>
+<p>The relative frequency is an <strong>estimate</strong> of the probability, sometimes called the <strong>experimental probability</strong>. Below is a bag of red, blue and green counters. You can't see inside. Take a counter, note its colour, put it back, and repeat. Use the relative frequencies to estimate what's in the bag, then peek.</p>
+
+<div class="lab">
+  <svg id="bgSvg" viewBox="0 0 400 232" width="400" height="232" aria-label="Tally and relative frequency bar chart"></svg>
+  <div class="controls">
+    <button class="btn primary" id="bg1">Take 1</button>
+    <button class="btn primary" id="bg10">Take 10</button>
+    <button class="btn primary" id="bg100">Take 100</button>
+    <button class="btn" id="bgPeek">Peek in the bag</button>
+    <button class="btn" id="bgNew">New bag</button>
+  </div>
+  <div class="tbl"><table class="tw" id="bgTable"></table></div>
+  <div class="work" id="bgWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Two things to notice.</strong> The relative frequencies always add up to 1 (every trial lands somewhere). And after a few trials the estimate can be wildly off, even though nothing is wrong with the bag. That's just randomness.</p>
+</div>
+
+<h2>2 · More trials, better estimates</h2>
+<p>How good is an estimate? The more trials, the more <strong>reliable</strong> it is. With few trials, luck has a big effect; with many, the lucky and unlucky runs balance out and the relative frequency settles down towards the true probability. Run the experiment and watch the line. Then press <strong>New run</strong> a few times: every run starts out wild and they all close in on the same value.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>experiment <select id="cvX"><option value="coin">fair coin: heads</option><option value="dice">fair dice: a six</option><option value="pin">drawing pin: point up</option></select></label>
+    <label><input type="checkbox" id="cvTrue"> show the true probability</label>
+  </div>
+  <svg id="cvSvg" viewBox="0 0 400 250" width="400" height="250" aria-label="Relative frequency against number of trials"></svg>
+  <div class="controls">
+    <button class="btn primary" id="cv10">+10 trials</button>
+    <button class="btn primary" id="cv100">+100 trials</button>
+    <button class="btn primary" id="cv1000">to 1000</button>
+    <button class="btn" id="cvNew">New run</button>
+  </div>
+  <div class="readout">
+    <div class="f"><b>Trials</b><span id="cvN"></span></div>
+    <div class="f"><b>Relative frequency</b><span id="cvRF"></span></div>
+    <div class="p"><b>True probability</b><span id="cvP"></span></div>
+  </div>
+  <div class="work" id="cvWork"></div>
+</div>
+
+<p>This is what the specification means by "empirical unbiased samples tend towards theoretical probability distributions with increasing sample size". In exam answers, the phrase to use is: <em>"The estimate is more reliable because it is based on more trials."</em> Note what it doesn't say: more trials make the estimate <em>more likely</em> to be close. They never guarantee the exact value.</p>
+
+<h2>3 · Theoretical or experimental? Judging bias</h2>
+<p>A dice is <strong>fair</strong> (unbiased) if every face has probability 1/6. To test it, roll it many times and compare each relative frequency with 1/6. Small differences are normal. A <em>big</em> difference after <em>many</em> trials is evidence of <strong>bias</strong>. Here's a mystery dice: it might be fair, it might be loaded. Roll it as much as you like, then give your verdict.</p>
+
+<div class="lab">
+  <svg id="mdSvg" viewBox="0 0 400 220" width="400" height="220" aria-label="Relative frequency of each face with the fair value 1/6"></svg>
+  <div class="controls">
+    <button class="btn primary" id="md6">Roll 6</button>
+    <button class="btn primary" id="md60">Roll 60</button>
+    <button class="btn primary" id="md600">Roll 600</button>
+  </div>
+  <div class="controls">
+    <button class="btn" id="mdFair">I think it's fair</button>
+    <button class="btn" id="mdBias">I think it's biased</button>
+    <button class="btn" id="mdNew">New mystery dice</button>
+  </div>
+  <div class="msg" id="mdMsg"></div>
+  <div class="work" id="mdWork"></div>
+</div>
+
+<p>Agree or disagree? Each statement is the kind of reasoning exam questions ask you to judge.</p>
+<div class="lab"><div id="stList"></div></div>
+
+<h2>4 · Expected outcomes</h2>
+<p>If you know (or have estimated) a probability, you can predict how many times something will happen in a number of trials. This is the <strong>expected frequency</strong>:</p>
+<p class="big"><span class="E">expected number</span> = probability × number of trials</p>
+<p>Why? If P(late) = 0.2, then "on average, 2 in every 10 journeys are late", so in 300 journeys about 0.2 × 300 = 60. The bar shows the trials with the expected part in orange. It's an <em>average</em> prediction, not a promise: the real number will usually be close, not exact.</p>
+
+<div class="lab">
+  <p class="pq" id="exQ"></p>
+  <svg id="exSvg" viewBox="0 0 400 70" width="400" height="70" aria-label="Expected part of the trials"></svg>
+  <div class="controls">
+    <label>expected number = <input type="text" id="exA" inputmode="decimal" autocomplete="off" style="width:5em"></label>
+    <button class="btn primary" id="exGo">Check</button>
+    <button class="btn" id="exNew">New question</button>
+  </div>
+  <div class="msg" id="exMsg"></div>
+</div>
+
+<h2>5 · Combining results from several groups</h2>
+<p>Four groups in a class each test the same drawing pin, but they do different numbers of trials. What's the best estimate of P(point up)? The trap is to average the four relative frequencies: that treats a group with 20 trials as just as important as one with 150. Instead, <strong>pool the data</strong>: add up all the successes and all the trials.</p>
+<p class="big">best estimate = <span class="X">total successes</span> ÷ <span class="X">total trials</span></p>
+<p>In the chart, each bar's thickness shows how many trials that group did.</p>
+
+<div class="lab">
+  <div class="tbl"><table class="tw" id="cbTable"></table></div>
+  <svg id="cbSvg" viewBox="0 0 400 200" width="400" height="200" aria-label="Each group's relative frequency, thickness by trials"></svg>
+  <p class="pq">a) Which group's estimate is the most reliable?</p>
+  <div class="chips" id="cbChips"></div>
+  <div class="msg" id="cbMsg1"></div>
+  <p class="pq">b) Use all the results to give the best estimate of P(point up), as a decimal.</p>
+  <div class="controls">
+    <label>P ≈ <input type="text" id="cbA" inputmode="decimal" autocomplete="off" style="width:6em"></label>
+    <button class="btn primary" id="cbGo">Check</button>
+    <button class="btn" id="cbNew">New data</button>
+  </div>
+  <div class="msg" id="cbMsg2"></div>
+</div>
+
+<h2>6 · Relative frequency tables and frequency trees</h2>
+<p>Exam questions often give a <strong>relative frequency table</strong> with a gap. The relative frequencies of all the outcomes add up to 1, so the gap is 1 minus the rest. Then use it to estimate an expected number.</p>
+
+<div class="lab">
+  <p class="pq" id="rtQ"></p>
+  <div class="tbl"><table class="tw" id="rtTable"></table></div>
+  <svg id="rtSvg" viewBox="0 0 400 56" width="400" height="56" aria-label="Relative frequencies as one bar"></svg>
+  <div class="controls">
+    <label>x = <input type="text" id="rtX" inputmode="decimal" autocomplete="off" style="width:5em"></label>
+    <label><span id="rtL2"></span> <input type="text" id="rtE" inputmode="decimal" autocomplete="off" style="width:5em"></label>
+    <button class="btn primary" id="rtGo">Check</button>
+    <button class="btn" id="rtNew">New table</button>
+  </div>
+  <div class="msg" id="rtMsg"></div>
+</div>
+
+<p>Survey data in a <strong>frequency tree</strong> (built step by step on <a href="tree-diagrams.html">tree diagrams</a>) works the same way: each relative frequency is a box divided by the total, and it estimates a probability for the next person. Switch the tree between counts and relative frequencies (each branch as a fraction of the box it comes from).</p>
+
+<div class="lab">
+  <p class="pq" id="ftQ"></p>
+  <svg id="ftSvg" viewBox="0 0 400 270" width="400" height="270" aria-label="Frequency tree"></svg>
+  <div class="controls">
+    <label><select id="ftMode"><option value="n">show counts</option><option value="rf">show relative frequencies</option></select></label>
+    <button class="btn" id="ftNew">New data</button>
+  </div>
+  <div class="work" id="ftWork"></div>
+</div>
+
+<h2>7 · Exam-style data questions</h2>
+<p>Put it all together. Answer each part, then press its Check button. The feedback names the slip if there is one.</p>
+
+<div class="lab">
+  <p class="pq" id="eqQ"></p>
+  <div class="tq" style="border-top:0"><p id="eqQa"></p><div class="controls" style="margin-top:0"><input type="text" id="eqA" autocomplete="off" style="width:6em"><button class="btn primary" id="eqAGo">Check</button></div><div class="msg" id="eqAMsg"></div></div>
+  <div class="tq"><p id="eqQb"></p><div class="chips" id="eqB"></div><div class="msg" id="eqBMsg"></div></div>
+  <div class="tq"><p id="eqQc"></p><div class="controls" style="margin-top:0"><input type="text" id="eqC" autocomplete="off" style="width:6em"><button class="btn primary" id="eqCGo">Check</button></div><div class="msg" id="eqCMsg"></div></div>
+  <div class="tq"><p id="eqQd"></p><div class="controls" style="margin-top:0"><input type="text" id="eqD" autocomplete="off" style="width:6em"><button class="btn primary" id="eqDGo">Check</button></div><div class="msg" id="eqDMsg"></div></div>
+  <svg id="eqSvg" viewBox="0 0 400 90" width="400" height="90" aria-label="The two experiments compared"></svg>
+  <div class="controls"><button class="btn" id="eqNew">New question</button></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes and exam traps</strong></p>
+  <ul>
+    <li><strong>Dividing by the wrong total.</strong> Relative frequency = frequency ÷ <em>number of trials</em>, not ÷ number of outcomes.</li>
+    <li><strong>Averaging relative frequencies</strong> from groups of different sizes. Pool the data: total successes ÷ total trials.</li>
+    <li><strong>Saying "biased" or "fair" after a few trials.</strong> Small samples vary a lot; you need many trials to judge.</li>
+    <li><strong>Expecting the exact expected number.</strong> 60 rolls of a fair dice won't usually give exactly 10 sixes.</li>
+    <li><strong>The gambler's fallacy.</strong> After five tails, heads is still 1/2. Coins and dice have no memory.</li>
+    <li><strong>Giving a relative frequency bigger than 1</strong> or a negative missing value in a table: check that it all adds to 1.</li>
+  </ul>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>A spinner is spun 80 times and lands on red 28 times. Estimate P(red) and the number of reds in 400 spins.</summary>
+  <div class="step"><strong>Relative frequency:</strong> 28 ÷ 80 = 28/80 = 7/20 = <strong>0.35</strong>.</div>
+  <div class="step"><strong>Use it as the estimate:</strong> P(red) ≈ 0.35.</div>
+  <div class="step"><strong>Expected reds in 400 spins:</strong> 0.35 × 400 = <strong>140</strong>.</div>
+  <div class="step"><strong>Shortcut check:</strong> 400 is 5 × 80, so expect 5 × 28 = 140 ✓.</div>
+</details>
+<details>
+  <summary>A spinner has four sections A, B, C and D. The relative frequencies are A 0.15, B 0.4, C x, D 0.25. Find x, and estimate how many times it lands on C in 300 spins.</summary>
+  <div class="step"><strong>They add to 1:</strong> 0.15 + 0.4 + 0.25 = 0.8, so x = 1 − 0.8 = <strong>0.2</strong>.</div>
+  <div class="step"><strong>Expected C:</strong> 0.2 × 300 = <strong>60</strong>.</div>
+</details>
+<details>
+  <summary>Three groups test a drawing pin. Group 1: 9 point up in 20. Group 2: 21 in 50. Group 3: 15 in 30. Find the best estimate of P(point up).</summary>
+  <div class="step"><strong>Pool the data:</strong> successes 9 + 21 + 15 = 45; trials 20 + 50 + 30 = 100.</div>
+  <div class="step"><strong>Best estimate:</strong> 45 ÷ 100 = <strong>0.45</strong>.</div>
+  <div class="step"><strong>The trap:</strong> the group relative frequencies are 0.45, 0.42 and 0.5. Their mean is 1.37 ÷ 3 ≈ 0.457, which gives Group 1's 20 trials the same weight as Group 2's 50.</div>
+</details>
+<details>
+  <summary>A dice is rolled 300 times and gives 75 sixes. Is it biased? Estimate how many sixes you'd get in 60 rolls.</summary>
+  <div class="step"><strong>If fair:</strong> expect 1/6 × 300 = 50 sixes.</div>
+  <div class="step"><strong>Experimental:</strong> relative frequency of six = 75/300 = 0.25, compared with 1/6 ≈ 0.167.</div>
+  <div class="step"><strong>Judgement:</strong> 300 is a lot of trials and 75 is far more than 50, so this is good evidence the dice is <strong>biased</strong> towards six.</div>
+  <div class="step"><strong>Estimate:</strong> use the relative frequency, not 1/6: 0.25 × 60 = <strong>15</strong> sixes.</div>
+</details>
+<details>
+  <summary>120 students sat a test. 45 used a revision app and 36 of them passed. Of the others, 39 passed. Complete a frequency tree, estimate P(a student passes), and predict how many of 400 students would pass.</summary>
+  <div class="step"><strong>Tree:</strong> app 45 → pass 36, fail 45 − 36 = 9. No app 120 − 45 = 75 → pass 39, fail 75 − 39 = 36. Check: 36 + 9 + 39 + 36 = 120 ✓.</div>
+  <div class="step"><strong>Passes:</strong> 36 + 39 = 75 out of 120. Relative frequency = 75/120 = <strong>5/8</strong> = 0.625.</div>
+  <div class="step"><strong>Prediction:</strong> 5/8 × 400 = <strong>250</strong> students.</div>
+  <div class="step"><strong>Bonus:</strong> pass rate with the app 36/45 = 0.8; without 39/75 = 0.52. (The data can't prove the app caused it.)</div>
+</details>
+<details>
+  <summary>A biased coin has P(heads) = 0.6. Sam flips it twice, and repeats this 200 times. How many times would he expect two heads?</summary>
+  <div class="step"><strong>Probability of two heads</strong> (independent flips): 0.6 × 0.6 = 0.36.</div>
+  <div class="step"><strong>Expected number:</strong> 0.36 × 200 = <strong>72</strong>.</div>
+  <div class="step"><strong>Not</strong> 0.6 × 200 = 120: that's the expected number of pairs whose first flip is heads.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li><strong>Relative frequency</strong> = frequency ÷ number of trials. It's an estimate of the probability.</li>
+  <li><strong>More trials, more reliable.</strong> As the number of trials grows, relative frequency tends towards the true probability, but small samples can be far off.</li>
+  <li>To judge <strong>bias</strong>, compare relative frequencies with theoretical probabilities, and only trust a big difference if there were many trials.</li>
+  <li><strong>Expected number</strong> = probability × number of trials. It's an average, not a guarantee.</li>
+  <li>To <strong>combine</strong> groups, add all successes and all trials, then divide. Don't average the relative frequencies.</li>
+  <li>Relative frequencies of all outcomes add to 1; frequency trees give relative frequencies by dividing by the total.</li>
+</ul>
+
+<footer>Made for GCSE students. Relative frequency, expected outcomes and experimental probability are in the DfE GCSE mathematics subject content under Probability. <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const F = () => `font-family="${css('--mono')}"`;
+const gcd = (a,b) => b ? gcd(b,a%b) : Math.abs(a);
+const frac = (n,d) => { if(n===0) return '0'; if(n===d) return '1'; const g=gcd(n,d); return `${n/g}/${d/g}`; };
+const dec = (n,d) => { const k=Math.round(Math.log10(d)); let s=(n/d).toFixed(k); if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,''); return s; };
+const r2 = v => String(Math.round(v*100)/100);
+const r3 = v => String(Math.round(v*1000)/1000);
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { const b=a.slice(); for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; };
+const binom = (n,p) => { let k=0; for(let i=0;i<n;i++) if(Math.random()<p) k++; return k; };
+function parseNum(s){
+  s=String(s).trim().replace(/−/g,'-').replace(/\s+/g,'');
+  const m=s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
+  if(m){ const d=+m[2]; return d?+m[1]/d:NaN; }
+  if(/^-?(\d+\.?\d*|\.\d+)$/.test(s)) return +s;
+  return NaN;
+}
+const near=(a,b,tol)=>Math.abs(a-b)<=(tol==null?1e-9:tol);
+
+/* 1. mystery bag */
+const BAGS=[[5,3,2],[2,6,2],[4,4,2],[1,3,6],[6,1,3]];
+const COLS=[['red','R','--bad'],['blue','B','--two'],['green','G','--good']];
+let bg=null;
+function bgNew(){ bg={bag:pick(BAGS),f:[0,0,0],n:0,last:[],peek:false}; drawBG(); }
+function bgTake(k){ for(let i=0;i<k;i++){ const r=Math.random()*10, b=bg.bag; const c=r<b[0]?0:r<b[0]+b[1]?1:2; bg.f[c]++; bg.n++; bg.last.push(c); } bg.last=bg.last.slice(-14); drawBG(); }
+function drawBG(){
+  const ac=css('--accent'), tw=css('--two'), mu=css('--muted'), fg=css('--fg');
+  let s=`<text x="4" y="14" font-size="12" ${F()} fill="${mu}">last picks (newest on the right):</text>`;
+  bg.last.forEach((c,i)=>{ const x=14+i*27; s+=`<circle cx="${x}" cy="32" r="10" fill="${css(COLS[c][2])}"/><text x="${x}" y="36" text-anchor="middle" font-size="10" font-weight="700" ${F()} fill="${css('--panel')}">${COLS[c][1]}</text>`; });
+  const x0=60, base=212, H=150;
+  s+=`<line x1="${x0-6}" y1="${base}" x2="390" y2="${base}" stroke="${mu}"/>`;
+  [0,0.5,1].forEach(v=>{ const y=base-v*H; s+=`<text x="${x0-10}" y="${y+4}" text-anchor="end" font-size="11" ${F()} fill="${mu}">${v}</text><line x1="${x0-4}" y1="${y}" x2="390" y2="${y}" stroke="${css('--grid')}"/>`; });
+  COLS.forEach((c,i)=>{ const x=x0+20+i*105, rf=bg.n?bg.f[i]/bg.n:0, h=rf*H;
+    s+=`<rect x="${x}" y="${base-h}" width="64" height="${h}" rx="3" fill="${ac}" fill-opacity=".8"/><text x="${x+32}" y="${base-h-6}" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${ac}">${bg.n?r2(rf):''}</text>`;
+    if(bg.peek){ const y=base-bg.bag[i]/10*H; s+=`<line x1="${x-6}" y1="${y}" x2="${x+70}" y2="${y}" stroke="${tw}" stroke-width="2.5" stroke-dasharray="6 4"/>`; }
+    s+=`<text x="${x+32}" y="${base+16}" text-anchor="middle" font-size="12" font-weight="600" ${F()} fill="${css(c[2])}">${c[0]}</text>`; });
+  $('bgSvg').innerHTML=s;
+  let h='<tr><th>Colour</th>'+COLS.map(c=>`<th>${c[0]}</th>`).join('')+'<th>Total</th></tr>';
+  h+='<tr><th>Frequency</th>'+bg.f.map(v=>`<td>${v}</td>`).join('')+`<td class="tot">${bg.n}</td></tr>`;
+  h+='<tr><th>Rel. freq.</th>'+bg.f.map(v=>`<td class="x">${bg.n?r2(v/bg.n):'–'}</td>`).join('')+`<td class="tot">${bg.n?1:'–'}</td></tr>`;
+  if(bg.peek) h+='<tr><th>True P</th>'+bg.bag.map(v=>`<td style="color:var(--two);font-weight:600">${dec(v,10)}</td>`).join('')+'<td class="tot">1</td></tr>';
+  $('bgTable').innerHTML=h;
+  const W=$('bgWork');
+  if(!bg.n){ W.innerHTML='Take some counters. The bars show relative frequencies; the table keeps the tally.'; return; }
+  const best=bg.f.indexOf(Math.max(...bg.f));
+  W.innerHTML=`Relative frequency of ${COLS[best][0]} = ${bg.f[best]} ÷ ${bg.n} = ${frac(bg.f[best],bg.n)}${bg.f[best]&&bg.f[best]!==bg.n?' ≈ '+r3(bg.f[best]/bg.n):''}<br>`+
+    `If the bag holds 10 counters, estimate: ${COLS.map((c,i)=>`${r2(bg.f[i]/bg.n*10)} ${c[0]}`).join(', ')}`+(bg.n<30?`<br><span class="b">Only ${bg.n} trial${bg.n>1?'s':''}: not a reliable estimate yet.</span>`:'')+
+    (bg.peek?`<br><span class="c">The bag really holds ${bg.bag.map((v,i)=>v+' '+COLS[i][0]).join(', ')}.</span> Dashed plum lines show the true probabilities.`:'');
+}
+$('bg1').addEventListener('click',()=>bgTake(1)); $('bg10').addEventListener('click',()=>bgTake(10)); $('bg100').addEventListener('click',()=>bgTake(100));
+$('bgPeek').addEventListener('click',()=>{ bg.peek=!bg.peek; $('bgPeek').textContent=bg.peek?'Hide the bag':'Peek in the bag'; drawBG(); });
+$('bgNew').addEventListener('click',()=>{ bgNew(); $('bgPeek').textContent='Peek in the bag'; });
+bgNew();
+
+/* 2. converging graph */
+const CV={coin:{p:.5,t:'1/2 = 0.5'},dice:{p:1/6,t:'1/6 ≈ 0.167'},pin:{p:.62,t:'0.62 (hidden in real life)'}};
+const cvX=$('cvX'), cvTrue=$('cvTrue'); let cv={runs:[],cur:null};
+function cvReset(){ cv={runs:[],cur:{k:0,n:0,pts:[]}}; drawCV(); }
+function cvAdd(m){ const p=CV[cvX.value].p, c=cv.cur; for(let i=0;i<m&&c.n<1000;i++){ if(Math.random()<p) c.k++; c.n++; c.pts.push(c.k/c.n); } drawCV(); }
+function drawCV(){
+  const x0=44, y0=12, W=344, H=200, ac=css('--accent'), tw=css('--two'), mu=css('--muted'), c=cv.cur;
+  const all=cv.runs.concat([c]), maxN=Math.max(10,...all.map(r=>r.n)), X=[10,50,100,200,500,1000].find(v=>v>=maxN)||1000;
+  const sx=n=>x0+n/X*W, sy=v=>y0+(1-v)*H;
+  let s='';
+  [0,0.25,0.5,0.75,1].forEach(v=>s+=`<line x1="${x0}" y1="${sy(v)}" x2="${x0+W}" y2="${sy(v)}" stroke="${css('--grid')}"/><text x="${x0-6}" y="${sy(v)+4}" text-anchor="end" font-size="11" ${F()} fill="${mu}">${v}</text>`);
+  [0,.25,.5,.75,1].forEach(f=>s+=`<text x="${sx(f*X)}" y="${y0+H+16}" text-anchor="middle" font-size="11" ${F()} fill="${mu}">${f*X}</text>`);
+  s+=`<text x="${x0+W}" y="${y0+H+32}" text-anchor="end" font-size="11" ${F()} fill="${mu}">number of trials</text><text transform="rotate(-90)" x="${-(y0+H/2)}" y="11" text-anchor="middle" font-size="11" ${F()} fill="${mu}">relative frequency</text>`;
+  s+=`<line x1="${x0}" y1="${y0+H}" x2="${x0+W}" y2="${y0+H}" stroke="${mu}"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0+H}" stroke="${mu}"/>`;
+  const line=(r,col,op,w)=>{ if(!r.pts.length) return ''; const step=Math.max(1,Math.floor(r.pts.length/400)); let d=''; for(let i=0;i<r.pts.length;i+=step) d+=`${sx(i+1).toFixed(1)},${sy(r.pts[i]).toFixed(1)} `; d+=`${sx(r.pts.length).toFixed(1)},${sy(r.pts[r.pts.length-1]).toFixed(1)}`; return `<polyline points="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-opacity="${op}" stroke-linejoin="round"/>`; };
+  cv.runs.forEach(r=>s+=line(r,mu,.55,1.4));
+  s+=line(c,ac,1,2.2);
+  if(cvTrue.checked){ const p=CV[cvX.value].p; s+=`<line x1="${x0}" y1="${sy(p)}" x2="${x0+W}" y2="${sy(p)}" stroke="${tw}" stroke-width="2" stroke-dasharray="7 5"/>`; }
+  $('cvSvg').innerHTML=s;
+  $('cvN').textContent=c.n; $('cvRF').textContent=c.n?`${c.k}/${c.n} ≈ ${r3(c.k/c.n)}`:'–'; $('cvP').textContent=cvTrue.checked?CV[cvX.value].t:'hidden (tick the box)';
+  const W2=$('cvWork');
+  if(!c.n){ W2.innerHTML='Press a button to start the experiment.'; return; }
+  const p=CV[cvX.value].p, early=c.pts.slice(0,Math.min(10,c.n)), lo=Math.min(...early), hi=Math.max(...early);
+  W2.innerHTML=`In the first ${early.length} trials the relative frequency jumped between ${r2(lo)} and ${r2(hi)}.`+(c.n>=100?` Over the last half of the run it stayed between ${r2(Math.min(...c.pts.slice(Math.floor(c.n/2))))} and ${r2(Math.max(...c.pts.slice(Math.floor(c.n/2))))}.`:'')+
+    (cvTrue.checked?`<br>Distance from the true probability now: ${r3(Math.abs(c.k/c.n-p))}.`:'')+(cv.runs.length?`<br>${cv.runs.length} earlier run${cv.runs.length>1?'s':''} in grey: they disagree at the start and agree later.`:'');
+}
+$('cv10').addEventListener('click',()=>cvAdd(10)); $('cv100').addEventListener('click',()=>cvAdd(100)); $('cv1000').addEventListener('click',()=>cvAdd(1000));
+$('cvNew').addEventListener('click',()=>{ if(cv.cur.n){ cv.runs.push(cv.cur); if(cv.runs.length>5) cv.runs.shift(); } cv.cur={k:0,n:0,pts:[]}; cvAdd(10); });
+cvX.addEventListener('input',cvReset); cvTrue.addEventListener('input',drawCV);
+cvReset(); cvAdd(10);
+
+/* 3. mystery dice */
+let md=null;
+function mdNew(){ const biased=Math.random()<0.5, face=rnd(1,6), p=[0,1,2,3,4,5,6].map(i=>i===0?0:biased?(i===face?0.3:0.14):1/6); md={biased,face,p,f:[0,0,0,0,0,0,0],n:0,done:false}; $('mdMsg').className='msg'; $('mdMsg').textContent='Roll it, then decide.'; drawMD(); }
+function mdRoll(k){ for(let i=0;i<k;i++){ let r=Math.random(), j=1; while(j<6&&r>=md.p[j]){ r-=md.p[j]; j++; } md.f[j]++; md.n++; } drawMD(); }
+function drawMD(){
+  const x0=44, base=180, H=150, ac=css('--accent'), tw=css('--two'), mu=css('--muted'), sc=0.5;
+  let s='';
+  [0,0.1,0.2,0.3,0.4,0.5].forEach(v=>{ const y=base-v/sc*H; s+=`<line x1="${x0}" y1="${y}" x2="392" y2="${y}" stroke="${css('--grid')}"/><text x="${x0-6}" y="${y+4}" text-anchor="end" font-size="11" ${F()} fill="${mu}">${v}</text>`; });
+  for(let i=1;i<=6;i++){ const x=x0+12+(i-1)*57, rf=md.n?md.f[i]/md.n:0, h=Math.min(rf,sc)/sc*H, show=md.done&&md.biased&&i===md.face;
+    s+=`<rect x="${x}" y="${base-h}" width="40" height="${h}" rx="3" fill="${show?css('--hi'):ac}" fill-opacity=".8"/><text x="${x+20}" y="${base+16}" text-anchor="middle" font-size="13" font-weight="600" ${F()} fill="${css('--fg')}">${i}</text>`;
+    if(md.n) s+=`<text x="${x+20}" y="${base-h-5}" text-anchor="middle" font-size="11" ${F()} fill="${ac}">${r2(rf)}</text>`; }
+  const y6=base-(1/6)/sc*H; s+=`<line x1="${x0}" y1="${y6}" x2="392" y2="${y6}" stroke="${tw}" stroke-width="2" stroke-dasharray="7 5"/><text x="392" y="${base+34}" text-anchor="end" font-size="11" ${F()} fill="${tw}">- - - fair dice: 1/6 ≈ 0.167</text>`;
+  s+=`<text x="${x0}" y="${base+34}" font-size="11" ${F()} fill="${mu}">rolls: ${md.n}</text>`;
+  $('mdSvg').innerHTML=s;
+  const W=$('mdWork');
+  if(!md.n){ W.innerHTML='If the dice is fair, each face should come up about 1/6 of the time: about '+'10 times in 60 rolls, 100 in 600.'; return; }
+  const exp=md.n/6, dev=[1,2,3,4,5,6].map(i=>Math.abs(md.f[i]-exp)), mx=dev.indexOf(Math.max(...dev))+1;
+  W.innerHTML=`Fair dice: expect ${r2(exp)} of each face in ${md.n} rolls.<br>Frequencies: ${[1,2,3,4,5,6].map(i=>`${i}: ${md.f[i]}`).join(', ')}.<br>Biggest gap from ${r2(exp)}: face ${mx} with ${md.f[mx]} (relative frequency ${r3(md.f[mx]/md.n)}).`;
+}
+function mdJudge(say){
+  if(md.done) return; const M=$('mdMsg'); md.done=true; const ok=say===md.biased;
+  const truth=md.biased?`It was biased: P(${md.face}) = 0.3 instead of 1/6.`:'It was fair.';
+  if(md.n<60) M.className='msg bad', M.textContent=`${ok?'Right answer, but':'Not quite, and'} with only ${md.n} rolls that was really a guess. ${truth} Next time roll at least a few hundred times before deciding.`;
+  else if(ok) M.className='msg good', M.textContent=`Correct. ${truth} With ${md.n} rolls the evidence ${md.n>=300?'was strong':'was fairly good, but more rolls would make you surer'}.`;
+  else M.className='msg bad', M.textContent=`Not this time. ${truth} `+(md.biased?'A loaded face shows up as a bar that stays well above 1/6 as the rolls increase.':'Bars that wobble around 1/6 are normal for a fair dice.');
+  drawMD();
+}
+$('md6').addEventListener('click',()=>mdRoll(6)); $('md60').addEventListener('click',()=>mdRoll(60)); $('md600').addEventListener('click',()=>mdRoll(600));
+$('mdFair').addEventListener('click',()=>mdJudge(false)); $('mdBias').addEventListener('click',()=>mdJudge(true)); $('mdNew').addEventListener('click',mdNew);
+mdNew();
+
+const ST=[
+  {t:'A coin landed heads 7 times in 10 flips, so it must be biased.',a:0,fb:'10 flips is far too few. A fair coin gives 7 or more heads in 10 flips about 17% of the time.'},
+  {t:'A dice rolled 600 times gave 180 sixes, so it is probably biased.',a:1,fb:'A fair dice would give about 100 sixes in 600 rolls. 180 is a huge difference after many trials.'},
+  {t:'A fair coin has landed tails 5 times in a row, so heads is more likely next time.',a:0,fb:'The flips are independent: P(heads) is still 1/2. This mistake is called the gambler\'s fallacy.'},
+  {t:'Jo spun 20 times and Sam spun 500 times. Sam\'s estimate is more reliable.',a:1,fb:'More trials give a more reliable estimate.'},
+  {t:'If a dice is fair, rolling it 60 times will give exactly 10 sixes.',a:0,fb:'10 is the expected number, an average. The actual number varies: 8, 11 or 13 are all quite normal.'},
+  {t:'A dice rolled 600 times gave 97 sixes. That is no evidence of bias.',a:1,fb:'Expected 100; 97 is very close, so the data fits a fair dice.'}
+];
+function drawST(){ const box=$('stList'); box.innerHTML='';
+  ST.forEach((it,i)=>{ const d=document.createElement('div'); d.className='tq'; if(i===0) d.style.borderTop='0';
+    d.innerHTML=`<p>${i+1}. "${it.t}"</p><div class="controls" style="margin-top:0"><button class="btn" type="button" data-v="1">Agree</button><button class="btn" type="button" data-v="0">Disagree</button></div><div class="msg"></div>`;
+    const m=d.querySelector('.msg'); d.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ const ok=+b.dataset.v===it.a; d.querySelectorAll('button').forEach(x=>x.classList.remove('on','no')); b.classList.add(ok?'on':'no'); m.className='msg '+(ok?'good':'bad'); m.textContent=(ok?'Yes. ':'Think again. ')+it.fb; }));
+    box.appendChild(d); }); }
+drawST();
+
+/* 4. expected outcomes */
+let ex=null;
+function exNew(){
+  const t=rnd(0,3);
+  if(t===0){ const p=rnd(1,9)*5, n=pick([20,40,60,80,100,200,300,500]); ex={ans:p*n/100,p:p/100,n,q:`The probability that a bus is late is ${dec(p,100)}. Estimate how many of the next ${n} buses will be late.`,wr:[[n-p*n/100,'That\'s the number expected NOT to be late. Multiply by P(late).'],[p/100,'That\'s the probability. Multiply it by the number of trials.']]}; }
+  else if(t===1){ const d=pick([3,4,5,6,8]), k=rnd(1,d-1), n=d*rnd(5,30); ex={ans:k*n/d,p:k/d,n,q:`A spinner has ${d} equal sections and ${k} ${k>1?'are':'is'} red. It is spun ${n} times. How many reds would you expect?`,wr:[[n/d,'That\'s for one red section. There are '+k+'.'],[n-k*n/d,'That\'s the expected number of non-reds.']]}; }
+  else if(t===2){ const N=pick([40,50,80,100,120,200]), f=rnd(Math.round(N*.15),Math.round(N*.6)), M=N*pick([2,3,4,5,10]); ex={ans:f*M/N,p:f/N,n:M,q:`In a trial, a drawing pin landed point up ${f} times out of ${N}. Estimate how many times it will land point up in ${M} drops.`,wr:[[f,'That\'s the old count. Scale it up to '+M+' drops.'],[f/N,'That\'s the relative frequency. Multiply by '+M+'.'],[M-f*M/N,'That\'s the expected number of point-down drops.']]}; }
+  else { const a=rnd(1,8), b=rnd(1,8), n=pick([50,100,200,300,500]); ex={ans:a*b*n/100,p:a*b/100,n,q:`P(rain) = ${dec(a,10)} and P(Sam's bus is late) = ${dec(b,10)}, independently each day. Over ${n} days, on how many would you expect rain AND a late bus?`,wr:[[a*n/10,'That\'s only rain. Multiply the probabilities first: '+dec(a,10)+' × '+dec(b,10)+'.'],[(a+b)*n/10,'You added the probabilities. For AND, multiply.']]}; }
+  $('exQ').textContent=ex.q; $('exA').value=''; $('exMsg').className='msg'; $('exMsg').textContent=''; ex.done=false; drawEX();
+}
+function drawEX(){
+  const w=372*ex.p, hi=css('--hi'), mu=css('--muted');
+  let s=`<rect x="14" y="8" width="372" height="26" rx="4" fill="${css('--line')}"/><rect x="14" y="8" width="${w}" height="26" rx="4" fill="${hi}" fill-opacity="${ex.done?.9:.45}"/>`;
+  s+=`<text x="14" y="52" font-size="12" ${F()} fill="${hi}">probability ${r3(ex.p)}${ex.done?' → expected '+r2(ex.ans):''}</text><text x="386" y="52" text-anchor="end" font-size="12" ${F()} fill="${mu}">all ${ex.n} trials</text>`;
+  $('exSvg').innerHTML=s;
+}
+$('exGo').addEventListener('click',()=>{ const v=parseNum($('exA').value), M=$('exMsg');
+  if(isNaN(v)){ M.className='msg bad'; M.textContent='Type a number.'; return; }
+  if(near(v,ex.ans,1e-6)){ ex.done=true; M.className='msg good'; M.textContent=`Correct: ${r3(ex.p)} × ${ex.n} = ${r2(ex.ans)}.`+(Number.isInteger(ex.ans)?'':' (An expected number doesn\'t have to be a whole number: it\'s an average.)'); drawEX(); return; }
+  for(const [w,m] of ex.wr) if(near(v,w,1e-6)){ M.className='msg bad'; M.textContent='Not quite. '+m; return; }
+  M.className='msg bad'; M.textContent='Not quite. Expected number = probability × number of trials.'; });
+$('exA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('exGo').click(); });
+$('exNew').addEventListener('click',exNew); exNew();
+
+/* 5. combining groups */
+let cb=null;
+function cbNew(){
+  const p=rnd(35,70)/100, ns=shuffle([20,40,60,150]).slice(0,4);
+  let g; do{ g=ns.map(n=>({n,k:binom(n,p)})); }while(Math.abs(g.reduce((s,x)=>s+x.k/x.n,0)/4-g.reduce((s,x)=>s+x.k,0)/g.reduce((s,x)=>s+x.n,0))<0.006);
+  cb={g,K:g.reduce((s,x)=>s+x.k,0),N:g.reduce((s,x)=>s+x.n,0),big:g.reduce((b,x,i)=>x.n>g[b].n?i:b,0)};
+  let h='<tr><th>Group</th>'+g.map((_,i)=>`<th>${i+1}</th>`).join('')+'<th>Total</th></tr>';
+  h+='<tr><th>Trials</th>'+g.map(x=>`<td>${x.n}</td>`).join('')+`<td class="tot">?</td></tr>`;
+  h+='<tr><th>Point up</th>'+g.map(x=>`<td>${x.k}</td>`).join('')+`<td class="tot">?</td></tr>`;
+  h+='<tr><th>Rel. freq.</th>'+g.map(x=>`<td class="x">${r2(x.k/x.n)}</td>`).join('')+`<td class="tot">?</td></tr>`;
+  $('cbTable').innerHTML=h;
+  const box=$('cbChips'); box.innerHTML='';
+  g.forEach((x,i)=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=`Group ${i+1}`; b.addEventListener('click',()=>{ const M=$('cbMsg1'); box.querySelectorAll('button').forEach(z=>z.classList.remove('on','no'));
+    if(i===cb.big){ b.classList.add('on'); M.className='msg good'; M.textContent=`Yes: Group ${i+1} did the most trials (${x.n}), so its estimate is the most reliable.`; }
+    else { b.classList.add('no'); M.className='msg bad'; M.textContent=`Not quite. Reliability depends on the number of trials, not on how high or "nice" the relative frequency is. Group ${i+1} only did ${x.n}.`; } }); box.appendChild(b); });
+  $('cbMsg1').className='msg'; $('cbMsg1').textContent=''; $('cbMsg2').className='msg'; $('cbMsg2').textContent=''; $('cbA').value=''; cb.done=false;
+  drawCB();
+}
+function drawCB(){
+  const ac=css('--accent'), hi=css('--hi'), mu=css('--muted'), x0=80, W=300;
+  let s='', y=8;
+  [0,0.5,1].forEach(v=>s+=`<line x1="${x0+v*W}" y1="4" x2="${x0+v*W}" y2="176" stroke="${css('--grid')}"/><text x="${x0+v*W}" y="194" text-anchor="middle" font-size="11" ${F()} fill="${mu}">${v}</text>`);
+  cb.g.forEach((x,i)=>{ const h=6+x.n/150*24; s+=`<text x="${x0-8}" y="${y+h/2+4}" text-anchor="end" font-size="12" ${F()} fill="${mu}">group ${i+1}</text><rect x="${x0}" y="${y}" width="${W*x.k/x.n}" height="${h}" rx="3" fill="${ac}" fill-opacity=".8"/>`; y+=h+8; });
+  if(cb.done){ const v=cb.K/cb.N; s+=`<line x1="${x0+v*W}" y1="4" x2="${x0+v*W}" y2="176" stroke="${hi}" stroke-width="2.5"/><text x="${x0+v*W+4}" y="${y+12}" font-size="12" font-weight="600" ${F()} fill="${hi}">pooled ${r3(v)}</text>`; }
+  $('cbSvg').innerHTML=s;
+}
+$('cbGo').addEventListener('click',()=>{ const v=parseNum($('cbA').value), M=$('cbMsg2'), best=cb.K/cb.N, mean=cb.g.reduce((s,x)=>s+x.k/x.n,0)/4, meanR=cb.g.reduce((s,x)=>s+Math.round(x.k/x.n*100)/100,0)/4;
+  if(isNaN(v)){ M.className='msg bad'; M.textContent='Type a decimal (or a fraction).'; return; }
+  if(near(v,best,0.0051)){ cb.done=true; M.className='msg good'; M.textContent=`Correct: total point up ${cb.g.map(x=>x.k).join(' + ')} = ${cb.K}; total trials ${cb.N}. ${cb.K} ÷ ${cb.N} = ${frac(cb.K,cb.N)} ≈ ${r3(best)}.`; drawCB(); return; }
+  if(near(v,mean,0.0051)||near(v,meanR,0.0051)){ M.className='msg bad'; M.textContent=`Not quite. You averaged the four relative frequencies (≈ ${r3(mean)}). That gives a group of ${Math.min(...cb.g.map(x=>x.n))} trials as much say as one of ${Math.max(...cb.g.map(x=>x.n))}. Add the successes and the trials instead.`; return; }
+  const bg=cb.g[cb.big]; if(near(v,bg.k/bg.n,0.0051)){ M.className='msg bad'; M.textContent='That\'s the most reliable single group, but using all the results gives even more trials. Pool them.'; return; }
+  M.className='msg bad'; M.textContent='Not quite. Best estimate = total successes ÷ total trials, using all four groups.'; });
+$('cbA').addEventListener('keydown',e=>{ if(e.key==='Enter') $('cbGo').click(); });
+$('cbNew').addEventListener('click',cbNew); cbNew();
+
+/* 6a. relative frequency table */
+let rt=null;
+function rtNew(){
+  const ctx=pick([{what:'A spinner',out:['red','blue','green','yellow'],verb:'spun',unit:'spins',lands:'lands on'},{what:'A biased dice',out:['1 or 2','3 or 4','5','6'],verb:'rolled',unit:'rolls',lands:'shows'},{what:'A survey of how students travel',out:['walk','bus','car','cycle'],verb:'',unit:'students',lands:''}]);
+  let v; do{ v=[rnd(1,8),rnd(1,8),rnd(1,8)]; v.push(20-v[0]-v[1]-v[2]); }while(v[3]<1);
+  const miss=rnd(0,3), ask=rnd(0,3), N=pick([40,60,80,100,200,300,400,500]);
+  rt={ctx,v,miss,ask,N};
+  $('rtQ').textContent=ctx.verb?`${ctx.what} is ${ctx.verb} many times. The table shows the relative frequency of each outcome.`:`${ctx.what} gave these relative frequencies.`;
+  let h='<tr><th>Outcome</th>'+ctx.out.map(o=>`<th>${o}</th>`).join('')+'</tr><tr><th>Rel. freq.</th>'+v.map((x,i)=>`<td class="${i===miss?'h':''}">${i===miss?'x':dec(x*5,100)}</td>`).join('')+'</tr>';
+  $('rtTable').innerHTML=h;
+  $('rtL2').textContent=ctx.verb?`expected "${ctx.out[ask]}" in ${N} ${ctx.unit} =`:`expected "${ctx.out[ask]}" out of ${N} students =`;
+  ['rtX','rtE'].forEach(i=>{ $(i).value=''; $(i).classList.remove('good','bad'); }); $('rtMsg').className='msg'; $('rtMsg').textContent='Find x first.'; rt.shown=false; drawRT();
+}
+function drawRT(){
+  const cols=['--accent','--two','--muted','--accent'], x0=14, W=372; let s='', x=x0;
+  rt.v.forEach((q,i)=>{ const w=W*q/20, m=i===rt.miss&&!rt.shown; s+=`<rect x="${x}" y="6" width="${w}" height="26" fill="${m?css('--hi-soft'):css(cols[i])}" fill-opacity="${m?1:(i===3?.45:.8)}" stroke="${css('--panel')}" stroke-width="2"/>`;
+    s+=`<text x="${x+w/2}" y="48" text-anchor="middle" font-size="11" ${F()} fill="${m?css('--hi'):css('--muted')}">${m?'x':dec(q*5,100)}</text>`; x+=w; });
+  $('rtSvg').innerHTML=s;
+}
+$('rtGo').addEventListener('click',()=>{ const x=parseNum($('rtX').value), e=parseNum($('rtE').value), M=$('rtMsg'), want=rt.v[rt.miss]*5/100, rest=(20-rt.v[rt.miss])*5/100, eAns=rt.v[rt.ask]*5*rt.N/100;
+  $('rtX').classList.toggle('good',near(x,want)); $('rtX').classList.toggle('bad',!isNaN(x)&&!near(x,want));
+  if(isNaN(x)){ M.className='msg bad'; M.textContent='Type x as a decimal.'; return; }
+  if(!near(x,want)){ M.className='msg bad'; M.textContent=near(x,rest)?`Not quite: ${dec(rest*100,100)} is the total of the others. x = 1 − ${dec(rest*100,100)}.`:'Not quite. The relative frequencies add up to 1, so x = 1 − (the other three).'; return; }
+  rt.shown=true; drawRT();
+  const pAsk=rt.v[rt.ask]*5/100;
+  $('rtE').classList.toggle('good',near(e,eAns)); $('rtE').classList.toggle('bad',!isNaN(e)&&!near(e,eAns));
+  if(isNaN(e)){ M.className='msg good'; M.textContent=`x = ${dec(want*100,100)} ✓. Now the expected number.`; return; }
+  if(near(e,eAns)){ M.className='msg good'; M.textContent=`Both correct: x = ${dec(want*100,100)}, and ${dec(pAsk*100,100)} × ${rt.N} = ${r2(eAns)}.`; return; }
+  M.className='msg bad'; M.textContent=near(e,pAsk)?`x is right. For the expected number multiply the relative frequency by ${rt.N}.`:near(e,rt.N-eAns)?'x is right. That\'s the number NOT in that outcome.':`x is right. Expected = relative frequency of "${rt.ctx.out[rt.ask]}" × ${rt.N}.`; });
+['rtX','rtE'].forEach(i=>$(i).addEventListener('keydown',e=>{ if(e.key==='Enter') $('rtGo').click(); }));
+$('rtNew').addEventListener('click',rtNew); rtNew();
+
+/* 6b. frequency tree with relative frequencies */
+let ft=null;
+function ftNew(){
+  const c=pick([{N:'students',A:'on time',A2:'late',B:'grade B+',B2:'below B',q:'homework was handed in'},{N:'items',A:'machine X',A2:'machine Y',B:'faulty',B2:'fine',q:'items were checked'},{N:'people',A:'vaccinated',A2:'not vaccinated',B:'caught flu',B2:'did not',q:'people were followed through winter'}]);
+  const N=pick([200,250,400,500]), a=Math.round(N*rnd(35,70)/100), ab=Math.round(a*rnd(10,80)/100), b=N-a, bb=Math.round(b*rnd(10,80)/100);
+  ft={c,N,a,ab,b,bb,M:pick([1000,2000,5000])}; drawFT();
+}
+function drawFT(){
+  const c=ft.c, rf=$('ftMode').value==='rf', ac=css('--accent'), tw=css('--two'), fg=css('--fg'), hi=css('--hi');
+  const boxes=[{x:42,y:135,v:ft.N,p:null},{x:170,y:72,v:ft.a,p:[ft.a,ft.N],lab:c.A,col:ac},{x:170,y:198,v:ft.b,p:[ft.b,ft.N],lab:c.A2,col:ac},
+    {x:322,y:40,v:ft.ab,p:[ft.ab,ft.a],lab:c.B,col:tw,h:1},{x:322,y:104,v:ft.a-ft.ab,p:[ft.a-ft.ab,ft.a],lab:c.B2,col:tw},{x:322,y:166,v:ft.bb,p:[ft.bb,ft.b],lab:c.B,col:tw},{x:322,y:230,v:ft.b-ft.bb,p:[ft.b-ft.bb,ft.b],lab:c.B2,col:tw}];
+  const ln=(p,q,col)=>`<line x1="${p.x+32}" y1="${p.y}" x2="${q.x-32}" y2="${q.y}" stroke="${col}" stroke-width="2"/>`;
+  let s=ln(boxes[0],boxes[1],ac)+ln(boxes[0],boxes[2],ac)+ln(boxes[1],boxes[3],tw)+ln(boxes[1],boxes[4],tw)+ln(boxes[2],boxes[5],tw)+ln(boxes[2],boxes[6],tw);
+  boxes.forEach(b=>{ s+=`<rect x="${b.x-32}" y="${b.y-15}" width="64" height="30" rx="6" fill="${b.h?css('--hi-soft'):css('--bg')}" stroke="${b.h?hi:b.col||fg}" stroke-width="${b.h?2.5:1.5}"/>`;
+    const t=rf&&b.p?`${b.p[0]}/${b.p[1]}`:String(b.v); s+=`<text x="${b.x}" y="${b.y+5}" text-anchor="middle" font-size="${t.length>6?12:15}" font-weight="700" ${F()} fill="${b.h?hi:fg}">${t}</text>`;
+    if(b.lab) s+=`<text x="${b.x}" y="${b.y-20}" text-anchor="middle" font-size="11" ${F()} fill="${b.col}">${b.lab}</text>`; });
+  $('ftSvg').innerHTML=s;
+  $('ftQ').textContent=`${ft.N} ${c.N}: ${ft.a} ${c.A}, ${ft.b} ${c.A2}. Of the ${c.A}, ${ft.ab} ${c.B}; of the ${c.A2}, ${ft.bb} ${c.B}.`;
+  const p=ft.ab/ft.N;
+  $('ftWork').innerHTML=`<span class="b">Estimate P(${c.A} and ${c.B})</span> = ${ft.ab}/${ft.N}${frac(ft.ab,ft.N)!==ft.ab+'/'+ft.N?' = '+frac(ft.ab,ft.N):''} = ${r3(p)}<br>Along the branches gives the same: ${ft.a}/${ft.N} × ${ft.ab}/${ft.a} = ${ft.ab}/${ft.N} ✓<br>Estimate P(${c.B}) = (${ft.ab} + ${ft.bb})/${ft.N} = ${frac(ft.ab+ft.bb,ft.N)}<br>Expected ${c.A} and ${c.B} out of ${ft.M} ${c.N}: ${frac(ft.ab,ft.N)} × ${ft.M} = <strong>${r2(p*ft.M)}</strong>`;
+}
+$('ftMode').addEventListener('input',drawFT); $('ftNew').addEventListener('click',ftNew); ftNew();
+
+/* 7. exam-style */
+let eq=null;
+const NAMES=[['Jo','Amir'],['Priya','Ben'],['Kai','Lucy'],['Mo','Ella']];
+function eqNew(){
+  const [p1,p2]=pick(NAMES), n1=pick([20,25,40,50]), n2=pick([100,150,200,250]), p=rnd(40,75)/100;
+  let k1,k2; do{ k1=binom(n1,p); k2=binom(n2,p); }while(k1===0||k1===n1);
+  const M=pick([500,1000,2000]);
+  eq={p1,p2,n1,n2,k1,k2,M};
+  $('eqQ').textContent=`${p1} drops a drawing pin ${n1} times and it lands point up ${k1} times. ${p2} drops the same pin ${n2} times and it lands point up ${k2} times.`;
+  $('eqQa').textContent=`a) Write down ${p1}'s relative frequency of point up.`;
+  $('eqQb').textContent=`b) Whose results give the more reliable estimate?`;
+  $('eqQc').textContent=`c) Use all the results to find the best estimate of P(point up).`;
+  $('eqQd').textContent=`d) The pin is dropped ${M} times. Use your answer to (c) to estimate the number of times it lands point up.`;
+  const box=$('eqB'); box.innerHTML='';
+  [p1,p2].forEach((nm,i)=>{ const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent=nm; b.addEventListener('click',()=>{ const ok=i===1, m=$('eqBMsg'); box.querySelectorAll('button').forEach(z=>z.classList.remove('on','no')); b.classList.add(ok?'on':'no'); m.className='msg '+(ok?'good':'bad'); m.textContent=ok?`Yes: ${p2} did more trials (${n2} against ${n1}). Write it that way in an exam: "${p2}, because more trials."`:`Not quite. Reliability comes from the number of trials, not from whose answer looks better. ${p1} only did ${n1}.`; }); box.appendChild(b); });
+  ['eqA','eqC','eqD'].forEach(i=>$(i).value=''); ['eqAMsg','eqBMsg','eqCMsg','eqDMsg'].forEach(i=>{ $(i).className='msg'; $(i).textContent=''; });
+  drawEQ();
+}
+function drawEQ(){
+  const ac=css('--accent'), mu=css('--muted'), x0=64, W=262; let s='';
+  [[eq.p1,eq.k1,eq.n1],[eq.p2,eq.k2,eq.n2]].forEach(([nm,k,n],i)=>{ const y=8+i*36, h=6+n/250*18; s+=`<text x="${x0-8}" y="${y+h/2+4}" text-anchor="end" font-size="12" ${F()} fill="${mu}">${nm}</text><rect x="${x0}" y="${y}" width="${W}" height="${h}" rx="3" fill="${css('--bg')}" stroke="${css('--line')}"/><rect x="${x0}" y="${y}" width="${W*k/n}" height="${h}" rx="3" fill="${ac}" fill-opacity=".8"/><text x="${x0+W+4}" y="${y+h/2+4}" font-size="11" ${F()} fill="${ac}">${k}/${n}</text>`; });
+  s+=`<text x="${x0}" y="86" font-size="11" ${F()} fill="${mu}">bar thickness shows the number of trials</text>`;
+  $('eqSvg').innerHTML=s;
+}
+$('eqAGo').addEventListener('click',()=>{ const v=parseNum($('eqA').value), M=$('eqAMsg'), w=eq.k1/eq.n1;
+  if(isNaN(v)){ M.className='msg bad'; M.textContent='Type a fraction or a decimal.'; return; }
+  if(near(v,w,0.0051)){ M.className='msg good'; M.textContent=`Correct: ${eq.k1}/${eq.n1} = ${frac(eq.k1,eq.n1)} = ${r3(w)}.`; return; }
+  M.className='msg bad'; M.textContent=near(v,eq.n1/eq.k1,0.0051)?'Not quite: that\'s upside down. Frequency ÷ trials.':near(v,(eq.n1-eq.k1)/eq.n1,0.0051)?'Not quite: that\'s point down.':`Not quite. Relative frequency = ${eq.k1} ÷ ${eq.n1}.`; });
+$('eqCGo').addEventListener('click',()=>{ const v=parseNum($('eqC').value), M=$('eqCMsg'), w=(eq.k1+eq.k2)/(eq.n1+eq.n2), mean=(eq.k1/eq.n1+eq.k2/eq.n2)/2;
+  if(isNaN(v)){ M.className='msg bad'; M.textContent='Type a fraction or a decimal.'; return; }
+  if(near(v,w,0.0051)){ M.className='msg good'; M.textContent=`Correct: (${eq.k1} + ${eq.k2}) ÷ (${eq.n1} + ${eq.n2}) = ${eq.k1+eq.k2}/${eq.n1+eq.n2} = ${frac(eq.k1+eq.k2,eq.n1+eq.n2)} ≈ ${r3(w)}.`; return; }
+  M.className='msg bad'; M.textContent=near(v,mean,0.0051)&&!near(mean,w,0.0051)?'Not quite: you averaged the two relative frequencies. Add the successes and the trials instead.':near(v,eq.k2/eq.n2,0.0051)?`That's ${eq.p2}'s result alone. "Use all the results" means pool both.`:'Not quite. Total point up ÷ total drops.'; });
+$('eqDGo').addEventListener('click',()=>{ const v=parseNum($('eqD').value), M=$('eqDMsg'), w=(eq.k1+eq.k2)/(eq.n1+eq.n2)*eq.M;
+  if(isNaN(v)){ M.className='msg bad'; M.textContent='Type a number.'; return; }
+  if(near(v,w,Math.max(0.51,eq.M*0.0051))){ M.className='msg good'; M.textContent=`Correct: ${frac(eq.k1+eq.k2,eq.n1+eq.n2)} × ${eq.M} = ${r2(w)}${Number.isInteger(Math.round(w*100)/100)?'':' (about '+Math.round(w)+')'}.`; return; }
+  M.className='msg bad'; M.textContent=near(v,eq.k1/eq.n1*eq.M,1)?`That uses ${eq.p1}'s relative frequency. The question says use (c).`:`Not quite. Expected = your answer to (c) × ${eq.M}.`; });
+['eqA','eqC','eqD'].forEach(i=>$(i).addEventListener('keydown',e=>{ if(e.key==='Enter') $(i+'Go').click(); }));
+$('eqNew').addEventListener('click',eqNew); eqNew();
+
+const redrawAll=()=>{ drawBG(); drawCV(); drawMD(); drawEX(); drawCB(); drawRT(); drawFT(); drawEQ(); };
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll); }
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'A drawing pin is dropped 50 times and lands point up 32 times. The relative frequency of point up is…',opts:['0.64','0.32','32','0.5'],a:0,fb:'32 ÷ 50 = 0.64. Relative frequency = frequency ÷ number of trials.'},
+  {q:'Which estimate of a probability is the most reliable?',opts:['one based on 1000 trials','one based on 100 trials','one based on 10 trials','they are all equally reliable'],a:0,fb:'More trials give a more reliable estimate.'},
+  {q:'P(a spinner lands on blue) = 0.15. It is spun 200 times. Expected number of blues?',opts:['30','15','0.15','170'],a:0,fb:'0.15 × 200 = 30. (170 is the number expected NOT to be blue.)'},
+  {q:'Relative frequencies: red 0.3, blue 0.25, green x, yellow 0.1. x = ?',opts:['0.35','0.65','0.4','0.25'],a:0,fb:'They add to 1: x = 1 − (0.3 + 0.25 + 0.1) = 1 − 0.65 = 0.35.'},
+  {q:'A spinner landed on red 42 times in 120 spins. Estimate the number of reds in 600 spins.',opts:['210','42','252','350'],a:0,fb:'42/120 = 0.35, and 0.35 × 600 = 210. Or: 600 is 5 × 120, so 5 × 42 = 210.'},
+  {q:'Group A got 9 heads in 20 flips; group B got 33 heads in 80 flips. Best estimate of P(heads)?',opts:['0.42','0.43125','0.45','0.4125'],a:0,fb:'Pool the data: (9 + 33) ÷ (20 + 80) = 42/100 = 0.42. 0.43125 is the mean of 0.45 and 0.4125, which wrongly weights the groups equally.'},
+  {q:'A dice is rolled 600 times and gives 102 sixes. What can you say?',opts:['no evidence of bias: about 100 sixes is expected','it is definitely biased','it is definitely fair','the next roll is less likely to be a six'],a:0,fb:'Expected 1/6 × 600 = 100. 102 is very close. Data can never prove a dice is definitely fair.'},
+  {q:'A fair coin is flipped 10 times and gives 7 heads. Which is true?',opts:['this can easily happen with a fair coin','the coin must be biased','the next flip will probably be tails','the probability of heads is 0.7'],a:0,fb:'10 trials is very few; 7 heads is quite common for a fair coin. The relative frequency 0.7 is only an estimate.'},
+  {q:'A fair dice is rolled 60 times. The expected number of sixes is…',opts:['10','6','1/6','60'],a:0,fb:'1/6 × 60 = 10. You won\'t necessarily get exactly 10.'},
+  {q:'A biased coin has P(heads) = 0.6. It is flipped twice, and this is repeated 100 times. Expected number of times both are heads?',opts:['36','60','120','12'],a:0,fb:'P(two heads) = 0.6 × 0.6 = 0.36, so 0.36 × 100 = 36.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

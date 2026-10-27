@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Standard Form</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive "lab" panels; graph-paper neutrals, teal for the mantissa, orange for the power of ten, plum for the decimal point. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:220px;max-width:60vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:7em}
+input[type=text].wide{width:14em;max-width:70vw}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}
+.readout .p{color:var(--two)}
+.readout .ok{color:var(--good)}
+.readout .no{color:var(--bad)}
+.big{font-family:var(--mono);font-size:1.25rem;text-align:center;margin:1rem 0;line-height:1.8}
+.digits{font-family:var(--mono);font-size:clamp(1.3rem,5vw,2.2rem);letter-spacing:.08em;text-align:center;margin:.6rem 0;font-variant-numeric:tabular-nums;white-space:nowrap;overflow-x:auto;padding:.4rem 0}
+.digits .pt{color:var(--two);font-weight:700;padding:0 .05em;border-bottom:3px solid var(--two)}
+.digits .z{color:var(--muted)}
+.digits .lead{color:var(--accent);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.scale{position:relative;margin-top:.6rem}
+.scale .row{display:grid;grid-template-columns:5.5em 1fr;gap:.6rem;align-items:center;padding:.35rem 0;border-bottom:1px solid var(--grid);font-size:.92rem}
+.scale .row .e{font-family:var(--mono);color:var(--hi);font-weight:600;text-align:right}
+.scale .row.cur{background:var(--accent-soft);border-radius:6px;padding-left:.4rem;padding-right:.4rem}
+.scale .row .n{font-family:var(--mono);color:var(--muted);font-size:.85rem;display:block}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Number · KS3 → GCSE</div>
+  <h1>Standard Form</h1>
+  <p class="lede">The mass of the Sun is 2,000,000,000,000,000,000,000,000,000,000 kg. Nobody wants to count those zeros. Standard form is the fix: one tidy number, times a power of ten that says how big.</p>
+  <span class="gcse">National curriculum KS3: interpret and compare numbers in standard form A × 10ⁿ, 1 ≤ A &lt; 10, n an integer. GCSE adds calculating with it.</span>
+</header>
+
+<h2>1 · The problem</h2>
+<p>Science is full of numbers that are either enormous or tiny. Distance to the nearest star: about 40,000,000,000,000 km. Width of a human hair: about 0.00007 m. Mass of an electron: 0.000 000 000 000 000 000 000 000 000 000 911 kg.</p>
+<p>Written out, these are hard to read, hard to compare and very easy to get wrong by one zero, which is an error of a factor of ten. Standard form (in Spanish <em>notación científica</em>, and in the US "scientific notation") solves all three problems at once.</p>
+
+<h2>2 · Powers of ten are place value</h2>
+<p>You already use powers of ten every time you read a number. Each column is ten times the one to its right. The powers and roots page gave you 10⁰ = 1 and negative powers as fractions; here is where that pays off.</p>
+
+<div class="tbl"><table>
+  <tr><th>Power</th><th>Value</th><th>Column name</th></tr>
+  <tr><td class="mono">10⁶</td><td class="mono">1 000 000</td><td>millions</td></tr>
+  <tr><td class="mono">10³</td><td class="mono">1 000</td><td>thousands</td></tr>
+  <tr><td class="mono">10²</td><td class="mono">100</td><td>hundreds</td></tr>
+  <tr><td class="mono">10¹</td><td class="mono">10</td><td>tens</td></tr>
+  <tr><td class="mono">10⁰</td><td class="mono">1</td><td>units</td></tr>
+  <tr><td class="mono">10⁻¹</td><td class="mono">0.1</td><td>tenths</td></tr>
+  <tr><td class="mono">10⁻²</td><td class="mono">0.01</td><td>hundredths</td></tr>
+  <tr><td class="mono">10⁻³</td><td class="mono">0.001</td><td>thousandths</td></tr>
+</table></div>
+<p>The index on the 10 counts how many places the digit 1 sits away from the units column: positive to the left, negative to the right. Multiplying by 10ⁿ moves every digit n places to the left (the number gets bigger); multiplying by 10⁻ⁿ moves them n places to the right.</p>
+
+<h2>3 · Watch the decimal point move</h2>
+<p>Start with the number 3.7 and drag the power. The digits never change. Only the decimal point moves, one place per power of ten. Zeros fill the empty columns.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>3.7 × 10<sup><span id="mpLabel">0</span></sup> &nbsp; power = <input type="range" id="mp" min="-6" max="9" value="0"></label>
+  </div>
+  <div class="digits" id="mpDigits"></div>
+  <div class="readout">
+    <div><b>Standard form</b><span id="mpSF"></span></div>
+    <div class="t"><b>Ordinary number</b><span id="mpOrd"></span></div>
+    <div class="p"><b>Point moved</b><span id="mpMove"></span></div>
+  </div>
+</div>
+
+<h2>4 · The rule: A × 10ⁿ with 1 ≤ A &lt; 10</h2>
+<div class="big">
+  <span style="color:var(--accent)">A</span> × 10<sup style="color:var(--hi)">n</sup>&nbsp;&nbsp;&nbsp; where <span style="color:var(--accent)">1 ≤ A &lt; 10</span> and <span style="color:var(--hi)">n is a whole number</span> (positive, negative or zero)
+</div>
+<p>Two parts. <strong>A</strong> carries the digits: exactly one non-zero digit before the decimal point. <strong>n</strong> carries the size: how many places the point has moved. The restriction on A is what makes the form <em>standard</em>: every number has exactly one way of being written, so numbers can be compared at a glance.</p>
+<p>Type any number below. If it's not in standard form yet, the converter shows why and fixes it.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Number <input type="text" class="wide" id="cv" value="4500000" placeholder="e.g. 0.00032 or 45e6"></label>
+    <select id="cvPick">
+      <option value="">examples…</option>
+      <option value="4500000">4 500 000</option>
+      <option value="0.00032">0.00032</option>
+      <option value="7">7</option>
+      <option value="0.5">0.5</option>
+      <option value="123.456">123.456</option>
+      <option value="299792458">299 792 458 (speed of light, m/s)</option>
+      <option value="0.000000000000000000000000000000911">electron mass (kg)</option>
+    </select>
+  </div>
+  <div class="digits" id="cvDigits"></div>
+  <div class="readout">
+    <div><b>Standard form</b><span id="cvSF"></span></div>
+    <div><b>Point moved</b><span id="cvMove"></span></div>
+    <div><b>Direction</b><span id="cvDir"></span></div>
+  </div>
+</div>
+
+<h3>Spotting fakes</h3>
+<p>These all equal the same number, but only one is in standard form:</p>
+<div class="lab">
+  <div class="controls">
+    <label>Test: <input type="text" id="fkA" value="45" style="width:5em"> × 10<sup><input type="number" id="fkN" value="5" style="width:4em"></sup></label>
+  </div>
+  <div class="readout">
+    <div><b>Value</b><span id="fkVal"></span></div>
+    <div><b>Is A between 1 and 10?</b><span id="fkOk"></span></div>
+    <div class="t"><b>Standard form</b><span id="fkFix"></span></div>
+  </div>
+</div>
+<p>45 × 10⁵ and 0.45 × 10⁷ are both <em>correct values</em> but <em>wrong form</em>, and in an exam "give your answer in standard form" loses the mark. The fix is always the same trade: move the point in A, and adjust n by the same amount the other way. Make A ten times smaller, make n one bigger.</p>
+
+<h2>5 · The scale of things</h2>
+<p>Drag along the exponent and see what lives at each power of ten. Every step is a factor of ten, so the top of this list is 10⁴² times the bottom: a 1 with 42 zeros.</p>
+<div class="lab">
+  <div class="controls"><label>10<sup><span id="scLabel">0</span></sup> &nbsp; <input type="range" id="sc" min="-15" max="27" value="0"></label></div>
+  <div class="scale" id="scale"></div>
+</div>
+
+<h2>6 · Calculating in standard form</h2>
+<p>This is where the form earns its keep. Because the index laws from the powers page apply to powers of ten, multiplying and dividing huge numbers becomes small-number arithmetic plus adding or subtracting indices.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><input type="text" id="xa" value="3" style="width:4em"> × 10<sup><input type="number" id="xn" value="8" style="width:4em"></sup></label>
+    <select id="op"><option value="*">×</option><option value="/">÷</option><option value="+">+</option><option value="-">−</option></select>
+    <label><input type="text" id="yb" value="4" style="width:4em"> × 10<sup><input type="number" id="ym" value="5" style="width:4em"></sup></label>
+  </div>
+  <div class="work" id="work"></div>
+</div>
+
+<div class="tbl"><table>
+  <tr><th>Operation</th><th>Method</th><th>Then</th></tr>
+  <tr><td>Multiply</td><td>Multiply the A's. Add the indices.</td><td rowspan="2">Check A is still between 1 and 10; if not, shift the point and adjust n.</td></tr>
+  <tr><td>Divide</td><td>Divide the A's. Subtract the indices.</td></tr>
+  <tr><td>Add / subtract</td><td>Make the indices the same first (rewrite the smaller one), then add or subtract the A's.</td><td>Re-standardise if needed.</td></tr>
+</table></div>
+
+<div class="callout">
+  <p><strong>Calculator tip.</strong> Use the <span class="m">×10ˣ</span> key (sometimes EXP or EE), not "× 10 ^". Typing <span class="m">3 ×10ˣ 8</span> enters 3 × 10⁸ as one number. Typing <span class="m">3 × 10 ^ 8 ÷ 4 × 10 ^ 5</span> will divide by 4 and then <em>multiply</em> by 10⁵, giving an answer 10¹⁰ times too big. Put brackets round each standard-form number if you must type it the long way.</p>
+</div>
+
+<h2>7 · Where it shows up</h2>
+<div class="grid2">
+  <div class="use"><h3>Physics and chemistry</h3>
+    <p>Speed of light 3 × 10⁸ m/s. Avogadro's number 6.02 × 10²³. Planck's constant 6.63 × 10⁻³⁴. Every constant in the data sheet is in standard form.</p></div>
+  <div class="use"><h3>Astronomy</h3>
+    <p>Earth to Sun 1.5 × 10¹¹ m. Light year 9.46 × 10¹⁵ m. Observable universe 8.8 × 10²⁶ m. Comparing them is just comparing the indices.</p></div>
+  <div class="use"><h3>Biology and medicine</h3>
+    <p>A red blood cell is 7 × 10⁻⁶ m across; a virus about 1 × 10⁻⁷ m; a DNA strand 2 × 10⁻⁹ m wide. Drug doses in micrograms are 10⁻⁶ g.</p></div>
+  <div class="use"><h3>Computing</h3>
+    <p>Floating-point numbers in every programming language <em>are</em> standard form in binary: a mantissa and an exponent. Python prints <span class="m">3e8</span> for 3 × 10⁸, and <span class="m">1e-9</span> for a nanosecond.</p></div>
+  <div class="use"><h3>Economics</h3>
+    <p>UK GDP ≈ 2.7 × 10¹² pounds. A national debt in the 10¹² range divided by a population of 6.8 × 10⁷ is a per-person figure found by subtracting indices.</p></div>
+  <div class="use"><h3>Prefixes</h3>
+    <p>kilo = 10³, mega = 10⁶, giga = 10⁹, tera = 10¹²; milli = 10⁻³, micro = 10⁻⁶, nano = 10⁻⁹. Unit prefixes are standard form with names.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Write 0.00056 in standard form</summary>
+  <div class="step"><strong>Find A.</strong> The first non-zero digit is 5, so A = 5.6.</div>
+  <div class="step"><strong>Count the move.</strong> From 0.00056 to 5.6 the point moves 4 places to the right. Moving right makes the number bigger, so the power must make it smaller again: n = −4.</div>
+  <div class="step"><strong>Answer:</strong> <strong>5.6 × 10⁻⁴</strong>. Check: 5.6 ÷ 10 000 = 0.00056 ✓</div>
+</details>
+<details>
+  <summary>Calculate (6 × 10⁷) × (5 × 10⁻³)</summary>
+  <div class="step"><strong>Multiply the A's:</strong> 6 × 5 = 30. <strong>Add the indices:</strong> 7 + (−3) = 4. So 30 × 10⁴.</div>
+  <div class="step"><strong>Not standard form</strong> (30 is not between 1 and 10). 30 = 3 × 10¹, so 30 × 10⁴ = 3 × 10¹ × 10⁴ = <strong>3 × 10⁵</strong>.</div>
+</details>
+<details>
+  <summary>Calculate (8 × 10⁴) + (3 × 10³)</summary>
+  <div class="step"><strong>Indices differ</strong>, so you can't just add 8 + 3. Rewrite the smaller: 3 × 10³ = 0.3 × 10⁴.</div>
+  <div class="step"><strong>Now add:</strong> 8 × 10⁴ + 0.3 × 10⁴ = 8.3 × 10⁴. Already standard. Check: 80 000 + 3 000 = 83 000 ✓</div>
+</details>
+<details>
+  <summary>Exam-style: Light travels 3 × 10⁸ m/s. The Sun is 1.5 × 10¹¹ m away. How long does sunlight take to reach us?</summary>
+  <div class="step"><strong>Time = distance ÷ speed</strong> = (1.5 × 10¹¹) ÷ (3 × 10⁸).</div>
+  <div class="step"><strong>Divide A's:</strong> 1.5 ÷ 3 = 0.5. <strong>Subtract indices:</strong> 11 − 8 = 3. So 0.5 × 10³ s.</div>
+  <div class="step"><strong>Standardise:</strong> 0.5 × 10³ = 5 × 10² s = <strong>500 seconds</strong>, about 8 minutes 20 seconds. If the Sun went out, you'd have eight minutes before you noticed.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>Standard form writes any number as A × 10ⁿ with exactly one non-zero digit before the point in A. The index n counts how far the decimal point moved: positive for big numbers, negative for small. To convert, find the first non-zero digit, place the point after it, count the move. To multiply or divide, work the A's and add or subtract the indices, then check A is still between 1 and 10. It's how every scientist, engineer and programmer writes the very large and the very small.</p>
+
+<footer>Made for KS3/KS4 students. Standard form is in the England national curriculum at key stage 3 under Number; calculating with it is assessed at GCSE. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
+const sup=n=>String(n).replace(/-/,'⁻').replace(/[0-9]/g,d=>SUP[d]);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+// Exact decimal-string arithmetic via digit strings (avoid float noise)
+function toSF(str){
+  // returns {A:string, n:int, digits, ...} or null
+  str=String(str).trim().replace(/[\s,]/g,'').replace(/×10\^?/,'e');
+  if(!str)return null;
+  let m=str.match(/^(-?)(\d*)\.?(\d*)(?:e([+-]?\d+))?$/i);
+  if(!m)return null;
+  let [,sign,ip,fp,ex]=m;if(ip===''&&fp==='')return null;
+  ex=ex?parseInt(ex,10):0;
+  let digits=(ip+fp).replace(/^0+/,'');
+  if(digits==='')return {zero:true};
+  // position of decimal point relative to start of (ip+fp): after ip.length
+  const leadZeros=(ip+fp).length-(ip+fp).replace(/^0+/,'').length;
+  const pointPos=ip.length; // index in ip+fp where point sits
+  // exponent n = pointPos - leadZeros - 1 + ex
+  const n=pointPos-leadZeros-1+ex;
+  digits=digits.replace(/0+$/,'')||'0';
+  const A=digits.length>1?digits[0]+'.'+digits.slice(1):digits;
+  return {sign,A,n,digits};
+}
+function ordinary(A,n){
+  // A like "3.7", n int -> plain decimal string
+  const digits=A.replace('.','');const pointPos=(A.indexOf('.')<0?A.length:A.indexOf('.'))+n;
+  if(pointPos<=0)return '0.'+'0'.repeat(-pointPos)+digits;
+  if(pointPos>=digits.length)return digits+'0'.repeat(pointPos-digits.length);
+  return digits.slice(0,pointPos)+'.'+digits.slice(pointPos);
+}
+function group(s){const [i,f]=s.split('.');const gi=i.replace(/\B(?=(\d{3})+(?!\d))/g,' ');return f?gi+'.'+f:gi;}
+function digitsHTML(s){
+  // highlight the point and leading/trailing zeros
+  const [i,f='']=s.split('.');
+  let out='';
+  const lead=i.match(/^0+(?=\d)/)?.[0]||'';
+  out+=lead?`<span class="z">${lead}</span>`:'';
+  const rest=i.slice(lead.length);
+  if(rest&&/^[1-9]/.test(rest))out+=`<span class="lead">${rest[0]}</span>${rest.slice(1).replace(/0+$/,m=>`<span class="z">${m}</span>`)}`;
+  else out+=rest;
+  if(f!==undefined&&(f!==''||s.includes('.'))){out+=`<span class="pt">.</span>`;
+    if(/^0*$/.test(i)){const fz=f.match(/^0*/)[0];out+=`<span class="z">${fz}</span>`;const r=f.slice(fz.length);out+=r?`<span class="lead">${r[0]}</span>${r.slice(1)}`:'';}else out+=f;}
+  return out;
+}
+
+/* 3. moving point */
+const mp=document.getElementById('mp');
+function drawMP(){
+  const n=+mp.value;document.getElementById('mpLabel').textContent=n;
+  const ord=ordinary('3.7',n);
+  document.getElementById('mpDigits').innerHTML=digitsHTML(ord);
+  document.getElementById('mpSF').textContent=`3.7 × 10${sup(n)}`;
+  document.getElementById('mpOrd').textContent=group(ord);
+  document.getElementById('mpMove').textContent=n===0?'not at all':`${Math.abs(n)} place${Math.abs(n)===1?'':'s'} ${n>0?'right (bigger)':'left (smaller)'}`;
+}
+mp.addEventListener('input',drawMP);drawMP();
+
+/* 4. converter */
+const cv=document.getElementById('cv'),cvPick=document.getElementById('cvPick');
+function drawCV(){
+  const r=toSF(cv.value);
+  const D=document.getElementById('cvDigits'),S=document.getElementById('cvSF'),M=document.getElementById('cvMove'),Dr=document.getElementById('cvDir');
+  if(!r){D.textContent='?';S.textContent='type a number';M.textContent='';Dr.textContent='';return;}
+  if(r.zero){D.textContent='0';S.textContent='0 (zero has no standard form)';M.textContent='';Dr.textContent='';return;}
+  const ord=ordinary(r.A,r.n);
+  D.innerHTML=(r.sign||'')+digitsHTML(ord);
+  S.textContent=`${r.sign}${r.A} × 10${sup(r.n)}`;
+  M.textContent=r.n===0?'0 places':`${Math.abs(r.n)} place${Math.abs(r.n)===1?'':'s'}`;
+  Dr.textContent=r.n===0?'already between 1 and 10':r.n>0?'point moved left to make A, so n is positive':'point moved right to make A, so n is negative';
+}
+cv.addEventListener('input',drawCV);cvPick.addEventListener('change',()=>{if(cvPick.value){cv.value=cvPick.value;drawCV();}});drawCV();
+
+/* fakes */
+const fkA=document.getElementById('fkA'),fkN=document.getElementById('fkN');
+function drawFK(){
+  const a=fkA.value.trim(),n=parseInt(fkN.value||'0',10);
+  const r=toSF(a);const V=document.getElementById('fkVal'),O=document.getElementById('fkOk'),F=document.getElementById('fkFix');
+  if(!r||r.zero){V.textContent='?';O.textContent='';F.textContent='';return;}
+  const total=r.n+n;const av=parseFloat(a);
+  V.textContent=group(ordinary(r.A,total));
+  const ok=av>=1&&av<10;
+  O.textContent=ok?'yes ✓ already standard form':`no ✗ (${a} is ${av<1?'less than 1':'10 or more'})`;O.className=ok?'ok':'no';
+  F.textContent=`${r.A} × 10${sup(total)}`+(ok?'':`  (A ${av<1?'×':'÷'} 10${sup(Math.abs(r.n))}, so n ${r.n>0?'+':'−'} ${Math.abs(r.n)})`);
+}
+fkA.addEventListener('input',drawFK);fkN.addEventListener('input',drawFK);drawFK();
+
+/* 5. scale */
+const SCALE={
+  '-15':['Diameter of a proton','1.7 × 10⁻¹⁵ m'],'-14':['Atomic nucleus','~10⁻¹⁴ m'],'-12':['Wavelength of gamma rays','~10⁻¹² m'],
+  '-10':['Diameter of an atom','1 × 10⁻¹⁰ m'],'-9':['Width of a DNA strand','2 × 10⁻⁹ m'],'-8':['Thickness of a cell membrane','~10⁻⁸ m'],
+  '-7':['Size of a virus','1 × 10⁻⁷ m'],'-6':['Bacterium','1 × 10⁻⁶ m'],'-5':['Red blood cell','7 × 10⁻⁶ m… width of a hair 7 × 10⁻⁵ m'],
+  '-4':['Grain of salt','3 × 10⁻⁴ m'],'-3':['Ant','3 × 10⁻³ m'],'-2':['Fingernail width','1 × 10⁻² m'],'-1':['A hand','1 × 10⁻¹ m'],
+  '0':['A person (height)','1.7 × 10⁰ m'],'1':['A house','1 × 10¹ m'],'2':['A football pitch','1 × 10² m'],'3':['Length of a town','1 × 10³ m'],
+  '4':['Jersey, east to west','1.6 × 10⁴ m'],'5':['English Channel crossing','1.5 × 10⁵ m'],'6':['Length of Great Britain','1 × 10⁶ m'],
+  '7':['Diameter of Earth','1.3 × 10⁷ m'],'8':['Distance to the Moon','3.8 × 10⁸ m'],'9':['Diameter of the Sun','1.4 × 10⁹ m'],
+  '11':['Earth to Sun','1.5 × 10¹¹ m'],'12':['Sun to Jupiter','7.8 × 10¹¹ m'],'13':['Width of the Solar System','~10¹³ m'],
+  '16':['Distance to the nearest star','4 × 10¹⁶ m'],'18':['Thickness of the Milky Way','~10¹⁸ m'],'20':['Diameter of the Milky Way','9 × 10²⁰ m'],
+  '22':['Distance to Andromeda','2.4 × 10²² m'],'24':['Size of a galaxy cluster','~10²⁴ m'],'26':['Observable universe','8.8 × 10²⁶ m'],'27':['Beyond what we can see','']
+};
+const sc=document.getElementById('sc');
+function drawScale(){
+  const cur=+sc.value;document.getElementById('scLabel').textContent=cur;
+  const keys=Object.keys(SCALE).map(Number).sort((a,b)=>b-a);
+  // show a window of ~7 rows around current
+  const near=keys.filter(k=>Math.abs(k-cur)<=4);
+  document.getElementById('scale').innerHTML=near.map(k=>`<div class="row ${k===cur?'cur':''}"><span class="e">10${sup(k)}</span><span>${SCALE[k][0]}<span class="n">${SCALE[k][1]}</span></span></div>`).join('')||`<div class="row"><span class="e">10${sup(cur)}</span><span>nothing listed here, keep going</span></div>`;
+}
+sc.addEventListener('input',drawScale);drawScale();
+
+/* 6. calculator */
+const xa=document.getElementById('xa'),xn=document.getElementById('xn'),yb=document.getElementById('yb'),ym=document.getElementById('ym'),op=document.getElementById('op');
+function sfOf(v){const r=toSF(String(v));return r&&!r.zero?`${r.sign}${r.A} × 10${sup(r.n)}`:'0';}
+function clean(v){return parseFloat(v.toPrecision(10));}
+function drawWork(){
+  const a=parseFloat(xa.value),n=parseInt(xn.value,10),b=parseFloat(yb.value),m=parseInt(ym.value,10),o=op.value;
+  const W=document.getElementById('work');
+  if(!isFinite(a)||!isFinite(b)||!isFinite(n)||!isFinite(m)){W.textContent='Enter numbers in all four boxes.';return;}
+  const okA=a>=1&&a<10,okB=b>=1&&b<10;
+  let lines=[];
+  if(!okA||!okB)lines.push(`<span class="b">Note:</span> ${!okA?a:b} is not between 1 and 10, so that input isn't in standard form. The method still works.`);
+  if(o==='*'){const A=clean(a*b),N=n+m;
+    lines.push(`(<span class="a">${a}</span> × 10<sup><span class="b">${n}</span></sup>) × (<span class="a">${b}</span> × 10<sup><span class="b">${m}</span></sup>)`);
+    lines.push(`= (<span class="a">${a} × ${b}</span>) × 10<sup><span class="b">${n} + ${m}</span></sup>   ← multiply the A's, add the indices`);
+    lines.push(`= <span class="a">${A}</span> × 10<sup><span class="b">${N}</span></sup>`);
+    if(A>=10||A<1)lines.push(`<span class="c">${A} isn't between 1 and 10 →</span> <strong>${sfOf(A*Math.pow(10,N))}</strong>`);else lines.push(`<strong>= ${A} × 10${sup(N)}</strong> ✓ standard form`);
+  }else if(o==='/'){const A=clean(a/b),N=n-m;
+    lines.push(`(<span class="a">${a}</span> × 10<sup><span class="b">${n}</span></sup>) ÷ (<span class="a">${b}</span> × 10<sup><span class="b">${m}</span></sup>)`);
+    lines.push(`= (<span class="a">${a} ÷ ${b}</span>) × 10<sup><span class="b">${n} − ${m}</span></sup>   ← divide the A's, subtract the indices`);
+    lines.push(`= <span class="a">${A}</span> × 10<sup><span class="b">${N}</span></sup>`);
+    if(A>=10||A<1)lines.push(`<span class="c">${A} isn't between 1 and 10 →</span> <strong>${sfOf(A*Math.pow(10,N))}</strong>`);else lines.push(`<strong>= ${A} × 10${sup(N)}</strong> ✓ standard form`);
+  }else{
+    const big=Math.max(n,m),sym=o==='+'?'+':'−';
+    const a2=clean(a*Math.pow(10,n-big)),b2=clean(b*Math.pow(10,m-big));
+    const A=clean(o==='+'?a2+b2:a2-b2);
+    lines.push(`(<span class="a">${a}</span> × 10<sup><span class="b">${n}</span></sup>) ${sym} (<span class="a">${b}</span> × 10<sup><span class="b">${m}</span></sup>)`);
+    if(n!==m)lines.push(`Indices differ. Rewrite the smaller one with 10<sup>${big}</sup>:  ${n<m?`${a} × 10${sup(n)} = ${a2} × 10${sup(big)}`:`${b} × 10${sup(m)} = ${b2} × 10${sup(big)}`}`);
+    lines.push(`= (<span class="a">${a2} ${sym} ${b2}</span>) × 10<sup><span class="b">${big}</span></sup>   ← now the A's can be ${o==='+'?'added':'subtracted'}`);
+    lines.push(`= <span class="a">${A}</span> × 10<sup><span class="b">${big}</span></sup>`);
+    if(A===0)lines.push('<strong>= 0</strong>');
+    else if(Math.abs(A)>=10||Math.abs(A)<1)lines.push(`<span class="c">${A} isn't between 1 and 10 →</span> <strong>${sfOf(A*Math.pow(10,big))}</strong>`);else lines.push(`<strong>= ${A} × 10${sup(big)}</strong> ✓ standard form`);
+  }
+  W.innerHTML=lines.join('<br>');
+}
+[xa,xn,yb,ym,op].forEach(e=>e.addEventListener('input',drawWork));drawWork();
+
+/* quiz */
+const QS=[
+  {q:'Which is 0.0072 in standard form?',opts:['7.2 × 10⁻³','72 × 10⁻⁴','7.2 × 10³','0.72 × 10⁻²'],a:0,fb:'First non-zero digit is 7, so A = 7.2. The point moves 3 places right, so n = −3.'},
+  {q:'Which of these is NOT in standard form?',opts:['12 × 10⁴','1.2 × 10⁵','9.99 × 10⁰','1 × 10⁻⁶'],a:0,fb:'12 is not between 1 and 10. It should be 1.2 × 10⁵ (same value).'},
+  {q:'(2 × 10³) × (4 × 10⁵) = ?',opts:['8 × 10⁸','8 × 10¹⁵','6 × 10⁸','8 × 10²'],a:0,fb:'Multiply A\'s: 2 × 4 = 8. Add indices: 3 + 5 = 8.'},
+  {q:'(9 × 10⁶) ÷ (3 × 10⁻²) = ?',opts:['3 × 10⁸','3 × 10⁴','3 × 10⁻³','6 × 10⁸'],a:0,fb:'9 ÷ 3 = 3. Subtract indices: 6 − (−2) = 8.'},
+  {q:'Which is larger: 8 × 10⁵ or 2 × 10⁶?',opts:['2 × 10⁶','8 × 10⁵','they are equal','impossible to tell'],a:0,fb:'Compare indices first. 10⁶ beats 10⁵ regardless of the A\'s: 2 000 000 > 800 000.'},
+  {q:'(5 × 10⁴) × (6 × 10³) in standard form is…',opts:['3 × 10⁸','30 × 10⁷','3 × 10⁷','11 × 10⁷'],a:0,fb:'5 × 6 = 30 and 4 + 3 = 7 gives 30 × 10⁷, but 30 is too big: 30 × 10⁷ = 3 × 10⁸.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

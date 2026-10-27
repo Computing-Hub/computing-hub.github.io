@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Rounding and Estimation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive "lab" panels; graph-paper neutrals, teal for the kept digits, orange for the deciding digit, plum for bounds/intervals. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:220px;max-width:60vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:7em}
+input[type=text].wide{width:11em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}
+.readout .p{color:var(--two)}
+.digits{font-family:var(--mono);font-size:clamp(1.4rem,5vw,2.4rem);letter-spacing:.1em;text-align:center;margin:.6rem 0;font-variant-numeric:tabular-nums;white-space:nowrap;overflow-x:auto;padding:.4rem 0}
+.digits .k{color:var(--accent);font-weight:600;border-bottom:3px solid var(--accent)}
+.digits .d{color:var(--hi);font-weight:700;border-bottom:3px solid var(--hi)}
+.digits .z{color:var(--muted)}
+.digits .x{color:var(--muted);opacity:.5}
+.big{font-family:var(--mono);font-size:1.15rem;text-align:center;margin:1rem 0;line-height:1.8}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ineq{font-family:var(--mono);font-size:1.3rem;text-align:center;padding:.6rem;border-radius:8px;background:var(--two-soft);color:var(--two);margin-top:.8rem}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Number · KS3 → GCSE</div>
+  <h1>Rounding and Estimation</h1>
+  <p class="lede">Most numbers in the real world are approximate. Rounding is how we decide how much to keep, estimation is how we check an answer makes sense, and error intervals are how we say exactly how uncertain a rounded number is.</p>
+  <span class="gcse">National curriculum KS3: round to decimal places and significant figures; estimate calculations; use inequality notation for error intervals. GCSE adds upper and lower bounds in calculations.</span>
+</header>
+
+<h2>1 · Rounding is choosing the nearest</h2>
+<p>To round 3.7 to the nearest whole number, ask: is it closer to 3 or to 4? Look at the number line. The decision is made by the digit just after the place you are rounding to. 5 or more and you round up; 4 or less and you round down. That digit is called the <em>deciding digit</em> on this page.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Number <input type="range" id="nl" min="200" max="400" value="367"></label>
+    <label>Round to
+      <select id="nlTo"><option value="1">nearest whole</option><option value="10">nearest 10</option><option value="100">nearest 100</option><option value="0.1">1 decimal place</option></select></label>
+  </div>
+  <svg id="nlSvg" viewBox="0 0 700 110" width="700" height="110"></svg>
+  <div class="readout">
+    <div><b>Number</b><span id="nlN"></span></div>
+    <div><b>Sits between</b><span id="nlBetween"></span></div>
+    <div class="t"><b>Rounds to</b><span id="nlR"></span></div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><strong>What about exactly halfway?</strong> 3.5 is the same distance from 3 and 4. The school convention is to round halves <em>up</em>: 3.5 → 4, 2.65 → 2.7. (Scientists and some programming languages sometimes round halves to the even neighbour to avoid bias, so Python's <span class="m">round(2.5)</span> gives 2. For exams, halves go up.)</p>
+</div>
+
+<h2>2 · Decimal places versus significant figures</h2>
+<p>These are two different ways of saying <em>where</em> to round. <strong>Decimal places</strong> (d.p.) count from the decimal point. <strong>Significant figures</strong> (s.f.) count from the first non-zero digit, wherever it is. Significant figures work for any size of number, which is why science uses them.</p>
+<p>Type a number and watch which digits are kept (teal), which one decides (orange), and what happens to the rest.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Number <input type="text" class="wide" id="rfN" value="0.0048372"></label>
+    <select id="rfPick"><option value="">examples…</option><option value="0.0048372">0.0048372</option><option value="36482">36482</option><option value="7.0961">7.0961</option><option value="199.96">199.96</option><option value="0.5004">0.5004</option><option value="1030.7">1030.7</option></select>
+    <label>Round to <input type="number" id="rfK" value="2" min="1" max="6" style="width:4em"></label>
+    <select id="rfMode"><option value="sf">significant figures</option><option value="dp">decimal places</option></select>
+  </div>
+  <div class="digits" id="rfDigits"></div>
+  <div class="readout">
+    <div><b>Kept digits</b><span id="rfKept"></span></div>
+    <div class="t"><b>Deciding digit</b><span id="rfDec"></span></div>
+    <div><b>Result</b><span id="rfRes"></span></div>
+  </div>
+</div>
+
+<h3>Which zeros count?</h3>
+<div class="tbl"><table>
+  <tr><th>Number</th><th>Significant figures</th><th>Why</th></tr>
+  <tr><td class="mono">0.0048</td><td>2</td><td>Leading zeros only show the size. They never count.</td></tr>
+  <tr><td class="mono">4.08</td><td>3</td><td>A zero <em>between</em> non-zero digits always counts.</td></tr>
+  <tr><td class="mono">4.80</td><td>3</td><td>A trailing zero after the decimal point counts: it says "measured to the hundredth".</td></tr>
+  <tr><td class="mono">4800</td><td>2, 3 or 4</td><td>Ambiguous. Are the zeros measured or just place-holders? This is exactly why standard form exists: 4.8 × 10³ vs 4.80 × 10³ settles it.</td></tr>
+</table></div>
+
+<div class="callout">
+  <p><strong>Two traps.</strong> (1) <em>Keep the place-holders.</em> 36 482 to 2 s.f. is 36 000, not 36. The zeros keep the 3 in the ten-thousands column. (2) <em>Carrying.</em> 199.96 to 1 d.p. is 200.0, not 199.10: the 6 rounds the 9 up, which carries all the way along. Try both in the tool above.</p>
+</div>
+
+<h2>3 · Estimation: round first, then calculate</h2>
+<p>Before you touch a calculator, or when there isn't one, round every number to <strong>1 significant figure</strong> and do the easy sum. It takes seconds and it catches the error where you typed 0.3 instead of 0.03. The symbol <span class="m">≈</span> means "approximately equal to".</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Calculate <input type="text" id="esA" value="4.87" style="width:5.5em"> × <input type="text" id="esB" value="21.3" style="width:5.5em"> ÷ <input type="text" id="esC" value="0.512" style="width:5.5em"></label>
+  </div>
+  <div class="work" id="esWork"></div>
+</div>
+
+<p>Rules of thumb for a good estimate:</p>
+<ul>
+  <li>1 s.f. is the default. Occasionally 2 s.f. is better for a number like 15 (rounding to 20 is a big change) or when it makes a division neat (e.g. round 7.8 ÷ 3.9 to 8 ÷ 4, not 8 ÷ 4 … that one's already neat).</li>
+  <li>Say whether the estimate is an <em>over</em>- or <em>under</em>-estimate. Rounding the top of a fraction up or the bottom down makes the answer too big.</li>
+  <li>Estimation questions in exams give marks for the rounded numbers written down, not just the final answer. Show them.</li>
+</ul>
+
+<h2>4 · Error intervals: how wrong could it be?</h2>
+<p>A sign says a bridge is 12 m long, measured to the nearest metre. The true length isn't exactly 12. It's anything that <em>rounds</em> to 12: as small as 11.5, up to (but not including) 12.5. That range is the <strong>error interval</strong>. The ends are the <strong>lower bound</strong> and <strong>upper bound</strong>.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Rounded value <input type="text" id="eiV" value="12" style="width:6em"></label>
+    <label>Rounded to
+      <select id="eiU">
+        <option value="1">nearest whole / 1</option><option value="10">nearest 10</option><option value="100">nearest 100</option>
+        <option value="0.1">1 d.p. / nearest 0.1</option><option value="0.01">2 d.p. / nearest 0.01</option>
+        <option value="5">nearest 5</option><option value="0.5">nearest 0.5</option>
+        <option value="sf1">1 significant figure</option><option value="sf2">2 significant figures</option><option value="sf3">3 significant figures</option>
+      </select></label>
+  </div>
+  <svg id="eiSvg" viewBox="0 0 700 100" width="700" height="100"></svg>
+  <div class="ineq" id="eiIneq"></div>
+  <div class="readout">
+    <div class="p"><b>Lower bound</b><span id="eiLo"></span></div>
+    <div class="p"><b>Upper bound</b><span id="eiHi"></span></div>
+    <div><b>Half the unit</b><span id="eiHalf"></span></div>
+  </div>
+</div>
+
+<p>The recipe never changes: <strong>half the unit of rounding</strong> each side. Rounded to the nearest 10? ± 5. To 1 d.p.? ± 0.05. The notation matters too: <span class="m">≤</span> on the lower bound (11.5 does round to 12) but <span class="m">&lt;</span> on the upper (12.5 rounds up to 13, so it isn't included). Writing <span class="m">11.5 ≤ x &lt; 12.5</span> with the right symbols is worth a mark on its own.</p>
+
+<div class="callout">
+  <p><strong>Truncation is different.</strong> If a number was <em>truncated</em> (chopped, not rounded) to 12, the true value is anything from 12 up to but not including 13: <span class="m">12 ≤ x &lt; 13</span>. Ages work like this: "I'm 15" means 15 ≤ age &lt; 16. Read the question for which one it says.</p>
+</div>
+
+<h2>5 · Bounds in calculations (GCSE)</h2>
+<p>If measurements are uncertain, anything calculated from them is uncertain too. A rectangle 8 cm by 5 cm, each to the nearest cm, doesn't have area exactly 40 cm². Its biggest possible area uses both upper bounds; its smallest uses both lower bounds. For a division it's trickier: the biggest answer comes from the biggest top and the <em>smallest</em> bottom.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>a = <input type="text" id="bA" value="8" style="width:5em"> ± <input type="text" id="bAe" value="0.5" style="width:5em"></label>
+    <select id="bOp"><option value="*">×</option><option value="/">÷</option><option value="+">+</option><option value="-">−</option></select>
+    <label>b = <input type="text" id="bB" value="5" style="width:5em"> ± <input type="text" id="bBe" value="0.5" style="width:5em"></label>
+  </div>
+  <div class="work" id="bWork"></div>
+</div>
+
+<div class="tbl"><table>
+  <tr><th>To get the…</th><th>a + b</th><th>a − b</th><th>a × b</th><th>a ÷ b</th></tr>
+  <tr><td>upper bound</td><td class="mono">UB + UB</td><td class="mono">UB − LB</td><td class="mono">UB × UB</td><td class="mono">UB ÷ LB</td></tr>
+  <tr><td>lower bound</td><td class="mono">LB + LB</td><td class="mono">LB − LB</td><td class="mono">LB × LB</td><td class="mono">LB ÷ UB</td></tr>
+</table></div>
+<p>Subtraction and division are the ones people get wrong: to make a difference as big as possible you take the most from the first and the least from the second.</p>
+
+<h2>6 · Where it shows up</h2>
+<div class="grid2">
+  <div class="use"><h3>Science practicals</h3>
+    <p>A ruler reads to the nearest mm, so every length is ± 0.5 mm. Results are given to the number of significant figures the equipment justifies, usually 2 or 3. Quoting 9 digits from a calculator is a mark lost.</p></div>
+  <div class="use"><h3>Money</h3>
+    <p>Prices are rounded to the nearest penny. A supermarket's "3 for £2" works out at 66.666…p each, so one item is charged at 67p. Interest calculations round at each step.</p></div>
+  <div class="use"><h3>Engineering tolerances</h3>
+    <p>A bolt specified as 10 mm ± 0.1 mm is an error interval. A part that falls outside it is rejected. Whole factories run on upper and lower bounds.</p></div>
+  <div class="use"><h3>Computing</h3>
+    <p>Floating-point numbers store about 7 (float) or 16 (double) significant figures, so 0.1 + 0.2 comes out as 0.30000000000000004. Rounding for display, and never comparing floats with ==, follows from this page.</p></div>
+  <div class="use"><h3>Sanity-checking</h3>
+    <p>A mortgage calculator says a £200 000 loan costs £85 a month. Estimate: 200 000 ÷ 25 years ÷ 12 ≈ £700 before any interest. The £85 is wrong by a factor of ten.</p></div>
+  <div class="use"><h3>News and statistics</h3>
+    <p>"Population 103 000" is a 3 s.f. figure; the true count is anywhere from 102 500 to 103 499. Headlines that compare 103 000 with 102 800 as if the difference were real are comparing noise.</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Round 0.030849 to 3 significant figures</summary>
+  <div class="step"><strong>Find the first significant digit.</strong> Skip the leading zeros: 0.0<u>3</u>0849. The 3 is the first s.f., the 0 after it is the second, the 8 is the third.</div>
+  <div class="step"><strong>Look at the deciding digit.</strong> The 4th s.f. is 4, so round down: keep 308.</div>
+  <div class="step"><strong>Answer:</strong> <strong>0.0308</strong>. The leading zeros stay (they fix the size), nothing is added after.</div>
+</details>
+<details>
+  <summary>Estimate (58.3 × 0.193) ÷ 2.87</summary>
+  <div class="step"><strong>Round each to 1 s.f.:</strong> 58.3 ≈ 60, 0.193 ≈ 0.2, 2.87 ≈ 3.</div>
+  <div class="step"><strong>Calculate:</strong> (60 × 0.2) ÷ 3 = 12 ÷ 3 = <strong>4</strong>. (The exact answer is 3.92…, so the estimate is sound.)</div>
+  <div class="step"><strong>Over or under?</strong> Top was rounded up (58.3→60, 0.193→0.2), bottom was rounded up too (2.87→3). Mixed, so you can't be sure without more work; in an exam, say so.</div>
+</details>
+<details>
+  <summary>Error interval: a mass is 4.6 kg to 1 decimal place</summary>
+  <div class="step"><strong>Unit of rounding:</strong> 0.1. Half of it: 0.05.</div>
+  <div class="step"><strong>Bounds:</strong> 4.6 − 0.05 = 4.55 and 4.6 + 0.05 = 4.65.</div>
+  <div class="step"><strong>Write it:</strong> <strong>4.55 ≤ m &lt; 4.65</strong>.</div>
+</details>
+<details>
+  <summary>Exam-style: a car travels 120 m (nearest 10 m) in 8.2 s (nearest 0.1 s). Find the upper bound of its speed.</summary>
+  <div class="step"><strong>Bounds of each:</strong> distance 115 ≤ d &lt; 125; time 8.15 ≤ t &lt; 8.25.</div>
+  <div class="step"><strong>Speed = distance ÷ time.</strong> Biggest speed needs biggest distance and <em>smallest</em> time: 125 ÷ 8.15.</div>
+  <div class="step"><strong>Calculate:</strong> 125 ÷ 8.15 = 15.337… ≈ <strong>15.3 m/s</strong> (3 s.f.). (Lower bound would be 115 ÷ 8.25 = 13.9 m/s.) The speed is somewhere between 13.9 and 15.3, which is a surprisingly wide range from two tidy-looking measurements.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>Rounding picks the nearest value at a chosen place, with the next digit deciding and halves going up. Decimal places count from the point; significant figures count from the first non-zero digit and work at any scale, with care over which zeros count. Estimation rounds everything to 1 s.f. first and is your check against calculator slips. A rounded number hides an error interval of half a unit either side, written with ≤ below and &lt; above, and when rounded numbers go into a calculation, the bounds of the answer come from choosing the right bounds of the inputs.</p>
+
+<footer>Made for KS3/KS4 students. Rounding, significant figures, estimation and error intervals are in the England national curriculum at key stage 3 under Number; bounds in calculations are GCSE Higher. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmtN=(v,d=6)=>{const s=parseFloat(v.toFixed(d));return String(s);};
+
+/* ---------- 1. number line ---------- */
+const nl=document.getElementById('nl'),nlTo=document.getElementById('nlTo');
+function drawNL(){
+  const x=+nl.value/10; // 20.0 .. 40.0
+  const u=parseFloat(nlTo.value);
+  const lo=Math.floor(x/u+1e-9)*u,hi=lo+u,mid=lo+u/2;
+  const r=x>=mid-1e-9?hi:lo;
+  // window: show from lo - u*0.5 to hi + u*0.5 scaled; but keep the line readable
+  const span=u*2,start=lo-u/2;
+  const sx=v=>40+(v-start)/span*620;
+  const svg=document.getElementById('nlSvg');
+  const dec=u<1?1:0;
+  let s=`<line x1="40" y1="60" x2="660" y2="60" stroke="${css('--muted')}" stroke-width="2"/>`;
+  // ticks every u/10
+  for(let i=0;i<=20;i++){const v=start+span*i/20;const big=Math.abs((v-lo)/u-Math.round((v-lo)/u))<1e-6;s+=`<line x1="${sx(v)}" y1="${big?48:54}" x2="${sx(v)}" y2="${big?72:66}" stroke="${css('--muted')}" stroke-width="${big?2:1}"/>`;if(big)s+=`<text x="${sx(v)}" y="92" text-anchor="middle" font-family="${css('--mono')}" font-size="14" fill="${css('--fg')}">${v.toFixed(dec)}</text>`;}
+  // halfway marker
+  s+=`<line x1="${sx(mid)}" y1="40" x2="${sx(mid)}" y2="80" stroke="${css('--two')}" stroke-dasharray="4 3" stroke-width="1.5"/><text x="${sx(mid)}" y="32" text-anchor="middle" font-size="12" font-family="${css('--mono')}" fill="${css('--two')}">halfway ${mid.toFixed(dec+1)}</text>`;
+  // arrow from x to r
+  s+=`<line x1="${sx(x)}" y1="60" x2="${sx(r)}" y2="60" stroke="${css('--hi')}" stroke-width="4" opacity=".6"/>`;
+  s+=`<circle cx="${sx(x)}" cy="60" r="7" fill="${css('--accent')}"/><circle cx="${sx(r)}" cy="60" r="8" fill="none" stroke="${css('--hi')}" stroke-width="3"/>`;
+  s+=`<text x="${sx(x)}" y="18" text-anchor="middle" font-size="14" font-weight="600" font-family="${css('--mono')}" fill="${css('--accent')}">${x.toFixed(1)}</text>`;
+  svg.innerHTML=s;
+  document.getElementById('nlN').textContent=x.toFixed(1);
+  document.getElementById('nlBetween').textContent=`${lo.toFixed(dec)} and ${hi.toFixed(dec)}`;
+  document.getElementById('nlR').textContent=`${r.toFixed(dec)}  (${x>=mid-1e-9?(Math.abs(x-mid)<1e-9?'exactly halfway → up':'nearer the top'):'nearer the bottom'})`;
+}
+nl.addEventListener('input',drawNL);nlTo.addEventListener('change',drawNL);drawNL();
+
+/* ---------- 2. sf / dp with digit highlighting (string arithmetic) ---------- */
+function roundStr(str,k,mode){
+  // returns {html, kept, deciding, result} or null
+  str=str.trim().replace(/[\s,]/g,'');
+  const m=str.match(/^(-?)(\d*)\.?(\d*)$/);if(!m)return null;
+  let [,sign,ip,fp]=m;if(ip===''&&fp==='')return null;if(ip==='')ip='0';
+  let digits=ip+fp;const point=ip.length; // point index: digits before the point
+  // find index of first significant digit
+  let first=digits.search(/[1-9]/);if(first<0)first=0;
+  // index (exclusive) of last kept digit
+  let keepEnd= mode==='sf'? first+k : point+k;
+  if(keepEnd<=0){ // rounding to a place left of all digits present (e.g. 0.004 to 0 dp): handle generically
+    keepEnd=Math.max(keepEnd,0);
+  }
+  // pad with zeros so we have a deciding digit
+  while(digits.length<=keepEnd)digits+='0';
+  const decidingIdx=keepEnd,deciding=+digits[decidingIdx];
+  let kept=digits.slice(0,keepEnd).split('').map(Number);
+  // round up?
+  let up=deciding>=5;
+  if(up){let i=kept.length-1;while(i>=0){if(kept[i]===9){kept[i]=0;i--;}else{kept[i]++;break;}}if(i<0){kept.unshift(1);}}
+  let carried=up&&kept.length>keepEnd; // extra leading digit from carry
+  let pointPos=point+(carried?1:0);
+  // rebuild: kept digits, then zeros up to the point if needed
+  let out=kept.map(String).join('');
+  if(out.length<pointPos)out+= '0'.repeat(pointPos-out.length);
+  let intPart=out.slice(0,pointPos)||'0',fracPart=out.slice(pointPos);
+  if(mode==='dp'){fracPart=(fracPart+'0'.repeat(k)).slice(0,k);}
+  else{ // sf: after a carry the significant digits may have shifted left; keep exactly k from the first non-zero
+    let fs=kept.findIndex(d=>d!==0);if(fs<0)fs=0;const newEnd=fs+k;
+    fracPart=fracPart.slice(0,Math.max(0,newEnd-pointPos));
+  }
+  let result=sign+intPart.replace(/^0+(?=\d)/,'')+(fracPart?'.'+fracPart:'');
+  // highlight html of original (unpadded view with pad zeros shown faint)
+  let html='';
+  const origLen=(ip+fp).length;
+  for(let i=0;i<digits.length;i++){
+    const ch=digits[i];let cls='';
+    if(i<keepEnd&&i>=first)cls='k';else if(i<first)cls='z';
+    if(i===decidingIdx)cls='d';
+    if(i>decidingIdx||(i>=origLen&&i!==decidingIdx))cls=(i>decidingIdx?'x':cls)||'x';
+    if(i>=origLen&&i!==decidingIdx)cls='x';
+    if(i===point&&i>0)html+='.';
+    html+=cls?`<span class="${cls}">${ch}</span>`:ch;
+    if(i>decidingIdx+3)break;
+  }
+  if(point===0)html='0.'+html; else if(point>=digits.length)html+='';
+  const keptStr=digits.slice(first,keepEnd);
+  return {html:sign+html,kept:keptStr||'(none)',deciding:`${deciding} → round ${up?'up':'down'}`,result};
+}
+const rfN=document.getElementById('rfN'),rfK=document.getElementById('rfK'),rfMode=document.getElementById('rfMode'),rfPick=document.getElementById('rfPick');
+function drawRF(){
+  const k=Math.max(1,Math.min(6,parseInt(rfK.value||'1',10)));
+  const r=roundStr(rfN.value,k,rfMode.value);
+  if(!r){document.getElementById('rfDigits').textContent='?';document.getElementById('rfKept').textContent='';document.getElementById('rfDec').textContent='';document.getElementById('rfRes').textContent='type a number';return;}
+  document.getElementById('rfDigits').innerHTML=r.html;
+  document.getElementById('rfKept').textContent=r.kept;
+  document.getElementById('rfDec').textContent=r.deciding;
+  document.getElementById('rfRes').textContent=`${r.result}  (${k} ${rfMode.value==='sf'?'s.f.':'d.p.'})`;
+}
+[rfN,rfK].forEach(e=>e.addEventListener('input',drawRF));rfMode.addEventListener('change',drawRF);
+rfPick.addEventListener('change',()=>{if(rfPick.value){rfN.value=rfPick.value;drawRF();}});drawRF();
+
+/* ---------- 3. estimation ---------- */
+function to1sf(v){if(v===0)return 0;const p=Math.pow(10,Math.floor(Math.log10(Math.abs(v))));return Math.round(v/p)*p;}
+const esA=document.getElementById('esA'),esB=document.getElementById('esB'),esC=document.getElementById('esC');
+function drawES(){
+  const a=parseFloat(esA.value),b=parseFloat(esB.value),c=parseFloat(esC.value);
+  const W=document.getElementById('esWork');
+  if(![a,b,c].every(isFinite)||c===0){W.textContent='Enter three numbers (the last one not zero).';return;}
+  const A=to1sf(a),B=to1sf(b),C=to1sf(c);const est=A*B/C,exact=a*b/c;
+  const dir=(x,X)=>X>x?'↑':X<x?'↓':'=';
+  W.innerHTML=`<span class="a">${a}</span> × <span class="a">${b}</span> ÷ <span class="a">${c}</span><br>
+≈ <span class="b">${fmtN(A)}</span> × <span class="b">${fmtN(B)}</span> ÷ <span class="b">${fmtN(C)}</span>   ← each rounded to 1 s.f. (${dir(a,A)} ${dir(b,B)} ${dir(c,C)})<br>
+= <span class="b">${fmtN(A*B)}</span> ÷ <span class="b">${fmtN(C)}</span><br>
+≈ <strong>${fmtN(est,4)}</strong><br>
+<span class="c">Exact: ${fmtN(exact,4)}.</span> Estimate is ${Math.abs(est-exact)/Math.abs(exact)<0.25?'close enough to trust the calculator':'some way off; 1 s.f. was a coarse rounding here, try 2 s.f.'}${est>exact?' (an over-estimate)':est<exact?' (an under-estimate)':''}.`;
+}
+[esA,esB,esC].forEach(e=>e.addEventListener('input',drawES));drawES();
+
+/* ---------- 4. error interval ---------- */
+const eiV=document.getElementById('eiV'),eiU=document.getElementById('eiU');
+function unitFor(v,sel){
+  if(sel.startsWith('sf')){const k=+sel.slice(2);if(v===0)return 1;const mag=Math.floor(Math.log10(Math.abs(v)));return Math.pow(10,mag-k+1);}
+  return parseFloat(sel);
+}
+function drawEI(){
+  const v=parseFloat(eiV.value);const sel=eiU.value;
+  if(!isFinite(v)){document.getElementById('eiIneq').textContent='type a number';return;}
+  const u=unitFor(v,sel),h=u/2,lo=v-h,hi=v+h;
+  const d=Math.max(0,-Math.floor(Math.log10(h))+1);
+  const f=x=>parseFloat(x.toFixed(Math.min(10,d+1))).toString();
+  const start=v-u*1.5,span=u*3,sx=t=>40+(t-start)/span*620;
+  const svg=document.getElementById('eiSvg');
+  let s=`<line x1="40" y1="55" x2="660" y2="55" stroke="${css('--muted')}" stroke-width="2"/>`;
+  for(let i=-1;i<=1;i++){const t=v+i*u;s+=`<line x1="${sx(t)}" y1="45" x2="${sx(t)}" y2="65" stroke="${css('--muted')}" stroke-width="2"/><text x="${sx(t)}" y="88" text-anchor="middle" font-size="14" font-family="${css('--mono')}" fill="${css('--fg')}">${f(t)}</text>`;}
+  s+=`<rect x="${sx(lo)}" y="40" width="${sx(hi)-sx(lo)}" height="30" fill="${css('--two')}" opacity=".25"/>`;
+  s+=`<circle cx="${sx(lo)}" cy="55" r="7" fill="${css('--two')}"/><circle cx="${sx(hi)}" cy="55" r="7" fill="${css('--panel')}" stroke="${css('--two')}" stroke-width="3"/>`;
+  s+=`<text x="${sx(lo)}" y="26" text-anchor="middle" font-size="13" font-family="${css('--mono')}" fill="${css('--two')}">${f(lo)} included</text><text x="${sx(hi)}" y="26" text-anchor="middle" font-size="13" font-family="${css('--mono')}" fill="${css('--two')}">${f(hi)} not included</text>`;
+  svg.innerHTML=s;
+  document.getElementById('eiIneq').textContent=`${f(lo)} ≤ x < ${f(hi)}`;
+  document.getElementById('eiLo').textContent=f(lo);
+  document.getElementById('eiHi').textContent=f(hi);
+  document.getElementById('eiHalf').textContent=`unit ${f(u)} → ± ${f(h)}`;
+}
+eiV.addEventListener('input',drawEI);eiU.addEventListener('change',drawEI);drawEI();
+
+/* ---------- 5. bounds calculator ---------- */
+const bA=document.getElementById('bA'),bAe=document.getElementById('bAe'),bB=document.getElementById('bB'),bBe=document.getElementById('bBe'),bOp=document.getElementById('bOp');
+function drawB(){
+  const a=parseFloat(bA.value),ae=parseFloat(bAe.value),b=parseFloat(bB.value),be=parseFloat(bBe.value),o=bOp.value;
+  const W=document.getElementById('bWork');
+  if(![a,ae,b,be].every(isFinite)){W.textContent='Enter all four numbers.';return;}
+  const aL=a-ae,aU=a+ae,bL=b-be,bU=b+be;
+  const r=x=>parseFloat(x.toPrecision(8)).toString();
+  let lo,hi,loS,hiS,sym;
+  if(o==='*'){lo=aL*bL;hi=aU*bU;sym='×';loS=`LB × LB = ${r(aL)} × ${r(bL)}`;hiS=`UB × UB = ${r(aU)} × ${r(bU)}`;}
+  else if(o==='/'){if(bL<=0&&bU>=0){W.textContent='b\'s interval includes 0, so a ÷ b has no finite bounds.';return;}lo=aL/bU;hi=aU/bL;sym='÷';loS=`LB ÷ UB = ${r(aL)} ÷ ${r(bU)}`;hiS=`UB ÷ LB = ${r(aU)} ÷ ${r(bL)}`;}
+  else if(o==='+'){lo=aL+bL;hi=aU+bU;sym='+';loS=`LB + LB = ${r(aL)} + ${r(bL)}`;hiS=`UB + UB = ${r(aU)} + ${r(bU)}`;}
+  else{lo=aL-bU;hi=aU-bL;sym='−';loS=`LB − UB = ${r(aL)} − ${r(bU)}`;hiS=`UB − LB = ${r(aU)} − ${r(bL)}`;}
+  const nominal=o==='*'?a*b:o==='/'?a/b:o==='+'?a+b:a-b;
+  W.innerHTML=`a: <span class="c">${r(aL)} ≤ a < ${r(aU)}</span>    b: <span class="c">${r(bL)} ≤ b < ${r(bU)}</span><br>
+Using the rounded values: ${r(a)} ${sym} ${r(b)} = <span class="a">${r(nominal)}</span><br>
+<span class="b">Lower bound</span> of a ${sym} b: ${loS} = <strong>${r(lo)}</strong><br>
+<span class="b">Upper bound</span> of a ${sym} b: ${hiS} = <strong>${r(hi)}</strong><br>
+So <span class="c">${r(lo)} ≤ a ${sym} b < ${r(hi)}</span>: the true answer could be anywhere in a range of width ${r(hi-lo)}.`;
+}
+[bA,bAe,bB,bBe,bOp].forEach(e=>e.addEventListener('input',drawB));drawB();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawNL();drawEI();});}
+new MutationObserver(()=>{drawNL();drawEI();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ---------- quiz ---------- */
+const QS=[
+  {q:'Round 0.040961 to 2 significant figures.',opts:['0.041','0.04','0.0410','0.04096'],a:0,fb:'First s.f. is the 4, second is the 0; the deciding digit 9 rounds the 0 up to 1.'},
+  {q:'Round 36 482 to 2 significant figures.',opts:['36 000','36','36 500','37 000'],a:0,fb:'Keep 36, the deciding digit is 4 (round down), and keep the three zeros as place-holders.'},
+  {q:'Estimate 29.7 × 0.48 ÷ 5.9 by rounding to 1 s.f.',opts:['≈ 2.5','≈ 15','≈ 0.25','≈ 25'],a:0,fb:'30 × 0.5 ÷ 6 = 15 ÷ 6 = 2.5.'},
+  {q:'A length is 7.3 cm to 1 d.p. Which is its error interval?',opts:['7.25 ≤ L < 7.35','7.2 ≤ L < 7.4','7.25 < L ≤ 7.35','7.3 ≤ L < 7.4'],a:0,fb:'Half of 0.1 is 0.05 each side; ≤ at the bottom, < at the top.'},
+  {q:'x = 40 (nearest 10) and y = 6 (nearest whole). Upper bound of x ÷ y?',opts:['45 ÷ 5.5','45 ÷ 6.5','35 ÷ 5.5','40 ÷ 5.5'],a:0,fb:'Biggest answer from biggest top and smallest bottom: UB(x) ÷ LB(y) = 45 ÷ 5.5 ≈ 8.18.'},
+  {q:'How many significant figures in 0.00500?',opts:['3','1','5','2'],a:0,fb:'Leading zeros don\'t count; the 5 and the two trailing zeros after it do.'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Simultaneous Equations</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with interactive panels; graph-paper neutrals, teal = equation 1 / line 1, orange = equation 2 / line 2, plum = the shared solution point. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.E1{color:var(--accent);font-weight:600}.E2{color:var(--hi);font-weight:600}.SOL{color:var(--two);font-weight:600}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:4.2em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn:disabled{opacity:.4;cursor:default}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.3rem;text-align:center;margin:.6rem 0;line-height:1.8}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.work .row{display:grid;grid-template-columns:1fr auto;gap:1rem}
+.work .op{color:var(--two);font-size:.9rem;white-space:nowrap}
+.work .todo{opacity:.3}
+.eqs{display:grid;grid-template-columns:auto 1fr;gap:.3rem 1rem;font-family:var(--mono);font-size:1.2rem;align-items:center;margin:.6rem 0}
+.eqs .tag{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;padding:.15rem .5rem;border-radius:999px;color:#fff}
+.eqs .t1{background:var(--accent)}.eqs .t2{background:var(--hi)}
+.shop{display:grid;grid-template-columns:1fr auto;gap:.5rem 1rem;align-items:center;font-family:var(--mono);margin-top:.8rem}
+.shop .items{display:flex;flex-wrap:wrap;gap:4px}
+.shop .it{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:.85rem}
+.shop .it.a{background:var(--accent)}.shop .it.b{background:var(--hi)}.shop .it.gone{opacity:.2}
+.shop .price{font-weight:600;font-variant-numeric:tabular-nums}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Algebra · KS3 → GCSE</div>
+  <h1>Simultaneous Equations</h1>
+  <p class="lede">One equation with two unknowns has endless solutions. Two equations, both true at once, pin the unknowns down to a single pair. On a graph that pair is where two lines cross; on paper it's found by making one unknown disappear.</p>
+  <span class="gcse">National curriculum KS3: solve two simultaneous linear equations in two variables (algebraically and graphically); GCSE adds linear/quadratic pairs</span>
+</header>
+
+<h2>1 · Why one equation isn't enough</h2>
+<p><span class="m">x + y = 10</span>. What are x and y? Could be 3 and 7, or 1 and 9, or 12 and −2. Every point on a line satisfies it. Drag along the line: infinitely many answers. Now add a second fact: <span class="m">x − y = 4</span>. Only one point sits on both lines. That's the solution, and the only one.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>point on line 1 at x = <input type="range" id="whyX" min="-2" max="12" step="1" value="3"><span id="whyXv" style="font-family:var(--mono)"></span></label>
+    <label><input type="checkbox" id="whyL2"> add the second equation</label>
+  </div>
+  <svg id="whySvg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="work" id="whyWork"></div>
+</div>
+
+<h2>2 · Solving by drawing</h2>
+<p>Plot both lines (see the linear graphs page) and read the crossing point. It's quick and it shows you what the answer <em>means</em>, but reading a graph is only as accurate as your pencil. Set two equations and compare the graphical answer with the exact one.</p>
+
+<div class="lab">
+  <div class="eqs">
+    <span class="tag t1">1</span><span><input type="number" id="g1a" value="1">x + <input type="number" id="g1b" value="1">y = <input type="number" id="g1c" value="6"></span>
+    <span class="tag t2">2</span><span><input type="number" id="g2a" value="2">x − <input type="number" id="g2b" value="1">y = <input type="number" id="g2c" value="3"></span>
+  </div>
+  <svg id="grSvg" viewBox="0 0 400 400" width="400" height="400"></svg>
+  <div class="readout">
+    <div class="p"><b>Crossing point</b><span id="grSol"></span></div>
+    <div><b>Check in 1</b><span id="grC1"></span></div>
+    <div><b>Check in 2</b><span id="grC2"></span></div>
+  </div>
+  <div class="msg" id="grMsg"></div>
+</div>
+
+<h2>3 · Elimination: the shopping-bill idea</h2>
+<p>Before any algebra, here's the whole method in a shop. Two apples and a banana cost 90p. Two apples and three bananas cost £1.50. The apples are the same in both bills, so the <em>difference</em> between the bills must be due to the bananas alone: two extra bananas cost 60p, so one banana is 30p. Subtracting one bill from the other <strong>eliminated</strong> the apples.</p>
+
+<div class="lab">
+  <div class="shop" id="shop"></div>
+  <div class="controls"><button class="btn primary" id="shopStep">Next step</button><button class="btn" id="shopReset">Reset</button></div>
+  <div class="work" id="shopWork"></div>
+</div>
+
+<p>That's elimination. Line the equations up, make the coefficients of one unknown match, then add or subtract so that unknown vanishes. Solve the one-unknown equation that's left, then substitute back to find the other.</p>
+
+<h2>4 · Elimination step by step</h2>
+<p>Choose an equation pair. The solver shows each move; click through so you see why each is made. Pairs are grouped by difficulty: matching coefficients first, then one equation needs multiplying, then both.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>System <select id="elE">
+      <optgroup label="Coefficients already match">
+        <option value="1,1,10,1,-1,4">x + y = 10 ;  x − y = 4</option>
+        <option value="2,3,12,2,1,8">2x + 3y = 12 ;  2x + y = 8</option>
+        <option value="3,2,16,5,2,24">3x + 2y = 16 ;  5x + 2y = 24</option>
+        <option value="4,-3,6,2,3,12">4x − 3y = 6 ;  2x + 3y = 12</option>
+      </optgroup>
+      <optgroup label="Multiply one equation">
+        <option value="2,3,13,1,2,8">2x + 3y = 13 ;  x + 2y = 8</option>
+        <option value="3,2,19,1,-4,-3">3x + 2y = 19 ;  x − 4y = −3</option>
+        <option value="5,2,16,3,4,18">5x + 2y = 16 ;  3x + 4y = 18</option>
+      </optgroup>
+      <optgroup label="Multiply both">
+        <option value="3,2,12,2,5,19">3x + 2y = 12 ;  2x + 5y = 19</option>
+        <option value="2,3,8,5,2,9">2x + 3y = 8 ;  5x + 2y = 9</option>
+        <option value="4,3,10,3,-2,-1">4x + 3y = 10 ;  3x − 2y = −1</option>
+      </optgroup>
+    </select></label>
+    <button class="btn primary" id="elNext">Next step</button><button class="btn" id="elAll">Show all</button><button class="btn" id="elReset">Reset</button>
+  </div>
+  <div class="work" id="elWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Same signs subtract, different signs add.</strong> If the matched terms are +3y and +3y, subtracting removes them. If they're +3y and −3y, adding does. Students who always subtract get stuck on the second kind; students who always add get stuck on the first. Look at the signs, then choose. And when you subtract, subtract <em>every</em> term, including the right-hand side.</p>
+</div>
+
+<h2>5 · Substitution: the other route</h2>
+<p>If one equation already has a lonely letter, like <span class="m">y = 2x − 1</span>, there's a shortcut. You know what y equals, so put that expression in place of y in the other equation. Now there's only x. This is the method you'll need at GCSE when one equation is a curve.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>System <select id="suE">
+      <option value="2,-1,3,1,11">y = 2x − 1 ;  3x + y = 11</option>
+      <option value="1,3,2,-1,7">y = x + 3 ;  2x − y = 7</option>
+      <option value="-1,5,4,2,8">y = 5 − x ;  4x + 2y = 8</option>
+      <option value="3,-2,1,2,10">y = 3x − 2 ;  x + 2y = 10</option>
+    </select></label>
+    <button class="btn primary" id="suNext">Next step</button><button class="btn" id="suAll">Show all</button><button class="btn" id="suReset">Reset</button>
+  </div>
+  <div class="work" id="suWork"></div>
+</div>
+
+<h2>6 · From words to equations</h2>
+<p>Exam questions rarely hand you the equations. They describe a situation with two unknowns and two facts. The skill is translating. Each fact becomes one equation; the unknowns are whatever the question asks for.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>Problem <select id="wdE">
+      <option value="0">Cinema tickets</option><option value="1">Coins in a jar</option><option value="2">Two numbers</option><option value="3">Rectangle</option>
+    </select></label>
+    <label>reveal <input type="range" id="wdS" min="0" max="3" value="0"></label>
+  </div>
+  <div class="work" id="wdWork"></div>
+</div>
+
+<h2>7 · When it goes wrong (and what that means)</h2>
+<div class="tbl"><table>
+  <tr><th>What happens</th><th>Example</th><th>On the graph</th><th>Meaning</th></tr>
+  <tr><td>Both unknowns vanish, leaving something <em>false</em></td><td class="mono">x + y = 5 and x + y = 8 → 0 = −3</td><td>Parallel lines</td><td>No solution. The facts contradict each other.</td></tr>
+  <tr><td>Both vanish, leaving something <em>true</em></td><td class="mono">x + y = 5 and 2x + 2y = 10 → 0 = 0</td><td>The same line twice</td><td>Infinitely many solutions. The second fact is the first in disguise.</td></tr>
+  <tr><td>Fractions appear</td><td class="mono">x = 7/3</td><td>Lines cross between grid points</td><td>Perfectly fine. Keep it as a fraction; don't round.</td></tr>
+</table></div>
+
+<h2>8 · Where simultaneous equations show up</h2>
+<div class="grid2">
+  <div class="use"><h3>Pricing</h3>
+    <p>Two orders, two totals, unknown unit prices: exactly the shopping-bill example. Businesses back out component prices from bundled invoices this way.</p></div>
+  <div class="use"><h3>Mixing</h3>
+    <p>How much 20% solution and 50% solution to mix for 10 litres of 35%? Volume equation plus concentration equation, two unknowns. Chemistry, cooking, paint.</p></div>
+  <div class="use"><h3>Break-even and tariffs</h3>
+    <p>Two phone plans, two cost formulas: where they cross is the usage at which they cost the same. Below it one is cheaper, above it the other.</p></div>
+  <div class="use"><h3>Computing and graphics</h3>
+    <p>Where does a ray hit a surface? Where do two roads on a map intersect? Every line-crossing in a game engine is a pair of simultaneous equations solved millions of times a second.</p></div>
+  <div class="use"><h3>Science</h3>
+    <p>Two balanced forces, two circuit loops (Kirchhoff's laws), two reactions sharing a reagent: nature keeps handing you two facts about two unknowns.</p></div>
+  <div class="use"><h3>Bigger systems</h3>
+    <p>Three unknowns need three equations; a weather model has millions. The method scales (it becomes matrix algebra), but the idea is still "eliminate until one unknown is left".</p></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Solve 3x + 2y = 16 and 5x + 2y = 24</summary>
+  <div class="step"><strong>The y-terms match</strong> (+2y and +2y), so subtract. (2) − (1): 2x = 8, so x = 4.</div>
+  <div class="step"><strong>Substitute into (1):</strong> 12 + 2y = 16, so 2y = 4, y = 2.</div>
+  <div class="step"><strong>Check in (2):</strong> 20 + 4 = 24 ✓. Solution <strong>x = 4, y = 2</strong>.</div>
+</details>
+<details>
+  <summary>Solve 2x + 3y = 13 and x + 2y = 8</summary>
+  <div class="step"><strong>Nothing matches.</strong> Multiply (2) by 2 to get 2x + 4y = 16; now the x-terms match (1).</div>
+  <div class="step"><strong>Subtract:</strong> (2x + 4y) − (2x + 3y) = 16 − 13 → y = 3.</div>
+  <div class="step"><strong>Back into (2):</strong> x + 6 = 8, x = 2. Check (1): 4 + 9 = 13 ✓. <strong>x = 2, y = 3</strong>.</div>
+</details>
+<details>
+  <summary>Solve y = 2x − 1 and 3x + y = 11 by substitution</summary>
+  <div class="step"><strong>Replace y in the second</strong> with (2x − 1): 3x + (2x − 1) = 11.</div>
+  <div class="step"><strong>Simplify and solve:</strong> 5x − 1 = 11, 5x = 12, x = 12/5 = 2.4.</div>
+  <div class="step"><strong>Find y:</strong> y = 2(2.4) − 1 = 3.8. Check: 7.2 + 3.8 = 11 ✓. Fractions and decimals are normal answers.</div>
+</details>
+<details>
+  <summary>Exam-style: 3 coffees and 2 teas cost £8.70. 2 coffees and 5 teas cost £11.30. Find the price of each.</summary>
+  <div class="step"><strong>Define:</strong> c = price of a coffee, t = price of a tea, in pence to avoid decimals.</div>
+  <div class="step"><strong>Equations:</strong> 3c + 2t = 870 (1); 2c + 5t = 1130 (2).</div>
+  <div class="step"><strong>Match the c's:</strong> (1) × 2: 6c + 4t = 1740 (3). (2) × 3: 6c + 15t = 3390 (4).</div>
+  <div class="step"><strong>Subtract (3) from (4):</strong> 11t = 1650, t = 150. A tea is <strong>£1.50</strong>.</div>
+  <div class="step"><strong>Back into (1):</strong> 3c + 300 = 870, 3c = 570, c = 190. A coffee is <strong>£1.90</strong>.</div>
+  <div class="step"><strong>Check (2):</strong> 380 + 750 = 1130 ✓. Both answers are sensible café prices, which is itself a check: an answer like 220.9p would mean re-reading the question.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>Two unknowns need two independent facts. Graphically the solution is where two lines cross. Algebraically you eliminate one unknown by matching its coefficient in both equations (multiplying if needed) and then adding when the signs differ or subtracting when they match; or you substitute an expression for one unknown into the other equation. Either way you finish by substituting back and checking in both originals. Parallel lines mean no solution; identical lines mean infinitely many. In word problems, name the unknowns first, then turn each fact into an equation.</p>
+
+<footer>Made for KS3/KS4 students. Simultaneous linear equations are in the England national curriculum at key stage 3 under Algebra; linear/quadratic pairs are GCSE Higher. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=v=>Number.isInteger(v)?String(v):parseFloat(v.toFixed(2)).toString();
+const frac=v=>{if(Number.isInteger(v))return String(v);for(let d=2;d<=20;d++){const n=v*d;if(Math.abs(n-Math.round(n))<1e-9)return `${Math.round(n)}/${d}`;}return fmt(v);};
+const br=v=>v<0?`(${v})`:`${v}`;
+const term=(c,v,first)=>{if(c===0)return '';const mag=Math.abs(c);const body=(mag===1?'':mag)+v;return first?(c<0?'−'+body:body):(c<0?' − '+body:' + '+body);};
+const lin=(a,b,c)=>{let s=term(a,'x',true);s+=term(b,'y',s==='');return (s||'0')+' = '+c;};
+const row=(e,o,cls='')=>`<div class="row ${cls}"><span>${e}</span><span class="op">${o||''}</span></div>`;
+
+/* grid helper */
+const S=400,R=8,pad=24,cell=(S-2*pad)/(2*R);const sx=x=>pad+(x+R)*cell,sy=y=>pad+(R-y)*cell;
+function grid(){const f=`font-family="${css('--mono')}"`;let s='';for(let i=-R;i<=R;i++)s+=`<line x1="${sx(i)}" y1="${pad}" x2="${sx(i)}" y2="${S-pad}" stroke="${css('--grid')}"/><line x1="${pad}" y1="${sy(i)}" x2="${S-pad}" y2="${sy(i)}" stroke="${css('--grid')}"/>`;
+  s+=`<line x1="${pad}" y1="${sy(0)}" x2="${S-pad}" y2="${sy(0)}" stroke="${css('--muted')}" stroke-width="1.5"/><line x1="${sx(0)}" y1="${pad}" x2="${sx(0)}" y2="${S-pad}" stroke="${css('--muted')}" stroke-width="1.5"/>`;
+  for(let i=-R;i<=R;i+=2){if(i===0)continue;s+=`<text x="${sx(i)}" y="${sy(0)+12}" text-anchor="middle" font-size="9" fill="${css('--muted')}" ${f}>${i}</text><text x="${sx(0)-4}" y="${sy(i)+3}" text-anchor="end" font-size="9" fill="${css('--muted')}" ${f}>${i}</text>`;}return s;}
+function lineSVG(a,b,c,color,dash){ // ax+by=c
+  if(b===0&&a===0)return '';if(b===0){const x=c/a;return `<line x1="${sx(x)}" y1="${pad}" x2="${sx(x)}" y2="${S-pad}" stroke="${color}" stroke-width="2.5" ${dash?'stroke-dasharray="6 5"':''}/>`;}
+  const y=x=>(c-a*x)/b;const x0=-R-2,x1=R+2;return `<line x1="${sx(x0)}" y1="${sy(y(x0))}" x2="${sx(x1)}" y2="${sy(y(x1))}" stroke="${color}" stroke-width="2.5" ${dash?'stroke-dasharray="6 5"':''}/>`;}
+const dot=(x,y,c,r=6,label)=>`<circle cx="${sx(x)}" cy="${sy(y)}" r="${r}" fill="${c}"/>`+(label?`<text x="${sx(x)+9}" y="${sy(y)-8}" font-size="11" font-weight="600" fill="${c}" font-family="${css('--mono')}">${label}</text>`:'');
+function render(svg,body){svg.innerHTML=`<defs><clipPath id="c${svg.id}"><rect x="${pad}" y="${pad}" width="${S-2*pad}" height="${S-2*pad}"/></clipPath></defs>`+grid()+`<g clip-path="url(#c${svg.id})">${body}</g>`;}
+function solve(a1,b1,c1,a2,b2,c2){const det=a1*b2-a2*b1;if(Math.abs(det)<1e-12){const same=Math.abs(a1*c2-a2*c1)<1e-12&&Math.abs(b1*c2-b2*c1)<1e-12;return {none:!same,many:same};}return {x:(c1*b2-c2*b1)/det,y:(a1*c2-a2*c1)/det};}
+
+/* 1. why */
+const whyX=document.getElementById('whyX'),whyL2=document.getElementById('whyL2');
+function drawWhy(){const x=+whyX.value,y=10-x;document.getElementById('whyXv').textContent=' '+x;
+  let body=lineSVG(1,1,10,css('--accent'));if(whyL2.checked)body+=lineSVG(1,-1,4,css('--hi'))+dot(7,3,css('--two'),8,'(7, 3)');body+=dot(x,y,css('--accent'),6,`(${x}, ${y})`);
+  render(document.getElementById('whySvg'),body);
+  const ok2=x-y===4;
+  document.getElementById('whyWork').innerHTML=`<span class="a">x + y = 10</span>: at x = ${x}, y = ${y}.  ${x} + ${y} = 10 ✓   (and so does every other point on the teal line)`+(whyL2.checked?`<br><span class="b">x − y = 4</span>: ${x} − ${y} = ${x-y} ${ok2?'✓ this point is on both lines':'✗ not on the orange line'}<br>${ok2?'<span class="c"><strong>x = 7, y = 3</strong> is the only pair that satisfies both.</span>':'Slide until the teal dot lands on the crossing.'}`:'');}
+whyX.addEventListener('input',drawWhy);whyL2.addEventListener('input',drawWhy);drawWhy();
+
+/* 2. graphical */
+const gIds=['g1a','g1b','g1c','g2a','g2b','g2c'].map(i=>document.getElementById(i));
+function drawGR(){const [a1,b1,c1,a2,nb2,c2]=gIds.map(e=>parseFloat(e.value)||0);const b2=-nb2;
+  const s=solve(a1,b1,c1,a2,b2,c2);let body=lineSVG(a1,b1,c1,css('--accent'))+lineSVG(a2,b2,c2,css('--hi'));const M=document.getElementById('grMsg');
+  if(s.none||s.many){document.getElementById('grSol').textContent=s.none?'none: parallel':'every point: same line';document.getElementById('grC1').textContent='—';document.getElementById('grC2').textContent='—';M.textContent=s.none?'The lines are parallel (same gradient, different intercept): no pair of values works.':'Both equations describe the same line: infinitely many solutions.';}
+  else{body+=dot(s.x,s.y,css('--two'),7,`(${fmt(s.x)}, ${fmt(s.y)})`);document.getElementById('grSol').textContent=`x = ${frac(s.x)}, y = ${frac(s.y)}`;
+    document.getElementById('grC1').textContent=`${fmt(a1*s.x+b1*s.y)} = ${c1} ✓`;document.getElementById('grC2').textContent=`${fmt(a2*s.x+b2*s.y)} = ${c2} ✓`;
+    M.textContent=Number.isInteger(s.x)&&Number.isInteger(s.y)?'Whole-number crossing: easy to read off a drawn graph.':'The lines cross between grid points. A drawing would give you roughly the right answer; algebra gives it exactly.';}
+  render(document.getElementById('grSvg'),body);}
+gIds.forEach(e=>e.addEventListener('input',drawGR));drawGR();
+
+/* 3. shop */
+let shopStage=0;
+function drawShop(){const it=(k,n,gone)=>Array(n).fill(`<div class="it ${k} ${gone?'gone':''}">${k==='a'?'a':'b'}</div>`).join('');
+  const s=shopStage;
+  document.getElementById('shop').innerHTML=`<div class="items">${it('a',2,s>=1)}${it('b',1,s>=2)}</div><div class="price">90p</div><div class="items">${it('a',2,s>=1)}${it('b',1,s>=2)}${it('b',2,false)}</div><div class="price">150p</div>`;
+  const lines=[['2a + b = 90   and   2a + 3b = 150','two bills, same apples'],['the apples are identical in both bills, so ignore them: the difference is all bananas','eliminate a'],['one banana is also in both: that cancels too. What\'s left: 2b = 150 − 90 = 60','subtract bill 1 from bill 2'],['b = 30p.  Then 2a + 30 = 90, so 2a = 60, a = 30p','solve, then substitute back']];
+  document.getElementById('shopWork').innerHTML=lines.map((l,i)=>row(l[0],l[1],i>s?'todo':'')).join('');
+  document.getElementById('shopStep').disabled=s>=3;}
+document.getElementById('shopStep').addEventListener('click',()=>{shopStage=Math.min(3,shopStage+1);drawShop();});
+document.getElementById('shopReset').addEventListener('click',()=>{shopStage=0;drawShop();});drawShop();
+
+/* 4. elimination solver */
+function elimSteps(a1,b1,c1,a2,b2,c2){
+  const steps=[];const E=(a,b,c,tag)=>`<span class="${tag==='1'?'a':tag==='2'?'b':''}">${lin(a,b,c)}</span>`;
+  steps.push([`${E(a1,b1,c1,'1')}   (1)<br>${E(a2,b2,c2,'2')}   (2)`,'start']);
+  // choose variable to eliminate: prefer one with matching |coeff|
+  let elimX;if(Math.abs(a1)===Math.abs(a2))elimX=true;else if(Math.abs(b1)===Math.abs(b2))elimX=false;else{const lx=Math.abs(a1*a2)/gcd(a1,a2),ly=Math.abs(b1*b2)/gcd(b1,b2);elimX=lx<=ly;}
+  const p1=elimX?a1:b1,p2=elimX?a2:b2;const L=Math.abs(p1*p2)/gcd(p1,p2);const m1=L/Math.abs(p1),m2=L/Math.abs(p2);
+  let A1=a1,B1=b1,C1=c1,A2=a2,B2=b2,C2=c2;
+  if(m1!==1||m2!==1){A1*=m1;B1*=m1;C1*=m1;A2*=m2;B2*=m2;C2*=m2;
+    steps.push([`${m1!==1?`(1) × ${m1}:  ${E(A1,B1,C1,'1')}   (3)`:`(1) unchanged:  ${E(A1,B1,C1,'1')}   (3)`}<br>${m2!==1?`(2) × ${m2}:  ${E(A2,B2,C2,'2')}   (4)`:`(2) unchanged:  ${E(A2,B2,C2,'2')}   (4)`}`,`make the ${elimX?'x':'y'} coefficients match (${L})`]);}
+  const q1=elimX?A1:B1,q2=elimX?A2:B2;const sameSign=Math.sign(q1)===Math.sign(q2);
+  const ra=sameSign?A1-A2:A1+A2,rb=sameSign?B1-B2:B1+B2,rc=sameSign?C1-C2:C1+C2;
+  const lbl1=(m1!==1||m2!==1)?'(3)':'(1)',lbl2=(m1!==1||m2!==1)?'(4)':'(2)';
+  steps.push([`${lbl1} ${sameSign?'−':'+'} ${lbl2}:  ${lin(ra,rb,rc)}`,`${elimX?'x':'y'} terms are ${sameSign?'the same sign, so subtract':'opposite signs, so add'}: ${elimX?'x':'y'} vanishes`]);
+  const v=elimX?rc/rb:rc/ra;const vn=elimX?'y':'x';
+  steps.push([`${vn} = ${frac(v)}`,`÷ ${elimX?rb:ra}`]);
+  const other=elimX?(c1-b1*v)/a1:(c1-a1*v)/b1;const on=elimX?'x':'y';
+  steps.push([`into (1): ${elimX?`${term(a1,'x',true)} + ${b1} × ${br(fmt(v))} = ${c1}`:`${a1} × ${br(fmt(v))}${term(b1,'y',false)} = ${c1}`}  →  ${on} = ${frac(other)}`,`substitute ${vn} back`]);
+  const x=elimX?other:v,y=elimX?v:other;
+  steps.push([`check (2): ${br(a2)} × ${br(fmt(x))} + ${br(b2)} × ${br(fmt(y))} = ${fmt(a2*x+b2*y)} ✓<br><strong>x = ${frac(x)}, y = ${frac(y)}</strong>`,'always check in the other equation']);
+  return steps;}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;}
+const elE=document.getElementById('elE');let elStage=0,elSteps=[];
+function elLoad(){const v=elE.value.split(',').map(Number);elSteps=elimSteps(...v);elStage=0;drawEl();}
+function drawEl(){document.getElementById('elWork').innerHTML=elSteps.map((s,i)=>row(s[0],s[1],i>elStage?'todo':'')).join('');document.getElementById('elNext').disabled=elStage>=elSteps.length-1;}
+document.getElementById('elNext').addEventListener('click',()=>{elStage=Math.min(elSteps.length-1,elStage+1);drawEl();});
+document.getElementById('elAll').addEventListener('click',()=>{elStage=elSteps.length-1;drawEl();});
+document.getElementById('elReset').addEventListener('click',()=>{elStage=0;drawEl();});elE.addEventListener('change',elLoad);elLoad();
+
+/* 5. substitution solver */
+function subSteps(m,k,a,b,c){ // y = m x + k ; a x + b y = c
+  const yexpr=`${term(m,'x',true)}${k<0?' − '+(-k):k>0?' + '+k:''}`;const steps=[];
+  steps.push([`<span class="a">y = ${yexpr}</span>   (1)<br><span class="b">${lin(a,b,c)}</span>   (2)`,'start: (1) already says what y is']);
+  steps.push([`${term(a,'x',true)} + ${b} × (${yexpr}) = ${c}`,'replace y in (2) with the bracket from (1)']);
+  const A=a+b*m,K=b*k;steps.push([`${term(a,'x',true)}${term(b*m,'x',false)}${K<0?' − '+(-K):K>0?' + '+K:''} = ${c}`,'expand the bracket']);
+  steps.push([`${term(A,'x',true)} = ${c-K}`,'collect like terms, move the number across']);
+  const x=(c-K)/A;steps.push([`x = ${frac(x)}`,`÷ ${A}`]);
+  const y=m*x+k;steps.push([`y = ${m} × ${br(fmt(x))}${k<0?' − '+(-k):k>0?' + '+k:''} = ${frac(y)}`,'back into (1), the easy one']);
+  steps.push([`check (2): ${a} × ${br(fmt(x))} + ${b} × ${br(fmt(y))} = ${fmt(a*x+b*y)} ✓<br><strong>x = ${frac(x)}, y = ${frac(y)}</strong>`,'check in (2)']);return steps;}
+const suE=document.getElementById('suE');let suStage=0,suSteps=[];
+function suLoad(){suSteps=subSteps(...suE.value.split(',').map(Number));suStage=0;drawSu();}
+function drawSu(){document.getElementById('suWork').innerHTML=suSteps.map((s,i)=>row(s[0],s[1],i>suStage?'todo':'')).join('');document.getElementById('suNext').disabled=suStage>=suSteps.length-1;}
+document.getElementById('suNext').addEventListener('click',()=>{suStage=Math.min(suSteps.length-1,suStage+1);drawSu();});
+document.getElementById('suAll').addEventListener('click',()=>{suStage=suSteps.length-1;drawSu();});
+document.getElementById('suReset').addEventListener('click',()=>{suStage=0;drawSu();});suE.addEventListener('change',suLoad);suLoad();
+
+/* 6. words */
+const WD=[
+  {text:'Two adults and three children pay £29 for cinema tickets. Three adults and one child pay £29.50. Find the price of each ticket.',steps:[['Let a = adult price, c = child price, in pence.','name the unknowns'],['2a + 3c = 2900   (1)<br>3a + c = 2950   (2)','one equation per sentence'],['(2) × 3: 9a + 3c = 8850 (3). (3) − (1): 7a = 5950, a = 850. Then 2550 + c = 2950, c = 400.<br>Adult <strong>£8.50</strong>, child <strong>£4.00</strong>. Check (1): 1700 + 1200 = 2900 ✓','match the c terms, subtract, substitute back']]},
+  {text:'A jar holds 20 coins, all 10p and 50p pieces, worth £4.80 in total. How many of each?',steps:[['Let t = number of 10p coins, f = number of 50p coins.','name the unknowns'],['t + f = 20   (1)   count<br>10t + 50f = 480   (2)   value in pence','one for the count, one for the value'],['(1) × 10: 10t + 10f = 200. (2) − that: 40f = 280, f = 7. Then t = 13.<br>Check: 13 × 10 + 7 × 50 = 130 + 350 = 480 ✓','solve']]},
+  {text:'The sum of two numbers is 25 and their difference is 7. Find them.',steps:[['Let the numbers be x and y, with x the larger.','name the unknowns'],['x + y = 25   (1)<br>x − y = 7   (2)','"sum" is +, "difference" is −'],['Add: 2x = 32, x = 16. Then y = 9. Check: 16 − 9 = 7 ✓','opposite signs on y: add']]},
+  {text:'A rectangle has perimeter 34 cm. Its length is 5 cm more than its width. Find its dimensions.',steps:[['Let l = length, w = width.','name the unknowns'],['2l + 2w = 34   (1)<br>l = w + 5   (2)','perimeter fact; "5 more than" fact'],['(2) gives l directly, so substitute: 2(w + 5) + 2w = 34 → 4w + 10 = 34 → w = 6, l = 11.<br>Check: 2(11) + 2(6) = 34 ✓','substitution suits this one']]}
+];
+const wdE=document.getElementById('wdE'),wdS=document.getElementById('wdS');
+function drawWd(){const P=WD[+wdE.value],s=+wdS.value;document.getElementById('wdWork').innerHTML=`<div class="row"><span style="font-family:var(--body)">${P.text}</span><span class="op">problem</span></div>`+P.steps.map((st,i)=>row(st[0],st[1],i>=s?'todo':'')).join('');}
+wdE.addEventListener('change',()=>{wdS.value=0;drawWd();});wdS.addEventListener('input',drawWd);drawWd();
+
+if(window.matchMedia){window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawWhy();drawGR();});}
+new MutationObserver(()=>{drawWhy();drawGR();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'x + y = 9 and x − y = 3. Best first move?',opts:['Add them: the y terms cancel','Subtract them: the y terms cancel','Multiply the first by 3','Substitute x = 9'],a:0,fb:'+y and −y are opposite signs, so adding eliminates y: 2x = 12.'},
+  {q:'Solve x + y = 9, x − y = 3.',opts:['x = 6, y = 3','x = 3, y = 6','x = 9, y = 0','x = 4.5, y = 4.5'],a:0,fb:'2x = 12 → x = 6; then y = 3. Check: 6 − 3 = 3 ✓'},
+  {q:'3x + 2y = 12 and 3x + 5y = 21. Subtracting gives…',opts:['3y = 9','7y = 33','6x + 7y = 33','3y = 33'],a:0,fb:'Same-sign 3x terms cancel; 5y − 2y = 3y; 21 − 12 = 9.'},
+  {q:'To eliminate y from 2x + 3y = 7 and 4x − y = 5, multiply the second equation by…',opts:['3','2','4','−1'],a:0,fb:'4x − y becomes 12x − 3y; now +3y and −3y are opposites, so add.'},
+  {q:'y = x + 4 and 2x + y = 13. Substituting gives…',opts:['2x + (x + 4) = 13','2x + x = 13 + 4','2(x + 4) + y = 13','x + 4 = 13'],a:0,fb:'Replace the y in the second equation with the expression x + 4.'},
+  {q:'On a graph, the solution of a pair of simultaneous equations is…',opts:['where the two lines cross','the y-intercept of the first line','the gradient of the second line','where either line crosses the x-axis'],a:0,fb:'Only the crossing point lies on both lines, so only it satisfies both equations.'},
+  {q:'x + y = 5 and 2x + 2y = 7 have…',opts:['no solution (parallel lines)','one solution','infinitely many solutions','x = 5, y = 7'],a:0,fb:'Doubling the first gives 2x + 2y = 10, which contradicts 2x + 2y = 7. Same gradient, different lines.'},
+  {q:'3 pens and 2 rulers cost £2.10; 1 pen and 2 rulers cost £1.30. A pen costs…',opts:['40p','35p','45p','65p'],a:0,fb:'Subtract: 2 pens = 80p, so one pen is 40p. (Rulers: 45p.)'}
+];
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

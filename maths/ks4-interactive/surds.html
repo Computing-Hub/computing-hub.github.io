@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Surds</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; each numbered section has an interactive SVG panel drawn from JS, with step-through or "try it" controls underneath. Graph-paper neutrals. Colours on this page: teal = rational parts (whole numbers, square numbers and the square factor that comes OUT of a root), orange = the surd part that stays inside a root (√2, √3 …), plum = the multiplier used to rationalise a denominator (√b over √b, or the conjugate) and the terms it makes cancel. Green/red are only used for right/wrong feedback. */
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+a{color:var(--accent)}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.tag{display:inline-block;font:600 .65rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:middle;margin-left:.3rem;position:relative;top:-.15em}
+.tag.g{background:var(--hi-soft);color:var(--hi)}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.R{color:var(--accent);font-weight:600}.S{color:var(--hi);font-weight:600}.K{color:var(--two);font-weight:600}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.25;margin:0 .15em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .2em}
+.fr>span:last-child{padding:0 .2em}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto;touch-action:none}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:5.5em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);max-width:100%}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.btn:disabled{opacity:.45;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chips button.btn{font-size:.85rem;padding:.3rem .7rem;font-family:var(--mono)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .t{color:var(--hi)}.readout .p{color:var(--two)}.readout .f{color:var(--accent)}
+.big{font-family:var(--mono);font-size:1.6rem;text-align:center;margin:.6rem 0}
+.pq{font-size:1.08rem;font-weight:500;margin:.2rem 0 .6rem}
+.msg{font-size:.95rem;color:var(--muted);margin-top:.5rem;min-height:1.4em}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-wrap:anywhere}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}.work .x{color:var(--bad)}.work .g{color:var(--good)}
+.work .dim{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.callout ul{margin:.3rem 0;padding-left:1.2rem}
+.recap{background:var(--accent-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.recap p{margin:.3rem 0}
+.recap ul{margin:.3rem 0;padding-left:1.2rem}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">GCSE · Number</div>
+  <h1>Surds <span class="tag g">Higher</span></h1>
+  <p class="lede">Some square roots, like √9 = 3, come out as neat numbers. Most, like √2, never do: their decimals go on for ever without a pattern. Rather than round them, mathematicians keep them as roots and work with them exactly. These exact roots are called <strong>surds</strong>, and this page shows you how to simplify them, add and multiply them, and tidy them out of the bottom of a fraction.</p>
+  <span class="gcse">DfE GCSE subject content (Number, Higher tier): calculate exactly with surds; simplify surd expressions involving squares, e.g. √12 = √(4 × 3) = √4 × √3 = 2√3; rationalise denominators</span>
+</header>
+
+<div class="recap">
+  <p><strong>What you need from KS3</strong></p>
+  <ul>
+    <li><strong>Square numbers</strong>: 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144 … Know them on sight; this page uses them constantly.</li>
+    <li><strong>Square roots</strong>: √36 = 6 because 6² = 36. The √ sign always means the <em>positive</em> root. Recap on the <a href="../ks3-interactive/powers-and-roots.html">powers and roots</a> page.</li>
+    <li><strong>Factors</strong>: numbers that divide exactly. Splitting a number into factors, especially prime factors, is on the <a href="../ks3-interactive/prime-factorisation.html">prime factorisation</a> page.</li>
+    <li><strong>Expanding brackets</strong> and collecting like terms, such as 3x + 5x = 8x: see <a href="../ks3-interactive/expanding-factorising.html">expanding and factorising</a>.</li>
+  </ul>
+</div>
+
+<h2>1 · What is a surd? <span class="tag g">Higher</span></h2>
+<p>Draw a square with sides 1 unit long and measure across its diagonal. By Pythagoras (see the <a href="../ks3-interactive/pythagoras.html">Pythagoras</a> page), the diagonal d satisfies d² = 1² + 1² = 2, so <span class="m">d = √2</span>. That is a real, physical length. Swing the diagonal down onto the number line and see exactly where it lands.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>swing the diagonal <input type="range" id="sqT" min="0" max="100" value="0"></label>
+  </div>
+  <svg id="sqSvg" viewBox="0 0 420 240" width="420" height="240" aria-label="Unit square with its diagonal swung onto a number line"></svg>
+  <div class="msg" id="sqMsg"></div>
+</div>
+
+<p>So what is √2 as a decimal? We can trap it. 1.4² = 1.96 is too small and 1.5² = 2.25 is too big, so √2 is between 1.4 and 1.5. Press the button to zoom in one decimal place at a time.</p>
+
+<div class="lab">
+  <div class="controls">
+    <button class="btn primary" id="zmMore">Zoom in one more decimal place</button>
+    <button class="btn" id="zmReset">Start again</button>
+  </div>
+  <div class="work" id="zmWork"></div>
+</div>
+
+<p>However far you zoom, the square is <em>never</em> exactly 2. The decimal for √2 goes on for ever and never settles into a repeating pattern. A number like that cannot be written as a fraction, and is called <strong>irrational</strong>. (Numbers that <em>can</em> be written as a fraction of two whole numbers, like 3, ½ or 0.75 = ¾, are <strong>rational</strong>.)</p>
+
+<div class="callout">
+  <p><strong>Why √2 can't be a fraction.</strong> Suppose √2 = p/q, a fraction already in its lowest terms. Square both sides: 2 = p²/q², so p² = 2q². That makes p² even, so p is even: write p = 2k. Then 4k² = 2q², so q² = 2k², which makes q even too. But then p and q share a factor of 2, and we said the fraction was in lowest terms. The assumption has led to nonsense, so it was false: √2 is not a fraction.</p>
+</div>
+
+<p>A <strong>surd</strong> is a root that is irrational, such as √2, √3, √10 or 5√7. √9 is <em>not</em> a surd, because it equals 3 exactly. The square root of any whole number that isn't a square number is a surd. Slide n to see which roots are surds and where they sit on the number line.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>n = <input type="range" id="nlN" min="1" max="100" value="20"><span id="nlNv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <svg id="nlSvg" viewBox="0 0 420 130" width="420" height="130" aria-label="Number line showing the square root of n"></svg>
+  <div class="msg" id="nlMsg"></div>
+</div>
+
+<p><strong>Why keep surds at all?</strong> Because any decimal for √2 is rounded, and rounding errors grow when you keep calculating. Writing <span class="m">√2</span> is <em>exact</em>, in the same way that leaving an answer as 12π is exact. Exam questions that say "give your answer in surd form" or "exact value" want you to keep the root.</p>
+
+<h2>2 · The key rule: √(ab) = √a × √b <span class="tag g">Higher</span></h2>
+<p>Every technique on this page rests on one rule: the square root of a product is the product of the square roots.</p>
+<p class="big"><span class="S">√(ab)</span> = √a × √b &nbsp;&nbsp; and &nbsp;&nbsp; √(a ÷ b) = √a ÷ √b</p>
+<p><strong>Why it's true.</strong> Square the right-hand side: (√a × √b)² = √a × √b × √a × √b = (√a × √a) × (√b × √b) = a × b. So √a × √b is a positive number whose square is ab. That is exactly what √(ab) means. Check with numbers: √4 × √9 = 2 × 3 = 6, and √36 = 6. ✓</p>
+<p>Set the two numbers and compare the bars. Then switch to <strong>+</strong> to see the rule that does <em>not</em> exist.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>a = <input type="range" id="muA" min="1" max="20" value="2"><span id="muAv" style="font-family:var(--mono)"></span></label>
+    <label>b = <input type="range" id="muB" min="1" max="20" value="8"><span id="muBv" style="font-family:var(--mono)"></span></label>
+    <label>operation <select id="muOp"><option value="x">×</option><option value="d">÷</option><option value="p">+</option></select></label>
+  </div>
+  <svg id="muSvg" viewBox="0 0 420 170" width="420" height="170" aria-label="Bars comparing two expressions"></svg>
+  <div class="work" id="muWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Exam trap: √(a + b) is NOT √a + √b.</strong> √9 + √16 = 3 + 4 = 7, but √(9 + 16) = √25 = 5. Think of a right-angled triangle with sides 3 and 4: going round the two short sides (7) is longer than cutting across the hypotenuse (5). Roots split over × and ÷, never over + or −.</p>
+</div>
+
+<h2>3 · Simplifying surds <span class="tag g">Higher</span></h2>
+<p>A surd is in its <strong>simplest form</strong> when the number under the root has no square factor except 1. To simplify, find the <strong>largest square number</strong> that divides into the number, split the root using the key rule, and square-root the square part.</p>
+<p class="big">√72 = √(<span class="R">36</span> × <span class="S">2</span>) = √<span class="R">36</span> × √<span class="S">2</span> = <span class="R">6</span>√<span class="S">2</span></p>
+<p>Here is a picture of why this works. 72 = 36 × 2, so you can build an area of 72 from 36 small squares, each of area 2, arranged 6 by 6. Each small square has side √2, so the big square has side 6 × √2. Its area is 72, so its side is also √72. Both are the same length: √72 = 6√2.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>simplify √<input type="number" id="spN" value="72" min="2" max="400" step="1"></label>
+  </div>
+  <div class="chips" id="spChips"></div>
+  <svg id="spSvg" viewBox="0 0 420 300" width="420" height="300" aria-label="Square of area N split into smaller squares"></svg>
+  <div class="work" id="spWork"></div>
+</div>
+
+<p>Tap a <em>smaller</em> square factor (for 72, try 4) and you'll see it still works, but you're left with √18, which can be simplified again. Using the <strong>largest</strong> square factor does it in one go. If you can't spot it, use prime factors: 72 = 2 × 2 × 2 × 3 × 3. Each <em>pair</em> of equal primes comes out of the root as one number: a pair of 2s gives 2, a pair of 3s gives 3, and the lonely 2 stays in. 2 × 3 × √2 = 6√2.</p>
+
+<div class="lab">
+  <p class="pq" id="stQ"></p>
+  <div class="controls">
+    <label>answer <input type="number" id="stA" style="width:4.5em" aria-label="number in front of the root"> √ <input type="number" id="stB" style="width:4.5em" aria-label="number under the root"></label>
+    <button class="btn primary" id="stGo">Check</button>
+    <button class="btn" id="stNew">New surd</button>
+  </div>
+  <div class="msg" id="stMsg"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes when simplifying</strong></p>
+  <ul>
+    <li><strong>Not square-rooting the square factor.</strong> √72 = √(36 × 2) gives 6√2, not 36√2. The 36 comes out as its root, 6.</li>
+    <li><strong>Stopping too early.</strong> √72 = 2√18 is true but not simplest, because 18 still contains the square 9.</li>
+    <li><strong>Using a factor that isn't square.</strong> √72 = √(8 × 9) is fine because 9 is square, but √(8 × 9) = √8 × 3, and √8 still simplifies. Only square factors come out.</li>
+  </ul>
+</div>
+
+<h2>4 · Adding and subtracting surds <span class="tag g">Higher</span></h2>
+<p>Surds behave like algebra. Just as 3x + 5x = 8x, you can add <strong>like surds</strong>, ones with the same number under the root: <span class="m">3√2 + 5√2 = 8√2</span>. Unlike surds such as √2 and √3 can't be combined, just as 3x + 5y stays as it is. Often surds only <em>look</em> unlike until you simplify them. Step through each example; every orange rod has the length of one root.</p>
+
+<div class="lab">
+  <div class="chips" id="adChips"></div>
+  <svg id="adSvg" viewBox="0 0 420 220" width="420" height="220" aria-label="Rods showing surds added end to end"></svg>
+  <div class="controls">
+    <button class="btn" id="adPrev">◀ Back</button>
+    <button class="btn primary" id="adNext">Next step ▶</button>
+  </div>
+  <div class="work" id="adWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Exam trap:</strong> √2 + √3 is <em>not</em> √5, and √8 − √2 is not √6. You can only add the numbers <em>in front</em> of identical roots. Always simplify every surd first; that is how √12 + √27 turns into 2√3 + 3√3 = 5√3.</p>
+</div>
+
+<h2>5 · Multiplying surds and expanding brackets <span class="tag g">Higher</span></h2>
+<p>To multiply, multiply the numbers outside together and the numbers inside together (the key rule again), then simplify:</p>
+<p class="big"><span class="R">2</span>√<span class="S">3</span> × <span class="R">4</span>√<span class="S">5</span> = <span class="R">8</span>√<span class="S">15</span></p>
+<p>One special case is worth learning by heart: a surd times itself is the number inside, <span class="m">√3 × √3 = 3</span>, because that's what a square root means. So brackets with surds expand exactly like double brackets in algebra (FOIL or the grid method), and any √n × √n term turns into an ordinary number. Change the numbers or tap a preset.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label style="flex-wrap:wrap;gap:.25rem">(<input type="number" id="exA" value="2" min="-9" max="9" step="1" style="width:3.6em" aria-label="a"> + <input type="number" id="exB" value="1" min="-9" max="9" step="1" style="width:3.6em" aria-label="b">√n)(<input type="number" id="exC" value="4" min="-9" max="9" step="1" style="width:3.6em" aria-label="c"> + <input type="number" id="exD" value="-1" min="-9" max="9" step="1" style="width:3.6em" aria-label="d">√n)</label>
+    <label>n = <select id="exN"><option>2</option><option selected>3</option><option>5</option><option>6</option><option>7</option></select></label>
+  </div>
+  <div class="chips" id="exChips"></div>
+  <svg id="exSvg" viewBox="0 0 420 210" width="420" height="210" aria-label="Grid for expanding two brackets"></svg>
+  <div class="work" id="exWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes with brackets</strong></p>
+  <ul>
+    <li><strong>(1 + √5)² is not 1 + 5.</strong> Squaring a bracket means multiplying it by itself: (1 + √5)(1 + √5) = 1 + √5 + √5 + 5 = 6 + 2√5. Don't forget the two middle terms.</li>
+    <li><strong>√3 × √3 = 3, not 9</strong> and not √9 left as it is. Write the 3.</li>
+    <li>Notice what happens with <strong>(3 + √2)(3 − √2)</strong>: the middle terms cancel and you get 9 − 2 = 7, a whole number. That "difference of two squares" trick is the secret behind section 7.</li>
+  </ul>
+</div>
+
+<h2>6 · Rationalising the denominator: <span class="fr"><span>a</span><span>√b</span></span> <span class="tag g">Higher</span></h2>
+<p>A fraction like <span class="fr"><span>6</span><span>√2</span></span> has a surd in its <strong>denominator</strong> (the bottom). It is perfectly correct, but convention says to rewrite it with a whole number on the bottom. This is called <strong>rationalising the denominator</strong>. It makes answers easier to compare and to add, and before calculators it turned "divide by 1.41421…" into "divide by 2".</p>
+<p><strong>The trick:</strong> multiply by <span class="K">√b over √b</span>. That fraction equals 1, so the value doesn't change, but the bottom becomes √b × √b = b, a whole number.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>top a = <select id="r1A"></select></label>
+    <label>bottom √b, b = <select id="r1B"></select></label>
+    <button class="btn" id="r1Prev">◀ Back</button>
+    <button class="btn primary" id="r1Next">Next step ▶</button>
+  </div>
+  <svg id="r1Svg" viewBox="0 0 420 120" width="420" height="120" aria-label="Number line showing both forms have the same value"></svg>
+  <div class="work" id="r1Work"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Common mistakes:</strong> multiplying only the top by √b (that changes the value, so you must do both); writing √b × √b = √(b²) and stopping (finish it: it's b); and forgetting to cancel at the end, e.g. 6√2/2 should become 3√2.</p>
+</div>
+
+<h2>7 · Rationalising <span class="fr"><span>a</span><span>b ± √c</span></span> with the conjugate <span class="tag g">Higher</span></h2>
+<p>Now the bottom is something like 3 − √5. Multiplying by √5 won't help: (3 − √5) × √5 = 3√5 − 5, still a surd. Instead, use the result from section 5. Multiply by the <strong>conjugate</strong>, the same bracket with the sign in the middle swapped: the conjugate of 3 − √5 is <span class="K">3 + √5</span>. Then the middle terms cancel:</p>
+<p class="big">(3 − √5)(<span class="K">3 + √5</span>) = 9 − 5 = 4</p>
+<p>This is the difference of two squares, (x − y)(x + y) = x² − y², with y = √5 so y² is a whole number. As before, multiply top <em>and</em> bottom so the fraction's value doesn't change.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><select id="r2A"></select> ÷ (<select id="r2B"></select> <select id="r2S"><option value="-1">−</option><option value="1">+</option></select> √<select id="r2C"></select>)</label>
+    <button class="btn" id="r2Prev">◀ Back</button>
+    <button class="btn primary" id="r2Next">Next step ▶</button>
+  </div>
+  <svg id="r2Svg" viewBox="0 0 420 170" width="420" height="170" aria-label="Grid showing the denominator times its conjugate"></svg>
+  <div class="work" id="r2Work"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Exam traps:</strong> multiplying by the <em>same</em> bracket instead of the conjugate ((3 − √5)² = 14 − 6√5 still has a surd); forgetting to multiply out the numerator; and getting the sign of the new denominator wrong when c is bigger than b² (for example 2 − √7 gives 4 − 7 = −3, a negative denominator).</p>
+</div>
+
+<h2>8 · Practice <span class="tag g">Higher</span></h2>
+<p>New questions each time. Type your answer as <em>(number) √ (number)</em>, and for rationalising questions also fill in the denominator (leave it as 1 if it cancels completely). The feedback tries to name your mistake.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>question type <select id="prType">
+      <option value="mix">mixed</option><option value="simp">simplify</option><option value="add">add and subtract</option><option value="mul">multiply</option><option value="rat">rationalise</option>
+    </select></label>
+  </div>
+  <p class="pq" id="prQ"></p>
+  <div class="controls">
+    <label>answer <input type="number" id="prX" style="width:4.2em" aria-label="number in front"> √ <input type="number" id="prY" style="width:4.2em" aria-label="number under the root"><span id="prZw"> ÷ <input type="number" id="prZ" style="width:4.2em" value="1" aria-label="denominator"></span></label>
+  </div>
+  <div class="controls">
+    <button class="btn primary" id="prGo">Check</button>
+    <button class="btn" id="prShow">Show working</button>
+    <button class="btn" id="prNew">New question</button>
+  </div>
+  <div class="msg" id="prMsg"></div>
+  <div class="work" id="prWork" hidden></div>
+  <div class="msg" id="prScore"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>Simplify √72 fully <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>List the square numbers that divide 72:</strong> 4 (72 = 4 × 18), 9 (72 = 9 × 8), 36 (72 = 36 × 2). The largest is 36.</div>
+  <div class="step"><strong>Split the root:</strong> √72 = √(36 × 2) = √36 × √2.</div>
+  <div class="step"><strong>Root the square:</strong> √36 = 6, so √72 = <strong>6√2</strong>.</div>
+  <div class="step"><strong>Check:</strong> 6² × 2 = 36 × 2 = 72 ✓, and 2 has no square factor, so this is simplest. (If you'd used 4 first: √72 = 2√18 = 2 × √9 × √2 = 2 × 3√2 = 6√2. Same answer, one extra step.)</div>
+</details>
+<details>
+  <summary>Simplify √75 + √48 − √27 <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Simplify each surd:</strong> √75 = √(25 × 3) = 5√3; √48 = √(16 × 3) = 4√3; √27 = √(9 × 3) = 3√3.</div>
+  <div class="step"><strong>They are all like surds (√3), so collect:</strong> 5√3 + 4√3 − 3√3 = (5 + 4 − 3)√3.</div>
+  <div class="step"><strong>Answer:</strong> <strong>6√3</strong>.</div>
+</details>
+<details>
+  <summary>Expand and simplify (3 + 2√5)(1 − √5) <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Four products:</strong> 3 × 1 = 3; 3 × (−√5) = −3√5; 2√5 × 1 = 2√5; 2√5 × (−√5) = −2 × 5 = −10.</div>
+  <div class="step"><strong>Collect whole numbers:</strong> 3 − 10 = −7. <strong>Collect surds:</strong> −3√5 + 2√5 = −√5.</div>
+  <div class="step"><strong>Answer:</strong> <strong>−7 − √5</strong>.</div>
+  <div class="step"><strong>Check with a calculator:</strong> (3 + 4.472…)(1 − 2.236…) = −9.236…, and −7 − 2.236… = −9.236… ✓</div>
+</details>
+<details>
+  <summary>Show that (√12 + √3)² = 27 <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Simplify inside first:</strong> √12 = √(4 × 3) = 2√3, so √12 + √3 = 2√3 + √3 = 3√3.</div>
+  <div class="step"><strong>Square:</strong> (3√3)² = 3² × (√3)² = 9 × 3 = <strong>27</strong> ✓</div>
+  <div class="step"><strong>Why this order?</strong> Expanding (√12 + √3)(√12 + √3) works too (12 + √36 + √36 + 3 = 12 + 6 + 6 + 3 = 27), but simplifying first is quicker. In a "show that" question, write every line.</div>
+</details>
+<details>
+  <summary>Rationalise the denominator of <span class="fr"><span>3</span><span>2√6</span></span> <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Multiply top and bottom by √6</strong> (just the surd part, not the 2): <span class="fr"><span>3</span><span>2√6</span></span> × <span class="fr"><span>√6</span><span>√6</span></span> = <span class="fr"><span>3√6</span><span>2 × 6</span></span> = <span class="fr"><span>3√6</span><span>12</span></span>.</div>
+  <div class="step"><strong>Cancel the common factor 3:</strong> <span class="fr"><span>3√6</span><span>12</span></span> = <strong><span class="fr"><span>√6</span><span>4</span></span></strong>.</div>
+  <div class="step"><strong>Check:</strong> 3 ÷ (2 × 2.449…) = 0.6123…, and 2.449… ÷ 4 = 0.6123… ✓</div>
+</details>
+<details>
+  <summary>Rationalise <span class="fr"><span>4</span><span>3 − √5</span></span>, giving your answer in its simplest form <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Conjugate of 3 − √5</strong> is 3 + √5. Multiply top and bottom by it.</div>
+  <div class="step"><strong>Top:</strong> 4(3 + √5) = 12 + 4√5.</div>
+  <div class="step"><strong>Bottom:</strong> (3 − √5)(3 + √5) = 9 + 3√5 − 3√5 − 5 = 4.</div>
+  <div class="step"><strong>Divide:</strong> <span class="fr"><span>12 + 4√5</span><span>4</span></span> = <strong>3 + √5</strong> (divide <em>both</em> terms on top by 4).</div>
+  <div class="step"><strong>Check:</strong> 4 ÷ (3 − 2.236…) = 5.236…, and 3 + 2.236… = 5.236… ✓</div>
+</details>
+<details>
+  <summary>Exam-style: write <span class="fr"><span>2 + √3</span><span>2 − √3</span></span> in the form a + b√3 <span class="tag g">Higher</span></summary>
+  <div class="step"><strong>Multiply top and bottom by the conjugate 2 + √3.</strong></div>
+  <div class="step"><strong>Top:</strong> (2 + √3)² = 4 + 2√3 + 2√3 + 3 = 7 + 4√3.</div>
+  <div class="step"><strong>Bottom:</strong> (2 − √3)(2 + √3) = 4 − 3 = 1.</div>
+  <div class="step"><strong>Answer:</strong> 7 + 4√3, so <strong>a = 7, b = 4</strong>. Check: 3.732… ÷ 0.2679… = 13.928…, and 7 + 4 × 1.732… = 13.928… ✓</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>A <strong>surd</strong> is an irrational root, like √2: its decimal never ends or repeats, so it can't be written as a fraction. Leaving it as a root keeps answers <strong>exact</strong>.</li>
+  <li>The key rule: <strong>√(ab) = √a × √b</strong> and √(a/b) = √a/√b. There is no such rule for + or −: √(a + b) ≠ √a + √b.</li>
+  <li><strong>Simplify</strong> by taking out the largest square factor: √72 = √36 × √2 = 6√2. Simplest form has no square factor left under the root.</li>
+  <li><strong>Add and subtract</strong> only like surds (same root), after simplifying: √12 + √27 = 2√3 + 3√3 = 5√3.</li>
+  <li><strong>Multiply</strong> outside × outside and inside × inside; √n × √n = n. Expand surd brackets like algebraic brackets.</li>
+  <li><strong>Rationalise</strong> a/√b by multiplying top and bottom by √b. Rationalise a/(b ± √c) by multiplying top and bottom by the <strong>conjugate</strong> b ∓ √c, which makes the bottom b² − c.</li>
+</ul>
+
+<footer>Made for GCSE students. Calculating exactly with surds, simplifying surds and rationalising denominators are in the DfE GCSE mathematics subject content under Number (Higher tier). <a href="https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives" target="_blank" rel="noopener">GCSE mathematics subject content</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+const F = () => `font-family="${css('--mono')}"`;
+const neg = s => String(s).replace(/-/g,'−');
+const dp = (v,n) => neg(parseFloat(v.toFixed(n)).toString());
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a; };
+const simp = n => { for(let k=Math.floor(Math.sqrt(n)+1e-9);k>=1;k--) if(n%(k*k)===0) return {k, m:n/(k*k)}; return {k:1,m:n}; };
+const isSq = n => { const r=Math.round(Math.sqrt(n)); return r*r===n; };
+const sqFree = n => simp(n).k===1;
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+// k√m as text (k may be negative)
+const sf = (k,m) => { if(m===1) return neg(k); if(k===1) return '√'+m; if(k===-1) return '−√'+m; return neg(k)+'√'+m; };
+// p + q√n as text
+const ex = (p,q,n) => { if(q===0) return neg(p); const s=sf(Math.abs(q),n); if(p===0) return (q<0?'−':'')+s; return neg(p)+(q<0?' − ':' + ')+s; };
+const fr = (t,b) => `<span class="fr"><span>${t}</span><span>${b}</span></span>`;
+const T = (x,y,txt,col,size=13,anchor='middle',weight=400) => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" ${F()} fill="${col}">${txt}</text>`;
+const fillSel = (sel, vals, def) => { sel.innerHTML = vals.map(v=>`<option${String(v)===String(def)?' selected':''}>${v}</option>`).join(''); };
+const joinT = arr => arr.map((t,i)=> i===0 ? t : (t.startsWith('−') ? ' − '+t.slice(1) : ' + '+t)).join('');
+
+/* 1a. diagonal of the unit square */
+const sqT = $('sqT');
+function drawSQ(){
+  const t = +sqT.value/100, y0 = 200, x0 = 50, u = 120;
+  const ac=css('--accent'), hi=css('--hi'), mu=css('--muted'), tw=css('--two'), fg=css('--fg');
+  let s = `<line x1="${x0-25}" y1="${y0}" x2="${x0+3*u+15}" y2="${y0}" stroke="${mu}" stroke-width="1.5"/>`;
+  for(let i=0;i<=30;i++){ const x=x0+i*u/10, big=i%10===0; s+=`<line x1="${x}" y1="${y0-(big?7:3)}" x2="${x}" y2="${y0+(big?7:3)}" stroke="${mu}"/>`; if(big) s+=T(x,y0+24,i/10,mu,13); }
+  s += `<rect x="${x0}" y="${y0-u}" width="${u}" height="${u}" fill="${ac}" fill-opacity=".12" stroke="${ac}" stroke-width="2"/>`;
+  s += T(x0+u/2,y0-u-8,'1',ac,13,'middle',600) + T(x0+u+12,y0-u/2+4,'1',ac,13,'middle',600);
+  const L = Math.SQRT2*u, a0 = Math.PI/4, ang = (1-t)*a0;
+  const ex_ = x0+L*Math.cos(ang), ey_ = y0-L*Math.sin(ang);
+  if(t>0) s += `<path d="M${x0+L*Math.cos(a0)},${y0-L*Math.sin(a0)} A${L},${L} 0 0 1 ${ex_},${ey_}" fill="none" stroke="${tw}" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  s += `<line x1="${x0}" y1="${y0}" x2="${ex_}" y2="${ey_}" stroke="${hi}" stroke-width="4" stroke-linecap="round"/>`;
+  const mx=(x0+ex_)/2, my=(y0+ey_)/2;
+  s += T(mx-14*Math.sin(ang)-4, my-14*Math.cos(ang)+4, '√2', hi, 15, 'middle', 700);
+  s += `<circle cx="${x0}" cy="${y0}" r="4" fill="${fg}"/>`;
+  if(t===1){ s += `<circle cx="${ex_}" cy="${y0}" r="6" fill="${hi}"/>` + T(ex_, y0-14, '√2 ≈ 1.414…', hi, 13, 'middle', 600); }
+  $('sqSvg').innerHTML = s;
+  $('sqMsg').textContent = t===1 ? 'The diagonal lands between 1.4 and 1.5, at about 1.414. It is a real point on the number line, but no fraction lands exactly there.' : 'd² = 1² + 1² = 2, so the diagonal is √2 long. Slide to swing it down onto the number line.';
+}
+sqT.addEventListener('input', drawSQ); drawSQ();
+
+/* 1b. zooming in on √2 */
+let zmD = 1;
+const bigDec = (N, d) => { let s = N.toString(); while(s.length<=d) s='0'+s; return d? s.slice(0,s.length-d)+'.'+s.slice(s.length-d) : s; };
+function drawZM(){
+  let h = '';
+  for(let d=1; d<=zmD; d++){
+    const scale = 10n**BigInt(d), target = 2n*scale*scale;
+    let N = BigInt(Math.floor(Math.SQRT2*Number(scale)));
+    while(N*N > target) N--; while((N+1n)*(N+1n) <= target) N++;
+    const lo = bigDec(N,d), hiS = bigDec(N+1n,d);
+    h += `<div style="margin-bottom:.5rem"><span class="dim">To ${d} d.p.</span><br>${lo}² = <span class="a">${bigDec(N*N,2*d)}</span> <span class="dim">too small</span><br>${hiS}² = <span class="b">${bigDec((N+1n)*(N+1n),2*d)}</span> <span class="dim">too big</span><br>so √2 is between ${lo} and ${hiS}</div>`;
+  }
+  if(zmD>=6) h += `<div class="c">…and so on for ever. √2 = 1.41421356237309504880… with no repeating block.</div>`;
+  $('zmWork').innerHTML = h;
+  $('zmMore').disabled = zmD>=6;
+}
+$('zmMore').addEventListener('click', ()=>{ if(zmD<6){ zmD++; drawZM(); } });
+$('zmReset').addEventListener('click', ()=>{ zmD=1; drawZM(); });
+drawZM();
+
+/* 1c. which roots are surds */
+const nlN = $('nlN');
+function drawNL(){
+  const n = +nlN.value, r = Math.sqrt(n), x = v => 20 + v*38, y0 = 80;
+  const ac=css('--accent'), hi=css('--hi'), mu=css('--muted');
+  $('nlNv').textContent = ' '+n;
+  let s = `<line x1="${x(0)}" y1="${y0}" x2="${x(10)}" y2="${y0}" stroke="${mu}" stroke-width="1.5"/>`;
+  for(let i=0;i<=10;i++){ s += `<line x1="${x(i)}" y1="${y0-6}" x2="${x(i)}" y2="${y0+6}" stroke="${mu}"/>` + T(x(i), y0+22, i, mu, 12); s += T(x(i), y0+38, '√'+(i*i), ac, 9); }
+  const sq = isSq(n), col = sq ? ac : hi;
+  s += `<circle cx="${x(r)}" cy="${y0}" r="7" fill="${col}"/>`;
+  const lbl = sq ? `√${n} = ${r}` : `√${n} ≈ ${r.toFixed(3)}…`;
+  const lx = Math.min(Math.max(x(r), 60), 360);
+  s += T(lx, y0-18, lbl, col, 14, 'middle', 700);
+  $('nlSvg').innerHTML = s;
+  const a = Math.floor(r+1e-9), M = $('nlMsg');
+  M.innerHTML = sq ? `<span class="R">${n} is a square number</span> (${r} × ${r}), so √${n} = ${r} exactly. Rational, <em>not</em> a surd.` : `<span class="S">√${n} is a surd.</span> ${n} sits between the square numbers ${a*a} and ${(a+1)*(a+1)}, so √${n} is between ${a} and ${a+1}, and its decimal never ends or repeats.`;
+}
+nlN.addEventListener('input', drawNL); drawNL();
+
+/* 2. √a × √b = √(ab) */
+const muA=$('muA'), muB=$('muB'), muOp=$('muOp');
+function drawMU(){
+  const a=+muA.value, b=+muB.value, op=muOp.value;
+  $('muAv').textContent=' '+a; $('muBv').textContent=' '+b;
+  const ra=Math.sqrt(a), rb=Math.sqrt(b);
+  let v1, v2, l1, l2, w;
+  if(op==='x'){ v1=ra*rb; v2=Math.sqrt(a*b); l1=`√${a} × √${b}`; l2=`√${a*b}`;
+    w=`√${a} × √${b} = ${ra.toFixed(4)} × ${rb.toFixed(4)} = <span class="b">${v1.toFixed(4)}</span><br>√(${a} × ${b}) = √${a*b} = <span class="a">${v2.toFixed(4)}</span><br><span class="g">Equal.</span> (√${a} × √${b})² = ${a} × ${b} = ${a*b}, so √${a} × √${b} is the square root of ${a*b}.`; }
+  else if(op==='d'){ v1=ra/rb; v2=Math.sqrt(a/b); l1=`√${a} ÷ √${b}`; l2=`√(${a} ÷ ${b})`;
+    w=`√${a} ÷ √${b} = ${ra.toFixed(4)} ÷ ${rb.toFixed(4)} = <span class="b">${v1.toFixed(4)}</span><br>√(${a} ÷ ${b}) = √${dp(a/b,4)}${Number.isInteger(a/b)?'':'…'} = <span class="a">${v2.toFixed(4)}</span><br><span class="g">Equal.</span> Roots split over ÷ as well as ×.`; }
+  else { v1=ra+rb; v2=Math.sqrt(a+b); l1=`√${a} + √${b}`; l2=`√${a+b}`;
+    w=`√${a} + √${b} = ${ra.toFixed(4)} + ${rb.toFixed(4)} = <span class="b">${v1.toFixed(4)}</span><br>√(${a} + ${b}) = √${a+b} = <span class="a">${v2.toFixed(4)}</span><br><span class="x">Not equal.</span> The sum of the roots is always bigger. There is no "add the insides" rule.`; }
+  const sc = 290/Math.max(v1,v2,1), hi=css('--hi'), ac=css('--accent'), mu=css('--muted');
+  const eq = Math.abs(v1-v2)<1e-9;
+  let s = T(10,30,l1,hi,13,'start',600) + `<rect x="10" y="40" width="${v1*sc}" height="26" rx="4" fill="${hi}" fill-opacity=".8"/>` + T(Math.min(v1*sc+16, 410), 58, dp(v1,3), hi, 12, v1*sc>340?'end':'start');
+  s += T(10,100,l2,ac,13,'start',600) + `<rect x="10" y="110" width="${v2*sc}" height="26" rx="4" fill="${ac}" fill-opacity=".8"/>` + T(Math.min(v2*sc+16, 410), 128, dp(v2,3), ac, 12, v2*sc>340?'end':'start');
+  s += T(410, 30, eq?'same length':'different lengths', eq?css('--good'):css('--bad'), 13, 'end', 700);
+  s += `<line x1="10" y1="150" x2="${10+Math.max(v1,v2)*sc}" y2="150" stroke="${mu}" stroke-dasharray="2 3"/>`;
+  $('muSvg').innerHTML = s; $('muWork').innerHTML = w;
+}
+[muA,muB,muOp].forEach(e=>e.addEventListener('input',drawMU)); drawMU();
+
+/* 3. simplifying with the largest square factor */
+const spN = $('spN'); let spS = null;
+function spFactors(n){ const out=[]; for(let k=2;k*k<=n;k++) if(n%(k*k)===0) out.push(k*k); return out; }
+function drawSP(){
+  let n = Math.round(+spN.value); const W=$('spWork');
+  if(!(n>=2 && n<=400)){ W.innerHTML='Choose a whole number from 2 to 400.'; $('spSvg').innerHTML=''; $('spChips').innerHTML=''; return; }
+  const fs = spFactors(n);
+  if(spS===null || !fs.includes(spS)) spS = fs.length ? fs[fs.length-1] : 1;
+  $('spChips').innerHTML = fs.length ? fs.map(s=>`<button class="btn${s===spS?' on':''}" data-s="${s}">${n} = ${s} × ${n/s}</button>`).join('') : '';
+  $('spChips').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ spS=+b.dataset.s; drawSP(); }));
+  const k = Math.round(Math.sqrt(spS)), m = n/spS, G = 210, ox = 105, oy = 20, c = G/k;
+  const ac=css('--accent'), hi=css('--hi'), mu=css('--muted');
+  let s='';
+  for(let i=0;i<k;i++) for(let j=0;j<k;j++){
+    s += `<rect x="${ox+i*c}" y="${oy+j*c}" width="${c}" height="${c}" fill="${ac}" fill-opacity=".14" stroke="${ac}" stroke-width="1.5"/>`;
+    if(c>=26) s += T(ox+i*c+c/2, oy+j*c+c/2+4, m, hi, Math.min(14, c/2.4), 'middle', 600);
+  }
+  s += `<rect x="${ox}" y="${oy}" width="${G}" height="${G}" fill="none" stroke="${css('--fg')}" stroke-width="2"/>`;
+  s += T(ox+G/2, oy+G+22, k===1?`side = √${m}`:`side = ${k} × √${m} = ${sf(k,m)}`, hi, 14, 'middle', 700);
+  s += T(ox+G/2, oy+G+44, `area = ${k*k} squares × ${m} = ${n}, so side = √${n}`, mu, 12);
+  s += T(ox+G/2, oy+G+64, k===1?'':`${k} × ${k} = ${k*k} small squares, each of area ${m}`, ac, 12);
+  $('spSvg').innerHTML = s;
+  if(!fs.length){ W.innerHTML = isSq(n)?`${n} is itself a square number: √${n} = ${Math.sqrt(n)}, not a surd at all.`:`${n} has no square factor except 1, so <span class="b">√${n}</span> is already in simplest form.`; return; }
+  const big = fs[fs.length-1], mm = simp(m);
+  let h = `√${n} = √(<span class="a">${spS}</span> × <span class="b">${m}</span>) = √<span class="a">${spS}</span> × √<span class="b">${m}</span> = <span class="a">${k}</span>${m===1?'':'√<span class="b">'+m+'</span>'}`;
+  if(m===1) h += `<br><span class="g">${n} is a square number, so √${n} = ${k} exactly.</span>`;
+  else if(mm.k>1) h += `<br><span class="x">Not finished:</span> ${m} still contains the square ${mm.k*mm.k}. Keep going: ${k}√${m} = ${k} × ${mm.k}√${mm.m} = <span class="a">${k*mm.k}</span>√<span class="b">${mm.m}</span>. Starting with ${big}, the largest square factor, does it in one step.`;
+  else h += `<br><span class="g">Fully simplified:</span> ${m} has no square factor except 1.`;
+  W.innerHTML = h;
+}
+spN.addEventListener('input', ()=>{ spS=null; drawSP(); }); drawSP();
+
+/* 3b. try it: simplify */
+const ST_LIST=[8,12,18,20,24,27,28,32,40,44,45,48,50,52,54,60,63,75,80,90,98,108,112,125,128,147,150,162,175,180,200,242,245,288,300];
+let stN = 72;
+function stNew(){ let n; do{ n=pick(ST_LIST); }while(n===stN); stN=n; $('stQ').textContent=`Write √${stN} in the form a√b, where b is as small as possible.`; $('stA').value=''; $('stB').value=''; $('stMsg').textContent=''; $('stMsg').className='msg'; }
+$('stGo').addEventListener('click', ()=>{
+  const a=parseInt($('stA').value), b=parseInt($('stB').value), M=$('stMsg'), t=simp(stN);
+  if(isNaN(a)||isNaN(b)){ M.className='msg bad'; M.textContent='Fill in both boxes: the number in front and the number under the root.'; return; }
+  if(a===t.k && b===t.m){ M.className='msg good'; M.textContent=`Correct: √${stN} = √${t.k*t.k} × √${t.m} = ${sf(t.k,t.m)}.`; return; }
+  M.className='msg bad';
+  if(a*a*b===stN) M.textContent=`Equal to √${stN}, but not simplest: ${b} still contains the square ${simp(b).k**2}. Use the largest square factor, ${t.k*t.k}.`;
+  else if(a*b===stN && isSq(a)) M.textContent=`You took out ${a} without square-rooting it. √${a} = ${Math.sqrt(a)}, so √(${a} × ${b}) = ${Math.sqrt(a)}√${b}. Then check whether ${b} simplifies further.`;
+  else if(a*b===stN) M.textContent=`${a} × ${b} = ${stN}, but the number outside must be the square root of a square factor. Check: (${a}√${b})² = ${a*a} × ${b} = ${a*a*b}, not ${stN}.`;
+  else M.textContent=`Check by squaring: (${a}√${b})² = ${a}² × ${b} = ${a*a*b}, not ${stN}. Look for the largest square number that divides ${stN}.`;
+});
+$('stNew').addEventListener('click', stNew); stNew();
+
+/* 4. adding like surds with rods */
+const AD = [
+  {t:'3√2 + 5√2', terms:[[3,2],[5,2]]},
+  {t:'7√3 − 2√3', terms:[[7,3],[-2,3]]},
+  {t:'√12 + √27', terms:[[1,12],[1,27]]},
+  {t:'√50 − √8', terms:[[1,50],[-1,8]]},
+  {t:'2√5 + √20 + √45', terms:[[2,5],[1,20],[1,45]]},
+  {t:'√2 + √3', terms:[[1,2],[1,3]]}
+];
+let adI = 0, adStep = 0;
+function adChips(){ $('adChips').innerHTML = AD.map((e,i)=>`<button class="btn${i===adI?' on':''}" data-i="${i}">${e.t}</button>`).join(''); $('adChips').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ adI=+b.dataset.i; adStep=0; adChips(); drawAD(); })); }
+function drawAD(){
+  const E = AD[adI], hi=css('--hi'), ac=css('--accent'), mu=css('--muted'), bad=css('--bad'), fg=css('--fg');
+  const S = E.terms.map(([c,n])=>{ const q=simp(n); return {c,n,k:q.k,m:q.m,len:c*Math.sqrt(n)}; });
+  const ms = [...new Set(S.map(x=>x.m))], like = ms.length===1;
+  const total = S.reduce((a,x)=>a+x.len,0);
+  let cur=0, maxX=0; S.forEach(x=>{ cur+=x.len; maxX=Math.max(maxX,cur); });
+  maxX = Math.max(maxX, like ? 0 : Math.sqrt(S.reduce((a,x)=>a+x.n,0)));
+  const sc = 380/Math.ceil(maxX), X = v => 20+v*sc;
+  let s = `<line x1="${X(0)}" y1="190" x2="${X(Math.ceil(maxX))}" y2="190" stroke="${mu}"/>`;
+  for(let i=0;i<=Math.ceil(maxX);i++) s += `<line x1="${X(i)}" y1="186" x2="${X(i)}" y2="194" stroke="${mu}"/>` + T(X(i), 208, i, mu, 11);
+  cur = 0;
+  S.forEach((x,idx)=>{
+    const y = x.c>0 ? 40 : 78, x0 = x.c>0 ? cur : cur+x.len, w = Math.abs(x.len);
+    const pieces = adStep>=1 ? Math.abs(x.c*x.k) : 1;
+    const pw = w/pieces;
+    for(let p=0;p<pieces;p++) s += `<rect x="${X(x0+p*pw)}" y="${y}" width="${pw*sc}" height="24" rx="3" fill="${hi}" fill-opacity="${x.c>0?.75:.15}" stroke="${x.c>0?css('--panel'):hi}" stroke-width="${x.c>0?1.5:1.5}" ${x.c>0?'':'stroke-dasharray="4 3"'}/>`;
+    const label = adStep>=1 ? sf(x.c*x.k, x.m) : sf(x.c, x.n);
+    s += T(X(x0+w/2), y-6, (x.c<0?'take away ':'')+label.replace(/^−/,''), x.c>0?hi:hi, 12, 'middle', 600);
+    cur += x.len;
+  });
+  if(adStep>=2){
+    if(like){
+      const K = S.reduce((a,x)=>a+x.c*x.k,0), m=ms[0], pw=Math.sqrt(m);
+      for(let p=0;p<K;p++) s += `<rect x="${X(p*pw)}" y="128" width="${pw*sc}" height="24" rx="3" fill="${ac}" fill-opacity=".75" stroke="${css('--panel')}" stroke-width="1.5"/>`;
+      s += T(X(total/2), 122, `total = ${K} rods of √${m} = ${sf(K,m)}`, ac, 13, 'middle', 700);
+    } else {
+      const r = Math.sqrt(S.reduce((a,x)=>a+x.n,0));
+      s += `<rect x="${X(0)}" y="128" width="${r*sc}" height="24" rx="3" fill="${bad}" fill-opacity=".3" stroke="${bad}"/>` + T(X(r)+6, 145, `√${S.reduce((a,x)=>a+x.n,0)} is shorter`, bad, 12, 'start', 600);
+      s += `<line x1="${X(total)}" y1="36" x2="${X(total)}" y2="160" stroke="${fg}" stroke-dasharray="3 3"/>` + T(X(total)-4, 175, `√2 + √3 ≈ ${dp(total,3)}`, fg, 11, 'end');
+    }
+  }
+  $('adSvg').innerHTML = s;
+  let w = `<span class="b">${E.t}</span>`;
+  if(adStep>=1){ const simpd = S.map((x,i)=>{ const body = sf(Math.abs(x.c*x.k),x.m); return (i? (x.c<0?' − ':' + ') : (x.c<0?'−':''))+body; }).join('');
+    const changed = S.some(x=>x.k>1);
+    w += `<br>${changed?'Simplify each surd: ':'Each surd is already simplest: '}= ${simpd}`;
+    if(changed) w += `<br><span class="dim">${S.filter(x=>x.k>1).map(x=>`√${x.n} = √(${x.k*x.k} × ${x.m}) = ${sf(x.k,x.m)}`).join('; ')}</span>`; }
+  if(adStep>=2){ if(like){ const K=S.reduce((a,x)=>a+x.c*x.k,0); w += `<br>All are √${ms[0]}, so collect the numbers in front: (${S.map(x=>neg(x.c*x.k)).join(' + ').replace(/\+ −/g,'− ')})√${ms[0]} = <span class="a">${sf(K,ms[0])}</span>`; }
+    else w += `<br><span class="x">√2 and √3 are unlike surds, so this can't be simplified.</span> The answer is just √2 + √3. It is not √5: the red bar is shorter.`; }
+  $('adWork').innerHTML = w;
+  $('adPrev').disabled = adStep===0; $('adNext').disabled = adStep===2;
+}
+$('adPrev').addEventListener('click',()=>{ if(adStep>0){ adStep--; drawAD(); } });
+$('adNext').addEventListener('click',()=>{ if(adStep<2){ adStep++; drawAD(); } });
+adChips(); drawAD();
+
+/* 5. expanding brackets with surds */
+const exIds = ['exA','exB','exC','exD'].map($), exN = $('exN');
+const EXP = [[2,1,4,-1,3],[3,1,3,-1,2],[1,1,1,1,5],[-1,2,4,1,3],[5,-2,5,2,6]];
+const brk = (p,q,n) => '(' + ex(p,q,n) + ')';
+function exChips(){ $('exChips').innerHTML = EXP.map((e,i)=>`<button class="btn" data-i="${i}">${brk(e[0],e[1],e[4])}${brk(e[2],e[3],e[4])}</button>`).join('');
+  $('exChips').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ const e=EXP[+b.dataset.i]; exIds.forEach((el,j)=>el.value=e[j]); exN.value=e[4]; drawEX(); })); }
+function drawEX(){
+  const [a,b,c,d] = exIds.map(e=>{ const v=parseInt(e.value); return isNaN(v)?0:Math.max(-9,Math.min(9,v)); }), n=+exN.value;
+  const ac=css('--accent'), hi=css('--hi'), mu=css('--muted'), fg=css('--fg'), ln=css('--line');
+  const x0=110, y0=60, cw=145, ch=55;
+  const rowH = [ex(a,0,n), ex(0,b,n)], colH = [ex(c,0,n), ex(0,d,n)];
+  const cell = [[ [a*c,0], [0,a*d] ], [ [0,b*c], [b*d*n,0] ]];
+  let s = `<rect x="${x0}" y="${y0}" width="${2*cw}" height="${2*ch}" fill="none" stroke="${ln}" stroke-width="1.5"/>`;
+  s += `<line x1="${x0+cw}" y1="${y0}" x2="${x0+cw}" y2="${y0+2*ch}" stroke="${ln}"/><line x1="${x0}" y1="${y0+ch}" x2="${x0+2*cw}" y2="${y0+ch}" stroke="${ln}"/>`;
+  s += T(x0-12, y0-14, '×', mu, 15, 'end', 600);
+  colH.forEach((h,j)=>{ s += T(x0+j*cw+cw/2, y0-14, h, j?hi:ac, 15, 'middle', 700); });
+  rowH.forEach((h,i)=>{ s += T(x0-12, y0+i*ch+ch/2+5, h, i?hi:ac, 15, 'end', 700); });
+  for(let i=0;i<2;i++) for(let j=0;j<2;j++){
+    const [p,q]=cell[i][j], rat = q===0, cx=x0+j*cw+cw/2, cy=y0+i*ch+ch/2;
+    s += `<rect x="${x0+j*cw+3}" y="${y0+i*ch+3}" width="${cw-6}" height="${ch-6}" rx="4" fill="${rat?ac:hi}" fill-opacity=".1"/>`;
+    s += T(cx, cy+(i&&j?0:5), rat?neg(p):ex(0,q,n), rat?ac:hi, 15, 'middle', 600);
+    if(i===1&&j===1) s += T(cx, cy+18, `${sf(b,n)} × ${sf(d,n)} = ${neg(b*d*n)}`, mu, 10);
+  }
+  const P = a*c + b*d*n, Q = a*d + b*c;
+  s += T(210, y0+2*ch+30, `= ${ex(P,Q,n)}`, fg, 16, 'middle', 700);
+  $('exSvg').innerHTML = s;
+  const v1=(a+b*Math.sqrt(n))*(c+d*Math.sqrt(n)), v2=P+Q*Math.sqrt(n);
+  $('exWork').innerHTML = `${brk(a,b,n)}${brk(c,d,n)}<br>whole numbers: <span class="a">${joinT([neg(a*c),neg(b*d*n)])}</span> = <span class="a">${neg(P)}</span> &nbsp;<span class="dim">(√${n} × √${n} = ${n})</span><br>surds: <span class="b">${joinT([ex(0,a*d,n),ex(0,b*c,n)])}</span> = <span class="b">${ex(0,Q,n)}</span><br>answer: <strong>${ex(P,Q,n)}</strong>${Q===0&&a*d!==0?' <span class="g">(the surds cancelled: a whole number!)</span>':''}<br><span class="dim">calculator check: ${dp(v1,4)} and ${dp(v2,4)}</span>`;
+}
+exIds.concat([exN]).forEach(e=>e.addEventListener('input',drawEX)); exChips(); drawEX();
+
+/* 6. rationalising a/√b */
+const r1A=$('r1A'), r1B=$('r1B'); let r1Step=0;
+fillSel(r1A,[1,2,3,4,5,6,7,8,9,10,12,14,15,20],'6'); fillSel(r1B,[2,3,5,6,7,8,10,12,18,20],'2');
+function r1Steps(a,b){
+  const q=simp(b), steps=[];
+  steps.push(`${fr(a,'√'+b)}`);
+  steps.push(`${fr(a,'√'+b)} × <span class="c">${fr('√'+b,'√'+b)}</span> <span class="dim">(√${b}/√${b} = 1, so the value is unchanged)</span>`);
+  steps.push(`= ${fr((a===1?'':a)+'√'+b, '√'+b+' × √'+b)} = ${fr((a===1?'':a)+'<span class="b">√'+b+'</span>', '<span class="a">'+b+'</span>')} <span class="dim">(√${b} × √${b} = ${b})</span>`);
+  let top = a, m = b;
+  if(q.k>1){ top = a*q.k; m = q.m; steps.push(`= ${fr(top+'√'+m, b)} <span class="dim">(√${b} = ${sf(q.k,q.m)})</span>`); }
+  const g = gcd(top,b);
+  if(g>1){ const T2=top/g, B2=b/g; steps.push(`= ${B2===1?'<strong>'+sf(T2,m)+'</strong>':'<strong>'+fr(sf(T2,m),B2)+'</strong>'} <span class="dim">(cancel ${g} from top and bottom)</span>`); }
+  else steps.push(`<strong>${fr(sf(top,m),b)}</strong> <span class="dim">(nothing cancels: final answer)</span>`);
+  return steps;
+}
+function drawR1(){
+  const a=+r1A.value, b=+r1B.value, steps=r1Steps(a,b); r1Step=Math.min(r1Step,steps.length-1);
+  $('r1Work').innerHTML = steps.slice(0,r1Step+1).map(x=>`<div>${x}</div>`).join('');
+  $('r1Prev').disabled = r1Step===0; $('r1Next').disabled = r1Step===steps.length-1;
+  const v=a/Math.sqrt(b), top=Math.ceil(v+1e-9), sc=380/Math.max(top,1), X=x=>20+x*sc, mu=css('--muted'), hi=css('--hi'), tw=css('--two');
+  let s=`<line x1="${X(0)}" y1="70" x2="${X(top)}" y2="70" stroke="${mu}"/>`;
+  const stepN = top>20?5:top>10?2:1;
+  for(let i=0;i<=top;i+=stepN) s+=`<line x1="${X(i)}" y1="65" x2="${X(i)}" y2="75" stroke="${mu}"/>`+T(X(i),90,i,mu,11);
+  const px=X(v), anc = px>320?'end':px<100?'start':'middle';
+  s+=`<circle cx="${px}" cy="70" r="6" fill="${hi}"/>`+T(px,40,`${a}/√${b} = ${dp(v,4)}…`,hi,13,anc,600);
+  if(r1Step===steps.length-1) s+=T(px,112,`final form is the same point`,tw,12,anc,600);
+  $('r1Svg').innerHTML=s;
+}
+r1A.addEventListener('input',()=>{r1Step=0;drawR1();}); r1B.addEventListener('input',()=>{r1Step=0;drawR1();});
+$('r1Prev').addEventListener('click',()=>{ if(r1Step>0){r1Step--;drawR1();} });
+$('r1Next').addEventListener('click',()=>{ r1Step++; drawR1(); });
+drawR1();
+
+/* 7. conjugate */
+const r2A=$('r2A'), r2B=$('r2B'), r2S=$('r2S'), r2C=$('r2C'); let r2Step=0;
+fillSel(r2A,[1,2,3,4,5,6,8,10,12],'4'); fillSel(r2B,[1,2,3,4,5,6],'3'); fillSel(r2C,[2,3,5,6,7,10,11],'5');
+function r2Data(){ const a=+r2A.value, b=+r2B.value, s=+r2S.value, c=+r2C.value; return {a,b,s,c,D:b*b-c}; }
+function r2Steps(){
+  const {a,b,s,c,D}=r2Data(), den=ex(b,s,c), conj=ex(b,-s,c);
+  const st=[];
+  st.push(`${fr(a,den)}`);
+  st.push(`${fr(a,den)} × <span class="c">${fr(conj,conj)}</span> <span class="dim">(conjugate: swap the sign)</span>`);
+  // numerator a(b - s√c) = ab - s a √c
+  const P=a*b, Q=-s*a;
+  st.push(`top: ${a===1?'':a}(${conj}) = <span class="b">${ex(P,Q,c)}</span>`);
+  st.push(`bottom: (${den})(${conj}) = ${b*b} ${-s>0?'+':'−'} ${sf(b,c)} ${s>0?'+':'−'} ${sf(b,c)} − ${c} = <span class="a">${neg(D)}</span> <span class="dim">(middle terms cancel)</span>`);
+  let p=P, q=Q, d=D;
+  st.push(`= ${fr(ex(p,q,c), neg(d))}`);
+  if(d<0){ p=-p; q=-q; d=-d; st.push(`= ${fr(ex(p,q,c), d)} <span class="dim">(multiply top and bottom by −1 to make the bottom positive)</span>`); }
+  const g=gcd(gcd(p,q),d);
+  if(g>1){ p/=g; q/=g; d/=g; st.push(`= ${d===1?'<strong>'+ex(p,q,c)+'</strong>':'<strong>'+fr(ex(p,q,c),d)+'</strong>'} <span class="dim">(divide every term by ${g})</span>`); }
+  else st.push(`<strong>${fr(ex(p,q,c),d)}</strong> <span class="dim">(nothing cancels: final answer)</span>`);
+  return st;
+}
+function drawR2(){
+  const {a,b,s,c,D}=r2Data(), st=r2Steps(); r2Step=Math.min(r2Step,st.length-1);
+  $('r2Work').innerHTML = st.slice(0,r2Step+1).map(x=>`<div>${x}</div>`).join('');
+  $('r2Prev').disabled=r2Step===0; $('r2Next').disabled=r2Step===st.length-1;
+  const ac=css('--accent'), hi=css('--hi'), tw=css('--two'), mu=css('--muted'), ln=css('--line');
+  const x0=120,y0=40,cw=130,ch=42; let g='';
+  const rowH=[String(b), (s>0?'+':'−')+'√'+c], colH=[String(b), (-s>0?'+':'−')+'√'+c];
+  g+=T(x0-12,y0-12,'×',mu,14,'end',600);
+  colH.forEach((h,j)=>g+=T(x0+j*cw+cw/2,y0-12,h,j?tw:ac,14,'middle',700));
+  rowH.forEach((h,i)=>g+=T(x0-12,y0+i*ch+ch/2+5,h,i?hi:ac,14,'end',700));
+  const cells=[[String(b*b), (-s>0?'+':'−')+sf(b,c)],[(s>0?'+':'−')+sf(b,c), '−'+c]];
+  const show = r2Step>=3;
+  for(let i=0;i<2;i++)for(let j=0;j<2;j++){
+    const cx=x0+j*cw+cw/2, cy=y0+i*ch+ch/2, mid=(i+j===1);
+    g+=`<rect x="${x0+j*cw}" y="${y0+i*ch}" width="${cw}" height="${ch}" fill="${mid?tw:ac}" fill-opacity="${show?.12:.05}" stroke="${ln}"/>`;
+    if(show){ g+=T(cx,cy+5,cells[i][j],mid?tw:ac,14,'middle',600); if(mid) g+=`<line x1="${cx-30}" y1="${cy+8}" x2="${cx+30}" y2="${cy-8}" stroke="${tw}" stroke-width="2"/>`; }
+  }
+  g+=T(x0+cw, y0+2*ch+28, show?`bottom = ${b*b} − ${c} = ${neg(D)}   (a whole number)`:'step through to fill the grid', show?ac:mu, 13, 'middle', show?700:400);
+  $('r2Svg').innerHTML=g;
+}
+[r2A,r2B,r2S,r2C].forEach(e=>e.addEventListener('input',()=>{r2Step=0;drawR2();}));
+$('r2Prev').addEventListener('click',()=>{ if(r2Step>0){r2Step--;drawR2();} });
+$('r2Next').addEventListener('click',()=>{ r2Step++; drawR2(); });
+drawR2();
+
+/* 8. practice */
+const MUL=[[6,15],[10,14],[6,10],[2,6],[3,6],[5,15],[2,10],[7,14],[6,8],[3,15],[2,14],[5,10],[3,21]];
+const GEN = {
+  simp:()=>{ const n=pick(ST_LIST), t=simp(n); return {q:`Simplify √${n} fully.`, P:t.k, M:t.m, Q:1, den:false,
+    work:[`largest square factor of ${n} is ${t.k*t.k}`,`√${n} = √(${t.k*t.k} × ${t.m}) = √${t.k*t.k} × √${t.m}`,`= ${sf(t.k,t.m)}`],
+    diag:(p,m,q)=> p*m===n&&isSq(p)?`You took ${p} out without square-rooting it: √${p} = ${Math.sqrt(p)}.`:(p===1&&m===n?'That is the original surd. Find a square number that divides '+n+'.':null)}; },
+  add:()=>{ const m=pick([2,3,5,6,7]); let k1=rnd(1,6), k2=rnd(1,5); while(k2===k1) k2=rnd(1,5); const sub=Math.random()<.4; if(sub&&k2>k1)[k1,k2]=[k2,k1];
+    const n1=k1*k1*m, n2=k2*k2*m, K=sub?k1-k2:k1+k2;
+    return {q:`Simplify √${n1} ${sub?'−':'+'} √${n2}.`, P:K, M:m, Q:1, den:false,
+      work:[`√${n1} = ${sf(k1,m)}`,`√${n2} = ${sf(k2,m)}`,`${sf(k1,m)} ${sub?'−':'+'} ${sf(k2,m)} = ${sf(K,m)}`],
+      diag:(p,mm,q)=> p===1&&mm===(sub?n1-n2:n1+n2)?`You ${sub?'subtracted':'added'} the numbers under the roots. That isn't allowed: simplify each surd first, then collect like surds.`:(mm===m&&p===(sub?k1+k2:k1-k2)?'Check the sign: '+(sub?'it is a subtraction.':'it is an addition.'):null)}; },
+  mul:()=>{ const [x,y]=pick(MUL), t=simp(x*y); return {q:`Simplify √${x} × √${y}.`, P:t.k, M:t.m, Q:1, den:false,
+      work:[`√${x} × √${y} = √${x*y}`,`${x*y} = ${t.k*t.k} × ${t.m}`,`√${x*y} = ${sf(t.k,t.m)}`],
+      diag:(p,m,q)=> p===1&&m===x*y?`Right so far: √${x*y}. Now simplify it: ${x*y} has the square factor ${t.k*t.k}.`:(p===1&&m===x+y?'Multiply the numbers under the roots, don\'t add them.':null)}; },
+  rat:()=>{ const a=rnd(2,12), b=pick([2,3,5,6,7,8,12]), q=simp(b), top=a*q.k, g=gcd(top,b);
+    return {q:`Rationalise the denominator: ${a}/√${b}. Simplify fully.`, P:top/g, M:q.m, Q:b/g, den:true,
+      work:[`× √${b}/√${b}: ${a}√${b} / ${b}`].concat(q.k>1?[`√${b} = ${sf(q.k,q.m)}, so ${top}√${q.m} / ${b}`]:[]).concat([g>1?`cancel ${g}: ${sf(top/g,q.m)}${b/g===1?'':' / '+b/g}`:`nothing cancels: ${sf(top,q.m)} / ${b}`]),
+      diag:(p,m,qq)=> p===a&&m===b&&qq===1?`You multiplied only the top by √${b}. Multiply the bottom too: √${b} × √${b} = ${b}.`:(p===a&&m===b&&qq===b*b?`√${b} × √${b} is ${b}, not ${b*b}.`:null)}; }
+};
+let PQ=null, prDone=false, prRight=0, prTried=0;
+function prNew(){
+  const t=$('prType').value, k = t==='mix'?pick(Object.keys(GEN)):t;
+  PQ=GEN[k](); prDone=false;
+  $('prQ').textContent=PQ.q; $('prZw').hidden=!PQ.den;
+  $('prX').value=''; $('prY').value=''; $('prZ').value='1';
+  $('prMsg').textContent=''; $('prMsg').className='msg'; $('prWork').hidden=true;
+}
+function prCheck(){
+  if(!PQ) return;
+  const p=parseInt($('prX').value), m=parseInt($('prY').value), q=PQ.den?parseInt($('prZ').value):1, M=$('prMsg');
+  if(isNaN(p)||isNaN(m)||isNaN(q)){ M.className='msg bad'; M.textContent='Fill in every box (use 1 for the number in front if there is no number).'; return; }
+  if(m<1||q===0){ M.className='msg bad'; M.textContent='The number under the root must be positive and the denominator can\'t be 0.'; return; }
+  if(!prDone){ prTried++; }
+  if(p===PQ.P && m===PQ.M && q===PQ.Q){ M.className='msg good'; M.textContent='Correct: '+sf(PQ.P,PQ.M)+(PQ.Q===1?'':' / '+PQ.Q)+'.'; if(!prDone){prRight++;prDone=true;} }
+  else {
+    M.className='msg bad';
+    const d=PQ.diag(p,m,q);
+    const same = p*p*m*PQ.Q*PQ.Q===PQ.P*PQ.P*PQ.M*q*q && Math.sign(p/q)===Math.sign(PQ.P/PQ.Q);
+    if(d) M.textContent=d;
+    else if(same) M.textContent=!sqFree(m)?`That has the right value, but ${m} still contains a square factor. Simplify the root.`:'That has the right value, but it isn\'t fully simplified: cancel the common factor of the number in front and the denominator.';
+    else M.textContent='Not quite. Check each step, or press "Show working".';
+  }
+  $('prScore').textContent=`Score: ${prRight} out of ${prTried} questions`;
+}
+$('prGo').addEventListener('click',prCheck);
+$('prShow').addEventListener('click',()=>{ if(!PQ)return; $('prWork').innerHTML=PQ.work.map(x=>`<div>${x}</div>`).join(''); $('prWork').hidden=false; prDone=true; });
+$('prNew').addEventListener('click',prNew);
+$('prType').addEventListener('change',prNew);
+prNew();
+
+function redrawAll(){ drawSQ(); drawNL(); drawMU(); drawSP(); drawAD(); drawEX(); drawR1(); drawR2(); }
+if(window.matchMedia){ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll); }
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* quiz */
+const QS=[
+  {q:'Which of these is a surd?',opts:['√12','√16','√0.25','√(9/4)'],a:0,fb:'√16 = 4, √0.25 = 0.5 and √(9/4) = 3/2 are all rational. 12 is not a square number, so √12 is irrational: a surd.'},
+  {q:'Simplify √48.',opts:['4√3','2√12','16√3','3√4'],a:0,fb:'The largest square factor of 48 is 16: √48 = √16 × √3 = 4√3. (2√12 is equal but not simplest.)'},
+  {q:'√5 × √5 =',opts:['5','25','√10','2√5'],a:0,fb:'A square root times itself gives the number inside: that is what √5 means.'},
+  {q:'√18 + √8 =',opts:['5√2','√26','2√13','6√2'],a:0,fb:'√18 = 3√2 and √8 = 2√2. Like surds: 3√2 + 2√2 = 5√2. You can never add the numbers under the roots.'},
+  {q:'2√3 × 4√5 =',opts:['8√15','6√15','8√8','6√8'],a:0,fb:'Outside × outside: 2 × 4 = 8. Inside × inside: 3 × 5 = 15.'},
+  {q:'Rationalise the denominator of 6/√3.',opts:['2√3','6√3','√3/2','3√3'],a:0,fb:'× √3/√3 gives 6√3/3, and 6 ÷ 3 = 2, so 2√3.'},
+  {q:'Expand (3 + √2)(3 − √2).',opts:['7','11','9 − √2','7 − 6√2'],a:0,fb:'9 − 3√2 + 3√2 − 2 = 7. The middle terms cancel (difference of two squares).'},
+  {q:'Expand (√3 + 1)².',opts:['4 + 2√3','4','2 + 2√3','4 + √3'],a:0,fb:'(√3 + 1)(√3 + 1) = 3 + √3 + √3 + 1 = 4 + 2√3. Don\'t forget the two middle terms.'},
+  {q:'Rationalise 1/(√5 − 2).',opts:['√5 + 2','(√5 + 2)/3','√5 − 2','(√5 + 2)/9'],a:0,fb:'Multiply top and bottom by the conjugate √5 + 2. Bottom: 5 − 4 = 1, so the answer is √5 + 2.'},
+  {q:'√50 − √2 =',opts:['4√2','√48','5','7√2'],a:0,fb:'√50 = √25 × √2 = 5√2, then 5√2 − √2 = 4√2.'}
+];
+const qz=$('quiz');
+QS.forEach((Q,i)=>{
+  const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);
+  const div=document.createElement('div');div.className='q';
+  div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];
+    b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}
+      else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});
+    opts.appendChild(b);});
+  qz.appendChild(div);
+});
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>
