@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Compound Measures</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ladder{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;justify-content:center;font-family:var(--mono);margin-top:.8rem}
+.ladder .u{padding:.5rem .8rem;border-radius:8px;border:2px solid var(--line);background:var(--bg);font-weight:600;min-width:3.6em;text-align:center}
+.ladder .u.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ladder .u.to{border-color:var(--two);background:var(--two-soft);color:var(--two)}
+.ladder .k{font-size:.8rem;color:var(--hi);display:flex;flex-direction:column;align-items:center;min-width:3.4em}
+.tri{display:grid;grid-template-columns:1fr 1fr;width:220px;margin:.8rem auto;font-family:var(--mono);font-size:1.2rem;text-align:center}
+.tri div{padding:.5rem;border:1px solid var(--line)}
+.tri .top{grid-column:1/-1;background:var(--accent-soft);color:var(--accent);font-weight:600;border-radius:8px 8px 0 0}
+.tri .bl{background:var(--hi-soft);color:var(--hi);font-weight:600;border-radius:0 0 0 8px}
+.tri .br{background:var(--two-soft);color:var(--two);font-weight:600;border-radius:0 0 8px 0}
+.tri .cover{opacity:.25;text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+.chips button{font:inherit;font-family:var(--mono);font-size:.9rem;padding:.3rem .7rem;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);cursor:pointer}
+.chips button:hover{border-color:var(--accent)}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:.8rem}
+.twin>div{min-width:0}
+.twin .h{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style></style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Ratio, proportion and rates of change · KS3</div>
+  <h1>Compound Measures</h1>
+  <p class="lede">Speed and density are rates: one quantity shared out over another. Their units spell out their formulas, and one cover-up triangle solves all three arrangements of each.</p>
+  <span class="gcse">National curriculum KS3: use compound units such as speed, unit pricing and density to solve problems</span>
+</header>
+
+
+<h2>1 · Speed: distance shared by time</h2>
+<p>Speed says how much distance fits into each unit of time. The triangle holds the three formulas at once: <strong>cover the one you want</strong> and read what is left. D on top, S and T below.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>find <select id="sdFind"><option value="S">speed</option><option value="D">distance</option><option value="T">time</option></select></label>
+    <label>distance <input type="number" id="sdD" value="150" step="any"> km</label>
+    <label>time <input type="number" id="sdT" value="2.5" step="any"> h</label>
+    <label>speed <input type="number" id="sdS" value="60" step="any"> km/h</label>
+  </div>
+  <div class="tri" id="sdTri"></div>
+  <div class="work" id="sdWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Units carry the formula.</strong> "km/h" literally reads "kilometres divided by hours" — the unit tells you speed = distance ÷ time. The same works for density (g/cm³) and pressure (N/m²).</p>
+</div>
+
+<h2>2 · Density: mass packed into space</h2>
+<p>Density is how much mass is squeezed into each cm³. Same triangle, new letters: <strong>M</strong> on top, <strong>D</strong>ensity and <strong>V</strong>olume below.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>find <select id="dnFind"><option value="D">density</option><option value="M">mass</option><option value="V">volume</option></select></label>
+    <label>mass <input type="number" id="dnM" value="540" step="any"> g</label>
+    <label>volume <input type="number" id="dnV" value="200" step="any"> cm³</label>
+    <label>density <input type="number" id="dnD" value="2.7" step="any"> g/cm³</label>
+  </div>
+  <div class="tri" id="dnTri"></div>
+  <div class="work" id="dnWork"></div>
+</div>
+
+<h2>3 · Watch the time units</h2>
+<p>Most lost marks here are time slips: minutes used as hours. 150 km in 90 minutes is not 150 ÷ 90 — convert first: 90 min = 1.5 h, speed = 100 km/h.</p>
+
+<h2>Worked examples</h2>
+<details open><summary>A car travels 210 km in 3 hours. Find its average speed.</summary>
+<div class="step">Want S: cover it → D over T.</div>
+<div class="work">S = 210 ÷ 3 = <strong>70 km/h</strong></div></details>
+<details><summary>A cyclist rides at 24 km/h for 45 minutes. How far?</summary>
+<div class="step">Convert: 45 min = 0.75 h. Want D: cover it → S × T.</div>
+<div class="work">D = 24 × 0.75 = <strong>18 km</strong></div></details>
+<details><summary>A metal block has mass 890 g and volume 100 cm³. Its density?</summary>
+<div class="step">Want density: M ÷ V. (That is close to iron, 7.9 g/cm³? No — 8.9: copper.)</div>
+<div class="work">890 ÷ 100 = <strong>8.9 g/cm³</strong></div></details>
+
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>Speed = distance ÷ time; density = mass ÷ volume — the units (km/h, g/cm³) say so. In the triangle, cover what you want: top ÷ bottom, or bottom × bottom. Convert time to the right unit before calculating: 45 minutes is 0.75 hours, never 0.45. A density below 1 g/cm³ floats in water; above 1 sinks.</p>
+
+<footer>Made for KS3 students. Compound measures are in the England national curriculum at key stage 3 under Ratio, proportion and rates of change. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(v,d=2)=>isFinite(v)?parseFloat(v.toFixed(d)).toLocaleString('en-GB',{maximumFractionDigits:d}):'—';
+
+function tri(el,top,bl,br,covered){
+  el.innerHTML=`<div class="top ${covered==='top'?'cover':''}">${top}</div><div class="bl ${covered==='bl'?'cover':''}">${bl}</div><div class="br ${covered==='br'?'cover':''}">${br}</div>`;}
+function wire(find,aId,bId,cId,triId,workId,cfg){
+  // cfg: {top:[label,id], bl:[label,id], br:[label,id], units:{...}}
+  const els={};['top','bl','br'].forEach(k=>els[k]=document.getElementById(cfg[k][1]));
+  function draw(){
+    const f=document.getElementById(find).value;
+    const T=parseFloat(els.top.value)||0,B=parseFloat(els.bl.value)||0,R=parseFloat(els.br.value)||0;
+    let covered,calc,res;
+    if(f===cfg.top[2]){covered='top';res=B*R;calc=`${cfg.top[0]} = ${cfg.bl[0]} × ${cfg.br[0]} = ${fmt(B)} × ${fmt(R)} = <strong>${fmt(res)} ${cfg.units.top}</strong>`;}
+    else if(f===cfg.bl[2]){covered='bl';res=T/R;calc=`${cfg.bl[0]} = ${cfg.top[0]} ÷ ${cfg.br[0]} = ${fmt(T)} ÷ ${fmt(R)} = <strong>${fmt(res)} ${cfg.units.bl}</strong>`;}
+    else {covered='br';res=T/B;calc=`${cfg.br[0]} = ${cfg.top[0]} ÷ ${cfg.bl[0]} = ${fmt(T)} ÷ ${fmt(B)} = <strong>${fmt(res)} ${cfg.units.br}</strong>`;}
+    tri(document.getElementById(triId),cfg.top[0][0],cfg.bl[0][0],cfg.br[0][0],covered);
+    document.getElementById(workId).innerHTML=`cover ${f==='S'||f==='D'&&triId==='dnTri'?'it':'the one you want'} → ${calc}`;
+  }
+  [find,cfg.top[1],cfg.bl[1],cfg.br[1]].forEach(id=>document.getElementById(id).addEventListener('input',draw));draw();
+}
+wire('sdFind',0,0,0,'sdTri','sdWork',{top:['Distance','sdD','D'],bl:['Speed','sdS','S'],br:['Time','sdT','T'],units:{top:'km',bl:'km/h',br:'h'}});
+wire('dnFind',0,0,0,'dnTri','dnWork',{top:['Mass','dnM','M'],bl:['Density','dnD','D'],br:['Volume','dnV','V'],units:{top:'g',bl:'g/cm³',br:'cm³'}});
+
+const QS=[
+  {q:'Speed = ?',opts:['distance ÷ time','time ÷ distance','distance × time','distance + time'],a:0,fb:'km/h reads "km per hour": distance ÷ time.'},
+  {q:'A train covers 300 km in 2 hours. Speed?',opts:['150 km/h','600 km/h','100 km/h','75 km/h'],a:0,fb:'300 ÷ 2 = 150.'},
+  {q:'Walking at 5 km/h for 3 hours covers…',opts:['15 km','8 km','1.7 km','53 km'],a:0,fb:'D = S × T = 15 km.'},
+  {q:'How long does 120 km take at 80 km/h?',opts:['1.5 h','0.67 h','2 h','1 h 20 min'],a:0,fb:'T = D ÷ S = 1.5 h = 1 h 30 min.'},
+  {q:'60 km in 45 minutes — the speed is…',opts:['80 km/h','60 km/h','75 km/h','45 km/h'],a:0,fb:'45 min = 0.75 h; 60 ÷ 0.75 = 80.'},
+  {q:'Density = ?',opts:['mass ÷ volume','volume ÷ mass','mass × volume','mass − volume'],a:0,fb:'g/cm³: grams per cubic centimetre.'},
+  {q:'Mass 300 g, volume 250 cm³. Density?',opts:['1.2 g/cm³','0.83 g/cm³','75 000 g/cm³','50 g/cm³'],a:0,fb:'300 ÷ 250 = 1.2. It would sink in water (1 g/cm³).'},
+  {q:'Gold has density 19.3 g/cm³. A 10 cm³ ingot has mass…',opts:['193 g','1.93 g','0.52 g','1930 g'],a:0,fb:'M = D × V = 193 g.'}
+];
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);const div=document.createElement('div');div.className='q';div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});opts.appendChild(b);});qz.appendChild(div);});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

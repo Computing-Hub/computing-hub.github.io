@@ -65,21 +65,28 @@
   var current = 0;
 
   function sectionEls() {
-    var els = Array.prototype.slice.call(document.querySelectorAll('.step'));
-    if (!els.length) els = Array.prototype.slice.call(document.querySelectorAll('main section'));
-    if (!els.length) els = Array.prototype.slice.call(document.querySelectorAll('section'));
-    if (!els.length) els = Array.prototype.slice.call(document.querySelectorAll('.card, .topic-block, article'));
-    return els;
+    // Pages have no section wrappers: group <main>'s children at each <h2>.
+    var root = document.querySelector('main') || document.body;
+    var groups = [], cur = null;
+    Array.prototype.slice.call(root.children).forEach(function (el) {
+      if (el.id === 'ks3-nav' || el.id === 'ks3set-btn' || el.id === 'ks3set-panel') return;
+      if (el.tagName === 'H2') { cur = { h: el, els: [el] }; groups.push(cur); }
+      else if (cur) cur.els.push(el);
+      // content before the first h2 (the header/lede) stays always visible
+    });
+    return groups;
   }
 
   function applyChunks() {
     sections = sectionEls();
     var old = document.getElementById('ks3-nav');
     if (old) old.remove();
-    sections.forEach(function (el) { el.classList.remove('ks3-chunk-hidden'); });
+    sections.forEach(function (g) { g.els.forEach(function (el) { el.classList.remove('ks3-chunk-hidden'); }); });
     if (!s.chunks || sections.length < 2) return;
     current = Math.min(current, sections.length - 1);
-    sections.forEach(function (el, i) { if (i !== current) el.classList.add('ks3-chunk-hidden'); });
+    sections.forEach(function (g, i) {
+      if (i !== current) g.els.forEach(function (el) { el.classList.add('ks3-chunk-hidden'); });
+    });
     var nav = document.createElement('div');
     nav.id = 'ks3-nav'; nav.className = 'ks3-nav';
     var back = document.createElement('button'); back.textContent = '← Back';
@@ -90,15 +97,14 @@
     back.onclick = function () { current--; applyChunks(); window.scrollTo(0, 0); };
     next.onclick = function () { current++; applyChunks(); window.scrollTo(0, 0); };
     nav.appendChild(back); nav.appendChild(prog); nav.appendChild(next);
-    var parent = sections[0].parentNode;
-    parent.appendChild(nav);
+    (document.querySelector('main') || document.body).appendChild(nav);
   }
 
   function applyAudio() {
     document.querySelectorAll('.ks3-speak').forEach(function (b) { b.remove(); });
     if (!s.audio || !('speechSynthesis' in window)) return;
-    sectionEls().forEach(function (el) {
-      var h = el.querySelector('h1,h2,h3') || el;
+    sectionEls().forEach(function (g) {
+      var h = g.h;
       var btn = document.createElement('button');
       btn.className = 'ks3-speak';
       btn.type = 'button';
@@ -107,13 +113,14 @@
       btn.textContent = '🔊';
       btn.onclick = function () {
         speechSynthesis.cancel();
-        var u = new SpeechSynthesisUtterance(el.innerText.slice(0, 2500));
+        var text = g.els.map(function (el) { return el.innerText || ''; }).join('. ');
+        var u = new SpeechSynthesisUtterance(text.slice(0, 2500));
         u.rate = 0.95;
         var v = speechSynthesis.getVoices().filter(function (x) { return /en(-|_)GB/i.test(x.lang); })[0];
         if (v) u.voice = v;
         speechSynthesis.speak(u);
       };
-      (h.tagName ? h : el).appendChild(btn);
+      h.appendChild(btn);
     });
   }
 

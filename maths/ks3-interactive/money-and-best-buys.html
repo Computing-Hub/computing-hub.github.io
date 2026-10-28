@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Money and Best Buys</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ladder{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;justify-content:center;font-family:var(--mono);margin-top:.8rem}
+.ladder .u{padding:.5rem .8rem;border-radius:8px;border:2px solid var(--line);background:var(--bg);font-weight:600;min-width:3.6em;text-align:center}
+.ladder .u.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ladder .u.to{border-color:var(--two);background:var(--two-soft);color:var(--two)}
+.ladder .k{font-size:.8rem;color:var(--hi);display:flex;flex-direction:column;align-items:center;min-width:3.4em}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start}
+.twin>div{min-width:0}
+.twin .h{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+.chips button{font:inherit;font-family:var(--mono);font-size:.9rem;padding:.3rem .7rem;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);cursor:pointer}
+.chips button:hover{border-color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Ratio, proportion and rates of change · KS3</div>
+  <h1>Money and Best Buys</h1>
+  <p class="lede">Which bottle is the better deal? Don't guess — work out the <strong>price for one unit</strong> (one gram, one ml, one item) and compare. The smaller unit price wins. This question is on almost every Foundation paper.</p>
+  <span class="gcse">National curriculum KS3: solve problems involving direct proportion; use compound units such as unit pricing; financial mathematics</span>
+</header>
+
+<h2>1 · Unit price: the fair test</h2>
+<p>Price ÷ amount = price for one unit. For groceries, "price per 100 g" is often easiest: divide the price by the number of grams, then multiply by 100.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>price £<input type="number" id="uP" value="2.40" step="0.01" min="0" style="width:6em"></label>
+    <label>amount <input type="number" id="uA" value="300" step="any" min="1" style="width:6em"></label>
+    <label><select id="uU"><option>g</option><option>ml</option><option>items</option></select></label>
+  </div>
+  <div class="work" id="uWork"></div>
+</div>
+
+<h2>2 · Best buy: compare two offers</h2>
+<p>Work out the unit price of each offer. Cheaper per unit = better buy. Try changing the numbers — the bigger pack does <em>not</em> always win.</p>
+
+<div class="lab">
+  <div class="twin">
+    <div>
+      <div class="h">Offer A</div>
+      <div class="controls">
+        <label>£<input type="number" id="aP" value="1.80" step="0.01" min="0" style="width:5.5em"></label>
+        <label><input type="number" id="aA" value="250" step="any" min="1" style="width:5.5em"> g</label>
+      </div>
+    </div>
+    <div>
+      <div class="h">Offer B</div>
+      <div class="controls">
+        <label>£<input type="number" id="bP" value="3.20" step="0.01" min="0" style="width:5.5em"></label>
+        <label><input type="number" id="bA" value="500" step="any" min="1" style="width:5.5em"> g</label>
+      </div>
+    </div>
+  </div>
+  <div class="work" id="bbWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Exam tip: show the division.</strong> Marks come from the working "180 ÷ 250 = 0.72p per g" (or per 100 g), not just from naming the winner. Compare both offers in the <em>same</em> unit.</p>
+</div>
+
+<h2>3 · Special offers as multipliers</h2>
+<p>Shops dress discounts up in different clothes. Turn each offer into "what you pay for what you get" and they become easy to compare.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>offer <select id="oSel">
+      <option value="0">3 for the price of 2</option>
+      <option value="1">Buy one get one half price</option>
+      <option value="2">25% extra free</option>
+      <option value="3">20% off</option>
+    </select></label>
+    <label>normal price £<input type="number" id="oP" value="3.00" step="0.01" min="0" style="width:5.5em"> each</label>
+  </div>
+  <div class="work" id="oWork"></div>
+</div>
+
+<h2>4 · Have I got enough? Change and budgets</h2>
+<p>Add up the costs, compare with what you have, and give the change. Keep everything in the same unit (all pounds, or all pence) before adding.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>items cost £<input type="number" id="cA" value="2.35" step="0.01" min="0" style="width:5.5em"></label>
+    <label>+ £<input type="number" id="cB" value="1.80" step="0.01" min="0" style="width:5.5em"></label>
+    <label>+ <input type="number" id="cC" value="95" step="1" min="0" style="width:5em">p</label>
+    <label>paying with £<input type="number" id="cPay" value="10" step="0.01" min="0" style="width:5em"></label>
+  </div>
+  <div class="work" id="cWork"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open>
+  <summary>400 g for £3.00 or 650 g for £4.55 — which is the better buy?</summary>
+  <div class="step"><strong>Offer 1 per 100 g:</strong> 300p ÷ 4 = 75p.</div>
+  <div class="step"><strong>Offer 2 per 100 g:</strong> 455p ÷ 6.5 = 70p.</div>
+  <div class="step"><strong>Answer:</strong> the 650 g pack — 70p per 100 g is cheaper.</div>
+</details>
+<details>
+  <summary>"3 for 2" on £1.20 chocolate bars</summary>
+  <div class="step"><strong>You get 3 bars,</strong> you pay for 2: £2.40.</div>
+  <div class="step"><strong>Per bar:</strong> £2.40 ÷ 3 = 80p, instead of £1.20.</div>
+</details>
+<details>
+  <summary>Bus £2.15, meal £4.60, drink 85p. Paying with £10 — change?</summary>
+  <div class="step"><strong>Same units first:</strong> 85p = £0.85.</div>
+  <div class="step"><strong>Total:</strong> 2.15 + 4.60 + 0.85 = £7.60.</div>
+  <div class="step"><strong>Change:</strong> 10 − 7.60 = <strong>£2.40</strong>.</div>
+</details>
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<ul>
+  <li>Unit price = price ÷ amount. Smaller unit price = better buy.</li>
+  <li>Compare offers in the same unit (per 100 g is handy).</li>
+  <li>Turn special offers into "pay for what you get".</li>
+  <li>Keep money in one unit before adding; answers get 2 decimal places.</li>
+</ul>
+<footer>Part of the <a href="../route-to-a-4.html">Route to a 4</a> · Computing Hub maths pages</footer>
+</main>
+<script>
+(function(){
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const $=id=>document.getElementById(id);
+const money=v=>'£'+v.toFixed(2);
+
+function drawU(){
+  const p=+$('uP').value||0,a=+$('uA').value||1,u=$('uU').value;
+  const per=p/a;
+  let extra=u==='items'?`${money(per)} each`:`${(per*100*100).toFixed(1)}p per 100 ${u}`;
+  $('uWork').innerHTML=`${money(p)} ÷ ${a} = ${(per*100).toFixed(2)}p per ${u==='items'?'item':u}<br><strong>${extra}</strong>`;
+}
+['uP','uA','uU'].forEach(i=>$(i).addEventListener('input',drawU));drawU();
+
+function drawBB(){
+  const aP=+$('aP').value||0,aA=+$('aA').value||1,bP=+$('bP').value||0,bA=+$('bA').value||1;
+  const a100=aP/aA*100*100, b100=bP/bA*100*100;
+  let verdict=a100===b100?'They cost exactly the same per gram.':(a100<b100?`<strong>Offer A wins</strong> — cheaper per 100 g.`:`<strong>Offer B wins</strong> — cheaper per 100 g.`);
+  $('bbWork').innerHTML=`A: ${(aP*100).toFixed(0)}p ÷ ${aA} × 100 = <span class="a">${a100.toFixed(1)}p per 100 g</span><br>B: ${(bP*100).toFixed(0)}p ÷ ${bA} × 100 = <span class="c">${b100.toFixed(1)}p per 100 g</span><br>${verdict}`;
+}
+['aP','aA','bP','bA'].forEach(i=>$(i).addEventListener('input',drawBB));drawBB();
+
+function drawO(){
+  const p=+$('oP').value||0,s=+$('oSel').value;
+  let html='';
+  if(s===0){const pay=2*p;html=`3 items, pay ${money(pay)} → ${money(pay/3)} each.<br>That is like <strong>${Math.round((1-2/3)*100)}% off</strong>.`;}
+  if(s===1){const pay=p*1.5;html=`2 items, pay ${money(pay)} → ${money(pay/2)} each.<br>That is like <strong>25% off</strong>.`;}
+  if(s===2){html=`Pay ${money(p)}, get 1.25 of the normal amount.<br>Per unit: ${money(p/1.25)} → like <strong>20% off</strong>.`;}
+  if(s===3){html=`Pay ${money(p*0.8)} for 1 item.<br><strong>20% off</strong>, multiplier × 0.8.`;}
+  $('oWork').innerHTML=html;
+}
+['oSel','oP'].forEach(i=>$(i).addEventListener('input',drawO));drawO();
+
+function drawC(){
+  const a=+$('cA').value||0,b=+$('cB').value||0,c=(+$('cC').value||0)/100,pay=+$('cPay').value||0;
+  const tot=a+b+c;
+  $('cWork').innerHTML=`${$('cC').value}p = ${money(c)} (same units first)<br>total: ${money(a)} + ${money(b)} + ${money(c)} = <strong>${money(tot)}</strong><br>${pay>=tot?`change from ${money(pay)}: <strong>${money(pay-tot)}</strong>`:`<span class="b">Not enough! You are ${money(tot-pay)} short.</span>`}`;
+}
+['cA','cB','cC','cPay'].forEach(i=>$(i).addEventListener('input',drawC));drawC();
+
+const QS=[
+ {q:'250 g costs £2.00. Price per 100 g?',opts:['80p','50p','£1.25','20p'],a:0,fb:'200p ÷ 250 × 100 = 80p.'},
+ {q:'Which is the better buy: 300 g for £1.50 or 500 g for £2.00?',opts:['500 g for £2.00','300 g for £1.50','Same price per g','Cannot tell'],a:0,fb:'50p vs 40p per 100 g — the big pack wins here.'},
+ {q:'"3 for 2" on 90p bars. What do 3 bars cost?',opts:['£1.80','£2.70','90p','£1.35'],a:0,fb:'You pay for 2: 2 × 90p.'},
+ {q:'Buy one get one half price, £4 each. Two items cost…',opts:['£6','£8','£4','£7'],a:0,fb:'£4 + £2 = £6.'},
+ {q:'Crisps: £1.26 for 6 packs. Price per pack?',opts:['21p','26p','12p','76p'],a:0,fb:'126p ÷ 6 = 21p.'},
+ {q:'You buy things costing £3.25 and 80p. Total?',opts:['£4.05','£3.33','£11.25','£4.80'],a:0,fb:'80p = £0.80. 3.25 + 0.80 = 4.05.'},
+ {q:'Total is £7.35. You pay £20. Change?',opts:['£12.65','£13.65','£12.35','£13.35'],a:0,fb:'20 − 7.35 = 12.65.'},
+ {q:'In a best-buy answer, the marks mostly come from…',opts:['showing the unit-price working','naming the shop','picking the bigger pack','rounding up'],a:0,fb:'Show the divisions — then state the winner.'}
+];
+const qz=$('quiz');
+QS.forEach((Q,i)=>{const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);const div=document.createElement('div');div.className='q';div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+ order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});opts.appendChild(b);});qz.appendChild(div);});
+})();
+</script>
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

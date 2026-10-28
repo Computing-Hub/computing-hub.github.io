@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Order of Operations</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ladder{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;justify-content:center;font-family:var(--mono);margin-top:.8rem}
+.ladder .u{padding:.5rem .8rem;border-radius:8px;border:2px solid var(--line);background:var(--bg);font-weight:600;min-width:3.6em;text-align:center}
+.ladder .u.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ladder .u.to{border-color:var(--two);background:var(--two-soft);color:var(--two)}
+.ladder .k{font-size:.8rem;color:var(--hi);display:flex;flex-direction:column;align-items:center;min-width:3.4em}
+.tri{display:grid;grid-template-columns:1fr 1fr;width:220px;margin:.8rem auto;font-family:var(--mono);font-size:1.2rem;text-align:center}
+.tri div{padding:.5rem;border:1px solid var(--line)}
+.tri .top{grid-column:1/-1;background:var(--accent-soft);color:var(--accent);font-weight:600;border-radius:8px 8px 0 0}
+.tri .bl{background:var(--hi-soft);color:var(--hi);font-weight:600;border-radius:0 0 0 8px}
+.tri .br{background:var(--two-soft);color:var(--two);font-weight:600;border-radius:0 0 8px 0}
+.tri .cover{opacity:.25;text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+.chips button{font:inherit;font-family:var(--mono);font-size:.9rem;padding:.3rem .7rem;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);cursor:pointer}
+.chips button:hover{border-color:var(--accent)}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:.8rem}
+.twin>div{min-width:0}
+.twin .h{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>mark{background:var(--two-soft);color:var(--two);border-radius:4px;padding:0 .15em;font-style:normal}</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Number · KS3</div>
+  <h1>Order of Operations</h1>
+  <p class="lede">One sum, one answer. BIDMAS is the agreed order every calculator and every examiner uses: Brackets, Indices, Divide and Multiply, Add and Subtract. The tie-break rule — equal ranks go left to right — is where the marks hide.</p>
+  <span class="gcse">National curriculum KS3: use conventional notation for the priority of operations, including brackets, powers and roots</span>
+</header>
+
+
+<h2>1 · Why order matters</h2>
+<p>What is <span class="m">3 + 4 × 2</span>? If you read left to right you get 14. A calculator says 11. Maths needs one agreed order, or every sum would have many answers.</p>
+
+<div class="lab">
+  <div class="twin">
+    <div><div class="h">Left to right (wrong)</div><div class="work">3 + 4 × 2<br>= <span class="b">7</span> × 2<br>= <span class="b">14 ✗</span></div></div>
+    <div><div class="h">Multiply first (right)</div><div class="work">3 + 4 × 2<br>= 3 + <span class="a">8</span><br>= <span class="a">11 ✓</span></div></div>
+  </div>
+</div>
+
+<h2>2 · The order: BIDMAS</h2>
+<p>Work down this list. Each level beats the ones below it.</p>
+<div class="lab">
+  <div class="tbl"><table>
+    <tr><th>Order</th><th>Letters</th><th>Means</th></tr>
+    <tr><td class="mono">1</td><td class="mono"><strong>B</strong></td><td>Brackets first, always</td></tr>
+    <tr><td class="mono">2</td><td class="mono"><strong>I</strong></td><td>Indices (powers and roots): 3² before anything else outside brackets</td></tr>
+    <tr><td class="mono">3</td><td class="mono"><strong>D M</strong></td><td>Divide and Multiply — equal rank, do them left to right</td></tr>
+    <tr><td class="mono">4</td><td class="mono"><strong>A S</strong></td><td>Add and Subtract — equal rank, do them left to right</td></tr>
+  </table></div>
+</div>
+
+<div class="callout">
+  <p><strong>The common trap:</strong> D does not beat M, and A does not beat S. They are ties, settled left to right. <span class="m">10 − 4 + 2</span> is 6 + 2 = 8, not 10 − 6 = 4.</p>
+</div>
+
+<h2>3 · Step through it</h2>
+<p>Pick an expression, then press <strong>Do next step</strong>. The highlighted part is the one BIDMAS says to do next.</p>
+
+<div class="lab">
+  <div class="chips" id="exChips"></div>
+  <div class="big" id="exNow"></div>
+  <div class="controls"><button class="btn" id="exNext">Do next step</button><button class="btn" id="exReset">Start again</button></div>
+  <div class="work" id="exLog"></div>
+</div>
+
+<h2>4 · Brackets change everything</h2>
+<p>Brackets say "me first", whatever is inside. The same numbers can give very different answers.</p>
+<div class="lab">
+  <div class="twin">
+    <div><div class="h">No brackets</div><div class="work">3 + 4 × 2 = 3 + 8 = <strong>11</strong><br>20 − 6 ÷ 2 = 20 − 3 = <strong>17</strong></div></div>
+    <div><div class="h">With brackets</div><div class="work">(3 + 4) × 2 = 7 × 2 = <strong>14</strong><br>(20 − 6) ÷ 2 = 14 ÷ 2 = <strong>7</strong></div></div>
+  </div>
+</div>
+
+<h2>Worked examples</h2>
+<details open><summary>Work out 5 + 3 × 2²</summary>
+<div class="step">No brackets. Indices first: 2² = 4. Then multiply: 3 × 4 = 12. Then add.</div>
+<div class="work">5 + 3 × 2² = 5 + 3 × <span class="a">4</span> = 5 + <span class="a">12</span> = <strong>17</strong></div></details>
+<details><summary>Work out (10 − 4)² ÷ 9</summary>
+<div class="step">Brackets first: 10 − 4 = 6. Then the index: 6² = 36. Then divide.</div>
+<div class="work">(10 − 4)² ÷ 9 = <span class="a">6</span>² ÷ 9 = <span class="a">36</span> ÷ 9 = <strong>4</strong></div></details>
+<details><summary>Work out 24 ÷ 6 × 2</summary>
+<div class="step">÷ and × are a tie, so go left to right. (Doing 6 × 2 first gives 2 — the trap.)</div>
+<div class="work">24 ÷ 6 × 2 = <span class="a">4</span> × 2 = <strong>8</strong></div></details>
+
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>Brackets first. Indices next. Divide and multiply are a tie, done left to right; so are add and subtract. Writing one step per line keeps the order honest and makes mistakes easy to spot. If you want a different order, you must add brackets — that is what they are for.</p>
+
+<footer>Made for KS3 students. Priority of operations is in the England national curriculum at key stage 3 under Number. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(v,d=2)=>isFinite(v)?parseFloat(v.toFixed(d)).toLocaleString('en-GB',{maximumFractionDigits:d}):'—';
+
+const EXPRS=[
+ {label:'3 + 4 × 2',steps:[['3 + <mark>4 × 2</mark>','multiply before adding'],['3 + 8','now only + is left'],['<strong>11</strong>','done']]},
+ {label:'(3 + 4) × 2',steps:[['<mark>(3 + 4)</mark> × 2','brackets first'],['7 × 2','now multiply'],['<strong>14</strong>','done']]},
+ {label:'20 − 6 ÷ 2',steps:[['20 − <mark>6 ÷ 2</mark>','divide before subtracting'],['20 − 3','now subtract'],['<strong>17</strong>','done']]},
+ {label:'5 + 3 × 2²',steps:[['5 + 3 × <mark>2²</mark>','indices first'],['5 + <mark>3 × 4</mark>','then multiply'],['5 + 12','then add'],['<strong>17</strong>','done']]},
+ {label:'10 − 4 + 2',steps:[['<mark>10 − 4</mark> + 2','tie: left to right'],['6 + 2','keep going'],['<strong>8</strong>','done']]},
+ {label:'24 ÷ 6 × 2',steps:[['<mark>24 ÷ 6</mark> × 2','tie: left to right'],['4 × 2','keep going'],['<strong>8</strong>','done']]}
+];
+let cur=0,stepI=0;
+const exNow=document.getElementById('exNow'),exLog=document.getElementById('exLog'),chips=document.getElementById('exChips');
+EXPRS.forEach((E,i)=>{const b=document.createElement('button');b.textContent=E.label;b.addEventListener('click',()=>{cur=i;reset();});chips.appendChild(b);});
+function render(){const E=EXPRS[cur];exNow.innerHTML=E.steps[stepI][0];
+  exLog.innerHTML=E.steps.slice(0,stepI+1).map((s,i)=>`${s[0].replace(/<\/?mark>/g,'')} <span class="a">← ${s[1]}</span>`).join('<br>');}
+function reset(){stepI=0;render();}
+document.getElementById('exNext').addEventListener('click',()=>{const E=EXPRS[cur];if(stepI<E.steps.length-1){stepI++;render();}});
+document.getElementById('exReset').addEventListener('click',reset);
+reset();
+
+const QS=[
+  {q:'2 + 5 × 3 = ?',opts:['17','21','30','10'],a:0,fb:'Multiply first: 2 + 15 = 17.'},
+  {q:'(2 + 5) × 3 = ?',opts:['21','17','11','30'],a:0,fb:'Brackets first: 7 × 3 = 21.'},
+  {q:'18 − 12 ÷ 4 = ?',opts:['15','1.5','6','3'],a:0,fb:'Divide first: 18 − 3 = 15.'},
+  {q:'12 − 5 + 2 = ?',opts:['9','5','−5','19'],a:0,fb:'A and S tie: left to right. 7 + 2 = 9.'},
+  {q:'4 + 2² = ?',opts:['8','36','12','16'],a:0,fb:'Index first: 4 + 4 = 8. (4+2)² would be 36.'},
+  {q:'36 ÷ 3 × 2 = ?',opts:['24','6','54','18'],a:0,fb:'D and M tie: left to right. 12 × 2 = 24.'},
+  {q:'Put brackets in 3 + 4 × 2 to make 14.',opts:['(3 + 4) × 2','3 + (4 × 2)','3 + 4 × (2)','none needed'],a:0,fb:'(3+4)×2 = 7×2 = 14.'},
+  {q:'2 × (5 − 3)² = ?',opts:['8','16','4','14'],a:0,fb:'Brackets: 2. Index: 4. Multiply: 8.'}
+];
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);const div=document.createElement('div');div.className='q';div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});opts.appendChild(b);});qz.appendChild(div);});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

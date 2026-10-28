@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Fraction Arithmetic</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ladder{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;justify-content:center;font-family:var(--mono);margin-top:.8rem}
+.ladder .u{padding:.5rem .8rem;border-radius:8px;border:2px solid var(--line);background:var(--bg);font-weight:600;min-width:3.6em;text-align:center}
+.ladder .u.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ladder .u.to{border-color:var(--two);background:var(--two-soft);color:var(--two)}
+.ladder .k{font-size:.8rem;color:var(--hi);display:flex;flex-direction:column;align-items:center;min-width:3.4em}
+.tri{display:grid;grid-template-columns:1fr 1fr;width:220px;margin:.8rem auto;font-family:var(--mono);font-size:1.2rem;text-align:center}
+.tri div{padding:.5rem;border:1px solid var(--line)}
+.tri .top{grid-column:1/-1;background:var(--accent-soft);color:var(--accent);font-weight:600;border-radius:8px 8px 0 0}
+.tri .bl{background:var(--hi-soft);color:var(--hi);font-weight:600;border-radius:0 0 0 8px}
+.tri .br{background:var(--two-soft);color:var(--two);font-weight:600;border-radius:0 0 8px 0}
+.tri .cover{opacity:.25;text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+.chips button{font:inherit;font-family:var(--mono);font-size:.9rem;padding:.3rem .7rem;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);cursor:pointer}
+.chips button:hover{border-color:var(--accent)}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:.8rem}
+.twin>div{min-width:0}
+.twin .h{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style></style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Number · KS3</div>
+  <h1>Fraction Arithmetic</h1>
+  <p class="lede">Three pictures cover the four operations: same-size pieces for + and −, an overlap grid for ×, and "how many fit?" for ÷. The rules all drop out of the pictures — no magic to memorise.</p>
+  <span class="gcse">National curriculum KS3: use the four operations applied to proper and improper fractions and mixed numbers</span>
+</header>
+
+
+<h2>1 · Adding needs same-size pieces</h2>
+<p>You cannot add thirds to quarters any more than you can add metres to minutes. First cut both fractions into the <strong>same size pieces</strong> — a common denominator — then just count pieces. Slide the fractions and watch both bars get re-cut.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><input type="number" id="fa1n" value="1" min="0" max="12" style="width:3.5em"> / <select id="fa1d"></select></label>
+    <label><select id="faOp"><option>+</option><option>−</option></select></label>
+    <label><input type="number" id="fa2n" value="1" min="0" max="12" style="width:3.5em"> / <select id="fa2d"></select></label>
+  </div>
+  <svg id="faSvg" viewBox="0 0 700 120"></svg>
+  <div class="work" id="faWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Finding the common size:</strong> use the lowest common multiple of the two bottoms. For 3 and 4 it is 12: thirds become twelfths (× 4) and quarters become twelfths (× 3). Whatever you do to the bottom, do to the top.</p>
+</div>
+
+<h2>2 · Multiplying: a fraction of a fraction</h2>
+<p><span class="m">2/3 × 4/5</span> means "two thirds <em>of</em> four fifths". On a grid, shade 4/5 one way and 2/3 the other way: the overlap is the answer. The shortcut falls out: <strong>multiply the tops, multiply the bottoms</strong>.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label><input type="number" id="fm1n" value="2" min="1" max="8" style="width:3.5em"> / <select id="fm1d"></select></label>
+    <label>×</label>
+    <label><input type="number" id="fm2n" value="4" min="1" max="8" style="width:3.5em"> / <select id="fm2d"></select></label>
+  </div>
+  <svg id="fmSvg" viewBox="0 0 700 170"></svg>
+  <div class="work" id="fmWork"></div>
+</div>
+
+<h2>3 · Dividing: how many fit?</h2>
+<p><span class="m">6 ÷ 1/2</span> asks "how many halves fit in 6?" — twelve. Dividing by a fraction makes the answer <em>bigger</em>, which surprises everyone once. The rule: <strong>Keep the first fraction, Flip the second, Change ÷ to ×</strong>.</p>
+
+<div class="lab">
+  <div class="twin">
+    <div><div class="h">Keep · Flip · Change</div><div class="work">3/4 ÷ <span class="b">2/5</span><br>= 3/4 × <span class="a">5/2</span><br>= 15/8 = 1 7/8</div></div>
+    <div><div class="h">Why flipping works</div><div class="work">6 ÷ 1/2 = how many halves in 6?<br>each whole holds 2 → 6 × 2 = <strong>12</strong><br>so ÷ 1/2 is the same as × 2</div></div>
+  </div>
+</div>
+
+<h2>Worked examples</h2>
+<details open><summary>Work out 1/3 + 1/4</summary>
+<div class="step">Bottoms 3 and 4 → common size 12. Convert both, then add tops.</div>
+<div class="work">1/3 = <span class="a">4/12</span>, 1/4 = <span class="a">3/12</span><br>4/12 + 3/12 = <strong>7/12</strong></div></details>
+<details><summary>Work out 5/6 − 1/2</summary>
+<div class="step">Common size 6. 1/2 = 3/6, then subtract tops.</div>
+<div class="work">5/6 − <span class="a">3/6</span> = 2/6 = <strong>1/3</strong></div></details>
+<details><summary>Work out 2/3 × 6/7, simplified</summary>
+<div class="step">Tops × tops, bottoms × bottoms, then simplify.</div>
+<div class="work">2 × 6 / (3 × 7) = 12/21 = <strong>4/7</strong></div></details>
+<details><summary>Work out 4/5 ÷ 2/3</summary>
+<div class="step">Keep 4/5, flip 2/3 to 3/2, change ÷ to ×.</div>
+<div class="work">4/5 × 3/2 = 12/10 = <strong>6/5 = 1 1/5</strong></div></details>
+
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>To add or subtract, re-cut both fractions into the same size pieces (the LCM of the bottoms), then count tops — never add tops and bottoms. To multiply, multiply tops and multiply bottoms, then simplify. To divide, keep the first fraction, flip the second, change ÷ to ×. Dividing by a fraction smaller than 1 gives a bigger answer, and that is normal.</p>
+
+<footer>Made for KS3 students. Fraction arithmetic is in the England national curriculum at key stage 3 under Number. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(v,d=2)=>isFinite(v)?parseFloat(v.toFixed(d)).toLocaleString('en-GB',{maximumFractionDigits:d}):'—';
+
+function gcd(a,b){return b?gcd(b,a%b):a}
+function lcm(a,b){return a*b/gcd(a,b)}
+function simp(n,d){if(n===0)return '0';const g=gcd(Math.abs(n),d);n/=g;d/=g;return d===1?''+n:(Math.abs(n)>=d?`${n}/${d} = ${n<0?'−':''}${Math.floor(Math.abs(n)/d)} ${Math.abs(n)%d?Math.abs(n)%d+'/'+d:''}`.trim():`${n}/${d}`)}
+function fillSel(id,vals,def){const s=document.getElementById(id);vals.forEach(v=>{const o=document.createElement('option');o.textContent=v;if(v===def)o.selected=true;s.appendChild(o);});}
+fillSel('fa1d',[2,3,4,5,6,8,10,12],3);fillSel('fa2d',[2,3,4,5,6,8,10,12],4);
+fillSel('fm1d',[2,3,4,5,6,8],3);fillSel('fm2d',[2,3,4,5,6,8],5);
+
+function bar(x,y,w,h,den,num,color){let t=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="var(--line)"/>`;
+  for(let i=0;i<den;i++){const cw=w/den;
+    t+=`<rect x="${x+i*cw}" y="${y}" width="${cw}" height="${h}" fill="${i<num?color:'transparent'}" stroke="var(--line)" opacity="${i<num?.85:1}"/>`;}
+  return t;}
+function drawFA(){
+  const n1=+document.getElementById('fa1n').value,d1=+document.getElementById('fa1d').value;
+  const n2=+document.getElementById('fa2n').value,d2=+document.getElementById('fa2d').value;
+  const op=document.getElementById('faOp').value;
+  const L=lcm(d1,d2),a=n1*L/d1,b=n2*L/d2,res=op==='+'?a+b:a-b;
+  let t=bar(20,8,300,34,d1,Math.min(n1,d1),'var(--accent)')+bar(380,8,300,34,d2,Math.min(n2,d2),'var(--hi)');
+  t+=bar(20,70,300,34,L,Math.min(a,L),'var(--accent)')+bar(380,70,300,34,L,Math.min(b,L),'var(--hi)');
+  t+=`<text x="340" y="30" text-anchor="middle" font-size="22" fill="var(--muted)">${op}</text><text x="340" y="92" text-anchor="middle" font-size="22" fill="var(--muted)">${op}</text>`;
+  document.getElementById('faSvg').innerHTML=t;
+  document.getElementById('faWork').innerHTML=
+   `common size: LCM of ${d1} and ${d2} is <span class="c">${L}</span><br>`+
+   `${n1}/${d1} = <span class="a">${a}/${L}</span> and ${n2}/${d2} = <span class="b">${b}/${L}</span><br>`+
+   `${a}/${L} ${op} ${b}/${L} = ${res}/${L}`+(gcd(Math.abs(res)||1,L)>1||Math.abs(res)>=L?` = <strong>${simp(res,L)}</strong>`:' — already in simplest form');
+}
+['fa1n','fa1d','fa2n','fa2d','faOp'].forEach(id=>document.getElementById(id).addEventListener('input',drawFA));drawFA();
+
+function drawFM(){
+  const n1=+document.getElementById('fm1n').value,d1=+document.getElementById('fm1d').value;
+  const n2=+document.getElementById('fm2n').value,d2=+document.getElementById('fm2d').value;
+  const W=420,H=150,x0=140,cw=W/d2,ch=H/d1;let t='';
+  for(let r=0;r<d1;r++)for(let c=0;c<d2;c++){
+    const inA=r<Math.min(n1,d1),inB=c<Math.min(n2,d2);
+    t+=`<rect x="${x0+c*cw}" y="${10+r*ch}" width="${cw}" height="${ch}" stroke="var(--line)" fill="${inA&&inB?'var(--two)':inB?'var(--hi-soft)':inA?'var(--accent-soft)':'transparent'}" opacity="${inA&&inB?.8:1}"/>`;}
+  document.getElementById('fmSvg').innerHTML=t;
+  const num=Math.min(n1,d1)*Math.min(n2,d2),den=d1*d2;
+  document.getElementById('fmWork').innerHTML=
+   `across: <span class="b">${n2}/${d2}</span> · down: <span class="a">${n1}/${d1}</span> · overlap (purple): ${num} of ${den} squares<br>`+
+   `${n1}/${d1} × ${n2}/${d2} = ${n1}×${n2} / ${d1}×${d2} = ${num}/${den}`+(gcd(num||1,den)>1?` = <strong>${simp(num,den)}</strong>`:'');
+}
+['fm1n','fm1d','fm2n','fm2d'].forEach(id=>document.getElementById(id).addEventListener('input',drawFM));drawFM();
+
+const QS=[
+  {q:'1/5 + 2/5 = ?',opts:['3/5','3/10','2/25','1/5'],a:0,fb:'Same-size pieces already: count tops. 3/5.'},
+  {q:'1/2 + 1/3 = ?',opts:['5/6','2/5','1/5','2/6'],a:0,fb:'Sixths: 3/6 + 2/6 = 5/6. Never add tops and bottoms.'},
+  {q:'3/4 − 1/8 = ?',opts:['5/8','2/4','1/2','2/8'],a:0,fb:'Eighths: 6/8 − 1/8 = 5/8.'},
+  {q:'2/3 × 1/4 = ?',opts:['1/6','2/7','3/7','8/3'],a:0,fb:'2×1 / 3×4 = 2/12 = 1/6.'},
+  {q:'1/2 × 1/2 = ?',opts:['1/4','1','1/2','2/4 = 1/2'],a:0,fb:'Half of a half is a quarter.'},
+  {q:'6 ÷ 1/3 = ?',opts:['18','2','1/2','9'],a:0,fb:'How many thirds in 6? Three per whole: 18.'},
+  {q:'3/5 ÷ 2/3 = ?',opts:['9/10','2/5','6/15','5/6'],a:0,fb:'Keep, flip, change: 3/5 × 3/2 = 9/10.'},
+  {q:'Which is the odd one out?',opts:['2/3 + 3/4 = 5/7','1/4 + 1/4 = 1/2','1/2 × 1/3 = 1/6','2 ÷ 1/2 = 4'],a:0,fb:'Adding tops and bottoms is the classic error: 2/3 + 3/4 = 17/12.'}
+];
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);const div=document.createElement('div');div.className='q';div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});opts.appendChild(b);});qz.appendChild(div);});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>

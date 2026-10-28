@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Units and Conversions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f6fa; --fg:#15202b; --muted:#5b6b7c; --panel:#ffffff; --line:#d4dde7;
+  --grid:#e4eaf1; --accent:#0b6e6e; --accent-soft:#d9efee; --hi:#c2410c; --hi-soft:#fde8dc;
+  --two:#6d28d9; --two-soft:#ede4ff; --good:#1a7f4b; --bad:#b42318;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --fg:#e6edf3; --muted:#94a3b4; --panel:#16202b; --line:#26323f;
+  --grid:#1c2733; --accent:#3fbcb0; --accent-soft:#143634; --hi:#f0894f; --hi-soft:#3a2314;
+  --two:#b794f6; --two-soft:#2a1f45; --good:#4ade80; --bad:#f87171; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+main{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:700}
+h2{font-size:1.75rem;font-weight:600;margin-top:3.5rem}
+h3{font-size:1.2rem;font-weight:600;margin-top:1.8rem}
+p{margin:1rem 0;max-width:68ch}
+ul,ol{max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+header{padding-top:3rem;border-bottom:1px solid var(--line);padding-bottom:1.5rem}
+.lede{font-size:1.2rem;color:var(--muted);max-width:60ch}
+.m{font-family:var(--mono);font-size:.95em;background:var(--accent-soft);padding:.05em .35em;border-radius:4px;white-space:nowrap}
+.lab{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin:1.5rem 0}
+.lab svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-top:.9rem}
+.controls label{display:flex;align-items:center;gap:.5rem;font-size:.92rem;color:var(--muted)}
+input[type=range]{accent-color:var(--accent);width:160px;max-width:45vw}
+input[type=number],input[type=text]{font:inherit;font-family:var(--mono);font-size:1rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:6em}
+select{font:inherit;font-size:.95rem;padding:.3rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+button.btn{font:inherit;font-size:.9rem;padding:.4rem .9rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+button.btn:hover{border-color:var(--accent)}
+.readout{font-family:var(--mono);font-size:.95rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem 1rem;margin-top:.8rem;font-variant-numeric:tabular-nums}
+.readout b{display:block;font:600 .72rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.big{font-family:var(--mono);font-size:1.4rem;text-align:center;margin:.6rem 0}
+.work{font-family:var(--mono);font-size:1rem;line-height:1.9;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;overflow-x:auto}
+.work .a{color:var(--accent)}.work .b{color:var(--hi)}.work .c{color:var(--two)}
+.ladder{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;justify-content:center;font-family:var(--mono);margin-top:.8rem}
+.ladder .u{padding:.5rem .8rem;border-radius:8px;border:2px solid var(--line);background:var(--bg);font-weight:600;min-width:3.6em;text-align:center}
+.ladder .u.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ladder .u.to{border-color:var(--two);background:var(--two-soft);color:var(--two)}
+.ladder .k{font-size:.8rem;color:var(--hi);display:flex;flex-direction:column;align-items:center;min-width:3.4em}
+.tri{display:grid;grid-template-columns:1fr 1fr;width:220px;margin:.8rem auto;font-family:var(--mono);font-size:1.2rem;text-align:center}
+.tri div{padding:.5rem;border:1px solid var(--line)}
+.tri .top{grid-column:1/-1;background:var(--accent-soft);color:var(--accent);font-weight:600;border-radius:8px 8px 0 0}
+.tri .bl{background:var(--hi-soft);color:var(--hi);font-weight:600;border-radius:0 0 0 8px}
+.tri .br{background:var(--two-soft);color:var(--two);font-weight:600;border-radius:0 0 8px 0}
+.tri .cover{opacity:.25;text-decoration:line-through}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.use{border-top:3px solid var(--accent);padding-top:.7rem;min-width:0}
+.use h3{margin-top:0;font-size:1.05rem}
+.use p{font-size:.95rem;margin:.4rem 0;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.mono{font-family:var(--mono)}
+.tbl{overflow-x:auto}
+details{border-left:3px solid var(--line);padding:.2rem 1rem;margin:1rem 0}
+details[open]{border-color:var(--accent)}
+summary{cursor:pointer;font-weight:600;font-family:var(--display);font-size:1.05rem}
+.step{margin:.6rem 0;padding-left:1rem;border-left:2px dashed var(--line)}
+.quiz{display:grid;gap:1rem}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1rem}
+.q p{margin:0 0 .6rem}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opts button{font:inherit;font-family:var(--mono);font-size:.95rem;padding:.4rem .8rem;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opts button.right{border-color:var(--good);background:var(--accent-soft)}
+.opts button.wrong{border-color:var(--bad);opacity:.6}
+.fb{font-size:.92rem;margin-top:.6rem;min-height:1.4em;color:var(--muted)}
+.callout{background:var(--hi-soft);border-radius:8px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.callout p{margin:.3rem 0}
+.gcse{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem;display:inline-block}
+footer{margin-top:4rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+footer a{color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+.chips button{font:inherit;font-family:var(--mono);font-size:.9rem;padding:.3rem .7rem;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--fg);cursor:pointer}
+.chips button:hover{border-color:var(--accent)}
+.twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:.8rem}
+.twin>div{min-width:0}
+.twin .h{font:600 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style></style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Geometry and measures · KS3</div>
+  <h1>Units and Conversions</h1>
+  <p class="lede">Metric units ride a ladder of tens — converting is a single × or ÷. The traps are elsewhere: time runs in sixties, and shops hide value behind packet sizes. One sense check protects you everywhere: smaller units mean bigger numbers.</p>
+  <span class="gcse">National curriculum KS3: use standard units of mass, length, time, money and other measures; change freely between related standard units</span>
+</header>
+
+
+<h2>1 · The metric ladder</h2>
+<p>Metric units are powers of ten apart, so converting is just multiplying or dividing by 10, 100 or 1000. Going to a <strong>smaller</strong> unit means <strong>more</strong> of them (×); going to a bigger unit means fewer (÷). Pick a conversion and watch the path light up.</p>
+
+<div class="lab">
+  <div class="controls">
+    <label>measure <select id="uKind"><option value="len">length</option><option value="mass">mass</option><option value="cap">capacity</option></select></label>
+    <label>amount <input type="number" id="uVal" value="3.5" step="any"></label>
+    <label>from <select id="uFrom"></select></label>
+    <label>to <select id="uTo"></select></label>
+  </div>
+  <div class="ladder" id="uLadder"></div>
+  <div class="work" id="uWork"></div>
+</div>
+
+<div class="callout">
+  <p><strong>Sense check every answer.</strong> 3.5 m in cm must be a bigger number (350) because centimetres are smaller pieces. If your answer got smaller when the unit got smaller, you divided when you should have multiplied.</p>
+</div>
+
+<h2>2 · Time is not metric</h2>
+<p>The big trap: time works in 60s and 24s, not 10s. <span class="m">2.5 hours</span> is 2 h 30 min — never 2 h 50 min. The decimal part is a fraction of an hour: 0.5 × 60 = 30 minutes.</p>
+<div class="lab">
+  <div class="controls">
+    <label>hours (decimal) <input type="range" id="tH" min="0.1" max="5" step="0.1" value="2.5"><span id="tHv" style="font-family:var(--mono)"></span></label>
+  </div>
+  <div class="big" id="tOut"></div>
+  <div class="work" id="tWork"></div>
+</div>
+
+<h2>3 · Money and unit pricing: best buys</h2>
+<p>To compare offers fairly, work out the price of <strong>one unit</strong> of each (per gram, per ml, per item). Cheapest per unit wins, whatever the packet size.</p>
+<div class="lab">
+  <div class="twin">
+    <div><div class="h">Offer A</div><div class="controls"><label><input type="number" id="bAq" value="250" style="width:5em"> g for £<input type="number" id="bAp" value="1.80" step="0.01" style="width:5em"></label></div><div class="work" id="bAw"></div></div>
+    <div><div class="h">Offer B</div><div class="controls"><label><input type="number" id="bBq" value="400" style="width:5em"> g for £<input type="number" id="bBp" value="2.60" step="0.01" style="width:5em"></label></div><div class="work" id="bBw"></div></div>
+  </div>
+  <div class="big" id="bOut"></div>
+</div>
+
+<h2>Worked examples</h2>
+<details open><summary>Convert 3.5 m to cm, and 4 200 g to kg.</summary>
+<div class="step">m → cm is one rung down the ladder: × 100. g → kg is one rung up: ÷ 1000.</div>
+<div class="work">3.5 m × 100 = <strong>350 cm</strong><br>4200 g ÷ 1000 = <strong>4.2 kg</strong></div></details>
+<details><summary>A film lasts 1.75 hours. When does it end if it starts at 7:40 pm?</summary>
+<div class="step">0.75 h = 45 min, so 1 h 45 min. Add the hour, then the minutes.</div>
+<div class="work">7:40 + 1:00 = 8:40 → 8:40 + 0:45 = <strong>9:25 pm</strong></div></details>
+<details><summary>Which is the better buy: 250 g for £1.80 or 400 g for £2.60?</summary>
+<div class="step">Price per 100 g of each.</div>
+<div class="work">A: 180p ÷ 2.5 = <span class="a">72p per 100 g</span><br>B: 260p ÷ 4 = <span class="a">65p per 100 g</span> → <strong>B is better</strong></div></details>
+
+
+<h2>Quick check</h2>
+<div class="quiz" id="quiz"></div>
+
+<h2>What you've learned</h2>
+<p>On the metric ladder, moving to a smaller unit multiplies (more pieces) and moving to a bigger unit divides. Time is not metric: the decimal part of an hour is multiplied by 60 to get minutes. For best buys, compare the price of one unit (per 100 g, per roll) — the bigger packet usually wins, but not always, so always check.</p>
+
+<footer>Made for KS3 students. Units and measures are in the England national curriculum at key stage 3 under Geometry and measures. <a href="https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study#key-stage-3" target="_blank" rel="noopener">Programme of study</a>.</footer>
+</main>
+
+<script>
+(function(){
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(v,d=2)=>isFinite(v)?parseFloat(v.toFixed(d)).toLocaleString('en-GB',{maximumFractionDigits:d}):'—';
+
+const UNITS={len:[['km',1000],['m',100],['cm',10],['mm',1]],mass:[['kg',1000],['g',1000],['mg',1]],cap:[['litres',1000],['ml',1]]};
+const KEYS={len:['km',1e6],mass:0,cap:0};
+const uKind=document.getElementById('uKind'),uVal=document.getElementById('uVal'),uFrom=document.getElementById('uFrom'),uTo=document.getElementById('uTo');
+function fill(){const us=UNITS[uKind.value];[uFrom,uTo].forEach((s,si)=>{s.innerHTML='';us.forEach((u,i)=>{const o=document.createElement('option');o.textContent=u[0];o.value=i;if((si===0&&i===Math.max(0,us.length-3))||(si===1&&i===us.length-2))o.selected=true;s.appendChild(o);});});draw();}
+function factor(us,i){ // absolute size of unit i in smallest units
+  let f=1;for(let k=us.length-2;k>=i;k--)f*=us[k][1];return f;}
+function draw(){
+  const us=UNITS[uKind.value],fi=+uFrom.value,ti=+uTo.value,v=parseFloat(uVal.value)||0;
+  const ff=factor(us,fi),tf=factor(us,ti);const res=v*ff/tf;const mult=ff/tf;
+  let lad='';us.forEach((u,i)=>{lad+=`<span class="u ${i===fi?'on':i===ti?'to':''}">${u[0]}</span>`;
+    if(i<us.length-1)lad+=`<span class="k">×${us[i][1]}<span>→</span></span>`;});
+  document.getElementById('uLadder').innerHTML=lad;
+  const dir=mult>=1?`× ${fmt(mult)}`:`÷ ${fmt(1/mult)}`;
+  document.getElementById('uWork').innerHTML=`${us[fi][0]} → ${us[ti][0]}: ${mult>=1?'smaller unit, more of them':'bigger unit, fewer of them'} → <span class="a">${dir}</span><br>${fmt(v,4)} ${us[fi][0]} = <strong>${fmt(res,6)} ${us[ti][0]}</strong>`;
+}
+uKind.addEventListener('input',fill);[uVal,uFrom,uTo].forEach(x=>x.addEventListener('input',draw));fill();
+
+const tH=document.getElementById('tH');
+function drawT(){const h=parseFloat(tH.value);document.getElementById('tHv').textContent=' '+h;
+  const whole=Math.floor(h),mins=Math.round((h-whole)*60);
+  document.getElementById('tOut').textContent=`${h} hours = ${whole} h ${mins} min`;
+  document.getElementById('tWork').innerHTML=`decimal part: ${fmt(h-whole,2)} of an hour = ${fmt(h-whole,2)} × 60 = <span class="a">${mins} minutes</span> — not ${Math.round((h-whole)*100)} minutes!`;}
+tH.addEventListener('input',drawT);drawT();
+
+function drawB(){
+  const aq=parseFloat(bAq.value)||1,ap=parseFloat(bAp.value)||0,bq=parseFloat(bBq.value)||1,bp=parseFloat(bBp.value)||0;
+  const a100=ap/aq*100*100,b100=bp/bq*100*100; // pence per 100g
+  document.getElementById('bAw').innerHTML=`${fmt(ap*100)}p ÷ ${fmt(aq/100,2)} = <strong>${fmt(a100,1)}p per 100 g</strong>`;
+  document.getElementById('bBw').innerHTML=`${fmt(bp*100)}p ÷ ${fmt(bq/100,2)} = <strong>${fmt(b100,1)}p per 100 g</strong>`;
+  document.getElementById('bOut').textContent=a100===b100?'Same value!':(a100<b100?'Offer A is the better buy':'Offer B is the better buy');
+}
+['bAq','bAp','bBq','bBp'].forEach(id=>document.getElementById(id).addEventListener('input',drawB));drawB();
+
+const QS=[
+  {q:'4.2 m in cm is…',opts:['420','42','0.042','4200'],a:0,fb:'Smaller unit → more of them: × 100.'},
+  {q:'2 500 g in kg is…',opts:['2.5','25','250','0.25'],a:0,fb:'Bigger unit → fewer: ÷ 1000.'},
+  {q:'0.75 litres in ml is…',opts:['750','75','7.5','7500'],a:0,fb:'× 1000.'},
+  {q:'3.2 hours is…',opts:['3 h 12 min','3 h 20 min','3 h 2 min','3 h 32 min'],a:0,fb:'0.2 × 60 = 12 minutes.'},
+  {q:'A bus leaves at 10:45 and arrives at 12:10. Journey time?',opts:['1 h 25 min','1 h 35 min','2 h 25 min','1 h 65 min'],a:0,fb:'10:45 → 11:45 is 1 h, then 25 min more.'},
+  {q:'Which is longer: 0.5 km or 480 m?',opts:['0.5 km','480 m','they are equal','cannot tell'],a:0,fb:'0.5 km = 500 m > 480 m.'},
+  {q:'300 g for £2.40 — price per 100 g?',opts:['80p','72p','£1.20','24p'],a:0,fb:'240p ÷ 3 = 80p.'},
+  {q:'Better buy: 6 rolls for £3.30 or 9 rolls for £4.68?',opts:['9 rolls','6 rolls','same value','cannot tell'],a:0,fb:'6 for £3.30 → 55p each; 9 for £4.68 → 52p each.'}
+];
+
+const qz=document.getElementById('quiz');
+QS.forEach((Q,i)=>{const order=[...Q.opts.keys()].sort(()=>Math.random()-0.5);const div=document.createElement('div');div.className='q';div.innerHTML=`<p><strong>${i+1}.</strong> ${Q.q}</p><div class="opts"></div><div class="fb"></div>`;const opts=div.querySelector('.opts'),fb=div.querySelector('.fb');
+  order.forEach(k=>{const b=document.createElement('button');b.textContent=Q.opts[k];b.addEventListener('click',()=>{if(k===Q.a){b.classList.add('right');fb.style.color=css('--good');fb.textContent='Correct. '+Q.fb;opts.querySelectorAll('button').forEach(x=>x.disabled=true);}else{b.classList.add('wrong');fb.style.color=css('--bad');fb.textContent='Not quite. Try again.';}});opts.appendChild(b);});qz.appendChild(div);});
+
+})();
+</script>
+
+<script src="../inclusion-settings.js" defer></script>
+</body>
+</html>
