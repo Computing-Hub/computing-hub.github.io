@@ -9,12 +9,14 @@ enabled is served as a folder beneath this domain (e.g. `/pythonblocks/`).
 
 | File | Purpose |
 |------|---------|
-| `index.html` | Tuition-first homepage: subjects, how it works, pricing summary, featured resources |
+| `index.html` | Tuition-first homepage: bean-teacher hero, subjects, lesson videos, topics, how it works, pricing summary, featured resources |
 | `pricing.html` | Rates, booking/payment flow, FAQ |
 | `about.html` | Tutor credentials, approach, topic coverage |
 | `contact.html` | Formspree contact form, email, phone, booking link |
 | `resources.html` | The full free-resources catalogue (formerly the Computing Hub homepage) |
 | `assets/site.css`, `assets/site.js` | Shared styles and behaviour for the pages above |
+| `assets/images/`, `favicon.ico` | Hero artwork and the SmartBeans logo (header icon and favicons) |
+| `assets/videos/` | Short looping lesson clips (mp4 + poster jpg) used on `index.html` |
 | `maths/`, `diagnostic-questions/` | Resource content that lives directly in this repo |
 
 Resource cards whose folder is not yet published are marked "coming soon"
@@ -31,25 +33,11 @@ in the repo's **Settings → Pages** and tick *Enforce HTTPS* once the certifica
 
 | Type | Name | Target | Proxy |
 |------|------|--------|-------|
-| CNAME | `smartbeans` | `computing-hub.github.io` | DNS only (grey cloud) until the GitHub cert is issued, then either |
-| CNAME | `education` | `computing-hub.github.io` | Proxied (orange cloud) — needed for the redirect rule |
-| CNAME | `tuition` | `computing-hub.github.io` | Proxied (orange cloud) — needed for the redirect rule |
+| CNAME | `smartbeans` | `computing-hub.github.io` | DNS only (grey cloud) until GitHub issues the certificate |
 
-### Redirects for the old subdomains (Cloudflare → Rules → Redirect Rules)
-
-GitHub Pages serves one custom domain per repo, so the old hostnames must be
-redirected at Cloudflare. Two **dynamic** 301 rules:
-
-1. *education → smartbeans* (keeps the path, so deep links to resources survive)
-   - If: `http.host eq "education.coderra.je"`
-   - Then: Dynamic redirect, `concat("https://smartbeans.coderra.je", http.request.uri.path)`, 301, preserve query string
-
-2. *tuition → smartbeans*
-   - If: `http.host eq "tuition.coderra.je"`
-   - Then: Static redirect to `https://smartbeans.coderra.je/`, 301
-
-Once rule 2 is live the archived `Computing-Hub/tuition` repo (and its Railway
-deployment, if still running) can be switched off.
+No redirects are kept for `education.coderra.je` or `tuition.coderra.je`: those
+links were never shared, so their DNS records are simply removed and the
+`Computing-Hub/tuition` and `Coderraje/tuition` repos are archived.
 
 ## Adding a resource
 

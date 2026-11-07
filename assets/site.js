@@ -31,4 +31,20 @@
       .then(function (res) { if (!res.ok) a.closest('.card').classList.add('soon'); })
       .catch(function () { /* network error: leave the card as it is */ });
   });
+
+  // Lesson videos: play only while on screen; show the still frame with
+  // controls when the visitor prefers reduced motion.
+  var videos = document.querySelectorAll('video.lesson-video');
+  var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (still || !('IntersectionObserver' in window)) {
+    videos.forEach(function (v) { v.controls = true; });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { var p = e.target.play(); if (p) p.catch(function () {}); }
+        else e.target.pause();
+      });
+    }, { threshold: 0.25 });
+    videos.forEach(function (v) { io.observe(v); });
+  }
 })();

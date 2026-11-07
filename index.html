@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartBeans — Computer Science and Maths tuition, Jersey and online</title>
   <meta name="description" content="SmartBeans: one-to-one and small-group Computer Science and Maths tuition from KS3 to A-level, with a PhD teacher and GCSE examiner. Face-to-face in Jersey or online, plus free interactive revision resources.">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png">
   <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
@@ -12,8 +15,8 @@
   <header class="site">
     <div class="container nav">
       <a class="brand" href="./">
-        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 4c6-3 15 2 17 9s-2 14-9 15S3 24 4 16c.5-5 2-10 5-12z" fill="currentColor" style="color:var(--accent)"/><path d="M12 10c3 2 5 5 6 9 .5 2 1 3 2.5 4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".9"/></svg>
-        Smart<span>Beans</span>
+        <img src="/assets/images/apple-touch-icon.png" width="32" height="32" alt="">
+        <b>Smart<span>Beans</span></b>
       </a>
       <button class="menu-toggle" aria-expanded="false" aria-controls="nav-links">Menu</button>
       <nav aria-label="Main">
@@ -31,25 +34,32 @@
 
   <main>
 
-    <section class="hero tuition">
-      <div class="container">
-        <span class="eyebrow">Computer Science &amp; Maths &middot; KS3 to A-level</span>
-        <h1>Tuition that finds the gap, then closes it</h1>
-        <p class="lead">
-          One-to-one and small-group tuition from a practising teacher with a PhD in
-          Computer Science and experience marking GCSE papers as an OCR examiner.
-          Face-to-face in Jersey, or online anywhere.
-        </p>
-        <div class="actions">
-          <a class="btn btn-primary" href="https://cal.com/CoderaJE" target="_blank" rel="noopener">Book a free intro call</a>
-          <a class="btn btn-outline" href="pricing.html">See pricing</a>
-          <a class="btn btn-outline" href="resources.html">Try the free resources</a>
+    <section class="hero tuition hero-bean">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <h1>Expert Computer Science &amp; Maths Tuition</h1>
+          <p class="lead">
+            Personalised tutoring in Computer Science from KS3 to A-level, and Maths from KS3 to GCSE.
+            Learn from an experienced PhD educator and OCR GCSE examiner with 14+ years of teaching experience.
+            Face-to-face in Jersey, or online anywhere.
+          </p>
+          <div class="actions">
+            <a class="btn btn-primary" href="https://cal.com/CoderaJE" target="_blank" rel="noopener">Book a free 15-minute call</a>
+            <a class="btn btn-outline" href="pricing.html">See pricing</a>
+          </div>
+          <p class="launch"><strong>Introductory price:</strong> one-to-one lessons &pound;50 an hour <s>&pound;60</s>. <a href="pricing.html">See all prices</a></p>
+          <div class="stats">
+            <div><strong>14+</strong><span>years teaching</span></div>
+            <div><strong>PhD</strong><span>Computer Science, QMUL</span></div>
+            <div><strong>OCR</strong><span>GCSE examiner since 2019</span></div>
+          </div>
         </div>
-        <div class="stats">
-          <div><strong>14+</strong><span>years teaching</span></div>
-          <div><strong>PhD</strong><span>Computer Science, QMUL</span></div>
-          <div><strong>OCR</strong><span>GCSE examiner since 2019</span></div>
-          <div><strong>&pound;50</strong><span>per hour, pay as you go</span></div>
+        <div class="hero-art">
+          <img src="assets/images/hero-bean-teacher.jpg"
+               srcset="assets/images/hero-bean-teacher-1000.jpg 1000w, assets/images/hero-bean-teacher.jpg 2000w"
+               sizes="(max-width: 900px) 100vw, 600px"
+               width="2000" height="1116"
+               alt="The Jersey bean tutor, in a mortarboard and glasses, pointing at a blackboard of maths and programming examples">
         </div>
       </div>
     </section>
@@ -82,6 +92,206 @@
             <p>Past-paper walk-throughs, command words, how marks are actually awarded, and what to do in the last six weeks. I mark GCSE Computer Science papers for OCR, so I know what examiners look for.</p>
             <div class="tags"><span class="tag">GCSE</span><span class="tag">A-level</span></div>
           </article>
+        </div>
+      </section>
+
+      <section class="block" id="lessons">
+        <h2>How lessons work</h2>
+        <p class="section-intro">Every lesson mixes explanation with doing. Students don&rsquo;t just watch: they build, trace and test their understanding as they go.</p>
+        <div class="grid three">
+          <article class="card media">
+            <video class="lesson-video dark" muted loop playsinline preload="none" poster="assets/videos/lessons-interactive.jpg" aria-label="A student dragging Python code blocks into the right order, then checking the answer">
+              <source src="assets/videos/lessons-interactive.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <h3>Interactive online activities</h3>
+              <p>Students drag, drop, predict and test code in the browser, so every new idea is practised straight away. Nothing to install.</p>
+              <a class="open" href="Puzzles/">Try it yourself &rarr;</a>
+            </div>
+          </article>
+          <article class="card media">
+            <video class="lesson-video dark" muted loop playsinline preload="none" poster="assets/videos/lessons-scaffolding.jpg" aria-label="A trace table filling in one step at a time as a Python loop runs">
+              <source src="assets/videos/lessons-scaffolding.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <h3>Step-by-step scaffolding</h3>
+              <p>Problems are broken into small steps. We trace programs line by line, then take the support away as confidence grows.</p>
+              <a class="open" href="Python_IDE/">Try it yourself &rarr;</a>
+            </div>
+          </article>
+          <article class="card media">
+            <video class="lesson-video dark" muted loop playsinline preload="none" poster="assets/videos/lessons-visualising.jpg" aria-label="An animated bubble sort comparing and swapping bars">
+              <source src="assets/videos/lessons-visualising.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <h3>Visual explanations</h3>
+              <p>Abstract ideas such as sorting algorithms, the CPU and logic gates become animations students can see, pause and replay.</p>
+              <a class="open" href="cs_animations/">Try it yourself &rarr;</a>
+            </div>
+          </article>
+        </div>
+
+        <h3 class="subhead">Some of the tools students use</h3>
+        <div class="grid tools">
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/tools-pythonblocks.jpg" aria-label="A Python times-table program built from blocks, then run to print the 7 times table">
+              <source src="assets/videos/tools-pythonblocks.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <span class="kicker">Computer Science</span>
+              <h3>Python Blocks</h3>
+              <p>Students snap blocks together to build real Python, then run it in the browser. The code appears line by line as the program grows.</p>
+              <a class="open" href="pythonblocks/">Try it yourself &rarr;</a>
+            </div>
+          </article>
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/tools-flowcharts.jpg" aria-label="A flowchart walkthrough adding Start, input, output and Stop shapes alongside the Python they produce">
+              <source src="assets/videos/tools-flowcharts.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <span class="kicker">Computer Science</span>
+              <h3>Flowcharts</h3>
+              <p>Each flowchart shape is explained one step at a time and turned into the matching Python, so design and code stay connected.</p>
+              <a class="open" href="flowCharts/">Try it yourself &rarr;</a>
+            </div>
+          </article>
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/tools-sqlblocks.jpg" aria-label="A SQL query built from blocks, then filtered with a WHERE clause to show only Year 10 students">
+              <source src="assets/videos/tools-sqlblocks.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <span class="kicker">Computer Science</span>
+              <h3>SQL Blocks</h3>
+              <p>SELECT, FROM and WHERE become blocks that run against a real database, so students see exactly how each clause changes the results.</p>
+              <a class="open" href="SQL_Blocks/">Try it yourself &rarr;</a>
+            </div>
+          </article>
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/tools-equations.jpg" aria-label="The equation 2x + 3 = 11 solved on a balance scale, step by step, to x = 4">
+              <source src="assets/videos/tools-equations.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <span class="kicker">Maths</span>
+              <h3>Equations on a balance</h3>
+              <p>An equation becomes a balance scale: do the same to both sides, watch it stay level, and keep going until x is on its own.</p>
+              <a class="open" href="maths-lab/ks3-interactive/linear-equations.html">Try it yourself &rarr;</a>
+            </div>
+          </article>
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/tools-diagnostic.jpg" aria-label="A multiple-choice question on solving 4x = 20, revealing the misconception behind each wrong answer">
+              <source src="assets/videos/tools-diagnostic.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <span class="kicker">Maths</span>
+              <h3>Diagnostic questions</h3>
+              <p>Every wrong answer points to one specific misconception, so we find out exactly what to fix next instead of guessing.</p>
+              <a class="open" href="diagnosticQuestions/topic-linear-equations.html">Try it yourself &rarr;</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="block" id="topics">
+        <h2>Computer Science topics</h2>
+        <p class="section-intro">Linked topics open a free interactive activity on this site; the rest are covered in lessons.</p>
+        <div class="level">
+          <h3>KS3 Computer Science <span class="years">Years 7&ndash;9</span> <small>National Curriculum</small></h3>
+          <div class="tags chips"><a class="tag" href="binary/">Binary numbers</a><a class="tag" href="flowCharts/">Flowcharts &amp; algorithms</a><a class="tag" href="MLCoding/">Block programming with Sprout</a><a class="tag" href="csteachresources/">Python: variables, selection &amp; loops</a><a class="tag" href="blockwork/">Building apps with Blockwork</a><a class="tag" href="robotics/">Physical computing &amp; robotics</a><span class="tag">Scratch game design</span><a class="tag" href="revision-hub/key-terms/">Key terms revision</a></div>
+          <div class="grid three">
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/topics-ks3-binary.jpg" aria-label="Bits switched on one at a time to make 45 in binary">
+              <source src="assets/videos/topics-ks3-binary.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <None>Binary numbers</None>
+              <p>Switch bits on and watch the denary value add up.</p>
+            </div>
+          </article>
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/topics-ks3-sprout.jpg" aria-label="A Sprout times-table program built from blocks and run">
+              <source src="assets/videos/topics-ks3-sprout.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <None>Sprout</None>
+              <p>Build a program from blocks, see the code it makes, then run it.</p>
+            </div>
+          </article>
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/topics-ks3-python.jpg" aria-label="A worked Python for-loop example opening one step at a time">
+              <source src="assets/videos/topics-ks3-python.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <None>Python step by step</None>
+              <p>A worked for-loop example, revealed one line at a time.</p>
+            </div>
+          </article>
+          </div>
+        </div>
+        <div class="level">
+          <h3>GCSE Computer Science <span class="years">Years 10&ndash;11</span> <small>OCR J277 &middot; AQA 8525 &middot; Edexcel 1CP2</small></h3>
+          <div class="tags chips"><a class="tag" href="Python_IDE/">Python programming</a><a class="tag" href="pseudocode/">Pseudocode &amp; exam reference language</a><a class="tag" href="flowCharts/">Flowcharts &amp; trace tables</a><a class="tag" href="cs_animations/">Searching &amp; sorting algorithms</a><span class="tag">Computational thinking</span><a class="tag" href="Hexadecimal/">Binary, hex &amp; two&rsquo;s complement</a><span class="tag">Characters, images &amp; sound</span><span class="tag">Compression</span><span class="tag">Logic gates</span><span class="tag">CPU &amp; the fetch&ndash;execute cycle</span><span class="tag">Memory &amp; storage</span><span class="tag">Networks &amp; protocols</span><span class="tag">Network security</span><a class="tag" href="SQL_Blocks/">Databases &amp; SQL</a><span class="tag">Ethical, legal &amp; environmental issues</span><span class="tag">Exam technique: 6-mark answers</span></div>
+          <div class="grid three">
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/topics-gcse-pseudocode.jpg" aria-label="FizzBuzz pseudocode stepped through, then run to print its output">
+              <source src="assets/videos/topics-gcse-pseudocode.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <None>Pseudocode IDE</None>
+              <p>Step through FizzBuzz line by line, then run it.</p>
+            </div>
+          </article>
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/topics-gcse-hex.jpg" aria-label="A binary pattern converted to hexadecimal to unlock a door">
+              <source src="assets/videos/topics-gcse-hex.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <None>Hex escape room</None>
+              <p>Convert binary to hexadecimal to unlock each door.</p>
+            </div>
+          </article>
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/topics-gcse-fde.jpg" aria-label="The CPU registers updating through the fetch-decode-execute cycle">
+              <source src="assets/videos/topics-gcse-fde.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <None>Fetch&ndash;execute cycle</None>
+              <p>Watch the registers update at every stage of the cycle.</p>
+            </div>
+          </article>
+          </div>
+        </div>
+        <div class="level">
+          <h3>A-level Computer Science <span class="years">Years 12&ndash;13</span> <small>OCR H446 &middot; AQA 7517</small></h3>
+          <div class="tags chips"><a class="tag" href="OOP_Blocks/">Object-oriented programming</a><span class="tag">Stacks, queues &amp; linked lists</span><span class="tag">Graph algorithms: Dijkstra &amp; A*</span><span class="tag">Merge sort &amp; quick sort</span><a class="tag" href="boolean-algebra-alevel/">Boolean algebra &amp; Karnaugh maps</a><a class="tag" href="boolean-algebra-alevel/adders.html">Adders &amp; D-type flip-flops</a><span class="tag">Processor architecture &amp; registers</span><a class="tag" href="DBNormalisation/">Databases &amp; normalisation</a><a class="tag" href="SQL_Blocks/">SQL</a><a class="tag" href="HTML_Blocks/">Web development (HTML)</a><a class="tag" href="pi/">Pseudocode &amp; exam reference language</a></div>
+          <div class="grid three">
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/topics-alevel-oop.jpg" aria-label="A Dog class with two objects created and run in OOP Blocks">
+              <source src="assets/videos/topics-alevel-oop.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <None>OOP Blocks</None>
+              <p>Build a class, create objects, and call getters and setters.</p>
+            </div>
+          </article>
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/topics-alevel-stack.jpg" aria-label="Values pushed onto a stack, peeked at, then popped">
+              <source src="assets/videos/topics-alevel-stack.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <None>Stacks</None>
+              <p>Push, peek and pop to see last-in, first-out in action.</p>
+            </div>
+          </article>
+          <article class="card media">
+            <video class="lesson-video" muted loop playsinline preload="none" poster="assets/videos/topics-alevel-dijkstra.jpg" aria-label="Dijkstra's shortest path algorithm running across a graph">
+              <source src="assets/videos/topics-alevel-dijkstra.mp4" type="video/mp4">
+            </video>
+            <div class="body">
+              <None>Dijkstra&rsquo;s algorithm</None>
+              <p>Watch the shortest distances update across the graph.</p>
+            </div>
+          </article>
+          </div>
         </div>
       </section>
 

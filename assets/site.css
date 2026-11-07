@@ -376,3 +376,55 @@ footer.site li { margin: 4px 0; }
 footer.site a { color: var(--muted); }
 footer.site a:hover { color: var(--accent); }
 footer.site .legal { border-top: 1px solid var(--border); padding-top: 16px; }
+
+/* ---------- Bean-teacher hero (index) ---------- */
+:root { --hero-bean-bg: #e1e4e9; --hero-bean-text: #1f2a44; --hero-bean-muted: #3b4660; }
+@media (prefers-color-scheme: dark) {
+  :root { --hero-bean-bg: #1a202b; --hero-bean-text: var(--text); --hero-bean-muted: var(--muted); }
+}
+.hero.hero-bean { background: var(--hero-bean-bg); color: var(--hero-bean-text); padding: 40px 0; overflow: hidden; }
+.hero-bean .lead, .hero-bean .launch, .hero-bean .stats div span { color: var(--hero-bean-muted); }
+.hero-grid { display: grid; grid-template-columns: 5fr 7fr; gap: 24px; align-items: center; }
+.hero-bean .launch { margin: 0 0 20px; }
+.hero-art img {
+  display: block; width: 100%; height: auto;
+  -webkit-mask-image: radial-gradient(ellipse 75% 75% at center, #000 70%, transparent 100%);
+          mask-image: radial-gradient(ellipse 75% 75% at center, #000 70%, transparent 100%);
+}
+@media (prefers-color-scheme: dark) {
+  /* The artwork has a light background: frame it rather than fading it into the dark page. */
+  .hero-art img { -webkit-mask-image: none; mask-image: none; border-radius: 14px; }
+}
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .hero-art { order: -1; }
+}
+
+/* ---------- Lesson videos ---------- */
+.card.media { padding: 0; overflow: hidden; }
+.card.media .body { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.lesson-video { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: top; background: #fff; }
+.lesson-video.dark { background: #0f1729; }
+.card .kicker { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.card h4 { margin: 0; font-size: 1rem; }
+.subhead { font-size: 1.25rem; margin: 36px 0 14px; }
+.level { margin-top: 28px; }
+.level h3 { font-size: 1.25rem; margin: 0 0 10px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.level .years { font-size: 0.8rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.level small { font-size: 0.85rem; font-weight: 400; color: var(--muted); }
+.chips { margin-bottom: 16px; }
+.chips .tag { font-size: 0.85rem; font-weight: 500; padding: 4px 12px; border: 1px solid var(--border); background: var(--surface); text-decoration: none; }
+.chips a.tag { color: var(--accent); }
+.chips a.tag:hover { border-color: var(--accent); }
+
+/* Brand icon */
+.brand img { width: 32px; height: 32px; border-radius: 50%; }
+/* Tools: three across, then two wider cards (as on the original tuition site) */
+.grid.tools { grid-template-columns: repeat(6, 1fr); }
+.grid.tools > :nth-child(-n+3) { grid-column: span 2; }
+.grid.tools > :nth-child(n+4) { grid-column: span 3; }
+@media (max-width: 900px) {
+  .grid.tools { grid-template-columns: repeat(2, 1fr); }
+  .grid.tools > * { grid-column: span 1 !important; }
+}
+@media (max-width: 560px) { .grid.tools { grid-template-columns: 1fr; } }
