@@ -43,8 +43,9 @@ Login, the members-only resource library, the course builder and student dashboa
 stay on the Django app (`Coderraje/tuition`, Railway). Static pages link to it via
 `https://tuition.coderra.je/...`; search for that host if it moves to another subdomain.
 
-No redirects are kept for `education.coderra.je` or `tuition.coderra.je`: those
-links were never shared, so their DNS records are simply removed and `Computing-Hub/tuition` (the old copy) is archived.
+No redirects are kept for `education.coderra.je`: those links were never shared, so
+its DNS record is simply removed. Keep the `tuition` DNS record while the Django app
+serves login and the members library. `Computing-Hub/tuition` (the old copy) can be archived.
 
 ## Adding a resource
 
