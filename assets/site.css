@@ -115,7 +115,7 @@ header.site {
   font-size: 1rem;
   cursor: pointer;
 }
-@media (max-width: 820px) {
+@media (max-width: 980px) {
   .menu-toggle { display: block; }
   .nav ul {
     display: none;
@@ -428,3 +428,19 @@ footer.site .legal { border-top: 1px solid var(--border); padding-top: 16px; }
   .grid.tools > * { grid-column: span 1 !important; }
 }
 @media (max-width: 560px) { .grid.tools { grid-template-columns: 1fr; } }
+
+/* ---------- Courses, Maths and Resources pages ---------- */
+p.lead { font-size: 1.1rem; color: var(--muted); max-width: 720px; margin: 0 0 16px; }
+.price-grid.two { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.price h4 { margin: 0; font-size: 1.15rem; }
+.price .amount { font-size: 1.9rem; }
+.card.build { margin-top: 24px; border-style: dashed; }
+.section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 24px; }
+.section-head .all { font-weight: 600; text-decoration: none; margin-bottom: 20px; white-space: nowrap; }
+.grid.quick { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+a.card.lib { color: inherit; text-decoration: none; transition: border-color .15s, box-shadow .15s; }
+a.card.lib:hover, a.card.lib:focus-visible { border-color: var(--accent); box-shadow: 0 4px 16px rgba(0,0,0,.06); }
+a.card.lib h3, a.card.lib h4 { color: var(--text); }
+.badge { align-self: flex-start; font-size: 0.75rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
+.badge.free { background: var(--accent-soft); color: var(--accent); }
+.badge.members { background: var(--tag-bg); color: var(--tag-text); }

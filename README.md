@@ -10,10 +10,12 @@ enabled is served as a folder beneath this domain (e.g. `/pythonblocks/`).
 | File | Purpose |
 |------|---------|
 | `index.html` | Tuition-first homepage: bean-teacher hero, subjects, lesson videos, topics, how it works, pricing summary, featured resources |
+| `courses.html` | Ready-made courses with estimated hours and cost (a copy of the Django course list, November 2026); "Choose & adjust" opens the Django course builder |
+| `maths.html` | KS3 and GCSE Maths: topic links into `maths-lab/` and the short maths videos |
 | `pricing.html` | Rates, booking/payment flow, FAQ |
 | `about.html` | Tutor credentials, approach, topic coverage |
 | `contact.html` | Formspree contact form, email, phone, booking link |
-| `resources.html` | The full free-resources catalogue (formerly the Computing Hub homepage) |
+| `resources.html` | Tuition learning-resources library (members-only items open on the Django app) followed by the full free catalogue |
 | `assets/site.css`, `assets/site.js` | Shared styles and behaviour for the pages above |
 | `assets/images/`, `favicon.ico` | Hero artwork and the SmartBeans logo (header icon and favicons) |
 | `assets/videos/` | Short looping lesson clips (mp4 + poster jpg) used on `index.html` |
@@ -35,9 +37,14 @@ in the repo's **Settings → Pages** and tick *Enforce HTTPS* once the certifica
 |------|------|--------|-------|
 | CNAME | `smartbeans` | `computing-hub.github.io` | DNS only (grey cloud) until GitHub issues the certificate |
 
+### What still runs on Django (`tuition.coderra.je`)
+
+Login, the members-only resource library, the course builder and student dashboards
+stay on the Django app (`Coderraje/tuition`, Railway). Static pages link to it via
+`https://tuition.coderra.je/...`; search for that host if it moves to another subdomain.
+
 No redirects are kept for `education.coderra.je` or `tuition.coderra.je`: those
-links were never shared, so their DNS records are simply removed and the
-`Computing-Hub/tuition` and `Coderraje/tuition` repos are archived.
+links were never shared, so their DNS records are simply removed and `Computing-Hub/tuition` (the old copy) is archived.
 
 ## Adding a resource
 
