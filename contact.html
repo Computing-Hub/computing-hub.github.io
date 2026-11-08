@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — BeanWise</title>
+  <meta name="description" content="Contact BeanWise tuition in Jersey: send a message, email tuition@coderra.je or book a free 15-minute introductory call.">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+  <header class="site">
+    <div class="container nav">
+      <a class="brand" href="./">
+        <img src="/assets/images/apple-touch-icon.png" width="32" height="32" alt="">
+        <b>Bean<span>Wise</span></b>
+      </a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="nav-links">Menu</button>
+      <nav aria-label="Main">
+        <ul id="nav-links">
+          <li><a class="link" href="courses.html">Courses</a></li>
+          <li><a class="link" href="maths.html">Maths</a></li>
+          <li><a class="link" href="resources.html">Resources</a></li>
+          <li><a class="link" href="pricing.html">Pricing</a></li>
+          <li><a class="link" href="https://cal.com/coderra" target="_blank" rel="noopener">Book Now</a></li>
+          <li><a class="link" href="about.html">About</a></li>
+          <li><a class="link" href="contact.html">Contact</a></li>
+          <li><a class="link" href="https://members.coderra.je/accounts/login/">Login</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="hero">
+      <span class="eyebrow">Contact</span>
+      <h1>Get in touch</h1>
+      <p class="lead">Have a question, or want to talk through your child's goals before booking? Send a message and I usually reply within 24 hours.</p>
+    </section>
+
+    <section class="block" style="padding-top:8px">
+      <div class="two-col">
+        <div class="panel" style="margin-top:0">
+          <h2>Send a message</h2>
+          <form class="contact" action="https://formspree.io/admin@coderra.je" method="POST">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" required autocomplete="name">
+            <label for="email">Email</label>
+            <input id="email" name="_replyto" type="email" required autocomplete="email">
+            <label for="phone">Phone (optional)</label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel">
+            <label for="subject">Subject</label>
+            <select id="subject" name="subject">
+              <option>Computer Science tuition</option>
+              <option>Maths tuition</option>
+              <option>Group session</option>
+              <option>Using the free resources in school</option>
+              <option>Something else</option>
+            </select>
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="6" required placeholder="Year group, exam board, target grade, and when you'd like to start."></textarea>
+            <input type="hidden" name="_subject" value="BeanWise enquiry">
+            <button class="btn btn-primary" type="submit">Send message</button>
+          </form>
+        </div>
+        <div>
+          <div class="panel" style="margin-top:0">
+            <h2>Contact details</h2>
+            <p><strong>Email</strong><br><a href="mailto:tuition@coderra.je">tuition@coderra.je</a></p>
+            <p><strong>Phone</strong><br><a href="tel:+447700717757">07700 717757</a></p>
+            <p><strong>Response time</strong><br>Usually within 24 hours</p>
+            <p><strong>Where</strong><br>Face-to-face in Jersey, Channel Islands &middot; online anywhere</p>
+          </div>
+          <div class="panel cta">
+            <h2>Prefer to just book?</h2>
+            <p>Pick a free 15-minute intro slot straight from the calendar.</p>
+            <div class="actions">
+              <a class="btn btn-primary" href="https://cal.com/coderra" target="_blank" rel="noopener">Open the booking calendar</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site">
+    <div class="container">
+      <div class="cols">
+        <div>
+          <h4>BeanWise</h4>
+          <p>Computer Science and Maths tuition, KS3 to A-level, in Jersey and online. Part of <a href="https://coderra.je">Coderra.je Limited</a>.</p>
+        </div>
+        <div>
+          <h4>Tuition</h4>
+          <ul>
+            <li><a href="courses.html">Courses</a></li>
+            <li><a href="maths.html">Maths</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="about.html">About your tutor</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="https://cal.com/coderra" target="_blank" rel="noopener">Book Now</a></li>
+            <li><a href="https://members.coderra.je/accounts/login/">Student login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Free resources</h4>
+          <ul>
+            <li><a href="resources.html#revision">Revision games</a></li>
+            <li><a href="resources.html#maths">Maths</a></li>
+            <li><a href="resources.html#programming">Programming</a></li>
+            <li><a href="resources.html#teachers">For teachers</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="legal">
+        &copy; <span id="year"></span> Coderra.je Limited, Jersey &middot;
+        <a href="mailto:tuition@coderra.je">tuition@coderra.je</a> &middot;
+        <a href="tel:+447700717757">07700 717757</a> &middot;
+        Content and code are copyright, all rights reserved
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/site.js"></script>
+</body>
+</html>
