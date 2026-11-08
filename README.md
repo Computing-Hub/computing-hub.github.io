@@ -37,15 +37,15 @@ in the repo's **Settings → Pages** and tick *Enforce HTTPS* once the certifica
 |------|------|--------|-------|
 | CNAME | `smartbeans` | `computing-hub.github.io` | DNS only (grey cloud) until GitHub issues the certificate |
 
-### What still runs on Django (`tuition.coderra.je`)
+### What still runs on Django (`members.coderra.je`)
 
 Login, the members-only resource library, the course builder and student dashboards
 stay on the Django app (`Coderraje/tuition`, Railway). Static pages link to it via
-`https://tuition.coderra.je/...`; search for that host if it moves to another subdomain.
+`https://members.coderra.je/...`; search for that host if it moves to another subdomain.
 
 No redirects are kept for `education.coderra.je`: those links were never shared, so
-its DNS record is simply removed. Keep the `tuition` DNS record while the Django app
-serves login and the members library. `Computing-Hub/tuition` (the old copy) can be archived.
+its DNS record is simply removed. The `tuition` record is gone: the Django app now answers
+on `members.coderra.je` (login, members library, course builder). `Computing-Hub/tuition` (the old copy) can be archived.
 
 ## Adding a resource
 
