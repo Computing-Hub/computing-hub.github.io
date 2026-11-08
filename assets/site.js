@@ -39,12 +39,19 @@
   if (still || !('IntersectionObserver' in window)) {
     videos.forEach(function (v) { v.controls = true; });
   } else {
+    // Start a clip only after it has stayed on screen briefly, so scrolling
+    // past (or a smooth-scroll jump) doesn't download every video on the way.
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
-        if (e.isIntersecting) { var p = e.target.play(); if (p) p.catch(function () {}); }
-        else e.target.pause();
+        var v = e.target;
+        clearTimeout(v._playTimer);
+        if (e.isIntersecting) {
+          v._playTimer = setTimeout(function () { var p = v.play(); if (p) p.catch(function () {}); }, 400);
+        } else if (!v.paused) {
+          v.pause();
+        }
       });
-    }, { threshold: 0.25 });
+    }, { threshold: 0.5 });
     videos.forEach(function (v) { io.observe(v); });
   }
 })();
