@@ -1,6 +1,6 @@
-# SmartBeans — smartbeans.coderra.je
+# BeanWise — beanwise.coderra.je
 
-Front door for SmartBeans (Computer Science and Maths tuition, Coderra.je Limited)
+Front door for BeanWise (Computer Science and Maths tuition, Coderra.je Limited)
 and the free Computing Hub resource collection. This is the GitHub Pages **organisation
 site** for Computing-Hub, so every other repo in the organisation that has Pages
 enabled is served as a folder beneath this domain (e.g. `/pythonblocks/`).
@@ -17,7 +17,7 @@ enabled is served as a folder beneath this domain (e.g. `/pythonblocks/`).
 | `contact.html` | Formspree contact form, email, phone, booking link |
 | `resources.html` | Tuition learning-resources library (members-only items open on the Django app) followed by the full free catalogue |
 | `assets/site.css`, `assets/site.js` | Shared styles and behaviour for the pages above |
-| `assets/images/`, `favicon.ico` | Hero artwork and the SmartBeans logo (header icon and favicons) |
+| `assets/images/`, `favicon.ico` | Hero artwork and the BeanWise logo (header icon and favicons) |
 | `assets/videos/` | Short looping lesson clips (mp4 + poster jpg) used on `index.html` |
 | `maths/`, `diagnostic-questions/` | Resource content that lives directly in this repo |
 
@@ -28,14 +28,14 @@ Pricing is hard-coded in `index.html` and `pricing.html` — search for `£50` t
 
 ## Domain
 
-`CNAME` holds `smartbeans.coderra.je`. After pushing, confirm the custom domain
+`CNAME` holds `beanwise.coderra.je`. After pushing, confirm the custom domain
 in the repo's **Settings → Pages** and tick *Enforce HTTPS* once the certificate issues.
 
 ### Cloudflare DNS (coderra.je zone)
 
 | Type | Name | Target | Proxy |
 |------|------|--------|-------|
-| CNAME | `smartbeans` | `computing-hub.github.io` | DNS only (grey cloud) until GitHub issues the certificate |
+| CNAME | `beanwise` | `computing-hub.github.io` | DNS only (grey cloud) until GitHub issues the certificate |
 
 ### What still runs on Django (`members.coderra.je`)
 

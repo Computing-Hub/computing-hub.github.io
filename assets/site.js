@@ -1,4 +1,4 @@
-// SmartBeans — shared behaviour for the top-level pages.
+// BeanWise — shared behaviour for the top-level pages.
 (function () {
   var year = document.getElementById('year');
   if (year) year.textContent = new Date().getFullYear();
