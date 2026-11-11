@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supporting learning with interactive tools — overview for school leaders</title>
+  <meta name="description" content="An overview of the free, browser-based tools, activities and projects built to support learning across subjects: retrieval, maths intervention, programming, exam preparation, inclusion, enrichment and staff support.">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="assets/site.css">
+  <style>
+    /* Page-specific: a quieter header, numbered sections, print handout */
+    header.site .brand small { font-weight: 500; color: var(--muted); font-size: 0.85rem; margin-left: 6px; }
+    .toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
+    .at-a-glance { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 20px; }
+    .at-a-glance div { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+    .at-a-glance strong { display: block; font-size: 1.6rem; color: var(--accent); line-height: 1.1; }
+    .at-a-glance span { color: var(--muted); font-size: 0.9rem; }
+    section.theme { padding-top: 44px; scroll-margin-top: 80px; }
+    section.theme h2 { display: flex; align-items: center; gap: 12px; }
+    section.theme h2 .n { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 1rem; display: grid; place-items: center; flex: none; }
+    .why { background: var(--accent-soft); border-radius: 10px; padding: 12px 16px; color: var(--text); margin: 0 0 18px; }
+    .why strong { color: var(--accent); }
+    .card .status { font-size: 0.75rem; font-weight: 600; color: var(--badge-text); background: var(--badge-bg); padding: 2px 9px; border-radius: 999px; }
+    .card p.note { color: var(--text); font-size: 0.9rem; flex: 0; }
+    .principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+    .principles .card h3 { font-size: 1rem; }
+    table.appendix { width: 100%; border-collapse: collapse; font-size: 0.92rem; margin-top: 14px; }
+    table.appendix th, table.appendix td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    table.appendix th { color: var(--muted); font-weight: 600; font-size: 0.85rem; }
+    table.appendix td:first-child { white-space: nowrap; font-weight: 600; }
+    table.appendix .tag { margin: 0 3px 3px 0; display: inline-block; }
+    .ask ol { margin: 0; padding-left: 20px; color: var(--muted); }
+    .ask li { margin: 6px 0; }
+    .ask li strong { color: var(--text); }
+    @media print {
+      header.site, .toc, footer.site .cols, .btn { display: none !important; }
+      body { background: #fff; color: #000; font-size: 11pt; }
+      .hero { padding: 0 0 12px; }
+      .container { max-width: none; padding: 0; }
+      section.theme { padding-top: 22px; break-inside: avoid; }
+      .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .card { break-inside: avoid; padding: 12px; box-shadow: none; }
+      .card a.open::after { content: " (" attr(href) ")"; font-weight: 400; color: #555; font-size: 0.85em; }
+      .card a.open { color: #000; }
+      table.appendix { font-size: 9pt; }
+      a { color: #000; text-decoration: none; }
+      .panel.cta { background: none; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site">
+    <div class="container nav">
+      <a class="brand" href="resources.html">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 4c6-3 15 2 17 9s-2 14-9 15S3 24 4 16c.5-5 2-10 5-12z" fill="currentColor" style="color:var(--accent)"/><path d="M12 10c3 2 5 5 6 9 .5 2 1 3 2.5 4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".9"/></svg>
+        Computing Hub <small>· supporting learning</small>
+      </a>
+      <nav aria-label="Page">
+        <ul id="nav-links">
+          <li><a class="link" href="resources.html">All resources</a></li>
+          <li><a class="link" href="#appendix">A–Z list</a></li>
+          <li class="cta"><button class="btn btn-outline btn-sm" onclick="window.print()">Print / save as PDF</button></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="hero">
+      <span class="eyebrow">Overview for school leaders · November 2026</span>
+      <h1>Supporting learning with interactive tools</h1>
+      <p class="lead">
+        Over the past year I have built a collection of free, browser-based tools, activities
+        and projects to support learning: in Computer Science and Maths first, and increasingly
+        across other subjects. Everything here runs on a phone, Chromebook or school laptop
+        with nothing to install, no login and no personal data stored. This page groups the work
+        by what it does for students and staff, with a link to each live tool.
+      </p>
+      <nav class="toc" aria-label="Sections">
+        <a class="btn btn-outline btn-sm" href="#retrieval">1 Retrieval &amp; revision</a>
+        <a class="btn btn-outline btn-sm" href="#maths">2 Closing gaps in maths</a>
+        <a class="btn btn-outline btn-sm" href="#programming">3 Learning to program</a>
+        <a class="btn btn-outline btn-sm" href="#exams">4 Exam preparation</a>
+        <a class="btn btn-outline btn-sm" href="#inclusion">5 Inclusion &amp; access</a>
+        <a class="btn btn-outline btn-sm" href="#enrichment">6 Clubs &amp; enrichment</a>
+        <a class="btn btn-outline btn-sm" href="#community">7 Community projects</a>
+        <a class="btn btn-outline btn-sm" href="#staff">8 Supporting colleagues</a>
+        <a class="btn btn-outline btn-sm" href="#principles">How it is built</a>
+        <a class="btn btn-outline btn-sm" href="#next">What next</a>
+      </nav>
+      <div class="at-a-glance">
+        <div><strong>60+</strong><span>free tools and activities</span></div>
+        <div><strong>KS2–KS5</strong><span>primary enrichment to A-level</span></div>
+        <div><strong>10+</strong><span>subjects served by the revision games</span></div>
+        <div><strong>0</strong><span>logins, installs or data stored</span></div>
+        <div><strong>3</strong><span>languages in the parents' site and Sprout</span></div>
+      </div>
+    </section>
+
+    <!-- 1 ------------------------------------------------------------ -->
+    <section class="theme" id="retrieval">
+      <h2><span class="n">1</span>Retrieval and revision across subjects</h2>
+      <p class="why"><strong>Why:</strong> spaced retrieval of key vocabulary is the cheapest, best-evidenced gain available, but it only happens if it is quick to set and students actually do it. These games take seconds to launch from a projector or a phone, and any department can add its own term banks.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Revision Hub</h3>
+          <p>Seven short games in one place (True or False, Piñata, Unscramble, Sequence, Higher or Lower, Sort It, Key Terms). Works offline once opened; teachers can supply their own word lists.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span><span class="tag">All subjects</span></div>
+          <a class="open" href="revision-hub/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Key Terms</h3>
+          <p>Guess the key term from a clue or picture, then answer a follow-up to check understanding, not just recognition. Banks already exist for DT, Science (AQA separate sciences), MFL, English, KS3 Humanities and exam command words.</p>
+          <div class="tags"><span class="tag">All subjects</span><span class="tag">Mobile</span></div>
+          <a class="open" href="revision-hub/key-terms/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Connections</h3>
+          <p>Sixteen tiles, four groups of four, four mistakes allowed. A five-minute starter that forces students to articulate what links terms.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">All subjects</span></div>
+          <a class="open" href="connections_game/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>CS Multiplayer Quiz</h3>
+          <p>Live head-to-head quiz for the whole class, played on phones or in the computer suite.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span></div>
+          <a class="open" href="computer-science-multiplayer-quiz/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>CS Boggle &amp; Hex Escape Room</h3>
+          <p>Vocabulary and number-conversion practice disguised as games, with difficulty levels, timers and teacher-editable word lists.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">Computer Science</span></div>
+          <a class="open" href="boggle/">Open Boggle →</a>
+        </article>
+        <article class="card">
+          <h3>Tres en Raya</h3>
+          <p>Noughts and crosses in Spanish: answer a question to claim a square. The same pattern works for any language or subject.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">Spanish</span></div>
+          <a class="open" href="tresenraya/">Open →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- 2 ------------------------------------------------------------ -->
+    <section class="theme" id="maths">
+      <h2><span class="n">2</span>Closing gaps in maths</h2>
+      <p class="why"><strong>Why:</strong> students who are stuck below a grade 4 are usually missing a handful of specific ideas, not the whole subject. These tools find the gap, explain the idea visually at a low reading age, and give graded practice. They were built with the school's engagement trial in mind.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Route to a 4</h3>
+          <p>A staged pathway through 80+ interactive topic pages: foundations, the grade 4 core, then the push to a 5. Every page has easy-read, calm-mode, one-step-at-a-time and read-aloud settings.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span><span class="tag">SEND</span></div>
+          <a class="open" href="maths/route-to-a-4.html">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Diagnostic Questions</h3>
+          <p>Multiple-choice questions for the projector where every wrong answer names a misconception. Presentation mode, printable worksheets and a quiz builder. Designed to replace mini-whiteboards without needing student devices.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span><span class="tag">Teachers</span></div>
+          <a class="open" href="diagnosticQuestions/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Quick Explainers</h3>
+          <p>Short animated videos on a single Maths or English idea (HCF, LCM, negatives, fractions, percentage change…) with practice and answers. Teachers share a link or a printable; display settings for SEND.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">Maths</span><span class="tag">English</span></div>
+          <a class="open" href="coreRevision/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Maths Lab &amp; Maths Visuals</h3>
+          <p>Learn by moving things: slide <em>m</em> and <em>c</em> to meet straight-line challenges, drag a triangle's corners, see the area model and Pythagoras as pictures rather than rules.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span></div>
+          <a class="open" href="maths-lab/">Open Maths Lab →</a>
+        </article>
+        <article class="card">
+          <h3>Maths Practice &amp; Maths Arcade</h3>
+          <p>Worksheet libraries by topic with instant feedback, progress saved on the device only.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">GCSE</span></div>
+          <a class="open" href="math-practice-app/">Open →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3 ------------------------------------------------------------ -->
+    <section class="theme" id="programming">
+      <h2><span class="n">3</span>Learning to program</h2>
+      <p class="why"><strong>Why:</strong> programming is where GCSE Computer Science is won or lost, and where the school network makes most online tools unusable. Everything here runs entirely in the browser: no accounts, no installs, no blocked CDNs.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Python Blocks</h3>
+          <p>Fifty marked Python exercises with badges, a block editor that writes and runs real Python, and a flowchart editor that converts between flowcharts and code. Built for OCR J277; used in the coding club.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">Python</span><span class="tag">OCR</span></div>
+          <a class="open" href="pythonblocks/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Sprout</h3>
+          <p>A friendly mini-language for absolute beginners: build from blocks, see the generated code, run and test it. Interface in English, Portuguese and Polish.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">Beginners</span><span class="tag">EAL</span></div>
+          <a class="open" href="MLCoding/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Pseudocode IDE &amp; ERL Runner</h3>
+          <p>Write and <em>run</em> OCR pseudocode and Exam Reference Language, stepping line by line while a trace table fills in. Tolerant of layout like an examiner, strict on logic.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">A-level</span><span class="tag">OCR</span></div>
+          <a class="open" href="pseudocode/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Python IDE &amp; PRIMM Lessons</h3>
+          <p>A browser Python environment with Turtle, a live variable watch and self-marking trace-table exercises, plus lessons built on Predict–Run–Investigate–Modify–Make.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">Python</span></div>
+          <a class="open" href="Python_IDE/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Python Fundamentals &amp; CodeJourney</h3>
+          <p>Complete browser-based GCSE Python courses: chapters with live editors, theory, Paper 1 and 2 practice, and a six-lesson problem-solving sequence for OCR.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">Python</span></div>
+          <a class="open" href="python-fundamentals/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Parsons Puzzles, Indent &amp; Binary</h3>
+          <p>Low-floor entry points: order jumbled code, Duolingo-style streak challenges, and a one-page Year 7 binary lesson with a game and quiz.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">Python</span></div>
+          <a class="open" href="Puzzles/">Open →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- 4 ------------------------------------------------------------ -->
+    <section class="theme" id="exams">
+      <h2><span class="n">4</span>Exam preparation</h2>
+      <p class="why"><strong>Why:</strong> as an OCR GCSE examiner I see the same marks lost every summer. These resources put real papers and mark-scheme thinking in front of students, question by question.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Past Paper Practice</h3>
+          <p>Interactive walk-throughs of real GCSE Computer Science papers (Edexcel and OCR) with instant marking and examiner commentary.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">Computer Science</span></div>
+          <a class="open" href="EdexcelPaper2/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>GCSE CS Revision &amp; Paper 2 Quest</h3>
+          <p>Quizzes, quick guides and interactive OCR J277 lessons, plus a level-up revision game for Edexcel Paper 2 with coins and progress.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">OCR</span><span class="tag">Edexcel</span></div>
+          <a class="open" href="GCSE_homepage/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Edexcel GCSE Course</h3>
+          <p>The full 1CP2 course: all six topics with notes, interactive code editors and revision activities.</p>
+          <div class="tags"><span class="tag">GCSE</span><span class="tag">Edexcel</span></div>
+          <a class="open" href="Edexcel_GCSE/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>A-level stretch</h3>
+          <p>Boolean algebra with Karnaugh maps, adders and flip-flops; OOP, SQL and HTML block builders; database normalisation; OCR H446 resources; and A-level Physics diagnostics.</p>
+          <div class="tags"><span class="tag">A-level</span><span class="tag">OCR</span><span class="tag">AQA</span></div>
+          <a class="open" href="boolean-algebra-alevel/">Open →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- 5 ------------------------------------------------------------ -->
+    <section class="theme" id="inclusion">
+      <h2><span class="n">5</span>Inclusion and access</h2>
+      <p class="why"><strong>Why:</strong> the students who most need practice are often the ones for whom the standard page is hardest to use. Inclusion settings are built into the tools themselves, and two projects reach students that no off-the-shelf product serves.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Built-in support settings</h3>
+          <p>Readable font, reduced motion, shorter activities, calm mode and read-aloud are parameters on the maths and explainer pages, so a teacher can send one link set up for one student.</p>
+          <div class="tags"><span class="tag">SEND</span><span class="tag">All maths pages</span></div>
+          <a class="open" href="maths/route-to-a-4.html">See it in Route to a 4 →</a>
+        </article>
+        <article class="card">
+          <h3>Live captions and translation <span class="status">pilot</span></h3>
+          <p>Speech-to-text that runs entirely offline on a laptop (no cloud, in line with school policy): the teacher's speech appears as captions for deaf students, can be translated live for students with little English, and can be simplified for a lower reading age. Requested by the colleague responsible for our deaf students; demoed, deployment being worked out with IT.</p>
+          <div class="tags"><span class="tag">Deaf students</span><span class="tag">EAL</span><span class="tag">Offline</span></div>
+          <p class="note">Not yet on the web: a demo on request.</p>
+        </article>
+        <article class="card">
+          <h3>Helping your child learn at home</h3>
+          <p>A parent-facing site listing each week's KS3 Maths and English topics in Portuguese and Polish, so parents can ask their child to explain the topic rather than teach it. Promoted by QR code at parents' evening; the link never changes as content is added.</p>
+          <div class="tags"><span class="tag">Parents</span><span class="tag">Home language</span></div>
+          <a class="open" href="parentssupport/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Accessible Resources &amp; SEN Prompt Generator</h3>
+          <p>Adapt a resource for KS3 to KS5 so every learner can use it, and build tailored AI prompts for neurodivergent learners (autism, dyslexia, ADHD).</p>
+          <div class="tags"><span class="tag">SEN</span><span class="tag">Teachers</span></div>
+          <a class="open" href="adapted-ng/">Open →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- 6 ------------------------------------------------------------ -->
+    <section class="theme" id="enrichment">
+      <h2><span class="n">6</span>Clubs and enrichment</h2>
+      <p class="why"><strong>Why:</strong> physical computing and making are where students who do not see themselves as "computer people" change their minds. All club materials are published so another member of staff could run a session from them.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Coding club <span class="status">running</span></h3>
+          <p>A KS3 lunchtime club in the computer suite, limited places by application. Built around Python Blocks, the flowchart editor and Turtle graphics.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">Weekly</span></div>
+          <a class="open" href="pythonblocks/">Tools used →</a>
+        </article>
+        <article class="card">
+          <h3>Robotics: Buggy Battle</h3>
+          <p>An eight-week project to build and program a radio-controlled buggy from micro:bits, a motor driver and motors, ending in speed, manoeuvring and sumo events.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">micro:bit</span></div>
+          <a class="open" href="robotics/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>micro:bit, IoT and Computer Club projects</h3>
+          <p>A year of Year 9 micro:bit projects, Internet-of-Things sessions with sensors and dashboards, and physical-computing builds for a school club.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">Clubs</span></div>
+          <a class="open" href="microbits_projects_y9/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Scratch Game Academy &amp; Teachable Machine</h3>
+          <p>Build a complete ocean-survival game in Scratch, and a six-lesson primary unit on training an image classifier with no coding, camera or microphone: a safe first look at how AI learns and where bias comes from.</p>
+          <div class="tags"><span class="tag">Primary</span><span class="tag">KS3</span><span class="tag">AI</span></div>
+          <a class="open" href="AI4kids/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Year 9 enrichment</h3>
+          <p>Enrichment pages on climate, fake news, phones and social media with English, maths and science links; Word Skills Academy (CVs, newspapers, travel guides); and a Black History Month resource site.</p>
+          <div class="tags"><span class="tag">KS3</span><span class="tag">Cross-curricular</span></div>
+          <a class="open" href="enrichmentCurriculum/">Open →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- 7 ------------------------------------------------------------ -->
+    <section class="theme" id="community">
+      <h2><span class="n">7</span>Community and civic projects</h2>
+      <p class="why"><strong>Why:</strong> small, real apps that help Jersey show students that what they learn has a use beyond the exam. These were built with students in mind and are offered to youth and community organisations to extend.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Defibrillator finder</h3>
+          <p>Shows Jersey's public defibrillators and the nearest one to the phone's location.</p>
+          <div class="tags"><span class="tag">Civic</span><span class="tag">Phone</span></div>
+          <p class="note">Demo on request.</p>
+        </article>
+        <article class="card">
+          <h3>Pothole reporter</h3>
+          <p>Press a button to capture a GPS point marking a pothole, building a shared map of road defects.</p>
+          <div class="tags"><span class="tag">Civic</span><span class="tag">Phone</span></div>
+          <p class="note">Demo on request.</p>
+        </article>
+        <article class="card">
+          <h3>Assistive technology <span class="status">in progress</span></h3>
+          <p>A six-key Braille writer emulator for learning Braille, and a planned proximity aid for blind students (ultrasonic sensor and buzzer on a cane).</p>
+          <div class="tags"><span class="tag">Accessibility</span><span class="tag">Hardware</span></div>
+          <p class="note">Prototype stage.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 8 ------------------------------------------------------------ -->
+    <section class="theme" id="staff">
+      <h2><span class="n">8</span>Supporting colleagues</h2>
+      <p class="why"><strong>Why:</strong> the fastest way to improve learning across the school is to give teachers back time and give departments a shared way of doing retrieval. These are the tools and documents aimed at staff rather than students.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Deck to Handout &amp; Classroom Assessment</h3>
+          <p>Turn a PowerPoint into a shareable interactive web handout in one step; quick formative-assessment tools that check understanding without marking overhead.</p>
+          <div class="tags"><span class="tag">Teachers</span><span class="tag">Tools</span></div>
+          <a class="open" href="deck2handout/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>AI in the Classroom (CPD)</h3>
+          <p>A practical guide and a short CPD course on using AI tools to plan, adapt and save time, plus a four-step Teacher Prompt Builder.</p>
+          <div class="tags"><span class="tag">CPD</span><span class="tag">AI</span></div>
+          <a class="open" href="AIClassroom/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>Scheme of Learning &amp; Curriculum Alignment</h3>
+          <p>A scheme-of-learning generator, a full OCR J277 scheme with spaced-retrieval rationale and an inclusive-pedagogy guide, and a map of where GCSE Computer Science meets Maths, Science and Business.</p>
+          <div class="tags"><span class="tag">Planning</span><span class="tag">Curriculum</span></div>
+          <a class="open" href="schemeofLearning/">Open →</a>
+        </article>
+        <article class="card">
+          <h3>KS4 shared-concept map <span class="status">draft</span></h3>
+          <p>A workbook mapping which KS4 subjects teach the same concepts and when, so departments can interleave, retrieve across subjects and agree one vocabulary. Timing left for departments to confirm.</p>
+          <div class="tags"><span class="tag">SLT</span><span class="tag">Heads of department</span></div>
+          <p class="note">Spreadsheet; shared on request.</p>
+        </article>
+        <article class="card">
+          <h3>Text moodboard (English)</h3>
+          <p>Students choose from images that capture the mood of a poem or character and explain their chain of thought; a board-display version works for history or climate change.</p>
+          <div class="tags"><span class="tag">English</span><span class="tag">Humanities</span></div>
+          <p class="note">Demo on request.</p>
+        </article>
+        <article class="card">
+          <h3>Teachers add their own banks</h3>
+          <p>Departments asked to add their own key terms rather than send them to me, so the revision games take a simple term list per subject, with no accounts and anonymous class codes only.</p>
+          <div class="tags"><span class="tag">All subjects</span></div>
+          <a class="open" href="revision-hub/">See the games →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- Principles ----------------------------------------------------- -->
+    <section class="theme" id="principles">
+      <h2>How it is built</h2>
+      <div class="principles">
+        <article class="card"><h3>Free, for any department</h3><p>Everything is published openly. No licence, no per-seat cost, no renewal.</p></article>
+        <article class="card"><h3>Browser only</h3><p>Nothing to install; runs on Chromebooks, Windows laptops and phones, and keeps working when the network blocks external libraries.</p></article>
+        <article class="card"><h3>No logins, no personal data</h3><p>Students are never asked to sign up. Progress stays on the device; where classes are tracked, anonymous class codes are used.</p></article>
+        <article class="card"><h3>Offline where it matters</h3><p>The revision games work offline once opened, and the captions tool runs with no internet at all, in line with the school's AI policy.</p></article>
+        <article class="card"><h3>Inclusion by default</h3><p>Low reading age, read-aloud, calm mode and one-step-at-a-time are built in, not bolted on.</p></article>
+        <article class="card"><h3>Built in the classroom</h3><p>Each tool exists because a lesson needed it; the ones that did not help were dropped.</p></article>
+      </div>
+    </section>
+
+    <!-- Next ----------------------------------------------------------- -->
+    <section class="theme" id="next">
+      <h2>What this could do for the school next</h2>
+      <div class="two-col">
+        <div class="panel ask" style="margin-top:0">
+          <h2>Ready now, needs a nudge</h2>
+          <ol>
+            <li><strong>Whole-school key terms.</strong> Each department supplies one term list per unit; the revision games then cover every subject by half-term.</li>
+            <li><strong>Diagnostic questions in maths.</strong> Use the projector mode as the default starter in KS3 maths; no devices needed.</li>
+            <li><strong>Parents' site.</strong> Extend the weekly-topics page beyond Maths and English, and add languages the school needs.</li>
+            <li><strong>Route to a 4 for intervention groups.</strong> One link per student, pre-set to their support settings, for the engagement trial and Year 11 intervention.</li>
+          </ol>
+        </div>
+        <div class="panel ask" style="margin-top:0">
+          <h2>Needs a decision</h2>
+          <ol>
+            <li><strong>Live captions pilot.</strong> Agree a deployment IT support is comfortable with (a server on the school network with internet blocked, or a per-classroom laptop) and trial it with two or three deaf and EAL students.</li>
+            <li><strong>KS4 shared-concept map.</strong> Ten minutes at a heads-of-department meeting for each department to confirm its sequencing.</li>
+            <li><strong>Coding club capacity.</strong> A second lunchtime or a KS4 session if demand holds.</li>
+            <li><strong>Island resource bank.</strong> As Jersey moves to shared resources across schools, this collection is ready to be offered as a starting contribution.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- Appendix ------------------------------------------------------- -->
+    <section class="theme" id="appendix">
+      <h2>Appendix: every published resource, A–Z</h2>
+      <p class="section-intro">All 62 items currently live, in one list. The full catalogue with descriptions is at <a href="resources.html">resources</a>.</p>
+      <table class="appendix">
+        <thead><tr><th>Resource</th><th>For</th><th>What it does</th></tr></thead>
+        <tbody>
+        <tr><td><a href="AlevelCSOCR/">A-Level CS Resources (OCR)</a></td><td><span class=tag>A-level</span> <span class=tag>OCR</span></td><td>Teaching and revision resources for OCR H446 A-level Computer Science.</td></tr>
+        <tr><td><a href="AQAPhysics/">A-Level Physics Diagnostics</a></td><td><span class=tag>A-level</span> <span class=tag>Physics</span></td><td>Diagnostic assessments for AQA A-Level Physics (7408) to find strengths and weaknesses across the course.</td></tr>
+        <tr><td><a href="adapted-ng/">Accessible Resources</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span> <span class=tag>A-level</span> <span class=tag>SEN</span></td><td>Adapt resources for KS3 to KS5 so they are accessible to every learner.</td></tr>
+        <tr><td><a href="AIClassroom/">AI in the Classroom</a></td><td><span class=tag>CPD</span> <span class=tag>AI</span></td><td>A teacher&#x27;s guide to practical AI tools and strategies that support all learners and save time.</td></tr>
+        <tr><td><a href="CPDCourses/">AI Tools for Teachers</a></td><td><span class=tag>CPD</span> <span class=tag>AI</span></td><td>A CPD course on using AI tools to plan, save time and support students.</td></tr>
+        <tr><td><a href="binary/">Binary Numbers</a></td><td><span class=tag>KS3</span> <span class=tag>CS theory</span></td><td>A one-page Year 7 lesson on binary: interactive demos, a game and a mini quiz.</td></tr>
+        <tr><td><a href="blackhistory/">Black History</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span> <span class=tag>Enrichment</span></td><td>A resource site for Black History Month.</td></tr>
+        <tr><td><a href="blockwork/">Blockwork</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span> <span class=tag>Apps</span></td><td>An App Inventor-style visual builder that runs in the browser and exports installable progressive web apps.</td></tr>
+        <tr><td><a href="boolean-algebra-alevel/">Boolean Algebra</a></td><td><span class=tag>A-level</span> <span class=tag>OCR</span> <span class=tag>AQA</span></td><td>Gates, laws, Karnaugh maps, adders and D-type flip-flops with interactive practice.</td></tr>
+        <tr><td><a href="classroom-assessment/">Classroom Assessment</a></td><td><span class=tag>Teachers</span> <span class=tag>Tools</span></td><td>Quick formative assessment tools for lessons — check understanding without marking overhead.</td></tr>
+        <tr><td><a href="codejourney-mvp/">CodeJourney</a></td><td><span class=tag>GCSE</span> <span class=tag>Python</span> <span class=tag>OCR</span></td><td>A six-lesson course for OCR GCSE: identify inputs, processes and outputs, choose a construct, predict and build a Python solution, explain it, then apply it to a new problem.</td></tr>
+        <tr><td><a href="robotsProjects/">Computer Club Projects</a></td><td><span class=tag>KS3</span> <span class=tag>Clubs</span></td><td>Hands-on physical computing for a school club: microcontrollers, sensors and robotics.</td></tr>
+        <tr><td><a href="connections_game/">Connections</a></td><td><span class=tag>GCSE</span> <span class=tag>All subjects</span></td><td>Sort sixteen tiles into four groups of four, with four mistakes allowed.</td></tr>
+        <tr><td><a href="cs_animations/">CS Animations</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span></td><td>Short animated explainers for the CS ideas students find hardest to picture.</td></tr>
+        <tr><td><a href="boggle/">CS Boggle</a></td><td><span class=tag>GCSE</span> <span class=tag>Computer Science</span></td><td>Trace adjacent letters to find hidden computer science terms.</td></tr>
+        <tr><td><a href="computer-science-multiplayer-quiz/">CS Multiplayer Quiz</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span> <span class=tag>Computer Science</span></td><td>Computer science revision as a live multiplayer quiz — play head-to-head in class or at home.</td></tr>
+        <tr><td><a href="stem/">Curriculum Alignment</a></td><td><span class=tag>GCSE</span> <span class=tag>Planning</span></td><td>Where GCSE Computer Science (Edexcel 1CP2) meets Maths, Science and Business, to strengthen understanding.</td></tr>
+        <tr><td><a href="DBNormalisation/">Database Normalisation</a></td><td><span class=tag>GCSE</span> <span class=tag>A-level</span> <span class=tag>Databases</span></td><td>A lesson on organising tables: primary and foreign keys, then 1NF, 2NF and 3NF with examples, walkthroughs and practice activities.</td></tr>
+        <tr><td><a href="deck2handout/">Deck to Handout</a></td><td><span class=tag>Teachers</span> <span class=tag>Tools</span></td><td>Convert a PowerPoint into an interactive, shareable web handout in one step.</td></tr>
+        <tr><td><a href="diagnosticQuestions/">Diagnostic Questions</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span> <span class=tag>Teachers</span></td><td>Multiple-choice questions for the projector where every wrong answer reveals a named misconception.</td></tr>
+        <tr><td><a href="Edexel_Activities/">Edexcel Activities</a></td><td><span class=tag>GCSE</span> <span class=tag>Edexcel</span></td><td>Interactive activities for Edexcel GCSE: logic gates, SQL, sorting and trace tables.</td></tr>
+        <tr><td><a href="Edexcel_GCSE/">Edexcel GCSE Computer Science Course</a></td><td><span class=tag>GCSE</span> <span class=tag>Computer Science</span></td><td>The full Edexcel 1CP2 course: all six topics with notes, interactive code editors and revision activities.</td></tr>
+        <tr><td><a href="pi/">ERL Runner</a></td><td><span class=tag>GCSE</span> <span class=tag>A-level</span> <span class=tag>OCR</span></td><td>Write and run OCR Exam Reference Language and A-level pseudocode in the browser, stepping through line by line while a trace table fills in.</td></tr>
+        <tr><td><a href="flowCharts/">Flowcharts</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span></td><td>Flowchart activities and a flowchart-to-code page for planning programs before writing them.</td></tr>
+        <tr><td><a href="GCSE_homepage/">GCSE CS Revision</a></td><td><span class=tag>GCSE</span> <span class=tag>Edexcel</span> <span class=tag>OCR</span></td><td>Quizzes, games and quick guides for GCSE Computer Science topics, plus interactive OCR J277 lessons.</td></tr>
+        <tr><td><a href="Hexadecimal/">Hex Escape Room</a></td><td><span class=tag>GCSE</span> <span class=tag>Computer Science</span></td><td>Convert hexadecimal to binary to unlock five doors.</td></tr>
+        <tr><td><a href="HTML_Blocks/">HTML Blocks</a></td><td><span class=tag>A-level</span> <span class=tag>HTML</span></td><td>Build a web page from visual blocks, with a checklist that tracks progress through set tasks.</td></tr>
+        <tr><td><a href="duoPython/">Indent</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span> <span class=tag>Python</span></td><td>Learn Python the Duolingo way: short streak-based challenges with Arcade and Practice modes.</td></tr>
+        <tr><td><a href="IoT_Master/">IoT Master</a></td><td><span class=tag>KS3</span> <span class=tag>Clubs</span> <span class=tag>IoT</span></td><td>Hands-on Internet of Things projects — sensors, data and dashboards for club sessions.</td></tr>
+        <tr><td><a href="revision-hub/key-terms/">Key Terms</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span> <span class=tag>All subjects</span></td><td>Read a clue or look at a picture, guess the key term, then answer a follow-up question to check you understand it, not just recognise it.</td></tr>
+        <tr><td><a href="csteachresources/">Learn Python Programming</a></td><td><span class=tag>KS3</span> <span class=tag>Python</span></td><td>Interactive KS3 exercises that help students understand code step by step.</td></tr>
+        <tr><td><a href="math-revision-platform/">Maths Arcade</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span></td><td>Maths revision with an arcade-style interface and worksheets by topic.</td></tr>
+        <tr><td><a href="maths-lab/">Maths Lab</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span> <span class=tag>Tools</span></td><td>Learn by moving things: slide m and c to meet straight-line graph challenges (y = mx + c), and drag a triangle&amp;rsquo;s corners to hit targets for area, angles and perimeter.</td></tr>
+        <tr><td><a href="math-practice-app/">Maths Practice</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span></td><td>A worksheet library filtered by topic, starting with fractions, linear equations and simultaneous equations.</td></tr>
+        <tr><td><a href="math_revision/">Maths Quick Practice</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span></td><td>Practice questions with instant feedback, built as a simple static site.</td></tr>
+        <tr><td><a href="mathvisual/">Maths Visuals</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span></td><td>Interactive visualisations for the ideas students find hardest to picture: the area model, Pythagoras, fractions and inequalities.</td></tr>
+        <tr><td><a href="microbits_projects_y9/">micro:bit Projects</a></td><td><span class=tag>KS3</span> <span class=tag>micro:bit</span> <span class=tag>Clubs</span></td><td>A year of Year 9 micro:bit projects, from first flash to full builds.</td></tr>
+        <tr><td><a href="OOP_Blocks/">OOP Blocks</a></td><td><span class=tag>A-level</span> <span class=tag>Python</span></td><td>Build Python classes and objects by dragging blocks, and watch each object appear as a card on the Object Bench.</td></tr>
+        <tr><td><a href="python-oop-dungeon-explorer/">OOP Dungeon Explorer</a></td><td><span class=tag>GCSE</span> <span class=tag>Python</span></td><td>Learn object-oriented programming by playing — classes, objects and methods power a dungeon game.</td></tr>
+        <tr><td><a href="EdeGCSE_NeuroD/">Paper 2 Quest</a></td><td><span class=tag>GCSE</span> <span class=tag>Computer Science</span></td><td>Level-up revision for Edexcel GCSE Computer Science Paper 2, with coins and progress as you go.</td></tr>
+        <tr><td><a href="Puzzles/">Parsons Puzzles</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span> <span class=tag>Python</span></td><td>Put jumbled lines of code in the right order to think logically about how programs are built.</td></tr>
+        <tr><td><a href="EdexcelPaper2/">Past Paper Practice</a></td><td><span class=tag>GCSE</span> <span class=tag>Computer Science</span></td><td>Interactive walk-throughs of real GCSE papers (Edexcel and OCR), question by question with instant marking.</td></tr>
+        <tr><td><a href="Jupyter_GCSE/">PRIMM Lessons</a></td><td><span class=tag>GCSE</span> <span class=tag>Python</span></td><td>Interactive GCSE Computer Science lessons built on the PRIMM approach: Predict, Run, Investigate, Modify, Make.</td></tr>
+        <tr><td><a href="pseudocode/">Pseudocode IDE</a></td><td><span class=tag>GCSE</span> <span class=tag>OCR</span></td><td>Write and run OCR GCSE pseudocode with Run, Step and Stop controls, worked examples, and panels showing output, variables and files.</td></tr>
+        <tr><td><a href="pythonblocks/">Python Blocks</a></td><td><span class=tag>GCSE</span> <span class=tag>Python</span> <span class=tag>OCR</span></td><td>Fifty marked Python exercises with badges, a block editor that writes and runs real Python, and a flowchart editor that converts between flowcharts and code and steps through execution.</td></tr>
+        <tr><td><a href="python-fundamentals/">Python Fundamentals</a></td><td><span class=tag>GCSE</span> <span class=tag>Python</span></td><td>A GCSE Python course that runs in the browser with nothing to install: chapters with live code editors, theory pages, Paper 1 and Paper 2 practice and revision activities.</td></tr>
+        <tr><td><a href="Python_IDE/">Python IDE</a></td><td><span class=tag>GCSE</span> <span class=tag>Python</span></td><td>A browser-based Python environment for GCSE: console programs, Turtle graphics, a syntax helper, a live variable watch panel, and trace-table exercises that mark themselves.</td></tr>
+        <tr><td><a href="coreRevision/">Quick Explainers</a></td><td><span class=tag>KS3</span> <span class=tag>Maths</span> <span class=tag>English</span></td><td>A short video on a single Maths or English idea, followed by practice questions with answers.</td></tr>
+        <tr><td><a href="revision-hub/">Revision Hub</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span> <span class=tag>All subjects</span></td><td>Seven short games in one place: True or False, Pi&amp;ntilde;ata, Unscramble, Sequence, Higher or Lower, Sort It and Key Terms.</td></tr>
+        <tr><td><a href="robotics/">Robotics Club: Buggy Battle</a></td><td><span class=tag>KS3</span> <span class=tag>micro:bit</span> <span class=tag>Clubs</span></td><td>An eight-week project to build and program a radio-controlled buggy from micro:bits, a motor driver and motors, ending in speed, manoeuvring and sumo events.</td></tr>
+        <tr><td><a href="maths/route-to-a-4.html">Route to a 4</a></td><td><span class=tag>KS3</span> <span class=tag>GCSE</span> <span class=tag>SEND</span></td><td>A staged pathway through 80+ interactive topic pages: strong foundations, the grade 4 core, then the push to a 5.</td></tr>
+        <tr><td><a href="schemeofLearning/">Scheme of Learning Generator</a></td><td><span class=tag>Planning</span></td><td>Draft a scheme of learning for a unit of work.</td></tr>
+        <tr><td><a href="funprojects/">Scratch Game Academy</a></td><td><span class=tag>KS3</span> <span class=tag>Scratch</span> <span class=tag>Clubs</span></td><td>Build a complete ocean survival game in Scratch, with enemies, power-ups, health bars and multiple levels.</td></tr>
+        <tr><td><a href="neurodivergent/">SEN Prompt Generator</a></td><td><span class=tag>SEN</span> <span class=tag>AI</span></td><td>Build tailored AI prompts for neurodivergent learners, including autism, dyslexia and ADHD.</td></tr>
+        <tr><td><a href="MLCoding/">Sprout</a></td><td><span class=tag>KS3</span> <span class=tag>KS4</span> <span class=tag>Beginners</span></td><td>A friendly mini-language for beginners: build programs from blocks, see the code they generate, then run and test it.</td></tr>
+        <tr><td><a href="SQL_Blocks/">SQL Blocks</a></td><td><span class=tag>GCSE</span> <span class=tag>A-level</span> <span class=tag>SQL</span></td><td>Assemble SQL queries from blocks, watch the SQL generate, and run it against a sample school database in the browser.</td></tr>
+        <tr><td><a href="python-fundamentals/string-manipulation/">String Manipulation in Python</a></td><td><span class=tag>GCSE</span> <span class=tag>Python</span></td><td>Six lessons combining file handling and string functions, from guided to independent.</td></tr>
+        <tr><td><a href="AI4kids/">Teachable Machine</a></td><td><span class=tag>Primary</span> <span class=tag>AI</span></td><td>A six-lesson primary unit on building image classifiers from hand-drawn shapes, with no coding, camera or microphone.</td></tr>
+        <tr><td><a href="promptrepo/">Teacher Prompt Builder</a></td><td><span class=tag>AI</span></td><td>Build customised AI prompts for your classroom in four simple steps.</td></tr>
+        <tr><td><a href="tresenraya/">Tres en Raya</a></td><td><span class=tag>KS3</span> <span class=tag>Spanish</span></td><td>Learn Spanish by playing noughts and crosses: answer a question to claim a square.</td></tr>
+        <tr><td><a href="enrichmentCV/">Word Skills Academy</a></td><td><span class=tag>KS3</span> <span class=tag>Enrichment</span></td><td>Year 9 enrichment: master Microsoft Word by creating real documents, from CVs to newspapers and travel guides.</td></tr>
+        <tr><td><a href="enrichmentCurriculum/">Year 9 Enrichment</a></td><td><span class=tag>KS3</span> <span class=tag>Enrichment</span></td><td>Enrichment pages on climate, fake news, phones and social media, with English, maths and science links.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer class="site">
+    <div class="container">
+      <div class="legal">
+        Prepared November 2026 by a member of the Computer Science department &middot;
+        All resources are free to use in school &middot; Questions: <a href="mailto:tuition@coderra.je">tuition@coderra.je</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- site.js deliberately not loaded: no "coming soon" probing on a page meant for presenting -->
+</body>
+</html>
