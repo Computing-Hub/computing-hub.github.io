@@ -1,0 +1,108 @@
+{
+  "id": "2-2-10",
+  "title": "Subprograms: procedures and functions",
+  "spec": "2.2.3",
+  "duration": 60,
+  "specPoints": [
+    "2.2.3 The use of **sub programs (functions and procedures)** to produce structured code",
+    "Define and call procedures and functions; pass **parameters**; **return** values from functions; local and global variables",
+    "OCR pseudocode: `procedure name(params) … endprocedure`, `function name(params) … return x … endfunction`; Python: `def`"
+  ],
+  "learn": [
+    "Explain the difference between a procedure (does something) and a function (returns a value)",
+    "Define a subprogram with parameters and call it with arguments",
+    "Use `return` and store or use the returned value",
+    "Explain why subprograms make code easier to write, test, read and reuse",
+    "Distinguish local from global variables and explain why local is preferred"
+  ],
+  "hook": "Your quiz program prints a line of 30 dashes before and after every question — the same three lines, eight times. Then you decide the line should be 40 stars. Eight edits, and you miss one. A subprogram is writing it once, naming it, and calling the name.",
+  "video": {
+    "title": "Procedures and functions: name a job, then call it",
+    "brief": "4 minutes. Repeated code highlighted in three places, then collapsed into one `def draw_line():` and three calls. Then a parameter: `draw_line(40)` passes a value in. Then a function: `def area(w, h): return w * h` — show the value travelling back out of the function into `a = area(3, 4)`. Procedure = does; function = gives back. End with local vs global: a variable inside the function fading away when it ends."
+  },
+  "explain": [
+    { "h": "Why subprograms",
+      "p": ["A **subprogram** is a named block of code you can **call** whenever you need it. Benefits the exam wants you to list: write once, reuse many times; shorter programs; easier to **test** each part on its own; easier to **read** (the name says what it does); easier to **maintain** (fix a bug in one place); several people can work on different subprograms. This is decomposition (2.1.1) turned into code."] },
+    { "h": "Procedures",
+      "p": ["A **procedure** performs an action and does **not** return a value. **Parameters** are the inputs it needs, listed in the brackets; the values you pass when calling are the **arguments**."],
+      "code": "OCR pseudocode                         Python\nprocedure greet(name)                  def greet(name):\n    print(\"Hello \" + name)                 print(\"Hello \" + name)\nendprocedure\n\ngreet(\"Ada\")                           greet(\"Ada\")\ngreet(\"Alan\")                          greet(\"Alan\")" },
+    { "h": "Functions",
+      "p": ["A **function** works something out and **returns** a value to wherever it was called. The call can be used anywhere a value can: stored in a variable, printed, used in a condition."],
+      "code": "OCR pseudocode                         Python\nfunction area(w, h)                    def area(w, h):\n    return w * h                           return w * h\nendfunction\n\nroom = area(4, 5)                      room = area(4, 5)\nprint(area(3, 3) + area(2, 2))         print(area(3, 3) + area(2, 2))\nif area(w, h) > 100 then …             if area(w, h) > 100:" },
+    { "h": "Local and global variables",
+      "p": ["A variable created **inside** a subprogram is **local**: it exists only while the subprogram runs and can't be seen outside. A variable created at the top level is **global** and visible everywhere. Prefer local variables and pass values in as parameters: it stops subprograms interfering with each other and makes them reusable. In Python, changing a global inside a function needs `global x` — a sign the design should probably pass a parameter and return a value instead."],
+      "code": "def add_vat(price):\n    vat = price * 0.2       # vat is local\n    return price + vat\n\ntotal = add_vat(50)         # 60.0\n# print(vat)  -> error: vat does not exist out here" },
+    { "h": "Reading exam code",
+      "p": ["Questions give a function and ask what a call returns: trace it with the arguments substituted for the parameters. Or they ask you to *write* a function — include the definition line with parameters, the body, the `return`, and (often required) a line that calls it."] }
+  ],
+  "simple": [
+    { "h": "Write it once, name it, call the name",
+      "p": ["A subprogram is a block of code with a name. Write it once. Then use the name whenever you need it."] },
+    { "h": "Procedure = does something",
+      "code": "def greet(name):\n    print(\"Hello \" + name)\n\ngreet(\"Ada\")\ngreet(\"Alan\")" },
+    { "h": "Function = gives an answer back",
+      "code": "def area(w, h):\n    return w * h\n\nroom = area(4, 5)   # room is now 20" },
+    { "h": "Inside stays inside",
+      "p": ["A variable made inside a subprogram is **local**: it disappears when the subprogram finishes. Pass values in as parameters and send answers out with `return`."] }
+  ],
+  "keyterms": [
+    { "term": "Subprogram", "def": "A named, self-contained block of code that can be called from elsewhere (procedure or function)." },
+    { "term": "Procedure", "def": "A subprogram that performs an action and does not return a value." },
+    { "term": "Function", "def": "A subprogram that returns a value." },
+    { "term": "Parameter", "def": "A variable in a subprogram's definition that receives a value when it is called." },
+    { "term": "Argument", "def": "The actual value passed to a parameter in a call." },
+    { "term": "Return value", "def": "The value a function sends back to the code that called it." },
+    { "term": "Local variable", "def": "A variable that exists only inside the subprogram where it is created." },
+    { "term": "Global variable", "def": "A variable declared outside any subprogram, visible throughout the program." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Call, pass, return", "p": ["Run it. Then: add a procedure `banner(text)` that prints the text between lines of dashes; add a function `is_even(n)` that returns True or False; use both."],
+      "code": "def greet(name):\n    print(\"Hello,\", name)\n\ndef area(w, h):\n    return w * h\n\ngreet(\"Ada\")\nprint(area(4, 5))\nbig = area(10, 12) > 100\nprint(\"Big room:\", big)" },
+    { "type": "python", "title": "2. Refactor the repetition", "p": ["This works but repeats itself. Rewrite it with one function `grade(mark)` that returns the grade letter, and one loop that calls it."],
+      "code": "m1 = 72\nif m1 >= 70: g1 = \"A\"\nelif m1 >= 50: g1 = \"B\"\nelse: g1 = \"C\"\nprint(\"Student 1:\", g1)\nm2 = 48\nif m2 >= 70: g2 = \"A\"\nelif m2 >= 50: g2 = \"B\"\nelse: g2 = \"C\"\nprint(\"Student 2:\", g2)\nm3 = 65\nif m3 >= 70: g3 = \"A\"\nelif m3 >= 50: g3 = \"B\"\nelse: g3 = \"C\"\nprint(\"Student 3:\", g3)" },
+    { "type": "python", "title": "3. Local or global?", "p": ["Predict the output, then run. Then explain in a comment why the second print shows what it does."],
+      "code": "count = 0\n\ndef add_one():\n    count = 1\n    print(\"inside:\", count)\n\nadd_one()\nprint(\"outside:\", count)" },
+    { "type": "python", "title": "4. Build a toolkit", "p": ["Write and test: `get_number(prompt, low, high)` — asks until the user enters a whole number in range and returns it; `average(numbers)` — returns the mean of a list; `stars(n)` — prints n stars. Then use all three in a tiny program."],
+      "code": "def get_number(prompt, low, high):\n    pass\n\ndef average(numbers):\n    pass\n\ndef stars(n):\n    pass\n" },
+    { "type": "embed", "title": "5. Program Builder", "url": "https://beanwise.coderra.je/GCSE_homepage/Program_Builder.html",
+      "instructions": ["Build a program from subprogram blocks and see how the main program reads when the detail is hidden inside well-named functions."] }
+  ],
+  "check": [
+    { "q": "A subprogram that returns a value is a:", "opts": ["Procedure", "Function", "Parameter", "Loop"], "a": 1, "fb": "Functions return; procedures just do." },
+    { "q": "In `def area(w, h):`, `w` and `h` are:", "opts": ["Arguments", "Parameters", "Return values", "Globals"], "a": 1, "fb": "Parameters in the definition; arguments in the call." },
+    { "q": "`x = double(4)` only makes sense if `double` is a:", "opts": ["Procedure", "Function with a return", "Loop", "Constant"], "a": 1, "fb": "Something must come back to store in x." },
+    { "q": "A variable created inside a function is:", "opts": ["Global", "Local", "A constant", "A parameter"], "a": 1, "fb": "Exists only during that call." },
+    { "q": "Which is NOT a benefit of subprograms?", "opts": ["Code reuse", "Easier testing", "Programs always run faster", "Easier maintenance"], "a": 2, "fb": "Structure, not speed, is the benefit." }
+  ],
+  "exam": [
+    { "q": "Write a function `fahrenheit(c)` that takes a temperature in Celsius and returns it in Fahrenheit (F = C × 1.8 + 32). Show a line of code that calls the function and outputs the result for 25 °C.", "marks": 4,
+      "model": ["Correct function header with one parameter (1). Correct calculation (1). Value returned with `return` (1). Call with 25 and output, e.g. `print(fahrenheit(25))` (1)."],
+      "commentary": "The fourth mark — the call — is forgotten by students who stop at `endfunction`. Read the whole question. A function that prints instead of returns loses the return mark." },
+    { "q": "State **two** advantages of using subprograms when writing a large program.", "marks": 2,
+      "model": ["Any two: code can be reused without rewriting; each subprogram can be tested separately; the program is easier to read and understand; easier to maintain / debug as changes are made in one place; different programmers can work on different subprograms (1 each)."],
+      "commentary": "Two distinct advantages. 'Shorter' and 'reusable' are the same point — pick different ones." },
+    { "q": "Explain the difference between a **local** variable and a **global** variable.", "marks": 2,
+      "model": ["A local variable is declared inside a subprogram and can only be used within it / exists only while it runs (1); a global variable is declared outside any subprogram and can be accessed from anywhere in the program (1)."],
+      "commentary": "Scope is the word. Add 'why local is preferred' only if asked; here it is not." }
+  ],
+  "home": "Rewrite your rock-paper-scissors or guessing game from an earlier lesson using at least three subprograms (e.g. `get_choice()`, `decide_winner(a, b)`, `show_score()`). Hand in both versions and three sentences on which is easier to change and why.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 14 · try 26 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "Printing inside a function instead of returning, then trying to use the 'result'.",
+      "Defining a function and never calling it ('nothing happens').",
+      "Parameter and argument used interchangeably — acceptable in speech, but define them.",
+      "Believing changing a local changes a same-named global (Try 3)."
+    ],
+    "say": [
+      "'Procedure does. Function gives back.'",
+      "'What goes in through the brackets, what comes out through return?'",
+      "'If you can't test it on its own, it isn't a good subprogram yet.'"
+    ],
+    "skip": "Try 5 optional. Try 2 is the one that convinces students subprograms are worth it.",
+    "differentiation": [
+      "Support: Try 2 with the `def grade(mark):` header and the first `if` provided.",
+      "Stretch: Try 4 — add default parameter values and explain what happens when an argument is omitted."
+    ]
+  }
+}

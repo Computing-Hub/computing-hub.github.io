@@ -1,0 +1,104 @@
+{
+  "id": "2-2-13",
+  "title": "Random numbers and putting it together",
+  "spec": "2.2.3",
+  "duration": 60,
+  "specPoints": [
+    "2.2.3 **Random number generation**: OCR `random(1, 6)`; Python `random.randint(1, 6)`, `random.choice(list)`",
+    "Practical programming: combine sequence, selection, iteration, data structures and subprograms into a working program from a brief"
+  ],
+  "learn": [
+    "Generate random integers in a range and random choices from a list",
+    "Decompose a short brief into subprograms and data structures",
+    "Build a complete, menu-driven program with validation, a list and a file",
+    "Test a program against normal, boundary and invalid inputs (preview of 2.3)",
+    "Read a long program in the exam and answer questions about specific lines"
+  ],
+  "hook": "Every game you have ever played rolls dice somewhere: which enemy appears, which card you draw, where the treasure is. One function call. Today you get the dice, and then you build a whole small program — because the exam's longest Paper 2 question is 'here is a brief, write the program'.",
+  "video": {
+    "title": "From brief to program: the build order",
+    "brief": "5 minutes. Show `random.randint` rolling a die ten times. Then a brief appears ('a revision quiz that reads questions from a file, asks five at random, keeps score, saves the best score'). Decompose it into boxes (structure diagram from 2.1.2): load questions, ask one, check answer, update score, save best. Each box becomes a `def`. Then the main program as six readable lines calling them. End with a test table: normal, boundary, invalid."
+  },
+  "explain": [
+    { "h": "Random numbers",
+      "code": "OCR pseudocode                     Python\nroll = random(1, 6)                import random\n                                   roll = random.randint(1, 6)          # 1 to 6 inclusive\n                                   pick = random.choice([\"rock\", \"paper\", \"scissors\"])\n                                   r = random.random()                   # 0.0 to <1.0",
+      "after": ["`randint(a, b)` includes **both** ends. Random numbers drive games, simulations, quizzes that ask questions in a different order, and test data. Note that computers produce *pseudo*-random numbers from a formula — good enough for games, not for cryptography (1.4)."] },
+    { "h": "The build order for any brief",
+      "list": ["**Read the brief twice.** Underline every noun (data you must store) and every verb (things the program must do).",
+               "**Data first.** Decide the variables, lists and files. Give them names now.",
+               "**Decompose into subprograms.** One per verb, roughly. Write the `def` lines with parameters before any bodies.",
+               "**Write the main program** as calls to those subprograms, with a menu loop if the brief has options.",
+               "**Fill in one subprogram at a time and test it** before the next. Never write 60 lines and run them for the first time.",
+               "**Validate inputs** and handle the edge cases the brief mentions (empty list, wrong type, out of range).",
+               "**Test** with a table: normal, boundary and invalid data (2.3 makes this formal)."] },
+    { "h": "What the exam's long question looks like",
+      "p": ["Typically 6–10 marks: 'Write a program that…' with four or five requirements listed. Marks are given per requirement (input and validation, correct loop, correct selection, list handling, output format), plus marks for using subprograms and meaningful names. You do not need perfect syntax; you do need every requirement visibly addressed. Tick them off against the brief before you move on."] },
+    { "h": "Reading a long program",
+      "p": ["The other style gives you 20–30 lines and asks: 'What is the purpose of line 7?', 'What is output when the input is …?', 'Give one way the program could be improved'. Annotate the code as you read: write what each subprogram does next to its `def`, and trace with the given input."] }
+  ],
+  "simple": [
+    { "h": "Dice",
+      "code": "import random\nroll = random.randint(1, 6)        # 1, 2, 3, 4, 5 or 6\npick = random.choice([\"red\", \"green\", \"blue\"])" },
+    { "h": "Building a whole program",
+      "list": ["Read the task twice. Circle the things to store and the things to do.", "Make the variables and lists.", "Write one function per thing to do.", "Write the main part as a menu loop that calls the functions.", "Build and test one function at a time.", "Check inputs. Test with normal, edge and silly values."] },
+    { "h": "In the exam",
+      "p": ["Big questions list four or five things the program must do. Each one is worth marks. Do them all, even roughly, rather than one perfectly."] }
+  ],
+  "keyterms": [
+    { "term": "Random number", "def": "A number chosen unpredictably from a range, e.g. `random.randint(1, 6)`." },
+    { "term": "Pseudo-random", "def": "Generated by a formula that appears random; what computers actually produce." },
+    { "term": "Brief", "def": "The description of what a program must do." },
+    { "term": "Menu-driven program", "def": "A program that repeatedly shows options and acts on the user's choice." },
+    { "term": "Test data", "def": "Inputs chosen to check a program: normal, boundary, invalid, erroneous." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Dice statistics", "p": ["Roll two dice 1,000 times and count how often each total (2–12) appears. Which total is most common and why? Store the counts in a list."],
+      "code": "import random\ncounts = [0] * 13       # index = total; 0 and 1 unused\nfor i in range(1000):\n    total = random.randint(1, 6) + random.randint(1, 6)\n    counts[total] = counts[total] + 1\nfor t in range(2, 13):\n    print(t, \"*\" * (counts[t] // 10))" },
+    { "type": "python", "title": "2. Times-table tester", "p": ["Ask 10 random questions from the 2–12 times tables, keep score, and at the end print the score and the questions got wrong. Use at least two functions. Validate that the answer is a whole number."],
+      "code": "import random\n\ndef ask_question():\n    a = random.randint(2, 12)\n    b = random.randint(2, 12)\n    # ask, validate, return True if correct (and the question text if wrong)\n    pass\n\nscore = 0\nwrong = []\nfor i in range(10):\n    pass\nprint(\"Score:\", score, \"/ 10\")" },
+    { "type": "python", "title": "3. The brief (exam-style, 8 marks)", "p": ["**Brief:** A revision quiz. Questions and answers are in `questions.txt`, one per line as `question,answer`. The program must: (1) load all questions into a list; (2) ask 3 questions chosen at random, without repeating; (3) accept answers in any case; (4) keep a score and show it at the end; (5) append the name and score to `results.txt`. Use subprograms and meaningful names. Build it in the order from the lesson."],
+      "files": { "questions.txt": "Capital of France,Paris\n7 times 8,56\nLargest planet,Jupiter\nHTML stands for HyperText ___ Language,Markup\nBinary for 5,101\nAuthor of 1984,Orwell\n", "results.txt": "" },
+      "code": "import random\n\ndef load_questions(filename):\n    pass\n\ndef ask(question, answer):\n    pass\n\ndef save_result(name, score):\n    pass\n\n# main program\n" },
+    { "type": "task", "title": "4. Test table for Try 3", "steps": ["Write a table: Test · Input · Expected · Actual · Pass?", "Include one normal answer, one answer in the wrong case, one blank answer, and a run where `questions.txt` has fewer than 3 lines.", "Fix anything that fails."] },
+    { "type": "embed", "title": "5. Code fixer practice", "url": "https://beanwise.coderra.je/GCSE_homepage/Python_Code_Fixer.html",
+      "instructions": ["Longer programs with several bugs. Annotate what each function does before you hunt the bugs — reading first is the exam skill."] }
+  ],
+  "check": [
+    { "q": "`random.randint(1, 10)` can return:", "opts": ["1 to 9", "0 to 10", "1 to 10", "2 to 10"], "a": 2, "fb": "Both ends included." },
+    { "q": "To pick a random item from a list `cards`:", "opts": ["random.randint(cards)", "random.choice(cards)", "cards.random()", "random(cards)"], "a": 1, "fb": "choice takes a sequence." },
+    { "q": "First step when given a programming brief:", "opts": ["Start typing code", "Read it carefully and identify data and actions", "Write the output lines", "Choose variable names"], "a": 1, "fb": "Understand before you build." },
+    { "q": "In a long exam question, marks are mostly awarded for:", "opts": ["Perfect syntax", "Each requirement being addressed", "Speed", "Using many variables"], "a": 1, "fb": "Address every bullet in the brief." },
+    { "q": "Computers' random numbers are called pseudo-random because:", "opts": ["They are always the same", "They come from a formula, not true chance", "They are only whole numbers", "They are too slow"], "a": 1, "fb": "Deterministic algorithms that look random." }
+  ],
+  "exam": [
+    { "q": "Write an algorithm that simulates rolling a six-sided die 100 times and outputs how many times a 6 was rolled.", "marks": 4,
+      "model": ["Counter initialised to 0 (1). Loop 100 times (1). Random number 1–6 generated inside the loop (1). Counter incremented when it equals 6, and output after the loop (1)."],
+      "commentary": "Random call must be *inside* the loop — outside it, the same number is tested 100 times. `random(1, 6)` in OCR; `randint(1, 6)` in Python." },
+    { "q": "A program is needed for a tuck shop. It must: allow the user to enter the name and price of up to 10 items into two arrays; display all items with their prices; allow the user to search for an item by name and display its price or 'Not found'; output the total value of all items. Write the program. Use subprograms where appropriate.", "marks": 8,
+      "model": ["Two arrays declared / lists created (1). Loop to input up to 10 names and prices, prices cast to real (1). Procedure to display all items with a loop over indices (1). Search: input a name, loop comparing with names array (1), output matching price or 'Not found' after the loop (1). Total: accumulator loop over prices and output (1). Subprograms used sensibly with parameters (1). Meaningful identifiers and readable structure (1)."],
+      "commentary": "This is the shape of the real 8–10 mark question. Mark allocation is by requirement, so a rough solution covering all four requirements beats a polished one covering two. Students should write the four `def` lines first, then the main program, then fill in." },
+    { "q": "Give **two** reasons why a programmer might use subprograms when writing the tuck shop program.", "marks": 2,
+      "model": ["Any two: each part can be tested separately; code such as displaying items can be reused; the main program is easier to read; errors are easier to find and fix (1 each)."],
+      "commentary": "Same as lesson 10 — reasons tied to *this* program read better." }
+  ],
+  "home": "Finish Try 3 to the full brief and add a sixth requirement of your own choosing (e.g. a 'hardest question' report, or a 'play again' loop). Write the test table and bring both.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 10 · try 35 · check 4 · exam 5 · homework 3 — this is a build lesson; keep explanation short and circulate",
+    "misconceptions": [
+      "Random call outside the loop.",
+      "Trying to write the whole program before running anything.",
+      "Repeats in 'random without repeating' — needs removal from the list or a used-list check.",
+      "Answer comparison case-sensitive when the brief says any case."
+    ],
+    "say": [
+      "'def lines first. Main program second. Bodies last.'",
+      "'Run it every time you add five lines.'",
+      "'Tick the brief. Which requirement have you not touched yet?'"
+    ],
+    "skip": "Try 1 and 2 can be shortened to make room for Try 3, which is the point of the lesson. Try 5 is homework material.",
+    "differentiation": [
+      "Support: Try 3 with `load_questions` written; students do `ask` and the main loop.",
+      "Stretch: Try 3 with the file of results read back to show a leaderboard sorted by score."
+    ]
+  }
+}

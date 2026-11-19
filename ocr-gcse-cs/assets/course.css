@@ -89,6 +89,19 @@ body:not(.teacher) .video-ph .brief { display: none; }
 .task { background: #f1f5f9; border-left: 4px solid var(--accent-2); padding: .8rem 1rem; border-radius: 0 8px 8px 0; margin: .8rem 0; }
 .task h4 { margin: 0 0 .3rem; font-size: 1rem; }
 
+/* in-page code runners */
+.runner { margin: .6rem 0; }
+.runner textarea.code { width: 100%; font: .92rem/1.5 var(--mono); background: #0f172a; color: #e2e8f0; border: 1px solid #1e293b; border-radius: 8px 8px 0 0; padding: .8rem; resize: vertical; tab-size: 4; }
+.runner .run-bar { display: flex; gap: .5rem; align-items: center; background: #1e293b; padding: .4rem .6rem; border-radius: 0 0 8px 8px; }
+.runner .run-status { color: #cbd5e1; font-size: .85rem; margin-left: auto; }
+.runner pre.out { margin: .4rem 0 0; background: #f8fafc; color: #111; border: 1px solid var(--line); min-height: 2.2rem; max-height: 320px; white-space: pre-wrap; }
+.runner pre.out.err { background: #fef2f2; color: #991b1b; }
+.runner table.sql { border-collapse: collapse; font: .9rem var(--font); margin: .3rem 0; }
+.runner table.sql th, .runner table.sql td { border: 1px solid #cbd5e1; padding: .25rem .6rem; text-align: left; }
+.runner table.sql th { background: #e2e8f0; }
+.runner .rows { font-size: .8rem; color: var(--muted); margin-bottom: .6rem; }
+body.contrast .runner textarea.code { background: #000; color: #fff; }
+
 /* quiz */
 .quiz .q { padding: .9rem 0; border-top: 1px solid var(--line); }
 .quiz .q:first-of-type { border-top: 0; }

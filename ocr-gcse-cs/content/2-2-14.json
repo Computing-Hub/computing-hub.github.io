@@ -1,0 +1,86 @@
+{
+  "id": "2-2-14",
+  "title": "Unit 2.2 Programming fundamentals — review and test",
+  "spec": "2.2.1 – 2.2.3",
+  "duration": 60,
+  "specPoints": [
+    "Covers the whole of 2.2: variables and I/O, sequence/selection/iteration, operators, data types and casting, strings, 1D and 2D arrays, subprograms, files, records and SQL, random numbers",
+    "40 marks · 60 minutes · pseudocode or Python accepted · the in-page runner may be used for the programming questions if the teacher allows",
+    "Teachers: switch on Teacher view for the mark scheme and marking notes"
+  ],
+  "learn": [
+    "Demonstrate every construct in 2.2 in short written answers and in working code",
+    "Read code and state outputs accurately, including boundary cases",
+    "Write a complete short program from a brief, addressing every requirement"
+  ],
+  "hook": "Underline the command word. Count the marks. For 'write a program', list the requirements as bullets first and tick them as you go. For 'state the output', trace — do not guess.",
+  "explain": [
+    { "h": "Ten-minute review before the test",
+      "list": ["`=` assigns, `==` compares. `input()` is a string. `int()` chops, `round()` rounds.",
+               "`for` when you know the count; `while` may run zero times; `do…until` runs at least once. OCR `to` is inclusive; Python `range` stop is not.",
+               "`MOD` remainder, `DIV` whole part. `and` needs both; each side a full comparison.",
+               "Strings and arrays index from 0; last index is length − 1. Python slice stop excluded; OCR `substring(start, count)`.",
+               "2D: row then column; nested loops; fix one index to total a row or a column.",
+               "Procedure does; function returns. Parameters in the definition, arguments in the call. Local variables die with the call.",
+               "Files: `w` wipes, `a` appends; everything read is a string; close the file.",
+               "SQL: SELECT fields FROM table WHERE condition [ORDER BY]; text in single quotes; `LIKE '%x%'`.",
+               "`randint(a, b)` includes both ends; call it inside the loop."] }
+  ],
+  "try": [
+    { "type": "python", "title": "Scratch space for the programming questions", "p": ["If your teacher allows it, write and run your answers to questions 7, 9 and 10 here, then copy them into the answer boxes."],
+      "files": { "marks.txt": "Ada,95\nAlan,67\nGrace,88\nTim,42\n" },
+      "code": "# scratch space\n" }
+  ],
+  "exam": [
+    { "q": "State the output of the following code.", "marks": 2, "code": "x = 7\ny = 2\nprint(x DIV y, x MOD y, x / y)",
+      "model": ["3 1 3.5 (2 marks; 1 if two of the three are correct)."],
+      "commentary": "DIV/MOD/division in one line." },
+    { "q": "State the most appropriate data type for each: a student's surname; the number of students in a class; whether a student is present; the average mark of a class.", "marks": 4,
+      "model": ["String (1); integer (1); Boolean (1); real/float (1)."],
+      "commentary": "'Number' scores nothing." },
+    { "q": "State the output of the following pseudocode.", "marks": 3, "code": "word = \"Programming\"\nprint(word.length)\nprint(word.substring(3, 4))\nprint(word.upper.left(2))",
+      "model": ["11 (1); gram (1); PR (1)."],
+      "commentary": "substring(start, count): index 3 is g, four characters g-r-a-m." },
+    { "q": "The following code is intended to output \"Pass\" for a mark of 40 or more and \"Fail\" otherwise. It contains an error. Identify the line and write the corrected line.", "marks": 2, "code": "01 mark = int(input(\"Mark: \"))\n02 if mark > 40 then\n03     print(\"Pass\")\n04 else\n05     print(\"Fail\")\n06 endif",
+      "model": ["Line 02 (1): `if mark >= 40 then` (1)."],
+      "commentary": "Boundary." },
+    { "q": "Explain the difference between a count-controlled loop and a condition-controlled loop, giving an example of a situation where each is appropriate.", "marks": 4,
+      "model": ["Count-controlled repeats a known number of times (1), e.g. printing every item of a list of 20 (1). Condition-controlled repeats until/while a condition holds, the number of repetitions unknown in advance (1), e.g. asking for a password until it is correct (1)."],
+      "commentary": "Two definitions, two examples." },
+    { "q": "State the output of the following Python code.", "marks": 3, "code": "nums = [4, 9, 2, 7, 5]\ntotal = 0\nfor i in range(1, 4):\n    total = total + nums[i]\nprint(total)\nprint(nums[-1], len(nums))",
+      "model": ["18 (1) — indices 1, 2, 3 are 9, 2, 7. Then `5 5` (1 each)."],
+      "commentary": "range(1, 4) excludes 4; nums[-1] is the last item." },
+    { "q": "Write a function `average(numbers)` that returns the mean of a list of numbers, and show it being called with the list `[3, 5, 10]` with the result output.", "marks": 4,
+      "model": ["Function header with one parameter (1). Loop or `sum()` producing the total (1). Returns total divided by the length of the list (1). Call with the list and output of the result (1)."],
+      "commentary": "`return`, not `print`, inside the function; and the call line is a mark." },
+    { "q": "A 2D array `seats[5, 8]` holds 1 for a booked seat and 0 for a free seat. Write an algorithm that outputs the number of free seats in row 2.", "marks": 3,
+      "model": ["Counter initialised and loop over columns 0–7 (1). Checks `seats[2, col] == 0` — row fixed at 2 (1). Increments counter when free and outputs after the loop (1)."],
+      "commentary": "Row fixed, column moving." },
+    { "q": "The file `marks.txt` contains lines in the form `name,mark`. Write an algorithm that reads the file and outputs the name of the student with the highest mark.", "marks": 5,
+      "model": ["Opens the file (1). Loops until end of file reading each line (1). Splits the line into name and mark and converts mark to a number (1). Compares with the current highest, storing the mark and the name when higher (1). Closes the file and outputs the name (1)."],
+      "commentary": "Cast the mark; store the name alongside the mark; close the file." },
+    { "q": "A table `Members` has fields MemberID, Name, Age, Town. Write an SQL query to display the names of all members under 18 who live in St Helier, in alphabetical order of name.", "marks": 4,
+      "model": ["`SELECT Name` (1) `FROM Members` (1) `WHERE Age < 18 AND Town = 'St Helier'` (1) `ORDER BY Name` (1)."],
+      "commentary": "Field named, both conditions with AND, quotes round the town, ORDER BY." },
+    { "q": "A program needs to pick a random student from a list of 30 names to answer a question. Write pseudocode or Python to do this, and state one reason the programmer should ensure the same student is not picked twice in a row.", "marks": 3,
+      "model": ["Random index 0–29 / `random.choice(names)` (1) and output of the chosen name (1). Reason: fairness / so every student is involved / to avoid one student being asked repeatedly (1)."],
+      "commentary": "Index range 0–29 for a 30-item array; randint(1, 30) is an off-by-one." },
+    { "q": "Give **three** reasons why a programmer should use meaningful variable names and subprograms in a large program.", "marks": 3,
+      "model": ["Any three: easier for others (or the programmer later) to understand the code; easier to find and fix errors; code can be reused; parts can be tested independently; reduces repeated code (1 each)."],
+      "commentary": "Three distinct reasons." }
+  ],
+  "teacher": {
+    "timing": "60 min: review 10 · test 50. 40 marks. Feedback bands: 32+ secure; 22–31 developing; below 22 revisit lessons 3, 4, 8 and 10 before 2.3.",
+    "misconceptions": [
+      "Use the marks lost per question to decide what to reteach: Q1–3 and Q6 are reading skills (trace more); Q7–10 are writing skills (more build time in 2.3)."
+    ],
+    "say": [
+      "'Trace, don't guess. Tick the brief. Return, not print.'"
+    ],
+    "skip": "For a 45-minute slot drop Q5 and Q12 (7 marks) and mark out of 33.",
+    "differentiation": [
+      "Support: allow the key-terms lists and the ten-minute review notes on the desk.",
+      "Stretch: Q9 — also output the average mark to one decimal place."
+    ]
+  }
+}

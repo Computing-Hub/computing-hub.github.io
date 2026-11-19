@@ -1,0 +1,104 @@
+{
+  "id": "2-2-06",
+  "title": "Data types and casting",
+  "spec": "2.2.2",
+  "duration": 60,
+  "specPoints": [
+    "2.2.2 **Data types**: integer, real (float), Boolean, character, string",
+    "Choose suitable data types for data in a given scenario",
+    "**Casting**: converting between data types — `int()`, `float()`, `str()`, `bool()`, and OCR's `ASC()` / `CHR()` for characters"
+  ],
+  "learn": [
+    "Name the five data types and give an example value of each",
+    "Choose the most appropriate data type for a value in a scenario and justify it",
+    "Explain why `input()` returns a string and when it must be cast",
+    "Use `int()`, `float()` and `str()` correctly, and predict errors when casting fails",
+    "Use `ASC()`/`CHR()` (Python `ord()`/`chr()`) to move between characters and their codes"
+  ],
+  "hook": "`\"3\" + \"4\"` gives `34`. `3 + 4` gives `7`. Same keys on the keyboard, different answers. Why? Because the computer stores them as different **types**. Half the bugs you have had so far are type bugs.",
+  "video": {
+    "title": "Five data types and how to switch between them",
+    "brief": "4 minutes. Five labelled containers: integer 42, real 3.75, Boolean True, character 'A', string \"Hello\". Drop values in and show what each can do (maths on numbers, joining on strings, decisions on Booleans). Then casting as pouring from one container to another: `int(\"42\")` works, `int(\"4.2\")` spills (error), `int(4.9)` truncates to 4, `str(42)` becomes \"42\". Then `ord('A')` = 65 and `chr(66)` = 'B'. End with a 'which type?' quiz: postcode, number of siblings, height in metres, has_paid, grade letter."
+  },
+  "explain": [
+    { "h": "The five types",
+      "code": "Type        OCR name    Python    Example         Use for\nInteger     integer     int       42, -7          whole numbers: counts, ages, scores\nReal        real        float     3.75, -0.5      measurements, money, averages\nBoolean     Boolean     bool      True, False     yes/no flags: is_valid, has_paid\nCharacter   character   str (1)   'A', '7', '?'   a single character, e.g. a grade letter\nString      string      str       \"Hello\", \"B12\"  text, incl. 'numbers' you don't calculate with",
+      "after": ["Choosing a type is an exam skill: a phone number is a **string** (you don't add phone numbers and it may start with 0); a price is **real**; number of tickets is **integer**; 'is the seat booked?' is **Boolean**. Justify with *what you do with the data*."] },
+    { "h": "Why input() needs casting",
+      "p": ["`input()` always returns a **string**. If the user types 7, you have `\"7\"`. `\"7\" + 1` is an error in Python, and `\"7\" + \"1\"` is `\"71\"`. **Casting** converts a value from one type to another:"],
+      "code": "age = int(input(\"Age: \"))        # string -> integer\nprice = float(input(\"Price: \"))  # string -> real\nlabel = \"Age: \" + str(age)       # integer -> string, to join\nint(4.9)   -> 4        (cuts off the decimal; does not round)\nint(\"4.9\") -> error    (not a whole-number string)\nfloat(\"4\") -> 4.0\nstr(3.5)   -> \"3.5\"\nbool(0)    -> False;   bool(1) -> True" },
+    { "h": "Characters and codes",
+      "p": ["Every character has a numeric code (ASCII/Unicode, from 1.2.4). OCR pseudocode: `ASC(\"A\")` is 65 and `CHR(65)` is \"A\". Python: `ord(\"A\")` and `chr(65)`. Used for Caesar ciphers, checking if a character is a letter, and sorting."],
+      "code": "print(ord(\"A\"), ord(\"a\"), ord(\"0\"))    # 65 97 48\nprint(chr(72) + chr(105))              # Hi\nnext_letter = chr(ord(\"C\") + 1)        # D" },
+    { "h": "Checking types",
+      "p": ["Python's `type(x)` tells you what you have; useful when debugging. A common exam question gives a line like `total = input(\"Total: \") * 2` and asks what is wrong: the input is a string so `* 2` repeats the text rather than doubling the number."] }
+  ],
+  "simple": [
+    { "h": "Five kinds of data",
+      "list": ["**Integer**: whole number — 42.", "**Real** (float): decimal — 3.75.", "**Boolean**: True or False.", "**Character**: one symbol — 'A'.", "**String**: text — \"Hello\" (and things like phone numbers you never do maths on)."] },
+    { "h": "input() gives you text",
+      "p": ["If the user types 7, you get `\"7\"`, which is text. To do maths, change it: `int(...)` for whole numbers, `float(...)` for decimals. To join a number onto text, change it the other way: `str(...)`."],
+      "code": "age = int(input(\"Age: \"))\nprint(\"Next year: \" + str(age + 1))" },
+    { "h": "Watch out",
+      "p": ["`int(4.9)` is 4 — it chops, it does not round. `int(\"4.9\")` is an error."] },
+    { "h": "Letters have numbers",
+      "p": ["`ord(\"A\")` is 65. `chr(65)` is \"A\". OCR calls them `ASC` and `CHR`."] }
+  ],
+  "keyterms": [
+    { "term": "Data type", "def": "The kind of data a value is (integer, real, Boolean, character, string), which decides what can be done with it." },
+    { "term": "Casting", "def": "Converting a value from one data type to another, e.g. `int(\"7\")`." },
+    { "term": "Integer", "def": "A whole number." },
+    { "term": "Real / float", "def": "A number with a decimal part." },
+    { "term": "String", "def": "A sequence of characters (text)." },
+    { "term": "ASC / CHR (ord / chr)", "def": "Functions converting a character to its code and back." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. See the types", "p": ["Run it. Then, for each line, say in one word why the result is what it is."],
+      "code": "print(\"3\" + \"4\")\nprint(3 + 4)\nprint(int(\"3\") + int(\"4\"))\nprint(\"3\" * 4)\nprint(type(\"3\"), type(3), type(3.0), type(True))\nprint(int(7.99), round(7.99), float(7))" },
+    { "type": "python", "title": "2. Fix the type bugs", "p": ["Each line is meant to work. Fix them so the program runs and gives sensible output for an age of 15 and height 1.62."],
+      "code": "age = input(\"Age: \")\nheight = input(\"Height in m: \")\nprint(\"In 5 years you will be \" + age + 5)\nprint(\"Height in cm: \" + height * 100)\nprint(\"Adult: \" + (age >= 18))" },
+    { "type": "python", "title": "3. Choose the type", "p": ["A school booking system stores: student name, year group, has paid, ticket price, seat letter, postcode. Create a variable for each with a realistic value **of the right type**, then print each with its `type()`. Add a comment saying why you chose that type."],
+      "code": "student_name = \n# ... one variable per item\n" },
+    { "type": "python", "title": "4. Caesar shift", "p": ["Use `ord` and `chr` to shift a single uppercase letter forward by 3 (A→D, X→A — wrap round with MOD). Then extend it to a whole word."],
+      "code": "letter = input(\"Capital letter: \")\ncode = ord(letter) - ord(\"A\")       # 0-25\nshifted = \nprint(chr(shifted + ord(\"A\")))" },
+    { "type": "embed", "title": "5. Character sets, from Paper 1", "url": "https://beanwise.coderra.je/cs_animations/binary.html",
+      "instructions": ["Look up the ASCII codes for the digits 0–9 and the letters. Why is `\"9\" < \"a\"` true?"] }
+  ],
+  "check": [
+    { "q": "Best data type for a phone number such as 07700 900123:", "opts": ["Integer", "Real", "String", "Boolean"], "a": 2, "fb": "Leading zero and no arithmetic → string." },
+    { "q": "`int(\"12\") + 3` gives:", "opts": ["123", "15", "\"15\"", "Error"], "a": 1, "fb": "Cast to integer first, then add." },
+    { "q": "`int(9.7)` gives:", "opts": ["10", "9", "9.7", "Error"], "a": 1, "fb": "int() truncates." },
+    { "q": "Which type for 'has the parcel been delivered?'", "opts": ["String", "Character", "Boolean", "Integer"], "a": 2, "fb": "Yes/no → Boolean." },
+    { "q": "`chr(ord(\"A\") + 2)` gives:", "opts": ["\"A2\"", "67", "\"C\"", "\"B\""], "a": 2, "fb": "65 + 2 = 67 → \"C\"." }
+  ],
+  "exam": [
+    { "q": "A program stores details about library books: the title, the number of pages, the price, and whether it is currently on loan. State the most appropriate data type for each.", "marks": 4,
+      "model": ["Title: string (1). Number of pages: integer (1). Price: real / float (1). On loan: Boolean (1)."],
+      "commentary": "Four easy marks. 'Number' is not a data type — write integer or real. 'Text' is accepted for string but write string." },
+    { "q": "Explain why the following line of code would cause an error, and rewrite it correctly.", "marks": 3, "code": "total = input(\"Enter total: \") + 10",
+      "model": ["`input()` returns a string (1), and a string cannot be added to an integer (1). Correct: `total = int(input(\"Enter total: \")) + 10` (1)."],
+      "commentary": "Say *string* explicitly. 'It's text' is accepted; 'the input is wrong' is not. The correction must include the cast around the input." },
+    { "q": "Describe what is meant by **casting** and give an example of when it is needed.", "marks": 2,
+      "model": ["Converting a value from one data type to another (1), e.g. converting the string from `input()` into an integer so it can be used in a calculation (1)."],
+      "commentary": "Definition plus a *reason* in the example. 'int(x)' alone as the example is thin — say why." }
+  ],
+  "home": "Write a program that asks for a temperature in Celsius (allow decimals), converts it to Fahrenheit (F = C × 9 / 5 + 32), and prints a sentence with the answer rounded to 1 decimal place. List the data type of every variable you used and why.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 12 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "'Number' as a data type. Integer or real, always.",
+      "Expecting `int()` to round.",
+      "Casting the wrong thing: `int(input) + str(5)`.",
+      "Phone numbers and postcodes as integers."
+    ],
+    "say": [
+      "'Will you ever do maths with it? If not, it's a string.'",
+      "'input() hands you a piece of paper with writing on. You decide what the writing means.'"
+    ],
+    "skip": "Try 5 is a Paper 1 bridge; drop it if short. Try 2 is the one that changes behaviour.",
+    "differentiation": [
+      "Support: Try 2 with the `int(` and `float(` already placed; students complete the brackets.",
+      "Stretch: Try 4 — decode as well as encode, and handle lowercase letters separately."
+    ]
+  }
+}

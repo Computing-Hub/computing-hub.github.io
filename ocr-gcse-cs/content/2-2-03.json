@@ -1,0 +1,104 @@
+{
+  "id": "2-2-03",
+  "title": "Iteration: count-controlled loops",
+  "spec": "2.2.1",
+  "duration": 60,
+  "specPoints": [
+    "2.2.1 Iteration: **count-controlled** loops (`for`)",
+    "OCR pseudocode `for i = 1 to 10 … next i` and `for i = 0 to 9 step 2`; Python `for i in range(…)`"
+  ],
+  "learn": [
+    "Write a `for` loop that repeats a fixed number of times",
+    "Use the loop variable inside the loop (times tables, numbering)",
+    "Translate between OCR `for i = a to b` (inclusive) and Python `range(a, b + 1)`",
+    "Use `step` / a third `range` argument to count in 2s, 5s or backwards",
+    "Use an accumulator (running total or counter) inside a loop"
+  ],
+  "hook": "Print 'Hello' five times. Go on — five print lines. Now print it 500 times. Nobody is going to write 500 lines. The loop is the single most important idea in programming: do this *n* times.",
+  "video": {
+    "title": "for loops: the counter does the counting",
+    "brief": "4 minutes. A loop variable `i` shown as a counter dial; each turn the body runs once with the current value visible. Show `for i = 1 to 5` with a running printout. Then the inclusive/exclusive trap: OCR `1 to 5` versus Python `range(1, 6)`, side by side, same output. Then `step 2` and `range(10, 0, -1)`. Finish with an accumulator: `total = total + i` building up to 15, with the box model from lesson 1."
+  },
+  "explain": [
+    { "h": "What a count-controlled loop is",
+      "p": ["A **count-controlled** loop repeats a block a fixed number of times. You use it when you **know in advance** how many repetitions you need: 10 questions, every item in a list of 30, every number from 1 to 100. A **loop variable** counts the repetitions and is available inside the body."],
+      "code": "OCR pseudocode              Python\nfor i = 1 to 5              for i in range(1, 6):\n    print(i)                    print(i)\nnext i" },
+    { "h": "The inclusive trap",
+      "p": ["OCR's `for i = 1 to 5` runs with i = 1, 2, 3, 4, 5 — the end value **is included**. Python's `range(1, 6)` runs with 1, 2, 3, 4, 5 — the end value **is not included**. `range(5)` means 0, 1, 2, 3, 4. When you convert between them, add or subtract one at the end. This is the most common off-by-one error in the whole course."] },
+    { "h": "Counting in steps, and backwards",
+      "code": "for i = 0 to 10 step 2        for i in range(0, 11, 2):     # 0 2 4 6 8 10\n    print(i)                      print(i)\nnext i\n\nfor i = 10 to 1 step -1       for i in range(10, 0, -1):    # 10 down to 1\n    print(i)                      print(i)\nnext i" },
+    { "h": "Accumulators: totals and counts",
+      "p": ["A variable set up **before** the loop and updated **inside** it is an accumulator. `total = total + i` sums; `count = count + 1` counts. The set-up line must be outside the loop (lesson 2.1.6 showed what happens when it isn't)."],
+      "code": "total = 0\nfor i in range(1, 11):\n    total = total + i\nprint(total)        # 55" },
+    { "h": "Loops over a list",
+      "p": ["Python can loop over the items directly: `for name in names:`. OCR pseudocode usually loops over positions: `for i = 0 to names.length - 1`. Both appear in exams; arrays are lesson 8."] }
+  ],
+  "simple": [
+    { "h": "Do this a set number of times",
+      "p": ["A `for` loop repeats the indented lines. The counter `i` changes each time: 1, 2, 3…"],
+      "code": "for i in range(1, 6):\n    print(i)" },
+    { "h": "Careful with the end number",
+      "p": ["OCR: `for i = 1 to 5` includes 5. Python: `range(1, 6)` stops **before** 6. Both give 1 to 5."] },
+    { "h": "Count in steps or backwards",
+      "code": "for i in range(0, 11, 2):   # 0 2 4 6 8 10\n    print(i)\nfor i in range(10, 0, -1):  # 10 9 8 ... 1\n    print(i)" },
+    { "h": "Add things up",
+      "p": ["Make `total = 0` **before** the loop. Inside the loop, `total = total + i`. After the loop, print it."],
+      "code": "total = 0\nfor i in range(1, 11):\n    total = total + i\nprint(total)" }
+  ],
+  "keyterms": [
+    { "term": "Iteration", "def": "Repeating a block of instructions." },
+    { "term": "Count-controlled loop", "def": "A loop that repeats a known number of times, using a counter (for loop)." },
+    { "term": "Loop variable", "def": "The variable that counts the repetitions, e.g. `i`." },
+    { "term": "Accumulator", "def": "A variable that builds up a result across iterations, e.g. a running total." },
+    { "term": "range()", "def": "Python function producing a sequence of numbers: start (included), stop (excluded), step." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Times table", "p": ["Run it. Then change it so the user chooses which table, and it goes from 1 × up to 12 ×."],
+      "code": "for i in range(1, 11):\n    print(i, \"x 7 =\", i * 7)" },
+    { "type": "python", "title": "2. The off-by-one hunt", "p": ["Each loop is meant to print the numbers 1 to 10. Fix the ones that don't, without running them first — then run to check."],
+      "code": "print(\"A\")\nfor i in range(10):\n    print(i)\n\nprint(\"B\")\nfor i in range(1, 10):\n    print(i)\n\nprint(\"C\")\nfor i in range(1, 11):\n    print(i)" },
+    { "type": "python", "title": "3. Accumulate", "p": ["Ask the user for 5 numbers (one at a time) and print their total and their average. Use one loop and one accumulator."],
+      "code": "total = 0\nfor i in range(5):\n    # ask for a number and add it to total\n    pass\n\n# print the total and the average" },
+    { "type": "python", "title": "4. Patterns", "p": ["Print a triangle of stars: 1 star on line 1, 2 on line 2, up to 5. Hint: `\"*\" * i`. Then make it count down."],
+      "code": "for i in range(1, 6):\n    print(\"*\" * i)" },
+    { "type": "embed", "title": "5. Parsons: assemble the loop", "url": "https://beanwise.coderra.je/Puzzles/",
+      "instructions": ["Find a loop puzzle and rebuild it. Indentation decides what is inside the loop — watch the accumulator line."] }
+  ],
+  "check": [
+    { "q": "`for i in range(3):` gives i the values:", "opts": ["1, 2, 3", "0, 1, 2", "0, 1, 2, 3", "3"], "a": 1, "fb": "Starts at 0, stops before 3." },
+    { "q": "OCR `for i = 2 to 6` runs how many times?", "opts": ["4", "5", "6", "2"], "a": 1, "fb": "2, 3, 4, 5, 6 — inclusive." },
+    { "q": "To count 20, 18, 16 … 2 in Python:", "opts": ["range(20, 2, -2)", "range(20, 0, -2)", "range(2, 20, 2)", "range(20, 1, 2)"], "a": 1, "fb": "Stop is excluded, so use 0 to include 2." },
+    { "q": "Where must `total = 0` go?", "opts": ["Inside the loop", "Before the loop", "After the loop", "It doesn't matter"], "a": 1, "fb": "Inside the loop it resets every iteration." },
+    { "q": "When should you use a count-controlled loop?", "opts": ["When you don't know how many repeats", "When you know the number of repeats in advance", "Only for printing", "Only with lists"], "a": 1, "fb": "Known count → for loop." }
+  ],
+  "exam": [
+    { "q": "Write an algorithm that outputs the square of every whole number from 1 to 20 inclusive.", "marks": 3,
+      "model": ["A count-controlled loop (1) with correct bounds — `for i = 1 to 20` or `range(1, 21)` (1) — outputting `i * i` or `i ^ 2` each time (1)."],
+      "commentary": "The bounds mark is where it's lost: `range(1, 20)` stops at 19. Say 'inclusive' back to yourself when you read the question." },
+    { "q": "State the output of the following pseudocode.", "marks": 2, "code": "count = 0\nfor i = 1 to 6 step 2\n    count = count + i\nnext i\nprint(count)",
+      "model": ["9 (2). Working: i takes 1, 3, 5; count = 1, 4, 9."],
+      "commentary": "One mark for working showing i = 1, 3, 5 if the final answer slips. Students who include 6 or who step by 1 get 21 — wrong." },
+    { "q": "Explain why a `for` loop is more appropriate than a `while` loop for printing the names of all 30 students in a class list.", "marks": 2,
+      "model": ["The number of repetitions is known in advance (30 / the length of the list) (1), so a count-controlled loop is simpler and avoids the need for a separate counter and condition (1)."],
+      "commentary": "Known count, plus a consequence (simpler / no risk of infinite loop)." }
+  ],
+  "home": "Write a program that prints a 'countdown' from a number the user enters down to 'Lift off!', and then prints the sum of all the numbers it counted. Test with 10 and with 3.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 12 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "`range(10)` thought to give 1–10. Try 2 exists for this.",
+      "Converting OCR `to 10` into Python `range(1, 10)`.",
+      "Accumulator initialised inside the loop.",
+      "Thinking `i` must be called `i`. Use `row`, `attempt`, `n` in examples too."
+    ],
+    "say": [
+      "'range stops *before* the number. OCR stops *at* the number.'",
+      "'Zero before the loop. Add inside the loop. Print after the loop.'"
+    ],
+    "skip": "Try 4 (patterns) is pure enjoyment; drop it if short. Try 2 and Try 3 are essential.",
+    "differentiation": [
+      "Support: Try 3 with the input line provided; students write only the accumulation and the output.",
+      "Stretch: nested loops — print a full 1–12 times-table grid with aligned columns."
+    ]
+  }
+}

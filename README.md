@@ -66,4 +66,5 @@ A ready-to-teach J277 course that lives directly in this repo (static, no build 
 
 Settings travel in the URL: `?lang=pt&easy=1&font=1&motion=1&chunks=1&audio=1&contrast=1&teacher=1`.
 To add a lesson: create `content/<id>.json` (copy `2-1-07.json` as a template) and add the id to `ready` in `course.json`.
+Try blocks: `type` = `task` (text), `embed` (iframe of a Computing-Hub tool), `python` (in-page Pyodide runner; optional `files` map for virtual text files) or `sql` (in-page sql.js runner; `schema` holds the CREATE/INSERT statements). Both runners load from cdn.jsdelivr.net on first Run and fall back to a link to the Python IDE / SQL Blocks if blocked.
 Video placeholders: set `video.url` in the lesson JSON when the explainer is recorded; until then the brief shows in teacher view.

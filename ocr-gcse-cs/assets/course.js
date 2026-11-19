@@ -111,6 +111,101 @@
   }
   function fetchJson(url) { return fetch(url, { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error(r.status + ' ' + url); return r.json(); }); }
 
+  /* ---------- in-page code runners ----------
+     Python: Pyodide (CPython compiled to WebAssembly) loaded from a CDN on first Run.
+     SQL: sql.js (SQLite in WebAssembly) loaded the same way. Both run entirely in the
+     student's browser; nothing is sent anywhere. Code is kept in localStorage per task. */
+  var PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js';
+  var SQLJS_URL = 'https://cdn.jsdelivr.net/npm/sql.js@1.11.0/dist/';
+  var pyodideReady = null, sqlReady = null;
+
+  function loadScript(src) {
+    return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = function () { rej(new Error('Could not load ' + src)); }; document.head.appendChild(s); });
+  }
+  function getPyodide(status) {
+    if (!pyodideReady) {
+      status('Loading Python (about 10 MB, first time only)…');
+      pyodideReady = loadScript(PYODIDE_URL).then(function () { return window.loadPyodide({ indexURL: PYODIDE_URL.replace('pyodide.js', '') }); });
+    }
+    return pyodideReady;
+  }
+  function getSql(status) {
+    if (!sqlReady) {
+      status('Loading SQLite (first time only)…');
+      sqlReady = loadScript(SQLJS_URL + 'sql-wasm.js').then(function () { return window.initSqlJs({ locateFile: function (f) { return SQLJS_URL + f; } }); });
+    }
+    return sqlReady;
+  }
+
+  function wireRunner(root, t, lessonId) {
+    if (!root) return;
+    var ta = root.querySelector('textarea.code'), out = root.querySelector('.out'), st = root.querySelector('.run-status');
+    var key = 'ocr-cs-code-' + lessonId + '-' + root.id;
+    try { var saved = localStorage.getItem(key); if (saved) ta.value = saved; } catch (e) {}
+    ta.addEventListener('input', function () { try { localStorage.setItem(key, ta.value); } catch (e) {} });
+    ta.addEventListener('keydown', function (e) { // Tab inserts 4 spaces
+      if (e.key === 'Tab') { e.preventDefault(); var s = ta.selectionStart; ta.value = ta.value.slice(0, s) + '    ' + ta.value.slice(ta.selectionEnd); ta.selectionStart = ta.selectionEnd = s + 4; }
+    });
+    root.querySelector('.reset').addEventListener('click', function () {
+      ta.value = t.code || ''; try { localStorage.removeItem(key); } catch (e) {} out.textContent = '';
+      if (t.files && pyodideReady) pyodideReady.then(function (py) { Object.keys(t.files).forEach(function (name) { py.FS.writeFile(name, t.files[name]); }); });
+    });
+    var status = function (m) { st.textContent = m; };
+
+    root.querySelector('.run').addEventListener('click', function () {
+      out.textContent = ''; out.classList.remove('err');
+      if (t.type === 'python') runPython(ta.value, t, out, status);
+      else runSql(ta.value, t, out, status);
+    });
+  }
+
+  function runPython(code, t, out, status) {
+    getPyodide(status).then(function (py) {
+      status('Running…');
+      var buf = [];
+      py.setStdout({ batched: function (s) { buf.push(s); out.textContent = buf.join('\n'); } });
+      py.setStderr({ batched: function (s) { buf.push(s); out.textContent = buf.join('\n'); } });
+      // input() → browser prompt, echoed into the output so the transcript reads naturally
+      py.globals.set('__prompt', function (msg) { var v = window.prompt(msg || 'Input:'); if (v === null) v = ''; buf.push((msg || '') + v); out.textContent = buf.join('\n'); return v; });
+      var setup = 'import builtins, random\nbuiltins.input = lambda msg="": __prompt(str(msg))\n';
+      if (t.files) { // optional virtual text files for the file-handling lesson: {name: content}
+        // written once per page load so appends persist between runs; Reset restores them
+        Object.keys(t.files).forEach(function (name) { if (!py.FS.analyzePath(name).exists) py.FS.writeFile(name, t.files[name]); });
+      }
+      try {
+        py.runPython(setup);
+        py.runPython(code);
+        status('Done.');
+        if (t.files) { Object.keys(t.files).forEach(function (name) { try { var c = py.FS.readFile(name, { encoding: 'utf8' }); buf.push('\n--- ' + name + ' now contains ---\n' + c); out.textContent = buf.join('\n'); } catch (e) {} }); }
+      } catch (e) {
+        out.classList.add('err');
+        var msg = String(e.message || e);
+        // trim Pyodide's internal frames; keep the Python traceback the student needs
+        var i = msg.indexOf('File "<exec>"'); if (i > 0) msg = 'Traceback (most recent call last):\n  ' + msg.slice(i);
+        buf.push(msg); out.textContent = buf.join('\n'); status('Error — read the last line of the message.');
+      }
+    }).catch(function (e) { out.classList.add('err'); out.textContent = e.message + '\nIf your school network blocks cdn.jsdelivr.net, use the Python IDE link above instead.'; status(''); });
+  }
+
+  function runSql(code, t, out, status) {
+    getSql(status).then(function (SQL) {
+      status('Running…');
+      var db = new SQL.Database();
+      try {
+        if (t.schema) db.run(t.schema); // CREATE TABLE + INSERTs supplied by the lesson
+        var results = db.exec(code);
+        if (!results.length) { out.textContent = 'OK — no rows returned.' + (/(insert|update|delete)/i.test(code) ? ' (Run a SELECT to see the table.)' : ''); status('Done.'); return; }
+        out.innerHTML = results.map(function (r) {
+          return '<table class="sql"><thead><tr>' + r.columns.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+            r.values.map(function (row) { return '<tr>' + row.map(function (v) { return '<td>' + esc(v === null ? 'NULL' : v) + '</td>'; }).join('') + '</tr>'; }).join('') +
+            '</tbody></table><div class="rows">' + r.values.length + ' row' + (r.values.length === 1 ? '' : 's') + '</div>';
+        }).join('');
+        status('Done.');
+      } catch (e) { out.classList.add('err'); out.textContent = 'SQL error: ' + e.message; status(''); }
+      finally { db.close(); }
+    }).catch(function (e) { out.classList.add('err'); out.textContent = e.message + '\nIf your school network blocks cdn.jsdelivr.net, use the SQL Blocks link above instead.'; status(''); });
+  }
+
   /* ---------- course map ---------- */
   function renderIndex(root, course) {
     var ready = course.ready || [];
@@ -181,7 +276,11 @@
       root.appendChild(b); blocks.push(b); return b;
     }
 
-    if (L.specPoints) block('spec', 'Spec', 'What the specification says', '', listHtml(L.specPoints));
+    if (L.specPoints || L.learn) {
+      block('spec', 'Spec', 'What the specification says', '',
+        listHtml(L.specPoints) +
+        (L.learn ? '<h3>By the end of this lesson you must be able to</h3>' + listHtml(L.learn) : ''));
+    }
     if (T.hook) block('hook', 'Hook', 'Start here', '2–3 min', paras([].concat(T.hook)));
 
     // explain + video
@@ -200,14 +299,25 @@
 
     // try
     if (L.try && L.try.length) {
-      var html = L.try.map(function (t) {
+      var runners = [];
+      var html = L.try.map(function (t, ti) {
         if (t.type === 'embed') {
-          return '<div class="task"><h4>' + inline(t.title) + '</h4>' + listHtml(t.instructions, true) + '</div>' +
+          return '<div class="task"><h4>' + inline(t.title) + '</h4>' + paras(t.p) + listHtml(t.instructions, true) + '</div>' +
             '<div class="embed"><iframe src="' + esc(t.url) + '" loading="lazy" title="' + esc(t.title) + '"></iframe><div class="open-new">Opens in its own tab: <a href="' + esc(t.url) + '" target="_blank" rel="noopener">' + esc(t.url) + '</a></div></div>';
+        }
+        if (t.type === 'python' || t.type === 'sql') {
+          var rid = 'run-' + L.id + '-' + ti; runners.push({ id: rid, t: t });
+          return '<div class="task"><h4>' + inline(t.title) + '</h4>' + paras(t.p) + listHtml(t.steps, true) +
+            '<div class="runner ' + t.type + '" id="' + rid + '">' +
+            '<textarea class="code" spellcheck="false" rows="' + Math.max(6, (t.code || '').split('\n').length + 2) + '">' + esc(t.code || '') + '</textarea>' +
+            '<div class="run-bar"><button class="btn small run" type="button">▶ Run ' + (t.type === 'sql' ? 'SQL' : 'Python') + '</button>' +
+            '<button class="btn outline small reset" type="button">Reset</button><span class="run-status"></span></div>' +
+            '<pre class="out" aria-live="polite"></pre></div>' + paras(t.after) + '</div>';
         }
         return '<div class="task"><h4>' + inline(t.title) + '</h4>' + paras(t.p) + listHtml(t.steps, true) + codeHtml(t.code) + paras(t.after) + '</div>';
       }).join('');
-      block('try', 'Try', 'Do it yourself', '15–25 min', html);
+      var tb = block('try', 'Try', 'Do it yourself', '15–25 min', html);
+      runners.forEach(function (r) { wireRunner(tb.querySelector('#' + r.id), r.t, L.id); });
     }
 
     // check (quiz)

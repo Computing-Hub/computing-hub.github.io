@@ -1,0 +1,99 @@
+{
+  "id": "2-2-07",
+  "title": "String manipulation",
+  "spec": "2.2.3",
+  "duration": 60,
+  "specPoints": [
+    "2.2.3 **String manipulation**: length, substring, position/indexing, concatenation, upper/lower case, ASCII conversion",
+    "OCR pseudocode: `.length`, `.substring(start, count)`, `.left(n)`, `.right(n)`, `.upper`, `.lower`, `+`; Python: `len()`, slicing `[a:b]`, `.upper()`, `.lower()`, `+`"
+  ],
+  "learn": [
+    "Find the length of a string and access individual characters by index (from 0)",
+    "Extract substrings in OCR pseudocode (`substring`, `left`, `right`) and Python (slicing)",
+    "Join strings with `+` and convert case with upper/lower",
+    "Loop through a string character by character",
+    "Solve typical exam tasks: initials, username generation, palindromes, vowel counts"
+  ],
+  "hook": "A school generates usernames: first 3 letters of the surname + first letter of the first name + year of entry, all lowercase. SMITH, Jane, 2026 → `smij2026`. Every system you log into has done something like this to your name. Today you write it.",
+  "video": {
+    "title": "Strings are lists of characters",
+    "brief": "4 minutes. The word COMPUTER in boxes numbered 0–7. Highlight `[0]`, `[7]`, `[-1]`. Slicing `[0:3]` as a bracket that includes 0,1,2 — stop excluded, same rule as range. Show OCR's `.left(3)`, `.right(2)`, `.substring(2, 4)` on the same word, side by side with the Python slice. Then `.upper()`, `.lower()`, `len()`, `+`. End with a loop `for ch in word:` lighting each box in turn and a vowel counter ticking."
+  },
+  "explain": [
+    { "h": "Characters have positions",
+      "p": ["A string is a sequence of characters, numbered from **0**. `word = \"COMPUTER\"`: `word[0]` is `\"C\"`, `word[7]` is `\"R\"`, and in Python `word[-1]` is also the last character. `len(word)` is 8; OCR writes `word.length`."] },
+    { "h": "Substrings",
+      "code": "word = \"COMPUTER\"            OCR pseudocode              Python\nfirst three letters          word.left(3)      -> COM   word[0:3]  or word[:3]\nlast two letters             word.right(2)     -> ER    word[-2:]\n4 chars starting at index 2  word.substring(2,4) -> MPUT word[2:6]\nlength                       word.length       -> 8     len(word)\nupper / lower case           word.upper / word.lower   word.upper() / word.lower()\njoin                         \"ab\" + \"cd\"       -> abcd  \"ab\" + \"cd\"",
+      "after": ["OCR's `substring(start, count)` takes a **start index and a count**. Python's slice `[start:stop]` takes a start and a **stop that is not included** — so 4 characters from index 2 is `[2:6]`. Mixing these up is the common slip."] },
+    { "h": "Looping through a string",
+      "code": "word = input(\"Word: \")\nvowels = 0\nfor ch in word.lower():\n    if ch in \"aeiou\":\n        vowels = vowels + 1\nprint(vowels)\n\n# OCR style, by index\nfor i = 0 to word.length - 1\n    print(word.substring(i, 1))\nnext i" },
+    { "h": "Useful Python extras (fine to use in the exam)",
+      "p": ["`word.count(\"a\")`, `word.find(\"put\")` (index or −1), `word.replace(\"C\", \"K\")`, `word.isdigit()`, `word.strip()` (remove spaces at ends), `word.split(\",\")` (into a list). `in` tests membership: `\"put\" in word` is True. Strings cannot be changed in place — build a new one."] }
+  ],
+  "simple": [
+    { "h": "Each letter has a number",
+      "p": ["`word = \"COMPUTER\"`. `word[0]` is \"C\" (counting starts at 0). `word[-1]` is the last letter. `len(word)` is 8."] },
+    { "h": "Cutting out pieces",
+      "code": "word[0:3]   # COM  (0, 1, 2 — stops before 3)\nword[-2:]   # ER\nword[2:6]   # MPUT\n# OCR: word.left(3), word.right(2), word.substring(2, 4)" },
+    { "h": "Change case, join",
+      "code": "word.upper()      # COMPUTER\nword.lower()      # computer\n\"ab\" + \"cd\"       # abcd" },
+    { "h": "Go through every letter",
+      "code": "for ch in word:\n    print(ch)" }
+  ],
+  "keyterms": [
+    { "term": "String", "def": "A sequence of characters." },
+    { "term": "Index", "def": "The position of a character in a string, counting from 0." },
+    { "term": "Substring", "def": "Part of a string, e.g. the first three characters." },
+    { "term": "Concatenation", "def": "Joining strings together with +." },
+    { "term": "Slice (Python)", "def": "`s[a:b]` — characters from index a up to but not including b." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Explore", "p": ["Predict each output, then run."],
+      "code": "s = \"Computer Science\"\nprint(len(s))\nprint(s[0], s[9], s[-1])\nprint(s[0:8])\nprint(s[9:])\nprint(s.upper(), s.lower())\nprint(s.count(\"e\"), s.find(\"Sci\"))\nprint(\"Sci\" in s, \"sci\" in s)" },
+    { "type": "python", "title": "2. Usernames", "p": ["First 3 letters of surname + first letter of first name + year, all lowercase. Handle a surname shorter than 3 letters sensibly."],
+      "code": "first = input(\"First name: \")\nsurname = input(\"Surname: \")\nyear = input(\"Year of entry: \")\nusername = \nprint(username)" },
+    { "type": "python", "title": "3. Palindrome", "p": ["A palindrome reads the same backwards (level, racecar). Finish it. Then make it ignore case and spaces (\"Never odd or even\")."],
+      "code": "word = input(\"Word: \")\nreversed_word = \"\"\nfor ch in word:\n    reversed_word = ch + reversed_word   # builds it backwards\nif :\n    print(\"Palindrome\")\nelse:\n    print(\"Not a palindrome\")" },
+    { "type": "python", "title": "4. Initials and length check", "p": ["Ask for a full name (e.g. \"Ada King Lovelace\") and print the initials \"A.K.L.\" and the longest word. Hint: `.split()` gives a list of words."],
+      "code": "name = input(\"Full name: \")\nwords = name.split()\ninitials = \"\"\n# loop over words, add first letter + '.'\n\nprint(initials)" },
+    { "type": "embed", "title": "5. String manipulation practice set", "url": "https://beanwise.coderra.je/python-fundamentals/string-manipulation/",
+      "instructions": ["Work through the string exercises. Aim to finish the 'substring' and 'loop' sections in this lesson."] }
+  ],
+  "check": [
+    { "q": "`\"PYTHON\"[1]` is:", "opts": ["P", "Y", "T", "Error"], "a": 1, "fb": "Index 0 is P, index 1 is Y." },
+    { "q": "`\"PYTHON\"[2:4]` is:", "opts": ["TH", "THO", "YTH", "TN"], "a": 0, "fb": "Indices 2 and 3; 4 excluded." },
+    { "q": "OCR `name.substring(1, 3)` with name = \"Jersey\" gives:", "opts": ["Jer", "ers", "er", "rse"], "a": 1, "fb": "Start at index 1, take 3 characters." },
+    { "q": "`len(\"\")` is:", "opts": ["1", "0", "Error", "None"], "a": 1, "fb": "The empty string has no characters." },
+    { "q": "Which produces \"HELLO\" from `\"hello\"`?", "opts": ["upper(hello)", "\"hello\".upper()", "\"hello\".UPPER", "capital(\"hello\")"], "a": 1, "fb": "Python method call; OCR writes .upper without brackets." }
+  ],
+  "exam": [
+    { "q": "A program stores a product code as a string, e.g. \"JE-2026-TV\". Write pseudocode or Python to output the four-digit year from the middle of the code.", "marks": 2,
+      "model": ["`code.substring(3, 4)` / `code[3:7]` (1 for correct start index, 1 for correct length/stop)."],
+      "commentary": "Count the characters carefully: J=0, E=1, -=2, 2=3. Off-by-one here is almost always from starting the count at 1." },
+    { "q": "Write a program that asks the user for a word and outputs the number of characters in it and the word in upper case.", "marks": 3,
+      "model": ["Input stored (1). Length output using `.length` / `len()` (1). Upper-case output using `.upper` / `.upper()` (1)."],
+      "commentary": "Three quick marks. The length and upper-case functions must be the correct ones; `size()` or `capitals()` do not exist." },
+    { "q": "Write an algorithm that takes a string and outputs it with every vowel removed. For example, \"computer\" becomes \"cmptr\".", "marks": 4,
+      "model": ["Loop through each character of the string (1). Test whether the character is a vowel (1). Build a new string containing only non-vowels / concatenate when not a vowel (1). Output the new string after the loop (1)."],
+      "commentary": "The 'build a new string' idea is the key: students try to delete from the original and get lost. Mention lowercase/uppercase handling for a stronger answer, though it isn't required for full marks here." }
+  ],
+  "home": "Write a program that asks for a sentence and reports: the number of words, the number of vowels, the longest word, and the sentence with every word's first letter capitalised. Test with your own sentence and with an empty input.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 12 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "Indexing from 1.",
+      "`substring(start, count)` in OCR vs `[start:stop]` in Python — students apply the wrong rule to the wrong language.",
+      "Trying to change a character in place (`word[0] = \"X\"` fails). Build a new string.",
+      "`.upper` vs `.upper()` — OCR has no brackets, Python needs them."
+    ],
+    "say": [
+      "'Write the word out in boxes and number them from zero. Every time.'",
+      "'Python slices stop *before* the number — same as range.'"
+    ],
+    "skip": "Try 4 and 5 are extension; Try 2 and 3 are the exam-style tasks.",
+    "differentiation": [
+      "Support: Try 2 with `surname[0:3]` provided; students add the rest.",
+      "Stretch: Try 3 — a function `is_palindrome(text)` used on each word in a sentence."
+    ]
+  }
+}

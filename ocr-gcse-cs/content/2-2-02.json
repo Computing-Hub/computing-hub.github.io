@@ -1,0 +1,105 @@
+{
+  "id": "2-2-02",
+  "title": "Sequence and selection",
+  "spec": "2.2.1",
+  "duration": 60,
+  "specPoints": [
+    "2.2.1 The three basic programming constructs: **sequence**, **selection**, iteration",
+    "Selection with `if … elif … else` (Python) / `if … elseif … else … endif` (OCR), including nested selection and `switch/case`"
+  ],
+  "learn": [
+    "Write programs where the order of lines matters and predict their output",
+    "Write `if`, `if/else` and `if/elif/else` statements with correct indentation",
+    "Choose between a chain of `elif` and separate `if` statements, and explain the difference",
+    "Use nested selection where one decision depends on another",
+    "Recognise `switch/case` in OCR pseudocode and convert it to `if/elif`"
+  ],
+  "hook": "Two recipes for tea: one says 'boil water, add tea bag, pour'; the other says 'pour, add tea bag, boil water'. Same instructions, different order. Now: 'if the cup is dirty, wash it first'. One line that only sometimes runs. Sequence and selection — you already use both every day.",
+  "video": {
+    "title": "If, elif, else: one path through the code",
+    "brief": "4 minutes. A program as a road: sequence is a straight road, lines lighting up top to bottom. A decision is a fork: the condition is evaluated to True or False and only one branch lights. Then an elif chain as a series of forks where the first true wins and the rest are skipped — animate a mark of 75 passing `>= 90` (false), `>= 70` (true) and skipping the rest. Contrast with three separate ifs where a mark of 95 triggers all three. End with the indentation rule: what is indented belongs to the if."
+  },
+  "explain": [
+    { "h": "Sequence",
+      "p": ["Lines run in order, top to bottom, one at a time. Change the order, change the result. In Try 1 you will swap two lines and watch the output change — the clearest demonstration that the computer does exactly what it is told, in the order it is told."] },
+    { "h": "Selection: if, else, elif",
+      "p": ["Selection runs some lines only when a **condition** is true. The condition is any expression that is True or False: `age >= 18`, `name == \"Ada\"`, `score > best`. Indented lines belong to the `if`; the first unindented line runs regardless."],
+      "code": "mark = int(input(\"Mark: \"))\nif mark >= 70:\n    print(\"Distinction\")\nelif mark >= 40:\n    print(\"Pass\")\nelse:\n    print(\"Fail\")\nprint(\"Done\")   # runs every time",
+      "after": ["In an `if / elif / else` chain exactly **one** branch runs: the first whose condition is true. Order matters — if the `>= 40` test came first, a mark of 85 would print Pass. OCR pseudocode is the same shape with `then`, `elseif`, `else`, `endif`."] },
+    { "h": "Separate ifs are not the same as elif",
+      "p": ["Three separate `if` statements are three independent questions; several can be true. One `if/elif/elif` chain is one question with several answers; exactly one branch runs. Use separate ifs when conditions are unrelated (`if raining: take coat` and `if late: run`); use a chain when the options are mutually exclusive (grades, menu choices)."] },
+    { "h": "Nested selection",
+      "p": ["An `if` inside an `if` asks a second question only when the first was true. Indent one more level. Many nested ifs can often be rewritten with `and` (lesson 5) — both are accepted in the exam."],
+      "code": "if logged_in:\n    if is_admin:\n        print(\"Admin menu\")\n    else:\n        print(\"User menu\")\nelse:\n    print(\"Please log in\")" },
+    { "h": "switch / case",
+      "p": ["OCR pseudocode has a `switch` for comparing one value against several fixed options. Python has `match` (3.10+) but you may answer with `if/elif`. You need to **read** switch in exam code:"],
+      "code": "switch day:\n    case \"Sat\":\n        print(\"Weekend\")\n    case \"Sun\":\n        print(\"Weekend\")\n    default:\n        print(\"Weekday\")\nendswitch" }
+  ],
+  "simple": [
+    { "h": "Sequence = in order",
+      "p": ["The computer runs the lines from the top down, one at a time. Swap two lines and the result changes."] },
+    { "h": "Selection = only sometimes",
+      "p": ["`if` asks a yes/no question. The indented lines under it run only when the answer is yes. `else` is what to do when the answer is no. `elif` is 'otherwise, try this question'. Only one branch runs."],
+      "code": "mark = int(input(\"Mark: \"))\nif mark >= 70:\n    print(\"Distinction\")\nelif mark >= 40:\n    print(\"Pass\")\nelse:\n    print(\"Fail\")" },
+    { "h": "Two ifs or one chain?",
+      "p": ["Two separate `if`s can both happen. An `if / elif` chain picks one. For grades, use a chain."] },
+    { "h": "An if inside an if",
+      "p": ["Ask the second question only if the first answer was yes. Indent it one more time."] }
+  ],
+  "keyterms": [
+    { "term": "Sequence", "def": "Instructions executed one after another in the order written." },
+    { "term": "Selection", "def": "Choosing which instructions to run based on a condition." },
+    { "term": "Condition", "def": "An expression that evaluates to True or False." },
+    { "term": "Nested selection", "def": "An if statement inside another if statement." },
+    { "term": "Indentation", "def": "Spaces at the start of a line showing which block the line belongs to." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Order matters", "p": ["Run it. Then swap lines 2 and 3 and run again. Explain the difference in one sentence."],
+      "code": "total = 10\ntotal = total * 2\ntotal = total + 5\nprint(total)" },
+    { "type": "python", "title": "2. Grades", "p": ["Finish the grade program: 90+ is A, 80+ is B, 70+ is C, 60+ is D, below 60 is U. Test with 90, 89, 60, 59 and 100."],
+      "code": "mark = int(input(\"Mark out of 100: \"))\nif mark >= 90:\n    grade = \"A\"\n# add the other grades here\n\nprint(\"Grade:\", grade)" },
+    { "type": "python", "title": "3. Chain or separate?", "p": ["Run with 95. Why do three lines print? Rewrite it so only the best prize prints."],
+      "code": "score = int(input(\"Score: \"))\nif score >= 50:\n    print(\"Bronze\")\nif score >= 75:\n    print(\"Silver\")\nif score >= 90:\n    print(\"Gold\")" },
+    { "type": "python", "title": "4. Nested: cinema tickets", "p": ["Under 12s pay £5; 12–17 pay £7; adults pay £10, but adults who are students pay £7. Finish the program with a nested `if` for the student check."],
+      "code": "age = int(input(\"Age: \"))\nif age < 12:\n    price = 5\nelif age < 18:\n    price = 7\nelse:\n    student = input(\"Student? (y/n) \")\n    # nested if goes here\n\nprint(\"Price: £\" + str(price))" },
+    { "type": "embed", "title": "5. PRIMM: predict, run, investigate, modify, make", "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": ["Open the selection lesson in the Python IDE and work through the PRIMM steps.", "In the Make step, write a program that tells the user which season a month number is in."] }
+  ],
+  "check": [
+    { "q": "In an `if / elif / else` chain, how many branches run?", "opts": ["All whose conditions are true", "Exactly one", "At least two", "None if there is no else"], "a": 1, "fb": "First true condition wins; the rest are skipped." },
+    { "q": "What tells Python which lines belong to an `if`?", "opts": ["Curly brackets", "The word endif", "Indentation", "A semicolon"], "a": 2, "fb": "Python uses indentation; OCR pseudocode uses endif." },
+    { "q": "`if x > 5:` then `if x > 10:` as two separate ifs, with x = 20. What runs?", "opts": ["Only the first", "Only the second", "Both", "Neither"], "a": 2, "fb": "Separate ifs are independent questions." },
+    { "q": "A grade chain tests `>= 40` before `>= 70`. A mark of 85 prints:", "opts": ["The >= 70 grade", "The >= 40 grade", "Both", "An error"], "a": 1, "fb": "Order matters: the first true test wins." },
+    { "q": "OCR's `switch … case … default` is most like Python's:", "opts": ["for loop", "while loop", "if / elif / else", "input()"], "a": 2, "fb": "One value compared with several fixed options." }
+  ],
+  "exam": [
+    { "q": "Write a program that asks the user to enter a temperature and outputs \"Cold\" if it is below 10, \"Warm\" if it is between 10 and 24 inclusive, and \"Hot\" otherwise.", "marks": 4,
+      "model": ["Input converted to a number (1). Correct `if temp < 10` branch (1). Correct middle branch — `elif temp <= 24` or `elif temp >= 10 and temp <= 24` (1). `else` branch outputs Hot, and all three outputs present (1)."],
+      "commentary": "The middle condition is the mark that separates students: with an `elif`, `temp <= 24` is enough because `< 10` was already handled. Students who write `if temp < 10 … if temp <= 24 … else` with separate ifs lose a mark because 5 prints Cold *and* Warm." },
+    { "q": "Describe the difference between **sequence** and **selection**, giving an example of each in code.", "marks": 4,
+      "model": ["Sequence: instructions executed in order, one after another (1), e.g. `x = 5` then `y = x * 2` (1). Selection: a decision that determines which instructions execute based on a condition (1), e.g. `if x > 3 then print(\"big\") endif` (1)."],
+      "commentary": "Definition + example, twice. Students often give a good definition and a vague example ('an if statement') — write actual code." },
+    { "q": "The following pseudocode contains a logic error. The program should give a 10% discount to customers aged 65 or over and a 20% discount to customers under 18. Identify and correct the error.", "marks": 2, "code": "age = int(input(\"Age: \"))\nif age > 65 then\n    discount = 0.1\nelseif age < 18 then\n    discount = 0.2\nelse\n    discount = 0\nendif",
+      "model": ["Line 2 uses `>` so a customer aged exactly 65 gets no discount (1). Correct to `if age >= 65 then` (1)."],
+      "commentary": "Boundary again. Always test the exact number in the question." }
+  ],
+  "home": "Write a program for a simple calculator: ask for two numbers and an operator (+, −, ×, ÷) and output the result, with a sensible message for an unknown operator and for dividing by zero. Nested or chained selection — your choice; be ready to justify it.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 12 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "Separate `if`s used where a chain is needed (Try 3). Let them see three prizes print.",
+      "Conditions in a chain in the wrong order (`>= 40` before `>= 70`).",
+      "Indentation errors: body not indented, or `else` indented under the `if` body.",
+      "Writing `if mark >= 70 and <= 89` (missing the second variable name)."
+    ],
+    "say": [
+      "'Only one door opens in an elif chain. Which door, for 85?'",
+      "'Indented means inside. Put your finger at the margin and find the first line that isn't indented — that line always runs.'"
+    ],
+    "skip": "Try 5 (PRIMM in the IDE) is a full activity in itself; set it as homework if Try 1–4 take the time.",
+    "differentiation": [
+      "Support: give Try 2 with all the `elif` lines present and only the numbers blank.",
+      "Stretch: rewrite Try 4 without nesting using `and`, then explain which version is easier to read and why."
+    ]
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "id": "2-2-09",
+  "title": "Arrays: two-dimensional",
+  "spec": "2.2.3",
+  "duration": 60,
+  "specPoints": [
+    "2.2.3 **Two-dimensional arrays**: declaring, accessing with two indices, looping with nested loops",
+    "OCR pseudocode: `array grid[3, 4]`, `grid[1, 2] = \"X\"`; Python: list of lists, `grid[1][2]`"
+  ],
+  "learn": [
+    "Explain what a 2D array is and give examples (grids, tables, game boards)",
+    "Access an element with two indices (row first, then column) in OCR and Python",
+    "Use nested `for` loops to visit every element",
+    "Total a row, total a column, find a value, and print a grid",
+    "Decide whether a problem needs a 1D or 2D array"
+  ],
+  "hook": "A noughts-and-crosses board. Where is the X? 'Top right' — two pieces of information: row and column. One list can't describe a board. A list of lists can. Spreadsheets, pixel images, seat plans, timetables: all 2D arrays.",
+  "video": {
+    "title": "2D arrays: row, then column",
+    "brief": "4 minutes. A 3×3 grid; label rows 0–2 down the side and columns 0–2 across the top. `board[1][2] = \"X\"` lands in the middle row, right column. Then show it as a list of three lists in Python. Nested loops: outer loop picks a row and the whole row lights; inner loop walks across it. Total a row (inner loop over columns) vs total a column (outer loop over rows, fixed column). End with the OCR syntax `board[1, 2]` beside Python `board[1][2]`."
+  },
+  "explain": [
+    { "h": "What a 2D array is",
+      "p": ["A **two-dimensional array** is a grid: rows and columns. Each element is identified by **two** indices, by convention row first then column, both counting from 0. In Python a 2D array is a **list of lists**: the outer list holds the rows, and each row is itself a list."],
+      "code": "OCR pseudocode                           Python\narray board[3, 3]                        board = [[\" \", \" \", \" \"],\nboard[1, 2] = \"X\"                                 [\" \", \" \", \" \"],\nprint(board[1, 2])                                [\" \", \" \", \" \"]]\n                                         board[1][2] = \"X\"\n                                         print(board[1][2])\n\n# a marks table: 3 students x 4 tests\nmarks = [[67, 71, 55, 80],\n         [45, 29, 60, 52],\n         [90, 88, 95, 91]]\nprint(marks[2][0])    # 90: student 2, test 0" },
+    { "h": "Nested loops visit every cell",
+      "p": ["An outer loop over the rows and an inner loop over the columns. The inner loop runs completely for each turn of the outer loop."],
+      "code": "for row in range(len(marks)):\n    for col in range(len(marks[row])):\n        print(marks[row][col], end=\" \")\n    print()               # new line after each row\n\n# OCR style\nfor row = 0 to 2\n    for col = 0 to 3\n        print(marks[row, col])\n    next col\nnext row" },
+    { "h": "Rows versus columns",
+      "code": "# total for student 1 (one row): loop over columns\ntotal = 0\nfor col in range(4):\n    total = total + marks[1][col]\n\n# average for test 2 (one column): loop over rows\ntotal = 0\nfor row in range(3):\n    total = total + marks[row][2]\naverage = total / 3",
+      "after": ["The question to ask: *which index is fixed and which one moves?* Fixed row, moving column → a row total. Fixed column, moving row → a column total."] },
+    { "h": "1D or 2D?",
+      "p": ["If each item has one natural position (a queue, a list of names) → 1D. If you need two coordinates to say where something is (a seat in row 4 column 7, a pixel, a cell in a timetable) → 2D. Exam questions often ask you to justify the choice."] }
+  ],
+  "simple": [
+    { "h": "A grid, not a line",
+      "p": ["A 2D array has rows and columns. To find one square you need two numbers: the row and the column. Both start at 0."],
+      "code": "board = [[\" \", \" \", \" \"],\n         [\" \", \" \", \" \"],\n         [\" \", \" \", \" \"]]\nboard[1][2] = \"X\"    # row 1, column 2" },
+    { "h": "Two loops, one inside the other",
+      "p": ["The outer loop picks a row. The inner loop goes along that row."],
+      "code": "for row in range(3):\n    for col in range(3):\n        print(board[row][col], end=\" \")\n    print()" },
+    { "h": "Row or column?",
+      "p": ["Adding up one person's marks → keep the row fixed, move along the columns. Adding up one test → keep the column fixed, move down the rows."] }
+  ],
+  "keyterms": [
+    { "term": "Two-dimensional array", "def": "An array arranged as rows and columns, accessed with two indices." },
+    { "term": "Row / column index", "def": "The two numbers that locate an element: row first, then column, from 0." },
+    { "term": "Nested loop", "def": "A loop inside another loop; the inner loop runs fully each time the outer loop repeats." },
+    { "term": "List of lists", "def": "How Python represents a 2D array: each element of the outer list is a row." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Read the grid", "p": ["Predict, then run. Then print the average for each student (one line per student) and the highest mark in test 3."],
+      "code": "marks = [[67, 71, 55, 80],\n         [45, 29, 60, 52],\n         [90, 88, 95, 91]]\nprint(marks[0][3])\nprint(marks[2])\nprint(len(marks), len(marks[0]))\nfor row in marks:\n    print(row)" },
+    { "type": "python", "title": "2. Noughts and crosses board", "p": ["Finish `show_board()` so it prints the grid with | between cells. Then let two players take turns entering row and column (0–2) until the board is full. (Winning check is the stretch.)"],
+      "code": "board = [[\" \"] * 3 for _ in range(3)]\n\ndef show_board():\n    for row in range(3):\n        # print the three cells of this row separated by |\n        pass\n\nshow_board()\nplayer = \"X\"\nfor turn in range(9):\n    r = int(input(player + \" row (0-2): \"))\n    c = int(input(player + \" col (0-2): \"))\n    board[r][c] = player\n    show_board()\n    player = \"O\" if player == \"X\" else \"X\"" },
+    { "type": "python", "title": "3. Seat plan", "p": ["A cinema has 4 rows of 6 seats, all free (0). Book seat row 2 col 3 and row 0 col 0 (set to 1). Print the plan with . for free and # for booked, then count the free seats with nested loops."],
+      "code": "seats = [[0] * 6 for _ in range(4)]\n" },
+    { "type": "python", "title": "4. Column totals", "p": ["Sales for 3 shops over 5 days. Print the total for each day (column totals) and the best day."],
+      "code": "sales = [[120, 95, 130, 80, 150],\n         [ 60, 70,  65, 90, 110],\n         [200,180, 210,190, 240]]\n" },
+    { "type": "embed", "title": "5. 2D arrays workbench", "url": "https://beanwise.coderra.je/cs_animations/2d-arrays-workbench.html",
+      "instructions": ["Use the workbench to step through nested loops and watch the row/column pointers move. Try a row total and a column total."] }
+  ],
+  "check": [
+    { "q": "In `grid[2][0]`, 2 is usually the:", "opts": ["Column", "Row", "Value", "Length"], "a": 1, "fb": "Row first, then column." },
+    { "q": "A 2D array with 4 rows and 6 columns holds how many elements?", "opts": ["10", "24", "46", "6"], "a": 1, "fb": "4 × 6." },
+    { "q": "To visit every element you need:", "opts": ["One for loop", "Two nested for loops", "A while loop only", "No loop"], "a": 1, "fb": "Outer over rows, inner over columns." },
+    { "q": "To total column 3 of `marks`, which index is fixed?", "opts": ["The row", "The column", "Both", "Neither"], "a": 1, "fb": "Column fixed at 3; rows move." },
+    { "q": "Best structure for a 10×10 battleships grid:", "opts": ["100 variables", "A 1D array of 100", "A 2D array 10×10", "A string"], "a": 2, "fb": "Two coordinates → 2D." }
+  ],
+  "exam": [
+    { "q": "A 2D array `temps[7, 24]` stores the temperature for every hour of every day in a week. Write pseudocode to output the average temperature for day 3.", "marks": 3,
+      "model": ["Total initialised and a loop over hours 0–23 (1). Adds `temps[3, hour]` each time — row fixed at 3 (1). Outputs total / 24 after the loop (1)."],
+      "commentary": "Row fixed, column moving. Students who loop over both indices average the whole week — one mark at most." },
+    { "q": "Explain why a two-dimensional array is a suitable data structure for storing a chessboard.", "marks": 2,
+      "model": ["A chessboard is a grid of 8 rows and 8 columns (1), so each square can be identified by two indices (row, column), matching the two dimensions of the array (1)."],
+      "commentary": "Link the two dimensions to the two coordinates. 'Because it's a board' is not an explanation." },
+    { "q": "The array `grid[4, 4]` contains integers. Write an algorithm that outputs the largest value in the array and its position.", "marks": 4,
+      "model": ["Nested loops over rows and columns (1). Compares each element with the current largest (1). Updates largest and records row and column when a bigger value is found (1). Outputs largest and its row and column after the loops (1)."],
+      "commentary": "Record *both* indices when updating — students often store only the value or only one index. Initialise largest to `grid[0, 0]`, not 0, in case all values are negative (bonus point for sharp students)." }
+  ],
+  "home": "Represent a 5×5 'minesweeper' board as a 2D array of 0s with three 1s (mines) placed by you. Write a program that, for a row and column entered by the user, prints how many of the neighbouring cells contain a mine.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 12 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "Column before row. Agree 'row first' and stick to it (OCR papers do).",
+      "`board = [[\" \"] * 3] * 3` in Python makes three references to the *same* row — changing one changes all. Use the comprehension shown or write the rows out.",
+      "Nested loop with the inner loop's index not used (`grid[row][row]`).",
+      "Looping over both dimensions when only one should move."
+    ],
+    "say": [
+      "'Which number is nailed down, which one walks?'",
+      "'Row is the shelf, column is the position on the shelf.'"
+    ],
+    "skip": "Try 4 and 5 can go if Try 2 captures the room — it usually does.",
+    "differentiation": [
+      "Support: Try 3 with the printing loop written; students do the booking and counting only.",
+      "Stretch: Try 2 — add a win check for rows, columns and both diagonals."
+    ]
+  }
+}

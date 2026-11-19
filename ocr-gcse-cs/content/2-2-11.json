@@ -1,0 +1,107 @@
+{
+  "id": "2-2-11",
+  "title": "File handling",
+  "spec": "2.2.3",
+  "duration": 60,
+  "specPoints": [
+    "2.2.3 **File handling operations**: open, read, write, close",
+    "OCR pseudocode: `open()`, `.readLine()`, `.writeLine()`, `.endOfFile()`, `.close()`, `newFile()`; Python: `open()` with modes `r`, `w`, `a`, `with`, `.readline()`, `.readlines()`, `.write()`, `.close()`"
+  ],
+  "learn": [
+    "Explain why programs store data in files (persistence between runs)",
+    "Open a file for reading, writing and appending, and explain the difference between `w` and `a`",
+    "Read a file line by line until the end, and process each line",
+    "Write lines to a file, remembering newlines and closing the file",
+    "Read and write OCR pseudocode file operations in exam questions"
+  ],
+  "hook": "Your quiz program keeps a high score — until you close it. Then it's gone. Every real program remembers things after it ends: scores, settings, your essay. Memory forgets when the power goes; files don't.",
+  "video": {
+    "title": "Files: how programs remember",
+    "brief": "4 minutes. RAM as a whiteboard wiped when the program ends; a file as a notebook on the shelf. Open the notebook (open), read line by line with a finger moving down until the end (endOfFile), close it. Then writing: `w` tears out all the pages first, `a` writes on the next blank page. Show a scores file growing with `a`. End with the OCR four-step pattern and the Python `with open(...) as f:` block side by side."
+  },
+  "explain": [
+    { "h": "Why files",
+      "p": ["Variables live in RAM and vanish when the program ends. A **file** on secondary storage keeps data between runs: high scores, user settings, a list of customers. Text files are just lines of characters, which is why you read and write them line by line."] },
+    { "h": "Reading",
+      "code": "OCR pseudocode                              Python\nmyFile = open(\"scores.txt\")                 file = open(\"scores.txt\", \"r\")\nwhile NOT myFile.endOfFile()                for line in file:\n    print(myFile.readLine())                    print(line.strip())\nendwhile                                    file.close()\nmyFile.close()\n                                            # or, safer: closes automatically\n                                            with open(\"scores.txt\") as file:\n                                                lines = file.readlines()",
+      "after": ["Each line read is a **string** including its newline; cast with `int()` after `.strip()` if it's a number. OCR's `endOfFile()` loop is the exam pattern — know it."] },
+    { "h": "Writing and appending",
+      "code": "OCR pseudocode                              Python\nmyFile = open(\"scores.txt\")                 file = open(\"scores.txt\", \"w\")   # w: wipes, starts fresh\nmyFile.writeLine(\"Ada,95\")                  file.write(\"Ada,95\\n\")          # add \\n yourself\nmyFile.close()                              file.close()\n\nnewFile(\"log.txt\")   # creates empty file    file = open(\"scores.txt\", \"a\")   # a: adds to the end",
+      "after": ["`\"w\"` **overwrites** the whole file; `\"a\"` **appends**. Choosing `w` when you meant `a` deletes every previous score — a favourite exam question. Always close the file (or use `with`) so the data is actually saved."] },
+    { "h": "Processing what you read",
+      "p": ["Files often hold several fields per line separated by commas: `Ada,95`. Split the line (`line.split(\",\")`), cast the parts, then use them. To find the highest score: read every line, split, compare — the max-finding loop from 2.2.8 applied to a file."],
+      "code": "best = 0\nwith open(\"scores.txt\") as f:\n    for line in f:\n        name, score = line.strip().split(\",\")\n        if int(score) > best:\n            best = int(score)\n            best_name = name\nprint(best_name, best)" }
+  ],
+  "simple": [
+    { "h": "Files keep data after the program ends",
+      "p": ["Variables are forgotten when the program stops. A file is saved on the disk and is still there next time."] },
+    { "h": "Reading: open, read each line, close",
+      "code": "file = open(\"scores.txt\", \"r\")\nfor line in file:\n    print(line.strip())\nfile.close()" },
+    { "h": "Writing: w starts fresh, a adds on",
+      "code": "file = open(\"scores.txt\", \"a\")   # a = add to the end\nfile.write(\"Ada,95\\n\")           # \\n = new line\nfile.close()",
+      "after": ["`\"w\"` deletes everything first. `\"a\"` keeps what is there. Always close the file."] },
+    { "h": "OCR's version",
+      "code": "myFile = open(\"scores.txt\")\nwhile NOT myFile.endOfFile()\n    print(myFile.readLine())\nendwhile\nmyFile.close()" }
+  ],
+  "keyterms": [
+    { "term": "File handling", "def": "Opening, reading, writing and closing files from a program." },
+    { "term": "Read mode (r)", "def": "Open a file to read from it; the file must exist." },
+    { "term": "Write mode (w)", "def": "Open a file to write; creates it, or erases existing contents." },
+    { "term": "Append mode (a)", "def": "Open a file to add to the end without erasing." },
+    { "term": "End of file (EOF)", "def": "The point after the last line; `endOfFile()` becomes true." },
+    { "term": "Close", "def": "Finish using a file so data is saved and resources released." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Read a file", "p": ["A file `scores.txt` has been placed in this runner's virtual folder. Run it. Then print only the names of players who scored over 80, and the total of all scores."],
+      "files": { "scores.txt": "Ada,95\nAlan,67\nGrace,88\nTim,42\nKatherine,79\n" },
+      "code": "with open(\"scores.txt\") as f:\n    for line in f:\n        print(line.strip())" },
+    { "type": "python", "title": "2. w versus a", "p": ["Run it once and read the file contents shown under the output. Change `\"w\"` to `\"a\"` and run twice more. Explain what happened in a comment."],
+      "files": { "log.txt": "Program started\n" },
+      "code": "f = open(\"log.txt\", \"w\")\nf.write(\"New entry\\n\")\nf.close()" },
+    { "type": "python", "title": "3. High score table", "p": ["Ask for a name and a score, append them to `scores.txt`, then read the whole file and print the highest scorer. Run it several times — the file persists while the page is open."],
+      "files": { "scores.txt": "Ada,95\nAlan,67\n" },
+      "code": "name = input(\"Name: \")\nscore = int(input(\"Score: \"))\n# append to scores.txt\n\n# read all lines, find the best\n" },
+    { "type": "python", "title": "4. Count the words", "p": ["Read `poem.txt` and print the number of lines, the number of words and the longest line."],
+      "files": { "poem.txt": "The quick brown fox\njumps over\nthe lazy dog near the river bank\n" },
+      "code": "lines = 0\nwords = 0\nlongest = \"\"\nwith open(\"poem.txt\") as f:\n    for line in f:\n        pass\nprint(lines, words, longest)" },
+    { "type": "embed", "title": "5. File processing builder", "url": "https://beanwise.coderra.je/GCSE_homepage/File_Processing_Builder.html",
+      "instructions": ["Assemble the standard read-process-write pattern and run it against the sample file. Note where the open and close go."] }
+  ],
+  "check": [
+    { "q": "Opening an existing file with mode `\"w\"`:", "opts": ["Adds to the end", "Erases its contents", "Reads it", "Causes an error"], "a": 1, "fb": "w starts fresh — dangerous if you meant append." },
+    { "q": "`myFile.endOfFile()` in OCR pseudocode is used to:", "opts": ["Delete the file", "Stop a reading loop when no lines remain", "Write the last line", "Close the file"], "a": 1, "fb": "Loop while NOT endOfFile()." },
+    { "q": "Why close a file after writing?", "opts": ["To make it read-only", "To ensure data is saved and resources released", "To delete it", "It is optional in all cases"], "a": 1, "fb": "Unclosed writes may be lost." },
+    { "q": "A line read from a file containing `42` is which type?", "opts": ["Integer", "String", "Real", "Boolean"], "a": 1, "fb": "Everything read from a text file is a string." },
+    { "q": "Best mode to add a new high score without losing old ones:", "opts": ["r", "w", "a", "x"], "a": 2, "fb": "Append." }
+  ],
+  "exam": [
+    { "q": "Write an algorithm that reads every line from the file `names.txt` and outputs the number of lines in the file.", "marks": 4,
+      "model": ["Opens the file (1). Loop that continues until end of file — `while NOT file.endOfFile()` / `for line in file` (1). Reads a line and increments a counter inside the loop (1). Closes the file and outputs the count (1)."],
+      "commentary": "The close is a mark. In OCR pseudocode the `endOfFile()` loop is expected; a Python `for line in file` is accepted. Counting before reading, or reading twice per iteration, loses the loop mark." },
+    { "q": "A program saves a player's score using `file = open(\"scores.txt\", \"w\")`. Explain why previous scores are lost and how to fix it.", "marks": 2,
+      "model": ["Write mode overwrites / erases the existing contents when the file is opened (1). Open in append mode (`\"a\"`) instead so new scores are added to the end (1)."],
+      "commentary": "Name the mode and its effect; name the fix." },
+    { "q": "The file `temps.txt` contains one temperature per line. Write an algorithm that outputs the highest temperature in the file.", "marks": 4,
+      "model": ["Opens the file and initialises highest (1). Loops until end of file (1). Reads each line, converts to a number and compares with highest, updating when larger (1). Closes the file and outputs highest (1)."],
+      "commentary": "Casting the line to a number is the subtle mark — comparing strings gives wrong answers (\"9\" > \"10\"). Initialise highest from the first line or a very low value." }
+  ],
+  "home": "Write a simple diary: a menu that lets the user add an entry (appended to `diary.txt` with today's date typed in), show all entries, or search entries for a word. Hand in the code and a screenshot of the file after three entries.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 12 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "`w` when `a` was intended. Try 2 shows the file wiped.",
+      "Forgetting `\\n` in Python writes, so everything lands on one line.",
+      "Comparing numbers read from a file as strings.",
+      "Forgetting to close (or not using `with`)."
+    ],
+    "say": [
+      "'w is a new notebook. a is the next blank page.'",
+      "'Everything from a file is text until you say otherwise.'"
+    ],
+    "skip": "Try 4 and 5 are optional. The in-page runner keeps files only while the page is open — say so, and point to the Python IDE for persistent files.",
+    "differentiation": [
+      "Support: Try 3 with the append block provided; students write the reading/max part.",
+      "Stretch: Try 3 — keep the file sorted by score (read, insert, rewrite) and discuss why `w` is correct in that design."
+    ]
+  }
+}

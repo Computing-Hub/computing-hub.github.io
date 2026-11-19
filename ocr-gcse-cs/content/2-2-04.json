@@ -1,0 +1,108 @@
+{
+  "id": "2-2-04",
+  "title": "Iteration: condition-controlled loops",
+  "spec": "2.2.1",
+  "duration": 60,
+  "specPoints": [
+    "2.2.1 Iteration: **condition-controlled** loops — `while` (condition tested first) and `do … until` (condition tested last)",
+    "Choose the appropriate loop for a problem; avoid infinite loops"
+  ],
+  "learn": [
+    "Write a `while` loop whose condition is checked before each repetition",
+    "Explain why a `while` loop may run zero times and a `do…until` loop runs at least once",
+    "Write input validation loops that keep asking until the input is acceptable",
+    "Identify what causes an infinite loop and fix it",
+    "Convert a `do…until` from OCR pseudocode into Python (which has no do…until)"
+  ],
+  "hook": "A bouncer: 'Keep asking for ID *while* I'm not satisfied.' A lift door: 'Keep closing *until* nothing is in the way.' Neither knows in advance how many times. That is a condition-controlled loop, and it is how every login screen, game loop and 'try again' message in the world works.",
+  "video": {
+    "title": "while and do…until: repeat until something changes",
+    "brief": "4 minutes. A `while` loop as a gate with the condition sign *before* the body: show the condition false at the start so the body never runs. Then `do…until` with the sign *after* the body: body runs once regardless. Validation example: ask for a number 1–10 until valid, animating three attempts. Then the infinite loop: body that never changes the condition variable, counter spinning, red warning. End with the Python translation of do…until using `while True … break`."
+  },
+  "explain": [
+    { "h": "while: test first",
+      "p": ["A **while** loop checks its condition *before* each repetition. If the condition is false at the start, the body never runs. Use it when you don't know how many repetitions you need and it is possible you need none."],
+      "code": "OCR pseudocode                        Python\nanswer = \"\"                           answer = \"\"\nwhile answer != \"yes\"                 while answer != \"yes\":\n    answer = input(\"Finished? \")          answer = input(\"Finished? \")\nendwhile" },
+    { "h": "do…until: test last",
+      "p": ["A **do…until** loop runs the body first and checks the condition *after*, so the body always runs at least once. It is the natural shape for 'ask, then check, then maybe ask again'. OCR pseudocode has it; Python does not, so in Python you write `while True:` with a `break`, or a `while` with the first input before the loop."],
+      "code": "OCR pseudocode                        Python equivalent\ndo                                    while True:\n    pin = input(\"PIN: \")                  pin = input(\"PIN: \")\nuntil pin == \"1234\"                       if pin == \"1234\":\n                                              break" },
+    { "h": "Validation loops",
+      "p": ["The most examined use: keep asking until the input is valid. Pattern: ask once; while it is not acceptable, show a message and ask again."],
+      "code": "age = int(input(\"Age (0-120): \"))\nwhile age < 0 or age > 120:\n    print(\"Not a valid age.\")\n    age = int(input(\"Age (0-120): \"))\nprint(\"Thanks\")" },
+    { "h": "Infinite loops",
+      "p": ["If nothing inside the body can make the condition false, the loop never ends. Classic cause: forgetting to update the variable (`while x < 10:` with no `x = x + 1` inside), or asking for input *before* the loop but not *inside* it. Every `while` needs something in the body that moves it towards stopping."] },
+    { "h": "Which loop?",
+      "list": ["Known number of repeats → `for` (lesson 3).",
+               "Unknown number, might be zero → `while`.",
+               "Unknown number, at least once (ask-then-check) → `do…until`, or `while True … break` in Python.",
+               "In exam 'explain your choice of loop' questions, say which of these applies."] }
+  ],
+  "simple": [
+    { "h": "while = keep going as long as…",
+      "p": ["`while` checks the question **first**. If the answer is already no, the loop never runs."],
+      "code": "answer = \"\"\nwhile answer != \"yes\":\n    answer = input(\"Finished? \")" },
+    { "h": "do…until = do it, then check",
+      "p": ["Runs the body once, **then** checks. So it always runs at least once. Python does not have it; use `while True:` and `break`."],
+      "code": "while True:\n    pin = input(\"PIN: \")\n    if pin == \"1234\":\n        break" },
+    { "h": "Ask again until it is OK",
+      "code": "age = int(input(\"Age: \"))\nwhile age < 0 or age > 120:\n    print(\"Not valid.\")\n    age = int(input(\"Age: \"))" },
+    { "h": "Loops that never stop",
+      "p": ["If nothing inside the loop changes the question, it never ends. Always ask: what in here makes it stop?"] }
+  ],
+  "keyterms": [
+    { "term": "Condition-controlled loop", "def": "A loop that repeats while (or until) a condition holds; the number of repetitions is not known in advance." },
+    { "term": "while loop", "def": "Condition tested before each iteration; may run zero times." },
+    { "term": "do…until loop", "def": "Condition tested after each iteration; always runs at least once." },
+    { "term": "Infinite loop", "def": "A loop whose condition never becomes false, so it never ends." },
+    { "term": "Validation", "def": "Checking that input is acceptable (in range, right type, present) before using it." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Guess the number", "p": ["Run and play. Then add a counter and print how many guesses it took."],
+      "code": "import random\nsecret = random.randint(1, 20)\nguess = 0\nwhile guess != secret:\n    guess = int(input(\"Guess (1-20): \"))\n    if guess < secret:\n        print(\"Higher\")\n    elif guess > secret:\n        print(\"Lower\")\nprint(\"Correct!\")" },
+    { "type": "python", "title": "2. Fix the infinite loop", "p": ["This is meant to print 1 to 5. Don't run it yet — find why it never stops, fix it, then run."],
+      "code": "n = 1\nwhile n <= 5:\n    print(n)\n# (if this runs forever, press Reset and reload the page)" },
+    { "type": "python", "title": "3. Validation", "p": ["Write a loop that keeps asking for a menu choice until the user types 1, 2 or 3. Print \"Invalid\" each time they get it wrong, and \"You chose X\" at the end."],
+      "code": "choice = input(\"Choose 1, 2 or 3: \")\n# while the choice is not valid, say so and ask again\n\nprint(\"You chose\", choice)" },
+    { "type": "python", "title": "4. do…until in Python", "p": ["Convert this OCR pseudocode into Python using `while True` and `break`."],
+      "code": "# do\n#     password = input(\"Password: \")\n#     if password != \"letmein\" then\n#         print(\"Wrong\")\n#     endif\n# until password == \"letmein\"\n# print(\"Access granted\")\n" },
+    { "type": "embed", "title": "5. Run the OCR version", "url": "https://beanwise.coderra.je/pseudocode/",
+      "instructions": ["Type the OCR `do…until` from Try 4 into the pseudocode runner and check it behaves the same as your Python."] }
+  ],
+  "check": [
+    { "q": "A `while` loop whose condition is false at the start runs:", "opts": ["Once", "Zero times", "Forever", "Until break"], "a": 1, "fb": "Test first; false means skip." },
+    { "q": "Which loop always runs at least once?", "opts": ["for", "while", "do…until", "None"], "a": 2, "fb": "Test after the body." },
+    { "q": "`while x < 10:` with no change to x inside is:", "opts": ["A validation loop", "An infinite loop", "A count-controlled loop", "Fine"], "a": 1, "fb": "Nothing moves it towards stopping." },
+    { "q": "Python has no do…until. The usual replacement is:", "opts": ["for … in", "while True: … break", "if … else", "repeat"], "a": 1, "fb": "Loop forever, break when done." },
+    { "q": "Best loop for 'keep asking for a password until correct':", "opts": ["for 3 times", "while / do…until", "if", "No loop needed"], "a": 1, "fb": "Unknown number of attempts → condition-controlled." }
+  ],
+  "exam": [
+    { "q": "Write an algorithm that repeatedly asks the user to enter a number between 1 and 100 until they enter a valid number, then outputs \"Thank you\".", "marks": 4,
+      "model": ["Input stored in a variable (1). A condition-controlled loop (1) with correct condition — `while num < 1 or num > 100` / `until num >= 1 and num <= 100` (1). Input repeated inside the loop and \"Thank you\" output after it (1)."],
+      "commentary": "Two traps: `and` vs `or` in the while condition (`while num < 1 and num > 100` is never true), and forgetting to ask again inside the loop (infinite loop). Reading the condition aloud as 'while it is out of range' helps." },
+    { "q": "Explain the difference between a `while` loop and a `do…until` loop.", "marks": 2,
+      "model": ["A while loop tests the condition before the body, so it may execute zero times (1); a do…until loop tests after the body, so it always executes at least once (1)."],
+      "commentary": "Both halves: where the test is, and the consequence (zero times vs at least once)." },
+    { "q": "The following code is intended to count how many times the user enters a positive number before entering 0. Explain why it does not work and correct it.", "marks": 3, "code": "count = 0\nnum = int(input())\nwhile num != 0\n    if num > 0 then\n        count = count + 1\n    endif\nendwhile\nprint(count)",
+      "model": ["The input is only taken once, before the loop, so `num` never changes inside it (1); if the first number is not 0 the loop is infinite (1). Fix: add `num = int(input())` inside the loop, after the if (1)."],
+      "commentary": "Identify, explain the consequence, correct. Three separate marks, three separate sentences." }
+  ],
+  "home": "Write a 'rock, paper, scissors' game against the computer that keeps playing rounds until someone reaches 3 wins. Use `random.choice([\"rock\", \"paper\", \"scissors\"])` for the computer, and validate the player's input.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 12 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "`and`/`or` reversed in range-check conditions. Read them aloud as English.",
+      "Input before the loop but not inside it (exam Q3).",
+      "Believing do…until exists in Python.",
+      "Using `while` with a counter where `for` was simpler — acceptable but worth discussing."
+    ],
+    "say": [
+      "'What inside this loop makes it stop? Point at the line.'",
+      "'While it is bad, complain and ask again.'"
+    ],
+    "skip": "Try 5 optional. If the in-page runner locks up on an infinite loop, a page reload clears it — warn students before Try 2.",
+    "differentiation": [
+      "Support: Try 3 with the `while` line provided; students write the two lines inside it.",
+      "Stretch: in Try 1, limit the player to 5 guesses and print a 'you lose' message — needs a compound condition."
+    ]
+  }
+}

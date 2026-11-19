@@ -1,0 +1,105 @@
+{
+  "id": "2-2-01",
+  "title": "Variables, constants, inputs and outputs",
+  "spec": "2.2.1",
+  "duration": 60,
+  "specPoints": [
+    "2.2.1 Programming fundamentals: the use of **variables**, **constants**, **operators**, **inputs**, **outputs** and **assignments**",
+    "Practical programming skills: write and run code that stores data, takes input and produces output"
+  ],
+  "learn": [
+    "Explain what a variable is and choose sensible names",
+    "Assign values with `=` and update a variable from its old value",
+    "Explain the difference between a variable and a constant and when to use each",
+    "Take keyboard input with `input()` and show output with `print()`, in OCR pseudocode and in Python",
+    "Read a short program and state what it outputs"
+  ],
+  "hook": "Three boxes on the desk labelled `name`, `age`, `score`. I put a card in each. Now I take the card out of `age`, write a bigger number, put it back. Did the box change? Did its name change? A variable is a labelled box. Everything else today is what you can do with boxes.",
+  "video": {
+    "title": "Variables: boxes with names",
+    "brief": "3 minutes. Animated boxes: `score = 0` creates a box; `score = score + 10` shows the right-hand side evaluated first, then the result dropped into the box. Then a `PI = 3.14159` box with a padlock: constant. Then `input()` as a hand posting a card into a box, `print()` as the box's contents appearing on a screen. End with the four lines of pseudocode and the same four lines of Python side by side."
+  },
+  "explain": [
+    { "h": "Variables: named storage",
+      "p": ["A **variable** is a named location in memory that holds a value which can change while the program runs. You create one by **assigning** a value with `=`. The right-hand side is worked out first, then stored in the name on the left — so `score = score + 10` means 'take the current score, add 10, store the result back in score'."],
+      "code": "score = 0\nscore = score + 10\nname = \"Ada\"\nprint(name + \" has \" + str(score))" },
+    { "h": "Good names",
+      "p": ["Names should say what the value is: `total_price`, `is_logged_in`, `attempts`. Not `x`, `thing`, `var1`. Exam mark schemes award a mark for *meaningful identifiers* in longer programming questions, and in 2.3 you will see it listed under maintainability."] },
+    { "h": "Constants",
+      "p": ["A **constant** is a named value that is set once and never changes while the program runs: `VAT_RATE = 0.2`, `MAX_PLAYERS = 4`. Written in CAPITALS by convention. Use a constant when a value appears in several places and must stay the same: change it once at the top and the whole program updates. OCR pseudocode writes `const VAT_RATE = 0.2`."] },
+    { "h": "Input and output",
+      "p": ["`input()` pauses, shows a message, and returns what the user typed — always as **text** (a string), even if they type a number. `print()` shows a value on screen. Joining text uses `+`; numbers must be converted to text first with `str()`, and text to numbers with `int()` or `float()` (more in lesson 6)."],
+      "code": "OCR pseudocode                   Python\n--------------                   ------\nname = input(\"Name? \")           name = input(\"Name? \")\nage = int(input(\"Age? \"))        age = int(input(\"Age? \"))\nprint(\"Hi \" + name)              print(\"Hi \" + name)\nprint(age + 1)                   print(age + 1)" },
+    { "h": "Reading programs",
+      "p": ["Half the Paper 2 marks on this topic are 'state the output'. Work line by line, keep a note of each variable, and remember that `=` **replaces** what was in the box."] }
+  ],
+  "simple": [
+    { "h": "A variable is a box with a name",
+      "p": ["`score = 0` makes a box called `score` with 0 in it. `score = score + 10` means: look in the box (0), add 10, put 10 back in the box. The `=` sign means **put this in the box**, not 'equals'."],
+      "code": "score = 0\nscore = score + 10\nprint(score)" },
+    { "h": "Give boxes good names",
+      "p": ["`total_price` is a good name. `x` is a bad name. Good names get marks."] },
+    { "h": "A constant is a box you lock",
+      "p": ["`VAT_RATE = 0.2` is set once and never changes. Write it in CAPITALS."] },
+    { "h": "Input and print",
+      "p": ["`input(\"Name? \")` asks the user and gives you what they typed, as text. `print(...)` shows something on screen."],
+      "code": "name = input(\"Name? \")\nprint(\"Hi \" + name)" }
+  ],
+  "keyterms": [
+    { "term": "Variable", "def": "A named memory location holding a value that can change while the program runs." },
+    { "term": "Constant", "def": "A named value that cannot change while the program runs." },
+    { "term": "Assignment", "def": "Storing a value in a variable using `=`." },
+    { "term": "Input", "def": "Data entered into the program, e.g. from the keyboard." },
+    { "term": "Output", "def": "Data the program shows or sends out, e.g. to the screen." },
+    { "term": "Identifier", "def": "The name given to a variable, constant or subprogram." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Run it, then change it", "p": ["Run this. Then change it so it also asks for the user's favourite subject and prints a sentence using all three values."],
+      "code": "name = input(\"What is your name? \")\nage = int(input(\"How old are you? \"))\nprint(\"Hello \" + name)\nprint(\"Next year you will be \" + str(age + 1))" },
+    { "type": "python", "title": "2. Predict, then run", "p": ["Before you press Run, write down what you think this prints. Then run it. Were you right about line 4?"],
+      "code": "a = 5\nb = a\na = a + 1\nprint(a, b)\nb = b * 2\nprint(a, b)" },
+    { "type": "python", "title": "3. Use a constant", "p": ["A shop adds 20% VAT. Finish the program using the constant, and make it ask for the price."],
+      "code": "VAT_RATE = 0.2\nprice = float(input(\"Price before VAT: \"))\n# work out the VAT and the total\n\n# print both, to 2 decimal places, e.g. print(round(total, 2))\n" },
+    { "type": "embed", "title": "4. Build the same program in blocks", "url": "https://beanwise.coderra.je/pythonblocks/",
+      "instructions": ["Rebuild Try 1 in Python Blocks. Compare the generated code with yours.", "Find the block for `input` and the block that converts text to a number."] },
+    { "type": "embed", "title": "5. Full Python IDE", "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": ["Use this when you want to save longer programs. Copy your Try 3 in and save it as `vat.py`."] }
+  ],
+  "check": [
+    { "q": "After `x = 4` then `x = x + 3`, what is `x`?", "opts": ["4", "3", "7", "x + 3"], "a": 2, "fb": "Right side first (4 + 3), then stored in x." },
+    { "q": "Which is the best variable name for a user's total shopping cost?", "opts": ["t", "total_cost", "data", "var2"], "a": 1, "fb": "Meaningful identifiers earn marks." },
+    { "q": "`input()` returns a value of which data type?", "opts": ["Integer", "Boolean", "String", "Real"], "a": 2, "fb": "Always a string; convert with int() or float()." },
+    { "q": "A value that must not change while the program runs should be a:", "opts": ["Variable", "Constant", "Input", "Function"], "a": 1, "fb": "Set once, never reassigned." },
+    { "q": "What does `print(\"Age: \" + 15)` do in Python?", "opts": ["Prints Age: 15", "Prints Age: 15 with a space", "Causes an error — you cannot join text and a number", "Prints 15"], "a": 2, "fb": "Use str(15) to join." }
+  ],
+  "exam": [
+    { "q": "State what is meant by a **variable** in a program.", "marks": 1,
+      "model": ["A named location in memory / identifier whose value can change while the program is running (1)."],
+      "commentary": "'Stores a value' alone is borderline; add 'can change' or 'named'. One sentence." },
+    { "q": "A program uses the value 9.81 in several calculations. Explain why it should be stored as a **constant**.", "marks": 2,
+      "model": ["The value does not change during the program, so a constant prevents it being altered by mistake (1). If it needs changing later it is changed in one place and the whole program updates / the name makes the code easier to read than a bare number (1)."],
+      "commentary": "Two different reasons needed: protection from accidental change, and maintainability/readability. Repeating one reason in two ways scores one." },
+    { "q": "Write a program that asks the user for the length and width of a rectangle and outputs its area.", "marks": 3,
+      "model": ["Two inputs stored in variables, converted to numbers (1). Area calculated as length × width (1). Area output (1).", "length = int(input(\"Length: \"))\nwidth = int(input(\"Width: \"))\narea = length * width\nprint(area)"],
+      "commentary": "Pseudocode or Python both fine. The usual lost mark is forgetting `int()` — in Python that makes `*` fail; in OCR pseudocode examiners are lenient on casting in short questions, but it costs nothing to include." }
+  ],
+  "home": "Write a program that asks for a person's name, their year of birth and the current year, then prints a sentence saying how old they are this year. Use a meaningful name for every variable. Test it in the Python IDE.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 10 · try 28 · check 5 · exam 9 · homework 3",
+    "misconceptions": [
+      "`=` read as mathematical equality, so `x = x + 1` looks 'impossible'. The box model fixes this — do it physically.",
+      "Expecting `b` to change when `a` changes after `b = a` (Try 2 targets this).",
+      "Believing `input()` gives a number. Let the error happen in Try 1 by removing `int()`.",
+      "Single-letter names. Model good names in every example on the board."
+    ],
+    "say": [
+      "'Right side first. Then into the box.'",
+      "'Say the name out loud. If it doesn't tell you what's inside, rename it.'"
+    ],
+    "skip": "Try 4 and 5 are optional; Try 1–3 with the in-page runner is the core.",
+    "differentiation": [
+      "Support: give Try 3 with the two calculation lines present but the right-hand sides blank.",
+      "Stretch: ask for the VAT program to use a second constant for a discount percentage and show the maths for both."
+    ]
+  }
+}

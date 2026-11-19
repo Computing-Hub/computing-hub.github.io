@@ -1,0 +1,104 @@
+{
+  "id": "2-2-12",
+  "title": "Records and SQL",
+  "spec": "2.2.3",
+  "duration": 60,
+  "specPoints": [
+    "2.2.3 **Records** to store data; **SQL** to search for data: `SELECT`, `FROM`, `WHERE`, with `*`, `AND`, `OR`, `LIKE`, `ORDER BY`",
+    "Read, write and correct simple SQL queries on a single table"
+  ],
+  "learn": [
+    "Explain what a record is and how a table is a collection of records with fields",
+    "Write `SELECT … FROM … WHERE` queries that return the right fields and rows",
+    "Use comparison operators, `AND`/`OR`, wildcards with `LIKE`, and `ORDER BY`",
+    "Read a query and state what it returns",
+    "Spot and fix errors in a query (wrong field, missing quotes, wrong operator)"
+  ],
+  "hook": "You want every student in Year 10 who scored over 70 in the mock, sorted by surname. In Python that's a file, a loop, a split, an if, a sort — twenty lines. In SQL it is one sentence. Databases are where most of the world's data lives, and SQL is how you ask them questions.",
+  "video": {
+    "title": "SQL in one lesson: SELECT, FROM, WHERE",
+    "brief": "4 minutes. A table `Students` drawn as a grid: rows highlighted as records, columns as fields. `SELECT *` lights the whole table; `SELECT Name, Score` dims other columns; `WHERE Score > 70` fades rows out; `AND Year = 10` fades more; `ORDER BY Surname` shuffles rows into order; `LIKE 'A%'` keeps names starting with A. End with the three mistakes: missing quotes round text, `=` with `LIKE`, comma after the last field."
+  },
+  "explain": [
+    { "h": "Records, fields, tables",
+      "p": ["A **record** is one set of related data about one thing — one student: ID, name, year, score. Each piece is a **field**. A **table** is many records with the same fields; in Python you might hold a record as a small list or a dictionary and a table as a list of records. A **database** holds tables and lets you query them with **SQL**."],
+      "code": "Students\nStudentID | FirstName | Surname | Year | Score\n----------+-----------+---------+------+------\n1         | Ada       | King    | 10   | 95\n2         | Alan      | Turing  | 11   | 67\n3         | Grace     | Hopper  | 10   | 88\n4         | Tim       | Lee     | 10   | 42" },
+    { "h": "SELECT, FROM, WHERE",
+      "code": "SELECT * FROM Students;                         -- every field, every record\nSELECT FirstName, Score FROM Students;          -- just two fields\nSELECT * FROM Students WHERE Year = 10;         -- only Year 10\nSELECT Surname FROM Students WHERE Score > 70;  -- surnames of high scorers\nSELECT * FROM Students WHERE Year = 10 AND Score >= 80;\nSELECT * FROM Students WHERE Surname = 'King' OR Surname = 'Lee';",
+      "after": ["`SELECT` says **which fields**; `FROM` says **which table**; `WHERE` says **which records**. Text values go in **single quotes**; numbers don't. Comparison operators are the usual `= <> < <= > >=` (SQL uses `<>` or `!=` for not-equal)."] },
+    { "h": "LIKE and ORDER BY",
+      "code": "SELECT * FROM Students WHERE Surname LIKE 'H%';    -- starts with H  (% = any characters)\nSELECT * FROM Students WHERE FirstName LIKE '%a%'; -- contains an a\nSELECT * FROM Students ORDER BY Score DESC;        -- highest first (ASC is the default)\nSELECT FirstName, Score FROM Students WHERE Year = 10 ORDER BY Surname;" },
+    { "h": "Reading queries in the exam",
+      "p": ["You'll be given a table and a query and asked what it returns (write out the rows/fields), or given a requirement and asked to write the query. Checklist: right fields after SELECT, right table, the WHERE condition exactly matches the words of the question (over 70 is `> 70`, at least 70 is `>= 70`), quotes round text, `ORDER BY` if the question says 'in order of'."] }
+  ],
+  "simple": [
+    { "h": "Tables, rows, columns",
+      "p": ["A table is like a spreadsheet. Each row is a **record** (one student). Each column is a **field** (name, year, score)."] },
+    { "h": "Ask the table a question",
+      "code": "SELECT FirstName, Score FROM Students WHERE Year = 10;",
+      "after": ["`SELECT` = which columns. `FROM` = which table. `WHERE` = which rows. Put text in 'single quotes'."] },
+    { "h": "More tricks",
+      "code": "WHERE Score > 70 AND Year = 10     -- both\nWHERE Surname LIKE 'H%'            -- starts with H\nORDER BY Score DESC                -- biggest first" }
+  ],
+  "keyterms": [
+    { "term": "Record", "def": "One row in a table: all the fields about one item." },
+    { "term": "Field", "def": "One column in a table: one piece of data about each record." },
+    { "term": "Table", "def": "A collection of records with the same fields." },
+    { "term": "SQL", "def": "Structured Query Language — used to search and manage data in a database." },
+    { "term": "SELECT / FROM / WHERE", "def": "Which fields / from which table / which records." },
+    { "term": "LIKE and %", "def": "Pattern match; % stands for any sequence of characters." }
+  ],
+  "try": [
+    { "type": "sql", "title": "1. Run queries on a real table", "p": ["The `Students` table below is loaded into a database in your browser. Run the query, then change it to: all Year 10 students; first names and scores of anyone scoring 80 or more; students whose surname starts with T."],
+      "schema": "CREATE TABLE Students (StudentID INTEGER, FirstName TEXT, Surname TEXT, Year INTEGER, Score INTEGER);\nINSERT INTO Students VALUES (1,'Ada','King',10,95),(2,'Alan','Turing',11,67),(3,'Grace','Hopper',10,88),(4,'Tim','Lee',10,42),(5,'Katherine','Johnson',11,79),(6,'Linus','Torvalds',10,73),(7,'Margaret','Hamilton',11,91),(8,'Guido','van Rossum',10,58);",
+      "code": "SELECT * FROM Students;" },
+    { "type": "sql", "title": "2. AND, OR, ORDER BY", "p": ["Write queries for: (a) Year 11 students with a score under 80; (b) students called Ada or Grace; (c) everyone, highest score first; (d) Year 10 surnames in alphabetical order."],
+      "schema": "CREATE TABLE Students (StudentID INTEGER, FirstName TEXT, Surname TEXT, Year INTEGER, Score INTEGER);\nINSERT INTO Students VALUES (1,'Ada','King',10,95),(2,'Alan','Turing',11,67),(3,'Grace','Hopper',10,88),(4,'Tim','Lee',10,42),(5,'Katherine','Johnson',11,79),(6,'Linus','Torvalds',10,73),(7,'Margaret','Hamilton',11,91),(8,'Guido','van Rossum',10,58);",
+      "code": "SELECT * FROM Students WHERE Year = 11 AND Score < 80;" },
+    { "type": "sql", "title": "3. Fix the broken queries", "p": ["Each query has one error. Run it, read the error or the wrong result, fix it."],
+      "schema": "CREATE TABLE Students (StudentID INTEGER, FirstName TEXT, Surname TEXT, Year INTEGER, Score INTEGER);\nINSERT INTO Students VALUES (1,'Ada','King',10,95),(2,'Alan','Turing',11,67),(3,'Grace','Hopper',10,88),(4,'Tim','Lee',10,42),(5,'Katherine','Johnson',11,79),(6,'Linus','Torvalds',10,73),(7,'Margaret','Hamilton',11,91),(8,'Guido','van Rossum',10,58);",
+      "code": "-- run one at a time: delete the others or put -- in front\nSELECT FirstName, FROM Students;\nSELECT * FROM Students WHERE Surname = King;\nSELECT * FROM Students WHERE Year > 10 OR Year < 11 AND Score > 90;\nSELECT * FROM Student WHERE Score >= 70;" },
+    { "type": "sql", "title": "4. A different table", "p": ["A library table. Write queries for: books by Pratchett; books published before 1950, oldest first; titles containing the word 'the'; the count of books per genre (stretch: `SELECT Genre, COUNT(*) FROM Books GROUP BY Genre`)."],
+      "schema": "CREATE TABLE Books (BookID INTEGER, Title TEXT, Author TEXT, Year INTEGER, Genre TEXT, OnLoan INTEGER);\nINSERT INTO Books VALUES (1,'Mort','Pratchett',1987,'Fantasy',1),(2,'The Hobbit','Tolkien',1937,'Fantasy',0),(3,'Dune','Herbert',1965,'Sci-Fi',0),(4,'Guards! Guards!','Pratchett',1989,'Fantasy',0),(5,'1984','Orwell',1949,'Dystopia',1),(6,'The Martian','Weir',2011,'Sci-Fi',0),(7,'Brave New World','Huxley',1932,'Dystopia',0);",
+      "code": "SELECT Title, Year FROM Books WHERE Author = 'Pratchett';" },
+    { "type": "embed", "title": "5. SQL Blocks", "url": "https://beanwise.coderra.je/SQL_Blocks/",
+      "instructions": ["Build the same queries by dragging blocks. Compare the generated SQL with what you typed above."] }
+  ],
+  "check": [
+    { "q": "In SQL, which keyword chooses the rows?", "opts": ["SELECT", "FROM", "WHERE", "ORDER BY"], "a": 2, "fb": "WHERE filters records." },
+    { "q": "Which is correct?", "opts": ["WHERE Surname = King", "WHERE Surname = 'King'", "WHERE Surname == \"King\"", "WHERE Surname IS King"], "a": 1, "fb": "Text in single quotes; a single = in SQL." },
+    { "q": "`WHERE Title LIKE '%war%'` matches titles that:", "opts": ["Start with war", "End with war", "Contain war anywhere", "Equal war"], "a": 2, "fb": "% on both sides = anywhere." },
+    { "q": "To get the highest scores first:", "opts": ["ORDER BY Score", "ORDER BY Score DESC", "SORT Score", "WHERE Score MAX"], "a": 1, "fb": "DESC = descending." },
+    { "q": "One row of a table is a:", "opts": ["Field", "Record", "Query", "Key"], "a": 1, "fb": "Record = row; field = column." }
+  ],
+  "exam": [
+    { "q": "A table `Products` has fields ProductID, Name, Price, Stock. Write an SQL query to display the Name and Price of all products with fewer than 5 in stock.", "marks": 3,
+      "model": ["`SELECT Name, Price` (1) `FROM Products` (1) `WHERE Stock < 5` (1)."],
+      "commentary": "One mark per clause. `< 5` not `<= 5` — 'fewer than'. Selecting `*` loses the first mark because the question named the fields." },
+    { "q": "Using the Students table shown in this lesson, state what the following query returns.", "marks": 2, "code": "SELECT FirstName FROM Students WHERE Year = 10 AND Score > 80;",
+      "model": ["The first names only (1): Ada and Grace (1)."],
+      "commentary": "State the *field* returned as well as the values. Students who list surnames or whole rows lose the first mark." },
+    { "q": "Identify and correct the error in this query, which should return all books published after 2000: `SELECT * FROM Books WHERE Year > '2000';`", "marks": 2,
+      "model": ["Year is a number so should not be in quotes / `'2000'` is text (1). Corrected: `SELECT * FROM Books WHERE Year > 2000;` (1)."],
+      "commentary": "Some databases tolerate it, but the mark scheme treats quotes round a number as the error. Identify, then rewrite." }
+  ],
+  "home": "Design a table for your own music or games collection with at least five fields and eight records (write it out). Then write five SQL queries a friend might want to run on it, with the result of each.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 12 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "No quotes round text, or quotes round numbers.",
+      "`==` from Python used in SQL.",
+      "Confusing records and fields.",
+      "`SELECT *` when fields are specified in the question."
+    ],
+    "say": [
+      "'Which columns, which table, which rows. In that order, every time.'",
+      "'Words wear quotes. Numbers don't.'"
+    ],
+    "skip": "Try 4 and 5 are extension. The in-page runner needs cdn.jsdelivr.net; if the school blocks it, use SQL Blocks (Try 5) as the main activity instead.",
+    "differentiation": [
+      "Support: Try 2 with each query started (`SELECT * FROM Students WHERE …`).",
+      "Stretch: Try 4 with `COUNT`, `GROUP BY` and a second table with a `JOIN` — beyond the spec, but good for able students."
+    ]
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "id": "2-2-08",
+  "title": "Arrays: one-dimensional",
+  "spec": "2.2.3",
+  "duration": 60,
+  "specPoints": [
+    "2.2.3 **Arrays** (or lists) — one-dimensional: declaring, assigning, accessing by index, looping through",
+    "OCR pseudocode: `array names[5]`, `names[0] = \"Ali\"`, `names.length`; Python lists: `names = []`, `.append()`, `len()`"
+  ],
+  "learn": [
+    "Explain why an array is better than many separate variables",
+    "Create an array, store values in it and read them back by index",
+    "Loop through every item using a `for` loop (by index and, in Python, by item)",
+    "Write the standard array tasks: total, average, maximum, count matching, find position",
+    "Explain what happens with an index that is out of range"
+  ],
+  "hook": "A class of 30. Store everyone's test score. `score1 = 67`, `score2 = 71`, `score3 = …` — thirty variables, and then thirty lines to add them up. There has to be a better way. There is: one variable with thirty numbered slots.",
+  "video": {
+    "title": "Arrays: one name, many slots",
+    "brief": "4 minutes. Thirty separate boxes collapsing into one long box with 30 numbered compartments (0–29). Assign `scores[3] = 71`; read `scores[3]`. Then a `for i = 0 to 29` loop walking a pointer along the compartments with a running total. Show `scores[30]` and the pointer falling off the end — 'index out of range'. End with the OCR declaration `array scores[30]` beside Python's `scores = [0] * 30` and `.append()`."
+  },
+  "explain": [
+    { "h": "What an array is",
+      "p": ["An **array** stores many values of the same type under **one name**, each in a numbered position called an **index**, counting from 0. Instead of thirty variables you have `scores`, and `scores[3]` is the fourth score. Python's version is the **list**, which can also grow and shrink."],
+      "code": "OCR pseudocode                     Python\narray scores[5]                    scores = [0] * 5          # five zeros\nscores[0] = 67                     scores[0] = 67\nscores[4] = 80                     scores[4] = 80\nprint(scores[0])                   print(scores[0])\nprint(scores.length)               print(len(scores))\n                                   scores.append(55)         # Python only: grows to 6\nnames = [\"Ali\", \"Beth\", \"Chen\"]    names = [\"Ali\", \"Beth\", \"Chen\"]" },
+    { "h": "Looping through an array",
+      "p": ["The index runs from `0` to `length − 1`. In OCR that is `for i = 0 to scores.length - 1`; in Python `for i in range(len(scores))`, or simply `for score in scores:` when you don't need the index."],
+      "code": "total = 0\nfor i in range(len(scores)):\n    total = total + scores[i]\naverage = total / len(scores)\n\nbiggest = scores[0]\nfor score in scores:\n    if score > biggest:\n        biggest = score" },
+    { "h": "The standard tasks",
+      "list": ["**Total / average**: accumulator over all items.",
+               "**Maximum / minimum**: start with the first item, replace when you find a bigger/smaller one (2.1.6 had the bug version).",
+               "**Count matching**: `if scores[i] >= 40 then count = count + 1`.",
+               "**Find position**: linear search from 2.1.7 — loop until `names[i] == target`.",
+               "**Fill from input**: `for i = 0 to 4: scores[i] = int(input())`."] },
+    { "h": "Out of range",
+      "p": ["An array of 5 has indices 0–4. `scores[5]` does not exist: Python raises `IndexError`, OCR pseudocode is considered an error. The usual cause is a loop that runs to `length` instead of `length − 1`. Also: in OCR you must declare the size before use; in Python you `append` or create the list with its values."] }
+  ],
+  "simple": [
+    { "h": "One name, lots of slots",
+      "p": ["`scores = [67, 71, 55, 80, 62]` is one variable with five numbered slots: 0, 1, 2, 3, 4. `scores[0]` is 67. `len(scores)` is 5."] },
+    { "h": "Go through all of them",
+      "code": "total = 0\nfor score in scores:\n    total = total + score\nprint(total / len(scores))" },
+    { "h": "Find the biggest",
+      "code": "biggest = scores[0]\nfor score in scores:\n    if score > biggest:\n        biggest = score" },
+    { "h": "Don't fall off the end",
+      "p": ["Five slots means indices 0 to 4. `scores[5]` is an error."] }
+  ],
+  "keyterms": [
+    { "term": "Array", "def": "A data structure holding many values of the same type under one name, accessed by index." },
+    { "term": "List (Python)", "def": "Python's built-in array that can grow and shrink." },
+    { "term": "Index", "def": "The position of an item in an array, counting from 0." },
+    { "term": "Element", "def": "One item stored in an array." },
+    { "term": "Index out of range", "def": "An error caused by using an index that does not exist in the array." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Scores", "p": ["Run it. Then add: the lowest score, how many passed (≥ 40), and the position of the highest score."],
+      "code": "scores = [67, 71, 38, 80, 62, 45, 29]\ntotal = 0\nfor s in scores:\n    total = total + s\nprint(\"Total:\", total)\nprint(\"Average:\", round(total / len(scores), 1))\nbiggest = scores[0]\nfor s in scores:\n    if s > biggest:\n        biggest = s\nprint(\"Highest:\", biggest)" },
+    { "type": "python", "title": "2. Fill from input", "p": ["Ask for 5 names, store them in a list, then print them numbered 1–5 and print the longest name."],
+      "code": "names = []\nfor i in range(5):\n    # ask and append\n    pass\n\n# print numbered\n\n# longest name" },
+    { "type": "python", "title": "3. Break it, then fix it", "p": ["Run it and read the error. Fix the loop so it works for a list of any length."],
+      "code": "temps = [12, 15, 11, 18]\nfor i in range(1, 5):\n    print(\"Day\", i, \":\", temps[i])" },
+    { "type": "python", "title": "4. Shopping list", "p": ["A menu loop: 1 add item, 2 remove item, 3 show list, 4 quit. Use `.append()`, `.remove()` and a `while` loop. Validate the choice."],
+      "code": "items = []\nchoice = \"\"\nwhile choice != \"4\":\n    choice = input(\"1 add, 2 remove, 3 show, 4 quit: \")\n    # your code here\n" },
+    { "type": "embed", "title": "5. Array search builder", "url": "https://beanwise.coderra.je/GCSE_homepage/Array_Search_Builder.html",
+      "instructions": ["Build a linear search over an array step by step and run it. Compare with your 2.1.7 version."] }
+  ],
+  "check": [
+    { "q": "In `colours = [\"red\", \"green\", \"blue\"]`, `colours[1]` is:", "opts": ["red", "green", "blue", "Error"], "a": 1, "fb": "Index 0 is red." },
+    { "q": "The last valid index of an array of length 8 is:", "opts": ["8", "7", "9", "0"], "a": 1, "fb": "0 to length − 1." },
+    { "q": "Which loop visits every item of `nums` in OCR pseudocode?", "opts": ["for i = 1 to nums.length", "for i = 0 to nums.length", "for i = 0 to nums.length - 1", "while nums"], "a": 2, "fb": "Start at 0, end one before the length." },
+    { "q": "To add an item to the end of a Python list:", "opts": ["list.add(x)", "list.append(x)", "list + x", "list[len] = x"], "a": 1, "fb": "append grows the list." },
+    { "q": "Main advantage of an array over separate variables:", "opts": ["Faster CPU", "One name and a loop can process all the values", "Uses less memory", "No index needed"], "a": 1, "fb": "Loops over indices replace repeated code." }
+  ],
+  "exam": [
+    { "q": "An array `temps` holds 7 daily temperatures. Write an algorithm that outputs the average temperature.", "marks": 3,
+      "model": ["Total initialised to 0 and a loop over all 7 items / indices 0–6 (1). Each item added to the total (1). Average = total / 7 (or / temps.length) output after the loop (1)."],
+      "commentary": "Dividing inside the loop, or dividing by 6, are the typical slips. `temps.length` is safer than 7 and shows understanding." },
+    { "q": "The array `names` contains 20 names. Write an algorithm that asks the user for a name and outputs \"Found\" if it is in the array, otherwise \"Not found\".", "marks": 4,
+      "model": ["Input the target (1). Loop through all indices 0–19 (1). Compare each element with the target and set a flag / output Found (1). Output Not found only after the loop if not found (1)."],
+      "commentary": "This is linear search again. The fourth mark is lost when 'Not found' prints inside the loop for every non-match. A `found` flag checked after the loop is the clean solution." },
+    { "q": "State **one** advantage of storing the names in an array rather than in 20 separate variables.", "marks": 1,
+      "model": ["A loop can be used to process all of them with one piece of code / they share one identifier and can be accessed by index (1)."],
+      "commentary": "Mention the loop. 'Neater' is not a reason." }
+  ],
+  "home": "Write a program that stores the number of goals your favourite team scored in each of 10 matches, then prints: total goals, average, the match number with the most goals, and how many matches had 0 goals.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 12 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "Looping `1 to length` (misses index 0, overruns the end). Try 3 shows the error message.",
+      "Confusing the index with the value ('the biggest is 3' when they mean position 3).",
+      "Forgetting Python lists need `append` to grow — assigning `names[5] = …` on an empty list fails.",
+      "Printing 'Not found' inside the search loop."
+    ],
+    "say": [
+      "'Index is the house number. Value is who lives there.'",
+      "'Zero to length minus one. Say it before you write the loop.'"
+    ],
+    "skip": "Try 4 (menu) is substantial; set as homework if Try 1–3 fill the time.",
+    "differentiation": [
+      "Support: Try 2 with the append line provided.",
+      "Stretch: Try 1 — find the second highest without sorting; then explain why `max()` is allowed in the exam but you should still be able to write the loop."
+    ]
+  }
+}

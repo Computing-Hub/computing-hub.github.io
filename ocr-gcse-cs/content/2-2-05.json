@@ -1,0 +1,105 @@
+{
+  "id": "2-2-05",
+  "title": "Arithmetic, comparison and Boolean operators",
+  "spec": "2.2.1",
+  "duration": 60,
+  "specPoints": [
+    "2.2.1 **Arithmetic operators**: `+ − * /`, exponentiation `^` (Python `**`), integer division `DIV` (Python `//`), modulus `MOD` (Python `%`)",
+    "**Comparison operators**: `== != < <= > >=`",
+    "**Boolean operators**: `AND OR NOT` (Python `and or not`)"
+  ],
+  "learn": [
+    "Evaluate expressions using all seven arithmetic operators, including DIV and MOD",
+    "Explain what MOD and DIV are for (remainders, digits, even/odd, time conversions)",
+    "Write and evaluate comparison expressions that produce True or False",
+    "Combine conditions with AND, OR and NOT and predict the result",
+    "Translate between OCR and Python operator symbols"
+  ],
+  "hook": "17 sweets, 5 children. How many each, and how many left over? You just did DIV and MOD in your head. Computers do them constantly: is it even? What digit is in the tens column? What time is it 100 minutes from now?",
+  "video": {
+    "title": "DIV, MOD and the Boolean truth",
+    "brief": "4 minutes. Visual division: 17 sweets into 5 piles → 3 each (DIV), 2 left (MOD). Then `17 MOD 2` for even/odd and `n MOD 10` pulling off the last digit. Comparison operators as questions with a True/False light. Then AND/OR/NOT with two switches and a bulb: AND = both switches, OR = either, NOT = flips. Close with the OCR-to-Python symbol table."
+  },
+  "explain": [
+    { "h": "Arithmetic operators",
+      "code": "Operator      OCR     Python   Example        Result\nAdd           +       +        7 + 2          9\nSubtract      -       -        7 - 2          5\nMultiply      *       *        7 * 2          14\nDivide        /       /        7 / 2          3.5\nPower         ^       **       7 ^ 2          49\nInteger div   DIV     //       7 DIV 2        3\nRemainder     MOD     %        7 MOD 2        1",
+      "after": ["Normal maths order applies: brackets, powers, then `* / DIV MOD`, then `+ -`. When in doubt, add brackets."] },
+    { "h": "What DIV and MOD are for",
+      "list": ["**Even or odd**: `n MOD 2 == 0` is even.",
+               "**Digits**: `n MOD 10` is the last digit; `n DIV 10` removes it (the trace table in 2.1.5 used this).",
+               "**Time**: 135 minutes → `135 DIV 60` = 2 hours, `135 MOD 60` = 15 minutes.",
+               "**Wrapping round**: position `(i + 1) MOD length` cycles back to 0 at the end of a list.",
+               "**Divisibility**: `year MOD 4 == 0` for leap-year checks."] },
+    { "h": "Comparison operators",
+      "p": ["Each produces a **Boolean**: True or False. `==` equal, `!=` not equal, `<`, `<=`, `>`, `>=`. Comparisons work on text as well as numbers (`\"apple\" < \"banana\"` is True, alphabetically). Remember `=` assigns; `==` compares."] },
+    { "h": "Boolean operators",
+      "code": "A      B      A AND B   A OR B    NOT A\nTrue   True   True      True      False\nTrue   False  False     True      False\nFalse  True   False     True      True\nFalse  False  False     False     True",
+      "after": ["`AND` needs both true. `OR` needs at least one. `NOT` flips. Common patterns: `age >= 13 and age <= 19` (in range), `day == \"Sat\" or day == \"Sun\"` (either), `not finished` (while still going). The mistake to avoid: `age >= 13 and <= 19` — each side of `and` must be a complete comparison."] }
+  ],
+  "simple": [
+    { "h": "The maths symbols",
+      "code": "7 + 2 = 9     7 - 2 = 5     7 * 2 = 14    7 / 2 = 3.5\n7 ** 2 = 49 (power)\n7 // 2 = 3  (DIV: whole number of times)\n7 % 2 = 1   (MOD: what is left over)" },
+    { "h": "Why MOD is useful",
+      "list": ["`n % 2 == 0` → n is even.", "`n % 10` → last digit of n.", "`135 // 60` = 2 hours, `135 % 60` = 15 minutes."] },
+    { "h": "Comparing",
+      "p": ["`==` is it equal? `!=` is it different? `<  <=  >  >=`. The answer is always True or False."] },
+    { "h": "and, or, not",
+      "p": ["`and`: both must be true. `or`: at least one true. `not`: flips it. Write a full comparison on each side: `age >= 13 and age <= 19`."] }
+  ],
+  "keyterms": [
+    { "term": "MOD (modulus)", "def": "The remainder after integer division: 17 MOD 5 = 2." },
+    { "term": "DIV (integer division)", "def": "Division discarding the remainder: 17 DIV 5 = 3." },
+    { "term": "Boolean", "def": "A value that is either True or False." },
+    { "term": "Comparison operator", "def": "An operator that compares two values and gives a Boolean: == != < <= > >=." },
+    { "term": "Boolean operator", "def": "AND, OR, NOT — combine or invert Boolean values." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Predict every line first", "p": ["Write your prediction for each print, then run. Any surprises? Those are the ones to remember."],
+      "code": "print(17 // 5, 17 % 5)\nprint(2 ** 10)\nprint(10 / 4, 10 // 4)\nprint(100 % 7)\nprint(3 + 4 * 2, (3 + 4) * 2)\nprint(7 > 3, 7 == 3, 7 != 3)\nprint(True and False, True or False, not True)\nprint(\"cat\" < \"dog\")" },
+    { "type": "python", "title": "2. Minutes to hours", "p": ["Ask for a number of minutes and print it as hours and minutes, e.g. 135 → 2 hours 15 minutes. Then extend to seconds → h:m:s."],
+      "code": "minutes = int(input(\"Minutes: \"))\nhours = \n mins = \nprint(hours, \"hours\", mins, \"minutes\")" },
+    { "type": "python", "title": "3. Digit sum", "p": ["Use MOD and DIV in a loop to add up the digits of a number (e.g. 472 → 13). No strings allowed."],
+      "code": "n = int(input(\"Number: \"))\ntotal = 0\nwhile n > 0:\n    # take the last digit with % and add it; remove it with //\n    pass\nprint(total)" },
+    { "type": "python", "title": "4. Boolean logic", "p": ["Complete the conditions. Test with several ages and days."],
+      "code": "age = int(input(\"Age: \"))\nday = input(\"Day (Mon-Sun): \")\nis_teen = \nis_weekend = \ncan_buy_ticket = age >= 16 or (age >= 12 and is_weekend)\nprint(\"Teen:\", is_teen, \"Weekend:\", is_weekend, \"Ticket:\", can_buy_ticket)" },
+    { "type": "embed", "title": "5. Truth tables with gates", "url": "https://beanwise.coderra.je/cs_animations/logic.html",
+      "instructions": ["Build A AND B, A OR B and NOT A with the gate tool and check the truth table matches the one above. (You will meet this again in 2.4.)"] }
+  ],
+  "check": [
+    { "q": "`23 MOD 5` is:", "opts": ["4", "3", "4.6", "18"], "a": 1, "fb": "5 × 4 = 20, remainder 3." },
+    { "q": "`23 DIV 5` is:", "opts": ["4", "3", "4.6", "5"], "a": 0, "fb": "Whole number of fives in 23." },
+    { "q": "Which checks that n is odd?", "opts": ["n / 2 == 1", "n MOD 2 == 1", "n DIV 2 == 1", "n == odd"], "a": 1, "fb": "Odd numbers leave remainder 1." },
+    { "q": "`(5 > 3) AND (2 > 4)` is:", "opts": ["True", "False", "5", "Error"], "a": 1, "fb": "AND needs both; the second is false." },
+    { "q": "The correct way to test 'x is between 10 and 20 inclusive':", "opts": ["10 <= x <= 20 in OCR", "x >= 10 and <= 20", "x >= 10 and x <= 20", "x >= 10 or x <= 20"], "a": 2, "fb": "Full comparison on each side of and." }
+  ],
+  "exam": [
+    { "q": "State the value of each expression: (a) `17 MOD 3` (b) `17 DIV 3` (c) `2 ^ 3` (d) `NOT (4 > 2)`.", "marks": 4,
+      "model": ["(a) 2 (1) (b) 5 (1) (c) 8 (1) (d) False (1)."],
+      "commentary": "Quick marks that are often thrown away by mixing up MOD and DIV. Remainder = MOD. 'Division' is in the name of DIV." },
+    { "q": "Write a program that asks the user for a year and outputs whether it is a leap year. A year is a leap year if it is divisible by 4, except years divisible by 100, which are only leap years if also divisible by 400.", "marks": 4,
+      "model": ["Input year as integer (1). Uses MOD to test divisibility (1). Correct logic: `(year MOD 4 == 0 AND year MOD 100 != 0) OR year MOD 400 == 0` (1). Outputs an appropriate message for both cases (1)."],
+      "commentary": "A classic Boolean-logic question. Nested ifs are equally acceptable. Students lose the logic mark by forgetting the 400 rule or by writing `year MOD 4 == 0 AND year MOD 100 == 0`. Testing with 1900 (not leap) and 2000 (leap) catches both." },
+    { "q": "A program has the condition `if temp > 20 AND humid == True then`. Describe what must be true for the code inside the if to run.", "marks": 2,
+      "model": ["The temperature must be greater than 20 (1) **and at the same time** humid must be true — both conditions, not either (1)."],
+      "commentary": "The second mark is for stating that both are required. 'temp is over 20 or it is humid' is wrong." }
+  ],
+  "home": "Write a program that asks for a three-digit number and prints its digits in reverse order using only MOD and DIV (no strings). Then write five True/False questions about AND/OR/NOT for a partner.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 12 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "MOD and DIV swapped. Sweets-and-children works every time.",
+      "`and` used where `or` is needed, and vice versa, in range checks.",
+      "`x >= 10 and <= 20` (incomplete second comparison).",
+      "`/` expected to give a whole number in Python (10 / 2 is 5.0)."
+    ],
+    "say": [
+      "'MOD is what's left on the table.'",
+      "'Each side of and must be a question you could ask on its own.'"
+    ],
+    "skip": "Try 5 (logic gates) can wait for 2.4; it is here as a bridge for students who finish early.",
+    "differentiation": [
+      "Support: Try 2 with `// 60` and `% 60` written on the board as hints.",
+      "Stretch: Try 3 — then detect whether the number is a palindrome using only arithmetic."
+    ]
+  }
+}
