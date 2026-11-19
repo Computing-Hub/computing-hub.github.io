@@ -1,0 +1,116 @@
+{
+  "id": "2-5-02",
+  "title": "Compilers and interpreters",
+  "spec": "2.5.1",
+  "duration": 60,
+  "specPoints": [
+    "2.5.1 The purpose of **translators**; the characteristics of a **compiler** and an **interpreter**",
+    "Compare compilers and interpreters: how they translate, error reporting, speed, distribution"
+  ],
+  "learn": [
+    "Explain why high-level code must be translated and name the three translators (compiler, interpreter, assembler)",
+    "Describe how a compiler works and how an interpreter works",
+    "Give the advantages and disadvantages of each from the programmer's and the user's point of view",
+    "Decide which translator suits a scenario and justify the choice",
+    "Relate what you see in the Python runner (errors appear when a line is reached) to interpretation"
+  ],
+  "hook": "You wrote Python all year and never once 'compiled' anything. Yet the CPU only understands binary. Something has been translating every line, every time you pressed Run — and the moment you saw an error appear halfway through a program's output, you were watching it work.",
+  "video": {
+    "title": "Translate it all first, or translate as you go",
+    "brief": "4 minutes. Two lanes. Compiler lane: the whole source file goes in, a separate executable comes out, errors listed all together at the end, then the executable runs fast on its own. Interpreter lane: the source runs line by line, output appears as it goes, execution stops at the first error. Side-by-side table of characteristics builds up. End with the assembler as the 1-to-1 translator for assembly, and the note that Python is (mainly) interpreted and C is compiled."
+  },
+  "explain": [
+    { "h": "Why translators",
+      "p": ["The CPU runs only machine code. Anything written in a high-level language must be **translated**. There are three kinds of translator: a **compiler** and an **interpreter** for high-level languages, and an **assembler** for assembly language (1-to-1 into machine code)."] },
+    { "h": "Compiler",
+      "list": ["Translates the **whole program at once** into machine code, producing a separate **executable file**.",
+               "Errors are reported **all together** at the end of compilation; nothing runs until they are all fixed.",
+               "Once compiled, the executable **runs fast** and **without the compiler or the source code** present.",
+               "The executable is **specific to one processor/OS** — recompile for another.",
+               "Source code need not be shared, which protects the programmer's work.",
+               "Used for: finished software distributed to users, games, operating systems. Languages: C, C++, Rust, Go."] },
+    { "h": "Interpreter",
+      "list": ["Translates and executes **one line at a time**, every time the program runs. No separate executable.",
+               "Stops at the **first error** it reaches — later errors are not seen until that one is fixed. Code before the error has already run.",
+               "**Slower** to run, because translation happens during execution, every run.",
+               "The interpreter and the **source code must be present** on the user's machine; the source is visible.",
+               "Easy to **test small changes quickly** — no compile step — so good for learning and development.",
+               "Used for: scripting, learning, web pages (JavaScript), rapid development. Languages: Python, JavaScript (in practice modern versions mix techniques)."] },
+    { "h": "Side by side",
+      "code": "                      Compiler                          Interpreter\nTranslates            whole program before running      line by line while running\nOutput                separate executable file          none; runs from source\nErrors                all reported at once, after full  stops at first error, where reached\n                      translation\nRunning speed         fast                              slower\nNeeds translator      no (after compiling)              yes, every run\nSource visible        no                                yes\nGood for              distribution, performance         development, learning, scripting" },
+    { "h": "What you saw in the runner",
+      "p": ["When a Python program printed three lines and *then* showed an error, that was interpretation: lines 1–3 were translated and run before line 4 failed. A compiled program would have refused to start. Exam questions often describe behaviour like this and ask which translator was used."] }
+  ],
+  "simple": [
+    { "h": "Why translate",
+      "p": ["The processor only understands 1s and 0s. A **translator** turns your code into that."] },
+    { "h": "Compiler = all at once",
+      "p": ["Turns the whole program into a file the computer can run. All the errors are listed at the end. The finished file runs fast, and the user doesn't need your code or the compiler."] },
+    { "h": "Interpreter = line by line",
+      "p": ["Runs each line as it reaches it. Stops at the first error. Slower, and the user needs the interpreter and your code. Great for trying things quickly — that's Python."] },
+    { "h": "Spot it",
+      "p": ["If some output appears and *then* an error — interpreter. If nothing runs until all errors are fixed — compiler."] }
+  ],
+  "keyterms": [
+    { "term": "Translator", "def": "Software that converts source code into machine code: compiler, interpreter or assembler." },
+    { "term": "Compiler", "def": "Translates a whole program into an executable file before it is run." },
+    { "term": "Interpreter", "def": "Translates and runs a program one line at a time, each time it is run." },
+    { "term": "Assembler", "def": "Translates assembly language into machine code, one instruction to one." },
+    { "term": "Executable", "def": "A machine-code file produced by a compiler that runs without the source or compiler." },
+    { "term": "Source code", "def": "The program as written by the programmer in a high-level language." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Watch interpretation happen", "p": ["Predict what appears before the error. Run it. Then move the broken line to the top and run again. What does this tell you about how Python is translated?"],
+      "code": "print(\"Line 1 runs\")\nprint(\"Line 2 runs\")\nprint(\"Line 3 runs\")\nprint(undefined_variable)\nprint(\"Line 5 never runs\")" },
+    { "type": "python", "title": "2. Three errors, how many runs?", "p": ["This has three separate errors. With an interpreter you discover them one per run. Count your runs. Then explain why a compiler would have shown all three after one attempt — and why that is not always better."],
+      "code": "total = 0\nfor i in range(5):\n    total = total + i\nprint(\"Total: \" + total)\nnames = [\"Ada\", \"Alan\"]\nprint(names[2])\nprint(unknown)" },
+    { "type": "task", "title": "3. Which translator?", "p": ["For each, say compiler or interpreter and give two reasons: (a) a game sold on a console; (b) a student learning to program; (c) a script a data analyst edits and re-runs fifty times a day; (d) software whose source code must stay secret; (e) JavaScript running in a web browser on millions of different machines."] },
+    { "type": "task", "title": "4. Spot the translator from the symptom", "p": ["'The program printed the first ten results, then crashed with an error on line 30.' · 'I fixed twelve errors from one list before it would run at all.' · 'Users need to install the runtime before my program works.' · 'I shipped one file and nobody can read my code.' Label each: compiler or interpreter."] },
+    { "type": "embed", "title": "5. Translators animation", "url": "https://beanwise.coderra.je/cs_animations/cpu.html",
+      "instructions": ["Follow the path from source code to the CPU. Note where the compiler produces the executable and where the interpreter sits during execution."] }
+  ],
+  "check": [
+    { "q": "A compiler translates:", "opts": ["One line at a time", "The whole program before it runs", "Only the errors", "Assembly only"], "a": 1, "fb": "All at once → executable." },
+    { "q": "An interpreted program stops:", "opts": ["After listing all errors", "At the first error it reaches", "Never", "Before any output"], "a": 1, "fb": "Line by line." },
+    { "q": "Which produces a file that runs without the translator?", "opts": ["Interpreter", "Compiler", "Both", "Neither"], "a": 1, "fb": "The executable." },
+    { "q": "A reason to prefer an interpreter during development:", "opts": ["Faster running speed", "Quick to test small changes without compiling", "Hides source code", "Produces an executable"], "a": 1, "fb": "Edit, run, repeat." },
+    { "q": "Which translator handles assembly language?", "opts": ["Compiler", "Interpreter", "Assembler", "Linker"], "a": 2, "fb": "1-to-1 translation." }
+  ],
+  "exam": [
+    { "q": "Describe **two** differences between a compiler and an interpreter.", "marks": 4,
+      "model": ["A compiler translates the whole program at once, producing an executable (1), whereas an interpreter translates and executes one line at a time (1). A compiler reports all errors together after translation (1), whereas an interpreter stops at the first error it meets (1). Also: compiled code runs faster / interpreted code needs the interpreter present each time."],
+      "commentary": "Each difference as a matched pair: 'compiler does X, interpreter does Y'. One side only is one mark." },
+    { "q": "A software company sells a photo-editing program to the public. Explain why they would use a compiler rather than an interpreter.", "marks": 3,
+      "model": ["A compiler produces an executable that runs without the source code (1), so the company's code is kept private / not exposed to customers (1); the compiled program runs faster, which matters for photo processing / customers do not need to install a translator (1)."],
+      "commentary": "Distribution scenario: secrecy, speed, no translator needed. Tie to the scenario." },
+    { "q": "A student testing a program sees the first few outputs appear and then an error message. State which type of translator is being used and justify your answer.", "marks": 2,
+      "model": ["Interpreter (1), because lines were translated and executed up to the point of the error rather than all errors being found before execution (1)."],
+      "commentary": "Symptom → translator → reason." }
+  ],
+  "home": "Write a half-page comparison of compilers and interpreters for a Year 9 student, using the Python runner behaviour as your example of interpretation and a game download as your example of compilation.",
+  "extension": {
+    "title": "Beyond GCSE — A-level extension (optional): stages of compilation and bytecode",
+    "sections": [
+      { "p": ["A-level breaks compilation into stages: **lexical analysis** (splitting source into tokens), **syntax analysis** (building a parse tree against the grammar — where syntax errors are found), **code generation** and **optimisation**. Real Python blurs the GCSE picture: it compiles to **bytecode** (`.pyc` files) and then interprets that bytecode on a virtual machine; Java does the same with its JVM, and JavaScript engines compile 'just in time'. Try: in the runner, run `import dis; dis.dis(lambda x: x * 2 + 1)` and read the bytecode for a one-line function."] }
+    ],
+    "link": { "url": "https://beanwise.coderra.je/AlevelCSOCR/", "title": "A-level CS (OCR) resources" }
+  },
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 28 · check 5 · exam 9 · homework 3",
+    "misconceptions": [
+      "'Compiled programs have no errors.' They have no *syntax* errors; logic errors survive compilation.",
+      "'Interpreters are better because errors are easier.' Depends on the purpose; the exam wants both sides.",
+      "Assembler confused with compiler.",
+      "Thinking the exam cares that Python actually uses bytecode. At GCSE, Python = interpreted."
+    ],
+    "say": [
+      "'Compiler: translate everything, then run. Interpreter: translate a line, run a line.'",
+      "'Who is the program for? Developer → interpreter. Customer → compiler.'"
+    ],
+    "skip": "Try 5 is optional; Try 1 and 2 in the runner are the memorable part.",
+    "differentiation": [
+      "Support: Try 3 with the answers given; students supply the reasons only.",
+      "Stretch: the extension (compilation stages, bytecode) and the `dis` experiment."
+    ]
+  }
+}

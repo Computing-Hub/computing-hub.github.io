@@ -170,3 +170,7 @@ body.contrast .block { border-width: 2px; }
   .embed iframe { height: 440px; }
 }
 .runner .stop { background: #991b1b; border-color: #991b1b; }
+.block.extension { border-style: dashed; background: #fffbeb; }
+.block.extension > h2 .tag { background: #92400e; }
+.block.extension summary { cursor: pointer; font-weight: 600; color: #92400e; }
+.block.extension .ext-body { margin-top: .6rem; }

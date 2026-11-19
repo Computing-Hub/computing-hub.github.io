@@ -422,6 +422,14 @@
 
     if (L.home) block('home', 'Home', 'Homework', '', paras([].concat(L.home)));
 
+    if (L.extension) {
+      var X = L.extension;
+      block('extension', 'Extension', X.title || 'Beyond GCSE — A-level extension (optional)', 'optional',
+        '<details><summary>Open the extension</summary><div class="ext-body">' + sections(X.sections) +
+        (X.link ? '<p><a href="' + esc(X.link.url) + '" target="_blank" rel="noopener">' + esc(X.link.title) + ' →</a></p>' : '') +
+        '</div></details>');
+    }
+
     if (L.teacher) {
       var t = L.teacher;
       block('teacher', 'Teacher', 'Teacher notes', t.timing || '',

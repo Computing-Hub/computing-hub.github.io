@@ -1,0 +1,113 @@
+{
+  "id": "2-5-01",
+  "title": "High-level and low-level languages",
+  "spec": "2.5.1",
+  "duration": 60,
+  "specPoints": [
+    "2.5.1 Characteristics and purpose of different levels of programming language: **high-level** and **low-level** (machine code and assembly)",
+    "Advantages and disadvantages of each; when each is used"
+  ],
+  "learn": [
+    "Describe machine code, assembly language and high-level languages and place them on a scale",
+    "Give two characteristics of high-level and of low-level languages",
+    "Explain why most programs are written in high-level languages and when low-level is chosen",
+    "Explain the terms portable, mnemonic, processor-specific, and human-readable in context",
+    "Read a short assembly fragment and say what it does (in outline)"
+  ],
+  "hook": "Here is the same instruction three ways: `total = price + vat` · `ADD R1, R2, R3` · `10110010 00011100`. Which would you rather write? Which does the processor actually understand? Everything in between is translation — and that is lesson 2.",
+  "video": {
+    "title": "Three levels, one instruction",
+    "brief": "3 minutes. A single addition shown as Python, then assembly (mnemonic ADD with registers), then binary machine code, sliding down a 'closeness to hardware' scale. Annotate each with its characteristics: human-readable / portable vs processor-specific / fast / memory-efficient. End with the two situations where low-level wins: device drivers and embedded systems with tight memory and timing."
+  },
+  "explain": [
+    { "h": "The scale",
+      "code": "HIGH-LEVEL     Python, Java, C#, JavaScript        total = price + vat\n     |         close to human language; one line does a lot; portable\n     |\nLOW-LEVEL      Assembly language                    ADD R1, R2, R3\n     |         mnemonics for processor instructions; one line = one instruction\n     |\n               Machine code                         10110010 00011100 ...\n               binary the CPU executes directly; processor-specific" },
+    { "h": "High-level languages",
+      "list": ["Written in something close to English with maths-style expressions; **easy to read, write and debug**.",
+               "**Portable**: the same source code can be translated to run on different processors.",
+               "One statement does many machine-level steps, so programs are **shorter** and faster to write.",
+               "Must be **translated** (compiled or interpreted) before the CPU can run it (lesson 2).",
+               "Programmer has **less direct control** of memory and hardware; translated code may be larger or slower than hand-written low-level code."] },
+    { "h": "Low-level languages",
+      "list": ["**Machine code** is binary; the CPU runs it directly with no translation. Almost nobody writes it by hand.",
+               "**Assembly language** uses short **mnemonics** (`ADD`, `LDA`, `JMP`) for each machine instruction, plus names for registers and memory. An **assembler** translates it 1-to-1 into machine code.",
+               "**Processor-specific**: written for one CPU family; not portable.",
+               "Gives **direct control** of hardware and memory; can be very **fast** and **small**.",
+               "**Hard to write and debug**; long programs; needs knowledge of the CPU's architecture."] },
+    { "h": "When each is used",
+      "p": ["High-level for almost everything: apps, websites, games, data analysis — where programmer time matters more than squeezing the last microsecond. Low-level where control of hardware is essential: **device drivers**, **embedded systems** (1.1.3) with tiny memory, **real-time** control, the heart of an operating system, and performance-critical sections of games or scientific code."] },
+    { "h": "Reading a little assembly",
+      "code": "LDA 10      ; load the value at memory address 10 into the accumulator\nADD 11      ; add the value at address 11\nSTA 12      ; store the result at address 12\nHLT         ; stop",
+      "after": ["That is `c = a + b` in four instructions. You are not expected to write assembly at GCSE, but you should recognise that each line is one tiny step and uses mnemonics — the Little Man Computer simulator in the Try section makes this concrete."] }
+  ],
+  "simple": [
+    { "h": "Three levels",
+      "list": ["**High-level** (Python): looks like English and maths. Easy to write. Works on any computer after translation.", "**Assembly**: short codes like `ADD` and `LDA`, one per processor step. Hard to write. Only for one type of processor.", "**Machine code**: the 1s and 0s the processor actually runs."] },
+    { "h": "Good and bad",
+      "p": ["High-level: quick to write and fix, portable, but needs translating and gives less control.", "Low-level: fast, small, full control of the hardware, but slow to write, hard to debug, not portable."] },
+    { "h": "Who uses low-level?",
+      "p": ["People writing device drivers, tiny embedded systems, and the very core of operating systems."] }
+  ],
+  "keyterms": [
+    { "term": "High-level language", "def": "A programming language close to human language, independent of a specific processor, that must be translated to run." },
+    { "term": "Low-level language", "def": "Machine code or assembly language, close to the hardware and specific to a processor." },
+    { "term": "Machine code", "def": "Binary instructions executed directly by the CPU." },
+    { "term": "Assembly language", "def": "A low-level language using mnemonics for machine instructions; translated by an assembler." },
+    { "term": "Mnemonic", "def": "A short memorable code for an instruction, e.g. ADD, LDA." },
+    { "term": "Portable", "def": "Able to run on different types of computer/processor after translation." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Little Man Computer: write assembly", "url": "https://beanwise.coderra.je/cs_animations/lmc.html",
+      "instructions": ["Enter the four-line program from the lesson (LDA, ADD, STA, HLT) with two numbers in memory and step through it. Watch the accumulator.", "Now write a program that inputs two numbers and outputs the larger. Count the instructions. Then write the same thing in Python below."] },
+    { "type": "python", "title": "2. The same program, high-level", "p": ["Write 'input two numbers, output the larger'. Compare line count and readability with your LMC version. Which took longer to write? Which would be easier to fix in a month?"],
+      "code": "a = int(input())\nb = int(input())\n" },
+    { "type": "task", "title": "3. Sort the statements", "p": ["Put each under High-level or Low-level: portable · processor-specific · uses mnemonics · one line does many steps · needs a compiler or interpreter · runs directly on the CPU · easier to debug · direct control of memory · used for device drivers · used for web apps."] },
+    { "type": "task", "title": "4. Choose and justify", "p": ["For each, say high- or low-level and give two reasons: (a) a mobile banking app; (b) the firmware in a pacemaker; (c) a school's timetable software; (d) the driver for a new graphics card; (e) a data-analysis script run once."] },
+    { "type": "embed", "title": "5. Fetch–decode–execute", "url": "https://beanwise.coderra.je/cs_animations/little-man-fde-cycle.html",
+      "instructions": ["Link to Paper 1: watch each assembly instruction go through fetch, decode, execute. Machine code is what the decode step reads."] }
+  ],
+  "check": [
+    { "q": "Which is a low-level language?", "opts": ["Python", "Java", "Assembly", "JavaScript"], "a": 2, "fb": "Mnemonics, one per instruction." },
+    { "q": "'Portable' means a language:", "opts": ["Runs on a laptop", "Can be translated to run on different processors", "Is small", "Needs no translation"], "a": 1, "fb": "Not tied to one CPU." },
+    { "q": "The only language a CPU runs directly is:", "opts": ["Assembly", "Python", "Machine code", "C"], "a": 2, "fb": "Binary instructions." },
+    { "q": "A reason to use a low-level language:", "opts": ["Faster to write", "Portable", "Direct control of hardware and memory", "Easier to debug"], "a": 2, "fb": "Control and efficiency." },
+    { "q": "`ADD`, `LDA`, `STA` are examples of:", "opts": ["Mnemonics", "Variables", "Compilers", "Data types"], "a": 0, "fb": "Assembly mnemonics." }
+  ],
+  "exam": [
+    { "q": "Describe **two** characteristics of a high-level programming language.", "marks": 2,
+      "model": ["Any two: uses English-like keywords / is easy for humans to read and write (1); is portable across different processors (1); one statement translates into many machine code instructions (1); must be translated before it can run (1)."],
+      "commentary": "Characteristics, not advantages: 'it is better' scores nothing." },
+    { "q": "A company is writing software to control a washing machine with a very small amount of memory. Explain why a low-level language might be chosen.", "marks": 3,
+      "model": ["Low-level code gives direct control of the hardware/memory (1), producing smaller and faster programs than translated high-level code (1), which matters when memory is very limited / timing is critical in an embedded system (1)."],
+      "commentary": "Tie each point to the scenario: small memory, embedded control." },
+    { "q": "State **one** advantage and **one** disadvantage of writing a program in assembly language rather than a high-level language.", "marks": 2,
+      "model": ["Advantage: faster execution / smaller / direct hardware control (1). Disadvantage: harder and slower to write and debug / not portable (1)."],
+      "commentary": "One each, clearly labelled." }
+  ],
+  "home": "Find out which language the operating system on your phone or laptop is mostly written in, and which language a game or app you use is written in. For each, write two sentences on why that level of language makes sense.",
+  "extension": {
+    "title": "Beyond GCSE — A-level extension (optional): addressing modes and the instruction set",
+    "sections": [
+      { "p": ["At A-level you learn how an assembly instruction is encoded: an **opcode** (the operation) and an **operand** (the data or address), and the different **addressing modes** — immediate (`ADD #5`: the 5 itself), direct (`ADD 5`: the contents of address 5), indirect and indexed. Try in the LMC: find out whether `ADD 5` adds 5 or adds what is stored at mailbox 5. Then look up the LMC's instruction set and work out how many bits the opcode and operand take in its 3-digit code."] }
+    ],
+    "link": { "url": "https://beanwise.coderra.je/AlevelCSOCR/", "title": "A-level CS (OCR) resources" }
+  },
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 28 · check 5 · exam 9 · homework 3",
+    "misconceptions": [
+      "'Low-level' heard as 'bad' or 'basic'. It means close to the hardware.",
+      "Assembly and machine code treated as the same thing. Assembly is the mnemonic form; the assembler makes machine code.",
+      "Believing high-level programs run without translation.",
+      "Thinking portability means the compiled program runs anywhere — it is the *source* that is portable."
+    ],
+    "say": [
+      "'Low means close to the metal, not low quality.'",
+      "'One Python line, ten assembly lines, ten machine-code instructions.'"
+    ],
+    "skip": "Try 5 is a Paper 1 bridge; cut before Try 1–3.",
+    "differentiation": [
+      "Support: Try 3 as a card sort.",
+      "Stretch: the extension on addressing modes using the LMC."
+    ]
+  }
+}

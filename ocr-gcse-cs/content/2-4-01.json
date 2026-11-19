@@ -1,0 +1,106 @@
+{
+  "id": "2-4-01",
+  "title": "AND, OR and NOT gates",
+  "spec": "2.4.1",
+  "duration": 60,
+  "specPoints": [
+    "2.4.1 Simple logic diagrams using the operators **AND**, **OR** and **NOT**",
+    "Recognise and draw the three gate symbols; describe the output of each gate for every input"
+  ],
+  "learn": [
+    "Draw and name the AND, OR and NOT gate symbols",
+    "State the rule for each gate in words and as a truth table",
+    "Write a gate's behaviour as a Boolean expression (`Q = A AND B`) and read one back",
+    "Connect logic gates to the Boolean operators you used in programming (2.2.5)",
+    "Explain why computers are built from these gates"
+  ],
+  "hook": "A light with two switches in series: both must be on. A light with two switches in parallel: either will do. A switch wired so the light is on when the switch is off. You have just built AND, OR and NOT with wire. Every processor is billions of these.",
+  "video": {
+    "title": "Three gates that build everything",
+    "brief": "3 minutes. Two switches and a bulb, physically animated in series (AND) then parallel (OR), then an inverter (NOT). Morph each circuit into its gate symbol with A, B inputs and Q output. Show each gate's four input combinations with the output lighting or not, building the truth table alongside. End with the expressions Q = A AND B, Q = A OR B, Q = NOT A, and a chip zooming out to 'billions of these'."
+  },
+  "explain": [
+    { "h": "Why gates",
+      "p": ["Inside a processor, every signal is either on (1, True) or off (0, False). A **logic gate** is a tiny circuit that takes one or two such inputs and produces one output according to a fixed rule. The three rules you need are the same AND, OR and NOT you used in `if` statements — here they are hardware."] },
+    { "h": "The three gates",
+      "code": "AND gate  (D-shape, flat on the input side)       Q = A AND B    output 1 only when BOTH inputs are 1\n\n   A ──┐ ╭────╮\n       ├─┤ AND ├── Q          A  B | Q\n   B ──┘ ╰────╯               0  0 | 0\n                              0  1 | 0\n                              1  0 | 0\n                              1  1 | 1\n\nOR gate   (curved input side, pointed output)     Q = A OR B     output 1 when AT LEAST ONE input is 1\n\n   A ──╮ ╭────╮\n       ├─┤ OR  ├── Q          A  B | Q\n   B ──╯ ╰────╯               0  0 | 0\n                              0  1 | 1\n                              1  0 | 1\n                              1  1 | 1\n\nNOT gate  (triangle with a small circle)          Q = NOT A      output is the OPPOSITE of the input\n\n   A ──▷○── Q                 A | Q\n                              0 | 1\n                              1 | 0",
+      "after": ["The small circle on the NOT gate is the **inversion bubble** — it is what makes it a NOT. Draw it. In the exam, a NOT without the circle is a buffer and scores nothing."] },
+    { "h": "Boolean expressions",
+      "p": ["A gate's behaviour can be written as an expression. OCR uses the words `AND`, `OR`, `NOT`, or the symbols `∧` (AND), `∨` (OR), `¬` (NOT). You may be asked to write the expression for a diagram or draw the diagram for an expression. Brackets show which gate feeds which: `Q = (A AND B) OR C` means the AND happens first and its output goes into the OR with C."] },
+    { "h": "Same operators as your code",
+      "code": "if is_member and has_paid:      # AND gate: both needed\nif day == \"Sat\" or day == \"Sun\":  # OR gate: either\nwhile not finished:             # NOT gate: inverted\n",
+      "after": ["Checking that a program's condition behaves correctly for every combination of inputs is exactly building a truth table (next lesson)."] }
+  ],
+  "simple": [
+    { "h": "Everything is on or off",
+      "p": ["Inside a computer, every wire is 1 (on) or 0 (off). A **logic gate** looks at one or two wires and decides whether its output wire is on."] },
+    { "h": "Three gates",
+      "list": ["**AND**: output on only if **both** inputs are on. D-shaped symbol.", "**OR**: output on if **either** input is on (or both). Curved symbol with a point.", "**NOT**: output is the **opposite** of the input. Triangle with a little circle."] },
+    { "h": "Writing it down",
+      "code": "Q = A AND B\nQ = A OR B\nQ = NOT A" },
+    { "h": "Same as in your programs",
+      "p": ["`if a and b` is an AND gate. `if a or b` is an OR gate. `not a` is a NOT gate."] }
+  ],
+  "keyterms": [
+    { "term": "Logic gate", "def": "An electronic circuit that produces a single binary output from one or more binary inputs according to a rule." },
+    { "term": "AND gate", "def": "Output 1 only when all inputs are 1." },
+    { "term": "OR gate", "def": "Output 1 when at least one input is 1." },
+    { "term": "NOT gate", "def": "Output is the inverse of the input." },
+    { "term": "Boolean expression", "def": "A statement using AND, OR, NOT that evaluates to 1 or 0, e.g. Q = A AND B." },
+    { "term": "Truth table", "def": "A table listing every combination of inputs and the resulting output." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Build each gate and flip the inputs", "url": "https://beanwise.coderra.je/cs_animations/logic.html",
+      "instructions": ["Place an AND gate. Try all four input combinations and write down Q each time. Repeat for OR and NOT.", "Which combination is the only one that makes AND output 1? The only one that makes OR output 0?"] },
+    { "type": "python", "title": "2. Gates in code", "p": ["Run it: the loop generates every input combination and prints the three gates' outputs. Then add a fourth column that is `not (a and b)` and look at it carefully — you will meet it in the extension."],
+      "code": "print(\"A B | AND OR | NOT A\")\nfor a in (0, 1):\n    for b in (0, 1):\n        print(a, b, \"|\", int(a and b), \" \", int(a or b), \"|\", int(not a))" },
+    { "type": "task", "title": "3. Draw and label", "steps": ["Draw the three gate symbols from memory, labelled A, B (where needed) and Q.", "Under each write its rule in one sentence and its Boolean expression.", "Check against the lesson: inversion bubble present on NOT? Flat input side on AND?"] },
+    { "type": "task", "title": "4. Real-world gates", "p": ["For each, say which gate and write the expression: (a) a car warns if the engine is running AND the seatbelt is not fastened; (b) a shop door opens if the inside button OR the outside sensor is active; (c) a heater turns on when the thermostat is NOT satisfied; (d) a burglar alarm sounds if it is armed AND (a door OR a window) opens."] }
+  ],
+  "check": [
+    { "q": "An AND gate with inputs 1 and 0 outputs:", "opts": ["1", "0", "Either", "2"], "a": 1, "fb": "Both must be 1." },
+    { "q": "An OR gate outputs 0 only when:", "opts": ["Both inputs are 1", "Both inputs are 0", "Exactly one input is 1", "Never"], "a": 1, "fb": "Any 1 gives 1." },
+    { "q": "The small circle on a gate symbol means:", "opts": ["Two inputs", "Inversion (NOT)", "Output", "A power supply"], "a": 1, "fb": "The bubble inverts." },
+    { "q": "`Q = NOT A` with A = 1 gives Q =", "opts": ["1", "0", "A", "Undefined"], "a": 1, "fb": "Inverse." },
+    { "q": "Which gate matches `if armed and door_open:`?", "opts": ["OR", "NOT", "AND", "None"], "a": 2, "fb": "Both conditions required." }
+  ],
+  "exam": [
+    { "q": "Draw the logic gate symbol for an **OR** gate and state the output when both inputs are 0.", "marks": 2,
+      "model": ["Correct OR symbol: curved input side, pointed output, two inputs and one output labelled (1). Output 0 (1)."],
+      "commentary": "Shape matters: an OR drawn as a D-shape is an AND and scores nothing. Label inputs and output." },
+    { "q": "A security light should come on when it is dark (D = 1) **and** movement is detected (M = 1). Write a Boolean expression for the light L.", "marks": 1,
+      "model": ["L = D AND M (1)."],
+      "commentary": "Read the words: 'and' in the sentence is AND in the expression. Use the given letters." },
+    { "q": "Explain why NOT is described as a gate with one input while AND and OR have two.", "marks": 2,
+      "model": ["NOT simply inverts a single signal, so it only needs one input (1); AND and OR combine two signals to decide the output, so they need two inputs to compare (1)."],
+      "commentary": "Short reasoning question — say what each gate does with its inputs." }
+  ],
+  "home": "Find three devices at home that behave like gates (two conditions needed = AND; either condition = OR; opposite = NOT). For each, write the expression with your own letters and draw the gate.",
+  "extension": {
+    "title": "Beyond GCSE — A-level extension (optional): NAND, NOR and XOR",
+    "sections": [
+      { "p": ["A-level adds three more gates, all built from the three you know. **NAND** is NOT(A AND B): output 0 only when both inputs are 1 — drawn as an AND with a bubble on the output. **NOR** is NOT(A OR B): output 1 only when both inputs are 0. **XOR** (exclusive or) is 1 when the inputs are *different*: `(A OR B) AND NOT (A AND B)`.",
+             "NAND is special: every other gate can be built from NAND gates alone, which is why real chips are often NAND-based. Try it in the gate tool: build NOT from one NAND (both inputs tied together), then AND from two NANDs, then OR from three."] },
+      { "code": "A  B | NAND NOR XOR\n0  0 |  1    1   0\n0  1 |  1    0   1\n1  0 |  1    0   1\n1  1 |  0    0   0" }
+    ],
+    "link": { "url": "https://beanwise.coderra.je/boolean-algebra-alevel/", "title": "Boolean algebra (A-level) tool" }
+  },
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 10 · try 28 · check 5 · exam 8 · homework 3 · extension is for early finishers only",
+    "misconceptions": [
+      "OR read as 'one or the other but not both' (that's XOR). OR includes both.",
+      "NOT drawn without the bubble.",
+      "AND and OR symbols swapped. Mnemonic: AND has a flat 'D' (anD); OR has a curved 'bow'.",
+      "Thinking gates are software. They are circuits; the operators in code are named after them."
+    ],
+    "say": [
+      "'AND: both. OR: at least one. NOT: flip.'",
+      "'Draw the bubble or it isn't a NOT.'"
+    ],
+    "skip": "Try 4 can be oral. The extension is strictly optional and not on the GCSE paper; say so.",
+    "differentiation": [
+      "Support: give the three symbols pre-drawn; students label and write the rule.",
+      "Stretch: the extension block (NAND/NOR/XOR), and building the other gates from NAND in the tool."
+    ]
+  }
+}

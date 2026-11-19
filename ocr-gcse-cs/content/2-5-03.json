@@ -1,0 +1,114 @@
+{
+  "id": "2-5-03",
+  "title": "IDE features",
+  "spec": "2.5.2",
+  "duration": 60,
+  "specPoints": [
+    "2.5.2 Common tools and facilities available in an **Integrated Development Environment (IDE)**: **editors**, **error diagnostics**, **run-time environment**, **translators**",
+    "Explain how each feature helps a programmer write, test and debug code"
+  ],
+  "learn": [
+    "State what an IDE is and name its four core components as OCR lists them",
+    "Describe editor features (syntax highlighting, auto-indent, autocomplete, line numbers) and say how each helps",
+    "Describe error diagnostics (error messages with line numbers, breakpoints, stepping, variable watch) and how they help find syntax and logic errors",
+    "Explain the role of the run-time environment and the built-in translator",
+    "Use these features deliberately in the Python IDE to find a bug"
+  ],
+  "hook": "Open Notepad. Write a 50-line Python program in it. No colours, no line numbers, no 'you forgot a bracket on line 12', no Run button. Now open the Python IDE. Everything that just got easier is on the exam.",
+  "video": {
+    "title": "What an IDE does for you",
+    "brief": "3 minutes. A plain text editor on the left, an IDE on the right, the same code typed into both. The IDE lights up: keywords coloured, indentation added automatically, an underline appears under a misspelt variable, a red marker on a missing bracket with a message, a Run button, output in a panel, then a breakpoint set and the program stepping with variables shown in a watch window. Each feature labelled with its spec name as it appears."
+  },
+  "explain": [
+    { "h": "What an IDE is",
+      "p": ["An **Integrated Development Environment** is a single program that brings together the tools a programmer needs: somewhere to write code, something to translate and run it, and tools to find errors. OCR names four parts: **editor**, **error diagnostics**, **run-time environment**, **translator**. Exam questions ask you to describe a feature *and say how it helps*."] },
+    { "h": "Editor",
+      "list": ["**Syntax highlighting** — keywords, strings, numbers and comments in different colours, so a missing quote or a misspelt keyword stands out.",
+               "**Auto-indentation** — the editor indents after a colon, so blocks are structured correctly (and Python's indentation errors are rarer).",
+               "**Autocomplete** — suggests variable and function names as you type, reducing typos and `NameError`s.",
+               "**Line numbers** — so error messages can point to a line and you can find it.",
+               "**Bracket matching**, **find and replace**, **code folding** for long files."] },
+    { "h": "Error diagnostics",
+      "list": ["**Error messages with line numbers** — the translator reports syntax errors as you type or when you run; the IDE highlights the line.",
+               "**Breakpoints** — pause the program at a chosen line so you can inspect it.",
+               "**Stepping** — run one line at a time from the breakpoint (the IDE doing your trace table for you).",
+               "**Variable watch / inspector** — see the current value of every variable while paused: the fastest way to find a logic error.",
+               "**Call stack** — which function called which, when paused inside a subprogram."] },
+    { "h": "Run-time environment",
+      "p": ["The part of the IDE that **runs the program** and shows its input and output — the console or output panel — so you can test without leaving the editor. It also catches run-time errors (dividing by zero, index out of range) and reports them with a line number instead of simply crashing."] },
+    { "h": "Translator",
+      "p": ["The IDE includes or connects to the **compiler or interpreter** for the language, so one button translates and runs. Many IDEs run the translator continuously in the background to flag syntax errors before you press Run."] },
+    { "h": "Answering the exam question",
+      "p": ["'Describe two features of an IDE that help a programmer **debug**' → choose from error diagnostics (breakpoints, stepping, variable watch, error messages) and say what each shows. 'Explain how an IDE helps a programmer **write** code' → editor features. Match the feature to the verb in the question."] }
+  ],
+  "simple": [
+    { "h": "One program with all the tools",
+      "p": ["An **IDE** is where you write, run and fix programs, all in one place. Four parts: editor, error diagnostics, run-time environment, translator."] },
+    { "h": "Editor",
+      "p": ["Colours the code, indents for you, finishes names as you type, numbers the lines."] },
+    { "h": "Finding errors",
+      "p": ["Error messages tell you the line. A **breakpoint** pauses the program. **Stepping** runs one line at a time. The **variable watch** shows what every variable holds while paused."] },
+    { "h": "Running",
+      "p": ["The run-time environment runs your program and shows output in a panel. The translator (interpreter or compiler) is built in — that's the Run button."] }
+  ],
+  "keyterms": [
+    { "term": "IDE", "def": "Integrated Development Environment: one application combining the tools for writing, translating, running and debugging code." },
+    { "term": "Syntax highlighting", "def": "Colouring parts of the code by type to make structure and mistakes visible." },
+    { "term": "Breakpoint", "def": "A marker that pauses the program at a chosen line so its state can be inspected." },
+    { "term": "Stepping", "def": "Executing a paused program one line at a time." },
+    { "term": "Variable watch", "def": "A panel showing the current values of variables while the program is paused." },
+    { "term": "Run-time environment", "def": "The part of the IDE that executes the program and shows its input/output and run-time errors." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Tour the Python IDE", "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": ["Type a short program with a deliberate missing bracket. Find where the IDE tells you, and what it says.", "Find four editor features from the lesson and note where each is on screen.", "If the IDE offers breakpoints or stepping, set one inside a loop and watch a variable change."] },
+    { "type": "python", "title": "2. Debug with print, then imagine the debugger", "p": ["This should print the average of the list but prints the wrong number. Add `print()` lines to watch `total` and `count` change — that is what a variable watch does automatically. Find the bug, fix it, then remove the prints."],
+      "code": "nums = [12, 7, 9, 14]\ntotal = 0\ncount = 0\nfor n in nums:\n    total = total + n\ncount = count + 1\nprint(\"Average:\", total / count)" },
+    { "type": "task", "title": "3. Feature → benefit", "p": ["Make a two-column table: feature · how it helps. Fill it for: syntax highlighting, auto-indent, autocomplete, line numbers, error messages, breakpoints, stepping, variable watch, output panel, built-in translator. Each benefit must start with a verb (finds, shows, prevents, speeds up…)."] },
+    { "type": "task", "title": "4. Which feature would you use?", "p": ["(a) You keep getting `NameError: totl`. (b) A loop gives the right answer for 5 items and the wrong one for 6. (c) You can't tell which `)` is missing in a long line. (d) Your program crashes with 'index out of range' somewhere in 200 lines. Name the IDE feature for each and say what you'd look for."] }
+  ],
+  "check": [
+    { "q": "Syntax highlighting is a feature of the:", "opts": ["Translator", "Editor", "Run-time environment", "Operating system"], "a": 1, "fb": "Part of writing code." },
+    { "q": "A breakpoint:", "opts": ["Deletes a line", "Pauses execution at a chosen line", "Fixes syntax errors", "Compiles the program"], "a": 1, "fb": "So you can inspect state." },
+    { "q": "The best feature for finding a logic error in a loop is:", "opts": ["Autocomplete", "Line numbers", "Stepping with a variable watch", "Code folding"], "a": 2, "fb": "Watch the values change line by line." },
+    { "q": "The run-time environment:", "opts": ["Colours the code", "Executes the program and shows output", "Suggests variable names", "Stores files"], "a": 1, "fb": "Where the program runs." },
+    { "q": "Which is NOT one of OCR's four IDE components?", "opts": ["Editor", "Error diagnostics", "Spreadsheet", "Translator"], "a": 2, "fb": "Editor, diagnostics, run-time, translator." }
+  ],
+  "exam": [
+    { "q": "Describe **two** features of an IDE that help a programmer find and fix **logic errors**.", "marks": 4,
+      "model": ["Breakpoints pause the program at a chosen line (1) so the programmer can check the state at that point (1). A variable watch / stepping shows the value of each variable as lines execute (1) so the point where a value goes wrong can be seen (1). Also: run-time environment showing output to compare with expected output."],
+      "commentary": "Feature + how it helps, twice. Syntax highlighting is the wrong answer here — it helps with *syntax* errors." },
+    { "q": "Explain how **syntax highlighting** helps a programmer.", "marks": 2,
+      "model": ["Different parts of the code (keywords, strings, comments) are shown in different colours (1), so mistakes such as an unclosed string or a misspelt keyword are easy to spot because they are the wrong colour (1)."],
+      "commentary": "What it does, then why that helps." },
+    { "q": "State the purpose of the **run-time environment** in an IDE.", "marks": 1,
+      "model": ["To run/execute the program within the IDE and display its output and any run-time errors (1)."],
+      "commentary": "One clear sentence." }
+  ],
+  "home": "Install (or open online) a second IDE — e.g. Thonny, IDLE, VS Code, Replit — and compare it with the Python IDE used in class. List five features each has, three they share, and which you would recommend to a beginner and why.",
+  "extension": {
+    "title": "Beyond GCSE — A-level extension (optional): version control and build tools",
+    "sections": [
+      { "p": ["Professional IDEs add **version control** (Git) so every change is recorded and can be undone or compared; **linters** that flag style and likely bugs before you run; **unit test runners** that execute a test plan automatically every time you save; and **build tools** that compile, package and deploy. A-level projects expect a development log — a Git history is one. Try: create a free GitHub account, make a repository for your capstone program, and commit each iteration from the 2.3 lesson as a separate commit with a message."] }
+    ],
+    "link": { "url": "https://beanwise.coderra.je/AlevelCSOCR/", "title": "A-level CS (OCR) resources" }
+  },
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 10 · try 30 · check 5 · exam 9 · homework 3",
+    "misconceptions": [
+      "Listing features without the benefit. The second mark is always the 'so that…'.",
+      "Using editor features (highlighting) to answer a debugging question.",
+      "Thinking 'IDE' is a specific product. It is a category.",
+      "Confusing the run-time environment with the operating system."
+    ],
+    "say": [
+      "'Name the feature. Then: so that…'",
+      "'Writing code? Editor. Finding bugs? Diagnostics. Running it? Run-time. Translating it? Translator.'"
+    ],
+    "skip": "Try 4 can be oral. Try 1 and 3 are the lesson.",
+    "differentiation": [
+      "Support: Try 3 with the feature column filled; students write the benefits.",
+      "Stretch: the extension — set up a GitHub repository for the capstone."
+    ]
+  }
+}

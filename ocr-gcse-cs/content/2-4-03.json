@@ -1,0 +1,113 @@
+{
+  "id": "2-4-03",
+  "title": "Combining gates and logic diagrams",
+  "spec": "2.4.1",
+  "duration": 60,
+  "specPoints": [
+    "2.4.1 Combine Boolean operators using AND, OR and NOT; **draw logic diagrams** from expressions and **write expressions** from diagrams",
+    "Apply logic to real problems (truth tables for scenarios); up to three inputs and three gates"
+  ],
+  "learn": [
+    "Draw a logic diagram for a Boolean expression, respecting brackets and gate order",
+    "Write the Boolean expression for a given logic diagram, working from inputs to output",
+    "Translate a written scenario into an expression, then a diagram, then a truth table",
+    "Check a diagram by completing its truth table",
+    "Avoid the common drawing errors: crossed-but-not-joined wires, missing labels, wrong gate shapes"
+  ],
+  "hook": "A lift door closes when the close button is pressed OR a timer runs out — but only if nothing is blocking the door. Three inputs, two gates. By the end of the lesson you'll draw that circuit, write its expression, and prove with a table that nobody gets crushed.",
+  "video": {
+    "title": "Expression ↔ diagram ↔ table",
+    "brief": "4 minutes. Take Q = (A OR B) AND NOT C. Animate the drawing: inputs on the left as lines, the inner bracket (OR) drawn first, NOT on C, then the AND taking both, output Q on the right. Then reverse: a given diagram with wires traced from inputs, labelling each gate output until the expression builds up. Then the lift scenario: words → letters → expression → diagram → the 8-row table showing door never closes when blocked. End with the three drawing rules."
+  },
+  "explain": [
+    { "h": "From expression to diagram",
+      "p": ["Inputs are lines coming in from the left, labelled. Work from the **innermost brackets outwards**: draw that gate first, then feed its output into the next. NOT gates sit on the wire they invert. The final gate's output is Q on the right."],
+      "code": "Q = (A OR B) AND NOT C\n\n   A ──╮ ╭────╮\n       ├─┤ OR  ├────────┐ ╭─────╮\n   B ──╯ ╰────╯         ├─┤ AND ├── Q\n                         │ ╰─────╯\n   C ────▷○──────────────┘\n        NOT" },
+    { "h": "From diagram to expression",
+      "p": ["Start at the inputs. Label the output of each gate with its own expression. Move right until you reach Q; the label on the last gate is the answer. Brackets go round each earlier gate's expression when it enters a later gate."],
+      "code": "   A ──┐ ╭─────╮\n       ├─┤ AND ├──(A AND B)──┐ ╭────╮\n   B ──┘ ╰─────╯             ├─┤ OR ├── Q      Q = (A AND B) OR NOT C\n                              │ ╰────╯\n   C ────▷○───(NOT C)─────────┘" },
+    { "h": "From scenario to circuit",
+      "list": ["Give each condition a letter and say what 1 means: A = close button pressed, B = timer finished, C = door blocked.",
+               "Turn the sentence into an expression: 'closes when (A or B) and not blocked' → `Q = (A OR B) AND NOT C`.",
+               "Draw the diagram from the expression.",
+               "Complete the truth table and **check it against the words**: every row with C = 1 should give Q = 0."] },
+    { "h": "Drawing rules the examiner checks",
+      "list": ["Correct gate shapes (AND flat-backed D, OR curved, NOT triangle **with bubble**).",
+               "Every input and the output labelled.",
+               "Wires that join are drawn joining; wires that cross without connecting are drawn crossing (or hopped).",
+               "One wire can feed several gates (fan-out), but two outputs never join into one wire.",
+               "Gates placed left to right in the order the expression evaluates."] }
+  ],
+  "simple": [
+    { "h": "Expression → drawing",
+      "p": ["Inputs on the left. Draw the gate in the inside brackets first. Its output wire goes into the next gate. The last gate's output is Q."],
+      "code": "Q = (A OR B) AND NOT C\n\n   A ──╮ ╭────╮\n       ├─┤ OR  ├────────┐ ╭─────╮\n   B ──╯ ╰────╯         ├─┤ AND ├── Q\n   C ────▷○──────────────┘ ╰─────╯" },
+    { "h": "Drawing → expression",
+      "p": ["Start at the inputs. Write what comes out of each gate on its wire. Keep going until Q."] },
+    { "h": "Words → circuit",
+      "p": ["Give each condition a letter. Write the sentence with AND / OR / NOT. Draw it. Check with a table."] },
+    { "h": "Rules",
+      "list": ["Right shapes. Bubble on NOT.", "Label A, B, C and Q.", "Joined wires look joined; crossing wires look like they cross."] }
+  ],
+  "keyterms": [
+    { "term": "Logic diagram", "def": "A drawing of gates and wires showing how inputs combine to give an output." },
+    { "term": "Fan-out", "def": "One signal feeding the inputs of more than one gate." },
+    { "term": "Intermediate output", "def": "The output of a gate that feeds another gate rather than being the final output." },
+    { "term": "Scenario", "def": "A real situation described in words that you convert into a logic circuit." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Draw from expressions", "steps": ["Draw diagrams for: (a) `Q = A AND (B OR C)`; (b) `Q = NOT (A AND B)`; (c) `Q = (A AND B) OR (A AND C)`.", "In (c), A feeds two gates — draw the fan-out properly.", "Complete the truth table for (a)."] },
+    { "type": "embed", "title": "2. Build them and test them", "url": "https://beanwise.coderra.je/cs_animations/logic.html",
+      "instructions": ["Build (a), (b) and (c) from Try 1. Toggle inputs and compare with your tables.", "Build `Q = A AND (B OR C)` and `Q = (A AND B) OR (A AND C)` side by side. Do they ever differ? (They shouldn't — that's the distributive law.)"] },
+    { "type": "task", "title": "3. Write from diagrams", "p": ["Your teacher will show three diagrams on the board (or use the ones in the exam section). For each, label every gate's output and write the final expression."] },
+    { "type": "task", "title": "4. Scenario to circuit", "p": ["A greenhouse fan runs when the temperature is high (T) AND either the humidity is high (H) OR the manual override is on (M), but never when the maintenance switch is on (S). Letters → expression → diagram → 16-row table (4 inputs) or argue why you only need to check the rows where S = 1 separately."] },
+    { "type": "python", "title": "5. Simulate the greenhouse", "p": ["Encode your Try 4 expression and print the table. Then search for any row where the fan runs with S = 1 — there must be none."],
+      "code": "def fan(T, H, M, S):\n    return   # your expression using and / or / not\n\nfor T in (0, 1):\n    for H in (0, 1):\n        for M in (0, 1):\n            for S in (0, 1):\n                print(T, H, M, S, \"->\", int(fan(T, H, M, S)))" }
+  ],
+  "check": [
+    { "q": "In `Q = A AND (B OR C)`, which gate is drawn first (closest to the inputs)?", "opts": ["AND", "OR", "NOT", "Either"], "a": 1, "fb": "Inner brackets first." },
+    { "q": "A diagram shows A and B into an AND, whose output and C go into an OR. The expression is:", "opts": ["A AND (B OR C)", "(A AND B) OR C", "A OR B AND C", "NOT (A AND B) OR C"], "a": 1, "fb": "Label the AND output, then OR it with C." },
+    { "q": "One input wire feeding two gates is called:", "opts": ["A short circuit", "Fan-out", "A loop", "An error"], "a": 1, "fb": "Allowed and common." },
+    { "q": "Two gate outputs joined into one wire is:", "opts": ["An OR gate", "Fan-out", "Not allowed — outputs must go into a gate", "A NOT gate"], "a": 2, "fb": "Combine signals with a gate." },
+    { "q": "'The alarm sounds if armed and (door or window) opens' is:", "opts": ["A AND D OR W", "A AND (D OR W)", "(A AND D) OR W", "A OR (D AND W)"], "a": 1, "fb": "Brackets follow the sentence." }
+  ],
+  "exam": [
+    { "q": "Draw a logic diagram for the expression `Q = (A AND B) OR NOT C`.", "marks": 3,
+      "model": ["AND gate with inputs A and B (1). NOT gate on C (1). OR gate taking the AND output and the NOT output, giving Q, all labelled (1)."],
+      "commentary": "One mark per gate correctly placed and connected. Wrong shape loses that gate's mark. Label Q." },
+    { "q": "Write the Boolean expression for the following circuit: A and B feed an OR gate; the OR output and C feed an AND gate; the AND output is Q.", "marks": 2,
+      "model": ["Q = (A OR B) AND C (2; 1 if brackets missing or gates swapped but structure otherwise right)."],
+      "commentary": "Brackets around the first gate's expression. `A OR B AND C` without brackets is ambiguous and drops a mark." },
+    { "q": "A car's interior light comes on when a door is open (D = 1) OR the light switch is on (S = 1), but not when the engine is running (E = 1). Write the Boolean expression for the light L and complete its truth table.", "marks": 4,
+      "model": ["L = (D OR S) AND NOT E (1 expression, 1 for correct use of NOT). Truth table rows 000–111 with D OR S intermediate (1) and L = 0,0,1,0,1,0,1,0 reading D,S,E order — i.e. L is 1 for rows 010, 100, 110 (1)."],
+      "commentary": "Scenario questions: letters, then expression, then table. The 'not when' always becomes AND NOT. Check the table against the words before moving on." }
+  ],
+  "home": "Design a logic circuit for a safe that opens when the correct code is entered (C) AND either the manager's key (K) is turned OR it is during opening hours (H), and never while the alarm is active (A). Expression, diagram, and the rows of the truth table where the safe opens.",
+  "extension": {
+    "title": "Beyond GCSE — A-level extension (optional): simplifying circuits",
+    "sections": [
+      { "p": ["In Try 2 you saw that `A AND (B OR C)` and `(A AND B) OR (A AND C)` always agree — the second uses three gates to do what the first does with two. A-level Boolean algebra is a set of laws (distributive, De Morgan, absorption: `A OR (A AND B) = A`) for rewriting an expression into one with fewer gates, and **Karnaugh maps** for doing it visually.",
+             "Try: simplify `(A AND B) OR (A AND NOT B)`. Build both versions in the gate tool and confirm the tables match. Then open the Boolean algebra tool and let it check each step of your working."] }
+    ],
+    "link": { "url": "https://beanwise.coderra.je/boolean-algebra-alevel/", "title": "Boolean algebra (A-level) tool" }
+  },
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 10 · try 30 · check 5 · exam 9 · homework 3",
+    "misconceptions": [
+      "Drawing gates in reading order of the expression rather than bracket order.",
+      "Omitting brackets when writing expressions from diagrams.",
+      "Joining two outputs together instead of using a gate.",
+      "'But not when X' translated as OR NOT instead of AND NOT."
+    ],
+    "say": [
+      "'Inside brackets first, left to right on the page.'",
+      "'Label every wire. The last label is your answer.'",
+      "'But not when… is AND NOT. Always.'"
+    ],
+    "skip": "Try 3 depends on board diagrams — use the exam-section circuits if short. Try 5 is optional.",
+    "differentiation": [
+      "Support: Try 1 with the gates drawn and only the wires missing.",
+      "Stretch: the extension (simplification) and the 4-input greenhouse table in full."
+    ]
+  }
+}
