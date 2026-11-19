@@ -1,0 +1,98 @@
+{
+  "id": "2-3-05",
+  "title": "Iterative and final testing",
+  "spec": "2.3.2",
+  "duration": 60,
+  "specPoints": [
+    "2.3.2 Types of testing: **iterative** testing (during development) and **final/terminal** testing (when complete)",
+    "Refining algorithms in response to testing; the purpose of testing in the development cycle"
+  ],
+  "learn": [
+    "Explain the difference between iterative and final testing and when each happens",
+    "Explain why testing as you build is more effective than testing at the end",
+    "Carry out an iterative build: write a part, test it, fix it, move on",
+    "Carry out a final test against the whole brief with a complete test plan",
+    "Describe how a program was refined as a result of test results"
+  ],
+  "hook": "Two students write the same 80-line program. One types all 80 lines then presses Run: eleven errors, no idea which line caused which. The other runs every ten lines: one error at a time, fixed in a minute. Same program, same bugs, very different afternoons. The second student was testing iteratively.",
+  "video": {
+    "title": "Test as you go, then test the lot",
+    "brief": "3 minutes. A program being built in blocks; after each block a small test runs (green tick or red cross → fix → tick) — iterative. Then the finished program against a long test plan covering the whole brief — final. Overlay the exam definitions. End with a comparison: errors found per hour, early vs late."
+  },
+  "explain": [
+    { "h": "Iterative testing",
+      "p": ["**Iterative testing** happens **during** development: you write a small part (a function, a loop, a menu option), test it straight away, fix what's wrong, and only then write the next part. Each cycle is write → test → fix. Because only a few lines changed, a failure is easy to locate. Subprograms (2.2.10) make this natural — each one can be tested on its own before the main program exists."] },
+    { "h": "Final (terminal) testing",
+      "p": ["**Final testing** happens **when the program is complete**: the whole program is tested against the whole brief, using a full test plan with normal, boundary, invalid and erroneous data. It checks that the parts work *together*, that every requirement is met, and that nothing broke when later parts were added. Final testing finds integration problems that testing parts separately cannot."] },
+    { "h": "Why both",
+      "list": ["Iterative testing catches errors when they are cheap to fix and easy to find; leaving everything to the end means many errors interacting at once.",
+               "Final testing is the only point at which the complete requirement can be checked — a menu option that works alone may still break the score total when combined.",
+               "Testing after a change (sometimes called regression testing) protects earlier work — a refinement in one function can break another."] },
+    { "h": "Refining from test results",
+      "p": ["A test fails → find the cause (trace it, 2.1.5) → change the code → **re-run the failed test and the tests around it**. 'Refining' in exam language means improving the program so it meets its purpose better: fixing the logic error a boundary test exposed, adding validation an erroneous test crashed on, handling an edge case the brief implied. When asked to 'describe how the program was refined', say what the test showed, what you changed, and what the re-test showed."] },
+    { "h": "In the exam",
+      "p": ["Definitions of the two types, the advantages of each, and 'which type of testing is being described' from a scenario ('the programmer tested each function as it was written' → iterative; 'the finished app was tested against the client's requirements' → final)."] }
+  ],
+  "simple": [
+    { "h": "Test while you build",
+      "p": ["**Iterative testing**: write a bit, run it, fix it, write the next bit. Errors are easy to find because you only changed a few lines."] },
+    { "h": "Test the whole thing at the end",
+      "p": ["**Final testing**: when the program is finished, run a full test plan against everything the brief asked for. Checks the parts work together."] },
+    { "h": "Fix and re-test",
+      "p": ["When a test fails: find the cause, change the code, run that test again — and the ones near it, in case the fix broke something else."] }
+  ],
+  "keyterms": [
+    { "term": "Iterative testing", "def": "Testing each part of a program as it is developed, fixing errors before moving on." },
+    { "term": "Final (terminal) testing", "def": "Testing the complete program against all its requirements once development is finished." },
+    { "term": "Refining", "def": "Improving a program in response to test results so it better meets its purpose." },
+    { "term": "Regression", "def": "An error introduced into previously working code by a later change." },
+    { "term": "Requirements", "def": "What the program must do, as set out in the brief." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Iterative build: a tuck shop till", "p": ["Build this in four steps and **run after each step**. Step 1: a `get_price(item)` function with a dictionary of prices; test it with two items and an unknown item. Step 2: a loop that asks for items until \"done\" and totals them; test with two items. Step 3: a 10% discount over £5; test with £4.99, £5.00, £5.01. Step 4: validation for unknown items and blank input; test with erroneous data. Keep a note of every bug you found and at which step."],
+      "code": "prices = {\"crisps\": 0.80, \"juice\": 1.20, \"apple\": 0.50, \"cookie\": 1.00}\n\n# Step 1\ndef get_price(item):\n    pass\n\n# Step 2\n\n# Step 3\n\n# Step 4\n" },
+    { "type": "task", "title": "2. Final test plan for the till", "steps": ["Now the till is complete, write a test plan of 10+ rows covering every requirement in Try 1 with all four data types.", "Run it. Record actual results.", "Did final testing find anything iterative testing missed? Write one sentence on why."] },
+    { "type": "python", "title": "3. Spot the regression", "p": ["A working program was refined to add a 'free item over £10' feature — and the discount broke. Run with items totalling £6 and £12, find what the refinement broke, fix it, and write the test that would have caught it."],
+      "code": "def total_cost(prices):\n    total = sum(prices)\n    if total > 10:\n        cheapest = min(prices)\n        total = total - cheapest\n    elif total > 5:\n        total = total * 0.9\n    return round(total, 2)\n\nprint(total_cost([2.0, 2.0, 2.0]))        # expect 5.40 (10% off £6)\nprint(total_cost([4.0, 4.0, 4.0]))        # expect 7.20 (free £4 item AND 10% off £8)" },
+    { "type": "task", "title": "4. Classify the scenario", "steps": ["Decide iterative or final for each: (a) 'After adding the login function she ran it with three usernames.' (b) 'The company tested the complete booking system against the specification.' (c) 'He tested the menu as soon as it was written, before adding any options.' (d) 'Before release, every test in the plan was run again.'", "For (b) and (d), name one error type that only this kind of testing would find."] },
+    { "type": "embed", "title": "5. PRIMM in the IDE", "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": ["Use the IDE's save feature to build Try 1 as a file in four versions (till_v1.py … till_v4.py) so you can see the iterations."] }
+  ],
+  "check": [
+    { "q": "Testing each function as soon as it is written is:", "opts": ["Final testing", "Iterative testing", "Boundary testing", "Sanitisation"], "a": 1, "fb": "During development." },
+    { "q": "Testing the finished program against all requirements is:", "opts": ["Iterative testing", "Final testing", "Syntax checking", "Refining"], "a": 1, "fb": "When complete." },
+    { "q": "A main advantage of iterative testing:", "opts": ["It needs no test plan", "Errors are found while the code that caused them is fresh and small", "It replaces final testing", "It is only for syntax errors"], "a": 1, "fb": "Cheap, early, easy to locate." },
+    { "q": "Final testing can find errors that iterative testing cannot because:", "opts": ["It uses more computers", "It tests the parts working together against the whole brief", "It is done by the user", "It is faster"], "a": 1, "fb": "Integration and complete requirements." },
+    { "q": "After fixing a failed test you should:", "opts": ["Move on", "Re-run that test and nearby tests", "Delete the test", "Rewrite the program"], "a": 1, "fb": "Check the fix, check for regressions." }
+  ],
+  "exam": [
+    { "q": "Describe the difference between **iterative testing** and **final testing**.", "marks": 2,
+      "model": ["Iterative testing is carried out during development, testing each part/module as it is written and fixing errors before continuing (1); final testing is carried out once the whole program is complete, testing it as a whole against its requirements (1)."],
+      "commentary": "When and what: during/parts vs end/whole." },
+    { "q": "A programmer is writing a program with five subprograms. Explain **one** advantage of testing each subprogram as it is written rather than waiting until all five are complete.", "marks": 2,
+      "model": ["Any error is likely to be in the subprogram just written (1), so it is quicker and easier to find and fix than searching through five subprograms at once / errors do not build up and interact (1)."],
+      "commentary": "Advantage plus the reason it is an advantage." },
+    { "q": "During final testing of a quiz program, entering a blank answer caused the program to crash. Describe how the program should be refined and how the refinement should be tested.", "marks": 3,
+      "model": ["Add a presence check / validation so a blank answer is rejected with a message and asked again (1). Re-run the test with a blank answer to confirm it no longer crashes (1). Re-run the other tests (normal and boundary answers) to check the change has not broken anything else (1)."],
+      "commentary": "Refine, re-test the failure, re-test the rest. Three marks, three steps." }
+  ],
+  "home": "Pick the program you will submit as your 2.2 capstone. Build (or rebuild) it in at least four iterations, keeping a short log: what you added, what you tested, what broke, what you fixed. Then run a final test plan. Hand in the log and the plan.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 10 · try 30 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "Iterative testing as 'testing more than once' rather than 'testing each part as built'.",
+      "Final testing as 'the last test you did'. It is the complete program against the complete brief.",
+      "Fixing a bug without re-running the test that found it (or any other).",
+      "Thinking refinement means adding features. It means better meeting the existing purpose."
+    ],
+    "say": [
+      "'Ten lines, Run. Ten lines, Run.'",
+      "'Fixed it? Prove it. Run the test that failed. Then run the ones next to it.'"
+    ],
+    "skip": "Try 5 optional; Try 4 can be oral. Try 1 followed by Try 2 is the lesson.",
+    "differentiation": [
+      "Support: Try 1 with Step 1 and Step 2 provided; students do steps 3–4 iteratively.",
+      "Stretch: Try 3 — decide what the brief *should* say about combining offers, and write the test plan for both interpretations."
+    ]
+  }
+}

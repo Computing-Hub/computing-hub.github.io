@@ -1,0 +1,65 @@
+{
+  "id": "2-3-06",
+  "title": "Unit 2.3 Producing robust programs — review and test",
+  "spec": "2.3.1 – 2.3.2",
+  "duration": 50,
+  "specPoints": [
+    "Covers the whole of 2.3: defensive design (misuse, authentication, validation, sanitisation), maintainability, syntax and logic errors, test data, iterative and final testing",
+    "30 marks · 45 minutes · pseudocode or Python accepted",
+    "Teachers: switch on Teacher view for the mark scheme"
+  ],
+  "learn": [
+    "Apply every 2.3 idea to an unfamiliar scenario",
+    "Write validation code and a test plan from a brief",
+    "Give reasons, not labels, in explain questions"
+  ],
+  "hook": "Every answer in this unit has a 'why'. Validation — why that check? Test data — why that value? Maintainability — why does it help the next programmer? If your answer has no 'because', it is half an answer.",
+  "explain": [
+    { "h": "Five-minute review",
+      "list": ["Five validation checks: range, type, length, presence, format — name the check *and* the rule.",
+               "Authentication = who you are; validation = is the data acceptable; verification = did you mean it; sanitisation = remove the dangerous bits.",
+               "Maintainability: names, indentation, comments (why not what), subprograms — each with its benefit.",
+               "Syntax error: won't run, computer reports it. Logic error: runs, wrong, found by testing.",
+               "Test data: normal, boundary (edge and one past), invalid (right type, out of range), erroneous (wrong type). Expected result before running.",
+               "Iterative: test each part as built. Final: whole program against whole brief. Fix → re-test → re-test the rest."] }
+  ],
+  "try": [
+    { "type": "python", "title": "Scratch space for the code questions", "p": ["Use this for questions 3 and 7 if your teacher allows."],
+      "code": "# scratch space\n" }
+  ],
+  "exam": [
+    { "q": "A program asks the user to enter a username (6–12 characters) and a PIN (exactly 4 digits). State **three** validation checks that should be carried out, and for each say which input it applies to and what it checks.", "marks": 6,
+      "model": ["Length check on the username: between 6 and 12 characters (1 + 1). Length check on the PIN: exactly 4 characters (1 + 1). Type/format check on the PIN: digits only (1 + 1). Also acceptable: presence check on either."],
+      "commentary": "Check name + which input + the rule. Three different checks across the two inputs." },
+    { "q": "Explain what is meant by **authentication** and describe **one** way a program could make authentication more secure.", "marks": 3,
+      "model": ["Checking that a user is who they claim to be, e.g. with a username and password (1). Limit failed attempts / lock out after several failures (1), which prevents repeated guessing (1)."],
+      "commentary": "Definition, feature, reason." },
+    { "q": "Write an algorithm that asks for a percentage and repeats until a whole number between 0 and 100 is entered. Non-numeric input must not crash the program.", "marks": 5,
+      "model": ["Loop that continues until valid (1). Input taken inside the loop (1). Type check that handles non-numeric input without crashing — try/except or isdigit (1). Range check 0–100 inclusive (1). Message shown when rejected and value available after the loop (1)."],
+      "commentary": "Both checks, no crash, loop." },
+    { "q": "Look at the program below. Identify **two** features that make it maintainable and **one** way it could be improved further.", "marks": 3, "code": "# Calculates total cost of items including VAT\nVAT_RATE = 0.2\n\ndef add_vat(price):\n    return price * (1 + VAT_RATE)\n\ndef total_cost(prices):\n    t = 0\n    for p in prices:\n        t = t + add_vat(p)\n    return t",
+      "model": ["Features (any two): header comment explaining purpose (1); meaningful names such as VAT_RATE, add_vat, total_cost (1); use of subprograms / a constant (1). Improvement: rename `t` and `p` to meaningful names, e.g. `total`, `price` (1)."],
+      "commentary": "Point at specific lines." },
+    { "q": "A program runs without any error messages but outputs the wrong total. State the type of error and describe how the programmer should find it.", "marks": 3,
+      "model": ["Logic error (1). Decide the expected output for known inputs and compare with the actual output (1); trace the algorithm / use a trace table or print statements to find where the values go wrong (1)."],
+      "commentary": "Name it, then the method: expected vs actual, then trace." },
+    { "q": "A program accepts a number of guests from 1 to 20. Give **one** example each of normal, boundary and erroneous test data, with the expected outcome of each.", "marks": 6,
+      "model": ["Normal: e.g. 8 (1) — accepted (1). Boundary: 1 or 20 / 0 or 21 (1) — accepted / rejected with message (1). Erroneous: e.g. \"ten\" (1) — rejected with a message, no crash (1)."],
+      "commentary": "Outcome must match the value." },
+    { "q": "Describe the difference between iterative and final testing, and give **one** reason why both are needed.", "marks": 4,
+      "model": ["Iterative: testing each part as it is developed (1). Final: testing the complete program against all requirements (1). Both needed because iterative finds errors early when they are easy to locate (1) while final checks the parts work together and every requirement is met (1)."],
+      "commentary": "Two definitions, two reasons." }
+  ],
+  "teacher": {
+    "timing": "50 min: review 5 · test 45. 30 marks. Bands: 24+ secure; 17–23 developing; below 17 revisit lessons 1 and 4.",
+    "misconceptions": [
+      "Marks lost on Q1 and Q6 are usually missing 'rule' or 'outcome' halves — a drill on 'value + what should happen' fixes most of it."
+    ],
+    "say": ["'Every answer needs a because.'"],
+    "skip": "For 35 minutes drop Q4 and Q7 (7 marks), mark out of 23.",
+    "differentiation": [
+      "Support: allow the five-minute review list on the desk.",
+      "Stretch: Q3 — also limit the user to three attempts and report the outcome."
+    ]
+  }
+}

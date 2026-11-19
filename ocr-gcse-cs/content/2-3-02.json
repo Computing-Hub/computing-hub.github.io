@@ -1,0 +1,98 @@
+{
+  "id": "2-3-02",
+  "title": "Maintainability: naming, comments, indentation, subprograms",
+  "spec": "2.3.1",
+  "duration": 60,
+  "specPoints": [
+    "2.3.1 **Maintainability**: use of **sub programs**, **naming conventions**, **indentation**, **commenting**",
+    "Identify and improve poorly written code; explain why each feature makes code easier to maintain"
+  ],
+  "learn": [
+    "Explain what maintainability means and who benefits from it",
+    "Apply the four maintainability features: meaningful names, consistent indentation, useful comments, subprograms",
+    "Rewrite badly written code so it is readable without changing what it does",
+    "Explain, in exam answers, *why* each feature helps (not just that it is 'good practice')",
+    "Recognise the maintainability marks in longer programming questions"
+  ],
+  "hook": "Two programs do exactly the same thing. One is 40 lines called `a`, `b`, `x1`, no spaces, no comments. The other is three short functions with names like `calculate_total`. A bug is reported in both. Which one would you rather be handed at 4 p.m. on a Friday? That feeling is what the exam means by maintainability.",
+  "video": {
+    "title": "Code you can come back to",
+    "brief": "3 minutes. Split screen: cryptic code on the left, same logic refactored on the right, transforming step by step — rename `x` to `total_price`, indent the loop body, add a comment above the tricky line, extract the repeated block into a function. Each step labelled with the spec word. End: 'you will read this code more times than you write it.'"
+  },
+  "explain": [
+    { "h": "What maintainability is",
+      "p": ["**Maintainable** code is code that you — or someone else — can understand, fix and extend later without having to reverse-engineer it. Most of a program's life is maintenance, not writing. The spec names four things that make code maintainable; exam questions ask you to *identify* them in code, *add* them, and *explain why* they help."] },
+    { "h": "The four features",
+      "code": "Feature                 What it means                               Why it helps (say this in the exam)\nNaming conventions      Identifiers that describe the data/job:      The reader knows what a variable holds or a\n                        total_price, is_valid, get_user_choice()     function does without tracing the code\nIndentation             Code inside loops/ifs/functions indented      Shows the structure at a glance; makes\n                        consistently (Python requires it)            missing or misplaced blocks obvious\nCommenting              # notes explaining WHY, not restating WHAT   Explains intent and tricky parts so a future\n                        (\"# VAT is 20% from April 2026\")              programmer doesn't have to guess\nSubprograms             Repeated or separable logic in named          Fix in one place; test parts separately;\n                        functions/procedures                          the main program reads like a summary" },
+    { "h": "Good comments and bad comments",
+      "code": "x = x + 1          # add one to x            <- useless: restates the code\nattempts += 1      # one more failed login    <- useful: says what it means\n\n# Students below 40 are referred to the intervention group (policy agreed Sept 2026)\nif mark < 40:\n    refer(student)",
+      "after": ["Comment the *why* and anything non-obvious; a header comment at the top of a program or function saying what it does and what inputs it expects is standard. Don't comment every line."] },
+    { "h": "Naming conventions",
+      "p": ["Be descriptive and be consistent. Common Python convention: `snake_case` for variables and functions, `CAPITALS` for constants, `CamelCase` for classes. Booleans read well as questions: `is_valid`, `has_paid`. Avoid single letters except loop counters (`i`) and avoid abbreviations only you understand."] },
+    { "h": "How it is marked",
+      "p": ["In 6–10 mark programming questions there is usually a mark for 'program is well structured and maintainable', awarded for sensible names, correct indentation and the use of subprograms or comments. In short questions you may be asked to 'state two ways the maintainability of this program could be improved' — look for bad names, missing comments, repeated code, inconsistent indentation."] }
+  ],
+  "simple": [
+    { "h": "Code you can fix later",
+      "p": ["Maintainable code is easy to read and change. You will read your code many more times than you write it."] },
+    { "h": "Four things",
+      "list": ["**Good names**: `total_price` not `x`.", "**Indentation**: lines inside a loop or if are pushed in.", "**Comments**: short notes with `#` that explain *why*.", "**Subprograms**: put repeated code in a function with a good name."] },
+    { "h": "Good comment, bad comment",
+      "code": "x = x + 1          # add one to x      <- bad: says what the code already says\nattempts += 1      # another wrong try  <- good: says what it means" }
+  ],
+  "keyterms": [
+    { "term": "Maintainability", "def": "How easy a program is to understand, correct and extend later." },
+    { "term": "Naming convention", "def": "An agreed way of naming identifiers so names are descriptive and consistent." },
+    { "term": "Indentation", "def": "Consistent spacing that shows which lines belong inside loops, selections and subprograms." },
+    { "term": "Comment", "def": "A note in the code, ignored by the computer, that explains purpose or reasoning." },
+    { "term": "Refactor", "def": "Improving the structure or readability of code without changing what it does." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. What does it do?", "p": ["Run it, work out what it does, then rewrite it with good names, indentation, a header comment and at least one function — producing exactly the same output."],
+      "code": "a=[72,45,88,91,38,65]\nb=0\nc=0\nfor d in a:\n  if d>=40:\n   b=b+1\n  else:\n   c=c+1\nprint(b,c)\ne=0\nfor d in a:\n e=e+d\nprint(e/len(a))" },
+    { "type": "python", "title": "2. Comment the why", "p": ["Add four comments to this program: one header, three explaining non-obvious lines. Delete any comment that just repeats the code."],
+      "code": "RATE = 0.2\nitems = [19.99, 5.49, 120.00]\ntotal = 0\nfor price in items:\n    total = total + price\nif total > 100:\n    total = total * 0.9\ntotal = total * (1 + RATE)\nprint(round(total, 2))" },
+    { "type": "python", "title": "3. Remove the repetition", "p": ["The same five lines appear three times with small changes. Extract a function with parameters so the main program is three calls."],
+      "code": "print(\"=\" * 20)\nprint(\"MATHS\".center(20))\nprint(\"=\" * 20)\nprint(\"Average: 67.2\")\nprint()\nprint(\"=\" * 20)\nprint(\"ENGLISH\".center(20))\nprint(\"=\" * 20)\nprint(\"Average: 71.5\")\nprint()\nprint(\"=\" * 20)\nprint(\"SCIENCE\".center(20))\nprint(\"=\" * 20)\nprint(\"Average: 59.8\")\nprint()" },
+    { "type": "task", "title": "4. Peer review", "steps": ["Swap your Try 1 rewrite with a partner.", "Without asking them anything, write one sentence saying what their program does. If you can't, their names or comments need work.", "Give one specific improvement each."] },
+    { "type": "embed", "title": "5. Code fixer", "url": "https://beanwise.coderra.je/GCSE_homepage/Python_Code_Fixer.html",
+      "instructions": ["Pick a longer program. Before fixing bugs, rename three variables and add two comments. Notice whether the bugs are easier to see afterwards."] }
+  ],
+  "check": [
+    { "q": "Which name is best for a variable holding the number of failed logins?", "opts": ["n", "failed_logins", "fl", "data"], "a": 1, "fb": "Descriptive and readable." },
+    { "q": "The main purpose of a comment is to:", "opts": ["Make the program run faster", "Explain purpose or reasoning to a reader", "Repeat what the line does", "Stop errors"], "a": 1, "fb": "Comments are for people, not the computer." },
+    { "q": "Indentation in Python:", "opts": ["Is optional decoration", "Defines which lines are inside a block", "Only matters in comments", "Slows the program"], "a": 1, "fb": "It is syntax in Python and good practice everywhere." },
+    { "q": "Putting repeated code in a subprogram helps maintainability because:", "opts": ["It uses less memory", "A change is made in one place and tested once", "It hides errors", "It removes the need for comments"], "a": 1, "fb": "One place to fix." },
+    { "q": "'Refactoring' means:", "opts": ["Adding new features", "Improving structure without changing behaviour", "Deleting comments", "Testing with new data"], "a": 1, "fb": "Same output, cleaner code." }
+  ],
+  "exam": [
+    { "q": "The following program works correctly. Identify **three** ways its maintainability could be improved.", "marks": 3, "code": "a = int(input())\nb = int(input())\nif a > b:\nprint(a)\nelse:\nprint(b)\nc = int(input())\nd = int(input())\nif c > d:\nprint(c)\nelse:\nprint(d)",
+      "model": ["Any three: use meaningful variable names instead of a, b, c, d (1); indent the lines inside the if/else consistently (1); add comments explaining what the program does (1); put the repeated 'larger of two numbers' code into a subprogram/function and call it twice (1)."],
+      "commentary": "Each must be a *different* feature from the four. Three naming suggestions score one mark." },
+    { "q": "Explain how using subprograms makes a program easier to maintain.", "marks": 2,
+      "model": ["Code for one task is in one place, so a correction or improvement is made once rather than everywhere it was repeated (1); each subprogram can be understood and tested on its own, and the main program becomes shorter and clearer (1)."],
+      "commentary": "Two distinct benefits, each tied to maintenance (fixing/understanding later), not just 'reuse'." },
+    { "q": "Give **one** example of a useful comment and **one** example of an unnecessary comment, and explain the difference.", "marks": 3,
+      "model": ["Useful: a comment explaining why something is done or what a tricky section achieves, e.g. `# discount only applies to orders over £100` (1). Unnecessary: one that restates the code, e.g. `x = x + 1  # add 1 to x` (1). Useful comments add information the code itself does not show (1)."],
+      "commentary": "Concrete examples required. The explanation mark is for the 'adds information the code doesn't' idea." }
+  ],
+  "home": "Find the longest program you have written this year. Refactor it: good names, consistent indentation, a header comment, comments on anything tricky, and at least one subprogram. Keep the old version and hand in both with three sentences on what changed.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 10 · try 30 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "Commenting every line. Model the 'why not what' rule with an example of each.",
+      "Thinking maintainability is about the program *working*. It works already; this is about the next person.",
+      "'Good practice' as an exam reason. Push for the actual benefit: find bugs faster, change once, understand without tracing.",
+      "Renaming to slightly less bad names (`num1`, `num2`) and calling it done."
+    ],
+    "say": [
+      "'Could someone who has never seen this fix a bug in it before break?'",
+      "'The computer doesn't care about any of this. Humans do, and humans fix the bugs.'"
+    ],
+    "skip": "Try 4 and 5 can go. Try 1 is the lesson; Try 3 links back to subprograms.",
+    "differentiation": [
+      "Support: Try 1 with the new variable names supplied; students apply them, indent and comment.",
+      "Stretch: Try 3 — make the function take the subject's list of marks and compute the average itself."
+    ]
+  }
+}

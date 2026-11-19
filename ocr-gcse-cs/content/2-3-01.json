@@ -1,0 +1,107 @@
+{
+  "id": "2-3-01",
+  "title": "Defensive design: input validation and authentication",
+  "spec": "2.3.1",
+  "duration": 60,
+  "specPoints": [
+    "2.3.1 **Defensive design** considerations: anticipating misuse, **authentication**, **input validation** (range, type, length, presence, format checks) and **input sanitisation**",
+    "Write code that validates input and authenticates users"
+  ],
+  "learn": [
+    "Explain what defensive design is and why programs must expect bad input and misuse",
+    "Name the five validation checks (range, type, length, presence, format) and give an example of each",
+    "Write validation loops that reject bad input and explain the problem to the user",
+    "Explain authentication (username/password, limits on attempts) and write a simple version",
+    "Distinguish validation (is it acceptable?) from sanitisation (removing dangerous content) and from verification (did you mean it?)"
+  ],
+  "hook": "Type your age as 'twelve'. Type −5. Type 999. Leave it blank. Paste in a whole paragraph. A program written for the user who always types the right thing lasts about a day in a real school. Defensive design is writing for the user who doesn't.",
+  "video": {
+    "title": "Expect the worst: validation and authentication",
+    "brief": "4 minutes. A form field with a stream of bad inputs bouncing off five labelled shields: range, type, length, presence, format. Each shield lights as it catches its input. Then a login box: password checked against stored value, attempts counter, lockout after 3. Close with the three words on screen: validation (is it allowed?), verification (is it what you meant?), sanitisation (strip the dangerous bits)."
+  },
+  "explain": [
+    { "h": "Defensive design",
+      "p": ["**Defensive design** means writing a program on the assumption that users will make mistakes, misuse it, or attack it — and making sure it keeps working anyway. Three parts in the spec: **anticipating misuse** (what could go wrong at each input?), **authentication** (is this person allowed?) and **input validation** (is this data acceptable?)."] },
+    { "h": "The five validation checks",
+      "code": "Check      Question it asks                       Example\nRange      Is it between the allowed limits?      age between 0 and 120; mark 0–100\nType       Is it the right kind of data?          a whole number, not \"twelve\" or 3.5\nLength     Is it the right number of characters?  password at least 8; postcode at most 8\nPresence   Has something been entered at all?     name is not blank\nFormat     Does it match the expected pattern?    email contains @ and .; date is DD/MM/YYYY",
+      "after": ["In the exam, name the check **and** say what it checks for in this scenario. 'Range check' alone is half a mark; 'range check to make sure the mark is between 0 and 100' is the full mark."] },
+    { "h": "Writing validation",
+      "p": ["The pattern is always: ask, test, loop while bad. Tell the user *why* it was rejected. Python's `try/except` handles the type check without crashing:"],
+      "code": "def get_mark():\n    while True:\n        text = input(\"Mark (0-100): \")\n        if text == \"\":                       # presence\n            print(\"Please enter a mark.\")\n        elif not text.isdigit():             # type (whole number)\n            print(\"Numbers only.\")\n        elif int(text) < 0 or int(text) > 100:   # range\n            print(\"Must be 0 to 100.\")\n        else:\n            return int(text)\n\n# OCR pseudocode style\ndo\n    mark = int(input(\"Mark (0-100): \"))\n    if mark < 0 OR mark > 100 then\n        print(\"Must be 0 to 100\")\n    endif\nuntil mark >= 0 AND mark <= 100" },
+    { "h": "Authentication",
+      "p": ["**Authentication** checks that the user is who they claim to be, usually a username and password compared against stored values. Defensive extras the exam likes: a limit on failed attempts (then lock out or delay), minimum password length/complexity, not revealing *which* of username or password was wrong, and never storing passwords as plain text (hash them — detail is beyond GCSE, but say 'stored securely')."],
+      "code": "attempts = 0\nwhile attempts < 3:\n    user = input(\"Username: \")\n    pwd = input(\"Password: \")\n    if user == stored_user and pwd == stored_pwd:\n        print(\"Welcome\")\n        break\n    attempts = attempts + 1\n    print(\"Incorrect. Attempts left:\", 3 - attempts)\nif attempts == 3:\n    print(\"Account locked\")" },
+    { "h": "Validation, verification, sanitisation",
+      "list": ["**Validation**: is the input *allowed*? (A date of birth in 2090 is not.)",
+               "**Verification**: is the input *what the user meant*? (Type your email twice; 'Are you sure?')",
+               "**Sanitisation**: *removing or escaping dangerous content* from input before using it — e.g. stripping characters that could form an SQL command (1.4 SQL injection) or script tags. Valid input can still be dangerous; sanitisation handles that."] }
+  ],
+  "simple": [
+    { "h": "Expect mistakes",
+      "p": ["People type the wrong thing. Good programs check every input and say what is wrong instead of crashing."] },
+    { "h": "Five checks",
+      "list": ["**Range**: between the limits? (0–100)", "**Type**: right kind? (a whole number)", "**Length**: right size? (password 8+)", "**Presence**: not blank?", "**Format**: right pattern? (email has @)"] },
+    { "h": "How to check",
+      "p": ["Ask. Test. If bad, say why and ask again."],
+      "code": "mark = int(input(\"Mark 0-100: \"))\nwhile mark < 0 or mark > 100:\n    print(\"Must be 0 to 100.\")\n    mark = int(input(\"Mark 0-100: \"))" },
+    { "h": "Who are you?",
+      "p": ["**Authentication** = username and password. Count the attempts. After 3 wrong, lock them out."] }
+  ],
+  "keyterms": [
+    { "term": "Defensive design", "def": "Designing a program so it keeps working when users make mistakes or try to misuse it." },
+    { "term": "Input validation", "def": "Checking that input is acceptable before using it: range, type, length, presence, format." },
+    { "term": "Authentication", "def": "Checking that a user is who they claim to be, e.g. with a username and password." },
+    { "term": "Sanitisation", "def": "Removing or neutralising potentially dangerous content from input." },
+    { "term": "Verification", "def": "Checking that input is what the user intended, e.g. entering it twice." },
+    { "term": "Anticipating misuse", "def": "Thinking ahead about how a program could be used wrongly and guarding against it." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Break it, then defend it", "p": ["Run it and type: `twelve`, `-5`, `999`, nothing at all. Note what happens each time. Then rewrite it using the `get_mark()` pattern from the lesson so none of those break it."],
+      "code": "mark = int(input(\"Mark (0-100): \"))\nif mark >= 40:\n    print(\"Pass\")\nelse:\n    print(\"Fail\")" },
+    { "type": "python", "title": "2. Five checks, five functions", "p": ["Write a validated input function for each: `get_age()` (range 0–120, type), `get_name()` (presence, length 2–30), `get_email()` (format: contains @ and a dot after it), `get_postcode()` (length ≤ 8, presence), `get_yes_no()` (format: y or n). Each must loop until valid and say what was wrong."],
+      "code": "def get_age():\n    pass\n\ndef get_name():\n    pass\n\ndef get_email():\n    pass\n\ndef get_postcode():\n    pass\n\ndef get_yes_no():\n    pass\n\nprint(get_age(), get_name(), get_email(), get_postcode(), get_yes_no())" },
+    { "type": "python", "title": "3. Login with lockout", "p": ["Finish the login: three attempts, a message with attempts remaining, lockout after the third failure, and the same message whether the username or the password was wrong. Then add a minimum password length check when the account is created."],
+      "code": "users = {\"ada\": \"Enigma1936\", \"alan\": \"Bombe!42\"}\n\ndef login():\n    pass\n\nlogin()" },
+    { "type": "python", "title": "4. Sanitise", "p": ["A comment box will be shown on a web page. Write `sanitise(text)` that removes `<` and `>` and any `;` or `--`, and trims spaces at both ends. Test it with `<script>alert(1)</script>` and with `Robert'); DROP TABLE Students;--`."],
+      "code": "def sanitise(text):\n    pass\n\nprint(sanitise(\"<script>alert(1)</script>\"))\nprint(sanitise(\"  Robert'); DROP TABLE Students;--  \"))" },
+    { "type": "embed", "title": "5. Validation in blocks", "url": "https://beanwise.coderra.je/pythonblocks/",
+      "instructions": ["Build the mark validation loop in Python Blocks and compare the generated code with your Try 1 solution."] }
+  ],
+  "check": [
+    { "q": "Checking that a mark is between 0 and 100 is a:", "opts": ["Type check", "Range check", "Format check", "Presence check"], "a": 1, "fb": "Limits → range." },
+    { "q": "Checking that a field has not been left blank is a:", "opts": ["Presence check", "Length check", "Range check", "Verification"], "a": 0, "fb": "Something must be present." },
+    { "q": "Asking the user to type a new password twice is:", "opts": ["Validation", "Verification", "Sanitisation", "Authentication"], "a": 1, "fb": "Checks they meant what they typed." },
+    { "q": "Removing `<script>` tags from a comment before storing it is:", "opts": ["Range check", "Verification", "Sanitisation", "Presence check"], "a": 2, "fb": "Neutralising dangerous content." },
+    { "q": "A sensible defensive feature for a login is:", "opts": ["Allowing unlimited attempts", "Telling the user which part was wrong", "Locking the account after several failed attempts", "Storing passwords in a text file"], "a": 2, "fb": "Limits brute-force attempts." }
+  ],
+  "exam": [
+    { "q": "A program asks the user to enter their date of birth as a day, month and year. Describe **two** validation checks that could be performed on the month, and give an example of invalid data each would reject.", "marks": 4,
+      "model": ["Range check: month must be between 1 and 12 (1), rejecting e.g. 13 (1). Type check: month must be a whole number (1), rejecting e.g. \"March\" or 3.5 (1)."],
+      "commentary": "Name the check, state the rule for *this* field, give an example that fails it. Presence check is also acceptable. Two different checks — two range checks score once." },
+    { "q": "Write pseudocode that asks a user for a password and repeats until the password entered is at least 8 characters long.", "marks": 3,
+      "model": ["Input stored in a variable (1). Loop controlled by the length — `while password.length < 8` / `do…until password.length >= 8` (1). Message and repeated input inside the loop (1)."],
+      "commentary": "Length check in a loop. `len(password)` in Python. The repeat-input-inside-the-loop mark is the one students drop." },
+    { "q": "Explain **two** ways a login system could be made more secure through defensive design.", "marks": 4,
+      "model": ["Limit the number of failed attempts and lock the account / add a delay (1), which prevents brute-force guessing of passwords (1). Require a minimum password length / mix of characters (1), which makes passwords harder to guess or crack (1). Also acceptable: not revealing whether the username or password was wrong; storing passwords securely (hashed)."],
+      "commentary": "Each way needs a reason — 'what' plus 'why it helps'. Two features without reasons: two marks." }
+  ],
+  "home": "Take the calculator or quiz program you wrote earlier in 2.2 and add validation to every input, with a clear message for each kind of bad input. Write a list of the checks you added and which of the five types each one is.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 12 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "Validation guarantees the input is *correct*. It guarantees it is *acceptable* — a plausible wrong age still passes.",
+      "'Type check' answered as 'check it's a number' when the field is text, and vice versa.",
+      "Authentication confused with validation; authentication is about the *person*.",
+      "Sanitisation and validation used interchangeably."
+    ],
+    "say": [
+      "'Name the check. Say the rule. Give the bad example.'",
+      "'Valid is not the same as true. 25 is a valid age for anyone in this room — and wrong for all of you.'"
+    ],
+    "skip": "Try 4 (sanitise) and Try 5 are optional; Try 1–3 are the exam skills.",
+    "differentiation": [
+      "Support: Try 2 — do `get_age()` together, then students complete two of the others.",
+      "Stretch: Try 3 — add a 10-second delay doubling after each failure (`time.sleep`) and explain the trade-off with usability."
+    ]
+  }
+}

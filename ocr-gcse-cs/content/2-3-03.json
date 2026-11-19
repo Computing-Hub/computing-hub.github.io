@@ -1,0 +1,99 @@
+{
+  "id": "2-3-03",
+  "title": "Syntax and logic errors",
+  "spec": "2.3.2",
+  "duration": 60,
+  "specPoints": [
+    "2.3.2 Identify **syntax errors** and **logic errors**; the purpose of testing",
+    "Recognise each type from code or from a description of a program's behaviour, and correct it"
+  ],
+  "learn": [
+    "Define syntax error and logic error and tell them apart from a description",
+    "Read an interpreter's error message and locate the line and cause",
+    "Find logic errors by comparing actual output with expected output and tracing",
+    "Correct both kinds in short programs",
+    "Explain why testing is needed even when a program runs without error messages"
+  ],
+  "hook": "Two broken programs. The first won't even start: red text, line 3. The second runs beautifully and tells every student they've failed. Which is worse? The first annoys you for ten seconds. The second might go unnoticed until results day.",
+  "video": {
+    "title": "Errors that shout and errors that whisper",
+    "brief": "4 minutes. Left: a syntax error — the interpreter highlights line 3, 'SyntaxError: expected :' — fixed in one keystroke. Right: a logic error — the program runs, output appears, a comparison with the expected output shows the wrong grade; a trace table reveals `>` should be `>=`. Then a montage of the most common syntax errors (missing colon, unmatched brackets, misspelt keyword, wrong indentation) and logic errors (boundary, wrong operator, wrong variable, loop bound). End: 'syntax errors are found by the computer; logic errors are found by testing'."
+  },
+  "explain": [
+    { "h": "Syntax errors",
+      "p": ["A **syntax error** breaks the grammar of the language, so the program cannot be translated and **does not run**. The interpreter or compiler reports it, usually with a line number. Typical causes: missing colon or bracket, misspelt keyword (`esle`, `whlie`), unmatched quotes, wrong indentation in Python, using `=` where `==` is required in a condition (Python reports this one as a syntax error)."],
+      "code": "if mark >= 40          # SyntaxError: expected ':'\n    print(\"Pass\"\n                        # SyntaxError: '(' was never closed\nwhlie x < 10:           # SyntaxError: invalid syntax (misspelt keyword)" },
+    { "h": "Logic errors",
+      "p": ["A **logic error** is grammatically correct code that does the wrong thing. The program runs, produces output, and the output is wrong — sometimes only for certain inputs. No message. You find it by **testing**: deciding what the output *should* be, running the program, and comparing. 2.1.6 listed the common ones: boundary mistakes (`>` vs `>=`), wrong operator (`+` for `*`), initialising inside a loop, off-by-one loop bounds, wrong variable updated, missing else."],
+      "code": "# meant to give a 10% discount on orders of £50 or more\nif total > 50:          # logic error: £50 exactly gets no discount\n    total = total * 0.9\n\n# meant to average five marks\naverage = total / 4     # logic error: wrong divisor" },
+    { "h": "Reading error messages",
+      "p": ["Python's traceback shows the **line number** and a message. Read the *last* line first (the error type and message), then look at the line number — and the line *above* it, because a missing bracket is often reported one line late. `NameError` (misspelt or undefined variable) and `TypeError` (e.g. string + integer) happen while running, not at translation; OCR still treats these as errors you should recognise, and in the exam they sit with logic errors as things found by testing."] },
+    { "h": "Why test if it runs?",
+      "p": ["Because 'runs' only proves there are no syntax errors. The exam asks for the **purpose of testing**: to find and fix errors (especially logic errors), to check the program meets its requirements, to make sure it handles unexpected input without crashing, and to confirm it still works after changes. A program that has never been tested with the boundary value is a program with a hidden logic error waiting."] }
+  ],
+  "simple": [
+    { "h": "Syntax error = won't run",
+      "p": ["A typing mistake that breaks the rules: missing `:`, missing bracket, misspelt word. The computer stops and tells you the line."] },
+    { "h": "Logic error = runs but wrong",
+      "p": ["The code is allowed, but it does the wrong thing: `>` instead of `>=`, dividing by the wrong number. The computer does not tell you. You find it by testing with numbers where you already know the right answer."] },
+    { "h": "Reading the red text",
+      "p": ["Read the last line first — it says what went wrong. Then look at the line number, and the line above it."] },
+    { "h": "Why test?",
+      "p": ["Running without red text only means no syntax errors. Logic errors hide until you test."] }
+  ],
+  "keyterms": [
+    { "term": "Syntax error", "def": "An error in the grammar of the code that stops the program being translated and run." },
+    { "term": "Logic error", "def": "An error in the design of the code: it runs but produces the wrong result." },
+    { "term": "Traceback / error message", "def": "The report from the interpreter giving the error type, message and line." },
+    { "term": "Expected output", "def": "What a program should produce for a given input, decided before running it." },
+    { "term": "Purpose of testing", "def": "To find and fix errors, check requirements are met, and confirm the program handles all inputs." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Fix the syntax errors (there are five)", "p": ["Run, read the message, fix one, run again. Count how many runs it takes."],
+      "code": "def greet(name)\n    print(\"Hello, \" + name\n\nnames = [\"Ada\", \"Alan\", \"Grace\"\nfor n in names:\nprint(greet(n))\nwhlie True:\n    break" },
+    { "type": "python", "title": "2. Find the logic errors (there are three)", "p": ["It runs. Decide the expected output for marks 40, 70 and 100 before running, then compare and fix."],
+      "code": "marks = [40, 70, 100, 35]\ntotal = 0\nfor m in marks:\n    total = m\n    if m > 40:\n        grade = \"Pass\"\n    elif m >= 70:\n        grade = \"Merit\"\n    else:\n        grade = \"Fail\"\n    print(m, grade)\nprint(\"Average:\", total / 4)" },
+    { "type": "python", "title": "3. Classify from the symptom", "p": ["For each program, don't run it first. Write S (syntax) or L (logic) next to each bug description in a comment, then run to check."],
+      "code": "# A: 'prints the times table but stops at 11 x'\nfor i in range(1, 12):\n    print(i * 7)\n\n# B: 'red error on line 2 when I press run'\nx = 5\nif x = 5:\n    print(\"five\")\n\n# C: 'tells me 20 is odd'\nn = 20\nif n % 2 == 1:\n    print(\"odd\")\nelse:\n    print(\"even\")" },
+    { "type": "task", "title": "4. Write an error", "steps": ["Write a 6-line program with one syntax error and one logic error hidden in it.", "Write the expected output for two inputs.", "Swap with a partner: they must find both and say which is which."] },
+    { "type": "embed", "title": "5. Error spotter", "url": "https://beanwise.coderra.je/GCSE_homepage/Python_Error_Spotter.html",
+      "instructions": ["Ten programs; classify each error as syntax or logic before fixing. Keep score."] }
+  ],
+  "check": [
+    { "q": "A program shows 'SyntaxError' and never starts. The cause is:", "opts": ["A logic error", "A syntax error", "Bad test data", "A runtime slowdown"], "a": 1, "fb": "Grammar broken; cannot translate." },
+    { "q": "A program runs but gives 10% discount only above £50 instead of from £50. This is a:", "opts": ["Syntax error", "Logic error", "Presence check", "Compiler error"], "a": 1, "fb": "Runs, wrong result at the boundary." },
+    { "q": "Logic errors are found by:", "opts": ["Reading the error message", "Testing with inputs whose expected output is known", "Adding comments", "Re-indenting"], "a": 1, "fb": "Expected vs actual." },
+    { "q": "Which is a syntax error in Python?", "opts": ["Using > instead of >=", "`if x = 5:`", "Dividing by 4 instead of 5", "A loop running one time too many"], "a": 1, "fb": "Assignment in a condition breaks the grammar." },
+    { "q": "'The program runs, so it is correct.' This is wrong because:", "opts": ["Programs always have syntax errors", "Logic errors do not stop a program running", "Running takes too long", "Comments are missing"], "a": 1, "fb": "No message does not mean no error." }
+  ],
+  "exam": [
+    { "q": "Explain the difference between a **syntax error** and a **logic error**.", "marks": 2,
+      "model": ["A syntax error breaks the rules of the language so the program will not run/translate (1); a logic error allows the program to run but it produces an unexpected or incorrect result (1)."],
+      "commentary": "Both halves need the *consequence* (won't run / runs but wrong). Definitions without consequences are weak." },
+    { "q": "A program calculates the average of a list of 5 marks. When tested it outputs 350 instead of 70. State the type of error and suggest a likely cause.", "marks": 2,
+      "model": ["Logic error (1); the total has not been divided by the number of marks / the division line is missing or divides by 1 (1)."],
+      "commentary": "Reason from the numbers: 350 is the total, so the division is missing. Show that reasoning." },
+    { "q": "Describe **two** purposes of testing a program.", "marks": 2,
+      "model": ["Any two: to find and remove errors (especially logic errors) (1); to check that the program meets its requirements / does what was asked (1); to check it handles unexpected or invalid input without crashing (1); to check it still works after changes are made (1)."],
+      "commentary": "Two different purposes. 'To see if it works' twice is one mark." }
+  ],
+  "home": "Keep an error diary for a week: every error you get in any program, write the message (or symptom), S or L, and the fix. Bring the list; we'll tally the class's most common errors.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 10 · try 30 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "Any bug = syntax error. Drill the test: did it run?",
+      "Runtime errors (NameError, ZeroDivisionError) — students ask which they are. For GCSE: not syntax (the program started); treat as errors found by testing, like logic errors.",
+      "Believing the error is always on the reported line. Often the line above.",
+      "Fixing logic errors by changing the output text rather than the logic."
+    ],
+    "say": [
+      "'Red text before it starts: syntax. Wrong answer after it runs: logic.'",
+      "'Decide what it *should* print before you press Run. Otherwise you can't tell if it's wrong.'"
+    ],
+    "skip": "Try 4 and 5 optional. Try 1–3 are quick and cover the whole lesson.",
+    "differentiation": [
+      "Support: Try 1 with the five faulty lines marked with a comment arrow.",
+      "Stretch: Try 2 — add validation so the list cannot contain marks outside 0–100, and explain which error type that prevents."
+    ]
+  }
+}
