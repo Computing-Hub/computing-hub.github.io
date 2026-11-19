@@ -1,0 +1,71 @@
+{
+  "id": "1-1-05",
+  "title": "Systems architecture: exam questions",
+  "spec": "1.1",
+  "duration": 60,
+  "specPoints": [
+    "Applying 1.1.1–1.1.3 to exam-style questions: short recall, applied explain, compare, and a 1.1-flavoured extended response",
+    "Practising the exam-technique habits from the Exam unit on this topic"
+  ],
+  "learn": [
+    "Answer 1-mark recall on CPU components and registers with the precise term",
+    "Write 2-mark describe/explain answers on the FDE cycle and registers with point and expansion",
+    "Apply performance characteristics to a buying scenario in a 3–4 mark explain",
+    "Justify an embedded system for a given device",
+    "Self-mark against a scheme and record lost marks on the traps list"
+  ],
+  "hook": "You know the content of 1.1. Today you find out whether you can turn it into marks under time. Forty minutes of questions, twenty of marking — and the marking is where you learn.",
+  "explain": [
+    { "h": "How to use this lesson",
+      "p": ["Work through the exam questions below in order, **timed at one minute per mark**, writing in the answer boxes. Do not open the model answers until you have finished all of them. Then switch on Teacher view (or ask your teacher) and mark yourself strictly: a point scores only if you wrote the idea the scheme wants, in words that show you understand it. Every lost mark goes on your traps list with its type (no 'because', wrong register, generic answer…)."] },
+    { "h": "Reminders from the Exam unit",
+      "list": ["Underline the command word; circle the marks; box the scenario words.",
+               "State = term. Describe = what/how. Explain = what + because. Compare = both items every sentence.",
+               "Performance questions: name the mechanism (cycles per second / fewer RAM accesses / simultaneous instructions).",
+               "Register questions: *address* for PC and MAR, *data* for MDR, *result* for ACC.",
+               "Embedded questions: dedicated + built in; then pick the characteristics that fit the device."] }
+  ],
+  "exam": [
+    { "q": "State the purpose of the **accumulator**.", "marks": 1,
+      "model": ["Holds the result of calculations performed by the ALU / the value currently being processed (1)."],
+      "commentary": "One word that matters: result." },
+    { "q": "Tick **one** box to show which register holds the address of the next instruction to be fetched: ☐ MDR ☐ MAR ☐ Program counter ☐ Accumulator", "marks": 1,
+      "model": ["Program counter (1)."],
+      "commentary": "Read all four before ticking." },
+    { "q": "Describe what happens during the **execute** stage of the fetch–decode–execute cycle.", "marks": 2,
+      "model": ["The instruction is carried out (1), e.g. the ALU performs a calculation/logical operation, data is transferred between registers and memory, or the program counter is changed for a jump (1)."],
+      "commentary": "Carry out + a concrete example of what 'carry out' can mean." },
+    { "q": "Describe the role of **cache** memory in the CPU.", "marks": 2,
+      "model": ["Small, very fast memory close to the CPU (1) that stores frequently/recently used instructions and data so they can be accessed more quickly than from RAM (1)."],
+      "commentary": "Where it is and what it holds/why." },
+    { "q": "Describe how the **MAR** and **MDR** are used when the CPU reads data from memory.", "marks": 3,
+      "model": ["The address of the data is placed in the MAR (1). The address is sent to memory along the address bus and the data is returned along the data bus (1). The data is placed in the MDR, from where it can be used by the CPU/ALU (1)."],
+      "commentary": "Three steps in order. Students who only define the registers get one mark." },
+    { "q": "Explain **one** reason why increasing the clock speed of a CPU does not always lead to a proportional increase in performance.", "marks": 2,
+      "model": ["The CPU may have to wait for data from slower memory/cache misses (1), so cycles are wasted and the extra speed is not used (1). Or: higher clock speed generates more heat (1), so the CPU may throttle / needs cooling, limiting sustained speed (1)."],
+      "commentary": "Limitation + why it limits." },
+    { "q": "A gamer is choosing a CPU. CPU X has 4 cores at 4.2 GHz and 8 MB cache; CPU Y has 16 cores at 2.8 GHz and 32 MB cache. The game they play uses two cores heavily. Explain which CPU is more suitable for this gamer.", "marks": 4,
+      "model": ["CPU X (1) because the game only uses two cores so the extra cores of CPU Y would be largely idle (1); X's higher clock speed means each of the two cores used executes more instructions per second (1); the larger cache of Y gives some benefit but not enough to outweigh the clock advantage for a two-core workload (1)."],
+      "commentary": "Choice + reasons tied to 'uses two cores'. An answer choosing Y for 'more cores and cache' without engaging with the workload scores one mark at most." },
+    { "q": "A digital bathroom scale contains an embedded system. (a) State **two** characteristics of embedded systems. (b) Explain why a general-purpose computer would be unsuitable for the scale.", "marks": 4,
+      "model": ["(a) Any two: dedicated function; built into a device; low power; limited memory/processing; firmware in ROM (1 each). (b) A general-purpose computer is too large/expensive/power-hungry for a scale (1) and the scale needs only one simple function, so its capabilities would be wasted / it would take time to boot (1)."],
+      "commentary": "Characteristics in (a), applied reasons in (b)." },
+    { "q": "Compare the roles of the **control unit** and the **ALU**.", "marks": 3,
+      "model": ["Both are components of the CPU used in the fetch–decode–execute cycle (1). The control unit decodes instructions and coordinates the other components with control signals, **whereas** the ALU performs the arithmetic and logical operations (1). The CU is active in fetch and decode, **while** the ALU is used during execute (1)."],
+      "commentary": "Similarity, then differences holding both in each sentence." },
+    { "q": "Explain how the **Von Neumann** architecture allows a computer to run different programs.", "marks": 2,
+      "model": ["Programs are stored in main memory as data (stored-program concept) (1), so a new program can be loaded into memory and the CPU will fetch and execute its instructions in the same way as any other (1)."],
+      "commentary": "Stored-program + consequence." }
+  ],
+  "home": "Rewrite every answer that lost a mark today so it would score full marks. Then write three new 2-mark questions on 1.1 for a partner, with mark schemes.",
+  "teacher": {
+    "timing": "60 min: brief 5 · questions 24 marks ≈ 25 min · marking and traps list 20 · rewrite starts 10",
+    "misconceptions": ["Whatever the marking reveals — collect the class's top three lost-mark types and reteach them for five minutes next lesson."],
+    "say": ["'Mark it like an examiner, not like a friend.'"],
+    "skip": "If time is short, drop Q9 and Q10 (5 marks).",
+    "differentiation": [
+      "Support: allow the key-terms lists from lessons 1–4 open for the first attempt.",
+      "Stretch: Q7 — write the opposite recommendation for a video editor and justify it."
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "id": "1-1-04",
+  "title": "Embedded systems",
+  "spec": "1.1.3",
+  "duration": 60,
+  "specPoints": [
+    "1.1.3 The purpose and characteristics of **embedded systems**; examples of embedded systems",
+    "Compare embedded with general-purpose computers; justify why a device uses an embedded system"
+  ],
+  "learn": [
+    "Define an embedded system and give at least five everyday examples",
+    "List the characteristics: dedicated function, built into a larger device, limited resources, software in ROM/firmware, often real-time, low power and cost",
+    "Explain why a device uses an embedded system rather than a general-purpose computer",
+    "Identify embedded and non-embedded computers from descriptions",
+    "Link embedded systems to low-level languages (2.5) and to the micro:bit/ESP32 boards used in club"
+  ],
+  "hook": "Count the computers in your kitchen. Not the laptop — the washing machine, the microwave, the dishwasher, the boiler, the smart meter, the toaster with a timer. Each has a processor running one program it will run for its whole life. There are far more of those than there are laptops in the world.",
+  "video": {
+    "title": "The computers you don't see",
+    "brief": "3 minutes. A kitchen, then a car, then a hospital ward, with embedded processors highlighted one by one. Then a split: a laptop (runs anything, keyboard and screen, OS, GBs of RAM) versus a washing-machine controller (one job, buttons and a dial, firmware in ROM, KBs of RAM). Characteristics appear as labels. End with the question 'why not just put a PC in the washing machine?' and the answers: cost, size, power, reliability, start-up time."
+  },
+  "explain": [
+    { "h": "What an embedded system is",
+      "p": ["An **embedded system** is a computer system built into a larger device to perform a **dedicated function**. It has a processor, memory and input/output like any computer, but it runs **one fixed program** (often called **firmware**, stored in ROM or flash) and the user usually doesn't think of it as a computer at all. Examples: washing machine controller, microwave, digital watch, car engine management unit, traffic lights, pacemaker, printer, smart thermostat, the controller inside a hard drive."] },
+    { "h": "Characteristics",
+      "list": ["**Dedicated** — designed for one task or a small set of tasks; the program rarely or never changes.",
+               "**Built in** — part of a larger mechanical or electrical device; often no keyboard/screen, just buttons, sensors and small displays.",
+               "**Limited resources** — a small, cheap processor and little memory, enough for the job and no more.",
+               "**Firmware in ROM** — software stored permanently; starts instantly; cannot easily be altered by the user.",
+               "**Real-time** — many must respond within a guaranteed time (airbag, ABS brakes, pacemaker).",
+               "**Low power and cost** — runs for years on a battery or mains with minimal heat; manufactured cheaply in volume.",
+               "**Reliable** — fewer components and no general OS means fewer things to go wrong; often runs for years without a restart."] },
+    { "h": "Why not a general-purpose computer?",
+      "code": "Embedded system                                  General-purpose computer (laptop, phone)\nOne program, fixed function                      Runs many programs; user installs more\nFirmware in ROM; instant start                   Operating system loaded from storage; boots\nSmall, cheap processor; KB–MB of memory          Powerful processor; GB of memory\nLow power; small; little or no cooling           Higher power; fans; larger\nSimple interface: buttons, sensors, LEDs         Keyboard, touchscreen, full display\nVery reliable; rarely updated                    Updated often; more can go wrong",
+      "after": ["Exam logic for 'why use an embedded system in X': pick the characteristics that matter for X. A pacemaker: reliability, low power, real-time response, small size. A washing machine: low cost, one function, simple controls, no need to run other software."] },
+    { "h": "Spotting them in questions",
+      "p": ["A device is embedded if the computer is *inside* something else and does *one job*. A smart TV is a borderline case the exam avoids; a games console and a smartphone are general-purpose (they run many apps). If a question says 'identify which of these are embedded systems', apply the two tests: inside a larger device? dedicated function?"] },
+    { "h": "Links across the course",
+      "p": ["Embedded systems are why low-level languages still matter (2.5.1: tight memory and timing); their programs are often written in C or assembly and compiled, never interpreted. The micro:bit and ESP32 boards you may have used in club are tiny general-purpose boards used to *build* embedded systems."] }
+  ],
+  "simple": [
+    { "h": "A computer inside something else, doing one job",
+      "p": ["Washing machine, microwave, car engine controller, traffic lights, pacemaker. Each has a small processor running one program forever."] },
+    { "h": "What they are like",
+      "list": ["One job.", "Hidden inside the device; buttons and sensors instead of keyboard and screen.", "Small, cheap processor and memory.", "Program stored permanently (firmware); starts instantly.", "Low power; very reliable; often must react within a set time."] },
+    { "h": "Why not a laptop inside?",
+      "p": ["Too expensive, too big, too much power, takes time to start, and can crash. The washing machine needs none of a laptop's abilities."] }
+  ],
+  "keyterms": [
+    { "term": "Embedded system", "def": "A computer system with a dedicated function built into a larger device." },
+    { "term": "Dedicated function", "def": "Designed to carry out one specific task or a small fixed set of tasks." },
+    { "term": "Firmware", "def": "Software stored permanently in ROM/flash that controls a device." },
+    { "term": "Real-time system", "def": "A system that must respond to inputs within a guaranteed time." },
+    { "term": "General-purpose computer", "def": "A computer that can run many different programs for many purposes." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Embedded or not?", "p": ["Classify and give the reason using the two tests: microwave · laptop · car ABS controller · smartphone · digital thermometer · games console · pacemaker · smart doorbell · desktop PC · lift control panel · e-reader · robot vacuum cleaner."] },
+    { "type": "task", "title": "2. Match characteristic to device", "p": ["For each device choose the **two** most important embedded characteristics and explain why: pacemaker · traffic lights · washing machine · car airbag controller · smart meter."] },
+    { "type": "task", "title": "3. Design brief", "p": ["You are designing the controller for a greenhouse vent that opens when it is too hot. List: inputs (sensors), outputs, the one program it runs (as 5–6 lines of pseudocode), where the program is stored, roughly how much memory it needs, and why a Raspberry Pi running Linux would be a poor choice compared with a microcontroller."] },
+    { "type": "python", "title": "4. Simulate the firmware", "p": ["This is the greenhouse controller as a loop: read a (fake) temperature, decide, act. Run it; then add hysteresis so the vent doesn't flap open and shut around 25°C (open at 26, close at 24)."],
+      "code": "import random\nvent_open = False\nfor second in range(20):\n    temp = 22 + random.random() * 6      # pretend sensor: 22–28\n    if temp > 25:\n        vent_open = True\n    else:\n        vent_open = False\n    print(f\"{second:2d}s  temp {temp:4.1f}  vent {'OPEN' if vent_open else 'shut'}\")" },
+    { "type": "embed", "title": "5. Real embedded boards", "url": "https://beanwise.coderra.je/microbits_projects_y9/",
+      "instructions": ["Look at one micro:bit project. Identify its inputs, outputs, dedicated function and where its program lives. Write it up as an embedded-system case study in four lines."] }
+  ],
+  "check": [
+    { "q": "An embedded system is:", "opts": ["Any small computer", "A computer built into a device to do a dedicated task", "A laptop with a battery", "A server"], "a": 1, "fb": "Built in, one job." },
+    { "q": "Which is NOT an embedded system?", "opts": ["Washing machine controller", "Smartphone", "Car engine management", "Microwave"], "a": 1, "fb": "A phone runs many programs." },
+    { "q": "Embedded software is usually stored in:", "opts": ["RAM", "ROM / flash as firmware", "The cloud", "A hard disk"], "a": 1, "fb": "Permanent, instant start." },
+    { "q": "A reason to use an embedded system in a kettle:", "opts": ["It can run a web browser", "Low cost, low power and only one function needed", "It needs a large screen", "It must install updates"], "a": 1, "fb": "Fit the job." },
+    { "q": "'Real-time' in an embedded system means:", "opts": ["It shows the time", "It must respond within a guaranteed time", "It runs 24 hours", "It uses the internet"], "a": 1, "fb": "Deadlines matter." }
+  ],
+  "exam": [
+    { "q": "Define the term **embedded system** and give **two** examples.", "marks": 3,
+      "model": ["A computer system built into a larger device with a dedicated function / limited set of functions (1). Examples (any two): washing machine, microwave, car engine control unit, traffic lights, pacemaker, printer (1 each)."],
+      "commentary": "Definition must have both ideas: inside a device, dedicated. Examples must be devices, not 'computers in cars' vaguely — name the controller or the appliance." },
+    { "q": "A company manufactures smart central-heating thermostats. Explain **two** reasons why an embedded system is used rather than a general-purpose computer.", "marks": 4,
+      "model": ["It only needs to perform one task (reading temperature and switching the boiler) (1), so a small, cheap processor and memory are sufficient, keeping the cost of each unit low (1). It must run reliably for years with low power / without crashing or updating (1), which a dedicated firmware system on a small device achieves better than a full OS on a general-purpose computer (1)."],
+      "commentary": "Point + reason, both tied to the thermostat. Cost, size, power, reliability and instant start are all acceptable angles." },
+    { "q": "Describe **two** characteristics of embedded systems.", "marks": 2,
+      "model": ["Any two: dedicated to one function; built into a larger device; limited processing power/memory; software stored in ROM as firmware; low power consumption; often real-time (1 each)."],
+      "commentary": "Characteristics of the *system*, not examples of devices." }
+  ],
+  "home": "List ten embedded systems you interacted with today, in order. For three of them write the inputs, outputs and dedicated function. For one, explain why it is not a general-purpose computer in two sentences.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 12 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "Smartphones and consoles called embedded. Apply the many-programs test.",
+      "'Small computer' as the definition.",
+      "Examples given instead of characteristics when characteristics are asked.",
+      "Thinking embedded = no software."
+    ],
+    "say": [
+      "'Inside something? One job? Embedded.'",
+      "'Characteristic or example? Read the question again.'"
+    ],
+    "skip": "Try 4 and 5 are optional enrichment linking to club work; Try 1–3 are the exam content.",
+    "differentiation": [
+      "Support: Try 1 with the two tests printed as column headings.",
+      "Stretch: Try 3 — cost out the microcontroller vs the Pi and estimate power draw over a year."
+    ]
+  }
+}

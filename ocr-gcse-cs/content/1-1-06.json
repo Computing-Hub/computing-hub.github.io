@@ -1,0 +1,46 @@
+{
+  "id": "1-1-06",
+  "title": "Unit 1.1 Systems architecture — review and test",
+  "spec": "1.1.1 – 1.1.3",
+  "duration": 45,
+  "specPoints": [
+    "Covers all of 1.1: purpose of the CPU, fetch–decode–execute, CU/ALU/cache/registers, Von Neumann (PC, MAR, MDR, ACC), performance (clock, cache, cores), embedded systems",
+    "25 marks · 35 minutes",
+    "Teachers: switch on Teacher view for the mark scheme"
+  ],
+  "learn": [
+    "Recall every 1.1 term precisely",
+    "Describe the cycle and the registers accurately",
+    "Apply performance and embedded-system reasoning to a scenario"
+  ],
+  "hook": "Address for PC and MAR. Data for MDR. Result for ACC. Cycles, trips, tasks for performance. Inside and one job for embedded. If you can say those five lines, you can score on this test.",
+  "explain": [
+    { "h": "Five-minute review",
+      "list": ["CPU: fetch, decode, execute. CU decodes and coordinates; ALU calculates and compares; cache is fast memory near the CPU; registers are tiny fast stores.",
+               "Von Neumann: instructions and data in the same memory. PC = address of next; MAR = address now; MDR = data; ACC = result. Address bus, data bus, control bus.",
+               "Performance: clock speed → more cycles per second; cache → fewer RAM accesses; cores → simultaneous instructions. Limits: heat; cost/size; software must be parallel.",
+               "Embedded: dedicated function, built into a device, firmware in ROM, low power/cost, reliable, often real-time."] }
+  ],
+  "exam": [
+    { "q": "State the three stages of the cycle the CPU repeats continuously.", "marks": 1, "model": ["Fetch, decode, execute (1 — all three)."], "commentary": "All three for the mark." },
+    { "q": "State the purpose of the **program counter** and the **MDR**.", "marks": 2, "model": ["PC: holds the address of the next instruction (1). MDR: holds data/instructions read from or to be written to memory (1)."], "commentary": "Address; data." },
+    { "q": "Describe the role of the **control unit**.", "marks": 2, "model": ["Decodes instructions (1); coordinates the operation of the CPU/other components by sending control signals, managing the flow of data (1)."], "commentary": "Decode + coordinate." },
+    { "q": "Describe what happens during the **fetch** stage, referring to at least two registers.", "marks": 3, "model": ["Address in the PC copied to the MAR (1); instruction fetched from that address in memory into the MDR (1); PC incremented / instruction passed to the CU for decoding (1)."], "commentary": "Steps in order with register names." },
+    { "q": "Explain what is meant by the **stored-program concept**.", "marks": 2, "model": ["Program instructions are held in main memory together with data (1), so the CPU can fetch and execute them sequentially and programs can be changed by loading new instructions (1)."], "commentary": "Same memory + consequence." },
+    { "q": "Explain how the **number of cores** affects CPU performance, including one limitation.", "marks": 3, "model": ["Each core can process instructions independently (1), so more cores allow more tasks/instructions to be executed simultaneously, improving performance for multitasking or parallel software (1). Limitation: software must be written to use multiple cores / a single sequential task cannot be split, so performance does not scale proportionally (1)."], "commentary": "Mechanism, benefit, limit." },
+    { "q": "A laptop is advertised with a 3.5 GHz CPU and 12 MB of cache. Explain what each figure tells a buyer about performance.", "marks": 4, "model": ["3.5 GHz: the clock runs 3.5 billion cycles per second (1), so more instructions are executed per second than a lower-clocked CPU (1). 12 MB cache: the CPU can hold more frequently used data/instructions close by (1), reducing the time spent fetching from slower RAM (1)."], "commentary": "Definition + consequence for each figure." },
+    { "q": "A car's anti-lock braking system (ABS) uses an embedded system. State **two** characteristics of embedded systems and explain why **one** of them is essential for ABS.", "marks": 4, "model": ["Characteristics (any two, 1 each): dedicated function; built into a larger device; real-time response; low power; firmware in ROM; reliable. Explanation (2): e.g. real-time response is essential because the brakes must react within milliseconds of a wheel locking (1) or the car would skid / safety depends on guaranteed timing (1). Or: reliability, because a crash or reboot while braking could be fatal."], "commentary": "Two characteristics, then one developed for ABS specifically." },
+    { "q": "Give **one** reason why cache memory is smaller than RAM.", "marks": 1, "model": ["Cache is more expensive per byte / takes space on the processor chip (1)."], "commentary": "Cost or space." },
+    { "q": "Identify which of the following is an embedded system and justify your choice: a tablet computer; a dishwasher controller; a desktop PC.", "marks": 3, "model": ["Dishwasher controller (1); it is built into a larger device (1) and performs a dedicated function, unlike the tablet and PC which run many programs (1)."], "commentary": "Choice + both tests." }
+  ],
+  "teacher": {
+    "timing": "45 min: review 5 · test 35 · collect. 25 marks. Bands: 20+ secure; 14–19 developing; below 14 revisit lessons 2 and 3.",
+    "misconceptions": ["Marks lost on Q2/Q4 are register vocabulary; Q6/Q7 are mechanism sentences. Reteach the one that dominates."],
+    "say": ["'Address. Data. Result. Mechanism. Inside and one job.'"],
+    "skip": "For 25 minutes drop Q7 and Q10 (7 marks), mark out of 18.",
+    "differentiation": [
+      "Support: allow the five-minute review list on the desk.",
+      "Stretch: Q8 — write a second developed explanation for a different characteristic."
+    ]
+  }
+}

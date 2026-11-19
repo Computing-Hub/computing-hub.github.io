@@ -1,0 +1,98 @@
+{
+  "id": "1-1-03",
+  "title": "CPU performance: clock speed, cache, cores",
+  "spec": "1.1.2",
+  "duration": 60,
+  "specPoints": [
+    "1.1.2 How common characteristics of CPUs affect their performance: **clock speed**, **cache size**, **number of cores**",
+    "Explain each effect and its limits; apply to buying/upgrade scenarios"
+  ],
+  "learn": [
+    "Explain how clock speed affects performance and what limits raising it",
+    "Explain how cache size affects performance and why cache is small",
+    "Explain how the number of cores affects performance and why doubling cores does not double speed",
+    "Compare two CPUs from a specification table and justify a choice for a scenario",
+    "Avoid the vague answers ('faster', 'better') that lose marks on this topic"
+  ],
+  "hook": "Two laptops: 2.4 GHz quad-core with 8 MB cache, or 3.6 GHz dual-core with 4 MB cache. Which is faster? Trick question — faster *at what*? For a video editor the answer is different from a gamer, and the exam wants you to know why.",
+  "video": {
+    "title": "Three dials on a CPU",
+    "brief": "4 minutes. Three dials: clock speed (a metronome ticking faster — more cycles per second — then a thermometer rising: heat is the limit), cache (a desk next to the worker vs a filing cabinet across the room; bigger desk, fewer trips; but desks are expensive), cores (one worker vs four; four tasks at once; but one task that can't be split still takes as long). End with a spec table and two scenarios."
+  },
+  "explain": [
+    { "h": "Clock speed",
+      "p": ["The **clock** sends regular electrical pulses; each pulse lets the CPU carry out (part of) an instruction. Clock speed is pulses per second, in **hertz**: 3 GHz = 3 billion cycles per second. **Higher clock speed → more instructions per second → programs run faster**. The limit: faster switching produces more **heat** and uses more power, so there is a ceiling without better cooling; and clock speed alone does not help if the CPU is waiting for data from memory."] },
+    { "h": "Cache size",
+      "p": ["**Cache** is a small amount of very fast memory inside or next to the CPU. It holds instructions and data that are used often or likely to be needed next. When the CPU finds what it needs in cache (a *hit*) it avoids the much slower trip to RAM. **Larger cache → more hits → less waiting → better performance**. Cache is expensive per byte and takes space on the chip, so it is measured in megabytes, not gigabytes. There are usually levels (L1 smallest and fastest, then L2, L3)."] },
+    { "h": "Number of cores",
+      "p": ["A **core** is a complete processing unit that can run its own fetch–decode–execute cycle. A quad-core CPU can work on four instructions — or four tasks — at the same time. **More cores → more tasks processed simultaneously → better performance when there are several things to do** (many apps open, video rendering, servers). The limit: a program only benefits if it is written to split its work across cores; a single task that must be done in order runs on one core, so doubling cores does not double speed. Cores also share cache and memory bandwidth."] },
+    { "h": "Putting it together",
+      "code": "Characteristic   More of it means…                       But…\nClock speed      more cycles per second, each            more heat and power; waits for memory\n                 instruction done sooner                 still happen\nCache            fewer slow trips to RAM                 expensive; small; only helps for reused data\nCores            several tasks at once                   software must be multi-threaded; shared\n                                                         resources; one sequential task is no faster",
+      "after": ["Scenario answers choose the characteristic that matches the workload: many simultaneous tasks or parallel work (video editing, servers, multitasking) → cores; one heavy sequential task → clock speed; repeated access to the same data (loops over large arrays) → cache."] },
+    { "h": "The mark you keep losing",
+      "p": ["'A higher clock speed makes the computer faster' is a one-mark answer at best. The second mark is **the mechanism**: *more cycles per second, so more instructions are executed per second*. For cache: *more data can be held close to the CPU, so fewer fetches from slower RAM*. For cores: *more instructions can be processed simultaneously*. Say how, not just that."] }
+  ],
+  "simple": [
+    { "h": "Clock speed",
+      "p": ["How many ticks per second. More ticks → more instructions per second → faster. But faster ticking makes more heat."] },
+    { "h": "Cache",
+      "p": ["Small, very fast memory next to the CPU. Bigger cache → the CPU finds what it needs nearby more often → waits less. It is expensive, so it stays small."] },
+    { "h": "Cores",
+      "p": ["A core is a whole processor. Four cores → four jobs at once. But a job that can't be split only uses one core."] },
+    { "h": "Say how",
+      "p": ["Never just 'faster'. Say *more instructions per second* / *fewer trips to RAM* / *more tasks at the same time*."] }
+  ],
+  "keyterms": [
+    { "term": "Clock speed", "def": "The number of cycles per second the CPU performs, measured in hertz (GHz)." },
+    { "term": "Cache", "def": "Small, fast memory holding frequently used data and instructions near the CPU." },
+    { "term": "Core", "def": "An independent processing unit within a CPU, able to run its own fetch–decode–execute cycle." },
+    { "term": "Multi-core", "def": "A CPU with more than one core, able to process several instructions simultaneously." },
+    { "term": "Hertz (Hz)", "def": "One cycle per second; 1 GHz = one billion cycles per second." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Mechanism sentences", "p": ["Write one two-mark sentence for each characteristic in the form 'X → so Y → so performance improves': clock speed, cache size, number of cores. Then write the 'but' for each."] },
+    { "type": "task", "title": "2. Choose the CPU", "p": ["CPU A: 3.8 GHz, 2 cores, 4 MB cache. CPU B: 2.6 GHz, 8 cores, 16 MB cache. Same price. Recommend one, with two reasons, for: (a) a student who mostly writes documents and browses; (b) a video editor exporting 4K footage; (c) a scientist running one long single-threaded simulation; (d) a small web server handling many requests."] },
+    { "type": "python", "title": "3. Feel the cache", "p": ["Run it. The second loop touches the same small list repeatedly (cache-friendly); the first jumps around a huge one. Compare times. (Results vary by machine; the point is the pattern.)"],
+      "code": "import time, random\nbig = list(range(5_000_000))\nidx = [random.randrange(5_000_000) for _ in range(2_000_000)]\nt = time.time()\ns = 0\nfor i in idx:\n    s += big[i]\nprint(\"random access over 5M items:\", round(time.time() - t, 2), \"s\")\n\nsmall = list(range(1000))\nt = time.time()\ns = 0\nfor i in range(2_000_000):\n    s += small[i % 1000]\nprint(\"repeated access over 1k items:\", round(time.time() - t, 2), \"s\")" },
+    { "type": "task", "title": "4. Myth or fact?", "p": ["Decide and justify in one sentence each: 'A 4 GHz CPU is always faster than a 3 GHz CPU.' · 'Doubling the cores halves the time for every program.' · 'More cache always helps.' · 'Clock speed can be raised indefinitely with enough cooling.' · 'A single-core CPU cannot multitask at all.'"] },
+    { "type": "embed", "title": "5. Hardware topic games", "url": "https://beanwise.coderra.je/GCSE_homepage/Hardware_Topic_Games.html",
+      "instructions": ["Ten minutes on the CPU performance set."] }
+  ],
+  "check": [
+    { "q": "3 GHz means the CPU clock ticks:", "opts": ["3 million times per second", "3 billion times per second", "3 times per second", "3 thousand times per second"], "a": 1, "fb": "Giga = billion." },
+    { "q": "A larger cache improves performance because:", "opts": ["It replaces RAM", "More frequently used data is held close to the CPU, so fewer slow RAM accesses", "It increases clock speed", "It adds cores"], "a": 1, "fb": "Fewer trips to RAM." },
+    { "q": "Four cores help most when:", "opts": ["Running one sequential task", "Running several tasks or a program written to use several cores", "The cache is small", "The clock is slow"], "a": 1, "fb": "Parallel work." },
+    { "q": "The main limit on raising clock speed is:", "opts": ["Software", "Heat and power", "Cache size", "Bus width"], "a": 1, "fb": "Thermal limits." },
+    { "q": "'A faster CPU makes the computer faster' is worth:", "opts": ["Two marks", "One mark at most — no mechanism", "Full marks", "Zero always"], "a": 1, "fb": "Say how." }
+  ],
+  "exam": [
+    { "q": "Explain how **clock speed** affects the performance of a CPU.", "marks": 2,
+      "model": ["Clock speed is the number of cycles/pulses per second (1); a higher clock speed means more instructions can be fetched, decoded and executed per second, so programs run faster (1)."],
+      "commentary": "Definition + consequence. 'Faster' alone is not the second mark." },
+    { "q": "A photographer is choosing between a CPU with 2 cores and one with 8 cores for editing large batches of photos. Explain why the 8-core CPU is likely to give better performance for this task.", "marks": 3,
+      "model": ["Each core can execute instructions independently / simultaneously (1), so the editing software can process several photos or parts of a photo at the same time (1), reducing the total time for the batch compared with 2 cores processing fewer at once (1)."],
+      "commentary": "Mechanism (simultaneous), application (batch of photos), consequence (less time). The scenario is chosen because the work parallelises; say so." },
+    { "q": "Explain why increasing the cache size of a CPU may improve performance, and give one reason why cache sizes are kept relatively small.", "marks": 3,
+      "model": ["Cache holds frequently used instructions/data closer to the CPU than RAM (1), so the CPU spends less time waiting for data to be fetched from slower main memory (1). Kept small because cache memory is expensive / takes up space on the processor (1)."],
+      "commentary": "Mechanism, consequence, limitation." }
+  ],
+  "home": "Find the specifications of your own phone or laptop CPU (clock speed, cores, cache). Write a paragraph explaining what each number means for how the device performs when you have many apps open versus when you play one demanding game.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 14 · try 28 · check 5 · exam 7 · homework 3",
+    "misconceptions": [
+      "'Faster' as a complete answer. Drill mechanism sentences (Try 1).",
+      "Cores double = speed double.",
+      "Cache confused with RAM size or storage.",
+      "GHz misread as 'gigabytes'."
+    ],
+    "say": [
+      "'More cycles per second. More tasks at once. Fewer trips to RAM. Pick the one that fits.'",
+      "'Faster at what? Say the workload.'"
+    ],
+    "skip": "Try 3 (timing demo) is optional and machine-dependent; Try 5 optional.",
+    "differentiation": [
+      "Support: Try 2 with the workload type labelled (parallel / sequential / light).",
+      "Stretch: Try 4 plus a paragraph on why phone CPUs mix 'big' and 'little' cores."
+    ]
+  }
+}

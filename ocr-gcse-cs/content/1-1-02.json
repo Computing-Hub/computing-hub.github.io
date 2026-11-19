@@ -1,0 +1,103 @@
+{
+  "id": "1-1-02",
+  "title": "Von Neumann architecture: registers and buses",
+  "spec": "1.1.1",
+  "duration": 60,
+  "specPoints": [
+    "1.1.1 **Von Neumann architecture**: the stored-program concept; **MAR** (memory address register), **MDR** (memory data register), **program counter**, **accumulator**",
+    "Common CPU components and their function: ALU, CU, cache, registers; the role of buses in outline"
+  ],
+  "learn": [
+    "Explain the stored-program concept: instructions and data held together in the same memory",
+    "Name the four registers and state what each holds",
+    "Describe how the registers are used during fetch and execute",
+    "Explain the purpose of the address bus, data bus and control bus in outline",
+    "Trace the register contents through two or three instructions"
+  ],
+  "hook": "In 1945 John von Neumann wrote down an idea so good that your phone still uses it: keep the program **in the same memory as the data**. Before that, 'reprogramming' meant rewiring. After it, a program is just data you can load, copy, and change. Everything else today is the plumbing that makes that work.",
+  "video": {
+    "title": "Four registers, three buses, one idea",
+    "brief": "4 minutes. Memory shown as numbered boxes containing both instructions and data (stored-program). The CPU with PC, MAR, MDR, ACC labelled. Animate a fetch: PC → MAR; address bus carries it to memory; data bus brings the instruction back to MDR; PC + 1. Then an ADD: operand address → MAR, value → MDR, ALU adds to ACC. Control bus signals shown as read/write flags. End with the four registers and their one-line jobs."
+  },
+  "explain": [
+    { "h": "The stored-program concept",
+      "p": ["In a **Von Neumann** computer, program instructions and the data they work on are both stored in the same main memory, as binary. The CPU fetches instructions from memory one after another and executes them. This is why software exists as something you can download and run: a program is just a pattern of data in memory. Nearly every general-purpose computer, including phones, is built this way."] },
+    { "h": "The four registers",
+      "code": "Register                      What it holds                                   When it is used\nProgram counter (PC)          the memory ADDRESS of the NEXT instruction      start of every fetch; then +1\nMemory address register (MAR) the ADDRESS in memory being read or written     fetch (instruction address) and\n                                                                              execute (data address)\nMemory data register (MDR)    the DATA or instruction just read from memory,  after every memory read; before\n                              or about to be written to it                    every memory write\nAccumulator (ACC)             the RESULT of the ALU's latest calculation /    during execute\n                              the value being worked on",
+      "after": ["A register is a tiny storage location inside the CPU; these four are the ones OCR names. Memorise them as *address of next* (PC), *address now* (MAR), *data now* (MDR), *result* (ACC)."] },
+    { "h": "The cycle with registers",
+      "code": "FETCH\n  1. The address in the PC is copied into the MAR.\n  2. The address is sent along the address bus to memory; a read signal goes on the control bus.\n  3. Memory returns the instruction along the data bus into the MDR.\n  4. The instruction is copied to the control unit (current instruction register) for decoding.\n  5. The PC is incremented to point to the next instruction.\nDECODE\n  6. The control unit interprets the opcode and identifies any operand (data or address).\nEXECUTE\n  7. If data is needed: its address goes to the MAR, the value arrives in the MDR.\n  8. The ALU performs the operation; the result is stored in the ACC (or written back via MDR/MAR).\n  9. A jump instruction changes the PC instead." },
+    { "h": "Buses",
+      "list": ["**Address bus** — carries the memory address the CPU wants to read or write (CPU → memory, one direction).",
+               "**Data bus** — carries the actual data or instruction between CPU and memory (both directions).",
+               "**Control bus** — carries control signals: read, write, clock, interrupt (both directions).",
+               "Buses are just parallel wires; a wider data bus moves more bits per cycle, which links to performance in lesson 3."] },
+    { "h": "Exam focus",
+      "p": ["'State the purpose of the MAR / MDR / PC / accumulator' [1 each] and 'Describe how the registers are used during fetch' [2–4] are the regular questions. Say *address* for PC and MAR, *data* for MDR, *result* for ACC — the mark schemes hinge on those words."] }
+  ],
+  "simple": [
+    { "h": "One memory for everything",
+      "p": ["Von Neumann's idea: the program and the data live in the same memory. That is why you can download a program like any other file."] },
+    { "h": "Four registers (tiny boxes in the CPU)",
+      "list": ["**PC** (program counter): the address of the **next** instruction.", "**MAR**: the address being used **right now**.", "**MDR**: the data (or instruction) just fetched or about to be stored.", "**ACC** (accumulator): the result of the latest calculation."] },
+    { "h": "Three buses (bundles of wires)",
+      "list": ["**Address bus**: 'I want address 42'.", "**Data bus**: the actual data travelling.", "**Control bus**: 'read' / 'write' / clock signals."] },
+    { "h": "Fetch, with the boxes",
+      "p": ["PC → MAR. Address goes to memory. Instruction comes back into MDR. PC adds 1."] }
+  ],
+  "keyterms": [
+    { "term": "Von Neumann architecture", "def": "A design where instructions and data share the same memory and the CPU fetches instructions sequentially." },
+    { "term": "Stored-program concept", "def": "Programs are held in memory as data and can be loaded and changed like data." },
+    { "term": "Program counter (PC)", "def": "Register holding the address of the next instruction to fetch." },
+    { "term": "MAR", "def": "Memory address register: holds the address of the memory location being accessed." },
+    { "term": "MDR", "def": "Memory data register: holds data or an instruction just read from or about to be written to memory." },
+    { "term": "Accumulator", "def": "Register holding the result of ALU operations." },
+    { "term": "Bus", "def": "A set of parallel wires carrying addresses, data or control signals between components." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Watch the registers", "url": "https://beanwise.coderra.je/cs_animations/cpu.html",
+      "instructions": ["Step through a fetch with the register view on. Write the contents of PC, MAR and MDR after each sub-step for the first two instructions.", "Which register changes first? Which changes last?"] },
+    { "type": "task", "title": "2. Register trace", "p": ["Memory: address 0 `LDA 5`, address 1 `ADD 6`, address 2 `STA 7`, address 3 `HLT`; address 5 holds 12, address 6 holds 30. Draw a table with columns PC, MAR, MDR, ACC and fill in a row for each sub-step of fetch and execute for the first three instructions. What ends up in address 7?"] },
+    { "type": "embed", "title": "3. Do it in the LMC", "url": "https://beanwise.coderra.je/cs_animations/lmc.html",
+      "instructions": ["Enter the Try 2 program and step it. Check your table against the simulator's registers at each step."] },
+    { "type": "task", "title": "4. Which bus?", "p": ["For each event say address, data or control bus: the CPU asks for location 300 · the value 17 arrives from memory · the CPU signals 'write' · the clock pulse · an instruction travels to the MDR · the CPU specifies where to store a result."] },
+    { "type": "task", "title": "5. One-sentence definitions, from memory", "p": ["Without notes: PC, MAR, MDR, ACC, address bus, data bus, control bus, stored-program concept. Check, correct, repeat tomorrow."] }
+  ],
+  "check": [
+    { "q": "The program counter holds:", "opts": ["The result of a calculation", "The address of the next instruction", "The current data", "The number of programs"], "a": 1, "fb": "Address of next." },
+    { "q": "Data just read from memory sits in the:", "opts": ["MAR", "MDR", "PC", "Control bus"], "a": 1, "fb": "Memory data register." },
+    { "q": "The stored-program concept means:", "opts": ["Programs are stored on disk", "Instructions and data share the same memory", "Programs cannot change", "The CPU has its own memory for programs"], "a": 1, "fb": "Same memory, as data." },
+    { "q": "The address bus carries:", "opts": ["Data both ways", "Memory addresses from the CPU", "Clock signals", "Results"], "a": 1, "fb": "Where, not what." },
+    { "q": "During fetch the PC is copied to the:", "opts": ["ACC", "MDR", "MAR", "ALU"], "a": 2, "fb": "Address goes to the address register." }
+  ],
+  "exam": [
+    { "q": "State the purpose of the **memory address register** and the **memory data register**.", "marks": 2,
+      "model": ["MAR: holds the address of the memory location to be read from or written to (1). MDR: holds the data/instruction that has been read from memory or is to be written to memory (1)."],
+      "commentary": "Address vs data. Students swap them under pressure; the names say which is which." },
+    { "q": "Describe how the **program counter** is used during the fetch–decode–execute cycle.", "marks": 2,
+      "model": ["Holds the address of the next instruction to be fetched, which is copied to the MAR at the start of fetch (1); it is then incremented to point to the following instruction (or changed by a jump instruction) (1)."],
+      "commentary": "Two actions: provides the address; is incremented/changed." },
+    { "q": "Explain what is meant by the **Von Neumann architecture**.", "marks": 2,
+      "model": ["A computer design in which program instructions and data are stored together in the same memory (1), with the CPU fetching and executing instructions sequentially using registers such as the PC, MAR, MDR and accumulator (1)."],
+      "commentary": "Stored-program idea plus the sequential fetch/registers." }
+  ],
+  "home": "Make a one-page poster of the Von Neumann CPU: four registers with their one-line jobs, three buses with arrows showing direction, and the nine fetch–decode–execute sub-steps numbered on the diagram.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 14 · try 28 · check 5 · exam 7 · homework 3",
+    "misconceptions": [
+      "MAR/MDR swapped. 'A for Address, D for Data' said often.",
+      "PC thought to hold the current instruction.",
+      "Accumulator confused with cache.",
+      "Buses imagined as vehicles carrying everything; separate their jobs."
+    ],
+    "say": [
+      "'A is address, D is data.'",
+      "'PC: next. MAR: now. MDR: data. ACC: result.'"
+    ],
+    "skip": "Try 5 is homework material; Try 2 and 3 together are the lesson.",
+    "differentiation": [
+      "Support: Try 2 with the first instruction's rows completed.",
+      "Stretch: add a `BRZ` (branch if zero) to Try 2 and show how the PC changes."
+    ]
+  }
+}

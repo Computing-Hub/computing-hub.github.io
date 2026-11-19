@@ -1,0 +1,98 @@
+{
+  "id": "1-1-01",
+  "title": "What a CPU does: the fetch–decode–execute cycle",
+  "spec": "1.1.1",
+  "duration": 60,
+  "specPoints": [
+    "1.1.1 The **purpose of the CPU**: to fetch, decode and execute instructions",
+    "The **fetch–decode–execute cycle**; the role of the **ALU**, **control unit**, **cache** and **registers** in outline"
+  ],
+  "learn": [
+    "State the purpose of the CPU",
+    "Describe what happens in each of fetch, decode and execute",
+    "Name the main components of the CPU (control unit, ALU, cache, registers) and their roles",
+    "Explain why the cycle repeats continuously while the computer is on",
+    "Follow a simple program through the cycle in a simulator"
+  ],
+  "hook": "Everything your phone does — every pixel, every message, every game frame — comes down to one small thing done absurdly fast: fetch an instruction, work out what it means, do it. Billions of times a second. Today you watch it happen one step at a time.",
+  "video": {
+    "title": "Fetch, decode, execute",
+    "brief": "4 minutes. A CPU box with Control Unit, ALU, registers and cache inside; RAM beside it holding numbered instructions. Animate: the address of the next instruction goes to memory (fetch), the instruction comes back, the control unit works out what it means (decode), the ALU or memory does it (execute), the counter moves on. Loop three times with a tiny program (load, add, store). Overlay the role of each component as it is used. End with the clock ticking and 'billions per second'."
+  },
+  "explain": [
+    { "h": "Purpose of the CPU",
+      "p": ["The **Central Processing Unit** carries out the instructions of a program. Every program — the operating system, a game, your Python code once translated — is a list of machine-code instructions in memory. The CPU's whole job is to take them one at a time and carry them out. It does this by repeating the **fetch–decode–execute cycle** continuously from power-on to shutdown."] },
+    { "h": "The cycle",
+      "code": "FETCH    The CPU reads the next instruction from main memory (RAM).\n         The address of that instruction is held in a register (the program counter);\n         the instruction is copied into the CPU, and the counter is increased to point\n         to the next one.\n\nDECODE   The control unit works out what the instruction is asking for — add two\n         numbers? copy data to memory? jump to another instruction? — and what data\n         or addresses it needs.\n\nEXECUTE  The instruction is carried out: the ALU does the arithmetic or logic, or data is\n         moved between registers and memory, or the program counter is changed (a jump).\n\n         ...then back to FETCH for the next instruction." },
+    { "h": "The parts that do the work",
+      "list": ["**Control unit (CU)** — coordinates the cycle: fetches and decodes instructions, sends control signals to the other components, manages the flow of data.",
+               "**Arithmetic logic unit (ALU)** — does the calculations (add, subtract, multiply…) and logical comparisons (equal, greater than, AND/OR) during execute.",
+               "**Registers** — tiny, extremely fast storage locations inside the CPU holding the data the cycle needs right now: the current instruction, the address being used, the result of the last calculation. Lesson 2 names them.",
+               "**Cache** — a small amount of very fast memory inside or next to the CPU holding recently or frequently used instructions and data, so the CPU does not have to wait for slower RAM every time."] },
+    { "h": "Why it matters for the exam",
+      "p": ["Typical questions: 'State the purpose of the CPU' [1]; 'Describe what happens during the fetch stage' [2]; 'Describe the role of the ALU / control unit' [2]. The verbs *fetch, decode, execute* and the nouns *instruction, memory, control unit, ALU, register* should appear in your answers — they are what the mark scheme looks for."] }
+  ],
+  "simple": [
+    { "h": "The CPU runs instructions",
+      "p": ["A program is a long list of tiny instructions in memory. The CPU takes them one at a time and does them."] },
+    { "h": "Three steps, over and over",
+      "list": ["**Fetch**: get the next instruction from memory.", "**Decode**: work out what it means.", "**Execute**: do it.", "Then fetch the next one. Billions of times a second."] },
+    { "h": "Inside the CPU",
+      "list": ["**Control unit**: the manager — fetches, decodes, tells everything what to do.", "**ALU**: the calculator — maths and comparisons.", "**Registers**: tiny super-fast boxes holding what the CPU is working on right now.", "**Cache**: a small fast memory so the CPU doesn't wait for RAM."] }
+  ],
+  "keyterms": [
+    { "term": "CPU", "def": "Central Processing Unit: fetches, decodes and executes program instructions." },
+    { "term": "Fetch–decode–execute cycle", "def": "The repeated sequence by which the CPU gets an instruction, interprets it and carries it out." },
+    { "term": "Control unit", "def": "Coordinates the cycle, decodes instructions and sends control signals." },
+    { "term": "ALU", "def": "Arithmetic Logic Unit: performs arithmetic and logical operations." },
+    { "term": "Register", "def": "A small, very fast storage location inside the CPU." },
+    { "term": "Cache", "def": "Small, fast memory close to the CPU holding frequently used data and instructions." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Watch one cycle", "url": "https://beanwise.coderra.je/cs_animations/cpu.html",
+      "instructions": ["Step through the animation one phase at a time. For each phase write one sentence: what moved where, and which component did it.", "Run it at full speed. How many cycles for the three-instruction program?"] },
+    { "type": "embed", "title": "2. Be the CPU: Little Man Computer", "url": "https://beanwise.coderra.je/cs_animations/little-man-fde-cycle.html",
+      "instructions": ["Load the add-two-numbers program. Step it. Each step, say aloud: fetch / decode / execute. Watch the program counter and the accumulator.", "Change the program so it subtracts. Which stage was different?"] },
+    { "type": "task", "title": "3. Match the job", "p": ["Match each to CU, ALU, register or cache: 'adds 5 and 3' · 'holds the address of the next instruction' · 'works out that 0011 means ADD' · 'keeps a copy of the loop's instructions so they load faster' · 'compares two values to see which is bigger' · 'sends the signal that starts the next fetch'."] },
+    { "type": "task", "title": "4. Explain to a Year 7", "p": ["Write four sentences a Year 7 could understand explaining what the CPU does, using the words fetch, decode and execute. Then rewrite them as an exam answer using the words instruction, memory, control unit and ALU."] },
+    { "type": "python", "title": "5. A toy CPU in Python", "p": ["This is a tiny simulator: a list of instructions and a loop that fetches, decodes and executes. Run it, then add a `SUB` instruction and a `JMP` that changes the program counter."],
+      "code": "memory = [(\"LOAD\", 5), (\"ADD\", 3), (\"STORE\", 0), (\"HALT\", None)]\nacc = 0\npc = 0\ndata = [0]\nwhile True:\n    instr = memory[pc]          # FETCH\n    pc = pc + 1\n    op, arg = instr             # DECODE\n    if op == \"LOAD\":            # EXECUTE\n        acc = arg\n    elif op == \"ADD\":\n        acc = acc + arg\n    elif op == \"STORE\":\n        data[arg] = acc\n    elif op == \"HALT\":\n        break\n    print(\"pc\", pc, op, arg, \"acc\", acc)\nprint(\"data:\", data)" }
+  ],
+  "check": [
+    { "q": "The purpose of the CPU is to:", "opts": ["Store programs", "Fetch, decode and execute instructions", "Display output", "Connect to the internet"], "a": 1, "fb": "Run the instructions." },
+    { "q": "During decode, the instruction is:", "opts": ["Copied from RAM", "Interpreted by the control unit", "Calculated by the ALU", "Deleted"], "a": 1, "fb": "Worked out, not yet done." },
+    { "q": "The ALU is used mainly in which stage?", "opts": ["Fetch", "Decode", "Execute", "None"], "a": 2, "fb": "Doing the arithmetic/logic." },
+    { "q": "Cache exists to:", "opts": ["Replace RAM", "Hold frequently used data close to the CPU so it waits less", "Store files permanently", "Cool the CPU"], "a": 1, "fb": "Fast, small, near." },
+    { "q": "How often does the cycle run?", "opts": ["Once per program", "Once per second", "Continuously, billions of times per second", "Only when a key is pressed"], "a": 2, "fb": "Non-stop while powered." }
+  ],
+  "exam": [
+    { "q": "State the purpose of the CPU.", "marks": 1,
+      "model": ["To fetch, decode and execute instructions / to process data and carry out program instructions (1)."],
+      "commentary": "Use the three verbs. 'The brain of the computer' alone is not a mark." },
+    { "q": "Describe what happens during the **fetch** stage of the fetch–decode–execute cycle.", "marks": 2,
+      "model": ["The address of the next instruction is sent to memory / taken from the program counter (1) and the instruction is copied from main memory into the CPU; the program counter is incremented (1)."],
+      "commentary": "Two actions: locate (address) and copy (into CPU). Mentioning the program counter is a safe second mark." },
+    { "q": "Describe the role of the **control unit** and the **arithmetic logic unit**.", "marks": 4,
+      "model": ["Control unit: decodes instructions (1) and coordinates/controls the other components by sending control signals / manages the flow of data (1). ALU: carries out arithmetic operations such as addition (1) and logical operations/comparisons such as AND or greater-than (1)."],
+      "commentary": "Two points for each. 'Does maths' is one ALU mark; add 'and logic/comparisons' for the second." }
+  ],
+  "home": "Draw the CPU as a box with the four components inside and RAM outside. Add arrows and numbered labels showing one complete fetch–decode–execute cycle. Under it, write the three-word definition of the CPU's purpose.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 30 · check 5 · exam 7 · homework 3",
+    "misconceptions": [
+      "Decode = 'translate from binary'. It is the control unit interpreting the opcode, not language translation.",
+      "Cache confused with RAM or with browser cache.",
+      "CPU 'stores' programs. Memory stores them; the CPU runs them.",
+      "Execute always means arithmetic — it may be a data move or a jump."
+    ],
+    "say": [
+      "'Fetch it, understand it, do it. Again.'",
+      "'Where is the instruction before fetch? After fetch? That's the two marks.'"
+    ],
+    "skip": "Try 5 is a bridge to Paper 2 for confident programmers; Try 1–3 are the core.",
+    "differentiation": [
+      "Support: Try 3 as a card match; Try 4 first version only.",
+      "Stretch: Try 5 — add a conditional jump and write a loop in the toy machine."
+    ]
+  }
+}
