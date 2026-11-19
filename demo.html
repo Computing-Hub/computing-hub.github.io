@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo links — KS3 &amp; KS4 — BeanWise</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="stylesheet" href="assets/site.css">
+  <style>
+    .demo-list { list-style: none; padding: 0; margin: 0; }
+    .demo-list li { display: grid; grid-template-columns: 1fr auto; gap: .5rem 1rem; align-items: start; padding: .9rem 0; border-bottom: 1px solid rgba(0,0,0,.08); }
+    .demo-list li h3 { margin: 0 0 .2rem; font-size: 1.05rem; }
+    .demo-list li p { margin: 0; color: var(--muted, #555); font-size: .95rem; }
+    .demo-list a.go { font-weight: 600; }
+    .status { font-size: .8rem; font-weight: 600; padding: .25rem .6rem; border-radius: 999px; white-space: nowrap; background: #eee; color: #444; }
+    .status.live { background: #dcf5e3; color: #0c6b2e; }
+    .status.down { background: #fde8e8; color: #9b1c1c; }
+    .status.checking { background: #eef; color: #334; }
+    .fix { font-size: .85rem; margin-top: .3rem; }
+    .fix a { color: #9b1c1c; }
+    .toolbar { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1rem 0 1.5rem; align-items: center; }
+    .toolbar small { color: var(--muted, #555); }
+    #copied { color: #0c6b2e; font-weight: 600; }
+    .demo-list .path { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8rem; color: #777; word-break: break-all; }
+  </style>
+</head>
+<body>
+
+  <header class="site">
+    <div class="container nav">
+      <a class="brand" href="./">
+        <img src="/assets/images/apple-touch-icon.png" width="32" height="32" alt="">
+        <b>Bean<span>Wise</span></b>
+      </a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="nav-links">Menu</button>
+      <nav aria-label="Main">
+        <ul id="nav-links">
+          <li><a class="link" href="school-overview.html">School overview</a></li>
+          <li><a class="link" href="resources.html">All resources</a></li>
+          <li><a class="link" href="maths.html">Maths</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero tuition">
+      <div class="container">
+        <span class="eyebrow">Demo &middot; KS3 &amp; KS4</span>
+        <h1>Demo links</h1>
+        <p class="lead">The tools worth showing, in demo order. Each link is checked when the page loads: green means it opens, red means that repo's GitHub Pages is not switched on yet.</p>
+      </div>
+    </section>
+
+    <div class="container">
+      <div class="toolbar">
+        <button class="btn btn-outline" id="copy-live" type="button">Copy all live links</button>
+        <span id="copied" hidden>Copied</span>
+        <small id="summary">Checking&hellip;</small>
+      </div>
+
+      <section class="block">
+        <h2>Retrieval &mdash; whole school</h2>
+        <ul class="demo-list" id="list-retrieval"></ul>
+      </section>
+
+      <section class="block">
+        <h2>Maths &mdash; KS3 and GCSE</h2>
+        <ul class="demo-list" id="list-maths"></ul>
+      </section>
+
+      <section class="block">
+        <h2>Computer Science &mdash; KS3 and GCSE</h2>
+        <ul class="demo-list" id="list-cs"></ul>
+      </section>
+
+      <section class="block">
+        <h2>Inclusion, parents and staff</h2>
+        <ul class="demo-list" id="list-inclusion"></ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site">
+    <div class="container">
+      <p class="legal">&copy; <span id="year"></span> Coderra.je Limited &middot; <a href="school-overview.html">School overview</a> &middot; <a href="resources.html">Full resource list</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/site.js"></script>
+  <script>
+  (function () {
+    // Each item: title, blurb, candidate paths (first one that answers wins), repo for the Pages settings link.
+    var groups = {
+      retrieval: [
+        { t: 'Key Terms (Wordlet)', b: 'Wordle-style key-term game: DT, Science, English, MFL, Humanities, command words. Teachers add their own banks.', p: ['revision-hub/key-terms/', 'wordletsubjects/'], r: ['revision-hub', 'wordletsubjects'] },
+        { t: 'Revision Hub', b: 'Homepage of game tiles, one per subject, CSV-driven.', p: ['revision-hub/'], r: ['revision-hub'] },
+        { t: 'Connections', b: 'Group-the-four word game for any subject vocabulary.', p: ['connections_game/'], r: ['connections_game'] },
+        { t: 'CS Multiplayer Quiz', b: 'Class quiz on phones, teacher screen shows the scores.', p: ['computer-science-multiplayer-quiz/'], r: ['computer-science-multiplayer-quiz'] }
+      ],
+      maths: [
+        { t: 'Quick Explainers', b: 'Short animated explainer videos with exercises: HCF, LCM, negatives, fractions, percentage change. Maths and English.', p: ['coreRevision/'], r: ['coreRevision'] },
+        { t: 'Route to a 4', b: 'Tick a student’s needs, get one link with video, explanation, exercises, printable and support settings.', p: ['maths/route-to-a-4.html'], r: [] },
+        { t: 'KS3 Interactive Maths', b: 'One page per KS3 topic: interactive visual, worked examples, quiz. Covers the England programme of study.', p: ['maths/ks3-interactive/'], r: [] },
+        { t: 'KS4 Interactive Maths', b: 'GCSE topics on the same template: trigonometry, quadratics, vectors, circle theorems, histograms and more.', p: ['maths/ks4-interactive/'], r: [] },
+        { t: 'Diagnostic Questions', b: 'Multiple-choice hinge questions for the class, replacing mini whiteboards. No personal data.', p: ['diagnostic-questions/', 'diagnosticQuestions/'], r: ['diagnosticQuestions'] },
+        { t: 'Maths Lab', b: 'Interactive visual activities for the intervention trial.', p: ['maths-lab/'], r: ['maths-lab'] },
+        { t: 'Maths Visuals', b: 'Fractions and other visual models.', p: ['mathvisual/'], r: ['mathvisual'] },
+        { t: 'Maths Practice', b: 'Graded practice sets, teacher sets the level.', p: ['math-practice-app/'], r: ['math-practice-app'] }
+      ],
+      cs: [
+        { t: 'Python Blocks', b: 'Drag-and-drop Python for KS3: blocks on one side, real code on the other.', p: ['pythonblocks/'], r: ['pythonblocks'] },
+        { t: 'Pseudocode IDE', b: 'Write and run OCR/Edexcel exam pseudocode in the browser.', p: ['pseudocode/'], r: ['pseudocode'] },
+        { t: 'Python IDE &amp; PRIMM lessons', b: 'Browser Python with structured PRIMM lessons.', p: ['Python_IDE/'], r: ['Python_IDE'] },
+        { t: 'Parsons Puzzles, Indent &amp; Binary', b: 'Reorder-the-code puzzles and binary practice.', p: ['Puzzles/'], r: ['Puzzles'] },
+        { t: 'GCSE CS Revision', b: 'Revision homepage and Paper 2 Quest.', p: ['GCSE_homepage/'], r: ['GCSE_homepage'] },
+        { t: 'Past Paper Practice', b: 'Edexcel Paper 2 questions with feedback.', p: ['EdexcelPaper2/'], r: ['EdexcelPaper2'] }
+      ],
+      inclusion: [
+        { t: 'Helping your child learn at home', b: 'Parents’ site for KS3 Maths and English weekly topics, in Portuguese and Polish.', p: ['parentssupport/'], r: ['parentssupport'] },
+        { t: 'Accessible Resources &amp; SEN prompt generator', b: 'Adapted versions of resources for neurodivergent students.', p: ['adapted-ng/'], r: ['adapted-ng'] },
+        { t: 'Deck to Handout', b: 'Turns a slide deck into a printable student handout.', p: ['deck2handout/'], r: ['deck2handout'] },
+        { t: 'AI in the Classroom (CPD)', b: 'Staff CPD on using AI for planning and marking.', p: ['AIClassroom/'], r: ['AIClassroom'] },
+        { t: 'School overview (handout)', b: 'The one-page overview of everything above, printable.', p: ['school-overview.html'], r: [] }
+      ]
+    };
+
+    var base = location.origin + location.pathname.replace(/[^\/]*$/, '');
+    var live = [];
+    var pending = 0, liveCount = 0, downCount = 0;
+
+    function settings(repo) { return 'https://github.com/Computing-Hub/' + repo + '/settings/pages'; }
+
+    function head(path) {
+      return fetch(path, { method: 'HEAD', cache: 'no-store' }).then(function (r) { return r.ok; }).catch(function () { return false; });
+    }
+
+    function render(groupId, items) {
+      var ul = document.getElementById('list-' + groupId);
+      items.forEach(function (it) {
+        var li = document.createElement('li');
+        var left = document.createElement('div');
+        left.innerHTML = '<h3><a class="go" href="' + it.p[0] + '">' + it.t + '</a></h3><p>' + it.b + '</p><div class="path"></div><div class="fix"></div>';
+        var badge = document.createElement('span');
+        badge.className = 'status checking'; badge.textContent = 'checking';
+        li.appendChild(left); li.appendChild(badge); ul.appendChild(li);
+
+        pending++;
+        (function tryNext(i) {
+          if (i >= it.p.length) {
+            badge.className = 'status down'; badge.textContent = 'not published';
+            downCount++;
+            if (it.r.length) {
+              left.querySelector('.fix').innerHTML = 'Switch on Pages: ' + it.r.map(function (repo) {
+                return '<a href="' + settings(repo) + '" target="_blank" rel="noopener">' + repo + '</a>';
+              }).join(' or ') + ' &rarr; Settings &rarr; Pages &rarr; Deploy from branch (main, / root).';
+            }
+            done(); return;
+          }
+          head(it.p[i]).then(function (ok) {
+            if (ok) {
+              var a = left.querySelector('a.go'); a.setAttribute('href', it.p[i]);
+              left.querySelector('.path').textContent = base + it.p[i];
+              badge.className = 'status live'; badge.textContent = 'live';
+              liveCount++; live.push(it.t.replace(/&amp;/g, '&') + ' — ' + base + it.p[i]);
+              done();
+            } else { tryNext(i + 1); }
+          });
+        })(0);
+      });
+    }
+
+    function done() {
+      pending--;
+      if (pending === 0) {
+        document.getElementById('summary').textContent = liveCount + ' live, ' + downCount + ' not yet published.';
+      }
+    }
+
+    Object.keys(groups).forEach(function (g) { render(g, groups[g]); });
+
+    document.getElementById('copy-live').addEventListener('click', function () {
+      navigator.clipboard.writeText(live.join('\n')).then(function () {
+        var c = document.getElementById('copied'); c.hidden = false; setTimeout(function () { c.hidden = true; }, 1500);
+      });
+    });
+  })();
+  </script>
+</body>
+</html>
