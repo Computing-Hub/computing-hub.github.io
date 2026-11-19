@@ -169,3 +169,4 @@ body.contrast .block { border-width: 2px; }
   .unit li .spec { grid-column: 2; }
   .embed iframe { height: 440px; }
 }
+.runner .stop { background: #991b1b; border-color: #991b1b; }

@@ -148,15 +148,76 @@
     });
     root.querySelector('.reset').addEventListener('click', function () {
       ta.value = t.code || ''; try { localStorage.removeItem(key); } catch (e) {} out.textContent = '';
+      t._resetFiles = true;
       if (t.files && pyodideReady) pyodideReady.then(function (py) { Object.keys(t.files).forEach(function (name) { py.FS.writeFile(name, t.files[name]); }); });
     });
     var status = function (m) { st.textContent = m; };
+    var runBtn = root.querySelector('.run'), stopBtn = root.querySelector('.stop');
 
-    root.querySelector('.run').addEventListener('click', function () {
+    if (t.type === 'python' && stopBtn) {
+      if (!WORKER_OK) stopBtn.remove();
+      else stopBtn.addEventListener('click', function () { stopPython(out, status); runBtn.disabled = false; stopBtn.hidden = true; });
+    }
+
+    runBtn.addEventListener('click', function () {
       out.textContent = ''; out.classList.remove('err');
-      if (t.type === 'python') runPython(ta.value, t, out, status);
-      else runSql(ta.value, t, out, status);
+      if (t.type === 'python') {
+        if (WORKER_OK) {
+          runBtn.disabled = true; stopBtn.hidden = false;
+          runPythonInWorker(ta.value, t, out, status, function () { runBtn.disabled = false; stopBtn.hidden = true; });
+        } else {
+          runPython(ta.value, t, out, status);
+        }
+      } else runSql(ta.value, t, out, status);
     });
+  }
+
+  /* --- worker mode: Python runs off the main thread, so Stop always works --- */
+  var pyWorker = null, workerBusy = false, workerSab = null;
+  var WORKER_OK = typeof SharedArrayBuffer !== 'undefined' && window.crossOriginIsolated === true && typeof Worker !== 'undefined';
+
+  function getWorker() {
+    if (!pyWorker) {
+      pyWorker = new Worker((document.body.dataset.base || './') + 'assets/py-worker.js');
+      workerSab = new SharedArrayBuffer(8 + 65536);
+    }
+    return pyWorker;
+  }
+  function killWorker() { if (pyWorker) { pyWorker.terminate(); pyWorker = null; } workerBusy = false; }
+
+  function runPythonInWorker(code, t, out, status, onEnd) {
+    if (workerBusy) { status('Another program is still running — press its Stop button first.'); onEnd(); return; }
+    var w = getWorker(); workerBusy = true;
+    var buf = [];
+    var flag = new Int32Array(workerSab, 0, 2), bytes = new Uint8Array(workerSab, 8);
+    w.onmessage = function (e) {
+      var m = e.data;
+      if (m.type === 'status') status(m.text);
+      else if (m.type === 'out') { buf.push(m.text); out.textContent = buf.join('\n'); }
+      else if (m.type === 'input') {
+        var v = window.prompt(m.prompt || 'Input:'); if (v === null) v = '';
+        var enc = new TextEncoder().encode(v).slice(0, 65536);
+        bytes.set(enc); Atomics.store(flag, 1, enc.length); Atomics.store(flag, 0, 1); Atomics.notify(flag, 0);
+      }
+      else if (m.type === 'done') {
+        Object.keys(m.files || {}).forEach(function (name) { buf.push('\n--- ' + name + ' now contains ---\n' + m.files[name]); });
+        out.textContent = buf.join('\n'); status('Done.'); workerBusy = false; onEnd();
+      }
+      else if (m.type === 'error') { out.classList.add('err'); buf.push(m.text); out.textContent = buf.join('\n'); status('Error — read the last line of the message.'); workerBusy = false; onEnd(); }
+      else if (m.type === 'fatal') { out.classList.add('err'); out.textContent = m.text + '\nIf your school network blocks cdn.jsdelivr.net, use the Python IDE link above instead.'; status(''); killWorker(); onEnd(); }
+    };
+    w.onerror = function (e) {
+      out.classList.add('err');
+      out.textContent = 'Could not start Python: ' + (e.message || 'unknown') + '\nIf your school network blocks cdn.jsdelivr.net, use the Python IDE link above instead.';
+      status(''); killWorker(); onEnd();
+    };
+    w.postMessage({ type: 'run', code: code, files: t.files || null, resetFiles: !!t._resetFiles, sab: workerSab });
+    t._resetFiles = false;
+  }
+
+  function stopPython(out, status) {
+    killWorker();
+    out.classList.add('err'); out.textContent += '\n[Stopped]'; status('Stopped. Python will reload on the next run.');
   }
 
   function runPython(code, t, out, status) {
@@ -311,6 +372,7 @@
             '<div class="runner ' + t.type + '" id="' + rid + '">' +
             '<textarea class="code" spellcheck="false" rows="' + Math.max(6, (t.code || '').split('\n').length + 2) + '">' + esc(t.code || '') + '</textarea>' +
             '<div class="run-bar"><button class="btn small run" type="button">▶ Run ' + (t.type === 'sql' ? 'SQL' : 'Python') + '</button>' +
+            (t.type === 'python' ? '<button class="btn small stop" type="button" hidden>■ Stop</button>' : '') +
             '<button class="btn outline small reset" type="button">Reset</button><span class="run-status"></span></div>' +
             '<pre class="out" aria-live="polite"></pre></div>' + paras(t.after) + '</div>';
         }
