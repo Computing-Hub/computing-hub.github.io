@@ -1,0 +1,106 @@
+{
+  "id": "ex-05",
+  "title": "The 8-mark question: discuss and evaluate",
+  "spec": "Paper 1",
+  "duration": 60,
+  "specPoints": [
+    "The single 8-mark extended-response question in J277/01, marked with a **levels of response** scheme: the answer is placed in a band by overall quality, then given a mark within the band ('best fit')",
+    "Tests a sustained, coherent line of reasoning: knowledge, application to the scenario, balance, and a supported conclusion"
+  ],
+  "learn": [
+    "Describe how a levels-of-response scheme differs from points-based marking",
+    "Identify what moves an answer up a band: accuracy, application, balance, development, reasoning, conclusion",
+    "Plan an 8-mark answer in two minutes using a stakeholder/impact grid",
+    "Write a top-band answer in 10–12 minutes with paragraphs that each develop one argument",
+    "Self-assess an answer against the band descriptors and say what would lift it"
+  ],
+  "hook": "Eight marks. One question. It is 10% of Paper 1 and most students treat it as 'write everything you know'. The examiner isn't counting points — they are asking: has this student *argued*? Both sides, about *this* company, with reasons, and a conclusion that follows. That is a skill, and it is learnable in one lesson and five practices.",
+  "video": {
+    "title": "Band 3 in twelve minutes",
+    "brief": "5 minutes. Show a typical 8-mark stem (a company considering a change — e.g. moving to cloud storage, replacing staff with automation, collecting customer data). Build the planning grid live: stakeholders down the side (company, customers, staff, society/environment), '+' and '−' across the top, two bullet points per cell, scenario words only. Then write three paragraphs on screen with the structure point → explain → apply → counter. Then the conclusion: a judgement, the reason for it, and what it depends on. Overlay the band descriptors (paraphrased) and show where each paragraph pushes the answer."
+  },
+  "explain": [
+    { "h": "How it is marked",
+      "p": ["The 8-marker uses a **levels of response** scheme. The examiner reads the whole answer and decides which band it belongs to on overall quality, then picks a mark within the band. OCR publishes the descriptors in each mark scheme; in outline (paraphrased — your teacher has the exact wording):"],
+      "code": "Band 3  (roughly 6–8)  Thorough, accurate knowledge; points developed and clearly APPLIED to the\n                       scenario; BOTH sides considered; a sustained line of reasoning leading to a\n                       supported CONCLUSION / judgement. Well organised.\nBand 2  (roughly 3–5)  Reasonable knowledge; some application to the scenario; some balance but\n                       development is uneven; reasoning present but not sustained; conclusion weak\n                       or missing.\nBand 1  (roughly 1–2)  Basic, generic points; little or no application; one-sided; no real reasoning.\n0                      Nothing creditworthy.",
+      "after": ["Three words lift an answer: **applied** (uses the scenario), **balanced** (more than one side), **reasoned** (because → so → therefore, ending in a judgement). Quantity of points does not."] },
+    { "h": "Planning in two minutes",
+      "p": ["Draw a quick grid: stakeholders down the side — typically the organisation, its customers/users, its staff, and wider society or the environment — and *benefits* / *drawbacks* across the top. Put one or two scenario-specific ideas in each cell you can fill. Pick the three or four strongest cells. Decide your conclusion **now**, before writing, so the whole answer leads to it."],
+      "code": "Stem: A supermarket plans to replace checkout staff with self-service tills. Discuss the impact. [8]\n\n                 Benefits                                 Drawbacks\nSupermarket      lower wages bill; more tills in the      cost of tills and maintenance; theft/\n                 same space; data on buying habits        scanning errors; reputational risk\nCustomers        shorter queues at busy times; privacy     elderly/disabled shoppers struggle;\n                 for small purchases                       loss of human contact; errors in bagging\nStaff            some retrained to supervise tills         job losses; remaining jobs less skilled\nSociety / env    —                                         unemployment locally; e-waste from tills\n\nConclusion: on balance justified for the supermarket IF staffed tills are kept for those who need\nthem, because the cost savings are large but the harm falls on vulnerable customers and staff." },
+    { "h": "Writing it: PEAC paragraphs",
+      "list": ["**P**oint — one argument, one sentence.",
+               "**E**xplain — why it is true (the mechanism).",
+               "**A**pply — what it means for *this* supermarket / these customers, using the scenario's details.",
+               "**C**ounter or consequence — 'however…' or 'this means that…' so the paragraph reasons rather than lists.",
+               "Three such paragraphs (at least one each side) plus a conclusion is a complete Band 3 answer. Four is plenty. Headings or bullet lists are allowed but prose paragraphs show reasoning better."] },
+    { "h": "The conclusion",
+      "p": ["A conclusion is a **judgement with a reason and a condition**: 'Overall … because … provided that …'. Not a summary ('there are advantages and disadvantages'), not a new point, not a sentence that could end any essay. Two or three sentences. Write it even if time is short — an answer with no conclusion struggles to reach the top band however good the body is."] },
+    { "h": "What costs marks",
+      "list": ["Generic textbook content with the scenario never mentioned — caps the answer in Band 2.",
+               "One side only — 'all the advantages of cloud storage'.",
+               "A list of ten undeveloped points.",
+               "Technical inaccuracies (confusing RAM/ROM, LAN/WAN) — accuracy is in the descriptors.",
+               "No conclusion, or a conclusion that contradicts the body.",
+               "Running out of time: start the 8-marker when you have at least 12 minutes left, or do it first."] }
+  ],
+  "simple": [
+    { "h": "It is marked by quality, not by counting",
+      "p": ["The examiner reads the whole answer and puts it in a band: top band = accurate, about *this* situation, both sides, with reasons, with a conclusion."] },
+    { "h": "Plan in two minutes",
+      "p": ["Grid: who is affected (the business, customers, staff, society) × good / bad. Fill in ideas from the question. Pick the best three or four. Decide your conclusion before you write."] },
+    { "h": "Write three paragraphs",
+      "p": ["Each: the point → why → what it means for the business in the question → however… Then a conclusion: 'Overall … because … provided that …'."] },
+    { "h": "Don't",
+      "p": ["Don't write only good things. Don't forget the business's name. Don't list. Don't skip the conclusion."] }
+  ],
+  "keyterms": [
+    { "term": "Levels of response", "def": "Marking by overall quality band rather than counting points; used for the 8-mark question." },
+    { "term": "Best fit", "def": "Placing an answer in the band whose descriptors it matches most closely overall." },
+    { "term": "Sustained line of reasoning", "def": "Arguments that connect and build towards a conclusion rather than standing alone." },
+    { "term": "Stakeholder", "def": "A person or group affected by a decision: organisation, users, staff, society." },
+    { "term": "Balanced", "def": "Considering more than one side or viewpoint." },
+    { "term": "PEAC", "def": "Point, Explain, Apply, Counter — a paragraph structure for extended answers." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Band the three answers", "p": ["Your teacher will give you three answers to the same 8-mark question (or use the exam section below with answers you write at three deliberate qualities). Using the paraphrased descriptors, place each in a band, give a mark, and write one sentence per answer on what would lift it a band."] },
+    { "type": "task", "title": "2. Two-minute plans, five times", "p": ["For each stem, draw the grid and decide a conclusion in two minutes — no writing of paragraphs: (a) A school wants to issue every student a tablet instead of textbooks. (b) A council plans to install facial-recognition cameras in the town centre. (c) A company will move all its data to a cloud provider overseas. (d) A hospital is considering an AI system to prioritise A&E patients. (e) A games company plans to release its game with always-online DRM."] },
+    { "type": "task", "title": "3. Write one in twelve minutes", "p": ["Choose one plan from Try 2. Twelve minutes on the clock. Three PEAC paragraphs and a conclusion. Then swap and band each other's answer using the descriptors, with one specific improvement."] },
+    { "type": "task", "title": "4. Fix the conclusion", "p": ["Rewrite each into a judgement + reason + condition: 'In conclusion there are many advantages and disadvantages.' · 'So the company should think carefully.' · 'Overall technology is good but can be bad.' · 'That is why I would use cloud storage.'"] },
+    { "type": "embed", "title": "5. Issues topic practice", "url": "https://beanwise.coderra.je/GCSE_homepage/Topic5_Issues.html",
+      "instructions": ["Most 8-markers draw on 1.6 (ethical, legal, cultural, environmental) and 1.3/1.4 (networks and security). Use the issues topic page to build your bank of stakeholder impacts."] }
+  ],
+  "check": [
+    { "q": "The 8-mark question is marked by:", "opts": ["Counting points", "Placing the whole answer in a band, then a mark within it", "Word count", "Number of paragraphs"], "a": 1, "fb": "Levels of response, best fit." },
+    { "q": "Which most reliably lifts an answer into the top band?", "opts": ["Ten short points", "Points developed, applied to the scenario, both sides, and a reasoned conclusion", "A long introduction", "Technical words"], "a": 1, "fb": "Applied, balanced, reasoned." },
+    { "q": "An answer that never mentions the scenario is likely capped at:", "opts": ["Band 3", "Band 2", "Full marks", "Zero"], "a": 1, "fb": "Application is a descriptor." },
+    { "q": "A good conclusion is:", "opts": ["A summary of both sides", "A judgement with a reason and a condition", "A new advantage", "Optional"], "a": 1, "fb": "Overall … because … provided that …" },
+    { "q": "How long should you spend on the 8-marker in a 90-minute paper?", "opts": ["3 minutes", "10–12 minutes", "25 minutes", "As long as it takes"], "a": 1, "fb": "About a minute a mark plus planning." }
+  ],
+  "exam": [
+    { "q": "A secondary school is considering replacing all printed textbooks with a tablet for every student. Discuss the impact of this decision on the school, its students and the wider environment. In your answer you might consider: cost, learning, health, equality, environmental impact.", "marks": 8,
+      "model": ["Indicative content (any well-developed, applied selection): School — large upfront cost of devices, insurance, Wi-Fi and IT support vs savings on reprinting textbooks and easier updating of resources; management of damage, theft and misuse; staff training. Students — interactive and up-to-date content, accessibility features (text-to-speech, font size) help some learners; distraction, eye strain and sleep effects from screen time; students without home internet disadvantaged; loss of handwriting/annotation practice. Environment — reduced paper use vs manufacture of thousands of devices (rare metals, energy), e-waste when replaced every few years, electricity for charging. Conclusion — a judgement that follows from the arguments, e.g. justified if devices are kept for 5+ years, home internet is provided for those without, and printed alternatives remain for some subjects.", "Band 3 (6–8): thorough, accurate, applied to this school, balanced across stakeholders, sustained reasoning, supported conclusion. Band 2 (3–5): reasonable knowledge, some application and balance, limited development, weak conclusion. Band 1 (1–2): generic or one-sided, little reasoning."],
+      "commentary": "Notice the prompt bullets: they are a free plan. Use three or four of them, not all five. The students' home-internet point and the device-lifespan point are the kind of applied, non-obvious arguments that separate Band 3 from Band 2." }
+  ],
+  "home": "Write a Band 3 answer to one of the Try 2 stems you did not use in class, in 12 minutes, then band it yourself using the descriptors and write three sentences justifying your banding. Hand in both.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 15 · try 30 · check 4 · exam (set as Try 3) · homework 3",
+    "misconceptions": [
+      "'More points = higher band.'",
+      "Answering only the side the student agrees with.",
+      "Generic essays with the scenario replaced by 'the business'.",
+      "'Conclusion' as summary.",
+      "Leaving the 8-marker until the last five minutes."
+    ],
+    "say": [
+      "'Who is affected? Good and bad for each. Pick the best three. Decide your verdict before you write.'",
+      "'Say the school's name — or at least the word school — in every paragraph.'",
+      "'Overall, because, provided that.'"
+    ],
+    "skip": "Try 5 optional. Try 2 (five fast plans) is the highest-value drill in the unit; repeat it weekly until the exam.",
+    "differentiation": [
+      "Support: provide the grid pre-drawn with the stakeholders filled in; students add impacts.",
+      "Stretch: Try 3 — then rewrite the same answer arguing the opposite conclusion, equally well."
+    ],
+    "examiner_review": "Jose: the band descriptors here are my paraphrase of the typical J277 levels grid (three levels, 1–2 / 3–5 / 6–8), not OCR's wording. Please replace with the exact descriptor language you'd want students to see (or confirm the paraphrase is close enough), and confirm the mark ranges. The PEAC structure and stakeholder grid are teaching scaffolds, not OCR requirements — say if you'd prefer a different one."
+  }
+}

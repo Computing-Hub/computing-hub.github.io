@@ -1,0 +1,102 @@
+{
+  "id": "ex-08",
+  "title": "Revision plan and the last week",
+  "spec": "Paper 1 and 2",
+  "duration": 60,
+  "specPoints": [
+    "Planning revision across the whole J277 specification; retrieval practice; timed past-paper practice; using mark schemes to self-mark",
+    "The final week and the exam day for each paper"
+  ],
+  "learn": [
+    "Audit the specification: red/amber/green every topic honestly",
+    "Build a revision timetable that mixes retrieval, practice questions and full timed papers",
+    "Use the course's tools for retrieval (key terms, quizzes, visualisers, runner) rather than re-reading",
+    "Self-mark with a mark scheme and turn errors into a 'traps list'",
+    "Know the exam-day routine for Paper 1 and Paper 2"
+  ],
+  "hook": "Re-reading notes feels like revision and isn't. Answering a question you might get wrong, then checking, is. Everything in this lesson is built on that one fact.",
+  "video": {
+    "title": "How to revise so it sticks",
+    "brief": "4 minutes. A spec checklist filling red/amber/green. Then a week grid with three kinds of slot: retrieval (key terms, quizzes, 20 min), practice questions (topic sets, 30 min), full paper (90 min, weekends). Show the 'traps list' growing from marked papers. End with the night-before and exam-morning checklist for each paper."
+  },
+  "explain": [
+    { "h": "Step 1: audit the spec (one hour, once)",
+      "p": ["Use the course map as the checklist. For each lesson: **green** — I could answer a 4-mark question on this now; **amber** — I know it but would miss marks; **red** — I'd avoid the question. Be honest; the audit is for you. Red topics get first claim on your time, but amber topics are where most marks are recovered cheaply."] },
+    { "h": "Step 2: three kinds of revision slot",
+      "code": "Retrieval (20 min, most days)      Key Terms game, lesson quick-checks, truth tables from memory, write\n                                   the bubble sort from memory, name the 5 validation checks.\n                                   Low effort to start; highest return per minute.\n\nPractice questions (30–45 min)     A topic's exam questions from these lessons, or past-paper questions\n                                   by topic. Write, then mark with the scheme. Add every lost mark to\n                                   your traps list.\n\nFull timed paper (90 min, weekly   Exam conditions. One minute a mark. Then an hour marking it\nin the last month)                 properly. This is where exam technique becomes automatic.",
+      "after": ["A good week in the last month: retrieval five days, two topic practice sessions, one full paper and its marking. Alternate Paper 1 and Paper 2 topics so neither goes stale."] },
+    { "h": "Step 3: the traps list",
+      "p": ["One page, kept from the first marked paper to the last: every *type* of mark you lost and the fix. 'Forgot the because in explain.' 'range(1,10) off by one.' 'Compared as two paragraphs.' 'Didn't mention the scenario.' Read it before every practice paper and on the morning of the exam. Most students lose the same five marks every time; the list makes them visible."] },
+    { "h": "What to do for each paper",
+      "list": ["**Paper 1 (systems)**: key terms and definitions (AO1), applied explain questions, one 8-marker plan per week, binary/hex/units conversions until automatic, the 1.6 issues grid of stakeholders.",
+               "**Paper 2 (algorithms and programming)**: a trace table and a search/sort every day, write one program by hand every two days then run it, re-read ERL conventions, redo the 2.3 test-data questions, practise Section B on paper against the clock.",
+               "**Both**: command words card on the desk; time plan written on the front of every practice paper."] },
+    { "h": "The last week and exam day",
+      "list": ["Last week: no new topics. Retrieval, your traps list, one final timed paper per subject early in the week, light practice after.",
+               "Night before: pack pens (black), pencil, ruler, eraser; read the traps list once; sleep.",
+               "Exam morning: traps list, command-word card, nothing else.",
+               "In the room: write your time plan on the question paper; read every stem twice; underline command words; do the 8-marker with at least 12 minutes; never leave a blank; use the last 8 minutes to check boundaries and units.",
+               "Between papers: do not post-mortem Paper 1. It is finished. Paper 2 is a different skill set."] }
+  ],
+  "simple": [
+    { "h": "Reading is not revising",
+      "p": ["Revision is answering questions you might get wrong and then checking. Do that."] },
+    { "h": "Three kinds of session",
+      "list": ["**Retrieval** (20 min, most days): key-terms game, quizzes, write an algorithm from memory.", "**Practice questions** (30–45 min): a topic's exam questions, marked with the scheme.", "**Full paper** (90 min, weekly near the end): exam conditions, then mark it."] },
+    { "h": "The traps list",
+      "p": ["One page of the marks you keep losing and how to stop. Read it before every paper."] },
+    { "h": "Exam day",
+      "p": ["Time plan on the front. Read each question twice. Underline the command word. 8-marker needs 12 minutes. Never leave a blank. Check the edges at the end."] }
+  ],
+  "keyterms": [
+    { "term": "Retrieval practice", "def": "Recalling information from memory (quizzes, key terms, writing from memory) rather than re-reading it." },
+    { "term": "Spaced practice", "def": "Revisiting a topic several times with gaps between, rather than once for a long time." },
+    { "term": "Traps list", "def": "Your personal record of the kinds of marks you lose and how to avoid them." },
+    { "term": "Timed paper", "def": "A full past paper done in exam conditions and time." },
+    { "term": "RAG rating", "def": "Red/amber/green self-assessment of each topic." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. The audit", "steps": ["Open the course map. For every ready lesson, write R, A or G against it on paper.", "Count them. Write your three reddest and three most-valuable ambers (topics that appear often in papers: 2.1 algorithms, 1.2 binary/units, 2.2 programming, 1.3 networks).", "Those six are week one."] },
+    { "type": "task", "title": "2. Build the timetable", "p": ["Draw the next two weeks. Place: retrieval slots (5 per week, 20 min), topic practice (2 per week), one full paper per week with its marking hour. Label each slot with the topic from your audit. Make it fit around life or it won't happen."] },
+    { "type": "task", "title": "3. Start the traps list", "p": ["Look back at your marked unit tests from 2.1–2.5 in this course. Write down every *type* of lost mark (not the question — the type). That is page one."] },
+    { "type": "embed", "title": "4. Twenty minutes of retrieval, now", "url": "https://beanwise.coderra.je/revision-hub/",
+      "instructions": ["Key Terms for ten minutes on a red topic, then Connections or the CS quiz for ten. Notice how different this feels from reading."] },
+    { "type": "python", "title": "5. Write from memory", "p": ["Without looking: a bubble sort, then a binary search. Run them on a test list. Whatever you had to look up goes on the traps list."],
+      "code": "def bubble_sort(items):\n    pass\n\ndef binary_search(items, target):\n    pass\n\nprint(bubble_sort([5, 1, 4, 2, 8]))\nprint(binary_search([1, 2, 4, 5, 8], 5))" }
+  ],
+  "check": [
+    { "q": "The most effective revision activity is:", "opts": ["Re-reading notes", "Highlighting the textbook", "Answering questions from memory and checking", "Copying out definitions"], "a": 2, "fb": "Retrieval beats re-reading." },
+    { "q": "A 'traps list' records:", "opts": ["Hard questions", "The kinds of marks you keep losing and the fix", "Topics you like", "Past paper dates"], "a": 1, "fb": "Patterns, not individual questions." },
+    { "q": "How many minutes should you reserve for the 8-marker?", "opts": ["5", "12", "25", "40"], "a": 1, "fb": "Plan 2, write 10." },
+    { "q": "In the last week before the exam you should:", "opts": ["Start the topics you skipped", "Do retrieval and your traps list, no new material", "Stop revising entirely", "Only read"], "a": 1, "fb": "Consolidate." },
+    { "q": "Between Paper 1 and Paper 2 you should:", "opts": ["Analyse Paper 1 in detail", "Move on; prepare for Paper 2's different skills", "Revise Paper 1 topics", "Skip sleep to revise"], "a": 1, "fb": "Paper 1 is done." }
+  ],
+  "exam": [
+    { "q": "Plan an 8-mark answer in two minutes for: 'A small business is considering moving its customer records from paper files to a cloud database. Discuss the impact of this change on the business and its customers.' Write only the grid and your conclusion sentence.", "marks": 0,
+      "model": ["Grid: Business + (access anywhere, backup by provider, easier search/reporting, less storage space) / − (subscription cost, internet dependence, staff training, data-protection responsibilities, provider lock-in). Customers + (faster service, fewer lost records) / − (data breach risk, data held overseas, consent and privacy concerns). Conclusion: justified because the backup and access benefits outweigh costs for a small business, provided a reputable UK/EU provider is chosen and staff are trained in data protection."],
+      "commentary": "Not for marks — for speed. Two minutes to a grid and a verdict is the habit that makes the real 8-marker calm." },
+    { "q": "Write your exam-day checklist for Paper 2 in six lines.", "marks": 0,
+      "model": ["Time plan on the paper (Section A ~50 min, B ~35, check 5). Read each stem twice; underline the command word. Trace tables: row per change; read symbols aloud. Section B: number the requirements; code only for Write/Refine; one language. Never leave a blank — a correct input line scores. Last 8 minutes: boundaries, loop bounds, outputs in the right place."],
+      "commentary": "Yours will differ; it should be *yours*, from your traps list." }
+  ],
+  "home": "Finish the audit, the two-week timetable and page one of the traps list. Bring all three; your teacher will check the timetable is realistic and the reds are right.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 35 · check 4 · homework 3 (exam section is planning practice, not marked)",
+    "misconceptions": [
+      "Re-reading as revision.",
+      "Revising only favourite topics.",
+      "Full papers without marking them properly.",
+      "Last-minute new topics."
+    ],
+    "say": [
+      "'If you can't get it wrong, it isn't revision.'",
+      "'What's on your traps list? That's where your next five marks are.'"
+    ],
+    "skip": "Try 5 optional. Try 1–3 produce the three artefacts the student will actually use.",
+    "differentiation": [
+      "Support: provide a pre-drawn two-week grid and a printed course map for the audit.",
+      "Stretch: students build a shared class traps list and rank the top ten by frequency."
+    ],
+    "examiner_review": "Jose: this lesson is pedagogy rather than marking convention, so less to verify — but if there are examiner-report themes you see every year (the same lost marks across the cohort), the 'traps list' is the place to seed them. Give me the top five and I'll build them in as a starter list."
+  }
+}

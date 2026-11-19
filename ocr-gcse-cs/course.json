@@ -39,7 +39,15 @@
     "2-4-04",
     "2-5-01",
     "2-5-02",
-    "2-5-03"
+    "2-5-03",
+    "ex-01",
+    "ex-02",
+    "ex-03",
+    "ex-04",
+    "ex-05",
+    "ex-06",
+    "ex-07",
+    "ex-08"
   ],
   "units": [
     {
@@ -549,37 +557,37 @@
         },
         {
           "id": "ex-02",
-          "title": "Command words: state, describe, explain, discuss",
+          "title": "Command words: what each one wants",
           "spec": "Paper 1 and 2"
         },
         {
           "id": "ex-03",
-          "title": "The 2-mark question: identify and expand",
+          "title": "Short questions: state, give, identify — the point-and-expand habit",
           "spec": "Paper 1 and 2"
         },
         {
           "id": "ex-04",
-          "title": "The 6-mark question: Paper 1 evaluation",
-          "spec": "Paper 1"
+          "title": "Medium questions: describe, explain, compare (3–6 marks)",
+          "spec": "Paper 1 and 2"
         },
         {
           "id": "ex-05",
-          "title": "The 8-mark question: Paper 1 discussion",
+          "title": "The 8-mark question: discuss and evaluate",
           "spec": "Paper 1"
         },
         {
           "id": "ex-06",
-          "title": "Paper 2 Section B: writing code in the exam",
+          "title": "Paper 2 Section B: design, write, test, refine",
           "spec": "Paper 2"
         },
         {
           "id": "ex-07",
-          "title": "Trace tables and algorithms under pressure",
+          "title": "Trace tables, searches and sorts under time pressure",
           "spec": "Paper 2"
         },
         {
           "id": "ex-08",
-          "title": "Final revision plan",
+          "title": "Revision plan and the last week",
           "spec": "Paper 1 and 2"
         }
       ]

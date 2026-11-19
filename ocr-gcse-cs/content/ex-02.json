@@ -1,0 +1,98 @@
+{
+  "id": "ex-02",
+  "title": "Command words: what each one wants",
+  "spec": "Paper 1 and 2",
+  "duration": 60,
+  "specPoints": [
+    "OCR's command words (specification section 3d): state, identify, give, list, define, describe, explain, compare, discuss, evaluate, justify, outline, show, calculate, complete, write, refine, design, draw, annotate and others",
+    "The shape of answer each command word requires; matching the shape to the marks"
+  ],
+  "learn": [
+    "Recognise the command word in any question stem and underline it",
+    "Say what each common command word asks for, in OCR's sense",
+    "Produce the right *shape* of answer: a word, a sentence, a point-plus-reason, a balanced argument, code",
+    "Spot the three words that most often lose marks (describe vs explain; compare; discuss) and handle them",
+    "Rewrite a weak answer so it matches its command word"
+  ],
+  "hook": "'State one advantage of SSDs.' 'Explain one advantage of SSDs.' Same topic, same mark scheme list — different marks. The first wants a fact. The second wants the fact *and why it matters*. Read the first word of the question before you read anything else.",
+  "video": {
+    "title": "Command words in 4 minutes",
+    "brief": "Sort the command words into four columns on screen: Recall (state, identify, give, list, define, name) · Account (describe, outline) · Reasons (explain, justify) · Weigh up (compare, discuss, evaluate). Then the practical ones: write, complete, show, calculate, draw, design, refine. For each column show one stem and a one-line model answer, highlighting the part that earns the second mark. End with the three traps."
+  },
+  "explain": [
+    { "h": "OCR's definitions, in plain terms",
+      "code": "Recall — short, no reasons\n  State / Give       a specific name, value or brief answer, no explanation\n  Identify           pick out and state briefly, e.g. from a list or diagram\n  List               a sequence of brief answers, no explanation\n  Define             the precise meaning of the term\n\nAccount — say what it is or how it works\n  Describe           a detailed account of a situation, process or feature (what / how)\n  Outline            a brief account or summary\n\nReasons — say why\n  Explain            a detailed account INCLUDING reasons or causes (what + why / because)\n  Justify            valid reasons or evidence to support an answer or conclusion\n\nWeigh up — more than one side\n  Compare            similarities AND differences, referring to BOTH items throughout\n  Discuss            a considered, balanced review with a range of arguments; conclusions supported\n  Evaluate           assess implications and limitations; make a judgement against criteria\n\nDo — produce something\n  Write / Rewrite    produce code or an algorithm (Section B: ERL or a high-level language)\n  Complete           fill in all the missing parts (table, code, diagram)\n  Show               give the steps (a search, a sort, a calculation)\n  Calculate          numerical answer WITH working\n  Draw / Annotate    diagram / add brief notes to a diagram\n  Design             produce a plan or model (natural English, pseudocode, flowchart allowed)\n  Refine             improve, make more efficient, modify",
+      "after": ["These paraphrase OCR's published definitions; the exact wording is in the specification, section 3d."] },
+    { "h": "The three traps",
+      "list": ["**Describe treated as explain** (or the reverse). *Describe* = what it is / how it works. *Explain* = and **why** — the second mark is almost always after the word 'because' or 'so that'. If your explain answer has no 'because', it is a describe answer.",
+               "**Compare answered as two separate descriptions.** A compare needs sentences that hold both items at once: 'X does … **whereas** Y does …'. Two paragraphs, one on each, scores poorly even if every fact is right.",
+               "**Discuss answered as a list.** Discuss wants more than one side, developed, applied to the scenario, and a conclusion. Bullet points of advantages score low bands."] },
+    { "h": "Shape follows word",
+      "code": "State one input device.                     Keyboard.\nDescribe one feature of an IDE.             Syntax highlighting shows keywords, strings and\n                                            comments in different colours.\nExplain one benefit of syntax highlighting. Syntax highlighting colours keywords and strings\n                                            differently, SO THAT an unclosed string or misspelt\n                                            keyword stands out and can be fixed quickly.\nCompare RAM and ROM.                        RAM is volatile WHEREAS ROM keeps its contents\n                                            without power; BOTH are primary storage; RAM holds\n                                            running programs WHILE ROM holds the boot firmware.\nJustify the use of a compiler here.         A compiler is appropriate BECAUSE the software is sold\n                                            to customers, so a stand-alone executable that hides\n                                            the source and runs fast is needed." },
+    { "h": "Reading the stem",
+      "p": ["Underline the command word. Circle the number of marks. Box the scenario words you must use. Then answer. Thirty seconds, every question. It is the cheapest habit in the exam."] }
+  ],
+  "simple": [
+    { "h": "The first word tells you the job",
+      "list": ["**State / Give / Identify / List**: a short fact. No reasons.", "**Describe**: say what it is or how it works.", "**Explain**: say what *and why* — use 'because' or 'so that'.", "**Compare**: both things in the same sentence — 'X … whereas Y …'.", "**Discuss / Evaluate**: both sides, applied to the situation, and your conclusion.", "**Write / Complete / Show / Calculate**: do it, and show your steps."] },
+    { "h": "Three traps",
+      "p": ["Explain with no 'because' = half marks. Compare as two separate paragraphs = low marks. Discuss as a bullet list = low band."] },
+    { "h": "Before you write",
+      "p": ["Underline the command word. Circle the marks. Box the scenario words. Then write."] }
+  ],
+  "keyterms": [
+    { "term": "Command word", "def": "The instruction word at the start of a question that says what kind of answer is wanted." },
+    { "term": "Describe", "def": "Give an account of what something is or how it works." },
+    { "term": "Explain", "def": "Give an account including reasons — what and why." },
+    { "term": "Compare", "def": "Give similarities and differences, referring to both items throughout." },
+    { "term": "Discuss", "def": "Give a balanced review of several arguments and reach a supported conclusion." },
+    { "term": "Justify", "def": "Give valid reasons supporting an answer or decision." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Sort the stems", "p": ["Put each into Recall / Account / Reasons / Weigh up / Do: 'Identify the output of…' · 'Describe how a bubble sort works' · 'Explain why the program uses a constant' · 'Compare linear and binary search' · 'Justify the choice of data type' · 'Show the stages of a merge sort' · 'Discuss the impact of…' · 'Outline the role of the operating system' · 'Refine the algorithm so that…' · 'Define the term abstraction'."] },
+    { "type": "task", "title": "2. Upgrade the answer", "p": ["Each answer is correct for a weaker command word. Rewrite it for the one asked. (a) *Explain one advantage of a mesh network.* Answer given: 'There is more than one route between devices.' (b) *Compare a compiler and an interpreter.* Answer given: 'A compiler translates all at once. An interpreter goes line by line.' (c) *Justify the use of a 2D array for a chessboard.* Answer given: 'A 2D array has rows and columns.'"] },
+    { "type": "task", "title": "3. Spot the 'because'", "p": ["Take the model answers in the exam sections of any three lessons in 2.1–2.5 that use *explain*. Underline the word that introduces the reason in each (because / so that / which means / as). Then write one explain answer of your own for a topic of your choice and underline yours."] },
+    { "type": "task", "title": "4. Stem surgery", "p": ["Write the same question six ways — state, describe, explain, compare, justify, discuss — about **cloud storage**. For each, write the number of marks you'd expect and a one-line model answer of the right shape."] },
+    { "type": "embed", "title": "5. Exam command-word practice", "url": "https://beanwise.coderra.je/GCSE_homepage/Paper1_Answer_Builder.html",
+      "instructions": ["Use the answer builder to assemble explain and compare answers from parts, and see where the second mark comes from."] }
+  ],
+  "check": [
+    { "q": "'Explain' differs from 'describe' because it requires:", "opts": ["More words", "Reasons or causes", "A diagram", "Two examples"], "a": 1, "fb": "The 'because'." },
+    { "q": "A compare answer must:", "opts": ["Describe each item separately", "Refer to both items throughout, with similarities and differences", "List advantages only", "Reach no conclusion"], "a": 1, "fb": "Whereas / both / while." },
+    { "q": "'State' answers should be:", "opts": ["A paragraph", "Brief, with no explanation", "Justified", "Balanced"], "a": 1, "fb": "Name, value or brief answer." },
+    { "q": "'Discuss' requires:", "opts": ["One strong argument", "A balanced range of arguments and a supported conclusion", "Code", "A definition only"], "a": 1, "fb": "Both sides, conclusion." },
+    { "q": "'Show the stages of a bubble sort' wants:", "opts": ["A definition of bubble sort", "The list after each pass", "Python code", "Advantages of bubble sort"], "a": 1, "fb": "Show = the steps." }
+  ],
+  "exam": [
+    { "q": "**Describe** what is meant by a logic error.", "marks": 2,
+      "model": ["An error in the design/logic of the program (1) so that it runs but produces an unexpected or incorrect result (1)."],
+      "commentary": "Describe: what it is and what happens. No 'why' needed." },
+    { "q": "**Explain** why a logic error is harder to find than a syntax error.", "marks": 2,
+      "model": ["A syntax error stops the program and is reported with a line number, whereas a logic error produces no message (1) **because** the code is valid and runs, so the error only shows as wrong output that must be found by testing/tracing (1)."],
+      "commentary": "Same topic, now with reasons. Notice the second mark lives after 'because'." },
+    { "q": "**Compare** a `for` loop and a `while` loop.", "marks": 4,
+      "model": ["Both repeat a block of code (1). A for loop repeats a fixed, known number of times **whereas** a while loop repeats while a condition is true, an unknown number of times (1). A for loop uses a counter variable **while** a while loop needs the body to change the condition (1). A while loop may run zero times **but** a for loop with a valid range always runs (1)."],
+      "commentary": "Every sentence names both loops. One similarity plus differences is the full-marks shape." }
+  ],
+  "home": "Make a one-page command-word card: the four groups, the key word in each (because / whereas / both sides), and one model sentence for each. Laminate it mentally — it goes on your desk for every practice paper from now on.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 14 · try 28 · check 5 · exam 7 · homework 3",
+    "misconceptions": [
+      "'Explain' answered as a longer 'describe'.",
+      "'Compare' as two lists.",
+      "Thinking 'justify' means 'describe the thing you chose'. It means give reasons for the choice *in this context*.",
+      "Reading 'discuss' as 'give advantages'."
+    ],
+    "say": [
+      "'Where is your because?'",
+      "'Whereas. Say whereas.'",
+      "'First word of the question. Circle it. Now what shape is the answer?'"
+    ],
+    "skip": "Try 5 optional. Try 2 is the one that moves grades.",
+    "differentiation": [
+      "Support: Try 1 as a card sort with the four headings laid out.",
+      "Stretch: Try 4 at speed — six answers in six minutes."
+    ],
+    "examiner_review": "Jose: definitions are paraphrased from the J277 specification section 3d (full list: add, analyse, annotate, calculate, compare, complete, convert, define, describe, design, discuss, draw, evaluate, explain, give, how, identify, justify, label, list, order, outline, refine, show, solve, state, tick, what, write/rewrite). Please check the 'describe = what, explain = what + why' framing matches how J277 schemes actually credit the second mark, and add any command word you see misread in scripts."
+  }
+}

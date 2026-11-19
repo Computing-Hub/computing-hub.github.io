@@ -1,0 +1,110 @@
+{
+  "id": "ex-06",
+  "title": "Paper 2 Section B: design, write, test, refine",
+  "spec": "Paper 2",
+  "duration": 60,
+  "specPoints": [
+    "J277/02 Section B (30 marks, AO3 only): questions that ask students to **design**, **write**, **test** and **refine** programs",
+    "Write and refine answers must be in OCR Exam Reference Language or a high-level language (e.g. Python); design answers may use natural English, pseudocode, flowcharts or tick boxes; test answers use trace tables and test data",
+    "Minor syntax errors (e.g. a missing colon) are normally not penalised; errors that change meaning (e.g. a reversed assignment) are"
+  ],
+  "learn": [
+    "State what each of design, write, test and refine questions accepts as an answer and what scores nothing",
+    "Write exam code that hits each requirement in the brief, in ERL or Python, consistently",
+    "Know which 'syntax' slips are forgiven and which are not",
+    "Complete a 'refine' question: identify what to change and write the changed lines",
+    "Manage the 30 marks of Section B inside about 35 minutes"
+  ],
+  "hook": "Section B is 30 marks — nearly 40% of Paper 2 — and it is the part where students who have *programmed* beat students who have *revised*. The good news: you have run hundreds of programs in this course. The job today is turning that into marks on paper, where nothing runs and the examiner is the interpreter.",
+  "video": {
+    "title": "Four verbs, 30 marks",
+    "brief": "5 minutes. The four question types as four doors: Design (plan in English, pseudocode or flowchart), Write (code only), Test (trace tables, test data), Refine (change the given code). For Write: show a brief with four requirements, the code written requirement by requirement with a tick appearing per requirement, then the mark scheme beside it. Show the forgiven slip (missing colon) and the penalised one (7 = x). End with the time split."
+  },
+  "explain": [
+    { "h": "The four kinds of Section B question",
+      "code": "Design   'Design an algorithm…', 'Identify the inputs/processes/outputs', 'Complete the flowchart'\n         Accepts: natural English, pseudocode, flowcharts, tick boxes — and ERL / Python.\n\nWrite    'Write an algorithm / program that…', 'Write a function that…'\n         MUST be ERL or a high-level language. English or a flowchart scores nothing.\n\nTest     'Complete the trace table', 'Give suitable test data', 'State the type of test data',\n         'Identify a test that would show the error'\n         Uses ERL for the given code; your answers are tables and values.\n\nRefine   'The program should also…', 'Rewrite lines 4–6 so that…', 'Correct the error on line…'\n         MUST be ERL or a high-level language. Write the changed lines, referring to line numbers." },
+    { "h": "Writing code the examiner can mark",
+      "list": ["**Read the brief as a checklist.** Each requirement is a mark or two. Number them in the margin; tick each as your code addresses it.",
+               "**One language, consistently.** ERL or Python; don't mix `then` with colons. Either is fully accepted.",
+               "**Make requirements visible.** If the brief says 'validate the input', there must be an obvious check; if it says 'output the total', there must be a print of the total.",
+               "**Meaningful names and indentation.** There is frequently a mark for clear, well-structured code.",
+               "**Use subprograms when the brief suggests parts**; call them from a main section.",
+               "**Don't over-engineer.** Extra features earn nothing and cost time."] },
+    { "h": "What is forgiven and what is not",
+      "code": "Normally NOT penalised                      Penalised (changes the meaning)\n  missing colon or endif                        assignment backwards:  7 = x\n  print vs print()                              = used for comparison where it reads as assignment\n  input() without int() in a short answer       wrong loop type for the task (for where while is needed)\n  minor spelling in keywords                    loop bounds that miss or repeat items\n  brackets round a condition                    variable never updated (infinite loop)\n                                                output outside the loop when it should be inside (or vice versa)",
+      "after": ["The principle: the examiner is checking whether **a programmer would understand and could run your intent**. Casting with `int()` is still worth including — it costs five characters and removes doubt."] },
+    { "h": "Refine questions",
+      "p": ["You are given working code and asked to change it: add validation, handle a new case, fix a bug, make it more efficient. Write **only the lines that change or are added**, with the line number they replace or follow, unless told to rewrite the whole thing. State briefly what the change does if the question says 'explain'. Common refinements: add a range check loop, add an `else`, change `>` to `>=`, add a count/total accumulator, replace a hard-coded value with `.length`."] },
+    { "h": "Test questions",
+      "p": ["Trace tables (lesson 7) and test data (unit 2.3). For 'identify a test that would reveal the error', pick the **boundary** value that the faulty comparison gets wrong and state the expected vs actual result."] },
+    { "h": "Time",
+      "p": ["Section A 50 marks ≈ 50 minutes; Section B 30 marks ≈ 35 minutes; 5 to check. Many students do Section B **first** while fresh — try it in a mock and see which order suits you. Never leave a Write question blank: a correct loop header, a correct input line and a correct output line each score even if the middle is missing."] }
+  ],
+  "simple": [
+    { "h": "Four kinds of question",
+      "list": ["**Design**: plan it — English, pseudocode or a flowchart are all fine.", "**Write**: code only. English scores nothing.", "**Test**: trace tables and test data.", "**Refine**: change the code you are given — write the changed lines."] },
+    { "h": "Writing code on paper",
+      "p": ["Number the requirements in the brief. Write the code so each requirement is obviously there. Tick them off. One language. Good names."] },
+    { "h": "Small slips are OK",
+      "p": ["Missing a colon: fine. Writing `7 = x`: not fine. Wrong kind of loop: not fine."] },
+    { "h": "Time",
+      "p": ["About 35 minutes for Section B. Some students do it first. Never leave it blank — a correct input line and loop header still score."] }
+  ],
+  "keyterms": [
+    { "term": "Section B", "def": "The 30-mark programming section of Paper 2 testing design, write, test and refine (AO3)." },
+    { "term": "OCR Exam Reference Language (ERL)", "def": "OCR's pseudocode; you must be able to read it and may answer in it." },
+    { "term": "High-level language answer", "def": "Code in a real language such as Python, fully accepted for write and refine questions." },
+    { "term": "Refine", "def": "Improve or modify given code to meet a new or corrected requirement." },
+    { "term": "Requirement", "def": "One thing the brief says the program must do; usually one or two marks each." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Which door?", "p": ["Classify each as Design / Write / Test / Refine and say what form your answer must take: 'Complete the trace table for…' · 'Write a function that returns…' · 'Identify the inputs and outputs of…' · 'The program should also reject negative values. Rewrite line 3…' · 'Draw a flowchart for…' · 'Give one item of boundary test data for…' · 'Write an algorithm that reads the file and…'"] },
+    { "type": "task", "title": "2. Write it on paper first", "p": ["**Brief [8]:** A program for a car park. It must: (1) ask for the number of hours parked (1–24, validated); (2) calculate the cost at £1.50 per hour; (3) apply a 20% discount if the user has a permit (y/n); (4) output the cost to two decimal places; (5) repeat for the next car until the attendant types 0 hours. Use subprograms where appropriate. Write it **by hand on paper**, in ERL or Python, ticking requirements as you go. Ten minutes."] },
+    { "type": "python", "title": "3. Now run what you wrote", "p": ["Type your paper answer here exactly as written. Run it. Every difference between what you wrote and what runs is a lesson about your paper habits — but note which differences an examiner would forgive."],
+      "code": "# type your Try 2 answer here\n" },
+    { "type": "python", "title": "4. Refine", "p": ["Given code and two refinements. (a) Reject marks outside 0–100 and ask again. (b) After the loop, also output how many marks were 40 or over. Write only the changed/added lines with line numbers on paper, then apply them here and run."],
+      "code": "marks = []\nfor i in range(5):\n    m = int(input(\"Mark: \"))\n    marks.append(m)\ntotal = 0\nfor m in marks:\n    total = total + m\nprint(\"Average:\", total / 5)" },
+    { "type": "embed", "title": "5. Paper 2 forecast practice", "url": "https://beanwise.coderra.je/GCSE_homepage/Paper2_Forecast01.html",
+      "instructions": ["Work through the Section-B-style questions against the clock. Hand-write the Write questions first, then check in the runner."] }
+  ],
+  "check": [
+    { "q": "A 'Write an algorithm' question in Section B answered as a flowchart scores:", "opts": ["Full marks", "Half", "Nothing", "One mark"], "a": 2, "fb": "Code required." },
+    { "q": "Which slip is normally NOT penalised?", "opts": ["`7 = x`", "A missing colon", "A for loop where a while is needed", "Never updating the loop variable"], "a": 1, "fb": "Minor syntax is forgiven; meaning errors are not." },
+    { "q": "Section B is worth:", "opts": ["20 marks", "30 marks", "40 marks", "50 marks"], "a": 1, "fb": "30 of Paper 2's 80." },
+    { "q": "For a refine question you should usually:", "opts": ["Rewrite the whole program", "Write the changed or added lines with line references", "Describe the change in English only", "Draw a flowchart"], "a": 1, "fb": "Unless told to rewrite everything." },
+    { "q": "The best first step on a Write question is:", "opts": ["Start typing code mentally from line 1", "Number the requirements in the brief and plan to hit each", "Write comments", "Choose variable names"], "a": 1, "fb": "Requirements = marks." }
+  ],
+  "exam": [
+    { "q": "Write a program that asks the user to enter the names of 5 students and their test scores, stores them in two arrays, and then outputs the name of the student with the highest score.", "marks": 6,
+      "model": ["Two arrays/lists created (1). Loop five times taking name and score, score as integer (1). Both stored at the same index (1). Loop comparing each score with the current highest (1). Records the index/name when a higher score is found (1). Outputs the name after the loop (1)."],
+      "commentary": "Parallel arrays are the point: the name is found via the index of the highest score. Students who output the highest *score* lose the last mark; read the brief." },
+    { "q": "The following program is intended to count down from 10 to 1 and then output \"Go!\". It contains an error. Identify the line and rewrite it correctly.", "marks": 2, "code": "01 n = 10\n02 while n > 0\n03     print(n)\n04 endwhile\n05 print(\"Go!\")",
+      "model": ["Line 04 / the loop body never changes n, so the loop is infinite (1). Add `n = n - 1` inside the loop (as a new line 04, before endwhile) (1)."],
+      "commentary": "A refine/correct question: identify + corrected code. 'Add a decrement' in English is not the corrected line." },
+    { "q": "A program should give a discount when a customer spends £20 or more. It uses `if total > 20 then`. Give a value of test data that would reveal the error, and state the expected and actual outputs.", "marks": 3,
+      "model": ["20 (1); expected: discount applied (1); actual: no discount (1)."],
+      "commentary": "The boundary value is the test. Expected vs actual both needed." }
+  ],
+  "home": "Hand-write the answers to one complete Section B from a past paper in 35 minutes (no computer). Then type each Write answer into the runner, record what you'd have been forgiven and what you'd have lost, and fix your paper habits list.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 14 · try 30 · check 4 · exam 6 · homework 3",
+    "misconceptions": [
+      "Answering Write questions in English because 'the exam isn't on a computer'.",
+      "Mixing ERL and Python syntax in one answer.",
+      "Rewriting the whole program for a one-line refinement.",
+      "Believing any syntax error is fatal, so freezing.",
+      "Outputting the wrong thing (highest score instead of the name)."
+    ],
+    "say": [
+      "'Number the requirements. Each one is a mark. Tick them.'",
+      "'Would a programmer understand what you meant and could they run it? Then it scores.'",
+      "'Write questions: code. Only code.'"
+    ],
+    "skip": "Try 5 optional. Try 2 → 3 (paper then runner) is the whole lesson in miniature.",
+    "differentiation": [
+      "Support: Try 2 with requirements 1 and 5 provided as code; students do 2–4.",
+      "Stretch: Try 4 — refine to read the marks from a file and handle a file of any length."
+    ],
+    "examiner_review": "Jose: the forgiven/penalised table is from OCR's 'Exploring our question papers' (missing colon forgiven; reversed assignment penalised) plus my extrapolation for the other rows. Please correct any row that doesn't match how you've seen scripts marked, and confirm the 10–15% (8–12 marks) figure for questions requiring ERL/high-level language across Paper 2."
+  }
+}

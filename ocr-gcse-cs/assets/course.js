@@ -436,7 +436,8 @@
         (t.misconceptions ? '<h3>Common misconceptions</h3>' + listHtml(t.misconceptions) : '') +
         (t.say ? '<h3>What to say</h3>' + listHtml(t.say) : '') +
         (t.skip ? '<h3>If short of time</h3>' + paras([].concat(t.skip)) : '') +
-        (t.differentiation ? '<h3>Support and stretch</h3>' + listHtml(t.differentiation) : ''));
+        (t.differentiation ? '<h3>Support and stretch</h3>' + listHtml(t.differentiation) : '') +
+        (t.examiner_review ? '<h3>For examiner review</h3>' + paras([].concat(t.examiner_review)) : ''));
     }
 
     // prev / next

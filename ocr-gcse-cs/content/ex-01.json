@@ -1,0 +1,104 @@
+{
+  "id": "ex-01",
+  "title": "How the papers work and how marks are given",
+  "spec": "Paper 1 and 2",
+  "duration": 60,
+  "specPoints": [
+    "J277/01 Computer systems and J277/02 Computational thinking, algorithms and programming: 80 marks each, 1 hour 30 minutes each, 50% each",
+    "Assessment objectives: AO1 knowledge (30%), AO2 application (40%), AO3 analyse, design, program, evaluate, refine (30%)",
+    "Paper 2 Section A (50 marks, points-based, includes one 6-mark question) and Section B (30 marks, programming skills, AO3 only)"
+  ],
+  "learn": [
+    "State the structure, timing and mark total of each paper",
+    "Explain what AO1, AO2 and AO3 mean and recognise which one a question is testing",
+    "Work out a time budget from the marks (about one minute per mark) and apply it",
+    "Explain how points-based mark schemes and levels-based mark schemes differ",
+    "Read the marks in brackets and decide how many separate points an answer needs"
+  ],
+  "hook": "Two students know exactly the same Computer Science. One gets a 6, the other a 4. The difference is not knowledge. It is knowing that a 2-mark 'explain' needs a point and a reason, that the 8-marker has levels not points, and that Section B wants code not English. This unit is that difference.",
+  "video": {
+    "title": "The two papers, from the examiner's side of the desk",
+    "brief": "4 minutes. Two exam papers side by side with their totals and times. Overlay the AO weightings as three coloured bars; show a question stem and highlight which AO it hits. Then a points-based mark scheme (tick, tick, tick) versus a levels grid for the 8-marker (band first, then mark). End with the clock: 80 marks, 90 minutes, about a minute a mark, 10 minutes to check."
+  },
+  "explain": [
+    { "h": "The two papers",
+      "code": "                 J277/01 Computer systems            J277/02 Computational thinking, algorithms, programming\nMarks            80                                  80\nTime             1 h 30 min                          1 h 30 min\nWeight           50%                                 50%\nContent          1.1 – 1.6                           2.1 – 2.5\nShape            Mixed short/medium questions,       Section A: 50 marks, short/medium, one 6-mark question\n                 one 8-mark extended response        Section B: 30 marks, programming skills (design,\n                                                     write, test, refine), AO3 only\nCalculator       No                                  No",
+      "after": ["Both papers are written; there is no coursework. Paper 2's Section B is where your programming practice pays: write and refine questions **must** be answered in OCR Exam Reference Language or a high-level language such as Python — English or a flowchart scores nothing there."] },
+    { "h": "What the examiner is testing: the AOs",
+      "list": ["**AO1 — knowledge and understanding (30%)**: define, state, describe what something *is*. 'State what is meant by a compiler.'",
+               "**AO2 — application (40%)**: use your knowledge *in the scenario given*. 'Explain why a compiler is suitable for this company's software.' Generic answers that ignore the scenario lose the application marks.",
+               "**AO3 — analyse, design, program, evaluate, refine (30%)**: write or fix algorithms, choose test data, weigh up options and reach a judgement. The whole of Section B, trace tables, the 8-marker's evaluation.",
+               "Most questions mix AOs. The habit that earns AO2 is simple: **use the words of the scenario in your answer**."] },
+    { "h": "How marks are given",
+      "p": ["**Points-based** (almost everything): the mark scheme lists acceptable points; each correct, distinct point earns a mark up to the maximum. Order doesn't matter, repetition doesn't score, and an expansion of a point ('…which means…') is often a separate mark. So 'Describe two…' [4] means two points, each with an expansion.",
+            "**Levels-based** (the 8-mark question in Paper 1 only): the examiner reads the whole answer, places it in a **band** by its overall quality (knowledge, application to the scenario, balance, line of reasoning, conclusion), then chooses a mark within the band. More points does not automatically mean more marks; a developed, balanced argument does. Lesson 5 is about this."] },
+    { "h": "Time and marks",
+      "p": ["80 marks in 90 minutes is just over a minute a mark. Budget: a 2-mark question gets two minutes, the 8-marker gets 10–12, and you keep 8–10 minutes to check. If a question is taking twice its budget, write what you have, mark it, and move on — come back at the end. Marks in brackets also tell you **how many things to say**: [1] one thing; [2] a point and a reason, or two points; [4] usually two developed points or four distinct ones; [6] three developed points or a complete algorithm."] },
+    { "h": "Working and crossing out",
+      "p": ["Show working for every calculation, trace and search/sort — method marks exist. If you change your mind, cross out with one line (it is still readable and can be marked if nothing replaces it) and write the new answer. Don't leave a question blank: a sensible attempt at a 1-mark 'state' is free."] }
+  ],
+  "simple": [
+    { "h": "Two papers",
+      "p": ["Paper 1: Computer systems (1.1–1.6). Paper 2: Algorithms and programming (2.1–2.5). Each 80 marks, 1 hour 30, half the grade. No calculator, no coursework."] },
+    { "h": "Three kinds of marks",
+      "list": ["**AO1**: do you know it? (state, define)", "**AO2**: can you use it *in this situation*? Use the words from the question.", "**AO3**: can you build, test, fix and judge? (code, trace tables, 8-marker)"] },
+    { "h": "How marking works",
+      "p": ["Most questions: one mark per correct point. [2] = two things. [4] = two points each with a reason, or four points.", "The 8-mark question in Paper 1: the examiner judges the whole answer and puts it in a band."] },
+    { "h": "Time",
+      "p": ["About one minute per mark. 2 marks = 2 minutes. Keep 10 minutes to check. Never leave a blank."] }
+  ],
+  "keyterms": [
+    { "term": "Assessment objective (AO)", "def": "What a question is testing: AO1 knowledge, AO2 application, AO3 analysis/design/programming/evaluation." },
+    { "term": "Points-based mark scheme", "def": "A list of acceptable points; each distinct correct point scores up to the maximum." },
+    { "term": "Levels-based mark scheme", "def": "The answer is placed in a quality band first, then given a mark within it; used for the 8-mark question." },
+    { "term": "Section B", "def": "The 30-mark programming section of Paper 2: design, write, test, refine; code required for write and refine." },
+    { "term": "Mark allocation", "def": "The number in brackets after a question, showing how many separate creditworthy points are expected." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Build the time plan", "steps": ["Take any past Paper 1 (or the 2.1–2.5 unit tests here). Write the mark for every question in a column.", "Next to each, write its time budget (marks × 1 min, 8-marker 11 min). Total it; check you have about 10 minutes left.", "Mark the three questions you would do *first* and say why (confidence? marks? warm-up?)."] },
+    { "type": "task", "title": "2. Which AO?", "p": ["Label each stem AO1, AO2 or AO3 and say what in the wording told you: (a) 'Define the term abstraction.' (b) 'Explain why a binary search is suitable for this sorted list of 10,000 IDs.' (c) 'Write an algorithm that…' (d) 'Discuss the environmental impact of the company replacing its computers every two years.' (e) 'Complete the trace table.' (f) 'Describe two features of an IDE.'"] },
+    { "type": "task", "title": "3. How many things?", "p": ["For each, write the number of separate points the mark scheme is likely to want and the shape of the answer: 'State one…' [1] · 'Give two…' [2] · 'Describe one advantage…' [2] · 'Explain two reasons…' [4] · 'Compare…' [4] · 'Discuss…' [8] · 'Write an algorithm…' [6]."] },
+    { "type": "task", "title": "4. Points or levels?", "p": ["Here is a 4-mark answer with five correct, undeveloped points, and a 2-mark answer with one point fully explained. Under a points-based scheme, what does each score? Under a levels-based scheme, which would be judged more highly and why? Write three sentences."] },
+    { "type": "embed", "title": "5. Practise on a past paper", "url": "https://beanwise.coderra.je/EdexcelPaper2/",
+      "instructions": ["Use the paper-practice tool for timed questions. Set a timer at one minute per mark and stick to it for one page — the discipline matters more than the score today."] }
+  ],
+  "check": [
+    { "q": "Each J277 paper is worth:", "opts": ["100 marks, 2 hours", "80 marks, 1 h 30", "60 marks, 1 h", "80 marks, 2 hours"], "a": 1, "fb": "80 marks, 90 minutes, 50% each." },
+    { "q": "Which AO has the largest weighting?", "opts": ["AO1", "AO2", "AO3", "They are equal"], "a": 1, "fb": "AO2 application, 40%." },
+    { "q": "'Explain why this method suits the company' is mainly testing:", "opts": ["AO1", "AO2", "AO3", "None"], "a": 1, "fb": "Applying knowledge to a scenario." },
+    { "q": "The 8-mark question is marked using:", "opts": ["One mark per point", "A levels-of-response scheme", "Multiple choice", "A tick box"], "a": 1, "fb": "Band first, then mark within band." },
+    { "q": "In Section B, a 'write an algorithm' answer given as a flowchart scores:", "opts": ["Full marks", "Half marks", "No marks", "One mark"], "a": 2, "fb": "Write and refine need ERL or a high-level language." }
+  ],
+  "exam": [
+    { "q": "A student answers a 4-mark 'Explain two advantages…' question with four one-line advantages and no reasons. Explain what mark they are likely to receive and why.", "marks": 2,
+      "model": ["About 2 marks (1): two of the advantages score the 'point' marks but no expansion/reason marks are earned, and the third and fourth advantages cannot score because only two were asked for (1)."],
+      "commentary": "This is the single most common way able students lose marks. Two developed beats four bare." },
+    { "q": "State the number of marks and the time allowed for J277/02, and state what Section B assesses.", "marks": 3,
+      "model": ["80 marks (1); 1 hour 30 minutes (1); programming skills — designing, writing, testing and refining programs (1)."],
+      "commentary": "Pure recall, but students should know the shape of the exam they are sitting." },
+    { "q": "Explain why using the words of the scenario in an answer helps to gain marks.", "marks": 2,
+      "model": ["Many marks are for AO2, applying knowledge to the situation given (1); an answer that refers to the scenario shows the knowledge has been applied rather than recalled generically, so the application marks are awarded (1)."],
+      "commentary": "Say 'AO2 / application' and the consequence." }
+  ],
+  "home": "Print or open the front page and the contents of a past Paper 1 and Paper 2. Write your personal time plan for each on one side of paper and keep it in your revision folder.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 15 · try 27 · check 5 · exam 7 · homework 3",
+    "misconceptions": [
+      "'More points = more marks' on the 8-marker.",
+      "Treating Section B as a theory section; answering in English.",
+      "Spending 15 minutes on a 3-mark question because it is interesting.",
+      "Leaving blanks."
+    ],
+    "say": [
+      "'Marks in brackets = things to say.'",
+      "'Use the words of the question in your answer. That is where the AO2 marks are.'",
+      "'A minute a mark. Then move on.'"
+    ],
+    "skip": "Try 5 if short. Try 1–3 are the core.",
+    "differentiation": [
+      "Support: Try 3 as a matching activity (stem ↔ shape of answer).",
+      "Stretch: Try 4 — write the two answers yourself and mark them both ways."
+    ],
+    "examiner_review": "Jose: AO percentages, paper structure and Section B rules are from OCR's 'Exploring our question papers' (v2.0, Sept 2024) and the J277 specification. Please confirm the one-minute-per-mark guidance and the 'two developed points for [4]' heuristic match current marking practice."
+  }
+}

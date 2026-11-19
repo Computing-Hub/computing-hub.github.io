@@ -1,0 +1,108 @@
+{
+  "id": "ex-07",
+  "title": "Trace tables, searches and sorts under time pressure",
+  "spec": "Paper 2",
+  "duration": 60,
+  "specPoints": [
+    "Paper 2 questions on 2.1: completing trace tables, showing the steps of linear/binary search and bubble/insertion/merge sort, stating the purpose of an algorithm",
+    "Method marks: working shown step by step scores even when the final answer slips"
+  ],
+  "learn": [
+    "Complete a trace table quickly and accurately using the row-per-change rule",
+    "Lay out search and sort steps in the form the mark scheme expects (per comparison / per pass / per split-merge)",
+    "Recognise the five traps: inclusive loop bounds, DIV/MOD, while-tests-first, boundary comparisons, 0-indexing",
+    "State the purpose of an algorithm from its trace in one sentence",
+    "Decide, under time pressure, when to stop and move on"
+  ],
+  "hook": "These are the questions where the answer is *certain* — there is no opinion in a trace table — and yet they are rushed and lost. Slow is fast here: the student who writes every row in two minutes beats the student who 'sees' the answer in ten seconds and gets it wrong.",
+  "video": {
+    "title": "Certain marks, if you are careful",
+    "brief": "4 minutes. A trace table filled at exam speed with a visible clock: row per change, loop condition checked each time, output row. Then the three layouts: linear search as numbered comparisons, binary as middle/compare/discard per step, bubble as list-after-each-pass, merge as splits then merges on separate lines. Then the five traps flashing with an example each. End with 'write it down; the marks are in the rows'."
+  },
+  "explain": [
+    { "h": "Trace tables at speed",
+      "list": ["Columns: every variable you can see, plus Output. Add a column for a condition if it helps (`n > 0`).",
+               "A **new row every time a variable changes**. Never work ahead in your head.",
+               "At a loop: `for i = 1 to 5` runs 1, 2, 3, 4 **and 5**; `while` checks **before** the body; `do…until` checks **after**.",
+               "`DIV` and `MOD` are integer operations: 17 DIV 5 = 3, 17 MOD 5 = 2.",
+               "Last row: the output. If the question gives a partly-filled table, keep its conventions (blanks vs repeated values)."],
+      "code": "n = int(input())        -- input 3\ntotal = 0\nwhile n > 0\n    total = total + n\n    n = n - 1\nendwhile\nprint(total)\n\n  n | total | n > 0 | Output\n  3 |   0   |       |\n    |       | true  |\n    |   3   |       |\n  2 |       | true  |\n    |   5   |       |\n  1 |       | true  |\n    |   6   |       |\n  0 |       | false |\n    |       |       |   6" },
+    { "h": "Layouts the mark scheme expects",
+      "code": "Linear search for 23 in [7, 15, 23, 4]        Binary search for 31 in [3, 9, 14, 27, 31, 42, 56]\n  1. Compare 23 with 7  — no                     1. Middle = 27 (index 3). 31 > 27 → keep right [31, 42, 56]\n  2. Compare 23 with 15 — no                     2. Middle = 42. 31 < 42 → keep left [31]\n  3. Compare 23 with 23 — FOUND, index 2         3. Middle = 31 → FOUND, index 4\n\nBubble sort [5, 1, 4, 2]                      Merge sort [7, 2, 9, 4]\n  After pass 1: 1 4 2 5                          Split: [7, 2] [9, 4]\n  After pass 2: 1 2 4 5                          Split: [7] [2] [9] [4]\n  Pass 3: no swaps → sorted                      Merge: [2, 7] [4, 9]\n                                                 Merge: [2, 4, 7, 9]\nInsertion sort [6, 3, 8, 2]\n  Insert 3: [3, 6] 8 2\n  Insert 8: [3, 6, 8] 2        (write it even though nothing moved)\n  Insert 2: [2, 3, 6, 8]",
+      "after": ["Each line is a mark. Write them even when they feel obvious — especially the 'no swaps' pass, the 'nothing moved' insertion, and the first binary-search step when the middle happens to be the target."] },
+    { "h": "The five traps",
+      "list": ["**Inclusive bounds**: ERL `for i = 1 to 5` includes 5; Python `range(1, 5)` does not.",
+               "**DIV/MOD** read as ordinary division.",
+               "**while checks first**: it can run zero times; don't add a row after the condition fails.",
+               "**Boundary comparisons**: `>` vs `>=` — read the symbol aloud.",
+               "**0-indexing**: 'found at position 2' is the third item. Say which convention you are using if the question doesn't."] },
+    { "h": "Purpose of an algorithm",
+      "p": ["After tracing, describe the **job** in terms of inputs and outputs: 'it counts how many digits the number has', 'it finds the largest value in the array', 'it reverses the string'. Not 'it loops and adds'. If stuck, trace a second input and look for the pattern."] },
+    { "h": "Time",
+      "p": ["Trace and show-the-steps questions should take roughly a minute a mark like everything else. If a trace is spiralling past double its budget, write the rows you have (they score), note where you are, and move on. Come back if time allows."] }
+  ],
+  "simple": [
+    { "h": "Trace tables",
+      "p": ["One column per variable, one for Output. New row every time something changes. Check loop conditions with the table's numbers. Write the output row."] },
+    { "h": "Searches and sorts: the layout",
+      "list": ["Linear: one numbered line per comparison.", "Binary: middle item, compare, which half kept — per step.", "Bubble: the list after each pass, then 'no swaps'.", "Insertion: the list after each item is inserted, even if it didn't move.", "Merge: splits on one set of lines, merges on the next."] },
+    { "h": "Five traps",
+      "p": ["`to 5` includes 5 · DIV/MOD are whole-number · while checks first · `>` is not `>=` · counting from 0."] },
+    { "h": "Purpose",
+      "p": ["Say the job: 'it finds the biggest', not 'it loops'."] }
+  ],
+  "keyterms": [
+    { "term": "Method marks", "def": "Marks awarded for correct working or steps even if the final answer is wrong." },
+    { "term": "Row per change", "def": "The trace-table rule: add a row whenever a variable's value changes." },
+    { "term": "Pass", "def": "One complete sweep through a list in bubble sort; the unit of marking for bubble-sort questions." },
+    { "term": "Inclusive bound", "def": "A loop limit that is itself included, as in ERL's `for i = 1 to 5`." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Five traces, ten minutes", "p": ["Trace each for the input shown; write the table and the output. (a) `n=5; f=1; for i=1 to n: f=f*i; next; print(f)`. (b) `x=20; while x>3: x=x DIV 2; print(x)` (print inside the loop). (c) `s=\"\"; for i=0 to 3: s=\"abcd\"[i]+s; next; print(s)`. (d) `c=0; for i=1 to 10: if i MOD 3==0 then c=c+1; next; print(c)`. (e) `a=7; b=3; do: a=a-b; b=b+1; until a<b; print(a,b)`."] },
+    { "type": "python", "title": "2. Check your five", "p": ["Run each (translated to Python) and compare with your tables. For any mismatch, find the trap you fell into and name it."],
+      "code": "n=5; f=1\nfor i in range(1, n+1):\n    f = f*i\nprint(\"a:\", f)\n\nx=20\nwhile x>3:\n    x = x//2\n    print(\"b:\", x)\n\ns=\"\"\nfor i in range(4):\n    s = \"abcd\"[i] + s\nprint(\"c:\", s)\n\nc=0\nfor i in range(1, 11):\n    if i % 3 == 0:\n        c += 1\nprint(\"d:\", c)\n\na=7; b=3\nwhile True:\n    a=a-b; b=b+1\n    if a<b: break\nprint(\"e:\", a, b)" },
+    { "type": "task", "title": "3. Searches and sorts, timed", "p": ["Four minutes each, laid out exactly as the lesson shows: linear search for 19 in [4, 19, 7, 22]; binary search for 56 in [3, 9, 14, 27, 31, 42, 56, 60]; bubble sort [9, 2, 7, 1]; merge sort [8, 3, 5, 1]; insertion sort [4, 9, 1, 6]."] },
+    { "type": "embed", "title": "4. Watch to check", "url": "https://beanwise.coderra.je/cs_animations/sort.html",
+      "instructions": ["Step the sort visualiser through bubble and insertion on your Try 3 lists and compare pass by pass. Then do the same for search.html."] },
+    { "type": "task", "title": "5. Purpose in one sentence", "p": ["For each of the five algorithms in Try 1, write the purpose as one sentence without using variable names."] }
+  ],
+  "check": [
+    { "q": "In a trace table you add a new row:", "opts": ["Per line of code", "Each time a variable changes", "Once per loop", "At the end"], "a": 1, "fb": "Row per change." },
+    { "q": "`for i = 2 to 6` in ERL runs with i =", "opts": ["2,3,4,5", "2,3,4,5,6", "3,4,5,6", "2 to 7"], "a": 1, "fb": "Inclusive." },
+    { "q": "The mark scheme for a bubble sort question usually wants:", "opts": ["Every swap", "The list after each pass and the final no-swap pass", "The code", "Only the sorted list"], "a": 1, "fb": "Per pass." },
+    { "q": "`29 MOD 10` and `29 DIV 10` are:", "opts": ["2.9 and 2.9", "9 and 2", "2 and 9", "19 and 1"], "a": 1, "fb": "Remainder 9, quotient 2." },
+    { "q": "If a trace is taking far too long you should:", "opts": ["Abandon it blank", "Write the rows you have and move on", "Guess the output only", "Start again"], "a": 1, "fb": "Rows score." }
+  ],
+  "exam": [
+    { "q": "Complete the trace table for the following algorithm when the input is 4.", "marks": 4, "code": "n = int(input())\nresult = 0\nfor i = 1 to n\n    result = result + i * i\nnext i\nprint(result)",
+      "model": ["n = 4, result = 0 (1). i = 1, result = 1; i = 2, result = 5 (1). i = 3, result = 14; i = 4, result = 30 (1). Output 30, and no further rows (1)."],
+      "commentary": "Inclusive `to n` — four iterations. Students who stop at i = 3 write 14." },
+    { "q": "State the purpose of the algorithm above.", "marks": 1,
+      "model": ["It outputs the sum of the squares of the whole numbers from 1 to the number entered (1)."],
+      "commentary": "Job, not mechanics." },
+    { "q": "Show the stages of an insertion sort on the list `[7, 3, 9, 2]`.", "marks": 3,
+      "model": ["Insert 3: [3, 7, 9, 2] (1). Insert 9 (no move): [3, 7, 9, 2] (1). Insert 2: [2, 3, 7, 9] (1)."],
+      "commentary": "The unchanged stage is still a stage." }
+  ],
+  "home": "Set a timer. Do one trace table, one search and one sort from a past Paper 2 every day for a week, each within its minute-a-mark budget, and mark with the scheme. Keep a tally of which trap caught you; by day seven it should be none.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 32 · check 4 · exam 6 · homework 3",
+    "misconceptions": [
+      "All five traps — this lesson exists to drill them under time.",
+      "Omitting 'obvious' lines (no-swap pass, unchanged insertion).",
+      "Writing the sorted list only.",
+      "Purpose described as the code."
+    ],
+    "say": [
+      "'The marks are in the rows. Write the rows.'",
+      "'Read the symbol aloud: strictly greater than.'",
+      "'Inclusive. To five means five.'"
+    ],
+    "skip": "Try 5 can be oral. Try 1 → 2 and Try 3 → 4 are the paired drills.",
+    "differentiation": [
+      "Support: Try 1 with the table columns drawn and the first two rows filled.",
+      "Stretch: Try 3 — count comparisons for each search/sort and explain the difference between linear and binary at that list size."
+    ],
+    "examiner_review": "Jose: the 'layouts the mark scheme expects' section is the part most worth your eye — confirm that per-pass (bubble), per-insertion (insertion) and split-lines/merge-lines (merge) match how J277 schemes allocate marks, and whether showing every swap in bubble sort is ever penalised or just unnecessary."
+  }
+}

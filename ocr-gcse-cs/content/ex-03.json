@@ -1,0 +1,109 @@
+{
+  "id": "ex-03",
+  "title": "Short questions: state, give, identify — the point-and-expand habit",
+  "spec": "Paper 1 and 2",
+  "duration": 60,
+  "specPoints": [
+    "Short-answer questions (1–3 marks) on both papers: tick box, multiple choice, fill in the blank, 'state', 'give', 'identify', one-line 'describe'",
+    "Points-based marking: one mark per distinct, correct point; expansions earn separate marks where the scheme allows"
+  ],
+  "learn": [
+    "Answer 1-mark questions in a few words, accurately, without wasting time",
+    "Use the point-and-expand habit for 2-mark questions: the point, then 'which means / so that / because'",
+    "Avoid the vague words that never score (better, faster, easier, more efficient — without saying *why*)",
+    "Give *different* points when asked for two, not the same point twice",
+    "Handle tick-box and multiple-choice questions carefully: read every option, count the ticks asked for"
+  ],
+  "hook": "Half of Paper 1 is questions worth 1, 2 or 3 marks. They look easy and they are where grades leak away: 'it's faster' (no mark), the same advantage written twice (one mark), three ticks where two were asked for (zero). Today is about not leaking.",
+  "video": {
+    "title": "Point. Expand. Stop.",
+    "brief": "3 minutes. A 2-mark question appears; a student writes 'it is faster' — the mark scheme shows no tick. Add 'because the data is read electronically with no moving parts' — tick, tick. Montage of the banned words (faster, better, easier, cheaper, more efficient) each turning green only once a reason is attached. Then the 'two different points' rule with a repeated-point example scoring one. End with the tick-box rule."
+  },
+  "explain": [
+    { "h": "One-mark questions",
+      "p": ["*State*, *give*, *identify*, *name*, *tick*, *circle*: a word, a number or a short phrase. No sentence needed, no explanation wanted — it will not score extra and it costs time. Precision matters: 'RAM' not 'memory'; 'bubble sort' not 'a sort'; 'ROM' not 'read-only'. If a term exists, use the term."] },
+    { "h": "Two-mark questions: point and expand",
+      "p": ["'Describe one…' or 'Give one… and explain…' for [2]: make the point, then **expand** it — what it means, what it leads to, why it matters here. Expansion words: *which means*, *so that*, *because*, *for example*. One developed point is worth two marks; two undeveloped points is usually worth one."],
+      "code": "Give one advantage of solid state storage. [2]\n\nNo mark:   It is faster.\nOne mark:  It has no moving parts.\nTwo marks: It has no moving parts, SO IT IS more robust if the laptop is dropped\n           / SO data is accessed faster than on a spinning disk." },
+    { "h": "Words that never score on their own",
+      "list": ["*faster, quicker* — faster at what, and why?",
+               "*better, easier, more efficient, user-friendly* — in what way?",
+               "*cheaper* — cheaper to buy, run, or maintain, and why?",
+               "*more secure* — against what, and how?",
+               "*more memory / more storage* — than what, and what does that allow?",
+               "These are **conclusions**; the mark is for the **reason** that leads to them."] },
+    { "h": "'Two' means two different things",
+      "p": ["'Give two reasons…' scores one mark per *distinct* reason. 'It is portable' and 'you can carry it around' is one reason. Before writing the second, ask: is this a different idea, or the same idea in other words? If you can think of three, write the two most different."] },
+    { "h": "Tick boxes and multiple choice",
+      "list": ["Read **all** the options before choosing — the first plausible one is often the distractor.",
+               "Count the ticks asked for. Too many ticks usually scores zero for the question.",
+               "A tick in the wrong place cannot be 'half right'. If unsure, eliminate the ones that are definitely wrong and choose from what is left — never leave it blank.",
+               "'Fill in the blank' wants the precise term from the specification."] }
+  ],
+  "simple": [
+    { "h": "1 mark = a few words",
+      "p": ["State, give, name: write the exact term. No sentence. 'RAM', not 'the memory'."] },
+    { "h": "2 marks = point + expand",
+      "p": ["Say the thing. Then say *so that* / *because* / *which means*. One good point with a reason beats two bare points."],
+      "code": "No marks:   It is faster.\nTwo marks:  It has no moving parts, so it reads data faster than a spinning disk." },
+    { "h": "Words that score nothing alone",
+      "p": ["faster · better · easier · cheaper · more efficient · more secure — always add *why*."] },
+    { "h": "Two means two different",
+      "p": ["Saying the same idea twice scores once."] },
+    { "h": "Tick boxes",
+      "p": ["Read all the options. Tick exactly the number asked. Never leave it blank."] }
+  ],
+  "keyterms": [
+    { "term": "Point and expand", "def": "Make a creditworthy point, then develop it with a reason or consequence for the second mark." },
+    { "term": "Distinct point", "def": "A separate idea, not a rephrasing of one already given." },
+    { "term": "Distractor", "def": "A plausible wrong option in a multiple-choice question." },
+    { "term": "Precise term", "def": "The specification's word for a concept, which scores where a vague description may not." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Zero, one or two?", "p": ["Mark each answer to 'Give one advantage of a star topology' [2]: (a) 'It is better than a bus.' (b) 'If one cable fails, only that device is affected.' (c) 'If one cable fails, only that device is affected, so the rest of the network keeps working.' (d) 'It is faster and more reliable.' Say which mark each earns and why."] },
+    { "type": "task", "title": "2. Rescue the banned words", "p": ["Turn each into a two-mark answer by adding the reason: 'Compiled code is faster.' · 'A GUI is easier to use.' · 'Cloud storage is more secure.' · 'A for loop is more efficient here.' · 'SSDs are more expensive.'"] },
+    { "type": "task", "title": "3. Same or different?", "p": ["A student gives these pairs as 'two reasons'. For each pair say whether they are distinct (2 marks) or the same idea (1 mark): (a) 'ROM is non-volatile' / 'ROM keeps its data when the power is off'. (b) 'Binary search is faster on large lists' / 'Binary search needs the list to be sorted'. (c) 'Subprograms can be reused' / 'Subprograms make the program shorter'. (d) 'Validation stops crashes' / 'Validation ensures data is in range'."] },
+    { "type": "task", "title": "4. Thirty one-markers in ten minutes", "p": ["Your teacher will read out (or display) thirty 'state/name/give' questions across 1.1–2.5. Write only the term. Mark together. Any you got wrong go on your revision list — these are free marks you are currently not collecting."] },
+    { "type": "embed", "title": "5. Rapid recall", "url": "https://beanwise.coderra.je/revision-hub/key-terms/",
+      "instructions": ["Play the Computer Science key-terms set for ten minutes. Precision of terms is what one-mark questions reward."] }
+  ],
+  "check": [
+    { "q": "'It is faster' as a complete 2-mark answer scores:", "opts": ["2", "1", "0", "Depends on handwriting"], "a": 2, "fb": "No reason, no mark." },
+    { "q": "The second mark in a 'describe one advantage' [2] usually comes from:", "opts": ["A second advantage", "An expansion of the first (so that / because)", "A diagram", "Repeating the question"], "a": 1, "fb": "Point and expand." },
+    { "q": "'Give two reasons' answered with the same reason twice scores:", "opts": ["2", "1", "0", "3"], "a": 1, "fb": "Distinct points only." },
+    { "q": "A tick-box question asks for two ticks; a student ticks three. Likely result:", "opts": ["Full marks", "Two marks", "Zero", "One mark"], "a": 2, "fb": "Count the ticks asked for." },
+    { "q": "For a 1-mark 'state' question you should write:", "opts": ["A paragraph", "The precise term or value", "Two options to be safe", "An explanation"], "a": 1, "fb": "Brief and exact." }
+  ],
+  "exam": [
+    { "q": "State **two** examples of secondary storage.", "marks": 2,
+      "model": ["Any two distinct: hard disk drive, solid state drive, optical disc (CD/DVD/Blu-ray), USB flash drive, magnetic tape (1 each)."],
+      "commentary": "Two different *types*. 'USB stick' and 'flash drive' is one answer. 'RAM' is primary storage — zero." },
+    { "q": "Describe **one** advantage of using a mesh topology.", "marks": 2,
+      "model": ["There are multiple routes between devices (1), so if one connection fails data can still reach its destination / the network keeps working (1)."],
+      "commentary": "Point: multiple routes. Expand: so it keeps working when a link fails. 'More reliable' alone is the conclusion without the reason — one mark at best." },
+    { "q": "Give **one** reason why a programmer might choose a `while` loop instead of a `for` loop.", "marks": 1,
+      "model": ["The number of iterations is not known in advance / the loop must continue until a condition is met (1)."],
+      "commentary": "One precise reason. No need to expand for [1]." }
+  ],
+  "home": "Write ten 2-mark 'describe one advantage/disadvantage' questions from across the course with a two-mark model answer for each, underlining the expansion word. Swap with a partner and mark each other's using the zero/one/two rule.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 30 · check 5 · exam 7 · homework 3",
+    "misconceptions": [
+      "Writing a paragraph for a 1-mark question.",
+      "'Faster' and 'better' believed to be answers.",
+      "Rephrasing counted as a second point.",
+      "Over-ticking."
+    ],
+    "say": [
+      "'Point. So that. Stop.'",
+      "'Faster is a conclusion. Give me the reason and I'll give you the mark.'",
+      "'Is your second reason a different *idea*, or the same idea in a different coat?'"
+    ],
+    "skip": "Try 5 optional; Try 4 needs you to prepare 30 stems (or use the key-terms lists from lessons 2.1–2.5).",
+    "differentiation": [
+      "Support: Try 2 with sentence starters 'because…' pre-written.",
+      "Stretch: Try 3 — write a fifth pair that *looks* distinct but isn't, to catch a partner."
+    ],
+    "examiner_review": "Jose: the zero/one/two illustrations and the 'banned words' list reflect typical points-based schemes. Please confirm against recent J277 mark schemes and adjust the examples to ones you know are credited/not credited, especially 'more secure' and 'more efficient'."
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "id": "ex-04",
+  "title": "Medium questions: describe, explain, compare (3–6 marks)",
+  "spec": "Paper 1 and 2",
+  "duration": 60,
+  "specPoints": [
+    "Medium-response questions (3–6 marks) on both papers: describe, explain, compare, justify, and Paper 2 Section A's single 6-mark points-based question",
+    "Structuring an answer so each creditworthy point is visible; applying knowledge to the scenario (AO2)"
+  ],
+  "learn": [
+    "Plan a 4- or 6-mark answer as separate, numbered points before writing",
+    "Write 'explain' answers as point → reason → link to the scenario",
+    "Write 'compare' answers that hold both items in each sentence",
+    "Answer Paper 2's 6-mark question (an algorithm or structured description) so every scheme point is hit",
+    "Avoid the medium-question failures: drifting off the scenario, repeating a point, writing an essay for a points-based question"
+  ],
+  "hook": "A 6-mark question is not a short essay. It is six ticks waiting to be collected. The examiner has a list; your job is to make it easy to find six different things on that list in your answer. Numbered points. One idea each. Scenario words in every one.",
+  "video": {
+    "title": "Collecting the ticks",
+    "brief": "4 minutes. A 4-mark 'explain two' question. Show a flowing paragraph answer and the examiner hunting for the points — finds two. Then the same content as 1. point / reason, 2. point / reason — four clean ticks. Then a Paper 2 6-mark algorithm question with the points-based scheme beside it: each requirement a tick, scenario names reused. End with the three-step plan: underline, list points, write."
+  },
+  "explain": [
+    { "h": "Plan before you write",
+      "p": ["For anything worth 3 or more: underline the command word and marks, box the scenario words, then jot the points you will make as a numbered list in the margin — as many as the marks (or half as many if each needs a reason). Only then write. Thirty seconds of planning saves a minute of waffle and makes the marks findable."] },
+    { "h": "Explain [3–4]: point, reason, scenario",
+      "code": "Explain two reasons why the hospital might store patient records on a server rather than on each\ndoctor's laptop. [4]\n\n1. Records are held in one place (POINT), so every doctor sees the same up-to-date record\n   (REASON) — important when a patient is treated by several doctors in the hospital (SCENARIO).\n2. The server can be backed up and secured centrally (POINT), so patient data is less likely to be\n   lost or stolen (REASON) than on laptops that can be left on a train (SCENARIO).",
+      "after": ["Each numbered point carries a reason, and each reason is tied to *this* hospital. That is the AO2 mark. A generic 'servers are more secure' would score one of the two marks for that point."] },
+    { "h": "Compare [4]: both items, every sentence",
+      "code": "Compare compiled and interpreted programs for a company selling software. [4]\n\nBOTH translate high-level code so it can run.                                   (similarity)\nA compiler produces an executable the customer runs directly, WHEREAS an interpreted\nprogram needs the interpreter installed on the customer's machine.                (difference, applied)\nCompiled code does not reveal the source, WHILE interpreted code must be supplied as\nsource, which matters to a company protecting its product.                        (difference, applied)\nCompiled programs generally run faster, BUT every change needs recompiling before it\ncan be tested, so development is slower than with an interpreter.                 (difference, both sides)",
+      "after": ["Similarity first (it is almost always a mark), then differences with *whereas / while / but*, each tied to the scenario. Never two separate paragraphs."] },
+    { "h": "Paper 2's 6-mark question",
+      "p": ["Section A always has one 6-mark question, marked **points-based**, often 'describe how … works' for an algorithm, 'write an algorithm that …', or a structured description of a process (e.g. how a trace table is used). Treat it as six requirements. For an algorithm: inputs, the loop, the condition, the update, the output, and something about efficiency or validation. For a 'describe how a bubble sort works' it is the six ideas from that lesson: adjacent pairs, compare, swap if wrong order, pass, repeat, stop when no swaps. Write them as six short sentences or six lines of code."] },
+    { "h": "Common losses",
+      "list": ["Drifting off the scenario into generic textbook text.",
+               "Two points that are the same idea.",
+               "Reasons missing ('it is more secure' without how).",
+               "Long introductions and conclusions on a points-based question — they earn nothing.",
+               "Compare written as two descriptions.",
+               "Running out of time because the first medium question took ten minutes."] }
+  ],
+  "simple": [
+    { "h": "Plan first",
+      "p": ["Underline the command word. Circle the marks. Box the scenario words. Write a numbered list of points in the margin. Then write."] },
+    { "h": "Explain = point, reason, scenario",
+      "code": "1. Records are in one place → so every doctor sees the same record → which matters when several doctors treat one patient.\n2. The server is backed up centrally → so data is less likely to be lost → than on a laptop left on a train." },
+    { "h": "Compare = both in every sentence",
+      "p": ["One thing they share. Then differences with *whereas*. Mention the situation in the question."] },
+    { "h": "The 6-mark Paper 2 question",
+      "p": ["Six separate things. For an algorithm: input, loop, condition, update, output, plus validation or efficiency. Number them."] }
+  ],
+  "keyterms": [
+    { "term": "Medium-response question", "def": "A 3–6 mark question marked points-based, needing several distinct, developed points." },
+    { "term": "Point–reason–scenario", "def": "The three-part shape of a full-credit explain point." },
+    { "term": "Applied (AO2)", "def": "Tied to the specific situation in the question rather than generic." },
+    { "term": "Developed point", "def": "A point with its reason or consequence stated, worth two marks where the scheme allows." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Mark the paragraph", "p": ["Here is a student's answer to 'Explain two benefits to a school of using a cloud-based system for homework' [4]: *'Cloud is good because it is online and students can use it anywhere. It is also secure and backed up so nothing gets lost. Teachers can also set work easily and it is better than paper.'* Find the creditable points, decide the mark, and rewrite it as two numbered point–reason–scenario points for full marks."] },
+    { "type": "task", "title": "2. Compare, properly", "p": ["Write a 4-mark compare for each: (a) RAM and virtual memory for a laptop that often runs out of memory; (b) linear and binary search for a library catalogue of 200,000 books; (c) a star and a mesh network for a hospital. One similarity, then differences with *whereas*, each applied."] },
+    { "type": "task", "title": "3. The 6-mark Paper 2 question, two ways", "p": ["(a) 'Describe how a binary search finds a value in a sorted list.' [6] — write six numbered sentences. (b) 'Write an algorithm that reads 10 temperatures, stores them in an array, and outputs the highest and the average.' [6] — write code and then annotate which line earns which mark (array, loop, input into array, max logic, total/average, output)."] },
+    { "type": "python", "title": "4. Check your algorithm from Try 3(b)", "p": ["Paste your algorithm in, add fake inputs if needed, and run it. An algorithm that runs is one you can trust for the marks — but remember the exam credits the points, not the syntax."],
+      "code": "temps = []\nfor i in range(10):\n    temps.append(int(input(\"Temp: \")))\n# highest and average\n" },
+    { "type": "embed", "title": "5. Answer builder", "url": "https://beanwise.coderra.je/GCSE_homepage/Paper1_Answer_Builder.html",
+      "instructions": ["Assemble a 4-mark explain answer from point / reason / scenario fragments and see how the marks map."] }
+  ],
+  "check": [
+    { "q": "The first thing to do with a 4-mark explain question is:", "opts": ["Start writing immediately", "Underline the command word, note the marks, plan numbered points", "Write an introduction", "Draw a diagram"], "a": 1, "fb": "Plan, then write." },
+    { "q": "A full-credit explain point usually contains:", "opts": ["A point only", "A point and its reason, tied to the scenario", "Three examples", "A definition"], "a": 1, "fb": "Point–reason–scenario." },
+    { "q": "Paper 2's 6-mark question is marked:", "opts": ["By levels", "Points-based", "By length", "Pass/fail"], "a": 1, "fb": "Six ticks to collect." },
+    { "q": "Writing a long conclusion on a 4-mark points-based question:", "opts": ["Earns extra marks", "Earns nothing and costs time", "Is required", "Replaces the reasons"], "a": 1, "fb": "Points, not prose." },
+    { "q": "In a compare answer, 'whereas' signals:", "opts": ["A similarity", "A difference holding both items together", "A conclusion", "A definition"], "a": 1, "fb": "Both in one sentence." }
+  ],
+  "exam": [
+    { "q": "A gym is choosing between storing member photos on a local hard disk or in cloud storage. Explain **two** advantages to the gym of using cloud storage.", "marks": 4,
+      "model": ["Photos can be accessed from any gym location / device with internet (1), so staff at different sites can check members in (1). The cloud provider handles backup and security (1), so the gym does not need its own backup system and photos are not lost if the local disk fails (1)."],
+      "commentary": "Two points, each with a reason, each mentioning the gym. 'It's safer' without the backup mechanism is one mark." },
+    { "q": "Compare the use of a `do…until` loop and a `while` loop for validating user input.", "marks": 4,
+      "model": ["Both repeat until the input is acceptable / are condition-controlled (1). A do…until tests after the body so the input is always asked for at least once **whereas** a while tests first and needs an initial input before the loop (1). do…until reads naturally as 'ask, then check' **while** while needs the input repeated inside the loop (1). Python has no do…until so a while with a break is used **but** ERL supports both (1)."],
+      "commentary": "Similarity, then three differences each naming both loops." },
+    { "q": "Describe how a merge sort sorts a list of numbers.", "marks": 6,
+      "model": ["Splits the list in half (1) repeatedly until each sub-list has one item (1). Then merges pairs of sub-lists (1) by comparing the first items of each and taking the smaller (1), repeating until both are used up (1). Continues merging until a single sorted list remains (1)."],
+      "commentary": "Six distinct ideas, in order. An example list alongside helps but is not required; the words are the marks." }
+  ],
+  "home": "Choose three 4-mark and one 6-mark question from a past paper. Plan each as numbered points in the margin *before* writing, time yourself at a minute a mark, then mark with the scheme. Note where your plan had the point but your writing lost it.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 14 · try 28 · check 5 · exam 7 · homework 3",
+    "misconceptions": [
+      "Essay style on points-based questions.",
+      "Generic answers that never mention the scenario.",
+      "Compare as two paragraphs.",
+      "Believing a 6-marker needs an introduction and conclusion."
+    ],
+    "say": [
+      "'Numbered points. One idea each. The examiner is counting.'",
+      "'Where is the gym in your answer? If the gym could be any business, you've lost the AO2 mark.'"
+    ],
+    "skip": "Try 5 optional. Try 1 → 2 → 3 is the progression.",
+    "differentiation": [
+      "Support: Try 1 with the three creditable fragments highlighted; students build the structured version.",
+      "Stretch: Try 3(b) — add validation and explain which extra mark it might earn."
+    ],
+    "examiner_review": "Jose: the 'point–reason–scenario' model and the treatment of the Paper 2 six-marker as six discrete points reflect OCR's own statement that Section A's 6-mark question is points-based. Please check the model answers against the indicative content style you see in J277 schemes, and whether the similarity mark in compare questions is reliably credited."
+  }
+}
