@@ -1,0 +1,122 @@
+{
+  "id": "2-1-09",
+  "title": "Bubble sort",
+  "spec": "2.1.3",
+  "duration": 60,
+  "specPoints": [
+    "Understand and **apply** the standard **bubble sort** algorithm",
+    "Show the state of the list after **each pass**",
+    "Know when it stops and why it is inefficient"
+  ],
+  "hook": "Five students at the front holding numbers, in a random order. Only rule: you may compare two **neighbours** and swap them if they are the wrong way round. Start at the left and work along. What happened to the biggest number after one trip along the line? (It 'bubbled' to the end.) How many trips until everything is sorted?",
+  "video": {
+    "title": "Bubble sort: compare neighbours, swap, repeat",
+    "brief": "4 minutes. Six bars. Pass 1: highlight each adjacent pair, swap when needed, biggest bar lands at the right and is shaded 'done'. Show the list after the pass. Pass 2 does the same on the remaining five. Continue; note a pass with zero swaps means finished. Overlay a swap counter and a pass counter. End with the pseudocode and the two exam habits: write the list after every pass; stop when a pass has no swaps."
+  },
+  "explain": [
+    { "h": "The algorithm",
+      "p": ["A **bubble sort** repeatedly walks along the list comparing each pair of **adjacent** items and swapping them if they are in the wrong order. After one full **pass**, the largest item has bubbled to the end. Each further pass fixes the next largest. The sort is finished when a pass makes **no swaps**."],
+      "code": "// sorts list into ascending order\nswapped = true\nwhile swapped\n    swapped = false\n    for i = 0 to list.length - 2\n        if list[i] > list[i + 1] then\n            temp = list[i]\n            list[i] = list[i + 1]\n            list[i + 1] = temp\n            swapped = true\n        endif\n    next i\nendwhile" },
+    { "h": "Showing the passes (the exam skill)",
+      "p": ["Questions say 'Show the stages of a bubble sort on this list' and expect the list **after each pass**, not after each swap (unless they say so). Example, `[5, 1, 4, 2]`:",
+            "Pass 1: compare 5,1 swap → 1,5,4,2; compare 5,4 swap → 1,4,5,2; compare 5,2 swap → **1,4,2,5**.",
+            "Pass 2: 1,4 ok; 4,2 swap → 1,2,4,5; 4,5 ok → **1,2,4,5**.",
+            "Pass 3: no swaps → sorted. Write the list after each pass in bold, and say when and why it stops."] },
+    { "h": "Why it is slow",
+      "list": ["For *n* items it may need *n − 1* passes, each with up to *n − 1* comparisons: roughly *n²* comparisons. Doubling the list quadruples the work.",
+               "It keeps comparing items that are already in place unless you shrink the range each pass (an optimisation, not required by OCR).",
+               "Advantages: very simple to understand and code; works well for very short or nearly-sorted lists; stops early if the list is already sorted (with the `swapped` flag)."] },
+    { "h": "Common slips",
+      "p": ["Comparing non-adjacent items (that is a different sort); forgetting the swap needs a temporary variable; stopping after one pass because the largest is in place; and writing the list after every swap when the question asked for passes."] }
+  ],
+  "simple": [
+    { "h": "Compare neighbours and swap",
+      "p": ["Look at the first two items. Wrong way round? Swap. Move one step right. Repeat to the end — that is one **pass**. The biggest item is now at the end. Do more passes until a pass has no swaps."],
+      "code": "swapped = true\nwhile swapped\n    swapped = false\n    for i = 0 to list.length - 2\n        if list[i] > list[i + 1] then\n            temp = list[i]\n            list[i] = list[i + 1]\n            list[i + 1] = temp\n            swapped = true\n        endif\n    next i\nendwhile" },
+    { "h": "In the exam",
+      "p": ["Write the list after each pass:", "`[5, 1, 4, 2]` → Pass 1: `1, 4, 2, 5` → Pass 2: `1, 2, 4, 5` → Pass 3: no swaps, finished."] },
+    { "h": "Good and bad",
+      "list": ["Good: easy. Stops early if the list is already in order.", "Bad: slow for long lists. Lots of comparing and swapping."] }
+  ],
+  "keyterms": [
+    { "term": "Bubble sort", "def": "A sort that repeatedly compares adjacent items and swaps them if out of order, until a pass makes no swaps." },
+    { "term": "Pass", "def": "One complete trip along the list comparing each adjacent pair." },
+    { "term": "Swap", "def": "Exchanging the positions of two items, using a temporary variable." },
+    { "term": "Adjacent", "def": "Next to each other in the list." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Watch the bubbles", "url": "https://beanwise.coderra.je/cs_animations/sort.html",
+      "instructions": ["Choose Bubble. Use **Step** to go one comparison at a time for the first pass, saying 'swap' or 'no swap' out loud.", "Then Play. Watch the comparison and swap counters. Shuffle and try a list that is already nearly sorted — how many passes?"] },
+    { "type": "task", "title": "2. Show the passes", "p": ["Bubble sort `[8, 3, 6, 1, 5]` into ascending order."],
+      "steps": ["Write the list after each pass.", "State how many passes were needed and how you know it is finished.", "How many swaps in total?"] },
+    { "type": "task", "title": "3. Descending", "p": ["Change **one** symbol in the algorithm so it sorts into descending order. Write the changed line and bubble sort `[2, 9, 4]` to prove it works."] },
+    { "type": "embed", "title": "4. Code and count", "url": "https://beanwise.coderra.je/pseudocode/",
+      "instructions": ["Type the bubble sort, add a `comparisons` counter and a `swaps` counter, and run it on lists of 5, 10 and 20 random numbers. Does the comparison count grow roughly with the square of the length?"] }
+  ],
+  "check": [
+    { "q": "In bubble sort, which items are compared?", "opts": ["The first and last", "Adjacent items", "The middle and the target", "Random pairs"], "a": 1, "fb": "Neighbours only." },
+    { "q": "After the first pass of an ascending bubble sort:", "opts": ["The list is sorted", "The smallest item is at the start", "The largest item is at the end", "Nothing is guaranteed"], "a": 2, "fb": "The largest bubbles to the end each pass." },
+    { "q": "How does the algorithm know it has finished?", "opts": ["After exactly n passes", "When a pass makes no swaps", "When the first item is smallest", "When the list has 1 item"], "a": 1, "fb": "No swaps means every pair is in order." },
+    { "q": "Why is a temporary variable used in a swap?", "opts": ["To count swaps", "So the first value is not lost when it is overwritten", "To make it faster", "It is not needed"], "a": 1, "fb": "Without `temp`, `list[i] = list[i+1]` destroys the original." },
+    { "q": "Bubble sort is inefficient for large lists because:", "opts": ["It needs the list sorted first", "The number of comparisons grows roughly with the square of the list length", "It uses recursion", "It cannot sort text"], "a": 1, "fb": "Double the items, four times the work." }
+  ],
+  "exam": [
+    { "q": "Show the stages of a bubble sort when applied to the following list to put it into ascending order: `[7, 2, 9, 4]`.", "marks": 3,
+      "model": ["After pass 1: 2, 7, 4, 9 (1). After pass 2: 2, 4, 7, 9 (1). Pass 3: no swaps, so the list is sorted / algorithm stops (1)."],
+      "commentary": "The scheme wants the list **after each pass**. Showing every swap is fine but takes time; if you do, still make the end-of-pass state obvious. The third mark is for the final pass with no swaps (or an explicit 'sorted after pass 2, confirmed by pass 3') — students who stop at pass 2 with no comment lose it." },
+    { "q": "Describe how a bubble sort works.", "marks": 3,
+      "model": ["Compares each pair of adjacent items in turn (1), swapping them if they are in the wrong order (1); repeats passes through the list until a pass is completed with no swaps (1)."],
+      "commentary": "Three ideas: adjacent comparison, swap if wrong order, repeat until no swaps. Missing 'adjacent' is the most common lost mark — 'compares items' could be any sort." },
+    { "q": "A program sorts a list of 2,000 scores using bubble sort and is slow. Explain why bubble sort is inefficient for this list.", "marks": 2,
+      "model": ["Bubble sort compares every adjacent pair on every pass (1), so for 2,000 items it may need up to about 2,000 passes of 2,000 comparisons / millions of comparisons (1)."],
+      "commentary": "Mention the scale: the question gave 2,000 for a reason. 'It takes a long time' is not an explanation." }
+  ],
+  "home": "Bubble sort the letters of the word COMPUTER into alphabetical order, writing the word after each pass. How many passes? Then do the same for an already sorted word (e.g. ABCDE) and explain why only one pass is needed.",
+  "teacher": {
+    "timing": "60 min: hook 6 · explain 10 · try 26 · check 5 · exam 10 · homework 3",
+    "misconceptions": [
+      "Comparing non-adjacent items. The hook with students holding numbers fixes this physically.",
+      "Stopping after one pass (largest in place) and calling it sorted.",
+      "Writing the list after each swap when the question asks for passes — not wrong, but slow and messy under time.",
+      "Swapping without a temp variable in code questions."
+    ],
+    "say": [
+      "'Neighbours only. You may not talk to anyone except the person next to you.'",
+      "'One trip along the line is one pass. Write the list down at the end of every trip.'",
+      "'How do we know we're done? Not because it looks right — because a whole pass had no swaps.'"
+    ],
+    "skip": "Try 4 is optional. Try 1 (step mode) then Try 2 is the core.",
+    "differentiation": [
+      "Support: number cards on the desk; physically swap and write the row after each pass.",
+      "Stretch: implement the optimisation of shrinking the inner loop by one each pass and explain why it is safe."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "title": "Ordenação por bolha (bubble sort)",
+      "hook": "Cinco alunos à frente com números, por ordem aleatória. Única regra: só podes comparar dois **vizinhos** e trocá-los se estiverem ao contrário. Começa à esquerda e avança. O que aconteceu ao maior número depois de uma passagem? (Subiu até ao fim, como uma bolha.) Quantas passagens até ficar tudo ordenado?",
+      "explain": [
+        { "h": "O algoritmo",
+          "p": ["O **bubble sort** percorre a lista repetidamente comparando cada par de itens **adjacentes** e trocando-os se estiverem na ordem errada. Depois de uma **passagem** completa, o maior item «borbulhou» até ao fim. Cada nova passagem fixa o próximo maior. Termina quando uma passagem **não faz trocas**."],
+          "code": "swapped = true\nwhile swapped\n    swapped = false\n    for i = 0 to list.length - 2\n        if list[i] > list[i + 1] then\n            temp = list[i]\n            list[i] = list[i + 1]\n            list[i + 1] = temp\n            swapped = true\n        endif\n    next i\nendwhile" },
+        { "h": "Mostrar as passagens (a competência de exame)",
+          "p": ["As perguntas pedem «mostra as etapas de um bubble sort» e esperam a lista **depois de cada passagem**, não depois de cada troca. Exemplo, `[5, 1, 4, 2]`:",
+                "Passagem 1: 5,1 troca → 1,5,4,2; 5,4 troca → 1,4,5,2; 5,2 troca → **1,4,2,5**.",
+                "Passagem 2: 1,4 ok; 4,2 troca → 1,2,4,5; 4,5 ok → **1,2,4,5**.",
+                "Passagem 3: sem trocas → ordenada. Escreve a lista no fim de cada passagem e diz quando e porquê para."] },
+        { "h": "Porque é lento",
+          "list": ["Para *n* itens pode precisar de *n − 1* passagens, cada uma com até *n − 1* comparações: cerca de *n²* comparações. Duplicar a lista quadruplica o trabalho.",
+                   "Continua a comparar itens já no lugar, a menos que se encurte o intervalo em cada passagem (otimização não exigida pela OCR).",
+                   "Vantagens: muito simples; bom para listas muito curtas ou quase ordenadas; para cedo se a lista já estiver ordenada (com a flag `swapped`)."] },
+        { "h": "Deslizes comuns",
+          "p": ["Comparar itens não adjacentes; esquecer que a troca precisa de uma variável temporária; parar depois de uma passagem; escrever a lista depois de cada troca quando a pergunta pedia passagens."] }
+      ],
+      "keyterms": [
+        { "term": "Bubble sort (ordenação por bolha)", "def": "Ordenação que compara repetidamente itens adjacentes e troca-os se estiverem fora de ordem, até uma passagem sem trocas." },
+        { "term": "Pass (passagem)", "def": "Um percurso completo pela lista comparando cada par adjacente." },
+        { "term": "Swap (troca)", "def": "Trocar as posições de dois itens, usando uma variável temporária." },
+        { "term": "Adjacent (adjacente)", "def": "Lado a lado na lista." }
+      ]
+    }
+  }
+}

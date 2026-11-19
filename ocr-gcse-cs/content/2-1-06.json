@@ -1,0 +1,119 @@
+{
+  "id": "2-1-06",
+  "title": "Finding and fixing errors in algorithms",
+  "spec": "2.1.2",
+  "duration": 60,
+  "specPoints": [
+    "**Identify common errors** in algorithms and **correct** them",
+    "Complete or refine an algorithm so that it meets its purpose",
+    "Links forward to 2.3.2 (syntax and logic errors) and 2.3.1 (input validation)"
+  ],
+  "hook": "This program is supposed to add up five prices and print the total. It prints 0 every time. Nobody typed anything wrong — every line runs. So what kind of mistake is it? (The `total = 0` is inside the loop.) Today: the mistakes that compile and run and are still wrong.",
+  "video": {
+    "title": "Two kinds of wrong: syntax errors and logic errors",
+    "brief": "4 minutes. Side by side: a program with a missing bracket (won't run — syntax) and a program that runs but resets `total` inside the loop (runs, wrong answer — logic). Then the 'top five' logic errors animated one by one with a trace table showing the symptom: off-by-one loop bound; `>` vs `>=`; `=` vs `==`; initialising inside the loop; wrong variable updated. Finish: 'you find syntax errors by reading the error message; you find logic errors by tracing'."
+  },
+  "explain": [
+    { "h": "Two kinds of error",
+      "p": ["A **syntax error** breaks the rules of the language — a missing bracket, `endif` spelt wrong, a string without a closing quote. The program will not run and the interpreter tells you where. A **logic error** obeys the rules but does the wrong thing — the program runs and gives a wrong answer. Nobody tells you; you find it by testing and tracing."] },
+    { "h": "The logic errors OCR loves",
+      "list": ["**Off by one**: `for i = 0 to 9` instead of `1 to 10`, or `to 9` when you meant `to 10`. Symptom: one item missed or one too many.",
+               "**Wrong comparison**: `>` for `>=` (boundary value fails); `=` for `==` (assignment where a test should be).",
+               "**Initialising in the wrong place**: `total = 0` inside the loop resets it every time.",
+               "**Updating the wrong variable** or forgetting to update the loop variable in a `while` (infinite loop).",
+               "**Wrong operator or order**: `average = total / count` written as `total / count + 1`, or integer `DIV` where `/` was needed.",
+               "**Missing branch**: an `if` with no `else`, so one case produces no output."] },
+    { "h": "How to find them in the exam",
+      "p": ["Questions give an algorithm 'that contains an error' and ask you to **identify** the line and **correct** it, or give a purpose and ask you to **complete** missing lines. Method: read the purpose first; trace with one normal value and one boundary value; the row where your table disagrees with the purpose is the error. Then write the corrected line exactly — 'change line 3' is not enough on its own."] },
+    { "h": "Refining an algorithm",
+      "p": ["'Refine' means make it meet its purpose better without starting again: add input validation (reject a mark over 100), handle an edge case (an empty list), or use a sensible loop instead of a hard-coded number. Say what you changed and why it is an improvement."] }
+  ],
+  "simple": [
+    { "h": "Two kinds of mistake",
+      "p": ["A **syntax error** is a typing mistake that breaks the rules. The program will not run. The computer tells you where.", "A **logic error** runs but gives the wrong answer. The computer does not tell you. You have to test it and trace it."] },
+    { "h": "The usual suspects",
+      "list": ["Loop starts or ends one number out.", "`>` when it should be `>=` (or the other way).", "`=` when it should be `==`.", "`total = 0` inside the loop, so it keeps resetting.", "A `while` loop where the variable never changes, so it never stops.", "An `if` with no `else`, so sometimes nothing happens."] },
+    { "h": "How to find them",
+      "p": ["Read what the program is *meant* to do. Trace it with one normal number and one edge number (like 0 or the top limit). Where the table goes wrong is the error. Then write the fixed line."] }
+  ],
+  "keyterms": [
+    { "term": "Syntax error", "def": "A mistake that breaks the rules of the language, so the program cannot run." },
+    { "term": "Logic error", "def": "A mistake that lets the program run but produces the wrong result." },
+    { "term": "Off-by-one error", "def": "A loop or index that starts or ends one position too early or too late." },
+    { "term": "Refine", "def": "Improve an algorithm so it meets its purpose more fully, e.g. by adding validation or handling edge cases." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Spot it, name it, fix it", "p": ["Each algorithm has one logic error. For each: identify the line, name the type of error, write the corrected line."],
+      "code": "A)  Purpose: print numbers 1 to 10\n    for i = 1 to 9\n        print(i)\n    next i\n\nB)  Purpose: output \"Adult\" if age is 18 or over\n    if age > 18 then\n        print(\"Adult\")\n    endif\n\nC)  Purpose: total of five inputs\n    for i = 1 to 5\n        total = 0\n        total = total + int(input())\n    next i\n    print(total)\n\nD)  Purpose: count down from 10 to 1\n    n = 10\n    while n > 0\n        print(n)\n    endwhile" },
+    { "type": "task", "title": "2. Complete it", "p": ["This algorithm should output the average of the numbers in `scores`, but two lines are missing. Write them."],
+      "code": "scores = [56, 72, 91, 44]\ntotal = 0\nfor i = 0 to 3\n    ____________________\nnext i\n____________________\nprint(average)" },
+    { "type": "task", "title": "3. Refine it", "p": ["Take algorithm B (corrected). Refine it so that it also rejects ages below 0 or above 120 with the message \"Invalid age\". Write the whole thing and say in one sentence why this is a refinement."] },
+    { "type": "embed", "title": "4. Debug for real", "url": "https://beanwise.coderra.je/GCSE_homepage/Python_Error_Spotter.html",
+      "instructions": ["Work through the error-spotter. For each program, decide *before* running: syntax or logic?", "Keep a tally. Which kind did you find harder to spot?"] }
+  ],
+  "check": [
+    { "q": "A program will not run and shows 'unexpected end of input'. This is a:", "opts": ["Logic error", "Syntax error", "Runtime slowdown", "Refinement"], "a": 1, "fb": "It breaks the language rules, so it never runs." },
+    { "q": "`for i = 1 to 9` when 10 items were expected is a:", "opts": ["Syntax error", "Off-by-one error", "Type error", "Missing else"], "a": 1, "fb": "Classic off-by-one; the symptom is one item missed." },
+    { "q": "A `while` loop never ends. Most likely cause:", "opts": ["Too many variables", "The condition variable is never changed inside the loop", "Using `endwhile`", "The loop runs too fast"], "a": 1, "fb": "If nothing in the body changes the condition, it stays true." },
+    { "q": "How do you find a logic error?", "opts": ["Read the error message", "Trace the algorithm and compare with its purpose", "Rewrite it in Python", "Add more comments"], "a": 1, "fb": "There is no message; tracing is the tool." },
+    { "q": "'Correct the error' in an exam question needs:", "opts": ["The line number only", "The type of error only", "The corrected line written out", "A flowchart"], "a": 2, "fb": "Write the fixed line; naming the line alone rarely scores." }
+  ],
+  "exam": [
+    { "q": "The algorithm below should output the largest number in the array. It contains an error. Identify the line containing the error and write a corrected version of it.", "marks": 2, "code": "01 nums = [3, 8, 1, 9, 4]\n02 largest = nums[0]\n03 for i = 1 to 4\n04     if nums[i] < largest then\n05         largest = nums[i]\n06     endif\n07 next i\n08 print(largest)",
+      "model": ["Line 04 (1). Corrected: `if nums[i] > largest then` (1)."],
+      "commentary": "Both marks need the correct line **and** the corrected code. Students often spot the symptom ('it finds the smallest') but write 'change < to >' without the full line — that is accepted here, but writing the full line is safer. Tracing with the first two values (3 then 8) shows the error immediately." },
+    { "q": "An algorithm asks the user to enter a percentage and stores it. Describe **two** refinements that would make the algorithm more robust.", "marks": 4,
+      "model": ["Check the value is within range 0 to 100 and ask again / show an error if not (1 + 1 for how). Check the input is a whole number / numeric, not text, before storing it (1 + 1 for how)."],
+      "commentary": "Each refinement is 'what' plus 'how'. Range check and type check are the two the mark scheme expects; a presence check (not blank) also scores. Writing the check as pseudocode is fine but not required." },
+    { "q": "Explain the difference between a syntax error and a logic error, giving an example of each.", "marks": 4,
+      "model": ["Syntax error: breaks the grammar rules of the language so the program does not run (1), e.g. missing bracket / misspelt keyword (1). Logic error: the program runs but does not do what was intended (1), e.g. using `>` instead of `>=` so a boundary value is treated wrongly (1)."],
+      "commentary": "Four separate marks; students lose the example marks by giving vague examples ('typing it wrong'). Name a concrete error." }
+  ],
+  "home": "Write a short algorithm (5–8 lines) with **one deliberately hidden logic error**. Write its purpose above it. Bring it in; a partner has to find the error by tracing, not by running it.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 12 · try 25 · check 5 · exam 10 · homework 3",
+    "misconceptions": [
+      "Calling every bug a syntax error. Drill the test: does it *run*? If yes, it's logic.",
+      "Fixing the symptom (editing the output message) instead of the cause. Try 1C and Try 3 are built to surface this.",
+      "'Refine' misread as 'rewrite'. Refinement keeps the algorithm and improves it.",
+      "Writing 'change line 4' without the corrected code."
+    ],
+    "say": [
+      "'Does it run? Then the computer is happy and *you* are wrong — logic error.'",
+      "'Trace the boundary. Errors live at the edges.'",
+      "'Fix the cause, not the message.'"
+    ],
+    "skip": "Try 4 (error spotter) is good homework. Keep Try 1 — it is the exam question in disguise.",
+    "differentiation": [
+      "Support: give Try 1 with the faulty line highlighted; students only name the error type and write the fix.",
+      "Stretch: in Try 2 ask for the average to be rounded to one decimal place and for the algorithm to work for a list of any length (introduce `.length`)."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "title": "Encontrar e corrigir erros em algoritmos",
+      "hook": "Este programa devia somar cinco preços e imprimir o total. Imprime 0 sempre. Ninguém escreveu nada mal — todas as linhas correm. Então que tipo de erro é? (O `total = 0` está dentro do ciclo.) Hoje: os erros que correm e continuam errados.",
+      "explain": [
+        { "h": "Dois tipos de erro",
+          "p": ["Um **erro de sintaxe** quebra as regras da linguagem — um parêntesis em falta, `endif` mal escrito, uma string sem aspas a fechar. O programa não corre e o interpretador diz onde. Um **erro de lógica** obedece às regras mas faz a coisa errada — o programa corre e dá uma resposta errada. Ninguém te avisa; descobre-se testando e rastreando."] },
+        { "h": "Os erros de lógica preferidos da OCR",
+          "list": ["**Off by one**: `for i = 0 to 9` em vez de `1 to 10`. Sintoma: falta um item ou há um a mais.",
+                   "**Comparação errada**: `>` em vez de `>=` (o valor-limite falha); `=` em vez de `==`.",
+                   "**Inicializar no sítio errado**: `total = 0` dentro do ciclo reinicia-o sempre.",
+                   "**Atualizar a variável errada** ou esquecer de atualizar a variável do `while` (ciclo infinito).",
+                   "**Operador ou ordem errados**: `DIV` inteiro onde era preciso `/`.",
+                   "**Ramo em falta**: um `if` sem `else`, e um caso fica sem saída."] },
+        { "h": "Como encontrá-los no exame",
+          "p": ["As perguntas dão um algoritmo «que contém um erro» e pedem para **identificar** a linha e **corrigir**, ou dão a finalidade e pedem para **completar** linhas em falta. Método: lê primeiro a finalidade; rastreia com um valor normal e um valor-limite; a linha onde a tabela discorda da finalidade é o erro. Depois escreve a linha corrigida por completo."] },
+        { "h": "Refinar um algoritmo",
+          "p": ["«Refinar» é fazê-lo cumprir melhor a finalidade sem recomeçar: validar a entrada (rejeitar uma nota acima de 100), tratar um caso-limite (lista vazia), usar um ciclo adequado em vez de um número fixo. Diz o que mudaste e porque é uma melhoria."] }
+      ],
+      "keyterms": [
+        { "term": "Syntax error (erro de sintaxe)", "def": "Erro que quebra as regras da linguagem; o programa não corre." },
+        { "term": "Logic error (erro de lógica)", "def": "Erro que deixa o programa correr mas produz um resultado errado." },
+        { "term": "Off-by-one error", "def": "Ciclo ou índice que começa ou acaba uma posição antes ou depois do devido." },
+        { "term": "Refine (refinar)", "def": "Melhorar um algoritmo para cumprir melhor a finalidade, p. ex. com validação ou casos-limite." }
+      ]
+    }
+  }
+}

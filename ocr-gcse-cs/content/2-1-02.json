@@ -1,0 +1,107 @@
+{
+  "id": "2-1-02",
+  "title": "Inputs, processes, outputs and structure diagrams",
+  "spec": "2.1.2",
+  "duration": 60,
+  "specPoints": [
+    "Identify the **inputs, processes and outputs** for a problem",
+    "Use **structure diagrams** to show how a problem has been decomposed",
+    "Produce a design using a structure diagram from a description"
+  ],
+  "hook": "A vending machine. Shout out everything that goes **in** (coins, button press), everything that comes **out** (drink, change, message), and everything that happens **inside** that you cannot see. Three columns on the board. Every program you will ever write has these three columns.",
+  "video": {
+    "title": "Input, process, output — and the box diagram that organises them",
+    "brief": "3 minutes. Vending machine with three animated arrows: IN (coins, selection), PROCESS (check price, check stock, calculate change), OUT (drink, change, 'sold out' message). Then the same machine drawn as a structure diagram: top box 'Vending machine', second row 'Take payment / Choose item / Dispense', third row breaking each down. Stress: boxes are *parts*, read top-down, left-to-right; no arrows, no decisions — that is what flowcharts are for."
+  },
+  "explain": [
+    { "h": "Every program is an IPO machine",
+      "p": ["Before designing anything, name the **inputs** (data going in), the **processes** (what is done to it) and the **outputs** (what comes out). For a program that converts pounds to euros: input the amount in pounds; process multiply by the exchange rate; output the amount in euros.",
+            "Exam questions give a scenario and ask you to 'identify two inputs' or 'describe the processing'. Inputs are data, not devices: 'the customer's name' is an input; 'keyboard' is not."] },
+    { "h": "Structure diagrams: decomposition you can see",
+      "p": ["A **structure diagram** is a tree of boxes. The top box is the whole problem. The row below shows the main sub-problems; each of those can be broken down again. It is decomposition drawn on paper.",
+            "Rules: one problem per box; read top to bottom, left to right in the order things happen; boxes do not contain code or decisions, just the name of the part. A structure diagram shows **what the parts are**, not how they work."],
+      "code": "                 Quiz program\n        ┌──────────────┼────────────────┐\n   Load questions   Ask questions    Show results\n                 ┌──────┼──────┐\n          Display Q   Get answer   Check and score" },
+    { "h": "From description to design",
+      "p": ["Given a description, underline the verbs: *load, ask, display, get, check, show*. Group them into main parts. Those become your second row. Anything that happens inside one part becomes its children. In the exam, two levels is nearly always enough for full marks."] }
+  ],
+  "simple": [
+    { "h": "In, do, out",
+      "p": ["Every program takes something **in** (input), **does** something with it (process) and sends something **out** (output). Pounds to euros: in = pounds, do = multiply, out = euros.",
+            "Inputs are information, not machines. 'The customer's name' is an input. 'Keyboard' is not."] },
+    { "h": "A structure diagram is a family tree for a program",
+      "p": ["The top box is the whole program. Under it, the main parts. Under each part, its smaller parts. Just names in boxes. No arrows, no questions."],
+      "code": "                 Quiz program\n        ┌──────────────┼────────────────┐\n   Load questions   Ask questions    Show results\n                 ┌──────┼──────┐\n          Display Q   Get answer   Check and score" },
+    { "h": "How to draw one from a description",
+      "p": ["Find the doing words: load, ask, display, get, check, show. Put the big ones in the second row. Put the small ones under the big one they belong to. Two rows is usually enough."] }
+  ],
+  "keyterms": [
+    { "term": "Input", "def": "Data that is put into a program." },
+    { "term": "Process", "def": "What the program does to the input data." },
+    { "term": "Output", "def": "Data or information the program produces." },
+    { "term": "Structure diagram", "def": "A tree of boxes showing how a problem has been decomposed into sub-problems." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. IPO table", "p": ["A program works out whether a student passed a test: it reads the student's name and mark, compares the mark with the pass mark of 40, and shows the name with 'PASS' or 'FAIL'."],
+      "steps": ["Draw a three-column table: Input · Process · Output.", "Fill it in. There are two inputs, at least two processes, and one output."] },
+    { "type": "task", "title": "2. Draw the structure diagram", "p": ["A library self-service kiosk lets a member scan their card, scan books to borrow, scan books to return, and print a receipt."],
+      "steps": ["Underline the verbs in the description.", "Draw the top box and a second row of 3–4 main parts.", "Break down 'Borrow books' into its own parts (at least two).", "Check: no arrows, no 'if', every box is a noun phrase."] },
+    { "type": "task", "title": "3. Spot the mistakes", "p": ["A student drew a structure diagram with boxes labelled: 'Start', 'Is the card valid?', 'Loop until done', 'Print receipt'. Write down what is wrong with three of the four boxes and what should replace them."] }
+  ],
+  "check": [
+    { "q": "In a program that calculates a shopping bill, which is an **input**?", "opts": ["The total", "The price of each item", "Adding the prices", "The printer"], "a": 1, "fb": "Prices go in; the total comes out; adding is the process; the printer is a device, not data." },
+    { "q": "A structure diagram shows:", "opts": ["The order of decisions in a program", "How a problem is broken into sub-problems", "The code for each part", "The test data"], "a": 1, "fb": "It is decomposition drawn as a tree." },
+    { "q": "Which should NOT appear in a structure diagram?", "opts": ["'Calculate change'", "'Take payment'", "'Is there enough stock?'", "'Dispense item'"], "a": 2, "fb": "Decisions belong in flowcharts; structure diagram boxes name parts." },
+    { "q": "In the pounds-to-euros program the **process** is:", "opts": ["Entering the pounds", "Displaying the euros", "Multiplying by the exchange rate", "The exchange rate"], "a": 2, "fb": "The process is what is done to the data." },
+    { "q": "How do you read a structure diagram?", "opts": ["Bottom to top", "Right to left", "Top to bottom, left to right", "In any order"], "a": 2, "fb": "Top-down shows breakdown; left-to-right shows order." }
+  ],
+  "exam": [
+    { "q": "A program lets a user enter the length and width of a room and tells them how many boxes of flooring to buy. Identify **one input**, **one process** and **one output** of this program.", "marks": 3,
+      "model": ["Input: the length (or width) of the room (1). Process: multiply length by width to get the area / divide the area by the area covered by one box (1). Output: the number of boxes to buy (1)."],
+      "commentary": "One mark each, but the process mark needs an actual operation (multiply, divide, compare), not 'works out the answer'. 'Keyboard' or 'screen' as input/output gets nothing — the question asks for data." },
+    { "q": "A school canteen app lets students view the menu, order food, pay with their account, and collect using a code. Draw a **structure diagram** for this app.", "marks": 4,
+      "model": ["Top box names the whole problem, e.g. 'Canteen app' (1). Second row has the main sub-problems in a sensible order: View menu · Order food · Pay · Collect (1 for at least three correct parts). At least one part broken down into a third level, e.g. Pay → Check balance · Deduct amount · Confirm (1). Correct layout: boxes connected by lines, no arrows or decisions, read top-down (1)."],
+      "commentary": "Most lost marks are for putting process steps or decisions in boxes ('Is balance enough?') — that is flowchart thinking. Also check the top box is the *problem*, not 'Start'. Four correctly-named second-row boxes with one level of breakdown is full marks; don't over-draw." }
+  ],
+  "home": "Pick a device at home (washing machine, microwave, games console). Write its IPO table and draw a two-level structure diagram for what it does.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 10 · try 25 · check 5 · exam 12 · homework 3",
+    "misconceptions": [
+      "Inputs as devices (keyboard, mouse). Insist: inputs are **data**.",
+      "Putting decisions and loops in structure diagrams. Keep saying: boxes are parts; flowcharts (next lesson) have decisions.",
+      "Drawing arrows between boxes. Lines only; the tree is the meaning.",
+      "Thinking the diagram must be deep. Two levels usually scores full marks."
+    ],
+    "say": [
+      "'If I unplug the keyboard, is the customer's name still the input? Yes. So the keyboard isn't the input.'",
+      "'Nouns in boxes. If you've written a question, you're drawing a flowchart.'"
+    ],
+    "skip": "Drop Try 3 if time is tight; the misconceptions it targets are also in the exam commentary.",
+    "differentiation": [
+      "Support: give the kiosk verbs pre-underlined and a blank tree to fill.",
+      "Stretch: ask students to draw the structure diagram for the quiz program **and** write the IPO table for each leaf box — this links straight into pseudocode in lesson 4."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "title": "Entradas, processos, saídas e diagramas de estrutura",
+      "hook": "Uma máquina de venda automática. Digam tudo o que **entra** (moedas, botão), tudo o que **sai** (bebida, troco, mensagem) e tudo o que acontece **lá dentro** e não se vê. Três colunas no quadro. Todos os programas que vais escrever têm estas três colunas.",
+      "explain": [
+        { "h": "Todo o programa é uma máquina IPO",
+          "p": ["Antes de desenhar o que for, identifica as **entradas** (input: dados que entram), os **processos** (o que se faz com eles) e as **saídas** (output: o que sai). Para um programa que converte libras em euros: entrada, o valor em libras; processo, multiplicar pela taxa de câmbio; saída, o valor em euros.",
+                "As perguntas de exame dão um cenário e pedem «identifica duas entradas» ou «descreve o processamento». As entradas são dados, não dispositivos: «o nome do cliente» é uma entrada; «teclado» não é."] },
+        { "h": "Diagramas de estrutura: a decomposição em desenho",
+          "p": ["Um **diagrama de estrutura** é uma árvore de caixas. A caixa de cima é o problema inteiro. A linha abaixo mostra os subproblemas principais; cada um pode voltar a ser dividido. É a decomposição desenhada no papel.",
+                "Regras: um problema por caixa; lê-se de cima para baixo e da esquerda para a direita, pela ordem em que as coisas acontecem; as caixas não têm código nem decisões, só o nome da parte. Um diagrama de estrutura mostra **quais são as partes**, não como funcionam."],
+          "code": "                 Quiz program\n        ┌──────────────┼────────────────┐\n   Load questions   Ask questions    Show results\n                 ┌──────┼──────┐\n          Display Q   Get answer   Check and score" },
+        { "h": "Da descrição ao desenho",
+          "p": ["Dada uma descrição, sublinha os verbos: *carregar, perguntar, mostrar, receber, verificar, apresentar*. Agrupa-os em partes principais. Essas são a segunda linha. O que acontece dentro de uma parte passa a ser filho dessa parte. No exame, dois níveis quase sempre bastam para a pontuação máxima."] }
+      ],
+      "keyterms": [
+        { "term": "Input (entrada)", "def": "Dados que entram num programa." },
+        { "term": "Process (processo)", "def": "O que o programa faz com os dados de entrada." },
+        { "term": "Output (saída)", "def": "Dados ou informação que o programa produz." },
+        { "term": "Structure diagram (diagrama de estrutura)", "def": "Uma árvore de caixas que mostra como um problema foi decomposto em subproblemas." }
+      ]
+    }
+  }
+}

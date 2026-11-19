@@ -1,0 +1,119 @@
+{
+  "id": "2-1-10",
+  "title": "Insertion sort and merge sort",
+  "spec": "2.1.3",
+  "duration": 60,
+  "specPoints": [
+    "Understand and **apply** the standard **insertion sort** and **merge sort** algorithms",
+    "Show the stages of each sort on a given list",
+    "Compare the three sorts: bubble, insertion, merge"
+  ],
+  "hook": "Two ways people sort a hand of cards. Some pick up one card at a time and slide it into the right place among the cards already held. Others split the pile, sort each half, and then merge. Both work. One is what you probably do already; the other is what big computers do. Today you learn both and when each wins.",
+  "video": {
+    "title": "Insertion sort and merge sort, side by side",
+    "brief": "5 minutes. Left panel: insertion sort on 6 bars — a 'sorted' region grows from the left; take the next item and shift it left past bigger items until it fits. Show the list after each item is inserted. Right panel: merge sort on 8 bars — split into halves repeatedly until single items, then merge pairs by always taking the smaller front item; show the tree of splits and merges. Close with a three-column comparison: bubble / insertion / merge on simplicity, speed on large lists, memory, behaviour on nearly-sorted data."
+  },
+  "explain": [
+    { "h": "Insertion sort",
+      "p": ["Treat the first item as a sorted list of one. Take the **next** item and insert it into its correct place among the sorted items to its left, shifting larger items right to make room. Repeat until every item has been inserted. The sorted part grows by one each time.",
+            "Example, `[6, 3, 8, 2]`: start with `[6]`. Insert 3 → `[3, 6]`. Insert 8 → `[3, 6, 8]`. Insert 2 → `[2, 3, 6, 8]`. In the exam write the whole list after each insertion, marking the sorted part."],
+      "code": "for i = 1 to list.length - 1\n    current = list[i]\n    j = i - 1\n    while j >= 0 AND list[j] > current\n        list[j + 1] = list[j]     // shift right\n        j = j - 1\n    endwhile\n    list[j + 1] = current        // insert\nnext i" },
+    { "h": "Merge sort",
+      "p": ["**Split** the list in half, and keep splitting each half until every piece has one item (a one-item list is sorted). Then **merge** pairs of pieces back together: compare the front items of the two pieces and take the smaller each time, until both pieces are used up. Keep merging until one sorted list remains.",
+            "Example, `[7, 2, 9, 4]`: split → `[7, 2]` `[9, 4]` → `[7]` `[2]` `[9]` `[4]`. Merge → `[2, 7]` `[4, 9]`. Merge → `[2, 4, 7, 9]`. In the exam show the splitting stages and then the merging stages, each on its own line."] },
+    { "h": "Comparing the three sorts",
+      "list": ["**Bubble**: simplest; slowest on large lists (about n² comparisons); good for very short or nearly-sorted data because it stops early.",
+               "**Insertion**: simple; also about n² in the worst case, but fast on nearly-sorted data and better than bubble in practice; sorts in place (no extra memory); good for small lists and for adding items to an already sorted list.",
+               "**Merge**: more complex to code; **much faster on large lists** (about n log n — for 1,000,000 items roughly 20 million steps rather than a trillion); needs extra memory for the merged lists; same speed whatever the starting order.",
+               "Exam logic: small or nearly-sorted list → insertion (or bubble); large list → merge; limited memory → insertion."] }
+  ],
+  "simple": [
+    { "h": "Insertion sort: slide each item into place",
+      "p": ["The first item is already 'sorted'. Take the next item. Move left past anything bigger and drop it in. Repeat for every item.", "`[6, 3, 8, 2]` → `[3, 6] 8 2` → `[3, 6, 8] 2` → `[2, 3, 6, 8]`."],
+      "code": "for i = 1 to list.length - 1\n    current = list[i]\n    j = i - 1\n    while j >= 0 AND list[j] > current\n        list[j + 1] = list[j]\n        j = j - 1\n    endwhile\n    list[j + 1] = current\nnext i" },
+    { "h": "Merge sort: split, then zip together",
+      "p": ["Split the list in half. Split again until every piece has one item. Then join pairs back together, always taking the smaller front item first.", "`[7, 2, 9, 4]` → `[7, 2] [9, 4]` → `[7] [2] [9] [4]` → `[2, 7] [4, 9]` → `[2, 4, 7, 9]`."] },
+    { "h": "Which one?",
+      "list": ["Short list or nearly sorted: insertion (or bubble).", "Big list: merge — much faster.", "Not much memory: insertion — it does not need extra space."] }
+  ],
+  "keyterms": [
+    { "term": "Insertion sort", "def": "A sort that builds a sorted section one item at a time by inserting each new item into its correct place." },
+    { "term": "Merge sort", "def": "A sort that splits the list into single items and then merges them back in order." },
+    { "term": "Merge", "def": "Combining two sorted lists into one sorted list by repeatedly taking the smaller front item." },
+    { "term": "Divide and conquer", "def": "Solving a problem by splitting it into smaller problems, solving those, and combining the results — the approach merge sort uses." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Race them", "url": "https://beanwise.coderra.je/cs_animations/sort.html",
+      "instructions": ["Run Bubble, Insertion and Merge on the same shuffled list of the largest size available. Record comparisons for each.", "Shuffle only slightly (nearly sorted) and run again. Which sort improved most? Which did not change?"] },
+    { "type": "task", "title": "2. Insertion sort by hand", "p": ["Insertion sort `[9, 4, 7, 1, 6]`. Write the list after each insertion, with a bracket around the sorted part."],
+      "after": ["How many shifts did inserting the 1 need? Why does a small item near the end cost the most?"] },
+    { "type": "task", "title": "3. Merge sort by hand", "p": ["Merge sort `[5, 8, 1, 3, 9, 2, 7, 4]`."],
+      "steps": ["Write the splits line by line until you have eight single items.", "Write the merges line by line back up to one list.", "Count: how many merge steps in total? (Hint: how many levels?)"] },
+    { "type": "embed", "title": "4. Recursion is why merge sort works", "url": "https://beanwise.coderra.je/cs_animations/recursion.html",
+      "instructions": ["Watch a call tree. Merge sort is a function that calls itself on each half. Compare the tree shape with your Try 3 splitting diagram."] }
+  ],
+  "check": [
+    { "q": "In insertion sort, where does each new item go?", "opts": ["To the end of the list", "Into its correct place in the already-sorted part", "To the start", "Wherever there is space"], "a": 1, "fb": "The sorted part grows by one correctly-placed item each time." },
+    { "q": "The first stage of a merge sort is to:", "opts": ["Compare adjacent items", "Find the middle item", "Split the list into halves repeatedly", "Insert the first item"], "a": 2, "fb": "Split until single items, then merge." },
+    { "q": "When merging `[2, 7]` and `[4, 9]`, the first item taken is:", "opts": ["7", "9", "4", "2"], "a": 3, "fb": "Compare the fronts (2 and 4), take the smaller." },
+    { "q": "Which sort is fastest on a very large unsorted list?", "opts": ["Bubble", "Insertion", "Merge", "They are the same"], "a": 2, "fb": "Merge sort's n log n beats the n² of the other two as lists grow." },
+    { "q": "A disadvantage of merge sort compared with insertion sort is:", "opts": ["It is slower on large lists", "It needs extra memory for the merged lists", "It needs the list sorted first", "It cannot sort text"], "a": 1, "fb": "Merging creates new lists; insertion sorts in place." }
+  ],
+  "exam": [
+    { "q": "Show the stages of an insertion sort on the list `[5, 2, 8, 1]` to sort it into ascending order.", "marks": 3,
+      "model": ["Insert 2: `[2, 5, 8, 1]` (1). Insert 8 (no move): `[2, 5, 8, 1]` (1). Insert 1: `[1, 2, 5, 8]` (1).", "(Marks are for each correct stage; the stage where nothing moves must still be shown.)"],
+      "commentary": "Students skip the 'nothing moves' stage and lose that mark. Write every stage even if the list is unchanged, and label which item was inserted. Bracketing the sorted part makes the examiner's job easy." },
+    { "q": "Show the stages of a merge sort on the list `[6, 3, 9, 1]`.", "marks": 4,
+      "model": ["Split: `[6, 3]` `[9, 1]` (1). Split: `[6]` `[3]` `[9]` `[1]` (1). Merge: `[3, 6]` `[1, 9]` (1). Merge: `[1, 3, 6, 9]` (1)."],
+      "commentary": "Four lines, four marks. Splitting stages are marks too — students who jump straight to merging lose two. Keep pieces in their original left-to-right order when splitting; sorting happens only in the merges." },
+    { "q": "A company needs to sort a list of 5 million transaction records. Explain why a merge sort would be chosen rather than an insertion sort.", "marks": 3,
+      "model": ["Merge sort is much more efficient on large lists (1) because its time grows roughly in proportion to n log n rather than n² (1), so 5 million records would take an insertion sort an impractically long time / orders of magnitude longer (1).", "Alternative third mark: merge sort's performance does not depend on the initial order of the data."],
+      "commentary": "Scale again. The question says 5 million; use it. An answer that mentions memory as a reason for merge sort is wrong — extra memory is merge sort's *disadvantage*." }
+  ],
+  "home": "Sort your own list of 8 numbers three ways by hand — bubble (list after each pass), insertion (list after each insertion), merge (splits then merges). Count the comparisons for each. Which was least work for *you*? Write two sentences on which you would choose for 10 items and for 10 million.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 14 · try 24 · check 5 · exam 9 · homework 3 — the fullest lesson in the unit; the recursion embed is optional",
+    "misconceptions": [
+      "Insertion sort described as 'swap neighbours' (that's bubble). Insertion *shifts* and *inserts*.",
+      "Merge sort splits shown already sorted. Splitting keeps original order; sorting happens in merges only.",
+      "Merge sort chosen 'because it uses less memory'. It uses more.",
+      "Skipping the stage where an item doesn't move in insertion sort."
+    ],
+    "say": [
+      "'Insertion: pick up the next card, slide it left until it fits.'",
+      "'Merge: halve, halve, halve — then zip, zip, zip.'",
+      "'Which sort for 10 cards? Which for 10 million? Different answers, and that's the exam.'"
+    ],
+    "skip": "Try 4 (recursion) and the comparison table can slip to the unit review if time is short. Try 2 and Try 3 are the exam skills.",
+    "differentiation": [
+      "Support: cards for insertion sort — physically slide the card left. For merge sort, give the split tree pre-drawn with blanks for the merges.",
+      "Stretch: explain why merge sort is about n log n using the tree: log n levels, n work per level."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "title": "Ordenação por inserção e por fusão (insertion sort e merge sort)",
+      "hook": "Duas maneiras de ordenar as cartas na mão. Uns pegam numa carta de cada vez e encaixam-na no lugar certo entre as que já têm. Outros dividem o monte, ordenam cada metade e depois juntam. Ambas funcionam. Uma é a que já fazes; a outra é a que os grandes computadores usam. Hoje aprendes as duas e quando cada uma ganha.",
+      "explain": [
+        { "h": "Insertion sort",
+          "p": ["Considera o primeiro item uma lista ordenada de um só. Pega no item **seguinte** e insere-o no lugar certo entre os itens ordenados à esquerda, deslocando os maiores para a direita. Repete até inserir todos. A parte ordenada cresce um item de cada vez.",
+                "Exemplo, `[6, 3, 8, 2]`: começa com `[6]`. Insere 3 → `[3, 6]`. Insere 8 → `[3, 6, 8]`. Insere 2 → `[2, 3, 6, 8]`. No exame escreve a lista completa depois de cada inserção, marcando a parte ordenada."],
+          "code": "for i = 1 to list.length - 1\n    current = list[i]\n    j = i - 1\n    while j >= 0 AND list[j] > current\n        list[j + 1] = list[j]\n        j = j - 1\n    endwhile\n    list[j + 1] = current\nnext i" },
+        { "h": "Merge sort",
+          "p": ["**Divide** a lista ao meio e continua a dividir até cada pedaço ter um item (uma lista de um item está ordenada). Depois **funde** pares de pedaços: compara os primeiros itens dos dois pedaços e tira sempre o menor, até esgotar ambos. Continua a fundir até sobrar uma lista ordenada.",
+                "Exemplo, `[7, 2, 9, 4]`: divide → `[7, 2]` `[9, 4]` → `[7]` `[2]` `[9]` `[4]`. Funde → `[2, 7]` `[4, 9]`. Funde → `[2, 4, 7, 9]`. No exame mostra as etapas de divisão e depois as de fusão, cada uma na sua linha."] },
+        { "h": "Comparar as três ordenações",
+          "list": ["**Bubble**: a mais simples; a mais lenta em listas grandes (cerca de n² comparações); boa para listas muito curtas ou quase ordenadas.",
+                   "**Insertion**: simples; também n² no pior caso, mas rápida em dados quase ordenados; ordena no lugar (sem memória extra); boa para listas pequenas.",
+                   "**Merge**: mais complexa de programar; **muito mais rápida em listas grandes** (cerca de n log n); precisa de memória extra para as listas fundidas; mesma velocidade seja qual for a ordem inicial.",
+                   "Lógica de exame: lista pequena ou quase ordenada → insertion (ou bubble); lista grande → merge; pouca memória → insertion."] }
+      ],
+      "keyterms": [
+        { "term": "Insertion sort (ordenação por inserção)", "def": "Ordenação que constrói uma secção ordenada item a item, inserindo cada novo item no lugar certo." },
+        { "term": "Merge sort (ordenação por fusão)", "def": "Ordenação que divide a lista em itens únicos e depois funde-os de novo por ordem." },
+        { "term": "Merge (fundir)", "def": "Combinar duas listas ordenadas numa só, tirando repetidamente o menor item da frente." },
+        { "term": "Divide and conquer (dividir para conquistar)", "def": "Resolver um problema dividindo-o em problemas menores, resolvendo-os e combinando os resultados — a abordagem do merge sort." }
+      ]
+    }
+  }
+}

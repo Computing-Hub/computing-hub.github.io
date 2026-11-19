@@ -1,0 +1,187 @@
+{
+  "id": "2-1-01",
+  "title": "Computational thinking: abstraction, decomposition, algorithmic thinking",
+  "spec": "2.1.1",
+  "duration": 60,
+  "specPoints": [
+    "Principles of computational thinking: **abstraction**, **decomposition**, **algorithmic thinking**",
+    "You will be asked to **define** each one and to **apply** it to a scenario (e.g. 'Describe how decomposition could be used to design this program')"
+  ],
+  "hook": "Look at the London Underground map. Which real things has it left out? (Distances, roads, what the stations look like.) Why is it still useful? Now imagine the map showed every detail. Would it be better or worse? That is the whole of this lesson.",
+  "video": {
+    "title": "Three ways to think like a computer scientist",
+    "brief": "3–4 minutes. Open on the Tube map → zoom to a real satellite view → back to the map: 'abstraction keeps what matters'. Then a cake recipe split into shopping / mixing / baking / decorating as four boxes: 'decomposition'. Then those boxes turned into a numbered list with a decision ('if the skewer comes out clean'): 'algorithmic thinking'. End with the one-line definitions on screen together. Keep the three words in the same colours throughout."
+  },
+  "explain": [
+    { "h": "Why computer scientists think this way",
+      "p": ["Real problems are big and messy. Before anyone writes a line of code, they make the problem smaller and clearer. Computational thinking is the name for three habits that do this. The exam expects you to know all three, tell them apart, and apply them to a situation you have never seen before."] },
+    { "h": "Abstraction: removing the detail that does not matter",
+      "p": ["**Abstraction** means picking out the important information and leaving out the rest. The Tube map ignores real distances and the shape of the tunnels because a passenger only needs to know which line to take and where to change.",
+            "In programming, abstraction is everywhere: a `Player` in a game is reduced to a name, a score and a position, not their eye colour. When a question asks 'how could abstraction be used', name **what is kept** and **what is removed**, and say **why** the removed part is not needed."] },
+    { "h": "Decomposition: breaking the problem into parts",
+      "p": ["**Decomposition** means breaking a big problem into smaller sub-problems that are easier to solve. Each part can then be designed, written and tested on its own, and different people can work on different parts.",
+            "A quiz program decomposes into: show the question, take the answer, check the answer, update the score, repeat, show the final score. In the exam, a decomposition answer lists the **sub-problems**, not the steps inside one of them."] },
+    { "h": "Algorithmic thinking: a sequence of steps that always works",
+      "p": ["**Algorithmic thinking** means working out a clear set of steps that will solve the problem every time, for any valid input. It is the step before writing code: the steps can be written as a flowchart or pseudocode.",
+            "'Check the answer' becomes: compare the typed answer with the stored answer; if they match, add 1 to the score; otherwise show the correct answer. Notice this already includes a **decision** and will later include **repetition**. That is what makes it an algorithm rather than a list."] },
+    { "h": "How the three fit together",
+      "p": ["Decompose the problem into parts. Abstract each part to the information that matters. Write an algorithm for each part. Most exam scenarios ask you to do one of these; the best answers show you know which one you are doing and why."] }
+  ],
+  "simple": [
+    { "h": "Three ways to make a problem easier",
+      "p": ["Big problems are hard. Computer scientists use three tricks to make them smaller. You need to know the three names and what each one does."] },
+    { "h": "Abstraction = leave out what you do not need",
+      "p": ["A Tube map does not show real distances. It only shows the lines and the stations, because that is all you need to find your way. Taking away the detail you do not need is called **abstraction**.",
+            "In a game, a player might be just a name, a score and a position. Nothing else is needed."] },
+    { "h": "Decomposition = break it into parts",
+      "p": ["A quiz program is one big job. Break it into small jobs: show a question, get an answer, check the answer, add to the score, show the final score. Breaking a big job into small jobs is called **decomposition**."] },
+    { "h": "Algorithmic thinking = write the steps",
+      "p": ["Take one small job and write the exact steps. 'Check the answer' becomes: compare the two answers. If they are the same, add 1 to the score. If not, show the right answer. Writing clear steps that always work is called **algorithmic thinking**."] },
+    { "h": "Together",
+      "p": ["Break it up (decomposition). Keep only what matters (abstraction). Write the steps (algorithmic thinking)."] }
+  ],
+  "keyterms": [
+    { "term": "Abstraction", "def": "Removing unnecessary detail from a problem so only the important information is left." },
+    { "term": "Decomposition", "def": "Breaking a complex problem into smaller sub-problems that are easier to solve." },
+    { "term": "Algorithmic thinking", "def": "Working out a clear sequence of steps (an algorithm) that solves a problem for any valid input." },
+    { "term": "Algorithm", "def": "A set of step-by-step instructions to solve a problem or complete a task." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Decompose it", "p": ["A school wants a program that takes the register for a class and emails parents of absent students."],
+      "steps": ["Write the sub-problems as a list of short noun phrases (e.g. 'load the class list'). Aim for 5–7.", "Mark which sub-problem would be the hardest to write, and say why in one sentence.", "Swap with a partner: did they split it differently? Both can be right."] },
+    { "type": "task", "title": "2. Abstract it", "p": ["For the same register program, decide what information about a **student** the program needs to store."],
+      "steps": ["Write down everything you *could* store about a student (at least 8 things).", "Cross out everything the register program does not need.", "What is left is your abstraction. Write one sentence starting 'I removed … because …'."] },
+    { "type": "task", "title": "3. Think algorithmically", "p": ["Take the sub-problem 'decide whether a student is absent'. Write the steps in plain English, one per line. Include at least one decision (if…)."],
+      "code": "For each student in the class list\n    If the student has not been marked present\n        ...",
+      "after": ["Finish the steps so a computer could follow them. When you are done, compare with the model answer in the exam section below."] },
+    { "type": "embed", "title": "4. See decomposition in a real program", "url": "https://beanwise.coderra.je/pythonblocks/",
+      "instructions": ["Open Python Blocks and build a 3-question quiz using one block group per sub-problem (ask, check, score).", "Notice how the blocks match the sub-problems you would list in a decomposition answer."] }
+  ],
+  "check": [
+    { "q": "Which principle is being used when a satnav shows roads but not the heights of buildings?", "opts": ["Decomposition", "Abstraction", "Algorithmic thinking", "Iteration"], "a": 1, "fb": "Detail that does not matter to the driver is removed: abstraction." },
+    { "q": "Splitting 'make a game' into 'draw the screen', 'move the player', 'detect collisions' and 'keep score' is an example of:", "opts": ["Abstraction", "Algorithmic thinking", "Decomposition", "Debugging"], "a": 2, "fb": "The problem is broken into sub-problems: decomposition." },
+    { "q": "Writing the exact steps to detect a collision, including what to do if two sprites overlap, is:", "opts": ["Algorithmic thinking", "Decomposition", "Abstraction", "Validation"], "a": 0, "fb": "A precise sequence of steps with a decision is an algorithm." },
+    { "q": "An exam question says 'Explain how abstraction could be used in designing this app'. A full answer must say:", "opts": ["What the app does", "What is removed, what is kept, and why", "How many sub-problems there are", "Which programming language to use"], "a": 1, "fb": "Abstraction answers name the detail removed and the reason it is not needed." },
+    { "q": "Which statement is true?", "opts": ["Decomposition and abstraction are the same thing", "Abstraction always comes before decomposition", "The three principles are used together on the same problem", "Algorithmic thinking only applies to Python"], "a": 2, "fb": "All three are used together; there is no fixed order." }
+  ],
+  "exam": [
+    { "q": "A company is designing a program that lets customers book a table at a restaurant. Describe how **decomposition** could be used when designing this program.", "marks": 2,
+      "model": ["Break the booking problem into smaller sub-problems (1), e.g. choose a date and time / check which tables are free / take the customer's details / confirm the booking (1)."],
+      "commentary": "One mark is for saying what decomposition is in this context (break into smaller sub-problems). The second mark needs sub-problems **from this scenario** — generic answers ('split it into parts') get the first mark only. Two or three realistic sub-problems is plenty; don't write the steps inside one of them, that is algorithmic thinking." },
+    { "q": "Explain how **abstraction** would be used when designing the same restaurant booking program.", "marks": 2,
+      "model": ["Remove details that are not needed for the booking (1), e.g. the program stores a table number and the number of seats, but not the colour of the table or what the chairs look like (1)."],
+      "commentary": "Marks are for 'remove unnecessary detail' plus an example of **what is left out** that fits the scenario. Students often give an example of what is *kept* only; say both. Avoid the word 'simplify' on its own — it is too vague for a mark." },
+    { "q": "State what is meant by **algorithmic thinking**.", "marks": 1,
+      "model": ["Working out the steps / a sequence of instructions needed to solve a problem (1)."],
+      "commentary": "'Thinking logically' is not enough. The mark needs the idea of **steps** or **a sequence** that solves the problem." }
+  ],
+  "home": "Take any app on your phone. Write (a) three sub-problems it must solve, (b) two pieces of real-world detail it ignores and why, (c) the step-by-step algorithm for one small feature, with at least one decision. Half a page.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 12 · try 25 · check 5 · exam 10 · set homework 3",
+    "misconceptions": [
+      "Students confuse abstraction with decomposition. Anchor: abstraction **removes**, decomposition **splits**.",
+      "'Abstraction means making it simpler' — too vague for marks. Push for *what* is removed and *why* it is not needed.",
+      "In decomposition answers students write the steps of one sub-problem (that is algorithmic thinking). Sub-problems are noun phrases; steps are verbs.",
+      "Students think there is one correct decomposition. There isn't; any sensible split scores."
+    ],
+    "say": [
+      "'If I asked you to draw the room we are in, what would you leave out? Why? That's abstraction.'",
+      "'Nouns are sub-problems. Verbs are steps.'",
+      "For every exam answer: 'Which of the three words is this question about? Say that word in your answer.'"
+    ],
+    "skip": "If short of time, drop Try 4 (Python Blocks) — it returns in 2.2. Keep Try 1–3; they are the exam skill.",
+    "differentiation": [
+      "Support: give the register sub-problems as a jumbled list to sort into 'sub-problem' or 'step'.",
+      "Stretch: ask for the abstraction a *different* user would need from the same data (the Head needs attendance percentages, not names). Same data, different abstraction."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "title": "Pensamento computacional: abstração, decomposição e pensamento algorítmico",
+      "hook": "Olha para o mapa do metro de Londres. Que coisas reais ele deixa de fora? (Distâncias, estradas, o aspeto das estações.) Porque é que continua a ser útil? Agora imagina que o mapa mostrava todos os detalhes. Seria melhor ou pior? Esta aula é toda sobre isso.",
+      "explain": [
+        { "h": "Porque é que os informáticos pensam assim",
+          "p": ["Os problemas reais são grandes e confusos. Antes de escrever uma linha de código, é preciso tornar o problema mais pequeno e mais claro. Pensamento computacional é o nome de três hábitos que fazem isso. No exame tens de conhecer os três, distingui-los e aplicá-los a uma situação nova."] },
+        { "h": "Abstração: retirar os detalhes que não interessam",
+          "p": ["**Abstração** significa escolher a informação importante e deixar o resto de fora. O mapa do metro ignora as distâncias reais e a forma dos túneis, porque o passageiro só precisa de saber que linha apanhar e onde mudar.",
+                "Na programação, a abstração está em todo o lado: um `Player` num jogo fica reduzido a um nome, uma pontuação e uma posição, não à cor dos olhos. Quando a pergunta diz «como poderia a abstração ser usada», indica **o que se mantém**, **o que se retira** e **porquê** essa parte não é necessária."] },
+        { "h": "Decomposição: dividir o problema em partes",
+          "p": ["**Decomposição** significa dividir um problema grande em subproblemas mais pequenos e mais fáceis de resolver. Cada parte pode ser desenhada, escrita e testada por si, e pessoas diferentes podem trabalhar em partes diferentes.",
+                "Um programa de quiz decompõe-se em: mostrar a pergunta, receber a resposta, verificar a resposta, atualizar a pontuação, repetir, mostrar a pontuação final. No exame, uma resposta de decomposição lista os **subproblemas**, não os passos dentro de um deles."] },
+        { "h": "Pensamento algorítmico: uma sequência de passos que funciona sempre",
+          "p": ["**Pensamento algorítmico** significa definir um conjunto claro de passos que resolve o problema todas as vezes, para qualquer entrada válida. É o passo antes de escrever código: os passos podem ser escritos como fluxograma ou pseudocódigo.",
+                "«Verificar a resposta» passa a ser: comparar a resposta escrita com a resposta guardada; se forem iguais, somar 1 à pontuação; senão, mostrar a resposta certa. Repara que isto já inclui uma **decisão** e mais tarde incluirá **repetição**. É isso que faz dele um algoritmo e não uma simples lista."] },
+        { "h": "Como os três se juntam",
+          "p": ["Decompõe o problema em partes. Abstrai cada parte à informação que interessa. Escreve um algoritmo para cada parte. A maioria dos cenários de exame pede um destes; as melhores respostas mostram que sabes qual estás a usar e porquê."] }
+      ],
+      "simple": [
+        { "h": "Três maneiras de tornar um problema mais fácil",
+          "p": ["Os problemas grandes são difíceis. Os informáticos usam três truques para os tornar mais pequenos. Tens de saber os três nomes e o que cada um faz."] },
+        { "h": "Abstração = deixar de fora o que não precisas",
+          "p": ["Um mapa do metro não mostra as distâncias reais. Só mostra as linhas e as estações, porque é só disso que precisas para te orientares. Retirar os detalhes de que não precisas chama-se **abstração**."] },
+        { "h": "Decomposição = dividir em partes",
+          "p": ["Um programa de quiz é um trabalho grande. Divide-o em trabalhos pequenos: mostrar uma pergunta, receber uma resposta, verificar a resposta, somar à pontuação, mostrar a pontuação final. Dividir um trabalho grande em trabalhos pequenos chama-se **decomposição**."] },
+        { "h": "Pensamento algorítmico = escrever os passos",
+          "p": ["Pega num trabalho pequeno e escreve os passos exatos. «Verificar a resposta» passa a ser: comparar as duas respostas. Se forem iguais, somar 1. Se não, mostrar a resposta certa. Escrever passos claros que funcionam sempre chama-se **pensamento algorítmico**."] },
+        { "h": "Em conjunto",
+          "p": ["Dividir (decomposição). Ficar só com o que interessa (abstração). Escrever os passos (pensamento algorítmico)."] }
+      ],
+      "keyterms": [
+        { "term": "Abstraction (abstração)", "def": "Retirar os detalhes desnecessários de um problema, deixando só a informação importante." },
+        { "term": "Decomposition (decomposição)", "def": "Dividir um problema complexo em subproblemas mais pequenos e mais fáceis de resolver." },
+        { "term": "Algorithmic thinking (pensamento algorítmico)", "def": "Definir uma sequência clara de passos (um algoritmo) que resolve um problema para qualquer entrada válida." },
+        { "term": "Algorithm (algoritmo)", "def": "Um conjunto de instruções passo a passo para resolver um problema ou realizar uma tarefa." }
+      ]
+    },
+    "pl": {
+      "title": "Myślenie komputacyjne: abstrakcja, dekompozycja, myślenie algorytmiczne",
+      "hook": "Spójrz na mapę londyńskiego metra. Jakich prawdziwych rzeczy na niej nie ma? (Odległości, ulic, wyglądu stacji.) Dlaczego mimo to jest przydatna? A teraz wyobraź sobie mapę ze wszystkimi szczegółami. Byłaby lepsza czy gorsza? O tym jest cała ta lekcja.",
+      "explain": [
+        { "h": "Dlaczego informatycy tak myślą",
+          "p": ["Prawdziwe problemy są duże i zagmatwane. Zanim ktoś napisze linijkę kodu, czyni problem mniejszym i jaśniejszym. Myślenie komputacyjne to nazwa trzech nawyków, które to robią. Na egzaminie musisz znać wszystkie trzy, odróżniać je i stosować do sytuacji, której wcześniej nie widziałeś."] },
+        { "h": "Abstrakcja: usuwanie szczegółów, które nie mają znaczenia",
+          "p": ["**Abstrakcja** to wybranie ważnych informacji i pominięcie reszty. Mapa metra ignoruje prawdziwe odległości i kształt tuneli, bo pasażer musi tylko wiedzieć, którą linią jechać i gdzie się przesiąść.",
+                "W programowaniu abstrakcja jest wszędzie: `Player` w grze to tylko imię, wynik i pozycja, a nie kolor oczu. Gdy pytanie brzmi „jak można użyć abstrakcji”, napisz **co zostaje**, **co usuwamy** i **dlaczego** usunięta część nie jest potrzebna."] },
+        { "h": "Dekompozycja: dzielenie problemu na części",
+          "p": ["**Dekompozycja** to podział dużego problemu na mniejsze podproblemy, które łatwiej rozwiązać. Każdą część można zaprojektować, napisać i przetestować osobno, a różne osoby mogą pracować nad różnymi częściami.",
+                "Program quizu dzieli się na: pokaż pytanie, przyjmij odpowiedź, sprawdź odpowiedź, zaktualizuj wynik, powtórz, pokaż wynik końcowy. Na egzaminie odpowiedź o dekompozycji wymienia **podproblemy**, a nie kroki wewnątrz jednego z nich."] },
+        { "h": "Myślenie algorytmiczne: ciąg kroków, który zawsze działa",
+          "p": ["**Myślenie algorytmiczne** to ustalenie jasnego zestawu kroków, który rozwiąże problem za każdym razem, dla każdych poprawnych danych. To etap przed pisaniem kodu: kroki można zapisać jako schemat blokowy lub pseudokod.",
+                "„Sprawdź odpowiedź” staje się: porównaj wpisaną odpowiedź z zapisaną; jeśli są takie same, dodaj 1 do wyniku; w przeciwnym razie pokaż poprawną odpowiedź. Zauważ, że jest tu już **decyzja**, a później pojawi się **powtarzanie**. To odróżnia algorytm od zwykłej listy."] },
+        { "h": "Jak te trzy pasują do siebie",
+          "p": ["Podziel problem na części. Zredukuj każdą część do informacji, które mają znaczenie. Napisz algorytm dla każdej części. Większość zadań egzaminacyjnych prosi o jedno z nich; najlepsze odpowiedzi pokazują, że wiesz, które stosujesz i dlaczego."] }
+      ],
+      "keyterms": [
+        { "term": "Abstraction (abstrakcja)", "def": "Usunięcie niepotrzebnych szczegółów z problemu, tak aby pozostały tylko ważne informacje." },
+        { "term": "Decomposition (dekompozycja)", "def": "Podział złożonego problemu na mniejsze podproblemy, które łatwiej rozwiązać." },
+        { "term": "Algorithmic thinking (myślenie algorytmiczne)", "def": "Ustalenie jasnego ciągu kroków (algorytmu), który rozwiązuje problem dla każdych poprawnych danych." },
+        { "term": "Algorithm (algorytm)", "def": "Zestaw instrukcji krok po kroku do rozwiązania problemu lub wykonania zadania." }
+      ]
+    },
+    "ro": {
+      "title": "Gândire computațională: abstractizare, descompunere, gândire algoritmică",
+      "hook": "Privește harta metroului din Londra. Ce lucruri reale lipsesc? (Distanțele, străzile, cum arată stațiile.) De ce este totuși utilă? Acum imaginează-ți că harta ar arăta toate detaliile. Ar fi mai bună sau mai proastă? Despre asta este toată lecția.",
+      "explain": [
+        { "h": "De ce gândesc așa informaticienii",
+          "p": ["Problemele reale sunt mari și încâlcite. Înainte ca cineva să scrie o linie de cod, face problema mai mică și mai clară. Gândirea computațională este numele a trei obiceiuri care fac acest lucru. La examen trebuie să le cunoști pe toate trei, să le deosebești și să le aplici unei situații noi."] },
+        { "h": "Abstractizare: eliminarea detaliilor care nu contează",
+          "p": ["**Abstractizarea** înseamnă a alege informația importantă și a lăsa restul deoparte. Harta metroului ignoră distanțele reale și forma tunelurilor, pentru că un călător trebuie să știe doar ce linie să ia și unde să schimbe.",
+                "În programare, abstractizarea este peste tot: un `Player` într-un joc este redus la un nume, un scor și o poziție, nu la culoarea ochilor. Când întrebarea este „cum ar putea fi folosită abstractizarea”, spune **ce se păstrează**, **ce se elimină** și **de ce** partea eliminată nu este necesară."] },
+        { "h": "Descompunere: împărțirea problemei în părți",
+          "p": ["**Descompunerea** înseamnă împărțirea unei probleme mari în subprobleme mai mici, mai ușor de rezolvat. Fiecare parte poate fi proiectată, scrisă și testată separat, iar oameni diferiți pot lucra la părți diferite.",
+                "Un program de quiz se descompune în: arată întrebarea, primește răspunsul, verifică răspunsul, actualizează scorul, repetă, arată scorul final. La examen, un răspuns despre descompunere enumeră **subproblemele**, nu pașii din interiorul uneia dintre ele."] },
+        { "h": "Gândire algoritmică: o succesiune de pași care funcționează mereu",
+          "p": ["**Gândirea algoritmică** înseamnă stabilirea unui set clar de pași care rezolvă problema de fiecare dată, pentru orice date valide. Este pasul de dinainte de a scrie cod: pașii pot fi scriși ca schemă logică sau pseudocod.",
+                "„Verifică răspunsul” devine: compară răspunsul tastat cu răspunsul memorat; dacă sunt la fel, adaugă 1 la scor; altfel, arată răspunsul corect. Observă că aici există deja o **decizie**, iar mai târziu va exista **repetiție**. Asta face din el un algoritm, nu o simplă listă."] },
+        { "h": "Cum se îmbină cele trei",
+          "p": ["Descompune problema în părți. Abstractizează fiecare parte la informația care contează. Scrie un algoritm pentru fiecare parte. Majoritatea scenariilor de examen cer unul dintre acestea; cele mai bune răspunsuri arată că știi pe care îl folosești și de ce."] }
+      ],
+      "keyterms": [
+        { "term": "Abstraction (abstractizare)", "def": "Eliminarea detaliilor inutile dintr-o problemă, astfel încât să rămână doar informația importantă." },
+        { "term": "Decomposition (descompunere)", "def": "Împărțirea unei probleme complexe în subprobleme mai mici, mai ușor de rezolvat." },
+        { "term": "Algorithmic thinking (gândire algoritmică)", "def": "Stabilirea unei succesiuni clare de pași (un algoritm) care rezolvă o problemă pentru orice date valide." },
+        { "term": "Algorithm (algoritm)", "def": "Un set de instrucțiuni pas cu pas pentru a rezolva o problemă sau a îndeplini o sarcină." }
+      ]
+    }
+  }
+}

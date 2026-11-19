@@ -1,0 +1,132 @@
+{
+  "id": "2-1-04",
+  "title": "Pseudocode: sequence, selection and iteration",
+  "spec": "2.1.2",
+  "duration": 60,
+  "specPoints": [
+    "Produce and interpret algorithms using **pseudocode** (OCR Exam Reference Language) and a high-level language",
+    "Use **sequence**, **selection** (if/elseif/else, switch) and **iteration** (for, while, do…until)",
+    "Convert between flowcharts and pseudocode"
+  ],
+  "hook": "Here is a flowchart from last lesson, and here is the same algorithm written in eight lines of text. Which would you rather type into a computer? Which would you rather read on an exam paper? Today you learn to write the text version the way OCR writes it.",
+  "video": {
+    "title": "OCR pseudocode in one go: sequence, selection, iteration",
+    "brief": "5 minutes. Three panels. 1) Sequence: three lines run top to bottom, highlight each. 2) Selection: the password flowchart from lesson 3 morphs into `if … then / else / endif`; show `elseif` for the temperature example. 3) Iteration: `for i = 1 to 10` (count-controlled, we know how many), `while answer != \"yes\"` (condition first, may run zero times), `do … until` (condition after, runs at least once). Run each with a counter visible. End with the OCR reference card: `input`, `print`, `=`, `==`, `!=`, `MOD`, `DIV`, keywords in lowercase, `endif / endwhile / next i`."
+  },
+  "explain": [
+    { "h": "Why OCR has its own pseudocode",
+      "p": ["Pseudocode is code written for humans: precise enough to follow, but not tied to one language. OCR publishes an **Exam Reference Language (ERL)** so every question uses the same conventions. In the exam you can answer in ERL **or** real Python; both score. But you must be able to **read** ERL because questions are written in it."] },
+    { "h": "Sequence",
+      "p": ["Statements run one after another, top to bottom. Assignment uses `=`; comparison uses `==`. Input and output:"],
+      "code": "name = input(\"What is your name?\")\nage = int(input(\"Age?\"))\nprint(\"Hello \" + name)\nnext_year = age + 1" },
+    { "h": "Selection",
+      "p": ["A decision chooses which lines run. Every `if` is closed by `endif`. Use `elseif` for a chain of tests and `else` for everything else:"],
+      "code": "if temp < 0 then\n    print(\"FREEZING\")\nelseif temp >= 25 then\n    print(\"HOT\")\nelse\n    print(\"MILD\")\nendif",
+      "after": ["`switch … case` does the same job when you are comparing one variable against fixed values. Comparison operators: `==  !=  <  <=  >  >=`. Boolean operators: `AND  OR  NOT`."] },
+    { "h": "Iteration: three kinds of loop",
+      "p": ["**Count-controlled** — you know how many times:"],
+      "code": "for i = 1 to 10\n    print(i)\nnext i",
+      "after": ["**Condition-controlled, condition first** — may run zero times:"] },
+    { "code": "while answer != \"yes\"\n    answer = input(\"Finished?\")\nendwhile",
+      "after": ["**Condition-controlled, condition last** — always runs at least once:"] },
+    { "code": "do\n    password = input(\"Password?\")\nuntil password == \"letmein\"",
+      "after": ["Choosing the right loop is a frequent exam mark: *do you know how many times?* → `for`. *Might it not need to run at all?* → `while`. *Must it run at least once?* → `do…until`."] },
+    { "h": "Flowchart to pseudocode",
+      "p": ["Each process box is one line. Each decision becomes `if … then … else … endif`. A decision whose No arrow goes back is a `while` (if the test is before the body) or `do…until` (if the test is after). Indent the body of every `if` and loop; OCR marks are easier to get when the structure is visible."] }
+  ],
+  "simple": [
+    { "h": "Code for humans",
+      "p": ["Pseudocode is code you write for people to read. OCR has its own version so every exam question looks the same. You can answer in it or in Python."] },
+    { "h": "Sequence = one line after another",
+      "code": "name = input(\"What is your name?\")\nprint(\"Hello \" + name)" },
+    { "h": "Selection = choose with if",
+      "p": ["`if` asks a question. `then` runs when the answer is yes. `else` runs when it is no. `endif` closes it."],
+      "code": "if temp < 0 then\n    print(\"FREEZING\")\nelse\n    print(\"OK\")\nendif" },
+    { "h": "Iteration = repeat",
+      "p": ["`for` when you know how many times. `while` when you keep going as long as something is true (checks first). `do … until` when you keep going until something is true (checks after, so it always runs once)."],
+      "code": "for i = 1 to 10\n    print(i)\nnext i\n\nwhile answer != \"yes\"\n    answer = input(\"Finished?\")\nendwhile\n\ndo\n    password = input(\"Password?\")\nuntil password == \"letmein\"" }
+  ],
+  "keyterms": [
+    { "term": "Pseudocode", "def": "A way of writing an algorithm in structured English-like code that is not tied to one programming language." },
+    { "term": "Sequence", "def": "Instructions executed one after another in order." },
+    { "term": "Selection", "def": "Choosing which instructions to run based on a condition (if, elseif, else, switch)." },
+    { "term": "Iteration", "def": "Repeating instructions: count-controlled (for) or condition-controlled (while, do…until)." },
+    { "term": "Condition", "def": "An expression that is either true or false, e.g. `age >= 18`." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Run OCR pseudocode for real", "url": "https://beanwise.coderra.je/pseudocode/",
+      "instructions": ["Type the temperature `if / elseif / else` program from above. Run it with −3, 10 and 30.", "Change `>= 25` to `> 25`. Run it with 25. What changed and why?", "Write a `for` loop that prints the 7 times table from 1 × 7 to 12 × 7."] },
+    { "type": "task", "title": "2. Choose the loop", "p": ["For each situation, say which loop fits (`for`, `while` or `do…until`) and write it in ERL:"],
+      "steps": ["Print 'Happy birthday' 5 times.", "Keep asking for a number until the user types a number between 1 and 10.", "While there are still items in a shopping list, take the next one off and print it (the list might be empty to start with)."] },
+    { "type": "task", "title": "3. Flowchart to pseudocode", "p": ["Convert the password flowchart from lesson 3 (ask, check, loop back until \"letmein\", output \"Access granted\") into pseudocode. Use the loop that fits best, and say in one sentence why you chose it."] },
+    { "type": "embed", "title": "4. Parsons puzzle: put the lines in order", "url": "https://beanwise.coderra.je/Puzzles/",
+      "instructions": ["Open a puzzle and drag the shuffled lines into a working program. Indentation matters — it shows what is inside the loop or the if."] }
+  ],
+  "check": [
+    { "q": "Which operator **compares** two values in OCR pseudocode?", "opts": ["=", "==", ":=", "equals"], "a": 1, "fb": "`=` assigns; `==` compares." },
+    { "q": "A loop that must run at least once and stops when a condition becomes true is:", "opts": ["for", "while", "do…until", "if"], "a": 2, "fb": "`do…until` tests after the body." },
+    { "q": "Which keyword closes an `if` in ERL?", "opts": ["end", "endif", "fi", "}"], "a": 1, "fb": "Every `if` has an `endif`." },
+    { "q": "You need to print each name in a list of exactly 30 names. Best loop?", "opts": ["while", "do…until", "for", "switch"], "a": 2, "fb": "Known number of repetitions → count-controlled `for`." },
+    { "q": "`while x > 10` with x starting at 5. How many times does the body run?", "opts": ["Once", "Ten times", "Zero times", "Forever"], "a": 2, "fb": "The condition is false at the start, so a `while` loop never runs." }
+  ],
+  "exam": [
+    { "q": "Write an algorithm in pseudocode that asks the user to enter a mark out of 100 and outputs \"Pass\" if the mark is 40 or more, otherwise \"Fail\".", "marks": 3,
+      "model": ["`mark = int(input(\"Enter mark\"))` (1 — input stored in a variable)", "`if mark >= 40 then` … `print(\"Pass\")` (1 — correct comparison including 40)", "`else` … `print(\"Fail\")` `endif` (1 — else branch and output)"],
+      "commentary": "The boundary (`>=` not `>`) is a deliberate mark. Students writing `mark > 39` are fine. Missing `endif` is not usually penalised on its own, but missing the `else` output is. Python is accepted; be consistent — don't mix `then` with Python colons." },
+    { "q": "The following algorithm is written in OCR pseudocode. State the output.", "marks": 2, "code": "total = 0\nfor i = 1 to 4\n    total = total + i * 2\nnext i\nprint(total)",
+      "model": ["20 (2)."],
+      "commentary": "Full marks for 20. If wrong, one mark is available for working that shows the loop runs 4 times with 2, 4, 6, 8 added. Students who stop at i = 3 (12) have misread `to 4` as 'less than 4' — in ERL `for i = 1 to 4` is inclusive." },
+    { "q": "Explain why a `while` loop rather than a `for` loop is used to repeatedly ask a user for a valid password.", "marks": 2,
+      "model": ["The number of attempts is not known in advance (1), so the loop must continue until a condition (correct password) is met rather than a fixed number of times (1)."],
+      "commentary": "Both halves needed: *unknown count* and *stops on a condition*. 'Because it's better' earns nothing." }
+  ],
+  "home": "Write three short programs in ERL: (1) a for loop that prints the even numbers from 2 to 20; (2) a do…until loop that asks for a PIN until it is 1234; (3) an if/elseif/else that converts a mark to a grade (≥70 A, ≥50 B, else C). Test them in the pseudocode runner.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 15 · try 25 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "`=` vs `==`. Drill it: 'single equals puts a value in; double equals asks a question'.",
+      "`for i = 1 to 4` treated as exclusive of 4 (Python's `range` habit). ERL is inclusive.",
+      "Choosing `for` for everything. Keep asking 'do you know how many times?'",
+      "Forgetting that `while` can run zero times and `do…until` cannot."
+    ],
+    "say": [
+      "'Read the condition out loud with the word *while* in front: while answer is not yes… keep asking.'",
+      "'Indent means inside. If it isn't indented, it isn't in the loop.'"
+    ],
+    "skip": "Try 4 (Parsons) can be set as homework. Prioritise Try 1 in the pseudocode runner — seeing ERL run is what makes it stick.",
+    "differentiation": [
+      "Support: give the three loop templates on a card; students fill in the condition and body only.",
+      "Stretch: rewrite the do…until as a while loop and explain what changed (needs a first input before the loop)."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "title": "Pseudocódigo: sequência, seleção e iteração",
+      "hook": "Aqui está um fluxograma da aula passada e aqui o mesmo algoritmo em oito linhas de texto. Qual preferias escrever no computador? Qual preferias ler num exame? Hoje aprendes a escrever a versão em texto como a OCR a escreve.",
+      "explain": [
+        { "h": "Porque é que a OCR tem o seu próprio pseudocódigo",
+          "p": ["Pseudocódigo é código escrito para pessoas: suficientemente preciso para ser seguido, mas sem estar ligado a uma linguagem. A OCR publica uma **Exam Reference Language (ERL)** para que todas as perguntas usem as mesmas convenções. No exame podes responder em ERL **ou** em Python; ambos contam. Mas tens de saber **ler** ERL, porque as perguntas são escritas nela."] },
+        { "h": "Sequência",
+          "p": ["As instruções correm uma após outra, de cima para baixo. Atribuição usa `=`; comparação usa `==`. Entrada e saída:"],
+          "code": "name = input(\"What is your name?\")\nage = int(input(\"Age?\"))\nprint(\"Hello \" + name)\nnext_year = age + 1" },
+        { "h": "Seleção",
+          "p": ["Uma decisão escolhe que linhas correm. Todo o `if` fecha com `endif`. Usa `elseif` para uma cadeia de testes e `else` para o resto:"],
+          "code": "if temp < 0 then\n    print(\"FREEZING\")\nelseif temp >= 25 then\n    print(\"HOT\")\nelse\n    print(\"MILD\")\nendif",
+          "after": ["Operadores de comparação: `==  !=  <  <=  >  >=`. Operadores lógicos: `AND  OR  NOT`."] },
+        { "h": "Iteração: três tipos de ciclo",
+          "p": ["**Controlado por contagem** — sabes quantas vezes: `for i = 1 to 10 … next i`.", "**Controlado por condição, teste primeiro** — pode correr zero vezes: `while condição … endwhile`.", "**Controlado por condição, teste no fim** — corre sempre pelo menos uma vez: `do … until condição`."],
+          "code": "for i = 1 to 10\n    print(i)\nnext i\n\nwhile answer != \"yes\"\n    answer = input(\"Finished?\")\nendwhile\n\ndo\n    password = input(\"Password?\")\nuntil password == \"letmein\"",
+          "after": ["Escolher o ciclo certo vale marcas no exame: *sabes quantas vezes?* → `for`. *Pode não precisar de correr?* → `while`. *Tem de correr pelo menos uma vez?* → `do…until`."] },
+        { "h": "Do fluxograma ao pseudocódigo",
+          "p": ["Cada caixa de processo é uma linha. Cada decisão passa a `if … then … else … endif`. Uma decisão cuja seta No volta atrás é um `while` (se o teste está antes do corpo) ou `do…until` (se está depois). Indenta o corpo de cada `if` e de cada ciclo."] }
+      ],
+      "keyterms": [
+        { "term": "Pseudocode (pseudocódigo)", "def": "Forma de escrever um algoritmo em código estruturado, parecido com inglês, sem estar ligado a uma linguagem." },
+        { "term": "Sequence (sequência)", "def": "Instruções executadas uma após outra, por ordem." },
+        { "term": "Selection (seleção)", "def": "Escolher que instruções correm com base numa condição (if, elseif, else, switch)." },
+        { "term": "Iteration (iteração)", "def": "Repetir instruções: por contagem (for) ou por condição (while, do…until)." },
+        { "term": "Condition (condição)", "def": "Uma expressão que é verdadeira ou falsa, p. ex. `age >= 18`." }
+      ]
+    }
+  }
+}

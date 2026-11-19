@@ -1,0 +1,125 @@
+{
+  "id": "2-1-03",
+  "title": "Flowcharts",
+  "spec": "2.1.2",
+  "duration": 60,
+  "specPoints": [
+    "Produce and interpret algorithms using **flowcharts**",
+    "Use the standard flowchart symbols: terminator, process, decision, input/output, sub-program, flow lines",
+    "Complete or correct a flowchart from a description"
+  ],
+  "hook": "Give someone directions from the classroom to the canteen using only 'go straight', 'turn' and 'if you see X then…'. Now draw it as boxes and arrows instead of words. Which is quicker to check for mistakes? That is why flowcharts exist.",
+  "video": {
+    "title": "Flowcharts: the five shapes and how to read one",
+    "brief": "4 minutes. Draw the five OCR shapes one at a time with their names: terminator (rounded), process (rectangle), decision (diamond, two labelled exits), input/output (parallelogram), sub-program (rectangle with double sides). Then animate a password check: Start → Input password → Is password = 'open'? → Yes: Output 'Welcome' / No: Output 'Try again' and loop back → End. Trace a correct and an incorrect attempt with a highlighted path. Finish by showing the same algorithm as pseudocode side by side (teaser for lesson 4)."
+  },
+  "explain": [
+    { "h": "What a flowchart is for",
+      "p": ["A **flowchart** shows an algorithm as shapes joined by arrows. It makes the order of steps and every decision visible, so mistakes are easy to spot before any code is written. OCR expects you to **read** a flowchart (say what it does, trace it with values), **complete** one, and **draw** one from a description."] },
+    { "h": "The symbols OCR uses",
+      "list": ["**Terminator** (rounded box): Start or End. Exactly one Start; one or more Ends.",
+               "**Process** (rectangle): something the computer does — `total = total + price`.",
+               "**Decision** (diamond): a yes/no question — `mark >= 40?` — with **two** labelled exits, Yes and No.",
+               "**Input/Output** (parallelogram): `Input name`, `Output \"Welcome\"`.",
+               "**Sub-program** (rectangle with a double edge): call another algorithm — `Calculate total`.",
+               "**Flow lines** (arrows): show the order. Every shape except End has an arrow out; a decision has two."] },
+    { "h": "Reading one: trace it",
+      "p": ["Start at Start. Follow the arrows. At each decision, work out the answer **for the current values** and take that exit. Keep a note of each variable as it changes. When you reach End, your notes are the output. This is exactly what a **trace table** (lesson 5) does on paper."] },
+    { "h": "Drawing one: loops are just arrows that go back",
+      "p": ["There is no special loop symbol. A loop is a decision whose No (or Yes) arrow goes **back** to an earlier shape. 'Keep asking until the password is right' is a decision `password = \"open\"?` with No looping back to the Input.",
+            "Common marking points: Start and End present; decision has a question and two labelled exits; arrows show direction; input and output use the parallelogram; the logic actually matches the description."] }
+  ],
+  "simple": [
+    { "h": "What a flowchart is",
+      "p": ["A flowchart is a drawing of the steps in a program. Shapes are the steps. Arrows show the order. It is easy to follow with your finger."] },
+    { "h": "The shapes",
+      "list": ["Rounded box = **Start** or **End**.", "Rectangle = **do something** (`total = total + price`).", "Diamond = **a yes/no question** (`mark >= 40?`). Two arrows out: Yes and No.", "Slanted box = **input or output** (`Input name`, `Output \"Welcome\"`).", "Rectangle with double sides = **use another algorithm**.", "Arrows = **go this way**."] },
+    { "h": "How to read one",
+      "p": ["Start at Start. Follow the arrows with your finger. At a diamond, answer the question with the numbers you have and take that arrow. Write down what each variable is. Stop at End."] },
+    { "h": "Loops",
+      "p": ["There is no loop shape. A loop is just an arrow that goes **back up**. 'Keep asking until the password is right' is a diamond whose No arrow points back to the Input box."] }
+  ],
+  "keyterms": [
+    { "term": "Flowchart", "def": "A diagram of an algorithm using standard shapes joined by arrows." },
+    { "term": "Decision", "def": "A diamond shape holding a yes/no question with two exits." },
+    { "term": "Terminator", "def": "The Start or End shape." },
+    { "term": "Sub-program", "def": "A separate algorithm called from a flowchart, shown as a rectangle with double sides." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Read it", "p": ["Trace this flowchart, written out in words, with the inputs 7 then 3 then 0:"],
+      "code": "Start\nInput n\nIs n = 0?  -- Yes --> Output total, End\n           -- No  --> total = total + n, go back to Input n",
+      "steps": ["What is the output? (Assume total starts at 0.)", "What does the algorithm do, in one sentence?", "What would happen if the user never types 0?"] },
+    { "type": "task", "title": "2. Complete it", "p": ["A flowchart checks whether a number is even. It has Start → Input num → [decision] → Output \"Even\" / Output \"Odd\" → End. Write the question that goes in the decision diamond, and label which exit leads to each output."],
+      "after": ["Hint: `num MOD 2 = 0?`"] },
+    { "type": "task", "title": "3. Draw it", "p": ["Draw a flowchart for: 'Ask for a temperature. If it is below 0, output FREEZING. If it is 25 or above, output HOT. Otherwise output MILD. Then ask again, forever.'"],
+      "steps": ["Use the correct shape for each step.", "Two decisions, three outputs, one loop.", "Check every arrow has a direction and every decision has Yes and No."] },
+    { "type": "embed", "title": "4. Build and run a flowchart", "url": "https://beanwise.coderra.je/flowCharts/",
+      "instructions": ["Rebuild your temperature flowchart in the tool.", "Run it with −5, 10 and 30. If an output is wrong, fix the decision, not the output."] }
+  ],
+  "check": [
+    { "q": "Which shape holds a yes/no question?", "opts": ["Rectangle", "Parallelogram", "Diamond", "Rounded box"], "a": 2, "fb": "The decision diamond always has two labelled exits." },
+    { "q": "`Output \"Goodbye\"` belongs in a:", "opts": ["Process rectangle", "Input/output parallelogram", "Decision diamond", "Terminator"], "a": 1, "fb": "Input and output share the parallelogram." },
+    { "q": "How is a loop shown in a flowchart?", "opts": ["A circle", "A special loop symbol", "An arrow from a decision back to an earlier shape", "Two Start boxes"], "a": 2, "fb": "There is no loop symbol; the arrow going back is the loop." },
+    { "q": "A flowchart has a decision with only one arrow leaving it. This is:", "opts": ["Fine", "An error — a decision needs two labelled exits", "Only allowed at the end", "A sub-program"], "a": 1, "fb": "Yes and No must both lead somewhere." },
+    { "q": "`total = total + price` goes in a:", "opts": ["Process rectangle", "Decision", "Terminator", "Parallelogram"], "a": 0, "fb": "A calculation or assignment is a process." }
+  ],
+  "exam": [
+    { "q": "A flowchart (described here) reads a number `x`, then: if `x > 100` it outputs \"Large\", otherwise it outputs \"Small\". Then it ends. State the output when the input is (a) 100 (b) 250.", "marks": 2,
+      "model": ["(a) Small (1) — 100 is not greater than 100. (b) Large (1)."],
+      "commentary": "Boundary values are deliberate. Students lose (a) by treating `>` as `>=`. Read the comparison symbol aloud: 'strictly greater than'." },
+    { "q": "Draw a flowchart for an algorithm that asks the user for a password and repeats the request until the password entered is \"letmein\", then outputs \"Access granted\".", "marks": 4,
+      "model": ["Start and End terminators (1). Input password in a parallelogram (1). Decision `password = \"letmein\"?` with Yes and No labelled (1). No exit loops back to the input; Yes exit leads to Output \"Access granted\" then End (1)."],
+      "commentary": "The common error is a decision with the loop drawn from the wrong exit, or a loop back to Start (which would also re-run anything before the input). The loop should return to the **Input** shape. Shapes must be the right type: an output in a rectangle usually costs a mark." },
+    { "q": "Explain **one** advantage of designing an algorithm as a flowchart before writing the program.", "marks": 2,
+      "model": ["The logic / order of steps is visual and easy to follow (1), so errors in the logic can be found and fixed before any code is written (1)."],
+      "commentary": "Two marks needs a point and a consequence. 'It is easier' alone is one mark at most. Link it to finding errors or to communicating the design to others." }
+  ],
+  "home": "Draw a flowchart for making a hot drink that asks whether the person wants milk and whether they want sugar, and loops back if they say they want another drink. Use the five correct shapes.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 12 · try 25 (Try 4 optional) · check 5 · exam 10 · homework 3",
+    "misconceptions": [
+      "Writing a loop as a special shape or a circle. There isn't one; loops are arrows going back.",
+      "Decisions with one exit, or exits not labelled Yes/No.",
+      "Outputs in rectangles. Keep repeating: parallelogram for input **and** output.",
+      "`>` read as `>=` at boundaries. Trace with the boundary value every time."
+    ],
+    "say": [
+      "'Put your finger on Start. Don't lift it until End.'",
+      "'Every diamond is a question. Every question has two answers. Show me both arrows.'",
+      "'Where does the No arrow go back to? To the Input, not to Start.'"
+    ],
+    "skip": "Try 4 (the flowchart tool) can be homework if time is short; Try 1–3 are the exam skills.",
+    "differentiation": [
+      "Support: provide the temperature flowchart with the shapes drawn but empty, to fill in.",
+      "Stretch: convert the temperature flowchart to pseudocode (preview of lesson 4) and spot that nested IF/ELSEIF matches two decisions."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "title": "Fluxogramas",
+      "hook": "Dá indicações da sala até à cantina usando só «segue em frente», «vira» e «se vires X, então…». Agora desenha-as com caixas e setas em vez de palavras. Qual é mais rápido para encontrar erros? É por isso que existem fluxogramas.",
+      "explain": [
+        { "h": "Para que serve um fluxograma",
+          "p": ["Um **fluxograma** mostra um algoritmo como formas ligadas por setas. Torna visível a ordem dos passos e cada decisão, por isso os erros encontram-se antes de escrever código. A OCR espera que saibas **ler** um fluxograma (dizer o que faz, segui-lo com valores), **completar** um e **desenhar** um a partir de uma descrição."] },
+        { "h": "Os símbolos que a OCR usa",
+          "list": ["**Terminator** (caixa arredondada): Start ou End. Exatamente um Start; um ou mais End.",
+                   "**Process** (retângulo): algo que o computador faz — `total = total + price`.",
+                   "**Decision** (losango): uma pergunta sim/não — `mark >= 40?` — com **duas** saídas identificadas, Yes e No.",
+                   "**Input/Output** (paralelogramo): `Input name`, `Output \"Welcome\"`.",
+                   "**Sub-program** (retângulo com lados duplos): chamar outro algoritmo — `Calculate total`.",
+                   "**Flow lines** (setas): mostram a ordem. Toda a forma exceto End tem uma seta a sair; uma decisão tem duas."] },
+        { "h": "Ler um fluxograma: segue-o",
+          "p": ["Começa em Start. Segue as setas. Em cada decisão, responde à pergunta **com os valores atuais** e segue por essa saída. Anota cada variável à medida que muda. Quando chegares a End, as tuas notas são a saída. É exatamente isto que uma **trace table** (aula 5) faz no papel."] },
+        { "h": "Desenhar um: os ciclos são só setas que voltam atrás",
+          "p": ["Não há símbolo especial para ciclo. Um ciclo é uma decisão cuja seta No (ou Yes) **volta** a uma forma anterior. «Continuar a perguntar até a palavra-passe estar certa» é uma decisão `password = \"open\"?` com o No a voltar ao Input.",
+                "Pontos de correção habituais: Start e End presentes; a decisão tem uma pergunta e duas saídas identificadas; as setas mostram a direção; input e output usam o paralelogramo; a lógica corresponde à descrição."] }
+      ],
+      "keyterms": [
+        { "term": "Flowchart (fluxograma)", "def": "Um diagrama de um algoritmo com formas normalizadas ligadas por setas." },
+        { "term": "Decision (decisão)", "def": "Um losango com uma pergunta sim/não e duas saídas." },
+        { "term": "Terminator (terminador)", "def": "A forma de Start ou End." },
+        { "term": "Sub-program (subprograma)", "def": "Um algoritmo separado chamado a partir do fluxograma, desenhado como retângulo de lados duplos." }
+      ]
+    }
+  }
+}

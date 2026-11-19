@@ -1,0 +1,117 @@
+{
+  "id": "2-1-05",
+  "title": "Trace tables",
+  "spec": "2.1.2",
+  "duration": 60,
+  "specPoints": [
+    "Interpret, correct or complete algorithms using **trace tables**",
+    "Determine the purpose of a simple algorithm by tracing it",
+    "Identify what a variable holds at each step"
+  ],
+  "hook": "Here are six lines of code. Without running them, what does `x` equal at the end? Nobody is sure? That is normal — human brains are bad at holding several changing numbers at once. A trace table is a piece of paper that does the remembering for you, and it is worth up to 6 marks on Paper 2.",
+  "video": {
+    "title": "Trace tables: how to be a computer on paper",
+    "brief": "4 minutes. Show a 5-line loop that sums 1..4. Draw the table: one column per variable (i, total) plus an output column. Fill it row by row, one row per time a variable changes, highlighting the line being run. Pause at the loop condition each time. End with the two rules: a new row every time something changes; never work ahead in your head. Then show a second table with a deliberate bug (the loop stopping one early) and spot it from the table."
+  },
+  "explain": [
+    { "h": "What a trace table is",
+      "p": ["A **trace table** records the value of every variable each time the algorithm changes one. One column per variable, plus a column for any output and (optionally) one for the line number. You fill it in exactly as the computer would run the code — no shortcuts, no guessing."] },
+    { "h": "How to fill one in",
+      "list": ["Write a column for each variable you can see, and one for **Output**.",
+               "Start at the first line. Whenever a variable gets a value, write it in a **new row** under its column. Leave other cells blank (or copy down, if your teacher prefers).",
+               "At a loop or `if`, work out the condition **using the values in your table**, not in your head.",
+               "Keep going until the program ends. The last value in each column is the final state."],
+      "code": "total = 0\nfor i = 1 to 3\n    total = total + i\nnext i\nprint(total)\n\n  i | total | Output\n----+-------+-------\n    |   0   |\n  1 |   1   |\n  2 |   3   |\n  3 |   6   |\n    |       |   6" },
+    { "h": "What exam questions do with trace tables",
+      "p": ["Three kinds: **complete** a partly filled table (the most common); **state the output** or **the final value** of a variable; and **state the purpose** of the algorithm. For purpose questions, look at what the output is in terms of the inputs: 'it outputs the largest of the numbers entered', 'it counts how many are over 50'. Describe the *job*, not the lines."] },
+    { "h": "Where marks are lost",
+      "p": ["Working ahead and writing what you *think* it does; getting the loop boundary wrong (`for i = 1 to 3` runs with 1, 2 **and** 3); forgetting that `while` checks before the body; and missing the last row where the output happens. Slow is accurate."] }
+  ],
+  "simple": [
+    { "h": "A table that remembers for you",
+      "p": ["A trace table is a table with one column for each variable and one for Output. You pretend to be the computer and write down every value as it changes."] },
+    { "h": "How to do it",
+      "list": ["One column per variable. One column for Output.", "Run the code line by line. When a variable changes, write the new value in a new row.", "At a loop or if, use the numbers **in the table** to decide.", "Stop at the end."],
+      "code": "total = 0\nfor i = 1 to 3\n    total = total + i\nnext i\nprint(total)\n\n  i | total | Output\n----+-------+-------\n    |   0   |\n  1 |   1   |\n  2 |   3   |\n  3 |   6   |\n    |       |   6" },
+    { "h": "In the exam",
+      "p": ["You might finish a table, say what the output is, or say what the algorithm is *for*. For 'what is it for', say the job: 'it adds up the numbers', 'it finds the biggest'."] }
+  ],
+  "keyterms": [
+    { "term": "Trace table", "def": "A table used to record the value of each variable, step by step, as an algorithm runs." },
+    { "term": "Variable", "def": "A named location in memory whose value can change while the program runs." },
+    { "term": "Purpose (of an algorithm)", "def": "What the algorithm achieves overall, described in terms of its inputs and outputs." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Complete the table", "code": "x = 10\ny = 3\nwhile x > y\n    x = x - y\n    y = y + 1\nendwhile\nprint(x)",
+      "steps": ["Draw columns for x, y, `x > y`, Output.", "Fill it in. How many times does the loop body run?", "What is printed?"] },
+    { "type": "task", "title": "2. State the purpose", "code": "nums = [4, 9, 2, 7]\nbig = nums[0]\nfor i = 1 to 3\n    if nums[i] > big then\n        big = nums[i]\n    endif\nnext i\nprint(big)",
+      "steps": ["Trace it (columns: i, nums[i], big, Output).", "Write one sentence: 'This algorithm …'. Do not mention variable names in the sentence."] },
+    { "type": "task", "title": "3. Find the bug with a trace", "code": "count = 0\nfor i = 1 to 5\n    if i MOD 2 == 0 then\n        count = count + 1\n    endif\nnext i\nprint(\"There are \" + count + \" odd numbers\")",
+      "steps": ["Trace it. What does it actually count?", "Fix the single character that is wrong, **or** fix the output message. Which fix is better and why?"] },
+    { "type": "embed", "title": "4. Check yourself in the pseudocode runner", "url": "https://beanwise.coderra.je/pseudocode/",
+      "instructions": ["Type Try 1 into the runner and add a `print(x, y)` inside the loop. Compare each printed pair with a row of your table."] }
+  ],
+  "check": [
+    { "q": "In a trace table, when do you write a new row?", "opts": ["Once per line of code", "Every time a variable changes value", "Only at the end", "Once per loop"], "a": 1, "fb": "A row per change keeps the table honest." },
+    { "q": "`for i = 1 to 3` — how many rows will the i column have?", "opts": ["2", "3", "4", "1"], "a": 1, "fb": "1, 2 and 3: the `to` value is included." },
+    { "q": "A trace of an algorithm shows it outputs the smallest input. The best statement of its purpose is:", "opts": ["It uses a for loop and an if", "It compares nums[i] with small", "It finds the minimum of a list of numbers", "It prints a number"], "a": 2, "fb": "Purpose is the job, in plain terms, without variable names." },
+    { "q": "In a `while` loop, where do you check the condition in your trace?", "opts": ["After the body each time", "Before the body each time", "Only once", "Never"], "a": 1, "fb": "`while` tests first, so it can run zero times." },
+    { "q": "Why should you not fill a trace table 'in your head'?", "opts": ["It is against the rules", "You lose the method marks and make boundary errors", "It is slower", "The examiner cannot read it"], "a": 1, "fb": "Written working earns marks even if the final value slips." }
+  ],
+  "exam": [
+    { "q": "Complete the trace table for the algorithm below when the input is 23.", "marks": 4, "code": "n = int(input())\ncount = 0\nwhile n > 0\n    n = n DIV 10\n    count = count + 1\nendwhile\nprint(count)",
+      "model": ["Rows: n 23, count 0 → n 2, count 1 → n 0, count 2 → loop stops; Output 2.", "Marks: initial row (1), first iteration n=2 count=1 (1), second iteration n=0 count=2 (1), output 2 and no further rows (1)."],
+      "commentary": "The trap is `DIV`: integer division, so 23 DIV 10 = 2, not 2.3. Students who write 2.3 then usually loop too many times. The second trap is an extra row after n becomes 0 — the condition is checked first and fails, so nothing else changes." },
+    { "q": "State the purpose of the algorithm in the question above.", "marks": 1,
+      "model": ["It counts the number of digits in the number entered (1)."],
+      "commentary": "'It divides by 10' describes a line, not the purpose. Marks need the overall job. If a student cannot see it, suggest trying a second input (e.g. 7 → 1, 450 → 3) and looking for the pattern." },
+    { "q": "An algorithm is meant to output the average of five numbers entered. A trace shows it outputs the total instead. Explain what is missing.", "marks": 2,
+      "model": ["The total is never divided by the number of values (1) — a line such as `average = total / 5` (or `/ count`) is needed before the output (1)."],
+      "commentary": "Identify the error **and** give the fix. One without the other is one mark." }
+  ],
+  "home": "Write a 6-line algorithm of your own that uses a loop and one variable that changes. Swap with a partner (or hand it in). Trace each other's algorithm and state its purpose in one sentence.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 12 · try 25 · check 5 · exam 10 · homework 3",
+    "misconceptions": [
+      "Working ahead mentally and writing the expected answer. Insist on the row-per-change rule.",
+      "`DIV` and `MOD` misread as ordinary division. Spend a minute on them before the exam task.",
+      "Inclusive `to` in `for` loops (again). Count the rows out loud.",
+      "Writing a purpose as a description of the code ('it loops and adds') rather than the job."
+    ],
+    "say": [
+      "'You are the computer. The computer doesn't know what the program is for. It just does the next line.'",
+      "'Point at the line you're on. Now point at the row you're writing. They should move together.'",
+      "'Purpose = what would you call this function if you had to name it?'"
+    ],
+    "skip": "Try 4 can go; the runner check is a confidence boost rather than a new skill.",
+    "differentiation": [
+      "Support: give the trace table with the first two rows completed and the number of remaining rows indicated.",
+      "Stretch: write a trace for a nested loop (2 × 3) and predict the number of rows before starting."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "title": "Tabelas de rastreio (trace tables)",
+      "hook": "Aqui estão seis linhas de código. Sem as executar, quanto vale `x` no fim? Ninguém tem a certeza? É normal — o cérebro humano é mau a guardar vários números que mudam ao mesmo tempo. Uma trace table é uma folha de papel que se lembra por ti, e vale até 6 marcas no Paper 2.",
+      "explain": [
+        { "h": "O que é uma trace table",
+          "p": ["Uma **trace table** regista o valor de cada variável sempre que o algoritmo a altera. Uma coluna por variável, mais uma coluna para a saída (Output) e, opcionalmente, uma para o número da linha. Preenche-se exatamente como o computador executaria o código — sem atalhos, sem adivinhar."] },
+        { "h": "Como preencher",
+          "list": ["Escreve uma coluna para cada variável e uma para **Output**.",
+                   "Começa na primeira linha. Sempre que uma variável recebe um valor, escreve-o numa **nova linha** da tabela.",
+                   "Num ciclo ou `if`, calcula a condição **com os valores da tabela**, não de cabeça.",
+                   "Continua até o programa terminar. O último valor de cada coluna é o estado final."],
+          "code": "total = 0\nfor i = 1 to 3\n    total = total + i\nnext i\nprint(total)\n\n  i | total | Output\n----+-------+-------\n    |   0   |\n  1 |   1   |\n  2 |   3   |\n  3 |   6   |\n    |       |   6" },
+        { "h": "O que o exame pede",
+          "p": ["Três tipos: **completar** uma tabela parcialmente preenchida (o mais comum); **indicar a saída** ou **o valor final** de uma variável; e **indicar a finalidade** do algoritmo. Para a finalidade, olha para a saída em função das entradas: «dá o maior dos números introduzidos», «conta quantos estão acima de 50». Descreve o *trabalho*, não as linhas."] },
+        { "h": "Onde se perdem marcas",
+          "p": ["Avançar de cabeça e escrever o que *achas* que faz; errar o limite do ciclo (`for i = 1 to 3` corre com 1, 2 **e** 3); esquecer que o `while` testa antes do corpo; e falhar a última linha, onde acontece a saída. Devagar é certo."] }
+      ],
+      "keyterms": [
+        { "term": "Trace table (tabela de rastreio)", "def": "Tabela usada para registar o valor de cada variável, passo a passo, enquanto o algoritmo corre." },
+        { "term": "Variable (variável)", "def": "Um local com nome na memória cujo valor pode mudar durante a execução." },
+        { "term": "Purpose (finalidade)", "def": "O que o algoritmo faz no seu todo, descrito em termos de entradas e saídas." }
+      ]
+    }
+  }
+}

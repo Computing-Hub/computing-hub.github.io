@@ -1,0 +1,72 @@
+{
+  "id": "2-1-test",
+  "title": "Unit 2.1 Algorithms — end-of-unit test",
+  "spec": "2.1.1 – 2.1.3",
+  "duration": 45,
+  "specPoints": [
+    "Covers the whole of 2.1: computational thinking, designing algorithms (flowcharts, pseudocode, trace tables, errors), searching and sorting",
+    "30 marks · 45 minutes · no notes · pseudocode or Python accepted",
+    "Teachers: switch on Teacher view for the mark scheme and marking notes"
+  ],
+  "hook": "Read every question twice. Underline the command word (state, describe, explain, show the steps). Marks in brackets tell you how many separate points to make. Show your working for every trace and every search or sort — the steps are where most of the marks are.",
+  "explain": [
+    { "h": "How to use this test",
+      "p": ["Answer in the boxes below; your answers stay in this browser so you can come back to them. When you have finished, open each 'Model answer' to mark yourself, or hand your answers to your teacher. The quick-check questions at the end are worth 1 mark each and count towards the 30."] }
+  ],
+  "exam": [
+    { "q": "A gym wants a program that records members' visits and sends a reminder to anyone who has not visited for a month. (a) Describe how **decomposition** could be used in designing this program. (b) Give **one** example of **abstraction** in this program.", "marks": 4,
+      "model": ["(a) Break the problem into sub-problems (1), e.g. record a visit / check last visit dates / send reminder (1). (b) Only store the data needed, e.g. member ID and date of last visit, not their height or favourite machine (1), because that detail is not needed for reminders (1)."],
+      "commentary": "Section 2.1.1. Watch for generic answers; the examples must come from the gym scenario." },
+    { "q": "Draw a **structure diagram** for the gym program in question 1.", "marks": 3,
+      "model": ["Top box names the program (1). Second row shows sensible sub-problems — e.g. Record visit · Check dates · Send reminders (1). At least one broken down further, no decisions or arrows (1)."],
+      "commentary": "Students may describe the diagram in words in the box since they cannot draw here; accept a text tree with indentation." },
+    { "q": "Complete the trace table for the algorithm below. The input is 6.", "marks": 4, "code": "n = int(input())\nresult = 1\nwhile n > 1\n    result = result * n\n    n = n - 2\nendwhile\nprint(result)",
+      "model": ["n: 6, 4, 2, 0 · result: 1, 6, 24, 48 · Output: 48. Marks: initial values (1), first loop result 6 n 4 (1), second loop result 24 n 2 (1), third loop result 48 n 0 then stop, output 48 (1)."],
+      "commentary": "Boundary: loop runs while n > 1, so n = 2 still runs, n = 0 stops. Common error is stopping at n = 2 (output 24)." },
+    { "q": "The algorithm in question 3 is meant to multiply together all the even numbers from the input down to 2. Does it work for an input of 7? Explain your answer.", "marks": 2,
+      "model": ["No (1) — with 7 it multiplies 7 × 5 × 3 (odd numbers) because it starts at the input and subtracts 2 regardless of whether the input is even (1)."],
+      "commentary": "A 'state and explain' question. The explanation needs the mechanism, not just 'it gives the wrong answer'." },
+    { "q": "Write an algorithm in pseudocode that asks the user to enter numbers until they enter 0, then outputs how many numbers were entered (not counting the 0) and their total.", "marks": 5,
+      "model": ["Initialise count and total to 0 (1). Loop that continues while / until the input is 0 — a do…until or while with a first input (1). Inside: add to total (1) and add 1 to count (1), with the 0 excluded from both. Output count and total after the loop (1)."],
+      "commentary": "Marks are for structure, not syntax polish. Accept Python. The 0 being counted or added is the usual lost mark — a do…until that adds before testing will include it; a while with a priming read handles it cleanly." },
+    { "q": "Show the steps of a **linear search** for the value 14 in `[21, 8, 14, 3, 30]`.", "marks": 2,
+      "model": ["Compare 14 with 21 — no; with 8 — no (1); with 14 — found at position 2 (1)."],
+      "commentary": "Each comparison written out." },
+    { "q": "Show the steps of a **binary search** for the value 44 in the sorted list `[3, 11, 19, 27, 36, 44, 58, 63, 70]`.", "marks": 3,
+      "model": ["Middle (0+8) DIV 2 = 4 → 36; 44 > 36, discard left half (1). Middle of positions 5–8: (5+8) DIV 2 = 6 → 58; 44 < 58, discard right (1). Middle of 5–5 → 44, found at position 5 (1)."],
+      "commentary": "State the middle each time. Consistent rounding convention required." },
+    { "q": "Show the stages of a **bubble sort** on `[4, 9, 1, 6]` into ascending order.", "marks": 3,
+      "model": ["Pass 1: 4, 1, 6, 9 (1). Pass 2: 1, 4, 6, 9 (1). Pass 3: no swaps — sorted (1)."],
+      "commentary": "List after each pass; final 'no swaps' pass stated." },
+    { "q": "Show the stages of a **merge sort** on `[8, 2, 5, 1]`.", "marks": 3,
+      "model": ["Split: `[8, 2]` `[5, 1]` → `[8]` `[2]` `[5]` `[1]` (1). Merge: `[2, 8]` `[1, 5]` (1). Merge: `[1, 2, 5, 8]` (1)."],
+      "commentary": "Splits in original order; sorting only in merges." },
+    { "q": "A sorted list of 50,000 postcodes needs to be searched many times. Explain which search algorithm should be used and why.", "marks": 3,
+      "model": ["Binary search (1) because the list is already sorted so the precondition is met (1) and it needs at most about 16 comparisons instead of up to 50,000, which matters when searching many times (1)."],
+      "commentary": "Name, precondition, scale." },
+    { "q": "Compare **insertion sort** and **merge sort** for sorting a short list of 10 items that is already nearly in order.", "marks": 3,
+      "model": ["Insertion sort is suitable because it is simple and very fast on nearly-sorted data — few shifts are needed (1). Merge sort would still do all its splits and merges regardless of order (1), and uses extra memory, so for 10 items it brings no benefit (1)."],
+      "commentary": "The question is built to favour insertion; students who reflexively choose merge sort because it is 'faster' miss the scenario." }
+  ],
+  "check": [
+    { "q": "(1 mark) Which principle removes unnecessary detail?", "opts": ["Decomposition", "Abstraction", "Iteration", "Validation"], "a": 1 },
+    { "q": "(1 mark) In a flowchart, a diamond represents:", "opts": ["A process", "Input/output", "A decision", "Start/End"], "a": 2 },
+    { "q": "(1 mark) `for i = 1 to 5` runs the body how many times?", "opts": ["4", "5", "6", "Until a condition is false"], "a": 1 },
+    { "q": "(1 mark) A program runs but gives the wrong answer. This is a:", "opts": ["Syntax error", "Logic error", "Compile error", "Precondition"], "a": 1 },
+    { "q": "(1 mark) Which sort needs extra memory for merged lists?", "opts": ["Bubble", "Insertion", "Merge", "None of them"], "a": 2 }
+  ],
+  "teacher": {
+    "timing": "45 minutes; 30 marks (25 written + 5 quick-check). Suggested grade boundaries for feedback only: 24+ secure, 17–23 developing, below 17 revisit lessons 5 and 7–10.",
+    "misconceptions": [
+      "Pattern-match the lost marks: if traces are weak, reteach lesson 5 before moving to 2.2; if search/sort steps are missing, students know the idea but not the exam form — do a 10-minute 'write every step' drill."
+    ],
+    "say": [
+      "'The marks are in the steps. Show me the steps.'"
+    ],
+    "skip": "If time is short, drop questions 2 and 11 (6 marks) and scale to 24.",
+    "differentiation": [
+      "Support: allow the key-terms list from lesson 1–10 on the desk for the first attempt.",
+      "Stretch: ask for question 5 to be refined with input validation (reject non-numbers) for 2 bonus marks."
+    ]
+  }
+}

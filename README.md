@@ -51,3 +51,19 @@ on `members.coderra.je` (login, members library, course builder). `Computing-Hub
 
 Copy a card in `resources.html`, set `href` to `<repo-name>/` and edit the text.
 Optionally add it to the featured grid on `index.html`.
+
+## `ocr-gcse-cs/` — OCR GCSE Computer Science course
+
+A ready-to-teach J277 course that lives directly in this repo (static, no build step).
+
+| File | Purpose |
+|------|---------|
+| `ocr-gcse-cs/index.html` | Course map: 13 units, ~90 lesson slots; `ready` lessons link, the rest show as planned |
+| `ocr-gcse-cs/lesson.html?l=<id>` | Renders one lesson from `content/<id>.json` |
+| `ocr-gcse-cs/course.json` | Units, lesson titles, spec refs and the `ready` list |
+| `ocr-gcse-cs/content/*.json` | One file per lesson: spec points, hook, explain (+ `simple` low-reading-age version), key terms, try (tasks + embeds of Computing-Hub tools), check quiz, exam questions with model answers and examiner commentary, homework, teacher notes, `i18n` translations (pt/pl/ro) |
+| `ocr-gcse-cs/assets/` | `course.css`, `course.js` (settings panel, i18n, quiz, read-aloud, chunk mode, print) |
+
+Settings travel in the URL: `?lang=pt&easy=1&font=1&motion=1&chunks=1&audio=1&contrast=1&teacher=1`.
+To add a lesson: create `content/<id>.json` (copy `2-1-07.json` as a template) and add the id to `ready` in `course.json`.
+Video placeholders: set `video.url` in the lesson JSON when the explainer is recorded; until then the brief shows in teacher view.

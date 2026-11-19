@@ -1,0 +1,125 @@
+{
+  "id": "2-1-08",
+  "title": "Binary search",
+  "spec": "2.1.3",
+  "duration": 60,
+  "specPoints": [
+    "Understand and **apply** the standard **binary search** algorithm",
+    "Show the steps of the search on a given **sorted** list, including the middle item at each step",
+    "Compare binary search with linear search: precondition, speed"
+  ],
+  "hook": "I'm thinking of a number between 1 and 1000. You can only ask 'is it higher or lower than X?'. How many questions do you need to be certain? (Ten.) Not 500 — ten. That halving trick is binary search, and it is why your phone finds a contact instantly.",
+  "video": {
+    "title": "Binary search: halve the list every time",
+    "brief": "4 minutes. Sorted row of 15 numbers. Show low and high pointers at the ends, middle calculated as (low + high) DIV 2 with the formula visible. Compare middle with target; shade out the half that is discarded; move the pointer; recalculate. Three steps to find the target. Then the 'not found' case: low passes high. Then side-by-side counters: 1,000 items — linear up to 1,000 comparisons, binary at most 10. Close on the one precondition in big letters: THE LIST MUST BE SORTED."
+  },
+  "explain": [
+    { "h": "The idea",
+      "p": ["A **binary search** only works on a **sorted** list. Look at the **middle** item. If it is the target, done. If the target is **smaller**, throw away the right half; if **larger**, throw away the left half. Repeat on what is left. Each step halves the list, so even a huge list is searched in a handful of steps."] },
+    { "h": "The algorithm",
+      "code": "// list must be sorted; target is the value to find\nlow = 0\nhigh = list.length - 1\nfound = false\nwhile low <= high AND found == false\n    mid = (low + high) DIV 2\n    if list[mid] == target then\n        found = true\n        print(\"Found at position \" + mid)\n    elseif list[mid] < target then\n        low = mid + 1      // target is in the right half\n    else\n        high = mid - 1     // target is in the left half\n    endif\nendwhile\nif found == false then\n    print(\"Not found\")\nendif",
+      "after": ["`DIV` is integer division, so with an even number of items the middle rounds **down**. OCR accepts either convention as long as you state it and are consistent."] },
+    { "h": "Showing the steps (the exam skill)",
+      "p": ["Write each step as: *the current list (or low/high), the middle item, the comparison, which half is kept.* Example, find 31 in `[3, 9, 14, 27, 31, 42, 56]`:",
+            "1. Middle item is 27 (position 3). 31 > 27, so discard the left half. Remaining: `[31, 42, 56]`.",
+            "2. Middle item is 42. 31 < 42, so discard the right half. Remaining: `[31]`.",
+            "3. Middle item is 31. Match — found at position 4."] },
+    { "h": "Binary vs linear",
+      "list": ["Binary search needs a **sorted** list; linear does not. Sorting first costs time, so for a one-off search of unsorted data, linear can be better.",
+               "Binary is **much faster** on large lists: 1,000 items → at most 10 comparisons (2¹⁰ = 1024); 1,000,000 items → at most 20. Linear could need 1,000,000.",
+               "Binary is harder to write correctly (off-by-one errors in `low`/`high`).",
+               "For tiny lists the difference is irrelevant."] }
+  ],
+  "simple": [
+    { "h": "Cut the list in half every time",
+      "p": ["The list must be **in order**. Look at the middle item. Is it what you want? Done. Is your number smaller? Throw away the right half. Bigger? Throw away the left half. Do it again with what is left."],
+      "code": "low = 0\nhigh = list.length - 1\nfound = false\nwhile low <= high AND found == false\n    mid = (low + high) DIV 2\n    if list[mid] == target then\n        found = true\n    elseif list[mid] < target then\n        low = mid + 1\n    else\n        high = mid - 1\n    endif\nendwhile" },
+    { "h": "In the exam, write each step",
+      "p": ["Find 31 in `[3, 9, 14, 27, 31, 42, 56]`:", "1. Middle is 27. 31 is bigger. Keep the right half: `[31, 42, 56]`.", "2. Middle is 42. 31 is smaller. Keep the left half: `[31]`.", "3. Middle is 31. Found."] },
+    { "h": "Why it beats linear search",
+      "list": ["1,000 items: linear might need 1,000 looks. Binary needs at most 10.", "But the list **must be sorted** first. Linear works on anything."] }
+  ],
+  "keyterms": [
+    { "term": "Binary search", "def": "A search on a sorted list that repeatedly compares the target with the middle item and discards the half that cannot contain it." },
+    { "term": "Sorted", "def": "In order (ascending or descending). A precondition for binary search." },
+    { "term": "Middle item (mid)", "def": "The item at position (low + high) DIV 2 in the current section of the list." },
+    { "term": "Precondition", "def": "Something that must be true before an algorithm will work." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Watch it halve", "url": "https://beanwise.coderra.je/cs_animations/search.html",
+      "instructions": ["Select binary search. Set the list size as large as the tool allows. Search for several values and record the number of comparisons. It should never be more than about log₂(size).", "Now run linear search on the same list for a value near the end. Compare."] },
+    { "type": "task", "title": "2. Show the steps", "p": ["Sorted list: `[2, 7, 11, 18, 23, 29, 34, 40, 47]`. Show the steps of a binary search for (a) 29, (b) 10."],
+      "steps": ["At each step write: middle item, comparison, which half is kept.", "For (b), show the step where low passes high and state 'not found'.", "How many comparisons did each take? How many would linear search have taken?"] },
+    { "type": "task", "title": "3. Why sorted?", "p": ["Try a binary search for 7 on the **unsorted** list `[11, 2, 40, 7, 23]`. Show the steps and explain exactly where and why it goes wrong."] },
+    { "type": "embed", "title": "4. Code it", "url": "https://beanwise.coderra.je/pseudocode/",
+      "instructions": ["Type the binary search algorithm above and test it on `[2, 7, 11, 18, 23, 29, 34, 40, 47]` with targets 29, 2, 47 and 10.", "Add `print(low, mid, high)` inside the loop and check it against your Try 2 steps."] }
+  ],
+  "check": [
+    { "q": "What must be true before a binary search can be used?", "opts": ["The list has an odd number of items", "The list is sorted", "The list contains only numbers", "The target is in the list"], "a": 1, "fb": "Sorted is the one precondition." },
+    { "q": "Binary search for 50 in a sorted list; the middle item is 36. What next?", "opts": ["Discard the right half", "Discard the left half (including 36)", "Stop — not found", "Check the first item"], "a": 1, "fb": "50 > 36, so it can only be in the right half." },
+    { "q": "Maximum comparisons for binary search on 1,024 sorted items?", "opts": ["1,024", "512", "About 10", "2"], "a": 2, "fb": "Each step halves: 2¹⁰ = 1,024, so 10 steps (11 at most including the last check)." },
+    { "q": "When does a binary search conclude 'not found'?", "opts": ["After 3 steps", "When the middle item is bigger than the target", "When low becomes greater than high (nothing left to search)", "When it reaches the end of the list"], "a": 2, "fb": "The section shrinks to nothing." },
+    { "q": "Compared with linear search, binary search is:", "opts": ["Simpler to code and works on any list", "Faster on large lists but needs sorted data", "Slower but more accurate", "Only used for text"], "a": 1, "fb": "Speed versus the sorted precondition is the whole trade-off." }
+  ],
+  "exam": [
+    { "q": "Show the steps of a binary search to find the value 18 in the sorted list `[4, 9, 13, 18, 22, 27, 35]`.", "marks": 3,
+      "model": ["Middle item: (0 + 6) DIV 2 = 3, so list[3] = 18 (1). Compare 18 with 18 — match (1). Found at position 3 after a single comparison; no further steps (1)."],
+      "commentary": "A deliberately short one: students who 'know' binary search takes several steps invent extra steps and lose marks. Compute the middle honestly; if it is the target, you are done. Always show the middle calculation or state the middle item explicitly — that is where the first mark lives." },
+    { "q": "Show the steps of a binary search to find 50 in the sorted list `[5, 12, 20, 33, 41, 50, 68, 75]`.", "marks": 3,
+      "model": ["Middle (0+7) DIV 2 = 3 → 33. 50 > 33, discard left half; search `[41, 50, 68, 75]` (1). Middle (4+7) DIV 2 = 5 → 50 (1). Match — found at position 5 (1).", "(If a student takes the upper middle on even lists — 41 — the steps differ but also score if consistent.)"],
+      "commentary": "Even-length lists are where marks go: state your convention (round down with DIV) and stick to it. Marks are for correct middle identification at each step, correct half discarded, and the final result." },
+    { "q": "A sorted list contains 10,000 customer IDs. Explain why a binary search is more efficient than a linear search for finding an ID in this list.", "marks": 3,
+      "model": ["Binary search halves the list at each step (1), so it needs at most about 14 comparisons for 10,000 items (1), whereas a linear search may need up to 10,000 comparisons / checks every item in the worst case (1)."],
+      "commentary": "'Faster' alone is not an explanation. The halving mechanism plus a sense of scale (a number, or 'far fewer comparisons as the list grows') is what earns three marks. Noting that the list is already sorted, so the precondition is met, is a nice bonus point." }
+  ],
+  "home": "Write out the steps of a binary search for the 7th letter of your first name in the alphabet (treat the alphabet as a sorted list of 26 letters). How many steps? Then do a linear search for the same letter and count.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 12 · try 25 · check 5 · exam 10 · homework 3",
+    "misconceptions": [
+      "Forgetting the sorted precondition. Try 3 exists to make this painful.",
+      "Inventing extra steps when the middle is the target first time (see exam Q1).",
+      "Inconsistent middle on even-length lists. Pick DIV (round down) and say so.",
+      "Keeping the middle item after discarding its half: `low = mid + 1`, not `mid`.",
+      "'Binary' confused with binary numbers. Say 'bi = two halves' once."
+    ],
+    "say": [
+      "'Middle. Compare. Throw half away. Say it with me.'",
+      "'How many times can you halve a thousand before you get to one? About ten. That's the whole magic.'",
+      "'Would this work if the list were shuffled? No. So what must be true first?'"
+    ],
+    "skip": "Try 4 is optional; Try 2 is the exam skill and Try 3 is the misconception killer.",
+    "differentiation": [
+      "Support: give the sorted list on strips of paper so the discarded half can be physically folded away.",
+      "Stretch: work out how many comparisons binary search needs for 1 million items, and explain the link to powers of 2."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "title": "Pesquisa binária (binary search)",
+      "hook": "Estou a pensar num número entre 1 e 1000. Só podes perguntar «é maior ou menor que X?». De quantas perguntas precisas para ter certeza? (Dez.) Não 500 — dez. Esse truque de dividir ao meio é a pesquisa binária, e é por isso que o telemóvel encontra um contacto num instante.",
+      "explain": [
+        { "h": "A ideia",
+          "p": ["Uma **pesquisa binária** só funciona numa lista **ordenada**. Olha para o item do **meio**. Se for o alvo, acabou. Se o alvo for **menor**, deita fora a metade direita; se for **maior**, deita fora a metade esquerda. Repete com o que sobra. Cada passo divide a lista ao meio, por isso até uma lista enorme se pesquisa em poucos passos."] },
+        { "h": "O algoritmo",
+          "code": "low = 0\nhigh = list.length - 1\nfound = false\nwhile low <= high AND found == false\n    mid = (low + high) DIV 2\n    if list[mid] == target then\n        found = true\n        print(\"Found at position \" + mid)\n    elseif list[mid] < target then\n        low = mid + 1\n    else\n        high = mid - 1\n    endif\nendwhile\nif found == false then\n    print(\"Not found\")\nendif",
+          "after": ["`DIV` é divisão inteira, por isso com um número par de itens o meio arredonda **para baixo**. A OCR aceita qualquer convenção desde que a indiques e sejas consistente."] },
+        { "h": "Mostrar os passos (a competência de exame)",
+          "p": ["Em cada passo escreve: *a lista atual, o item do meio, a comparação, que metade fica.* Exemplo, encontrar 31 em `[3, 9, 14, 27, 31, 42, 56]`:",
+                "1. O meio é 27 (posição 3). 31 > 27, descarta a metade esquerda. Fica: `[31, 42, 56]`.",
+                "2. O meio é 42. 31 < 42, descarta a metade direita. Fica: `[31]`.",
+                "3. O meio é 31. Igual — encontrado na posição 4."] },
+        { "h": "Binária vs linear",
+          "list": ["A binária precisa de lista **ordenada**; a linear não. Ordenar primeiro custa tempo.",
+                   "A binária é **muito mais rápida** em listas grandes: 1.000 itens → no máximo 10 comparações; 1.000.000 → no máximo 20. A linear pode precisar de 1.000.000.",
+                   "A binária é mais difícil de escrever sem erros (off-by-one em `low`/`high`).",
+                   "Em listas minúsculas a diferença não importa."] }
+      ],
+      "keyterms": [
+        { "term": "Binary search (pesquisa binária)", "def": "Pesquisa numa lista ordenada que compara repetidamente o alvo com o item do meio e descarta a metade onde ele não pode estar." },
+        { "term": "Sorted (ordenada)", "def": "Por ordem (crescente ou decrescente). Pré-condição da pesquisa binária." },
+        { "term": "Middle item (item do meio)", "def": "O item na posição (low + high) DIV 2 da secção atual da lista." },
+        { "term": "Precondition (pré-condição)", "def": "Algo que tem de ser verdade antes de o algoritmo funcionar." }
+      ]
+    }
+  }
+}

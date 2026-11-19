@@ -1,0 +1,118 @@
+{
+  "id": "2-1-07",
+  "title": "Linear search",
+  "spec": "2.1.3",
+  "duration": 60,
+  "specPoints": [
+    "Understand and **apply** the standard **linear search** algorithm",
+    "Show the steps of the search on a given list",
+    "Know its advantages and disadvantages compared with binary search (next lesson)"
+  ],
+  "hook": "I have shuffled a pack of name cards face down. Find 'Priya'. How do you do it? (Turn them over one at a time.) How many cards might you turn over at worst? What if I told you the cards were in alphabetical order — would you do it differently? Hold that thought for next lesson.",
+  "video": {
+    "title": "Linear search: one at a time, start to finish",
+    "brief": "3 minutes. Row of 8 boxes with values. Pointer moves left to right, comparing each with the target, with a counter of comparisons. Case 1: found at position 6. Case 2: not in list — pointer reaches the end, output 'not found'. Overlay the pseudocode and highlight the line being executed. End with: works on any list, sorted or not; slow for big lists; worst case = check every item."
+  },
+  "explain": [
+    { "h": "The algorithm",
+      "p": ["A **linear search** looks at each item in turn, from the first to the last, comparing it with the value you want. If they match, stop: found. If you reach the end without a match: not found. It is the search you do naturally on an unsorted pile."],
+      "code": "// list is an array, target is the value to find\nfound = false\ni = 0\nwhile i < list.length AND found == false\n    if list[i] == target then\n        found = true\n        print(\"Found at position \" + i)\n    endif\n    i = i + 1\nendwhile\nif found == false then\n    print(\"Not found\")\nendif" },
+    { "h": "Showing the steps (what the exam asks)",
+      "p": ["Exam questions say 'Show the steps of a linear search to find 23 in this list'. Write the comparisons in order: *Compare 23 with 7 — no. Compare 23 with 15 — no. Compare 23 with 23 — found at position 3.* Number the steps. If the value is absent, finish with 'end of list reached — not found'."] },
+    { "h": "Why it is good and why it is slow",
+      "list": ["Works on **any** list — sorted or unsorted. No preparation needed.",
+               "Simple to write and understand; fine for short lists.",
+               "Slow for long lists: in the worst case (item at the end, or missing) it checks **every** item. A list of 1,000,000 items may need 1,000,000 comparisons.",
+               "On average it checks about half the list."] },
+    { "h": "Linear search in real programs",
+      "p": ["Any `for` loop with an `if` that stops when it finds something is a linear search. Checking whether a username exists in a short list, finding the first negative number, scanning for a word in a line: all linear searches. When lists get large and are sorted, binary search (next lesson) wins."] }
+  ],
+  "simple": [
+    { "h": "Look at every item, one at a time",
+      "p": ["Start at the first item. Is it the one you want? If yes, stop. If no, go to the next. Keep going. If you get to the end, it is not there."],
+      "code": "found = false\ni = 0\nwhile i < list.length AND found == false\n    if list[i] == target then\n        found = true\n        print(\"Found at position \" + i)\n    endif\n    i = i + 1\nendwhile\nif found == false then\n    print(\"Not found\")\nendif" },
+    { "h": "In the exam",
+      "p": ["Write every comparison: 'Compare 23 with 7 — no. Compare 23 with 15 — no. Compare 23 with 23 — found.' Number them."] },
+    { "h": "Good and bad",
+      "list": ["Good: works on any list, even a messy one. Easy.", "Bad: slow on long lists. Worst case, you look at everything."] }
+  ],
+  "keyterms": [
+    { "term": "Linear search", "def": "A search that checks each item in order from the start until the target is found or the list ends." },
+    { "term": "Target", "def": "The value being searched for." },
+    { "term": "Worst case", "def": "The input that makes an algorithm do the most work — for linear search, the target being last or absent." },
+    { "term": "Index / position", "def": "The number of an item's place in a list, usually counted from 0." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Watch it run", "url": "https://beanwise.coderra.je/cs_animations/search.html",
+      "instructions": ["Choose linear search. Search for a value near the start, one near the end, and one that is not there. Note the number of comparisons each time.", "Switch on binary search for the same three targets and just **look** at the difference in comparisons. We explain it next lesson."] },
+    { "type": "task", "title": "2. Show the steps", "p": ["List: `[12, 5, 31, 8, 19, 42, 27]`. Show the steps of a linear search for (a) 19, (b) 50."],
+      "steps": ["Number each comparison.", "State the position where 19 is found (counting from 0).", "For 50, state how many comparisons were made before 'not found'."] },
+    { "type": "task", "title": "3. Write it in code", "p": ["Write a linear search in OCR pseudocode or Python that searches `names` for a name typed by the user and prints either the position or \"Not in list\". Use a `while` loop that stops as soon as the name is found."],
+      "code": "names = [\"Ali\", \"Beth\", \"Chen\", \"Dev\", \"Esme\"]\ntarget = input(\"Name to find: \")\n..." },
+    { "type": "embed", "title": "4. Run yours", "url": "https://beanwise.coderra.je/pseudocode/",
+      "instructions": ["Paste your search in and test with \"Dev\", \"Ali\" and \"Zoe\". Does it stop early when it finds the name? Add a comparison counter to prove it."] }
+  ],
+  "check": [
+    { "q": "A linear search for the last item in a list of 200 items makes how many comparisons?", "opts": ["1", "100", "200", "8"], "a": 2, "fb": "Worst case checks every item." },
+    { "q": "Which is TRUE of linear search?", "opts": ["The list must be sorted", "It works on sorted and unsorted lists", "It always finds the item in one step", "It only works on numbers"], "a": 1, "fb": "No sorting needed is its main advantage." },
+    { "q": "When does a linear search stop?", "opts": ["After checking exactly half the list", "When the item is found or the end is reached", "After 10 comparisons", "When the list is sorted"], "a": 1, "fb": "Found, or end of list." },
+    { "q": "In the steps of a search for 8 in `[3, 8, 1]`, the answer 'found at position 1' assumes:", "opts": ["Counting from 1", "Counting from 0", "The list is sorted", "A binary search"], "a": 1, "fb": "OCR lists usually index from 0; always check the question." },
+    { "q": "Best description of why linear search is slow for big lists:", "opts": ["It uses a while loop", "It might have to compare the target with every single item", "It needs the list sorted first", "It uses too many variables"], "a": 1, "fb": "Comparisons grow in step with the list size." }
+  ],
+  "exam": [
+    { "q": "Show the steps of a linear search to find the value 27 in the following list: `[14, 3, 27, 9, 31]`.", "marks": 3,
+      "model": ["Compare 27 with 14 — not equal, move on (1). Compare 27 with 3 — not equal, move on (1). Compare 27 with 27 — match, found at position 2 / third item (1)."],
+      "commentary": "Marks are for showing **each comparison in order** and stating the result at the end. Students who jump to 'it's at position 2' with no steps get one mark at best. Write 'compare … with …' every time; it is quick and it is what the scheme wants." },
+    { "q": "Give **one** advantage and **one** disadvantage of a linear search compared with a binary search.", "marks": 2,
+      "model": ["Advantage: the list does not need to be sorted / simple to implement (1). Disadvantage: slower for large lists because it may have to check every item (1)."],
+      "commentary": "'It is easier' alone is thin; add *does not need sorting*. For the disadvantage, mention the size of the list — the slowness is about scale." },
+    { "q": "A program stores 50 product codes in an unsorted array. Explain why a linear search is a suitable choice for finding a code.", "marks": 2,
+      "model": ["The array is unsorted and a linear search does not require sorted data (1); with only 50 items the number of comparisons is small so speed is not a problem (1)."],
+      "commentary": "Both reasons come from the question: *unsorted* and *50*. Reading the scenario is half the marks." }
+  ],
+  "home": "Write out the steps of a linear search for your own surname in a list of 10 surnames you make up (unsorted). Then count: how many comparisons for the first name, the last name, and a name not in the list?",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 10 · try 28 · check 5 · exam 9 · homework 3",
+    "misconceptions": [
+      "Writing 'look through the list' as the steps. The steps are the individual comparisons.",
+      "Thinking linear search needs a sorted list (confusion with binary search). Hammer: linear = any list.",
+      "Index counting from 1 when the question's list is 0-indexed. Always say which you are using.",
+      "Loops that keep going after finding the item. The `found` flag or a `break` matters for the 'efficient' mark in programming questions."
+    ],
+    "say": [
+      "'Compare, compare, compare… found. Every compare is a mark.'",
+      "'Would it work if I shuffled the list? Yes. That's the point of linear search.'"
+    ],
+    "skip": "Try 4 can go; Try 1 and Try 2 carry the exam skill.",
+    "differentiation": [
+      "Support: give the list as cards to physically turn over; write each comparison as you go.",
+      "Stretch: modify the code to find **all** positions of a repeated value, and explain why the loop can no longer stop early."
+    ]
+  },
+  "i18n": {
+    "pt": {
+      "title": "Pesquisa linear (linear search)",
+      "hook": "Baralhei um conjunto de cartões com nomes, virados para baixo. Encontra «Priya». Como fazes? (Viras um de cada vez.) No pior caso, quantos cartões viras? E se te dissesse que estão por ordem alfabética — farias diferente? Guarda essa ideia para a próxima aula.",
+      "explain": [
+        { "h": "O algoritmo",
+          "p": ["Uma **pesquisa linear** olha para cada item por ordem, do primeiro ao último, comparando com o valor que procuras. Se for igual, para: encontrado. Se chegares ao fim sem igualar: não encontrado. É a pesquisa que fazes naturalmente numa pilha desordenada."],
+          "code": "found = false\ni = 0\nwhile i < list.length AND found == false\n    if list[i] == target then\n        found = true\n        print(\"Found at position \" + i)\n    endif\n    i = i + 1\nendwhile\nif found == false then\n    print(\"Not found\")\nendif" },
+        { "h": "Mostrar os passos (o que o exame pede)",
+          "p": ["As perguntas dizem «Mostra os passos de uma pesquisa linear para encontrar 23 nesta lista». Escreve as comparações por ordem: *Compara 23 com 7 — não. Compara 23 com 15 — não. Compara 23 com 23 — encontrado na posição 3.* Numera os passos. Se o valor não existir, termina com «fim da lista — não encontrado»."] },
+        { "h": "Porque é boa e porque é lenta",
+          "list": ["Funciona com **qualquer** lista — ordenada ou não. Não precisa de preparação.",
+                   "Simples de escrever e perceber; boa para listas curtas.",
+                   "Lenta em listas longas: no pior caso (item no fim, ou ausente) verifica **todos** os itens.",
+                   "Em média verifica cerca de metade da lista."] },
+        { "h": "Pesquisa linear em programas reais",
+          "p": ["Qualquer ciclo `for` com um `if` que para quando encontra algo é uma pesquisa linear. Quando as listas são grandes e estão ordenadas, a pesquisa binária (próxima aula) ganha."] }
+      ],
+      "keyterms": [
+        { "term": "Linear search (pesquisa linear)", "def": "Pesquisa que verifica cada item por ordem, do início, até encontrar o alvo ou chegar ao fim." },
+        { "term": "Target (alvo)", "def": "O valor que se procura." },
+        { "term": "Worst case (pior caso)", "def": "A entrada que obriga o algoritmo a mais trabalho — na pesquisa linear, o alvo no fim ou ausente." },
+        { "term": "Index / position (índice / posição)", "def": "O número do lugar de um item na lista, normalmente a contar de 0." }
+      ]
+    }
+  }
+}
