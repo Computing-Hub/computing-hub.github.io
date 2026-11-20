@@ -1,0 +1,129 @@
+{
+  "id": "1-3-01",
+  "title": "LANs, WANs and performance",
+  "spec": "1.3.1",
+  "duration": 60,
+  "specPoints": [
+    "Types of network: **LAN (Local Area Network)** and **WAN (Wide Area Network)**",
+    "**Factors that affect the performance of networks**: bandwidth, number of users/devices, latency, error rate, transmission media, interference, hardware",
+    "Apply these factors to a given scenario"
+  ],
+  "learn": [
+    "Define LAN and WAN and give a realistic example of each",
+    "State the key differences between a LAN and a WAN (area, ownership of infrastructure)",
+    "Name and explain at least five factors that affect network performance",
+    "Calculate a download time from file size and bandwidth, converting units correctly",
+    "Explain why a given network is slow in a scenario and suggest a fix"
+  ],
+  "hook": "Hold up your phone. Right now it is probably on the school Wi-Fi: that is a LAN. Open any website and your request leaves the building, crosses under the sea on a fibre cable and comes back: that is the internet, a WAN. Why does a video sometimes stutter at lunchtime but not at 8 am? Same phone, same cable. Today you learn the seven reasons.",
+  "video": {
+    "title": "LAN, WAN and the seven things that slow a network down",
+    "brief": "4 minutes. Open on a school building: laptops, printers and a server joined by cables and Wi-Fi, outline labelled LAN, 'one site, you own the kit'. Zoom out: the school links to an exam board in London and a cloud server in Dublin through leased lines and undersea fibre, labelled WAN, 'many sites, you rent the links'. Then a motorway animation for performance: bandwidth = number of lanes, users = number of cars, latency = how long the journey takes even with the road empty, error rate = cars sent back to start, media = tarmac vs dirt track, interference = fog on the wireless stretch, hardware = an old toll booth that cannot keep up. Close with the formula download time = file size / bandwidth and one worked example."
+  },
+  "explain": [
+    { "h": "LAN: one site, your own equipment",
+      "p": ["A **Local Area Network (LAN)** covers a small geographical area: one building or one site such as a school, a home or an office. The organisation owns all the hardware: the cables, switches, wireless access points and servers. Because the distances are short, LANs are fast and relatively cheap to run.",
+            "Examples: the computers in a school; a home Wi-Fi network with phones, a laptop and a smart TV; the tills and stock computers in one supermarket."] },
+    { "h": "WAN: many sites, rented links",
+      "p": ["A **Wide Area Network (WAN)** covers a large geographical area: between cities, across a country or across the world. It joins LANs together. The organisation does **not** own the long-distance infrastructure; it rents it from telecommunications companies (phone lines, leased lines, fibre, satellite links). The **internet** is the biggest WAN of all.",
+            "Examples: a bank linking its branches to head office; a supermarket chain connecting every store to a central warehouse system; the internet itself."],
+      "code": "Feature          LAN                           WAN\n---------------  ----------------------------  -------------------------------\nArea             One site / building           Cities, countries, the world\nInfrastructure   Owned by the organisation      Rented from telecoms companies\nTypical speed    Fast (short distances)         Slower (long distances, shared)\nSet-up cost      Lower                          Higher (leased lines)\nExample          School network, home Wi-Fi     Bank branches, the internet" },
+    { "h": "What 'performance' means",
+      "p": ["Network performance is how fast and how reliably data gets from one device to another. Two words matter. **Bandwidth** is the amount of data that can be sent per second, measured in bits per second (bps, Mbps, Gbps). **Latency** is the delay: the time it takes one packet to travel from sender to receiver, measured in milliseconds. A network can have high bandwidth and still feel slow if latency is high; think of a wide motorway that is 500 miles long."] },
+    { "h": "The seven factors",
+      "list": ["**Bandwidth**: more bits per second means files arrive sooner. Low bandwidth is like a narrow pipe.",
+               "**Number of users/devices**: bandwidth is **shared**. Thirty students streaming video at lunchtime each get a slice of the same pipe, so everyone slows down.",
+               "**Latency**: delay caused by distance and by every router or switch the data passes through. Bad for gaming and video calls, where a late packet is useless.",
+               "**Error rate**: if packets arrive damaged they must be sent again. Resends waste bandwidth and add delay. Long or poor-quality cables and weak wireless signals raise the error rate.",
+               "**Transmission media**: fibre optic carries more data over longer distances than copper; wired is normally faster and more reliable than wireless.",
+               "**Interference**: other Wi-Fi networks, microwaves, thick walls and distance weaken wireless signals and cause errors.",
+               "**Hardware**: an old router, a slow network interface card or a cheap switch can be the bottleneck even when the cable is fast."] },
+    { "h": "The one calculation: download time",
+      "p": ["Time to transfer a file = **file size ÷ bandwidth**. The trap is units: file sizes are usually in **bytes**, bandwidth is in **bits** per second. Multiply bytes by 8 to get bits first.",
+            "Worked example: a 600 MB video on a 40 Mbps connection. 600 MB × 8 = 4800 megabits. 4800 ÷ 40 = **120 seconds** (2 minutes). If 10 students download it at once and share the 40 Mbps fairly, each gets 4 Mbps, so each download takes 1200 seconds (20 minutes). That is the 'number of users' factor in numbers."],
+      "code": "Step 1  Convert file size to bits:    600 MB x 8 = 4800 Mb\nStep 2  Divide by bandwidth:          4800 Mb / 40 Mbps = 120 s\nStep 3  Shared by 10 users:           40 / 10 = 4 Mbps each\n                                      4800 / 4 = 1200 s = 20 min" },
+    { "h": "Answering scenario questions",
+      "p": ["Exam questions give you a situation ('the office network is slow in the afternoon') and ask you to explain why or suggest improvements. Pick the factor the clues point to, name it, and say **why** it causes the slowness. 'Afternoon' and 'everyone is in' point to **number of users sharing bandwidth**. 'Far from the router' and 'thick stone walls' point to **interference** and signal strength. 'Old router' points to **hardware**. One factor named plus one reason is two marks."] }
+  ],
+  "simple": [
+    { "h": "LAN",
+      "p": ["A LAN is a network in one place. One building or one site.", "The school owns all the kit: cables, switches, Wi-Fi boxes.", "Examples: school network, home Wi-Fi."] },
+    { "h": "WAN",
+      "p": ["A WAN is a network over a big area. Cities. Countries. The world.", "You rent the long cables from a phone company. You do not own them.", "The internet is the biggest WAN.", "Example: a bank joining all its branches."] },
+    { "h": "Why networks slow down",
+      "list": ["Bandwidth: how many bits per second. More is faster.",
+               "Users: more people share the same bandwidth. Each gets less.",
+               "Latency: the delay. Long distance and many routers add delay.",
+               "Errors: broken packets get sent again. That wastes time.",
+               "Media: fibre is faster than copper. Wired is faster than wireless.",
+               "Interference: walls, other Wi-Fi and microwaves weaken wireless.",
+               "Hardware: an old router or switch slows everything."] },
+    { "h": "Download time",
+      "p": ["Time = file size ÷ bandwidth.", "Change bytes to bits first: × 8.", "600 MB × 8 = 4800 Mb. 4800 ÷ 40 Mbps = 120 seconds."],
+      "code": "600 MB x 8 = 4800 Mb\n4800 / 40 = 120 s" }
+  ],
+  "keyterms": [
+    { "term": "LAN (Local Area Network)", "def": "A network covering a small area such as one building, using hardware owned by the organisation." },
+    { "term": "WAN (Wide Area Network)", "def": "A network covering a large geographical area, connecting LANs using infrastructure rented from telecoms companies." },
+    { "term": "Bandwidth", "def": "The amount of data that can be transmitted per second, measured in bits per second." },
+    { "term": "Latency", "def": "The delay between data being sent and received, measured in milliseconds." },
+    { "term": "Error rate", "def": "The proportion of data that arrives corrupted and has to be resent." },
+    { "term": "Transmission media", "def": "The physical path data travels along: copper cable, fibre optic cable or wireless radio waves." },
+    { "term": "Interference", "def": "Unwanted signals or obstacles that weaken a wireless signal and cause errors." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. LAN or WAN? Card sort",
+      "p": ["Sort these into LAN, WAN, or 'LANs joined by a WAN'. For each, write one clue word that decided it."],
+      "steps": ["A home with two laptops, a printer and a smart speaker on Wi-Fi.", "A hospital with 400 computers across three buildings on one site, all cabled to the hospital's own server room.", "A coffee chain whose 80 shops all send sales data to head office each night.", "The internet.", "A police force sharing a database between stations across a whole county.", "Two gamers on the same sofa playing over a Wi-Fi router.", "A university campus with its own fibre between buildings, plus a leased line to a research centre 200 miles away."],
+      "after": ["Discussion: who owns the cables in each case? That is the test examiners want you to use."] },
+    { "type": "python", "title": "2. Download time calculator",
+      "p": ["Run the program, then change the file size, bandwidth and number of users. Find: how many users can share a 100 Mbps line before a 50 MB file takes more than a minute each?"],
+      "code": "# Download time = file size / bandwidth\n# File size in megabytes (MB), bandwidth in megabits per second (Mbps)\n\nfile_mb = 600\nbandwidth_mbps = 40\nusers = 10\n\nfile_mb_bits = file_mb * 8          # bytes -> bits\nalone = file_mb_bits / bandwidth_mbps\nshare = bandwidth_mbps / users      # fair share per user\nshared = file_mb_bits / share\n\nprint(\"File:\", file_mb, \"MB =\", file_mb_bits, \"megabits\")\nprint(\"Alone on the line:\", alone, \"seconds\")\nprint(\"Each of\", users, \"users gets\", share, \"Mbps\")\nprint(\"Shared download:\", shared, \"seconds =\", round(shared/60, 1), \"minutes\")" },
+    { "type": "embed", "title": "3. Explore networks", "url": "https://beanwise.coderra.je/GCSE_homepage/networks.html",
+      "instructions": ["Open the LAN/WAN section and the performance section. Note one fact about each that is **not** in the notes above.", "Try the quiz questions on performance factors. Which factor did you get wrong? Write it on your traps list."] },
+    { "type": "task", "title": "4. Network doctor",
+      "p": ["Each patient below has a slow network. Diagnose the **factor**, explain **why** it causes the slowness, and prescribe **one** fix."],
+      "steps": ["Patient A: a family of five all stream video at 8 pm; at 10 am it is fine.", "Patient B: a laptop in a garden office 30 metres from the house, through two brick walls, keeps dropping its Wi-Fi.", "Patient C: an office upgraded to 1 Gbps fibre, but the 2008 router has 100 Mbps ports.", "Patient D: a gamer in Jersey plays on a server in Australia and complains of 'lag' even though speed tests show 500 Mbps.", "Patient E: a 90 m run of cheap copper cable along a factory floor next to welding equipment; file copies keep restarting."],
+      "after": ["Check: did every diagnosis use a word from the seven-factor list? Did every 'why' use the word 'because'?"] },
+    { "type": "embed", "title": "5. Quick-fire topic revision", "url": "https://beanwise.coderra.je/GCSE_homepage/Topic4_Networks.html",
+      "instructions": ["Use only the LAN/WAN and performance activities today. Score yourself; anything under 8/10, re-read the matching section."] }
+  ],
+  "check": [
+    { "q": "Which is the best description of a LAN?", "opts": ["A network that uses the internet", "A network covering a small area using hardware the organisation owns", "A network covering several cities", "A network with no cables"], "a": 1, "fb": "Small area + owned infrastructure is the two-part definition." },
+    { "q": "A supermarket chain connects 200 stores across the UK to head office. This is a:", "opts": ["LAN", "WAN", "PAN", "Topology"], "a": 1, "fb": "Large geographical area, rented links: WAN." },
+    { "q": "At lunchtime a school's internet slows down although nothing has changed. The most likely factor is:", "opts": ["Interference", "Number of users sharing the bandwidth", "Transmission media", "Error rate"], "a": 1, "fb": "Same hardware, more users: bandwidth is shared." },
+    { "q": "A 200 MB file is downloaded on a 20 Mbps connection with nobody else using it. How long does it take?", "opts": ["10 seconds", "80 seconds", "160 seconds", "1600 seconds"], "a": 1, "fb": "200 MB × 8 = 1600 Mb; 1600 ÷ 20 = 80 s." },
+    { "q": "Latency is best described as:", "opts": ["The number of bits sent per second", "The delay before data arrives", "The number of users on a network", "The type of cable used"], "a": 1, "fb": "Latency is time delay; bandwidth is amount per second." }
+  ],
+  "exam": [
+    { "q": "State **two** differences between a LAN and a WAN.", "marks": 2,
+      "model": ["A LAN covers a small geographical area / one site, whereas a WAN covers a large area such as between cities or countries (1). A LAN's infrastructure is owned by the organisation, whereas a WAN uses infrastructure rented from third parties / telecoms companies (1)."],
+      "commentary": "Both halves of each difference must be there: LAN this, WAN that. 'LAN is small' alone is half a point. The ownership difference is the one students forget and it is the one that separates a definition from a guess." },
+    { "q": "A film of 1.5 GB is downloaded on a connection with a bandwidth of 60 Mbps. Calculate how long the download takes. Show your working.", "marks": 2,
+      "model": ["1.5 GB = 1500 MB = 12 000 megabits (× 8) (1). 12 000 ÷ 60 = 200 seconds (1)."],
+      "commentary": "The working mark is for the ×8 conversion from bytes to bits. Forgetting it gives 25 seconds and loses both marks unless the method is shown. Accept 1.5 GB = 1500 MB or 1536 MB; the scheme will accept either at GCSE." },
+    { "q": "A small office has eight staff who use Wi-Fi. The office is in an old stone building and staff at the far end complain that the network is slow and keeps disconnecting. Explain **two** factors that could be causing the poor performance and suggest **one** improvement.", "marks": 5,
+      "model": ["Interference / signal attenuation (1): thick stone walls weaken the wireless signal so data is lost and has to be resent (1). Transmission media (1): wireless is slower and less reliable than a wired connection, especially at distance (1). Improvement: add a second wireless access point nearer the far end, or run Ethernet cable to those desks (1). Also accept: error rate due to weak signal; hardware (old router) if justified."],
+      "commentary": "Name the factor, then the mechanism that links it to the clue in the question ('stone', 'far end'). Answers that list seven factors without linking any to the scenario score the naming marks only. The improvement must follow from the cause named." }
+  ],
+  "home": "Draw a labelled sketch of your home network as a LAN (every device, the router, wired or wireless) and mark where it joins the WAN. Then time one download at home, note the file size and work out the bandwidth you actually got in Mbps.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 12 · try 28 · check 5 · exam 7 · homework 3",
+    "misconceptions": [
+      "'WAN means wireless.' It means wide. Wireless is a connection mode (lesson 5), not a network type.",
+      "'The internet is a LAN because it is in my house.' Your house is the LAN; the internet is the WAN it connects to.",
+      "Dividing MB by Mbps without converting bytes to bits. Drill the ×8 until it is automatic.",
+      "Treating bandwidth and latency as the same thing. Use the motorway: lanes vs journey length."
+    ],
+    "say": [
+      "'Who owns the cable? If you do, LAN. If you rent it, WAN.'",
+      "'Bytes to bits: times eight, every time, before you divide.'",
+      "'Name the factor, then say because.'"
+    ],
+    "skip": "Try 5 can go. Try 2 and Try 4 carry the calculation and the scenario skill the exam tests.",
+    "differentiation": [
+      "Support: give the seven factors as cards with a one-line picture clue each; students match cards to the five patients in Try 4.",
+      "Stretch: in Try 2, add latency as a fixed delay per packet (e.g. 1500-byte packets, 20 ms each way) and see when latency matters more than bandwidth."
+    ]
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "id": "1-3-03",
+  "title": "Hardware for networks and the internet",
+  "spec": "1.3.1",
+  "duration": 60,
+  "specPoints": [
+    "The **hardware needed to connect stand-alone computers into a LAN**: wireless access points, routers, switches, NIC (network interface controller/card), transmission media",
+    "The **internet** as a worldwide collection of computer networks: **DNS (Domain Name Server)**, **hosting**, **the cloud**, web servers and clients",
+    "Advantages and disadvantages of the cloud"
+  ],
+  "learn": [
+    "State the purpose of a switch, a router, a wireless access point and a NIC",
+    "Compare copper (UTP), fibre optic and wireless transmission media",
+    "Describe the internet as a worldwide collection of networks",
+    "Describe how DNS turns a domain name into an IP address, in order",
+    "Explain what hosting and the cloud are, with advantages and disadvantages"
+  ],
+  "hook": "Look at the wall socket near the window. Follow it in your head: cable, into a cabinet somewhere, into a switch, up to a router, out of the building, into a fibre under the road, to a cable under the Channel, to a data centre you will never see. Type a web address and that whole chain fires in less time than it takes to blink. Today: every box in the chain and what it does.",
+  "video": {
+    "title": "The boxes in the cupboard: switch, router, access point, NIC, and how a name becomes a number",
+    "brief": "5 minutes. Open with a cutaway of a school: each laptop has a NIC with a glowing MAC address; cables run to a switch that learns which device is on which port and forwards frames only where needed; a wireless access point lets phones join the same LAN by radio; a router sits at the edge and decides which packets leave for the internet. Zoom out: the internet as thousands of networks joined by routers. Then the DNS sequence: browser types a URL, asks the DNS server 'what is the IP of this name?', DNS replies with the number, browser contacts the web server at that IP. Finish with a data centre: hosting a website there, and 'the cloud' as storage and software you rent and reach over the internet."
+  },
+  "explain": [
+    { "h": "Four boxes that make a LAN",
+      "list": ["**NIC (Network Interface Card/Controller)**: the hardware inside every device that connects it to a network, wired or wireless. It has a unique **MAC address** burned in at manufacture. No NIC, no network.",
+               "**Switch**: joins devices on a LAN with cables. It learns which MAC address is on which port and sends each frame **only** to the port it is meant for, so devices do not slow each other down.",
+               "**Wireless Access Point (WAP)**: lets wireless devices join the LAN by radio (Wi-Fi). It is connected by cable to the switch, so wireless and wired devices are on the same network.",
+               "**Router**: connects **networks** together, and forwards packets between them using IP addresses. Your home router connects your LAN to your ISP's network and so to the internet. Routers decide the best route for each packet."],
+      "code": "Device        Joins              Uses which address   Where you find it\n------------  -----------------  -------------------  --------------------------\nNIC           One device to LAN  MAC (its own)        Inside every computer/phone\nSwitch        Devices in a LAN   MAC                  Server room / network cabinet\nWAP           Wireless devices   MAC                  Ceiling of each corridor\nRouter        Networks to nets   IP                   Edge of the LAN, by the line" },
+    { "h": "Transmission media: what the data travels along",
+      "p": ["**Copper cable** (twisted pair, often called **UTP** or Ethernet cable): cheap, easy to install, carries electrical signals; speeds up to 1 Gbps or more over distances up to about 100 metres; suffers from electrical interference. **Fibre optic**: carries pulses of light down glass; very high bandwidth, works over kilometres, immune to electrical interference, but more expensive and harder to install and repair. **Wireless** (radio waves): no cables, so devices can move; but lower bandwidth, shorter range, affected by walls and interference, and signals can be intercepted, so encryption is needed."],
+      "code": "Medium        Carries       Speed       Distance     Interference    Cost\n------------  ------------  ----------  -----------  --------------  -------\nCopper (UTP)  Electricity   High        ~100 m       Affected        Low\nFibre optic   Light         Very high   Kilometres   Immune          High\nWireless      Radio waves   Lower       Tens of m    Badly affected  Low" },
+    { "h": "The internet: a network of networks",
+      "p": ["The **internet** is a worldwide collection of interconnected networks. Nobody owns it. Your school LAN connects to an ISP; the ISP connects to other ISPs; undersea fibre joins continents; routers everywhere pass packets along. The **World Wide Web** is just one service that runs on the internet: web pages sent by **web servers** to **clients** (browsers) using HTTP. Email, online games and video calls are other services that also use the internet but are not 'the web'."] },
+    { "h": "DNS: turning a name into an address",
+      "p": ["Computers find each other by **IP address** (a number such as 142.250.200.46). Humans remember **domain names** (such as `bbc.co.uk`). The **Domain Name System (DNS)** is the internet's phone book: a network of **DNS servers** that store domain names and their matching IP addresses.",
+            "What happens when you type a URL:"],
+      "list": ["1. The browser checks whether it already knows the IP address (local cache).",
+               "2. If not, it sends the domain name to a DNS server (usually your ISP's).",
+               "3. If that server does not know, it asks other DNS servers higher up until one does.",
+               "4. The IP address is sent back to the browser.",
+               "5. The browser sends an HTTP request to the web server at that IP address, and the page comes back.",
+               "If the name does not exist anywhere, DNS returns an error and the browser shows 'server not found'."] },
+    { "h": "Hosting and the cloud",
+      "p": ["**Hosting** means storing a website (or other data) on a server that is always on and connected to the internet so people can reach it. Most organisations pay a hosting company to run the server in a **data centre** rather than keeping one in the office.",
+            "**The cloud** is storage, software and processing provided over the internet by someone else's servers: you rent it and reach it from any device. Saving a document to an online drive, streaming music or using web-based email are all cloud services."],
+      "code": "The cloud: advantages                      The cloud: disadvantages\n-----------------------------------------  -----------------------------------------\nAccess files from any device, anywhere     Needs an internet connection to work\nStorage grows when you need it             Ongoing subscription cost\nProvider does backup and maintenance       You rely on the provider's security\nEasy to share and collaborate              Data may be stored in another country (law)\nNo expensive server hardware to buy        If the provider fails or closes, data at risk" }
+  ],
+  "simple": [
+    { "h": "The boxes",
+      "list": ["NIC: inside every device. It connects the device to the network. Has a MAC address.", "Switch: joins the computers in one LAN with cables. Sends data only to the right computer.", "Wireless access point: lets phones and laptops join by Wi-Fi.", "Router: joins networks together. Sends data out to the internet."] },
+    { "h": "Cables and wireless",
+      "list": ["Copper cable: cheap, fast, about 100 m.", "Fibre: light in glass. Very fast. Very long distance. Costs more.", "Wireless: no cables. Slower. Walls block it. Needs encryption."] },
+    { "h": "The internet and DNS",
+      "p": ["The internet is lots of networks joined together, all over the world.", "Computers use IP addresses (numbers). People use names like bbc.co.uk.", "DNS is the phone book. It changes the name into the number.", "Browser asks DNS. DNS sends the IP address. Browser asks the web server at that address."] },
+    { "h": "Hosting and the cloud",
+      "p": ["Hosting: a website lives on a server that is always on.", "The cloud: storage and software on someone else's servers, over the internet.", "Good: use it anywhere, they do backups, no server to buy.", "Bad: needs internet, costs every month, you trust their security."] }
+  ],
+  "keyterms": [
+    { "term": "NIC (Network Interface Card)", "def": "Hardware in a device that connects it to a network and holds its unique MAC address." },
+    { "term": "Switch", "def": "A device that connects computers on a LAN and forwards data only to the intended device using MAC addresses." },
+    { "term": "Router", "def": "A device that connects networks together and forwards packets between them using IP addresses." },
+    { "term": "Wireless access point (WAP)", "def": "A device that lets wireless devices connect to a wired LAN." },
+    { "term": "Internet", "def": "A worldwide collection of interconnected networks." },
+    { "term": "DNS (Domain Name System/Server)", "def": "The system of servers that translates domain names into IP addresses." },
+    { "term": "Hosting", "def": "Storing a website or data on a server that is always connected to the internet." },
+    { "term": "The cloud", "def": "Storage, software and processing provided over the internet by remote servers." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Build the LAN on paper",
+      "p": ["Draw a school with: 3 classrooms of 6 wired PCs each, a wireless corridor for phones, a file server, a printer, and an internet connection."],
+      "steps": ["Place a switch for each classroom and a main switch for the server and printer.", "Add a wireless access point in the corridor, cabled to a switch.", "Add one router between the main switch and the internet line.", "Label every device with the address type it uses (MAC or IP) and every link with its medium (copper, fibre, wireless). Use fibre for the longest run and say why."] },
+    { "type": "python", "title": "2. A toy DNS",
+      "p": ["This dictionary is a tiny DNS server. Run it, then add two more sites and look up a name that is not there. Then make the lookup case-insensitive, because `BBC.co.uk` and `bbc.co.uk` are the same site."],
+      "code": "# A very small DNS: domain name -> IP address\ndns = {\n    \"bbc.co.uk\": \"151.101.0.81\",\n    \"ocr.org.uk\": \"104.18.32.7\",\n    \"beanwise.coderra.je\": \"185.199.108.153\"\n}\n\ndef lookup(name):\n    if name in dns:\n        return dns[name]\n    return \"NOT FOUND: no record for \" + name\n\nfor site in [\"bbc.co.uk\", \"ocr.org.uk\", \"nosuchsite.example\"]:\n    print(site, \"->\", lookup(site))\n\n# Now: add two sites of your own, then make lookup() ignore capital letters" },
+    { "type": "embed", "title": "3. Watch a URL become a page", "url": "https://beanwise.coderra.je/cs_animations/web-technologies-workbench.html",
+      "instructions": ["Enter a URL and step through the sequence: DNS lookup, request to the web server, response. Write the steps in your own words, numbered 1 to 5.", "Change the URL to one that does not exist. What does DNS return, and what does the browser show?"] },
+    { "type": "task", "title": "4. Card sort: which device?",
+      "p": ["Match each job to switch, router, WAP or NIC. Some jobs may fit two; say which and why."],
+      "steps": ["Lets a phone join the network without a cable.", "Holds the device's MAC address.", "Sends a frame only to the port where the right computer is.", "Decides the best path for a packet leaving for the internet.", "Connects two different networks.", "Is found inside every laptop.", "Reads IP addresses to forward packets.", "Reads MAC addresses to forward frames within a LAN."] },
+    { "type": "embed", "title": "5. Networks topic page", "url": "https://beanwise.coderra.je/GCSE_homepage/networks.html",
+      "instructions": ["Use the hardware and internet sections. Write down the cloud advantages and disadvantages it gives; tick the ones that match the table above and add any new ones."] }
+  ],
+  "check": [
+    { "q": "Which device connects a LAN to the internet?", "opts": ["Switch", "NIC", "Router", "Wireless access point"], "a": 2, "fb": "Routers connect networks to other networks." },
+    { "q": "A switch forwards data within a LAN using:", "opts": ["IP addresses", "MAC addresses", "Domain names", "URLs"], "a": 1, "fb": "Switches work with MAC addresses; routers with IP." },
+    { "q": "The main job of DNS is to:", "opts": ["Encrypt web traffic", "Store web pages", "Translate domain names into IP addresses", "Connect wireless devices"], "a": 2, "fb": "DNS is the phone book: name in, number out." },
+    { "q": "Which medium is immune to electrical interference and works over kilometres?", "opts": ["Copper UTP", "Fibre optic", "Wi-Fi", "Bluetooth"], "a": 1, "fb": "Light in glass: no electrical interference, long range." },
+    { "q": "Which is a DISADVANTAGE of cloud storage?", "opts": ["Files can be reached from any device", "The provider handles backups", "An internet connection is needed to access files", "Storage can grow when needed"], "a": 2, "fb": "No internet, no files." }
+  ],
+  "exam": [
+    { "q": "State the purpose of a **router** and the purpose of a **switch** in a network.", "marks": 2,
+      "model": ["Router: connects networks together / forwards packets between networks using IP addresses, e.g. LAN to the internet (1). Switch: connects devices within a LAN and forwards data only to the intended device using MAC addresses (1)."],
+      "commentary": "The mark for the switch is in 'only to the intended device' or 'using MAC addresses'. 'Connects computers' alone describes a hub, a cable or anything. For the router, 'between networks' is the key phrase." },
+    { "q": "A student types a web address into a browser. Describe how **DNS** is used to display the web page.", "marks": 3,
+      "model": ["The browser sends the domain name to a DNS server (1). The DNS server looks up the domain name and returns the matching IP address (or asks other DNS servers if it does not know) (1). The browser then sends a request to the web server at that IP address, which returns the page (1)."],
+      "commentary": "Three steps in order: send name, get IP back, contact web server. Students who write 'DNS finds the website' get one mark. The word that scores is **IP address**; use it twice." },
+    { "q": "A photography business stores 2 TB of client photos. It currently keeps them on a single external hard drive in the office. Explain **two** advantages and **one** disadvantage of moving the photos to cloud storage.", "marks": 6,
+      "model": ["Advantages (2 marks each: point + why): photos can be accessed from any device/location with internet, so the photographer can show clients on site (1+1); the provider makes backups so the photos are safe if the office drive fails/is stolen (1+1); storage can be increased as the collection grows without buying new drives (1+1). Disadvantage (1+1): an internet connection is needed to access the photos, so a slow or absent connection stops work; or ongoing subscription cost for 2 TB; or reliance on the provider's security for clients' private photos."],
+      "commentary": "Each point needs a 'so' or 'because' that connects to photos, clients or the single office drive. A list of generic cloud pros and cons scores three of six. Watch for repeated points in different words: 'accessible anywhere' and 'can work from home' are the same advantage." }
+  ],
+  "home": "At home, find your router. Write down: how many cables go into it, how many devices use Wi-Fi, and whether there is a separate switch or WAP (in most homes the router does all three jobs in one box). Then write a three-step description of what DNS does when you open a video site.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 14 · try 26 · check 5 · exam 7 · homework 3",
+    "misconceptions": [
+      "'The router is the internet.' The router is the door; the internet is outside it.",
+      "'Switch and router are the same.' Switch: inside one LAN, MAC addresses. Router: between networks, IP addresses. Say it every lesson.",
+      "'DNS stores websites.' It stores name-to-IP mappings only. The web server stores the site.",
+      "'The internet and the web are the same.' The web is one service running on the internet; email and gaming are others."
+    ],
+    "say": [
+      "'Switch inside, router outside.'",
+      "'DNS is the phone book, not the phone.'",
+      "'Hosting: someone else's always-on computer. Cloud: someone else's computer you rent.'"
+    ],
+    "skip": "Try 5 can go; Try 1 and Try 3 carry the exam skill. Try 2 is quick and worth keeping.",
+    "differentiation": [
+      "Support: give the device cards from Try 4 pre-cut with icons; students build the Try 1 diagram by placing cards rather than drawing.",
+      "Stretch: in Try 2, add a 'cache' dictionary in the browser that is checked before the DNS server, and count how many DNS requests are saved when the same site is visited five times."
+    ]
+  }
+}

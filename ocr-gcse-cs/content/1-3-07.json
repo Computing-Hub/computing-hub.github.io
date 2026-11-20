@@ -1,0 +1,49 @@
+{
+  "id": "1-3-07",
+  "title": "Unit 1.3 Computer networks, connections and protocols — review and test",
+  "spec": "1.3.1 – 1.3.2",
+  "duration": 45,
+  "specPoints": [
+    "Covers all of 1.3: LAN/WAN, performance factors, client-server and peer-to-peer, network hardware, the internet, DNS, hosting, the cloud, star and mesh topologies, wired/wireless, encryption, IP and MAC addressing, protocols and layers",
+    "30 marks · 35 minutes",
+    "Teachers: switch on Teacher view for the mark scheme"
+  ],
+  "learn": [
+    "Recall every 1.3 term and protocol precisely",
+    "Draw and compare topologies, and recognise address formats",
+    "Apply performance factors and network models to a scenario"
+  ],
+  "hook": "Who owns the cable: LAN or WAN. Switch inside, router outside. Server serves, client asks. Star has one centre; mesh has many routes. MAC is made at construction; IP is issued. SMTP sends, POP and IMAP collect, S in HTTPS is secure. If you can say those six lines, you can score on this test.",
+  "explain": [
+    { "h": "Five-minute review",
+      "list": ["LAN: one site, own hardware. WAN: wide area, rented links; the internet is a WAN. Performance: bandwidth, users, latency, error rate, media, interference, hardware. Time = size ÷ bandwidth, bytes × 8 first.",
+               "Client-server: server provides, clients request; central storage, backup, security; expensive, single point of failure. Peer-to-peer: all equal; cheap, simple; no central backup, weaker security, does not scale.",
+               "Hardware: NIC (MAC address, in every device), switch (inside LAN, MAC), router (between networks, IP), WAP (wireless onto the LAN). Media: copper, fibre, wireless. Internet = network of networks. DNS: name to IP. Hosting: always-on server. Cloud: rented storage/software over the internet.",
+               "Star: all through a central switch; one cable fault affects one device; switch failure stops all. Mesh: many routes, no single point of failure, expensive; full mesh links = n(n−1)/2.",
+               "Ethernet fast/reliable/secure; Wi-Fi mobile but slower and interceptable, so encrypt (key, ciphertext). Bluetooth: short range, low power. IPv4 four decimal with dots; IPv6 eight hex groups with colons; MAC six hex pairs, fixed by maker.",
+               "Protocols: TCP (packets, reliable), IP (addressing), HTTP/HTTPS (web, S = encrypted), FTP (files), SMTP (send mail), POP (receive, download), IMAP (receive, on server). Layers: self-contained, interoperable, change one without the others."] }
+  ],
+  "exam": [
+    { "q": "State what the acronyms **LAN** and **WAN** stand for.", "marks": 1, "model": ["Local Area Network and Wide Area Network (1 — both)."], "commentary": "Both for the mark." },
+    { "q": "Describe **one** difference between a LAN and a WAN.", "marks": 2, "model": ["A LAN covers a small area / single site (1) whereas a WAN covers a large geographical area such as between cities (1). Or: a LAN uses hardware owned by the organisation (1) whereas a WAN uses infrastructure rented from telecoms companies (1)."], "commentary": "Both halves needed." },
+    { "q": "Draw and label a diagram of a **star** topology with one switch, three computers and one printer. Then state **one** disadvantage of this topology.", "marks": 3, "model": ["Central device drawn and labelled switch (1); three computers and a printer each connected by a separate line to the switch only (1). Disadvantage: if the switch fails the whole network stops / single point of failure; or needs a lot of cable (1)."], "commentary": "Spokes only, no device-to-device lines; label the centre 'switch', not 'router'." },
+    { "q": "Draw lines to match each protocol to its purpose. Protocols: SMTP, IMAP, FTP, HTTPS. Purposes: transferring files to a server; retrieving email that stays on the server; sending email; requesting web pages with encryption.", "marks": 4, "model": ["SMTP — sending email (1). IMAP — retrieving email that stays on the server (1). FTP — transferring files to a server (1). HTTPS — requesting web pages with encryption (1)."], "commentary": "One each. A protocol linked to two purposes scores zero for that protocol." },
+    { "q": "Describe the role of a **router** in a home network.", "marks": 2, "model": ["Connects the home LAN to the internet / to another network (1); forwards packets between networks using IP addresses / chooses the route for packets (1)."], "commentary": "'Between networks' and 'IP address' are the scoring words." },
+    { "q": "Describe how **DNS** is used when a user types `www.example.com` into a browser.", "marks": 3, "model": ["The browser sends the domain name to a DNS server (1). The DNS server looks it up and returns the matching IP address (asking other DNS servers if necessary) (1). The browser then requests the page from the web server at that IP address (1)."], "commentary": "Three steps in order; 'IP address' must appear." },
+    { "q": "Identify the type of each address: (a) `10.0.0.254` (b) `2001:0db8:0000:0000:0000:0000:1428:57ab` (c) `B8-27-EB-4F-12-9C`.", "marks": 3, "model": ["(a) IPv4 (1). (b) IPv6 (1). (c) MAC address (1)."], "commentary": "Format recognition: dots/decimal; colons/eight hex groups; six hex pairs." },
+    { "q": "A village hall has free Wi-Fi for visitors. It currently has no encryption. Explain why encryption should be enabled.", "marks": 2, "model": ["Wireless signals can be intercepted by anyone in range (1); encryption scrambles the data with a key so intercepted data cannot be read / visitors' passwords and personal data are protected (1)."], "commentary": "Interception + scrambling with a key." },
+    { "q": "A small accountancy firm with 12 staff is deciding between a client-server and a peer-to-peer network. Client files are confidential and must be backed up daily. Recommend a model and justify your choice.", "marks": 3, "model": ["Client-server (1). Files can be stored and backed up centrally on the server, meeting the daily backup requirement (1). Security / access rights can be controlled centrally, which suits confidential client files (1). Also accept: 12 users is too many for peer-to-peer to manage well."], "commentary": "Recommendation + two reasons using 'confidential' and 'backed up daily'." },
+    { "q": "A school has a 100 Mbps internet connection. At 12:30 every day, 300 students connect on Wi-Fi in the canteen and complain that videos buffer, although the connection is fast at 8:00. (a) Calculate how long a 25 MB video takes to download at 8:00 when a single user has the full 100 Mbps. Show your working. (b) Explain **two** factors that cause the poor performance at 12:30.", "marks": 5, "model": ["(a) 25 MB × 8 = 200 megabits (1); 200 ÷ 100 = 2 seconds (1). (b) Number of users (1): 300 students share the same 100 Mbps so each gets a small fraction of the bandwidth (1). Interference / wireless medium (1): many devices on Wi-Fi in one room compete for the same wireless channels and the signal is shared, lowering speed and raising the error rate (1). Also accept: hardware, if the access point cannot handle 300 connections, with explanation. (Max 3 for part b.)"], "commentary": "Working mark for ×8. In (b), the factor must be linked to '300 students' or 'Wi-Fi in the canteen'; a bare list scores one per factor." },
+    { "q": "Give **two** advantages of dividing network protocols into layers.", "marks": 2, "model": ["Any two (1 each): each layer is self-contained and can be developed/tested independently; a change in one layer does not affect the others; standards for each layer allow hardware and software from different manufacturers to work together (interoperability); breaks a complex problem into manageable parts."], "commentary": "Two distinct advantages; naming the layers scores nothing." }
+  ],
+  "teacher": {
+    "timing": "45 min: review 5 · test 35 · collect. 30 marks. Bands: 24+ secure; 16–23 developing; below 16 revisit lessons 1, 3 and 5.",
+    "misconceptions": ["Marks lost on Q4/Q7 are vocabulary and format recognition; Q6/Q10 are sequencing and scenario linking. Reteach whichever dominates. Watch Q3 for 'router' in the centre of the star."],
+    "say": ["'Who owns the cable. Switch inside, router outside. MAC made, IP issued. SMTP sends.'"],
+    "skip": "For 25 minutes drop Q6 and Q11 (5 marks), mark out of 25.",
+    "differentiation": [
+      "Support: allow the five-minute review list on the desk; provide the three address formats as a strip for Q7.",
+      "Stretch: Q10 — add a part (c): propose and justify two improvements the school could make."
+    ]
+  }
+}

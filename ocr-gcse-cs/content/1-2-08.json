@@ -1,0 +1,69 @@
+{
+  "id": "1-2-08",
+  "title": "Unit 1.2 Memory and storage — review and test",
+  "spec": "1.2.1 – 1.2.5",
+  "duration": 50,
+  "specPoints": [
+    "Covers all of 1.2: RAM, ROM, virtual memory; optical, magnetic and solid state storage; units and file sizes; binary, hex, addition, shifts; ASCII and Unicode; images and sound; lossy and lossless compression",
+    "29 marks · 40 minutes · calculator not needed",
+    "Teachers: switch on Teacher view for the mark scheme"
+  ],
+  "learn": [
+    "Recall every 1.2 term precisely and use 'whereas' when comparing",
+    "Convert between denary, binary and hex in both directions without a slip",
+    "Carry out file-size calculations showing bits, bytes, kB on separate lines",
+    "Apply storage and compression reasoning to a scenario, quoting its words"
+  ],
+  "hook": "Volatile means it vanishes. 128, 64, 32, 16, 8, 4, 2, 1. Bits first, then divide by 8, then by 1000. Does every bit matter? Four lines. If you can say them, you can score on this test.",
+  "explain": [
+    { "h": "Five-minute review",
+      "list": ["Primary storage: RAM is volatile, read/write, holds running programs and data; ROM is non-volatile, read only, holds the bootstrap. Virtual memory = part of secondary storage used when RAM is full; pages swapped out and back; slow because the disk is slow; fix is more RAM.",
+               "Secondary storage: magnetic (platters, moving head: big, cheap, fragile), optical (laser, pits and lands: cheap, portable, small, scratches), solid state (flash cells, no moving parts: fast, durable, dearer). Judge on capacity, speed, portability, durability, reliability, cost; quote the scenario.",
+               "Units: 8 bits = byte; kB, MB, GB, TB, PB each 1000 times the last (OCR uses 1000). Text = chars × bits; image = width × height × colour depth; sound = sample rate × seconds × bit depth. Bits, then ÷ 8, then ÷ 1000.",
+               "Binary: place values 128 to 1; eight bits always. Addition: carry at two; a ninth bit means overflow. Shift left ×2 per place (may overflow); shift right ÷2 per place (loses precision). Hex: 0–9, A–F; one digit = one nibble; two digits = one byte; for people, not the CPU.",
+               "Characters: a character set maps codes to characters; ASCII 7 bits = 128, codes run in order; Unicode 16/32 bits covers all languages, bigger files. Images: pixels, colour depth (bits per pixel, 2^n colours), resolution, metadata. Sound: samples per second (Hz), bit depth, duration; more of each = better quality and bigger file.",
+               "Compression: smaller, faster, less bandwidth. Lossless (RLE, dictionary) restores the original exactly: text, programs, PNG, ZIP. Lossy removes data permanently that people barely notice: JPEG, MP3, MP4. Does every bit matter?"] }
+  ],
+  "exam": [
+    { "q": "State the purpose of **ROM** in a desktop computer and give **one** way it differs from RAM.", "marks": 2,
+      "model": ["Stores the bootstrap / BIOS / start-up instructions (1). Difference, both halves needed: ROM is non-volatile whereas RAM is volatile / ROM is read only whereas RAM is read-write (1)."],
+      "commentary": "Bootstrap for the first mark. The difference must mention both RAM and ROM." },
+    { "q": "(a) Convert the denary number 201 to 8-bit binary. (b) Convert the binary number 01101110 to denary.", "marks": 2,
+      "model": ["(a) 11001001 (1). (b) 110 (1)."],
+      "commentary": "128 + 64 + 8 + 1 = 201; 64 + 32 + 8 + 4 + 2 = 110. Writing the place values above the bits costs ten seconds and prevents most errors." },
+    { "q": "(a) Convert the binary number 10011111 to hexadecimal. (b) Convert the hexadecimal number C4 to denary.", "marks": 2,
+      "model": ["(a) 9F (1). (b) 196 (1)."],
+      "commentary": "Split 1001 | 1111 = 9 | F. C4 = 12 × 16 + 4 = 196. A student who writes 15 for F has forgotten hex digits are single symbols." },
+    { "q": "Add the 8-bit binary numbers 10110110 and 01111010. Show your working, and explain the problem that occurs if the result must be stored in 8 bits.", "marks": 3,
+      "model": ["100110000 (1), with carries shown (1). The result needs nine bits / is greater than 255, so it cannot be stored in 8 bits: an overflow error, the leading 1 is lost and the stored value is wrong (1)."],
+      "commentary": "182 + 122 = 304. Name it: overflow. 'The number is too big' without the word or the 255 limit is a weaker answer." },
+    { "q": "The binary number 00110100 is shifted two places to the left. Give the result and state the effect of this shift on the value.", "marks": 2,
+      "model": ["11010000 (1). The value is multiplied by 4 / 52 becomes 208 (1)."],
+      "commentary": "Two places = ×4, not ×2. Fill the right-hand end with zeros." },
+    { "q": "Describe how a computer uses **virtual memory**, and state **one** reason why relying on it slows the computer down.", "marks": 3,
+      "model": ["Part of secondary storage is used as if it were RAM when RAM is full (1). Pages not recently used are moved from RAM to virtual memory and moved back when needed (1). Secondary storage is much slower than RAM so the swapping takes time / disk thrashing (1)."],
+      "commentary": "Where, what moves, why slow. Saying virtual memory 'is extra RAM' without placing it on secondary storage loses the first mark." },
+    { "q": "A film-maker needs to store 6 TB of raw video footage in her studio. She wants the lowest cost and will not move the storage around. Identify a suitable type of secondary storage and justify your choice.", "marks": 3,
+      "model": ["Magnetic hard disk drives (1). They have a very high capacity so 6 TB is available on one or two drives (1) and the lowest cost per gigabyte, which matters for the lowest cost (1). (Accept: low portability and fragility do not matter as the storage will not move.)"],
+      "commentary": "The scenario gives you the reasons: '6 TB', 'lowest cost', 'will not move'. Solid state can earn one mark for capacity but fails on cost. Optical fails on capacity." },
+    { "q": "(a) A logo is 300 pixels wide and 200 pixels high with a colour depth of 8 bits. Calculate its file size in kilobytes. Show your working. (b) A voice note is recorded for 10 seconds at a sample rate of 16,000 Hz with a bit depth of 8 bits. Calculate its file size in kilobytes.", "marks": 5,
+      "model": ["(a) 300 × 200 = 60,000 pixels (1); × 8 = 480,000 bits (1); ÷ 8 = 60,000 bytes = 60 kB (1). (b) 16,000 × 10 × 8 = 1,280,000 bits (1); ÷ 8 = 160,000 bytes = 160 kB (1)."],
+      "commentary": "Method marks are available for each line. Forgetting ÷ 8 is the single biggest cause of lost marks in this unit. Using 1024 loses the final mark." },
+    { "q": "The ASCII code for 'k' is 107. (a) State the ASCII code for 'n'. (b) Explain why a messaging app used worldwide would use Unicode instead of ASCII.", "marks": 3,
+      "model": ["(a) 110 (1). (b) Unicode uses more bits per character so it has far more characters available (1), which means it can represent the alphabets, symbols and emoji of every language the app's users write in, which ASCII's 128 characters cannot (1)."],
+      "commentary": "n is three letters after k. In (b) link the extra characters to 'worldwide'." },
+    { "q": "A school website hosts photographs of a sports day and also a downloadable spreadsheet of results. Explain which type of compression is suitable for each file, and give **one** reason why the school compresses them at all.", "marks": 4,
+      "model": ["Photographs: lossy (1) because a small loss of detail is not noticed on screen and the files become much smaller so the page loads quickly (1). Spreadsheet: lossless (1) because every value must be exactly preserved / lossy would corrupt the data (1). Reason to compress (accept in place of one expansion if the question is read that way): less storage on the server / faster download for parents / less bandwidth (1)."],
+      "commentary": "Four marks: choice and reason for each file. The spreadsheet is the trap; lossy for data is wrong. The reason for compressing may be credited where a candidate has given only three of the four points above." }
+  ],
+  "teacher": {
+    "timing": "50 min: review 5 · test 40 · collect. 29 marks. Bands: 23+ secure; 16–22 developing; below 16 revisit lessons 3, 4 and 6 (calculations and conversions) before moving on.",
+    "misconceptions": ["Marks lost on Q2–Q5 are conversion fluency: set a two-minute drill at the start of the next five lessons. Marks lost on Q8 are almost always the missing ÷ 8 or a 1024 habit. Q10 spreadsheet-as-lossy signals the 'does every bit matter' test was not learnt."],
+    "say": ["'Eight bits. Divide by eight. Does every bit matter? Three eights to remember.'"],
+    "skip": "For 30 minutes drop Q7 and Q9 (6 marks) and mark out of 23.",
+    "differentiation": [
+      "Support: allow the five-minute review list and a place-value strip on the desk; read Q7 and Q10 aloud.",
+      "Stretch: Q8 — recalculate both files if the colour depth doubled and the sample rate was 44,100 Hz, and state how many times larger each becomes."
+    ]
+  }
+}

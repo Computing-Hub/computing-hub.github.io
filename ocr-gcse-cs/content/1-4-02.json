@@ -1,0 +1,116 @@
+{
+  "id": "1-4-02",
+  "title": "Threats: brute force, DoS, interception, SQL injection",
+  "spec": "1.4.1",
+  "duration": 60,
+  "specPoints": [
+    "Forms of attack: **brute-force attacks**, **denial of service (DoS)** attacks, **data interception and theft**",
+    "The concept of **SQL injection**",
+    "Outline the **impact** of each attack on an organisation"
+  ],
+  "learn": [
+    "Describe how a brute-force attack works and calculate why longer passwords defeat it",
+    "Describe a denial of service attack and its effect on an organisation",
+    "Explain how data can be intercepted on a network (packet sniffing, man-in-the-middle) and why encryption protects it",
+    "Explain the concept of SQL injection with a simple example of what the attacker types and what happens",
+    "Match each attack to a specific impact on a business, school or hospital"
+  ],
+  "hook": "Write a 4-digit PIN on a sticky note and keep it secret. I will guess it. 0000, 0001, 0002... How long until I get there? There are only 10,000 PINs; a computer tries them in under a second. Now make it 8 characters with letters, numbers and symbols. The same computer needs years. Today's attacks are about speed, flooding, listening in, and typing something a website did not expect.",
+  "video": {
+    "title": "Four technical attacks in four minutes",
+    "brief": "4 minutes, one scene per attack. Brute force: a padlock with a counter spinning through combinations; the counter for 4 digits stops fast, the 8-character one keeps spinning as the screen fades. DoS: a shop door with one customer, then a thousand fake customers blocking it so real ones cannot get in. Interception: two people passing a postcard across a room while a third reads it; then the postcard is replaced by a sealed envelope (encryption) and the reader sees nothing. SQL injection: a login box; a user types a name, then an attacker types a quote mark and OR 1=1 and the database says yes to everyone. Close: each attack has a matching defence, which is next lesson."
+  },
+  "explain": [
+    { "h": "Brute-force attacks",
+      "p": ["A **brute-force attack** tries every possible password or key until one works. It is not clever: it is fast. Software can try thousands of guesses per second against a weak system. A smarter version, a **dictionary attack**, tries common words and leaked passwords first.", "The defence is maths. The number of possible passwords is **(number of symbols) to the power of (length)**. Doubling the length squares the work."],
+      "code": "Password type                  Possibilities        Time at 1,000 guesses/second\n-----------------------------  -------------------  ----------------------------\n4-digit PIN (0-9)              10^4 = 10,000        10 seconds\n6 lowercase letters (a-z)      26^6 = 308,915,776   about 3.6 days\n8 chars, upper+lower+digits    62^8 = 2.18 x 10^14  about 6,900 years\n12 chars, 95 printable symbols 95^12 = 5.4 x 10^23  longer than the age of the universe",
+      "after": ["Impact on an organisation: a cracked password gives the attacker **the same access as the user**, so the damage depends on what that user can do. That is why access levels matter."] },
+    { "h": "Denial of service (DoS)",
+      "p": ["A **denial of service attack** floods a server with so many requests that it cannot respond to genuine users. The website slows or crashes. A **DDoS** (distributed DoS) uses many infected computers (a **botnet**) to send the flood at once, which makes it hard to block by IP address.", "Nothing is stolen. The impact is **downtime**: an online shop loses sales for every minute it is offline; a school cannot access its cloud systems; customers lose trust and go elsewhere."] },
+    { "h": "Data interception and theft",
+      "p": ["Data moving across a network travels in **packets**. If the network is unencrypted (public Wi-Fi, an old protocol such as HTTP), an attacker on the same network can capture those packets with a **packet sniffer** and read them: usernames, passwords, card details, messages.", "A **man-in-the-middle attack** goes further: the attacker sits between the user and the server, relaying traffic so both sides think they are talking directly, while reading or changing everything that passes.", "The defence is **encryption**: the attacker still captures the packets but sees only scrambled ciphertext without the key."] },
+    { "h": "SQL injection: the concept",
+      "p": ["Many websites store users in a database and check logins with an **SQL query**. If the site builds that query by **gluing the user's typing straight into the SQL**, the user can type SQL of their own, and the database will run it. This is **SQL injection**.", "Suppose the site builds this query from the username box:"],
+      "code": "query = \"SELECT * FROM users WHERE username = '\" + typed + \"' AND password = '\" + pwd + \"'\"\n\nNormal user types:    alice\nQuery becomes:        ... WHERE username = 'alice' AND password = 'xyz'\n\nAttacker types:       ' OR '1'='1\nQuery becomes:        ... WHERE username = '' OR '1'='1' AND password = ''\n\n'1'='1' is always TRUE, so the WHERE clause matches rows\nwithout knowing any password -> the attacker is logged in.\nWorse: a typed  '; DROP TABLE users; --  could delete the table.",
+      "after": ["Impact: the attacker can **read**, **change** or **delete** data in the database — customer records, grades, prices. For the exam you need the **concept**: user input is treated as code. The fix (next lesson) is **input validation** and **parameterised queries**, where the database treats typing as plain text, never as SQL."] },
+    { "h": "Matching attack to impact",
+      "p": ["Exam questions reward impacts that fit the attack. Use this table when a scenario asks 'explain the impact'."],
+      "code": "Attack              What the attacker gets          Typical impact on organisation\n------------------  ------------------------------  -------------------------------------\nBrute force         A valid account/password        Unauthorised access; data theft\nDoS / DDoS          Nothing - just disruption       Downtime; lost sales; lost trust\nInterception        Copies of data in transit       Stolen passwords/card details; fines\nSQL injection       Read/change/delete database     Data breach; corrupted records; fines" }
+  ],
+  "simple": [
+    { "h": "Brute force",
+      "p": ["The attacker tries every password, one after another, very fast. A short password is found quickly. A long one with many symbol types takes years."],
+      "code": "4-digit PIN:   10,000 guesses   -> seconds\n8 mixed chars: 218 trillion     -> thousands of years" },
+    { "h": "Denial of service",
+      "p": ["The attacker sends millions of fake requests to a website. It gets so busy that real people cannot get in. Nothing is stolen, but the site is down and the business loses money."] },
+    { "h": "Interception",
+      "p": ["Data travels across networks in packets. On an unprotected network, an attacker can capture and read them. This is packet sniffing. Encryption scrambles the data so a captured packet is useless."] },
+    { "h": "SQL injection",
+      "p": ["A website asks for your username. It puts your typing straight into a database command. An attacker types database code instead of a name. The database runs it. The attacker can log in without a password, or delete data."],
+      "code": "Attacker types:  ' OR '1'='1\nThis is always true, so the login says yes." }
+  ],
+  "keyterms": [
+    { "term": "Brute-force attack", "def": "Trying every possible password or key, usually automatically, until the correct one is found." },
+    { "term": "Denial of service (DoS)", "def": "Flooding a server with requests so that it cannot serve genuine users." },
+    { "term": "DDoS", "def": "A DoS attack launched from many compromised computers (a botnet) at once." },
+    { "term": "Data interception", "def": "Capturing data as it travels across a network, for example with a packet sniffer." },
+    { "term": "Man-in-the-middle", "def": "An attack where the attacker secretly relays, reads or alters traffic between two parties who believe they are communicating directly." },
+    { "term": "SQL injection", "def": "Entering SQL code into an input box so that a badly written website runs it against its database." },
+    { "term": "Packet sniffer", "def": "Software that captures and inspects packets travelling on a network." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Brute force by numbers", "p": ["This program does **not** crack anything. It counts how many guesses a brute-force attack would need and how long that takes. Run it, then change the guesses-per-second to 1,000,000,000 (a modern cracking rig) and see which passwords survive."],
+      "code": "# How long would brute force take? (maths only - nothing is attacked)\nguesses_per_second = 1000\n\npassword_types = [\n    (\"4-digit PIN\",              10, 4),\n    (\"6 lowercase letters\",      26, 6),\n    (\"8 letters + digits\",       62, 8),\n    (\"12 chars, any symbol\",     95, 12),\n]\n\ndef nice_time(seconds):\n    units = [(\"years\", 31536000), (\"days\", 86400), (\"hours\", 3600), (\"minutes\", 60), (\"seconds\", 1)]\n    for name, size in units:\n        if seconds >= size:\n            return str(round(seconds / size, 1)) + \" \" + name\n    return \"under a second\"\n\nfor name, symbols, length in password_types:\n    possibilities = symbols ** length\n    seconds = possibilities / guesses_per_second\n    print(name.ljust(24), \"{:,}\".format(possibilities).rjust(28), \"->\", nice_time(seconds))\n\n# TODO 1: set guesses_per_second = 1000000000 and rerun.\n# TODO 2: add your own row: how many symbols and how long is YOUR password style?" },
+    { "type": "python", "title": "2. Interception: plaintext vs ciphertext", "p": ["Two devices send a message across a network while a third copies every packet. Run it: the sniffer reads the first message easily. Then look at the second, which has been scrambled with a toy XOR cipher before sending. The attacker captured the same number of bytes but cannot read them without the key."],
+      "code": "# Toy demonstration of why encryption defeats interception.\n# XOR with a one-byte key is NOT real security - it just shows the idea.\n\ndef xor_encrypt(text, key):\n    return [ord(ch) ^ key for ch in text]\n\ndef xor_decrypt(numbers, key):\n    return \"\".join(chr(n ^ key) for n in numbers)\n\nmessage = \"card 4921 pin 3310\"\n\n# --- Message 1: sent in plaintext (like HTTP on open Wi-Fi) ---\npacket1 = message\nprint(\"Sniffer captures packet 1:\", packet1)\n\n# --- Message 2: encrypted before sending (like HTTPS) ---\nkey = 42\npacket2 = xor_encrypt(message, key)\nprint(\"Sniffer captures packet 2:\", packet2)\nprint(\"Sniffer tries to read it:  \", \"\".join(chr(n) for n in packet2))\n\n# Only the receiver has the key\nprint(\"Receiver decrypts:          \", xor_decrypt(packet2, key))\n\n# TODO: change the key to 7. Does the sniffer's view change? Does the receiver still read it?\n# Extension: why would a one-byte key still be weak against brute force? (Hint: how many keys?)" },
+    { "type": "python", "title": "3. SQL injection: glued string vs placeholder", "p": ["No real database here: a tiny fake 'database' checks a login two ways. Way A glues the typing into the query (vulnerable). Way B treats typing as plain data (safe). Run it with a normal username and then with the injection string, and compare the results."],
+      "code": "# Conceptual demo - a pretend database that can only do one thing.\n# It shows WHY building queries from user typing is dangerous.\n\nusers = {\"alice\": \"s3cret\", \"bob\": \"hunter2\"}\n\ndef fake_db_run(query_text):\n    # Our toy 'database' understands exactly one trick: a literal OR '1'='1 is always true.\n    if \"OR '1'='1'\" in query_text:\n        return True          # the WHERE clause matched every row\n    # otherwise pull the two quoted values back out and check them properly\n    parts = query_text.split(\"'\")\n    name, pwd = parts[1], parts[3]\n    return users.get(name) == pwd\n\ndef login_glued(name, pwd):            # WAY A - vulnerable\n    query = \"SELECT * FROM users WHERE username = '\" + name + \"' AND password = '\" + pwd + \"'\"\n    print(\"  query sent:\", query)\n    return fake_db_run(query)\n\ndef login_parameterised(name, pwd):    # WAY B - safe\n    # The typing is NEVER joined into the query text. It is checked as data only.\n    print(\"  query sent: SELECT * FROM users WHERE username = ? AND password = ?   params:\", (name, pwd))\n    return users.get(name) == pwd\n\nattempts = [(\"alice\", \"s3cret\"), (\"alice\", \"wrong\"), (\"' OR '1'='1\", \"anything\")]\n\nfor name, pwd in attempts:\n    print(\"Typed username:\", repr(name))\n    print(\"  glued ->         \", \"LOGGED IN\" if login_glued(name, pwd) else \"refused\")\n    print(\"  parameterised -> \", \"LOGGED IN\" if login_parameterised(name, pwd) else \"refused\")\n    print()\n\n# Question: in which version does the attacker's typing become part of the command?" },
+    { "type": "embed", "title": "4. Threats in the networks topic", "url": "https://beanwise.coderra.je/GCSE_homepage/Topic4_Networks.html",
+      "instructions": ["Find the network security part. For brute force, DoS, interception and SQL injection, note what the attacker **gets**: an account, disruption, copied data, or control of the database.", "Pick one and write a two-sentence impact for a hospital. First sentence: what happens. Second: what that means for patients."] },
+    { "type": "task", "title": "5. Match attack to impact", "p": ["Write the four attacks on cards: brute force, DoS, interception, SQL injection. Write these impacts on separate cards and match each to the **best-fitting** attack. Some impacts fit more than one; be ready to justify."],
+      "steps": ["Website unavailable on the busiest shopping day of the year.",
+                "Attacker logs in as the finance manager using a guessed password.",
+                "Card numbers typed on cafe Wi-Fi are read by a stranger.",
+                "Every price in the online catalogue is changed to 1p.",
+                "Customer records are deleted overnight.",
+                "Login page accepts anyone who types a quote mark and OR 1=1."] }
+  ],
+  "check": [
+    { "q": "A brute-force attack works by:", "opts": ["Flooding a server with requests", "Trying every possible password until one works", "Reading packets on a network", "Tricking a user into clicking a link"], "a": 1, "fb": "Brute force = exhaustive guessing." },
+    { "q": "Which statement about a DoS attack is TRUE?", "opts": ["It steals the database", "It installs spyware", "It makes a service unavailable to genuine users", "It needs the user's password"], "a": 2, "fb": "Nothing is stolen; the service is overwhelmed." },
+    { "q": "An attacker on public Wi-Fi reads passwords sent over an unencrypted connection. This is:", "opts": ["SQL injection", "Data interception", "Brute force", "Ransomware"], "a": 1, "fb": "Capturing data in transit = interception / packet sniffing." },
+    { "q": "SQL injection is possible when a website:", "opts": ["Uses a strong password", "Joins user input directly into a database query", "Encrypts its traffic", "Runs on Linux"], "a": 1, "fb": "Typing becomes part of the command, so typed SQL runs." },
+    { "q": "Using 1,000 guesses per second, roughly how long does a 4-digit PIN take to brute-force at worst?", "opts": ["10 seconds", "10 minutes", "10 hours", "10 years"], "a": 0, "fb": "10,000 possibilities / 1,000 per second = 10 seconds." }
+  ],
+  "exam": [
+    { "q": "Describe how a **brute-force attack** is carried out.", "marks": 2,
+      "model": ["Software repeatedly tries different passwords/keys (1), working through every possible combination (or a list of common passwords) until the correct one is found (1)."],
+      "commentary": "'Guessing the password' alone is one mark. The second mark is for *systematically trying all combinations* or *automated/many attempts*. Mentioning a dictionary of common passwords is creditable." },
+    { "q": "A ticket website crashes on the morning tickets go on sale. The company suspects a DDoS attack. Explain how a DDoS attack causes a website to become unavailable.", "marks": 3,
+      "model": ["Many computers (a botnet of infected machines) send requests to the server at the same time (1). The server cannot handle the volume of traffic / runs out of bandwidth or processing capacity (1), so genuine users' requests time out or are refused (1)."],
+      "commentary": "Three ideas: many sources, server overwhelmed, real users locked out. Students often forget the third — the *denial* to genuine users is the point of the name. Confusing this with heavy legitimate demand loses the first mark." },
+    { "q": "A website checks logins by building the SQL query `SELECT * FROM users WHERE name = '[typed name]'` directly from the text a user types. Explain how an attacker could use **SQL injection** on this site, and state **one** impact on the website's owner.", "marks": 4,
+      "model": ["The attacker types SQL code into the name box instead of a name (1), e.g. `' OR '1'='1` (1). Because the typing is joined into the query, the database runs the attacker's code, so the condition is always true / extra commands run and the attacker is logged in or can read, change or delete data (1). Impact: customer data stolen / records deleted or altered / fine and reputational damage (1)."],
+      "commentary": "The concept mark is *input is treated as code*. An example string helps but is not essential; a clear statement that the typed text becomes part of the query earns the mark. 'Hacking the database' with no mechanism scores zero for the explain part." }
+  ],
+  "home": "Using the brute-force table, work out how many possibilities there are for (a) a 6-digit PIN, (b) a 10-character password using lowercase letters only, (c) a 10-character password using 95 symbols. Then write two sentences explaining to a friend why 'longer' beats 'more complicated'.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 15 · try 25 · check 5 · exam 8 · homework 2",
+    "misconceptions": [
+      "DoS 'steals data'. It does not: it denies access. Impact words are downtime, lost sales, lost trust.",
+      "Brute force 'hacks the password'. Be precise: it guesses systematically; it is beaten by length, lockouts and two-factor.",
+      "SQL injection explained as 'typing a virus'. It is typing SQL that the site mistakenly runs. The key phrase: input treated as code.",
+      "Encryption 'stops interception'. It does not stop the capture; it makes the captured data unreadable."
+    ],
+    "say": [
+      "'Brute force is not clever. It is fast. Make it slow with length.'",
+      "'A DoS attack is a thousand fake customers in the doorway.'",
+      "'If your typing can become part of the command, you own the database.'"
+    ],
+    "skip": "Try 2 can go if time is short; Try 1 and Try 3 carry the two calculation/concept ideas the exam asks about. Try 5 is a quick plenary.",
+    "differentiation": [
+      "Support: in Try 3, just run it and highlight the one line where the typed text appears inside the query. That is the whole idea.",
+      "Stretch: in Try 2, write a loop that brute-forces the one-byte XOR key (only 256 to try) and explain why real keys are 128 bits or more."
+    ]
+  }
+}

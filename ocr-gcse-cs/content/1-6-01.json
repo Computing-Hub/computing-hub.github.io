@@ -1,0 +1,119 @@
+{
+  "id": "1-6-01",
+  "title": "Ethical and cultural issues",
+  "spec": "1.6.1",
+  "duration": 60,
+  "specPoints": [
+    "Impacts of digital technology on wider society including **ethical issues** and **cultural issues**",
+    "How key **stakeholders** are affected by technologies",
+    "Being able to discuss the issues in a balanced way, using a scenario"
+  ],
+  "learn": [
+    "Define 'ethical' and 'cultural' as the exam uses them and sort an issue into the right category",
+    "Describe at least five ethical issues (privacy, surveillance, algorithmic decisions, the digital divide, cyberbullying and wellbeing) with a concrete example of each",
+    "Describe at least four cultural changes caused by digital technology (communication, work, globalisation, local culture)",
+    "Name the stakeholders in a scenario and give one benefit and one drawback for each",
+    "Write a balanced, two-sided paragraph about a technology in a given situation"
+  ],
+  "hook": "Take out your phone (or imagine it). In the last 24 hours it has recorded where you went, who you messaged, what you watched and how long you slept. Who has that data? Would you be happy for your head of year to see it? Your future employer? An insurance company? Nothing about that is illegal. So why does it feel uncomfortable? That gap between 'allowed' and 'right' is what 'ethical' means in this unit.",
+  "video": {
+    "title": "Allowed is not the same as right",
+    "brief": "4 minutes. Open on a split screen: a town-centre camera on one side, a teenager's phone on the other. Define ethical (right and wrong, fairness, harm) and cultural (how a society lives, talks, works). Walk through five quick scenes: a shop using facial recognition, an algorithm deciding who gets a loan, a village with no broadband, a group chat turning nasty, a 2 a.m. scroll session. For each, name who is affected and show a plus and a minus. Close on the stakeholder grid: people down the side, benefit and drawback across the top, and the line 'the examiner wants both columns filled'."
+  },
+  "explain": [
+    { "h": "Ethical, legal, cultural, environmental: four lenses",
+      "p": ["The spec groups the impacts of technology under four headings. **Ethical** issues are about right and wrong, fairness and harm, even when nothing illegal happens. **Legal** issues are about laws (lesson 3). **Cultural** issues are about how a society lives: how people talk, work, shop, learn and what they value. **Environmental** issues are about energy, materials and waste (lesson 2). One technology usually raises issues under several headings at once, and the exam will often ask about one heading only. Read which one."],
+      "code": "Issue                                        Ethical  Legal  Cultural  Environmental\nShop tracks customers' phones without asking     X       X\nTeenagers prefer messaging to phone calls                        X\nOld laptops shipped to a landfill abroad          X                            X\nA film is shared on a torrent site                        X" },
+    { "h": "Ethical issues: privacy, surveillance and decisions made by machines",
+      "list": ["**Privacy** — people's personal data (location, messages, health, browsing) is collected, often more than needed and often without them really understanding. Benefit: personalised services, free apps. Drawback: data sold on, leaked in breaches, used to manipulate.",
+               "**Surveillance** — CCTV, facial recognition, employers monitoring emails, governments monitoring internet use. Benefit: crime prevention, safety. Drawback: chilling effect on freedom, errors (facial recognition misidentifies some groups more than others), being watched without consent.",
+               "**Algorithmic and AI decisions** — software decides who gets a loan, a job interview, a medical appointment or a longer prison sentence. Benefit: fast, consistent, cheap. Drawback: **bias** copied from the data it was trained on, no one to appeal to, decisions no one can fully explain."] },
+    { "h": "Ethical issues: who is left out and who gets hurt",
+      "list": ["**The digital divide** — the gap between people who have good access to technology and skills and those who do not. Causes: cost, rural broadband, age, disability, language. Effect: services that go 'online only' (banking, GP booking, benefits, homework) exclude the people who most need them. In the UK roughly one household in twenty has no internet access at home.",
+               "**Cyberbullying and online abuse** — anonymity, distance and an audience make abuse easier and harder to escape; a post can be copied and never deleted. Platforms profit from engagement, which rewards outrage.",
+               "**Addiction and wellbeing** — apps are designed to keep you scrolling (infinite feeds, notifications, streaks). Links to sleep loss, anxiety and reduced concentration, especially in young people. Benefit side: connection, support communities, access to help.",
+               "**Fake news and manipulation** — recommendation algorithms show people what keeps them watching, which can mean more extreme content; targeted adverts can nudge votes and purchases."] },
+    { "h": "Cultural issues: how technology changes the way we live",
+      "list": ["**Communication** — instant messaging, video calls and social media replace letters, calls and face-to-face talk. More contact, but shorter, and people may feel lonelier. New languages of emoji, memes and abbreviations.",
+               "**Work** — remote working, gig-economy apps, automation replacing routine jobs and creating new ones (data analysts, app developers). The skills a country needs change faster than schools can adapt.",
+               "**Globalisation** — the same apps, games, music and shops are used worldwide. Small businesses can sell globally; local shops compete with giants; English and a few platforms dominate.",
+               "**Loss of local culture and languages** — minority languages have little online content, so young speakers switch to the dominant one; local traditions compete with global trends.",
+               "**Access to knowledge and creativity** — anyone can learn from free courses, publish music or video, or organise a campaign. But quality control and ownership of culture (who profits from a viral dance?) are new problems."] },
+    { "h": "Stakeholders: the tool the exam rewards",
+      "p": ["A **stakeholder** is anyone affected by a decision. For almost any technology scenario the stakeholders are: the **organisation** (company, school, council), its **users or customers**, its **staff**, and **wider society** (including the environment). The exam rewards answers that name the stakeholder, give a benefit, give a drawback, and say what it means for *this* scenario. Write 'the supermarket' and 'elderly customers', not 'people'."],
+      "code": "Scenario: A town council installs facial-recognition cameras in the high street.\n\n                 Benefit                                   Drawback\nCouncil          fewer police hours; evidence for crimes   cost; legal challenge; public anger\nShoppers         feel safer; faster response to incidents  tracked without consent; misidentified\nShop staff       shoplifting falls                         constantly watched at work\nWider society    deterrent to crime                        normalises surveillance; bias in the\n                                                           software affects some groups more",
+      "after": ["Fill every cell you can, then pick the strongest three or four. A one-sided grid is a Band 2 answer waiting to happen."] },
+    { "h": "Writing a balanced point",
+      "p": ["A balanced point has a benefit **and** a drawback for the same stakeholder, joined by 'however' or 'but', and ends with the consequence for the scenario. Example: 'Facial recognition helps the council cut shoplifting, which saves local shops money. However, the software misidentifies some people more often than others, so innocent shoppers could be stopped, damaging trust in the council.' That is three sentences and it covers stakeholder, benefit, drawback, application. Do this three times and add a conclusion and you have the 8-mark structure taught in lesson 5."] }
+  ],
+  "simple": [
+    { "h": "Four kinds of issue",
+      "p": ["Ethical = is it right or fair? Legal = is it against the law? Cultural = does it change how people live? Environmental = does it harm the planet? One technology can cause more than one kind of issue."] },
+    { "h": "Ethical issues",
+      "list": ["Privacy: companies collect lots of data about you.", "Surveillance: cameras and software watch people.", "Computer decisions: software decides loans and jobs. It can be unfair.", "Digital divide: some people cannot get online. They miss out.", "Cyberbullying: online abuse is easy and hard to escape.", "Addiction: apps are made to keep you scrolling. Sleep and mood suffer."] },
+    { "h": "Cultural issues",
+      "list": ["We talk by message, not face to face.", "Jobs change. Some vanish. New ones appear.", "The same apps are used all over the world. Local shops and languages lose out."] },
+    { "h": "Stakeholders",
+      "p": ["A stakeholder is anyone affected. Think: the organisation, its customers, its staff, society. For each one, write a good thing and a bad thing. Use the names from the question."] }
+  ],
+  "keyterms": [
+    { "term": "Ethical issue", "def": "A question of right and wrong, fairness or harm raised by technology, whether or not a law is broken." },
+    { "term": "Cultural issue", "def": "A change in how a society lives, communicates, works or what it values, caused by technology." },
+    { "term": "Stakeholder", "def": "A person or group affected by a decision: organisation, users, staff, wider society." },
+    { "term": "Privacy", "def": "A person's right to control who collects, sees and uses information about them." },
+    { "term": "Surveillance", "def": "Watching or monitoring people, for example with cameras, tracking or reading communications." },
+    { "term": "Digital divide", "def": "The gap between people with good access to technology and skills and those without." },
+    { "term": "Algorithmic bias", "def": "Unfair outcomes from software decisions, usually because the data it learned from was unfair." },
+    { "term": "Balanced", "def": "Giving benefits and drawbacks, usually for more than one stakeholder." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Sort the issues", "p": ["Sort each statement into ethical, legal, cultural or environmental (some fit two). Be ready to defend your choice in one sentence."],
+      "steps": ["A fitness app sells users' running routes to advertisers.", "Teenagers in Jersey use the same slang as teenagers in Texas because of TikTok.", "A council replaces its phone line with an online-only form.", "A student copies a game and gives it to friends.", "Discarded phones are burned to recover copper.", "A recruitment tool rejects more female applicants than male ones.", "Family dinners are quieter because everyone is on a phone."] },
+    { "type": "task", "title": "2. Stakeholder grid: the school decides", "p": ["Your school is considering an app that tracks which students are in which room using their phones' Wi-Fi, to replace registers and improve safety. Draw the grid: stakeholders down the side (school leaders, students, teachers, parents, wider society), benefit and drawback across the top."],
+      "steps": ["Fill every cell with a scenario-specific idea. 'Privacy' alone is not enough: privacy *of what*, *from whom*?", "Circle the three strongest cells.", "Write a one-sentence conclusion: a judgement, a reason, a condition ('Overall … because … provided that …')."] },
+    { "type": "task", "title": "3. Structured debate: should the council switch on facial recognition?", "p": ["Four groups, each one stakeholder: council, shoppers, shop staff, civil-liberties group. Two minutes to prepare, one minute each to speak, then one minute of replies. Rule: every speaker must give one benefit *and* one drawback from their stakeholder's point of view."],
+      "after": ["Afterwards, individually: which argument from a group you were *not* in was the strongest? Write it as a PEAC-style point (point, explain, apply, counter)."] },
+    { "type": "python", "title": "4. The digital divide in numbers", "p": ["A council moves its parking permit service online only. Run the code with the figures given, then change `no_internet_pct` to 3, 10 and 20 and see how many residents are shut out. Finally add one line that prints how many of those are over 65 if 60% of offline households are pensioners."],
+      "code": "households = 42000          # households in the town\nno_internet_pct = 6         # % with no home internet (UK figure is roughly 5-7%)\n\noffline = households * no_internet_pct / 100\nprint(\"Households with no internet:\", int(offline))\nprint(\"That is about 1 in\", round(100 / no_internet_pct), \"households\")\n\n# Add: how many of those are pensioner households if 60% are over 65?\n" },
+    { "type": "embed", "title": "5. Issues topic practice", "url": "https://beanwise.coderra.je/GCSE_homepage/Topic5_Issues.html",
+      "instructions": ["Work through the ethical and cultural sections. For every issue you meet, write the stakeholder most affected in the margin.", "Pick two issues you had not thought of and add them to your grid from Try 2."] }
+  ],
+  "check": [
+    { "q": "Which is the best description of an **ethical** issue?", "opts": ["Something that breaks a law", "A question of right, wrong or fairness, even if legal", "A change to how people communicate", "Energy used by data centres"], "a": 1, "fb": "Ethical = right and wrong; a law does not have to be broken." },
+    { "q": "A rural village has slow broadband so students cannot do online homework. This is mainly an example of:", "opts": ["Cyberbullying", "The digital divide", "Globalisation", "Surveillance"], "a": 1, "fb": "Unequal access to technology is the digital divide." },
+    { "q": "Which is a **cultural** impact of digital technology?", "opts": ["Rare metals mined for phones", "A hospital losing patient records", "People messaging instead of talking face to face", "Hackers stealing passwords"], "a": 2, "fb": "A change in how society communicates is cultural." },
+    { "q": "An AI loan tool approves fewer applications from one postcode. The main ethical concern is:", "opts": ["It is slow", "Bias in the decision that people cannot appeal", "It uses too much electricity", "It is open source"], "a": 1, "fb": "Algorithmic bias and lack of accountability." },
+    { "q": "In an exam answer, 'people' should usually be replaced with:", "opts": ["'Everyone'", "A named stakeholder from the scenario, e.g. 'elderly customers'", "'Users'", "'The public'"], "a": 1, "fb": "Applied answers name the stakeholder." }
+  ],
+  "exam": [
+    { "q": "State what is meant by the **digital divide**.", "marks": 1,
+      "model": ["The gap between people who have access to digital technology/the internet (and the skills to use it) and those who do not (1)."],
+      "commentary": "The mark is for the *gap/difference* between two groups. 'Some people don't have internet' describes one side only and is usually not enough." },
+    { "q": "A gym installs cameras that use facial recognition to let members in without a card. Describe **one** ethical issue this raises for members.", "marks": 2,
+      "model": ["Privacy: members' faces (biometric data) are recorded and stored (1), and they may not know who can see the images or how long they are kept / could be used for other purposes such as tracking attendance or selling data (1).", "Or: surveillance/consent — members are monitored every visit (1) and may feel they have no real choice if the card option is removed (1)."],
+      "commentary": "Describe = what the issue is + how it affects members. Name the issue ('privacy') then say what is actually collected and what could happen to it. 'It is creepy' earns nothing." },
+    { "q": "A village shop closes after residents switch to online supermarket deliveries. Explain **one** cultural impact and **one** ethical impact of this change on the village.", "marks": 4,
+      "model": ["Cultural: the shop was a meeting place / part of village life (1), so residents lose daily face-to-face contact and the community becomes more isolated (1).", "Ethical: residents without internet, cars or digital skills (often elderly) now cannot easily buy food (1), so the change benefits most people but harms the most vulnerable — a digital-divide fairness issue (1).", "Other acceptable ethical points: loss of local jobs while a large company profits; delivery drivers on insecure contracts."],
+      "commentary": "Two marks each: the impact and *why it matters for this village*. Students lose marks by writing two cultural points or by giving the same impact twice with different words. Label the two halves 'cultural' and 'ethical' so the examiner can see the balance." }
+  ],
+  "home": "Choose one app you use daily. Write a stakeholder grid for it (you, the company, other users, society) with a benefit and a drawback in each cell, then a three-sentence balanced paragraph about whether the app does more good than harm. Bring it: it becomes your plan in lesson 5.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 15 · try 27 · check 5 · exam 6 · homework 2",
+    "misconceptions": [
+      "'Ethical' means 'illegal'. Keep repeating: ethical is about right and fair; legal is lesson 3.",
+      "Cultural = 'to do with other countries'. Cultural means how a society lives; it includes our own.",
+      "One-sided answers: students argue the side they believe. Insist on the grid having both columns filled before anyone writes a paragraph.",
+      "'People' and 'everyone' instead of named stakeholders. Ban the word 'people' for this lesson."
+    ],
+    "say": [
+      "'Allowed is not the same as right. Ethical is the gap between them.'",
+      "'Who is affected? Good for them, bad for them. Now say why, for this scenario.'",
+      "'If your grid has an empty column, you have written half an answer.'"
+    ],
+    "skip": "Try 5 is optional. Try 2 (the grid) and Try 3 (the debate) carry the skill the 8-marker needs; keep both.",
+    "differentiation": [
+      "Support: give the grid pre-drawn with stakeholders filled in and one example cell completed; students complete the rest.",
+      "Stretch: Try 3 — argue the stakeholder you disagree with most, then write a conclusion that gives that stakeholder's condition."
+    ]
+  }
+}

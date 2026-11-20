@@ -1,0 +1,108 @@
+{
+  "id": "1-2-01",
+  "title": "Primary storage: RAM, ROM and virtual memory",
+  "spec": "1.2.1",
+  "duration": 60,
+  "specPoints": [
+    "The need for **primary storage**",
+    "The difference between **RAM** and **ROM**, and the purpose of each",
+    "**Virtual memory**: why it is needed, how it works and its drawback"
+  ],
+  "learn": [
+    "Explain why a computer needs primary storage that the CPU can reach directly",
+    "State what RAM holds and what ROM holds, and which one is volatile",
+    "Compare RAM and ROM in sentences that mention both",
+    "Describe how virtual memory works when RAM is full, step by step",
+    "Explain why virtual memory slows a computer down and what fixes it"
+  ],
+  "hook": "Open ten browser tabs, a video and a game on an old laptop. Watch it crawl. Nothing is broken: it has run out of RAM and is shuffling data out to the hard drive to make room. Today you learn exactly what is happening in that moment, and why pulling the plug loses your unsaved work but not your operating system.",
+  "video": {
+    "title": "RAM, ROM and the overflow shelf",
+    "brief": "4 minutes. A desk (the CPU) with a small shelf beside it (RAM). Programs arrive as folders and are placed on the shelf; the CPU only works on what is on the shelf. Lights go out: the shelf empties (volatile). A locked drawer under the desk (ROM) still has its start-up card: the bootstrap, which tells the computer how to load the OS from the hard drive. Then the shelf fills up. The OS carries the least-used folder down to a cupboard in the basement (virtual memory on secondary storage) and brings another up. Show the walk taking far longer than reaching to the shelf. End with 'more RAM = fewer trips'."
+  },
+  "explain": [
+    { "h": "Why primary storage is needed",
+      "p": ["The CPU runs billions of cycles a second. It can only work on instructions and data it can reach **directly and fast**. Secondary storage (hard drives, SSDs) is far too slow for that, so every program that runs is first copied into **primary storage**: memory the CPU is connected to by the address and data buses.", "Primary storage means RAM and ROM (cache and registers are inside the CPU and are covered in 1.1). Without primary storage the CPU would sit idle waiting for every instruction to arrive from the disk."] },
+    { "h": "RAM: the working memory",
+      "p": ["**RAM** (Random Access Memory) holds the parts of the **operating system**, the **programs** currently running and the **data** they are using. It can be read and written. It is **volatile**: when the power goes, everything in it is lost. That is why unsaved work disappears when a laptop battery dies.", "More RAM means more programs and data can be held at once, so the computer can run more things without slowing down."] },
+    { "h": "ROM: the start-up memory",
+      "p": ["**ROM** (Read Only Memory) holds the **bootstrap** (also called the BIOS or firmware): the small program that runs when the computer is switched on. It checks the hardware and loads the operating system from secondary storage into RAM.", "ROM is **non-volatile**, so its contents survive power-off. It is read-only (or changed only with a special update), so the start-up program cannot be accidentally deleted. In an embedded system, the whole program often lives in ROM."],
+      "code": "Feature          RAM                            ROM\n---------------  -----------------------------  -------------------------------\nVolatile?        Yes - lost when power is off   No - kept when power is off\nRead/write?      Read and write                 Read only (normal use)\nHolds            OS, running programs, data     Bootstrap / BIOS / firmware\nSize             Large (e.g. 8-32 GB)           Small (a few MB)\nCan be changed?  Constantly, by programs        Fixed at manufacture / rare update" },
+    { "h": "Virtual memory: when RAM runs out",
+      "p": ["Open enough programs and RAM fills up. The operating system does not refuse to continue. Instead it uses part of secondary storage (the hard drive or SSD) as if it were extra RAM. This area is called **virtual memory**.", "The OS moves **pages** of data that have not been used recently out of RAM into virtual memory. That frees space for the program that needs it now. When a program needs a page that was moved out, the OS swaps it back into RAM, moving something else out to make room."],
+      "list": ["Why needed: RAM is full and the user still wants to run more / larger programs.", "How: least-recently-used pages are copied from RAM to a swap area on secondary storage, then copied back when required.", "Result: the computer keeps working rather than crashing or refusing to open programs."] },
+    { "h": "The drawback, and the fix",
+      "p": ["Secondary storage is many times slower than RAM. Every swap in and out costs time. If the computer is constantly swapping pages back and forth, it spends more time moving data than running programs. This is called **disk thrashing**, and the user sees the machine 'freeze' or run very slowly.", "The real fix is **more RAM**: more programs fit in primary storage, so fewer pages need to be swapped. Virtual memory is a safety net, not a replacement for RAM."] }
+  ],
+  "simple": [
+    { "h": "Why memory is needed",
+      "p": ["The CPU is very fast. It needs its instructions and data close by. The hard drive is too slow. So programs are copied into memory first. Memory means RAM and ROM."] },
+    { "h": "RAM",
+      "p": ["RAM holds the programs that are running and their data. You can read it and write it. When the power goes off, RAM is wiped. We call this **volatile**."] },
+    { "h": "ROM",
+      "p": ["ROM holds the start-up program. This is called the bootstrap or BIOS. It loads the operating system when you switch on. ROM keeps its data with no power. We call this **non-volatile**. You cannot normally change it."],
+      "code": "RAM: volatile, read and write, holds running programs\nROM: non-volatile, read only, holds start-up program" },
+    { "h": "Virtual memory",
+      "p": ["Sometimes RAM gets full. The operating system moves data it is not using out of RAM. It puts it on the hard drive. This space is called virtual memory. When the data is needed again, it is moved back.", "The hard drive is slow. Lots of moving makes the computer slow. The fix is more RAM."] }
+  ],
+  "keyterms": [
+    { "term": "Primary storage", "def": "Memory the CPU can access directly: RAM and ROM." },
+    { "term": "RAM", "def": "Volatile read/write memory holding the operating system, running programs and their data." },
+    { "term": "ROM", "def": "Non-volatile read-only memory holding the bootstrap program that starts the computer." },
+    { "term": "Volatile", "def": "Loses its contents when the power is turned off." },
+    { "term": "Bootstrap / BIOS", "def": "The start-up program stored in ROM that checks hardware and loads the operating system." },
+    { "term": "Virtual memory", "def": "Part of secondary storage used as extra RAM when RAM is full." },
+    { "term": "Page", "def": "A fixed-size block of data moved between RAM and virtual memory." },
+    { "term": "Disk thrashing", "def": "Constant swapping of pages between RAM and secondary storage that makes the computer very slow." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. RAM or ROM? Card sort", "p": ["Put each item in the right column: RAM, ROM, or secondary storage (not primary)."],
+      "steps": ["The bootstrap program", "The web browser you are using now", "The photo you opened a minute ago", "A saved essay you are not working on", "The operating system while the computer is running", "The firmware in a washing machine", "The score in the game you are playing", "The instructions the CPU is about to execute"],
+      "after": ["Then write one sentence saying how you decided: what question did you ask about each item?"] },
+    { "type": "task", "title": "2. Act out virtual memory", "p": ["Six students are 'pages'. Four chairs are RAM. The floor by the door is the hard drive. One student is the operating system."],
+      "steps": ["The OS seats four pages. A fifth program starts and needs a chair.", "The OS asks: who has sat still longest (least recently used)? Walk them slowly to the door.", "Seat the new page. Now the removed page is needed again: swap again, slowly.", "Count how many 'walks' happen if two programs keep taking turns. That is thrashing.", "Add two chairs (more RAM). Count again."] },
+    { "type": "embed", "title": "3. Memory and storage topic page", "url": "https://beanwise.coderra.je/GCSE_homepage/Topic3_Computers.html",
+      "instructions": ["Open the memory section. Read the RAM, ROM and virtual memory cards, then close the page and write the RAM-versus-ROM table from memory."] },
+    { "type": "python", "title": "4. Simulate a full RAM", "p": ["This tiny model has 4 RAM slots. Programs that do not fit are moved to 'disk'. Run it, then change `RAM_SLOTS` to 6 and run again. How many swaps happen each time?"],
+      "code": "RAM_SLOTS = 4\nram = []\ndisk = []\nswaps = 0\n\n# programs are used in this order; A and B keep coming back\nuses = [\"A\", \"B\", \"C\", \"D\", \"E\", \"A\", \"B\", \"F\", \"A\", \"B\"]\n\nfor prog in uses:\n    if prog in ram:\n        ram.remove(prog)\n        ram.append(prog)          # move to 'most recently used' end\n        continue\n    if prog in disk:\n        disk.remove(prog)\n        swaps += 1                # swap back in from virtual memory\n    if len(ram) == RAM_SLOTS:\n        oldest = ram.pop(0)       # least recently used page goes out\n        disk.append(oldest)\n        swaps += 1\n    ram.append(prog)\n    print(\"use\", prog, \"-> RAM\", ram, \" disk\", disk)\n\nprint(\"Total swaps:\", swaps)" },
+    { "type": "task", "title": "5. Write the two-mark answers", "p": ["Write a two-mark explain answer for each, using 'because' or 'so': (a) why ROM is used for the bootstrap rather than RAM; (b) why a computer with virtual memory still slows down; (c) why adding RAM is better than adding a bigger hard drive for a user whose laptop slows with many tabs open."] }
+  ],
+  "check": [
+    { "q": "Which statement about RAM is correct?", "opts": ["It keeps its contents without power", "It holds the bootstrap program", "It loses its contents when the power is off", "It cannot be written to"], "a": 2, "fb": "RAM is volatile." },
+    { "q": "The main purpose of ROM in a desktop computer is to hold:", "opts": ["The user's documents", "The programs currently running", "The bootstrap / BIOS", "Virtual memory"], "a": 2, "fb": "ROM stores the start-up program." },
+    { "q": "Virtual memory is located on:", "opts": ["The CPU", "Secondary storage", "ROM", "Cache"], "a": 1, "fb": "Part of the hard drive or SSD is used as extra RAM." },
+    { "q": "Why does heavy use of virtual memory slow a computer?", "opts": ["RAM becomes corrupted", "Secondary storage is much slower than RAM, so swapping pages takes time", "ROM fills up", "The CPU clock speed drops"], "a": 1, "fb": "Every swap means a slow read or write to the disk." },
+    { "q": "The best way to reduce reliance on virtual memory is to:", "opts": ["Install more RAM", "Install a larger hard drive", "Add more ROM", "Increase the clock speed"], "a": 0, "fb": "More RAM means fewer pages need to be swapped out." }
+  ],
+  "exam": [
+    { "q": "State **two** differences between RAM and ROM.", "marks": 2,
+      "model": ["Any two, one mark each, both halves needed: RAM is volatile whereas ROM is non-volatile (1); RAM can be read and written whereas ROM is read only (1); RAM holds running programs/data whereas ROM holds the bootstrap (1); RAM is much larger than ROM (1)."],
+      "commentary": "A difference must mention **both**. 'RAM is volatile' alone is half a difference and scores nothing. Write 'RAM is … whereas ROM is …' every time." },
+    { "q": "Describe how virtual memory is used when the RAM in a computer becomes full.", "marks": 3,
+      "model": ["Part of secondary storage / the hard drive is set aside to act as extra RAM (1). Pages of data not recently used are moved out of RAM into virtual memory to free space (1). When that data is needed again it is moved back into RAM, swapping with other pages (1)."],
+      "commentary": "Three steps: where it is, what moves out, what moves back. The third step is the one students forget. 'Virtual memory makes the computer faster' is a common wrong statement and loses credibility." },
+    { "q": "Amara's laptop has 4 GB of RAM. When she has several programs open it becomes very slow, even though it has a large hard drive with plenty of free space. Explain why the laptop is slow and how Amara could fix it.", "marks": 4,
+      "model": ["With several programs open the RAM is full (1), so the operating system is using virtual memory on the hard drive to hold pages that do not fit (1). The hard drive is much slower than RAM so swapping pages in and out takes time / causes disk thrashing (1). Fix: add more RAM so more programs fit in primary storage and less swapping is needed (1)."],
+      "commentary": "The scenario tells you the hard drive is fine; the answer must therefore be about RAM, not storage space. The 'because' mark is the speed difference between disk and RAM. Suggesting a bigger hard drive scores zero for the fix." }
+  ],
+  "home": "Find the RAM size and the storage size of a phone or computer at home (Settings → About). Write three sentences: what the RAM holds, what the storage holds, and what would happen to each if the battery died right now.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 14 · try 27 · check 5 · exam 8 · homework 2",
+    "misconceptions": [
+      "RAM and storage are the same thing ('my phone has 128 GB of RAM'). Keep saying 'memory versus storage'.",
+      "ROM is where files are saved. ROM holds only the start-up program.",
+      "Virtual memory makes the computer faster. It stops it crashing; it is slower than RAM.",
+      "Virtual memory is a type of RAM. It is on secondary storage."
+    ],
+    "say": [
+      "'Volatile means it vanishes. Which one vanishes? RAM.'",
+      "'Virtual memory is the overflow shelf in the basement. It works, but you have to walk there.'",
+      "'Both halves or no mark: RAM is … whereas ROM is …'"
+    ],
+    "skip": "Try 4 (Python) can go if the class is not confident with code; Try 2 (acting out) carries the virtual memory idea best.",
+    "differentiation": [
+      "Support: give the RAM/ROM table with blanks to fill rather than writing it from scratch; provide 'whereas' sentence starters.",
+      "Stretch: research why a computer with an SSD suffers less from virtual memory than one with a hard drive, and write a two-mark explanation."
+    ]
+  }
+}

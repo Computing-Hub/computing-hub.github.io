@@ -1,0 +1,115 @@
+{
+  "id": "1-2-04",
+  "title": "Binary addition, shifts and hexadecimal",
+  "spec": "1.2.4",
+  "duration": 60,
+  "specPoints": [
+    "**Add** two 8-bit binary integers and explain **overflow** errors which may occur",
+    "**Binary shifts** left and right, their effect of multiplying and dividing by 2, and loss of precision",
+    "Convert **denary 0–255 to and from 2-digit hexadecimal**, and **binary to and from hexadecimal**"
+  ],
+  "learn": [
+    "Add two 8-bit binary numbers using the four column rules and carries",
+    "Recognise an overflow error and explain why it happens in 8 bits",
+    "Perform a left or right shift and state its effect on the value",
+    "Explain why a right shift can lose precision and a left shift can overflow",
+    "Convert between denary, binary and hexadecimal in any direction",
+    "Explain why programmers use hexadecimal when computers only understand binary"
+  ],
+  "hook": "In 1996 a rocket exploded 37 seconds after launch. A number was too big for the space it was stored in: an overflow. Nobody died, but it cost hundreds of millions. Today you will make an overflow happen on paper, see why shifting bits left doubles a number, and learn the colour code #FF8800 is just three bytes in disguise.",
+  "video": {
+    "title": "Carry the one, slide the bits, count to F",
+    "brief": "5 minutes. Part 1: column addition of 10110101 + 01001110 with carries shown bouncing to the next column; then 11000000 + 01000000 where a ninth bit falls off the end: overflow. Part 2: 00001011 (11) slides left one place to 00010110 (22); slides right one place to 00000101 (5), with the lost 1 dropping off the right. Part 3: the 16 hex digits as a lift panel 0–F; split 10110101 into nibbles 1011 and 0101 → B5; then B5 → 11 × 16 + 5 = 181. End: a colour picker showing #FF8800 as three bytes."
+  },
+  "explain": [
+    { "h": "Adding binary numbers",
+      "p": ["Binary addition works like denary column addition, but you carry when a column reaches 2 instead of 10. Learn the four rules and write every carry above the next column."],
+      "code": "Rules:  0 + 0 = 0\n        0 + 1 = 1\n        1 + 1 = 10   (write 0, carry 1)\n        1 + 1 + 1 = 11 (write 1, carry 1)\n\nWorked example:  10110101 + 01001110\n\n  carries   1 1 1 1 1 1 . .\n            1 0 1 1 0 1 0 1     (181)\n          + 0 1 0 0 1 1 1 0     (78)\n          -----------------\n          1 0 0 0 0 0 0 1 1     \n\nThe answer needs 9 bits: 100000011 = 259.\nCheck: 181 + 78 = 259. Correct." },
+    { "h": "Overflow",
+      "p": ["An 8-bit register can hold 0 to 255. If an addition produces a result bigger than 255 it needs a ninth bit, and there is nowhere to put it. The extra bit is lost. This is an **overflow error**: the stored answer is wrong because the result is too large for the number of bits available.", "In the example above, a CPU with 8-bit registers would keep only 00000011 = 3 and drop the leading 1. It might set an overflow flag so the program can notice, or it might just continue with the wrong value."],
+      "list": ["Overflow happens when: the result is greater than the largest value the bits can store (255 for 8 bits).", "Spot it when: there is a carry out of the leftmost column.", "In the exam: write the full 9-bit answer **and** state that the result has overflowed."] },
+    { "h": "Binary shifts",
+      "p": ["A **left shift** moves every bit one place to the left and puts a 0 in the empty space on the right. Each place shifted left **multiplies by 2**. A **right shift** moves every bit one place to the right and puts a 0 in on the left. Each place right **divides by 2**.", "Shifting right can **lose precision**: any 1 pushed off the right-hand end is discarded, so 13 ÷ 2 becomes 6, not 6.5. Shifting left can **overflow**: a 1 pushed off the left-hand end is lost and the value becomes wrong."],
+      "code": "Left shift by 1:   00001011 (11)  ->  00010110 (22)   x2\nLeft shift by 2:   00001011 (11)  ->  00101100 (44)   x4\nRight shift by 1:  00001011 (11)  ->  00000101 (5)    /2, the 1 lost -> 5 not 5.5\nRight shift by 2:  00001011 (11)  ->  00000010 (2)    /4, precision lost\n\nOverflow on left shift:\n                   11000000 (192) ->  10000000 (128)  should be 384, the\n                                                     leading 1 was lost\nRule: shift left n places = multiply by 2^n\n      shift right n places = divide by 2^n (dropping remainders)" },
+    { "h": "Hexadecimal: why and what",
+      "p": ["**Hexadecimal** (hex, base 16) uses sixteen digits: 0–9 then A–F, where A = 10 and F = 15. One hex digit is exactly one **nibble** (4 bits), so one byte is always two hex digits. Computers do not use hex; **people** do. A long binary string like 10110101 is hard to read and easy to mistype, while B5 is short and memorable. Hex is used for colour codes, MAC addresses, memory addresses and error codes.", "Hex is shorter than binary and easier for humans to read, remember and type, and it converts to binary much more simply than denary does. That sentence is worth two marks."],
+      "code": "Denary  0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15\nHex     0 1 2 3 4 5 6 7 8 9  A  B  C  D  E  F\nBinary  0000 0001 0010 0011 0100 0101 0110 0111\n        1000 1001 1010 1011 1100 1101 1110 1111" },
+    { "h": "Converting with hex",
+      "p": ["Binary to hex: split into nibbles, convert each nibble. Hex to binary: write each digit as 4 bits. Denary to hex: divide by 16; the whole number is the first digit, the remainder the second. Hex to denary: first digit × 16, add the second digit. Or go through binary if you prefer."],
+      "code": "Binary -> hex:   10110101 -> 1011 | 0101 -> B | 5 -> B5\nHex -> binary:   3E -> 0011 | 1110 -> 00111110\n\nDenary -> hex:   181 / 16 = 11 remainder 5 -> 11 is B -> B5\n                 46 / 16 = 2 remainder 14 -> 14 is E -> 2E\n\nHex -> denary:   B5 -> 11 x 16 + 5 = 176 + 5 = 181\n                 2E -> 2 x 16 + 14 = 32 + 14 = 46\n\nAnchors:  0F = 15   10 = 16   7F = 127   80 = 128   FF = 255" }
+  ],
+  "simple": [
+    { "h": "Adding",
+      "p": ["Add the columns from the right. 0+0=0. 0+1=1. 1+1=0 carry 1. 1+1+1=1 carry 1. Write the carry above the next column."],
+      "code": "  00101101  (45)\n+ 00010111  (23)\n----------\n  01000100  (68)" },
+    { "h": "Overflow",
+      "p": ["Eight bits can hold up to 255. If the answer is bigger, there is a ninth bit. There is no room for it. The answer is wrong. This is called overflow."] },
+    { "h": "Shifts",
+      "p": ["Shift left: move all bits one place left. Put a 0 on the right. The number doubles. Shift right: move all bits one place right. The number halves. A 1 that falls off the right is lost. That is loss of precision."],
+      "code": "00001011 (11) shift left  -> 00010110 (22)\n00001011 (11) shift right -> 00000101 (5)   11/2 = 5.5, the .5 is lost" },
+    { "h": "Hex",
+      "p": ["Hex has 16 digits: 0 to 9 then A to F. A is 10. F is 15. One hex digit is 4 bits. Two hex digits is one byte. People use hex because it is shorter than binary and easier to read."],
+      "code": "binary -> hex:  split into 4s.  1011 0101 -> B 5\nhex -> binary:  each digit is 4 bits.  3E -> 0011 1110\ndenary -> hex:  divide by 16.  181 / 16 = 11 r 5 -> B5\nhex -> denary:  first x 16 + second.  B5 = 11x16 + 5 = 181" }
+  ],
+  "keyterms": [
+    { "term": "Overflow error", "def": "An error that happens when the result of a calculation is too large to be stored in the number of bits available." },
+    { "term": "Carry", "def": "The 1 passed to the next column when two or three 1s are added." },
+    { "term": "Binary shift", "def": "Moving every bit left or right by a number of places." },
+    { "term": "Left shift", "def": "Moving bits left, which multiplies the value by 2 for each place." },
+    { "term": "Right shift", "def": "Moving bits right, which divides the value by 2 for each place." },
+    { "term": "Loss of precision", "def": "Information lost when bits fall off the end of a shift, e.g. a right shift discarding a remainder." },
+    { "term": "Hexadecimal", "def": "Base-16 number system using digits 0–9 and A–F; one digit represents four bits." },
+    { "term": "Nibble", "def": "Four bits; the amount represented by one hexadecimal digit." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Binary maths animator", "url": "https://beanwise.coderra.je/cs_animations/binary-math.html",
+      "instructions": ["Add 01101100 and 00111001 on paper, then watch the tool do it. Compare the carries.", "Try 10000000 + 10000000. What happens to the ninth bit? Write the word for it.", "Shift 00000110 left three times and right twice. Predict the denary each time before pressing."] },
+    { "type": "task", "title": "2. Addition and overflow drill", "p": ["Work in 8 bits. Write carries above. State whether each has overflowed."],
+      "steps": ["00101101 + 00010111", "01011011 + 00100110", "10011001 + 01101011", "11110000 + 00011111", "11111111 + 00000001"],
+      "after": ["Check: 01000100 (68); 10000001 (129); 100000100 overflow (260); 100001111 overflow (271); 100000000 overflow (256)."] },
+    { "type": "task", "title": "3. Shift and predict", "p": ["Fill in the table. Say what each shift does to the value and whether anything was lost."],
+      "code": "Start      Shift          Result     Denary before -> after   Lost?\n00000111   left 1\n00000111   left 3\n00011001   right 1\n00011001   right 3\n10100000   left 1\n01111111   right 7" },
+    { "type": "embed", "title": "4. Hexadecimal converter", "url": "https://beanwise.coderra.je/Hexadecimal/",
+      "instructions": ["Convert on paper, then check: 10111100 to hex; A7 to binary; 200 to hex; 4C to denary.", "Pick any colour in a paint program and read its hex code. Convert the red byte to denary."] },
+    { "type": "python", "title": "5. Overflow, shifts and hex in Python", "p": ["Python integers never overflow, so the code masks the result to 8 bits with `& 0xFF` to copy what a real register does. `<<` and `>>` are the shift operators. `hex()` and `int(text, 16)` convert hex. Run it, then change `a` and `b` to the pairs in Try 2."],
+      "code": "a = 0b11110000      # 240\nb = 0b00011111      # 31\ntotal = a + b\nprint(\"true answer:\", total, \"=\", format(total, \"b\"))\nstored = total & 0xFF            # keep only the low 8 bits\nprint(\"8-bit register keeps:\", format(stored, \"08b\"), \"=\", stored)\nprint(\"overflow?\", total > 255)\n\nn = 11\nprint(\"\\n11 =\", format(n, \"08b\"))\nprint(\"11 << 1 =\", format(n << 1, \"08b\"), \"=\", n << 1)\nprint(\"11 << 2 =\", format(n << 2, \"08b\"), \"=\", n << 2)\nprint(\"11 >> 1 =\", format(n >> 1, \"08b\"), \"=\", n >> 1, \"(11/2 is really 5.5)\")\n\nprint(\"\\n181 in hex:\", hex(181), \"  B5 in denary:\", int(\"B5\", 16))\nfor h in [\"0F\", \"10\", \"7F\", \"80\", \"FF\"]:\n    print(h, \"=\", int(h, 16), \"=\", format(int(h, 16), \"08b\"))" }
+  ],
+  "check": [
+    { "q": "In binary, 1 + 1 equals:", "opts": ["2", "11", "10", "1"], "a": 2, "fb": "Write 0, carry 1." },
+    { "q": "An overflow error occurs when:", "opts": ["A number has leading zeros", "The result needs more bits than are available", "A right shift is performed", "A hex digit is above 9"], "a": 1, "fb": "In 8 bits anything above 255 overflows." },
+    { "q": "Shifting 00001100 (12) two places to the left gives:", "opts": ["00000011 (3)", "00011000 (24)", "00110000 (48)", "01100000 (96)"], "a": 2, "fb": "Two places left multiplies by 4." },
+    { "q": "The hex value 2F in denary is:", "opts": ["47", "35", "215", "29"], "a": 0, "fb": "2 × 16 + 15 = 47." },
+    { "q": "Why do programmers use hexadecimal?", "opts": ["Computers process hex faster than binary", "It is shorter and easier for people to read than binary", "It can store bigger numbers than binary", "It avoids overflow"], "a": 1, "fb": "Hex is for humans; the computer still works in binary." }
+  ],
+  "exam": [
+    { "q": "Add the binary numbers 10101100 and 01110101. Show your working and give your answer in binary.", "marks": 2,
+      "model": ["100100001 (2). One mark for a method with carries shown and at most one bit wrong."],
+      "commentary": "172 + 117 = 289, which needs nine bits. Write all nine. If the question says 'explain the problem', add 'the result is larger than 255 so it overflows 8 bits'. Checking in denary takes 20 seconds and catches most errors." },
+    { "q": "A program stores a value in 8 bits and performs a right shift of two places on 00101101. (a) Give the result. (b) Explain the effect of this shift on the value.", "marks": 3,
+      "model": ["(a) 00001011 (1). (b) The value is divided by 4 / halved twice (1); the two 1s shifted off the right are lost so the result is 11 rather than 11.25, a loss of precision (1)."],
+      "commentary": "For (b) name the multiplier (÷4, not just 'smaller') and say **what was lost**. 'It divides by 2' for a two-place shift is a common slip." },
+    { "q": "A web designer writes the colour code #4B9FD2 instead of its binary form. Convert 4B to denary and to binary, and explain why hexadecimal is used for colour codes rather than binary.", "marks": 4,
+      "model": ["4B = 4 × 16 + 11 = 75 (1). 4B = 0100 1011 = 01001011 (1). Hex is shorter / easier for a person to read, remember and type than a 24-bit binary string (1), and it is quick to convert to binary because each hex digit is exactly one nibble (1)."],
+      "commentary": "The explanation must be about **people**, not the computer. 'The computer understands hex better' is wrong and loses both explain marks. The nibble point is the one that separates good answers." }
+  ],
+  "home": "Make up two 8-bit numbers that add to more than 255 and two that do not. Add all four pairs, mark which overflow, and check each in denary. Then write your birthday (day and month) as two hex numbers and convert them to binary.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 16 · try 26 · check 5 · exam 8 · homework 2",
+    "misconceptions": [
+      "1 + 1 = 2 written in a binary column. Drill the four rules before any sums.",
+      "Dropping the ninth bit silently. Students must write it and name the overflow.",
+      "Right shift by two 'divides by 2'. Each place is a factor of 2.",
+      "Treating hex as something the CPU uses. Hex is a human shorthand for binary."
+    ],
+    "say": [
+      "'Carry when you reach two, not ten.'",
+      "'Left is bigger, right is smaller. Anything that falls off the end is gone for good.'",
+      "'Nibble, nibble: one hex digit each.'"
+    ],
+    "skip": "Try 3 can be reduced to three rows; Try 5 is optional if the class has done Try 1 and Try 4 well.",
+    "differentiation": [
+      "Support: hex–binary–denary table for 0–15 on the desk; addition questions pre-written in columns with a carry row.",
+      "Stretch: explain why a 16-bit register could store the result of 11110000 + 00011111 without error, and work out the largest value it can hold."
+    ]
+  }
+}

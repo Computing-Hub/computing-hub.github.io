@@ -1,0 +1,111 @@
+{
+  "id": "1-2-05",
+  "title": "Characters: ASCII and Unicode",
+  "spec": "1.2.4",
+  "duration": 60,
+  "specPoints": [
+    "The use of binary codes to represent **characters**; the term **character set**",
+    "The relationship between the **number of bits per character** in a character set and the **number of characters** which can be represented, e.g. **ASCII** and **Unicode**",
+    "Calculating the **file size** of a text file"
+  ],
+  "learn": [
+    "Explain what a character set is and why every device must use the same one",
+    "State how many bits ASCII uses and how many characters that allows",
+    "Work out the next character's code from a given one, using the fact that codes run in order",
+    "Explain why Unicode was needed and how it differs from ASCII",
+    "Calculate the size of a text file in bytes and kB from characters and bits per character"
+  ],
+  "hook": "Type a message containing an emoji and send it to an old phone, or paste it into a program that only understands ASCII. You get a box or a question mark. The number arrived fine; the receiving device just had no idea which picture that number meant. Every letter on this screen is a number, and today you find out which numbers, and why the world ran out of them.",
+  "video": {
+    "title": "Every letter is a number",
+    "brief": "4 minutes. Typing 'Hi' on a keyboard; each key sends a number: 72, 105. Show the ASCII table as a grid; pan across digits, capitals, lower case, noticing the gaps and the order. Count the rows: 128 codes, 7 bits. Then a world map lights up with scripts: Chinese, Arabic, Hindi, emoji. 128 is nowhere near enough. Unicode arrives with the same first 128 codes and then over a million more, using 16 or 32 bits. Finish with the cost: a 1000-character message at 8 bits = 1 kB; at 16 bits = 2 kB."
+  },
+  "explain": [
+    { "h": "Character sets",
+      "p": ["A computer stores text as numbers. A **character set** is the agreed list of which number stands for which character: letters, digits, punctuation, spaces and control codes such as newline. The sender and the receiver must use the **same** character set or the text is scrambled.", "Each character's number is called its **character code**. It is stored in binary like any other number."] },
+    { "h": "ASCII",
+      "p": ["**ASCII** (American Standard Code for Information Interchange) uses **7 bits** per character, giving 2 to the power 7 = **128** possible characters: enough for English letters in upper and lower case, the digits 0–9, punctuation and control codes. **Extended ASCII** uses 8 bits (one byte), giving 256 characters, with the extra 128 used for accented letters and symbols.", "The codes run in order. Capital A is 65, B is 66 and so on to Z at 90. Lower case a is 97, so a lower case letter is always 32 more than its capital. The digit '0' is 48, '1' is 49, up to '9' at 57. If you know one code you can work out its neighbours."],
+      "code": "Character  Denary  Binary (8-bit)\n---------  ------  --------------\nspace        32    00100000\n'0'          48    00110000\n'9'          57    00111001\n'A'          65    01000001\n'B'          66    01000010\n'Z'          90    01011010\n'a'          97    01100001\n'z'         122    01111010\n\nExam trick: if 'H' is 72, what is 'K'? K is 3 letters on: 72 + 3 = 75.\nLower case 'h' = 72 + 32 = 104." },
+    { "h": "Bits per character and number of characters",
+      "p": ["The number of bits decides how many different characters a set can hold: **n bits gives 2 to the power n characters**. Every extra bit doubles the count. 7 bits = 128. 8 bits = 256. 16 bits = 65,536. 32 bits = over four billion. The cost is that every character takes up more storage."],
+      "code": "Bits per character   Characters possible\n------------------   -------------------\n        7                   128   (ASCII)\n        8                   256   (extended ASCII)\n       16                65,536   (Unicode UTF-16 basic)\n       32         4,294,967,296   (Unicode UTF-32)" },
+    { "h": "Unicode",
+      "p": ["128 or 256 codes cannot hold Chinese, Japanese, Arabic, Greek, Cyrillic, mathematical symbols and emoji all at once. Different countries used different 8-bit sets, so text broke when it crossed borders. **Unicode** fixes this: one character set for every writing system, with room for over a million characters. It uses 16 or 32 bits per character (UTF-8 uses a variable number of bytes, starting at one).", "The first 128 Unicode codes are identical to ASCII, so old ASCII text still reads correctly. The trade-off: Unicode text files can be two to four times larger than the same text in ASCII."],
+      "list": ["ASCII: 7 bits, 128 characters, English only, small files.", "Unicode: 16 or 32 bits, over a million characters, every language and emoji, larger files, compatible with ASCII for the first 128 codes."] },
+    { "h": "File size of text",
+      "p": ["File size in bits = number of characters × bits per character. Count spaces and punctuation as characters. Divide by 8 for bytes and by 1000 for kB. In practice files also hold a little **metadata** (such as the file name and date), which the exam may tell you to ignore or add on."],
+      "code": "Worked example 1\n  'Computer Science' = 16 characters (count the space)\n  ASCII, 8 bits:   16 x 8 = 128 bits = 16 bytes\n  Unicode, 16 bits: 16 x 16 = 256 bits = 32 bytes\n\nWorked example 2\n  An essay of 4500 characters stored in 8-bit ASCII\n  4500 x 8 = 36,000 bits\n  36,000 / 8 = 4500 bytes = 4.5 kB\n  The same essay in 16-bit Unicode = 9 kB (double)\n\nWorked example 3 - working backwards\n  A 7-bit ASCII file is 2100 bits. How many characters?\n  2100 / 7 = 300 characters" }
+  ],
+  "simple": [
+    { "h": "Letters are numbers",
+      "p": ["A computer stores each letter as a number. The list of which number is which letter is called a **character set**. Both computers must use the same list."] },
+    { "h": "ASCII",
+      "p": ["ASCII uses 7 bits. That gives 128 characters. Enough for English. The codes go in order. A is 65. B is 66. C is 67. Small a is 97. That is 32 more than A."],
+      "code": "A = 65  B = 66  C = 67 ... Z = 90\na = 97  b = 98  c = 99 ... z = 122\n'0' = 48 ... '9' = 57" },
+    { "h": "Unicode",
+      "p": ["128 is not enough for Chinese, Arabic or emoji. Unicode has room for over a million characters. It uses 16 or 32 bits each. Files are bigger. The first 128 codes are the same as ASCII."] },
+    { "h": "More bits, more characters",
+      "p": ["Each extra bit doubles the number of characters. 7 bits = 128. 8 bits = 256. 16 bits = 65,536."] },
+    { "h": "File size",
+      "p": ["Count the characters. Multiply by bits per character. Divide by 8 for bytes."],
+      "code": "4500 characters x 8 bits = 36,000 bits\n36,000 / 8 = 4500 bytes = 4.5 kB" }
+  ],
+  "keyterms": [
+    { "term": "Character set", "def": "The agreed list of characters a computer can represent, each with its own binary code." },
+    { "term": "Character code", "def": "The number assigned to a particular character in a character set." },
+    { "term": "ASCII", "def": "A 7-bit character set with 128 characters covering English letters, digits, punctuation and control codes." },
+    { "term": "Extended ASCII", "def": "An 8-bit version of ASCII with 256 characters." },
+    { "term": "Unicode", "def": "A character set using 16 or 32 bits per character that covers every major writing system and emoji; the first 128 codes match ASCII." },
+    { "term": "Control code", "def": "A non-printing character such as newline or tab that controls how text is displayed." },
+    { "term": "Metadata", "def": "Extra data stored with a file describing it, such as its name, size and date." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Binary and ASCII tool", "url": "https://beanwise.coderra.je/cs_animations/binary.html",
+      "instructions": ["Switch to the ASCII view. Type your first name and copy down the denary code and the 8-bit binary for each letter.", "Find the difference between the code of a capital letter and the same lower case letter. Is it always the same?"] },
+    { "type": "task", "title": "2. Code detective", "p": ["Use only these facts: 'C' is 67, 'c' is 99, '3' is 51. Work out the codes for: 'A', 'F', 'f', 'Z', 'z', '7', '0'. Then write 'Cab' in 8-bit binary."],
+      "after": ["Check: 65, 70, 102, 90, 122, 55, 48. Cab = 01000011 01100001 01100010."] },
+    { "type": "task", "title": "3. How many characters, how many bits?", "p": ["Complete and explain the pattern."],
+      "code": "Bits   Characters     Example use\n 5     ?              old teleprinters: capitals and a few symbols\n 7     128            ?\n 8     ?              extended ASCII\n 10    ?              ?\n 16    ?              ?\n\nThen: a company invents a character set for 300 symbols.\nWhat is the smallest number of bits per character it can use?" },
+    { "type": "python", "title": "4. ord(), chr() and file sizes", "p": ["`ord()` gives a character's code and `chr()` turns a code back into a character. Run it, then change `message` to your own sentence and predict the size before you run."],
+      "code": "for ch in \"Hi!\":\n    print(ch, \"->\", ord(ch), \"->\", format(ord(ch), \"08b\"))\n\nprint(\"Next after H:\", chr(ord(\"H\") + 1))\nprint(\"Lower case of H:\", chr(ord(\"H\") + 32))\n\nmessage = \"Computer Science\"\nchars = len(message)                      # counts the space too\nprint(\"\\nCharacters:\", chars)\nprint(\"ASCII 7-bit:\", chars * 7, \"bits\")\nprint(\"ASCII 8-bit:\", chars * 8, \"bits =\", chars * 8 // 8, \"bytes\")\nprint(\"Unicode 16-bit:\", chars * 16, \"bits =\", chars * 16 // 8, \"bytes\")\n\n# an essay\nessay_chars = 4500\nprint(\"\\nEssay in 8-bit:\", essay_chars * 8 / 8 / 1000, \"kB\")\nprint(\"Essay in 16-bit:\", essay_chars * 16 / 8 / 1000, \"kB\")" },
+    { "type": "task", "title": "5. ASCII or Unicode? Justify", "p": ["For each, say which character set is more suitable and give one reason using a word from the scenario: (a) a sensor logging temperatures as plain digits to a tiny memory chip; (b) a messaging app used in Japan, Greece and the UK; (c) a 1980s games console displaying English menus; (d) a website that must show maths symbols and emoji; (e) a text file that must be as small as possible and only contains English."] }
+  ],
+  "check": [
+    { "q": "How many characters can standard 7-bit ASCII represent?", "opts": ["7", "64", "128", "256"], "a": 2, "fb": "2 to the power 7 = 128." },
+    { "q": "If 'M' has the ASCII code 77, what is the code for 'P'?", "opts": ["78", "80", "79", "109"], "a": 1, "fb": "P is three letters after M: 77 + 3 = 80." },
+    { "q": "Which is a reason Unicode was created?", "opts": ["To make text files smaller", "To represent characters from every language, which ASCII cannot", "To replace binary with hex", "To speed up the CPU"], "a": 1, "fb": "ASCII's 128 codes cannot hold the world's scripts." },
+    { "q": "A text file holds 600 characters in 8-bit ASCII. Its size is:", "opts": ["600 bits", "4800 bytes", "600 bytes", "75 bytes"], "a": 2, "fb": "600 × 8 = 4800 bits = 600 bytes." },
+    { "q": "Increasing bits per character from 8 to 16 will:", "opts": ["Double the number of possible characters", "Multiply the possible characters by 256 and double the file size", "Halve the file size", "Have no effect on file size"], "a": 1, "fb": "256 → 65,536 characters; each character takes twice the storage." }
+  ],
+  "exam": [
+    { "q": "The character 'd' has the ASCII code 100 in denary. State the ASCII code for the character 'g' in denary and in 8-bit binary.", "marks": 2,
+      "model": ["103 (1). 01100111 (1)."],
+      "commentary": "g is three letters after d. The binary mark needs all eight bits; 1100111 drops a mark. Students who look for a formula miss that the codes simply run in alphabetical order." },
+    { "q": "Explain **one** reason why a company developing a translation app would store text using Unicode rather than ASCII.", "marks": 2,
+      "model": ["Unicode has many more characters / uses more bits per character (1), so it can represent the alphabets and symbols of every language the app translates, which ASCII's 128 characters cannot (1)."],
+      "commentary": "'Unicode has more characters' is the point; the 'because' must connect to **translation**: many languages. An answer about file size is a disadvantage of Unicode and scores nothing here." },
+    { "q": "A text message contains 160 characters. (a) Calculate its size in bytes if each character is stored using 8-bit ASCII. (b) Describe how the file size would change if 16-bit Unicode were used instead, and explain why.", "marks": 4,
+      "model": ["(a) 160 × 8 = 1280 bits (1); ÷ 8 = 160 bytes (1). (b) The size would double to 320 bytes (1) because each character now needs 16 bits / 2 bytes instead of 8 bits / 1 byte (1)."],
+      "commentary": "Part (a) is two marks for two lines; show the bits line even though the answer is obvious. In (b) 'it gets bigger' is one mark; 'doubles' with the reason is both." }
+  ],
+  "home": "Write your first name in 8-bit ASCII binary using A = 65 and a = 97. Then calculate the size in bytes of a 2000-character email in 8-bit ASCII and in 16-bit Unicode, and write one sentence on which you would choose for an app used only in England and why.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 14 · try 27 · check 5 · exam 8 · homework 2",
+    "misconceptions": [
+      "ASCII is 8 bits. Standard ASCII is 7 bits (128); extended is 8. Accept 8-bit when a question says so, but teach the distinction.",
+      "Unicode is 'a different alphabet'. It is a bigger character set that includes ASCII at the start.",
+      "Forgetting that spaces and punctuation are characters when counting.",
+      "Thinking the code for 'a' is 1 or that letters are numbered from 0."
+    ],
+    "say": [
+      "'Same list on both ends, or you get boxes and question marks.'",
+      "'More bits, more characters, bigger files. All three move together.'",
+      "'A is 65, a is 97. Thirty-two apart. Count on from there.'"
+    ],
+    "skip": "Try 3 or Try 5 can be dropped; Try 2 and Try 4 carry the exam skills.",
+    "differentiation": [
+      "Support: give a partial ASCII table (A–Z, a–z, 0–9) for Try 2 and the 2-to-the-power table filled in for Try 3.",
+      "Stretch: find out how UTF-8 manages to be compatible with ASCII while supporting Unicode, and explain in three sentences why most web pages use it."
+    ]
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "id": "1-4-05",
+  "title": "Unit 1.4 Network security — review and test",
+  "spec": "1.4.1 – 1.4.2",
+  "duration": 45,
+  "specPoints": [
+    "Covers all of 1.4: forms of attack (malware types, social engineering, brute force, DoS, interception, SQL injection) and prevention methods (penetration testing, anti-malware, firewalls, access levels, passwords, encryption, physical security)",
+    "28 marks · 35 minutes",
+    "Teachers: switch on Teacher view for the mark scheme"
+  ],
+  "learn": [
+    "Recall every 1.4 threat and defence by its precise name",
+    "Describe how each attack works and what it does to an organisation",
+    "Match defences to threats in a scenario and explain the mechanism"
+  ],
+  "hook": "Virus needs you, worm does not, trojan is invited. Phishing is written, blagging is spoken, shouldering is watched. Brute force guesses, DoS floods, interception listens, injection types code. Then: for every threat, one defence and one because. Say those lines and you can score on this test.",
+  "explain": [
+    { "h": "Five-minute review",
+      "list": ["Malware: virus (attaches to a file, needs running), worm (self-replicates over the network), trojan (disguised as useful software), spyware (records activity), ransomware (encrypts files, demands payment).",
+               "Social engineering: phishing (fake message/site), blagging (invented story), shouldering (watching). People are the weak point; training is the defence.",
+               "Technical attacks: brute force (every combination; beaten by length and lockout), DoS/DDoS (flood from a botnet; downtime), interception (packet sniffing, man-in-the-middle; beaten by encryption), SQL injection (typed input runs as a query; beaten by validation and parameterised queries).",
+               "Defences: pen testing finds weaknesses; anti-malware scans and removes; firewall filters traffic by rules; access levels limit each user; strong passwords resist guessing; encryption makes stolen data unreadable; physical security keeps hands off hardware.",
+               "Impacts: data stolen, money lost, fines, reputation, downtime. Always tie to the organisation in the question."] }
+  ],
+  "exam": [
+    { "q": "State **one** way a trojan differs from a worm.", "marks": 1, "model": ["A trojan is disguised as legitimate software and installed by the user, whereas a worm spreads by itself across a network (1). Accept any correct contrast."], "commentary": "One contrast sentence, both named." },
+    { "q": "Describe what **ransomware** does once it is on a computer.", "marks": 2, "model": ["Encrypts the user's files so they cannot be accessed (1) and displays a demand for payment in exchange for the decryption key (1)."], "commentary": "Encrypt + demand. 'Locks the computer' alone is one." },
+    { "q": "A bank's customer receives a phone call from someone claiming to be a bank employee who asks for their card PIN 'for security checks'. State the name of this type of attack and explain why it can succeed.", "marks": 2, "model": ["Blagging / pretexting (accept social engineering) (1). It succeeds because the caller sounds official and uses a convincing story, so the victim trusts them and gives the information without checking (1)."], "commentary": "Blagging, not phishing — it is a call. Mechanism: trust in a convincing story." },
+    { "q": "Describe how a **brute-force attack** works and give **one** reason a long password is a good defence against it.", "marks": 2, "model": ["Software tries every possible combination of characters (or a list of common passwords) until the correct one is found (1). A longer password has vastly more possible combinations, so it takes too long to try them all (1)."], "commentary": "Systematic trying + more combinations." },
+    { "q": "An online ticket seller's website became unavailable for three hours. Investigators found millions of requests arriving from thousands of different computers. State the name of the attack and explain **one** impact on the business.", "marks": 3, "model": ["DDoS / distributed denial of service (1). Impact: the website could not take bookings for three hours (1), so the company lost ticket sales/revenue and customers may lose confidence and buy elsewhere in future (1)."], "commentary": "DDoS (credit DoS). Impact developed with a consequence for *this* business: lost sales, lost trust." },
+    { "q": "Explain how **encryption** protects data that is sent across a public Wi-Fi network.", "marks": 3, "model": ["Data is scrambled using a key before it is sent (1). Anyone intercepting the packets sees only ciphertext/meaningless data (1), because only the intended receiver has the key needed to decrypt it (1)."], "commentary": "Scrambled with key; intercepted but unreadable; only receiver has key. 'Stops hackers getting it' loses the second mark — they get it, they cannot read it." },
+    { "q": "A sports club keeps member details on a computer in an unlocked office that visitors walk past. Members' details were recently found online. Identify **two** threats that the club's set-up makes possible and explain how each could have led to the leak.", "marks": 4, "model": ["Any two, threat (1) + link to scenario (1): Physical theft/unauthorised physical access (1) — the office is unlocked so anyone could use or take the computer and copy the data (1). Shouldering (1) — visitors walking past could watch staff type passwords and later log in (1). Malware/spyware (1) — with no security described, a visitor or staff member could install spyware that sends the data out (1). Weak/absent password (1) — if the PC is left logged in or has a weak password, a visitor could open the files directly (1)."], "commentary": "Threats must arise from *unlocked* and *visitors walk past*. Generic 'a hacker could hack it' earns nothing. Two developed threats for four." },
+    { "q": "A school is introducing a new website where parents log in to see their child's reports. Describe **two** security measures the school should use and explain how each protects the data.", "marks": 4, "model": ["Any two, measure (1) + how it protects here (1): Encryption/HTTPS (1) — reports sent to parents are scrambled so they cannot be read if intercepted (1). Strong password policy with lockout (1) — parents' accounts resist brute-force guessing because attempts are limited and combinations are many (1). User access levels (1) — each parent account can only see its own child's reports, so a compromised account exposes one child's data, not all (1). Penetration testing (1) — testers check the new site for weaknesses such as SQL injection before it goes live (1). Firewall (1) — blocks unauthorised traffic reaching the server holding the reports (1)."], "commentary": "Measure plus mechanism tied to *parents logging in* and *reports*. Two of the same family (long passwords + two-factor) count as one measure." },
+    { "q": "A website's search box passes whatever the user types straight into an SQL query. Explain what an attacker could do and state **one** way the developers could prevent it.", "marks": 3, "model": ["The attacker types SQL code into the search box (1), which the database runs as part of the query, letting them read, change or delete data / bypass checks (1). Prevention: validate/sanitise the input (reject or escape quote marks) or use parameterised queries so input is treated as data not code; or penetration testing to find the flaw (1)."], "commentary": "Mechanism: typed input becomes part of the command. Prevention names one specific technique." },
+    { "q": "A company gives every employee access to the whole network and runs no anti-malware software. Explain **two** ways in which the company is vulnerable to a **trojan** downloaded by one employee.", "marks": 4, "model": ["With no anti-malware, the trojan is not detected or removed when downloaded (1), so it runs and opens a back door / installs further malware for the attacker (1). Because every employee has full access, the attacker now has access to the whole network through that employee's account (1), so all company data, not just that employee's files, can be stolen or damaged (1)."], "commentary": "Two chains: no anti-malware -> undetected -> runs; full access -> whole network exposed. Each needs the consequence for the second mark." }
+  ],
+  "teacher": {
+    "timing": "45 min: review 5 · test 35 · collect. 28 marks. Bands: 22+ secure; 15–21 developing; below 15 revisit lessons 1 and 3.",
+    "misconceptions": ["Marks lost on Q1–Q3 are vocabulary (trojan/worm, blagging/phishing); Q5–Q6 are mechanism sentences; Q7–Q8 are scenario matching. Reteach the one that dominates."],
+    "say": ["'Name it exactly. Say the mechanism. Tie it to the scenario.'"],
+    "skip": "For 25 minutes drop Q7 and Q10 (8 marks), mark out of 20.",
+    "differentiation": [
+      "Support: allow the five-minute review list on the desk.",
+      "Stretch: Q8 — write a third measure that addresses social engineering of parents, and explain it."
+    ]
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "id": "1-5-03",
+  "title": "Utility software",
+  "spec": "1.5.2",
+  "duration": 60,
+  "specPoints": [
+    "The purpose and functionality of **utility software**",
+    "Utility system software: **encryption software**, **defragmentation**, **data compression**",
+    "Choose and justify a utility for a given scenario"
+  ],
+  "learn": [
+    "State the purpose of utility software and how it differs from the OS and from applications",
+    "Describe what encryption software does and why it is used",
+    "Explain what fragmentation is, how defragmentation helps a hard disk, and why it is not used on an SSD",
+    "Describe the purpose and benefits of data compression software",
+    "Outline backup software (full vs incremental) and anti-malware as further examples of utilities",
+    "Choose the right utility for a scenario and justify the choice"
+  ],
+  "hook": "Here is a bookshelf where every book has been pulled apart and the chapters shelved wherever there was a gap. To read one book you walk up and down the whole shelf. Now imagine a librarian who, overnight, puts every book back together in order. Reading becomes fast again. Hard disks get into exactly this state, and there is a program whose only job is to be that librarian.",
+  "video": {
+    "title": "Utilities: the toolkit that keeps the computer healthy",
+    "brief": "4 minutes. A toolbox opens: each tool does one maintenance job. Encryption: a document passes through a lock and becomes scrambled letters; only the key unscrambles it; a thief with the laptop sees nonsense. Defragmentation: a hard disk drawn as a strip of blocks, one file's blocks scattered in four places, the read head jumping; the defrag tool slides blocks together, the head reads in one sweep; then an SSD appears with no moving head and a sign saying 'no benefit, more wear'. Compression: a 10 MB folder squeezed into a 3 MB zip, travelling faster across a network, then unzipped unchanged. Close on the full list: encryption, defragmentation, compression, plus backup and anti-malware as everyday extras."
+  },
+  "explain": [
+    { "h": "What utility software is",
+      "p": ["**Utility software** is systems software that **maintains, protects or improves** the computer. Each utility usually does **one job**: encrypt a drive, tidy a disk, shrink a file, scan for malware, make a backup. Some utilities come built into the OS; others are installed separately. They are not applications, because they do not produce work for the user; they look after the system that the applications run on.",
+            "OCR names three utilities in the spec: **encryption software**, **defragmentation** and **data compression**. Backup and anti-malware software are not named in the spec but are classic utilities and may appear as examples in scenarios, so they are covered briefly here."] },
+    { "h": "Encryption software",
+      "p": ["**Encryption software** scrambles data using an algorithm and a **key**, turning readable **plaintext** into unreadable **ciphertext**. Only someone with the correct key can **decrypt** it back. It is used to protect **data at rest** (a laptop's hard drive, a USB stick, a phone) so that if the device is lost or stolen the files cannot be read, and to protect **data in transit** across a network (this is what HTTPS does — see 1.3 and 1.4).",
+            "Encryption does **not** stop data being stolen or deleted; it stops it being **understood**. That is the point to make in an exam answer: 'the thief can copy the files but cannot read them without the key'."] },
+    { "h": "Defragmentation",
+      "p": ["A **hard disk drive** stores files in fixed-size **blocks**. When files are saved, edited, grown and deleted over months, gaps appear and a new file may not fit in one gap. The OS splits it and stores the pieces wherever there is space. A file whose blocks are scattered across the disk is **fragmented**. To read it, the read/write head must move to each piece in turn, and every move takes time, so the computer slows down.",
+            "**Defragmentation software** reorganises the disk: it moves the blocks of each file so they sit **next to each other (contiguous)** and gathers the free space into one region. Files are then read in a single sweep and new files are less likely to fragment. Nothing is deleted; the data is only moved."],
+      "code": "Disk before (each letter = one block of a file, . = free):\n  A A B B . A C . C B D A . . C D\n  File A is in 3 pieces; the head makes 2 extra jumps to read it.\n\nDisk after defragmentation:\n  A A A A B B B C C C D D . . . .\n  Every file is in one piece; free space is together at the end.",
+      "after": ["**Not for SSDs.** A solid-state drive has no moving read head and reaches every block equally fast, so scattered blocks cause no slowdown. SSD cells also wear out after a limited number of writes, and defragmenting means a huge number of writes. Defragmenting an SSD gives **no benefit and shortens its life**, so operating systems disable it for SSDs."] },
+    { "h": "Data compression software",
+      "p": ["**Data compression software** reduces the size of a file or group of files, for example by creating a `.zip`. Smaller files take up **less storage** and **transfer faster** over a network or as an email attachment (many email systems also have attachment size limits). **Lossless** compression (zip, PNG) finds repeated patterns and stores them more efficiently; decompressing gives back exactly the original. **Lossy** compression (JPEG, MP3) throws away detail that people are unlikely to notice and cannot be reversed. The methods are in 1.2.5; here the point is the **purpose**: save space, speed up transfer.",
+            "Worked example: a 240 MB folder of lesson resources compresses to 60 MB. On a 20 Mbps upload that is 60 × 8 ÷ 20 = 24 seconds instead of 240 × 8 ÷ 20 = 96 seconds."] },
+    { "h": "Other common utilities: backup and anti-malware",
+      "p": ["**Backup software** copies files to another location (external drive, cloud, tape) on a schedule so they can be **restored** after loss, theft, hardware failure or ransomware. A **full backup** copies everything every time: simple to restore from but slow and large. An **incremental backup** copies only files that have changed since the last backup: fast and small, but restoring needs the last full backup **plus** every incremental since.",
+            "**Anti-malware software** scans files and memory for known malware signatures and suspicious behaviour, blocks or quarantines what it finds, and must be **updated** regularly because new malware appears daily. In 1.4 it appears as a prevention method; here it is an example of utility software."],
+      "code": "Backup over a week: server holds 500 GB, about 8 GB changes a day.\n\n  Day   Full every day    One full, then incremental\n  ----  ----------------  --------------------------\n  1        500 GB            500 GB (full)\n  2        500 GB              8 GB\n  3        500 GB              8 GB\n  ...\n  7        500 GB              8 GB\n  Total  3 500 GB            548 GB\n\n  Restore on day 7: full = 1 backup set; incremental = 7 sets in order." },
+    { "h": "Choosing the right utility: the exam skill",
+      "p": ["Scenario questions give a problem and ask which utility solves it **and why**. Match the symptom to the tool, then give a reason that uses the scenario's words."],
+      "code": "Symptom in the question                                  Utility           Why (the mark-earning idea)\n-------------------------------------------------------  ----------------  -----------------------------------------\nLaptop with customer data might be lost or stolen        Encryption        Data unreadable without the key\nOld hard-disk PC has got slower; files take ages to load Defragmentation   Blocks made contiguous; fewer head moves\nFiles too big to email / running out of storage          Compression       Smaller files; faster transfer, less space\nRansomware / drive failure / accidental deletion         Backup            Restore from a copy kept elsewhere\nPop-ups, slow PC after downloading a file                Anti-malware      Detects, removes and blocks malware",
+      "after": ["Trap: recommending defragmentation for a computer with an **SSD**. Read the storage type in the question. If it says SSD, the answer is 'not defragmentation' and you should say why."] }
+  ],
+  "simple": [
+    { "h": "Utility software",
+      "p": ["Utilities are small programs that look after the computer. Each one does one job. They are systems software, not applications.", "OCR names three: encryption, defragmentation, compression. Backup and anti-malware are two more common ones."] },
+    { "h": "Encryption",
+      "p": ["Encryption scrambles data with a key. Without the key it cannot be read. If a laptop is stolen, the thief gets the files but cannot read them."] },
+    { "h": "Defragmentation",
+      "p": ["A hard disk saves files in blocks. Over time a file's blocks get spread out. The read head has to jump around. The disk gets slow.", "Defragmentation moves the blocks so each file is in one piece. Reading is faster.", "Do NOT defragment an SSD. It has no moving head, so there is no speed gain. Extra writes wear it out."],
+      "code": "Before:  A A B B . A C . C B D A . . C D\nAfter:   A A A A B B B C C C D D . . . ." },
+    { "h": "Compression",
+      "p": ["Compression makes files smaller, like a zip. Smaller files use less space and send faster."] },
+    { "h": "Backup and anti-malware",
+      "p": ["Backup copies your files somewhere else so you can get them back. Full backup = copy everything. Incremental = copy only what changed.", "Anti-malware finds and removes viruses and other malware. It must be updated."] }
+  ],
+  "keyterms": [
+    { "term": "Utility software", "def": "Systems software that maintains, protects or improves the computer, usually doing one specific job." },
+    { "term": "Encryption software", "def": "A utility that scrambles data with a key so it cannot be read without the matching key." },
+    { "term": "Fragmentation", "def": "When a file's blocks are stored in separate places on a hard disk, slowing access." },
+    { "term": "Defragmentation", "def": "A utility that moves file blocks so each file is stored contiguously and free space is grouped together." },
+    { "term": "Contiguous", "def": "Stored next to each other in one continuous run of blocks." },
+    { "term": "Data compression", "def": "Reducing the size of a file so it uses less storage and transfers faster." },
+    { "term": "Full backup", "def": "A copy of all the data every time a backup runs." },
+    { "term": "Incremental backup", "def": "A copy of only the data that has changed since the last backup." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. Fragmentation visualiser",
+      "p": ["Each letter is one block of a file on a hard disk; `.` is free space. Run it and compare the disk before and after. The 'jumps' count is how many times the read head must move to a new place to read that file.", "Change the `disk` string to a worse case where every file is in three pieces. Then add a fifth file E. What happens to the total jumps before and after?"],
+      "code": "# A hard disk as a row of blocks. Letters are file blocks, '.' is free.\ndisk = list(\"AABB.AC.CBDA..CD\")\n\ndef show(label, d):\n    print(label.ljust(8), \" \".join(d))\n\ndef defrag(d):\n    files = sorted(set(b for b in d if b != \".\"))\n    new = []\n    for f in files:\n        new += [f] * d.count(f)        # put all of each file together\n    new += [\".\"] * d.count(\".\")        # free space gathered at the end\n    return new\n\ndef jumps(d, f):\n    pos = [i for i, b in enumerate(d) if b == f]\n    return sum(1 for i in range(1, len(pos)) if pos[i] != pos[i - 1] + 1)\n\nafter = defrag(disk)\nshow(\"Before:\", disk)\nshow(\"After:\", after)\nprint()\ntotal_before = total_after = 0\nfor f in sorted(set(b for b in disk if b != \".\")):\n    jb, ja = jumps(disk, f), jumps(after, f)\n    total_before += jb\n    total_after += ja\n    print(\"File\", f, \"- head jumps before:\", jb, \" after:\", ja)\nprint(\"Total jumps:\", total_before, \"->\", total_after)" },
+    { "type": "python", "title": "2. Full vs incremental backup",
+      "p": ["A server holds 500 GB and about 8 GB changes each day. Run it to see how much storage a week of backups needs each way.", "Change the daily change to 100 GB. At what point does the saving from incremental backups stop being worth the slower restore? Then add a line that prints how many backup sets must be read to restore on day 7 for each method."],
+      "code": "# Full vs incremental backup over one week.\ndata_gb = 500            # total data on the server\nchanged_per_day = 8      # GB that changes each day\n\nfull_total = 0\nincr_total = 0\nprint(\"Day   Full (GB)   Incremental (GB)\")\nfor day in range(1, 8):\n    full_total += data_gb\n    incr = data_gb if day == 1 else changed_per_day   # day 1 needs one full copy\n    incr_total += incr\n    print(str(day).ljust(6), str(data_gb).ljust(12), incr)\nprint()\nprint(\"Stored after a week - full every day:         \", full_total, \"GB\")\nprint(\"Stored after a week - one full + incrementals:\", incr_total, \"GB\")\nprint(\"Saving:\", full_total - incr_total, \"GB\")" },
+    { "type": "embed", "title": "3. Compression in action", "url": "https://beanwise.coderra.je/GCSE_homepage/compression.html",
+      "instructions": ["Compress a text sample and note the size before and after. Write the saving as a percentage.", "Try an image if the tool offers one. Which kind of data compresses more, and is the compression lossy or lossless? One sentence each."] },
+    { "type": "task", "title": "4. Card sort: which utility, and why?", "p": ["Match each scenario card to the utility that solves it. For each, write one 'because' sentence that uses words from the scenario. Two cards are traps."],
+      "code": "Scenario cards:\n  1. A sales rep's laptop holding customer addresses is often left in cars.\n  2. A six-year-old office PC with a hard disk takes a long time to open large files.\n  3. A new gaming PC with an SSD 'feels slow'; the owner wants to defragment it.\n  4. A photographer must email 40 photos but the attachment limit is 25 MB.\n  5. A school's shared drive was hit by ransomware and every file is locked.\n  6. A home PC shows constant pop-ups after a free game was downloaded.\n  7. A phone could be lost; it holds banking apps and personal messages.\n  8. A student's USB stick is nearly full of coursework drafts.\n\nUtilities: Encryption  Defragmentation  Compression  Backup  Anti-malware  None of these",
+      "after": ["Traps: card 3 (SSD — defragmentation gives no benefit and adds wear; the real fix is elsewhere) and card 5 (anti-malware may remove the ransomware, but only a **backup** gets the files back)."] },
+    { "type": "embed", "title": "5. See encryption scramble text", "url": "https://beanwise.coderra.je/cs_animations/cipher.html",
+      "instructions": ["Encrypt a short message with one key, then try to read it with a different key. Write one sentence on why a stolen encrypted laptop is useless to a thief."] }
+  ],
+  "check": [
+    { "q": "Utility software is best described as:", "opts": ["Software that does a task for the user, like writing a letter", "Systems software that maintains or protects the computer", "The part of the OS that shows windows and icons", "Hardware that speeds up the CPU"], "a": 1, "fb": "Maintain, protect, improve; one job each." },
+    { "q": "Encryption protects data by:", "opts": ["Deleting it when a laptop is stolen", "Making it unreadable without the correct key", "Compressing it so it is harder to find", "Backing it up to the cloud"], "a": 1, "fb": "Stolen data stays unreadable." },
+    { "q": "A file is fragmented when:", "opts": ["It has been compressed", "Its blocks are stored in separate places on the disk", "It has a virus", "It is read-only"], "a": 1, "fb": "Scattered blocks mean more head movement." },
+    { "q": "Why should you NOT defragment an SSD?", "opts": ["It has no moving read head so there is no speed gain, and extra writes wear it out", "SSDs cannot store files", "It would delete the files", "SSDs are already encrypted"], "a": 0, "fb": "No benefit, and it shortens the drive's life." },
+    { "q": "The main benefits of data compression are:", "opts": ["Faster CPU and more RAM", "Less storage used and faster transfer", "Stronger passwords", "Fewer device drivers"], "a": 1, "fb": "Smaller files: space and speed." }
+  ],
+  "exam": [
+    { "q": "State the purpose of utility software.", "marks": 1,
+      "model": ["Software that helps maintain / protect / optimise the computer system (1)."],
+      "commentary": "Maintain or protect is the word. 'Helps the computer' alone is not enough." },
+    { "q": "Describe what **defragmentation software** does to a hard disk drive and explain why this improves performance.", "marks": 4,
+      "model": ["Files that are stored in pieces (fragmented) across the disk are moved (1) so that each file's blocks are stored together / contiguously (1) and free space is collected into one area (1). The read/write head then has to move less to read a file, so files open faster / new files are less likely to fragment (1)."],
+      "commentary": "Two halves: what it does (move blocks together, group free space) and why it helps (less head movement). Students who only write 'tidies up the disk' score one mark at most. Use the word **contiguous** or 'next to each other'." },
+    { "q": "A doctor carries a laptop containing patient records between surgeries. Identify the most suitable utility software to protect the records if the laptop is stolen, and justify your choice.", "marks": 3,
+      "model": ["Encryption software (1); the records are scrambled using a key so a thief who steals the laptop cannot read them (1); only someone with the key / the doctor's password can decrypt them, so the patient data stays confidential (1)."],
+      "commentary": "Identify (1) then two linked reasons that use the scenario: stolen laptop, cannot read, patient confidentiality. An answer saying 'anti-malware' misses the point: the threat is theft, not infection. 'Backup' gets no marks here because a backup does not protect the stolen copy." }
+  ],
+  "home": "Find out which utilities are already on a computer at home (look for a disk clean-up or optimise tool, a compression tool, backup settings and the security app). For each one, write the utility type and one sentence on when you would use it. If the computer has an SSD, find the setting that shows defragmentation is turned off or replaced by 'optimise'.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 15 · try 25 · check 5 · exam 8 · homework 2",
+    "misconceptions": [
+      "Defragmentation deletes or compresses files. It only moves blocks; the file content and size are unchanged.",
+      "Defragmenting an SSD makes it faster. No moving head, so no gain; the extra writes shorten its life. This is a favourite exam trap.",
+      "Encryption stops data being stolen. It stops stolen data being read. The copy is still taken.",
+      "Anti-malware fixes ransomware damage. It may remove the malware, but only a backup restores the files."
+    ],
+    "say": [
+      "'Fragmented = scattered. Defrag = put each file back in one piece. SSD = leave it alone.'",
+      "'Encryption: they can take it, they just can't read it.'",
+      "'Utility = one maintenance job. If it does your homework, it is an application.'"
+    ],
+    "skip": "Try 5 can go, and Try 2 if the group is secure on backup. Keep Try 1 (defrag) and Try 4 (card sort) — they carry the exam content.",
+    "differentiation": [
+      "Support: run Try 1 on the board first and have students draw the before/after disk on paper; give the card sort with the utility names already written on the scenario cards for the first three.",
+      "Stretch: in Try 1, write a `fragment(disk)` function that saves a new 3-block file into the first free gaps it finds, so students see fragmentation happen before they fix it."
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "id": "1-4-04",
+  "title": "Security scenarios: exam questions",
+  "spec": "1.4",
+  "duration": 60,
+  "specPoints": [
+    "Applying 1.4.1 (forms of attack) and 1.4.2 (prevention methods) to scenario questions: a school, a shop, a hospital, a cafe, a council",
+    "Practising the exam-technique habits from the Exam unit on this topic: threat named precisely, defence matched to threat, mechanism stated"
+  ],
+  "learn": [
+    "Name the exact threat implied by scenario clues (not just 'hacking' or 'a virus')",
+    "Write 2-mark describe answers on attacks and defences with what + how",
+    "Answer a 4-mark 'identify and explain two threats' question with two distinct, developed threats",
+    "Answer a 4-mark 'describe two measures' question with two distinct, scenario-matched measures",
+    "Self-mark against a scheme and record lost marks on the traps list"
+  ],
+  "hook": "Every 1.4 question is the same question in disguise: here is an organisation, what could go wrong, what should they do about it. The marks go to students who read the scenario words and choose the threat and defence that fit. 'A virus' and 'a firewall' for every question is a two-mark strategy out of twenty-four. Let us do better.",
+  "explain": [
+    { "h": "How to use this lesson",
+      "p": ["Work through the questions below in order, **timed at one minute per mark**, writing in the answer boxes. Do not open the model answers until you have finished all of them. Then switch on Teacher view (or ask your teacher) and mark yourself strictly: a point scores only if you wrote the idea the scheme wants. Every lost mark goes on your traps list with its type: wrong threat name, defence does not match the threat, no mechanism, same point twice."] },
+    { "h": "Reminders for 1.4",
+      "list": ["Underline the command word; circle the marks; **box the scenario clue** (public Wi-Fi, weak passwords, opened an attachment, website down, laptops carried about).",
+               "Name threats exactly: virus / worm / trojan / spyware / ransomware; phishing / blagging / shouldering; brute force; DoS; interception; SQL injection.",
+               "A defence must **match** the threat: encryption for interception, lockout and long passwords for brute force, anti-malware for malware, training for social engineering, access levels to limit damage, firewall for unwanted traffic, pen testing to find unknown weaknesses, physical security for theft and shouldering.",
+               "'Explain' needs the mechanism: *because the data cannot be read without the key*; *because the server cannot handle the volume*; *because the typed text becomes part of the query*.",
+               "'Two threats' or 'two measures' means two **different** ones, each developed. Do not write anti-malware twice in different words."] }
+  ],
+  "exam": [
+    { "q": "State what is meant by the term **malware**.", "marks": 1,
+      "model": ["Malicious software designed to damage, disrupt or gain unauthorised access to a computer system (1)."],
+      "commentary": "'Bad software' is too vague; include *designed to damage/gain access*." },
+    { "q": "A customer at a cafe uses the free Wi-Fi to log in to online banking. State the name of the attack that could allow another person on the same network to read the login details.", "marks": 1,
+      "model": ["Data interception / packet sniffing / man-in-the-middle (1)."],
+      "commentary": "Any of the three accepted. 'Hacking' scores nothing." },
+    { "q": "Describe what happens during a **denial of service** attack.", "marks": 2,
+      "model": ["A server/website is flooded with a very large number of requests, often from many computers at once (1), so it cannot respond to legitimate users and becomes slow or unavailable (1)."],
+      "commentary": "Flood + consequence for genuine users. The second mark is where it is usually lost — the *denial* to real users is the point." },
+    { "q": "An employee at a council receives an email that appears to come from the council's IT department. It asks them to click a link and enter their username and password 'to keep their account active'. State the name of this attack and give **one** feature of the email that should make the employee suspicious.", "marks": 2,
+      "model": ["Phishing (1). Any one: asks for login details, which IT would never do by email; creates urgency ('to keep account active'); link address does not match the council's real site; sender address slightly different from the real domain (1)."],
+      "commentary": "Name + one specific clue. 'It looks fake' is not a clue. Credit 'social engineering' as the name only if phishing is also implied." },
+    { "q": "A small online shop built its website quickly and has never had it tested. Explain how **penetration testing** could help the shop.", "marks": 3,
+      "model": ["Authorised testers would attempt to break into the website in the ways a real attacker would (1), for example trying SQL injection on the login or search boxes / looking for weak passwords or unpatched software (1), and report any weaknesses so the shop can fix them before a real attacker finds them (1)."],
+      "commentary": "What it is, what it might find on *this* site, and the point: fix before exploited. 'It tests the website' with no attacker viewpoint is one mark." },
+    { "q": "Give **two** features of a strong password policy and state the attack it helps to prevent.", "marks": 2,
+      "model": ["Any two features (1 for both): minimum length (e.g. 12+), mix of upper/lower case, digits and symbols, no dictionary words or personal details, lockout after a number of failed attempts, regular change if leaked, two-factor authentication. Attack: brute-force (or dictionary) attack (1)."],
+      "commentary": "Two features earn one mark together; the attack name is the second. 'Hacking' as the attack loses the mark." },
+    { "q": "A hospital stores patient records on a network. Doctors log in from computers on wards; some doctors also access records from home. Patients can email the hospital with questions, and these emails are opened by reception staff. Identify and explain **two** threats to the hospital's data.", "marks": 4,
+      "model": ["Any two, each as threat (1) + explanation tied to the scenario (1): Malware/ransomware (1) — reception staff open emails from the public, so an attachment could contain malware that encrypts or steals patient records (1). Phishing (1) — a fake email to staff could trick them into entering login details on a fake page, giving an attacker a doctor's access (1). Data interception (1) — doctors accessing records from home over the internet means data in transit could be captured if not encrypted (1). Shouldering (1) — ward computers are in busy public areas, so passwords or records could be seen by visitors (1). Brute force (1) — remote logins exposed to the internet could be attacked by password guessing (1)."],
+      "commentary": "Each threat must come **from the scenario**: emails from the public, remote access, public wards. Two malware types count as one threat. The second mark for each is the link to the hospital's situation, not a general definition." },
+    { "q": "The same hospital asks for advice. Describe **two** security measures the hospital should use and explain how each one protects patient data.", "marks": 4,
+      "model": ["Any two, each as measure (1) + how it protects here (1): Encryption (1) — records sent to doctors at home are scrambled so that intercepted data cannot be read without the key (1). User access levels (1) — reception staff can read emails but cannot open patient records, so a compromised reception account does not expose medical data (1). Anti-malware software (1) — scans incoming email attachments and removes malware before it can encrypt or steal records (1). Staff training (1) — reception staff learn to spot phishing and not open suspicious attachments, reducing the chance an attack succeeds (1). Firewall (1) — blocks unauthorised connections to the records server from outside the hospital (1)."],
+      "commentary": "Measures must match the threats you (or the scenario) identified. A firewall 'to stop viruses' earns the name but not the mechanism. Best answers use the scenario words: *at home*, *reception*, *patient records*." },
+    { "q": "A school's network lets any logged-in user open any folder, including staff folders. Explain why this is a security risk and describe how **user access levels** would reduce it.", "marks": 3,
+      "model": ["Risk: students (or anyone whose account is compromised) could view or alter sensitive data such as grades or staff/personal information (1). Access levels assign each user permissions based on their role, e.g. read-only or no access to staff folders for students (1), so a user or attacker can only reach the data their role needs, limiting the damage (1)."],
+      "commentary": "Risk + how access levels work + the limiting effect. Students often define access levels without stating the *limit the damage* consequence." },
+    { "q": "A shop's website login page builds its database query directly from the text typed into the username box. Explain why this makes the website vulnerable to **SQL injection**.", "marks": 2,
+      "model": ["Anything the user types is joined straight into the SQL command, so typed SQL code (e.g. `' OR '1'='1`) becomes part of the query (1) and the database executes it, allowing the attacker to bypass the login or read/alter/delete data (1)."],
+      "commentary": "The concept mark is *input treated as code*. The second is the consequence. An example string is helpful but not required." }
+  ],
+  "home": "Rewrite every answer that lost a mark today so it would score full marks. Then write your own 4-mark 'identify and explain two threats' question for a different organisation (a gym, a dentist, a taxi firm) with a mark scheme in the same style as Q7.",
+  "teacher": {
+    "timing": "60 min: brief 5 · questions 24 marks ≈ 25 min · marking and traps list 20 · rewrite starts 10",
+    "misconceptions": ["Whatever the marking reveals — collect the class's top three lost-mark types and reteach them for five minutes next lesson. Expect: vague threat names ('virus', 'hacking'), defences that do not match the threat, and 'two' answers that are one idea twice."],
+    "say": ["'Box the clue. The clue tells you the threat. The threat tells you the defence.'", "'Mark it like an examiner, not like a friend.'"],
+    "skip": "If time is short, drop Q9 and Q10 (5 marks) and mark out of 19.",
+    "differentiation": [
+      "Support: allow the threat–defence matching table from lesson 3 open for the first attempt.",
+      "Stretch: Q7 and Q8 — write a third threat and third measure for the hospital that nobody else in the class is likely to choose, and justify them."
+    ]
+  }
+}

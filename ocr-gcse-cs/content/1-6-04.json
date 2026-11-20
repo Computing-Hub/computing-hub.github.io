@@ -1,0 +1,114 @@
+{
+  "id": "1-6-04",
+  "title": "Open source and proprietary software",
+  "spec": "1.6.1",
+  "duration": 60,
+  "specPoints": [
+    "**Open source** vs **proprietary** software: definitions and the licences that go with each",
+    "Advantages and disadvantages of each for **users** and for **developers/businesses**",
+    "Choosing software for a scenario and justifying the choice; link to the Copyright Designs and Patents Act 1988"
+  ],
+  "learn": [
+    "Define open source and proprietary software in terms of source code and permission",
+    "Describe what a software licence is and what typical open-source and proprietary licences allow and forbid",
+    "Give two advantages and two disadvantages of each type, for users and for developers",
+    "Name real examples of each",
+    "Recommend open source or proprietary for a scenario and justify the choice with reasons from the scenario",
+    "Explain how both types rely on the Copyright Designs and Patents Act 1988"
+  ],
+  "hook": "Two word processors. One costs a subscription, you cannot see how it works, and if it has a bug you wait for the company. The other is free, anyone can read every line of its code, and if you were good enough you could fix the bug yourself tonight. Which would you give a school of 1,000 students? Which would you use to run a hospital's scanner? The answer is 'it depends', and the exam wants to know what it depends on.",
+  "video": {
+    "title": "Open the box or keep it shut?",
+    "brief": "4 minutes. Two boxes: a glass box labelled open source (you can see the gears: Linux, Firefox, Python, LibreOffice, VLC, Android's core) and a sealed box labelled proprietary (Windows, Microsoft Office, Photoshop, iOS, FIFA). For each: who wrote it, who may read, change and share it, who you pay, who fixes bugs. Then two scenarios: a start-up with no money choosing a web server, and a bank choosing accounting software, with the trade-offs animated as a balance. Close on the copyright symbol: both boxes are protected by copyright; the licence is what differs."
+  },
+  "explain": [
+    { "h": "Two ways to release software",
+      "p": ["**Proprietary** (closed source) software is owned by a company or person who keeps the **source code** secret. You buy or subscribe to a **licence** to use it, under conditions: usually no copying, no modifying, no sharing, a limited number of installs. Examples: Microsoft Windows and Office, Adobe Photoshop, Apple iOS, most big games.", "**Open source** software is released with its source code public. Its licence lets anyone read, modify and redistribute the code, often on condition that changes are shared under the same terms. Usually free of charge, though 'open source' is about *freedom to see and change*, not price. Examples: Linux, Firefox, Python, LibreOffice, VLC, GIMP, Blender, the core of Android, the Apache web server."],
+      "code": "                       Proprietary                     Open source\nSource code            Secret                          Public\nCost                   Usually paid / subscription     Usually free (paid support exists)\nMay you modify it?     No                              Yes\nMay you share it?      No (licence forbids)            Yes, under the licence terms\nWho fixes bugs?        The owner, on their timetable   Anyone; community + owner\nSupport                Official helpdesk, warranties   Forums, documentation, paid firms\nExamples               Windows, Office, Photoshop      Linux, Firefox, Python, LibreOffice" },
+    { "h": "Licences: what the permission actually says",
+      "p": ["Both kinds of software are protected by the **Copyright Designs and Patents Act 1988**. The author owns the code. A **licence** is the author's written permission to use it, and the licence is where the two types really differ."],
+      "list": ["A proprietary licence (often an **EULA**, End User Licence Agreement) typically says: you may install on *n* devices; you may not copy, reverse-engineer, modify or resell; the licence can be withdrawn; the company is not liable for losses. Breaking it (cracked keys, extra installs) is copyright infringement.",
+               "**Permissive** open-source licences (such as the MIT licence) say: do what you like, including using the code inside a proprietary product, as long as you keep the copyright notice.",
+               "**Copyleft** open-source licences (such as the GPL) say: you may use, change and share the code, but anything you distribute that includes it must also be released open source under the same licence. This keeps the code open for everyone.",
+               "Open source is *not* 'no copyright'. If you ignore the licence conditions you are infringing copyright exactly as a pirate is."] },
+    { "h": "Advantages and disadvantages for users",
+      "code": "Open source for USERS\n+ free or cheap; no per-seat licence fees      - support can be patchy; no one to phone\n+ can inspect code for security/privacy        - interface may be less polished; training cost\n+ can adapt it to exact needs (or pay someone) - may lack features of the market leader\n+ many eyes find bugs; fast community fixes    - compatibility: file formats others use\n+ no vendor lock-in; keep using it for ever    - quality varies; small projects can be abandoned\n\nProprietary for USERS\n+ professional support, training, warranties   - cost; subscriptions keep rising\n+ polished, consistent, well documented        - cannot fix or change it yourself\n+ industry standard; files work everywhere     - locked in: switching is costly\n+ regular tested updates from one source       - vendor can stop support or change terms\n+ clear accountability if it fails             - cannot check the code for hidden data collection" },
+    { "h": "Advantages and disadvantages for developers and businesses",
+      "list": ["**Releasing open source**: free testers and contributors worldwide; builds trust and reputation; fast adoption; income from support, hosting or premium versions. But: no direct sales income; competitors can use your work; you may be obliged by copyleft to open your own additions.",
+               "**Releasing proprietary**: direct income from licences; control over quality, features and brand; competitors cannot see how it works. But: all development, testing and support costs fall on you; piracy; users distrust closed code.",
+               "**Building on open source**: a start-up can build a product on Linux, Python and open libraries for nothing and ship fast. It must check each licence: a copyleft component can force the whole product open."] },
+    { "h": "Choosing for a scenario",
+      "p": ["The exam asks you to recommend and justify. Pull the reasons from the scenario, not from a memorised list. Signals for **open source**: little money, technical staff available, need to customise, many machines, want independence from a supplier, want to inspect the code. Signals for **proprietary**: non-technical users, need guaranteed support and accountability, industry-standard file formats or hardware drivers, safety-critical or regulated work, a specific feature only one product has."],
+      "code": "Scenario: A small charity with two volunteers and 15 donated laptops needs an office suite.\nRecommend: open source (e.g. LibreOffice).\nBecause:   no licence cost for 15 machines (scenario: charity, donated laptops);\n           volunteers can install it themselves; files can be saved in common formats.\nHowever:   if funders require a specific proprietary format, or volunteers need\n           official training, a proprietary suite might be justified.\n\nScenario: A design agency's income depends on client files opening perfectly in the industry-standard tool.\nRecommend: proprietary (e.g. the industry-standard design suite).\nBecause:   compatibility and support are worth more than the fee (scenario: income depends on it).",
+      "after": ["Notice each justification has three parts: the recommendation, the reason tied to the scenario, and a 'however' showing you considered the other side. That is the pattern for the 4–6 mark version and the 8-mark version."] }
+  ],
+  "simple": [
+    { "h": "Two types",
+      "p": ["Proprietary: the code is secret. You pay for a licence. You cannot change or share it. Examples: Windows, Office, Photoshop.", "Open source: the code is public. Usually free. You can change it and share it. Examples: Linux, Firefox, Python, LibreOffice."] },
+    { "h": "Licences",
+      "p": ["All software is protected by copyright. A licence is the owner's permission with rules. Proprietary rules: do not copy, do not change. Open-source rules: you may copy and change, but keep the notice, and sometimes you must share your changes."] },
+    { "h": "Good and bad",
+      "code": "Open source   + free   + can change it   + check the code\n              - less support   - may be less polished\nProprietary   + support   + polished   + works with everyone's files\n              - costs money   - cannot change it   - locked in" },
+    { "h": "Choosing",
+      "p": ["Little money, technical people, many machines: open source. Non-technical users, need support, need the standard format: proprietary. Always give a reason from the question and one 'however'."] }
+  ],
+  "keyterms": [
+    { "term": "Open source software", "def": "Software whose source code is publicly available and may be read, modified and redistributed under its licence." },
+    { "term": "Proprietary software", "def": "Software owned by a company or individual whose source code is kept secret and which is used under a restrictive licence." },
+    { "term": "Source code", "def": "The human-readable program instructions written by the developer." },
+    { "term": "Licence", "def": "The copyright owner's permission to use software, stating what the user may and may not do." },
+    { "term": "EULA", "def": "End User Licence Agreement: the licence terms a user accepts before using proprietary software." },
+    { "term": "Copyleft", "def": "An open-source licence condition requiring any shared modified version to stay open source under the same terms." },
+    { "term": "Vendor lock-in", "def": "Being tied to one supplier because switching software would be too costly or difficult." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Read the licence", "p": ["Below are three licences, paraphrased into plain words. For each: is it open source or proprietary? Which of these may you do: install on five PCs; read the code; change the code; sell a changed version; give a copy to a friend? Which Act is being relied on in every case?"],
+      "code": "LICENCE A\n  You may install this software on one computer. You may not copy, lend, rent, modify, decompile\n  or redistribute it. The company may end this licence at any time. The company is not responsible\n  for any loss caused by the software.\n\nLICENCE B\n  You may use, copy, modify, merge, publish, distribute and sell this software and versions of it,\n  free of charge, provided that this copyright notice is included in all copies. The software is\n  provided 'as is' without warranty.\n\nLICENCE C\n  You may run, study, change and share this software. If you distribute a changed version, you must\n  make its source code available and release it under this same licence, so that everyone who\n  receives it has the same freedoms you had.",
+      "after": ["Which licence would a company adding the code to its secret product choose, and which must it avoid? Why?"] },
+    { "type": "task", "title": "2. Advise the client", "p": ["For each scenario recommend open source or proprietary, give two reasons from the scenario and one 'however'."],
+      "steps": ["A rural primary school with 60 ageing laptops, no IT technician and a tiny budget needs an operating system and office software.", "A hospital trust needs software to control MRI scanners and store patient images.", "A two-person start-up is building a website and needs a web server, database and programming language.", "A film studio needs video-editing software its freelancers already know.", "A government department wants to be able to prove to the public that its voting-count software has no hidden behaviour."] },
+    { "type": "task", "title": "3. Structured debate: should the school go open source?", "p": ["Your school is considering replacing its proprietary office suite and operating system with open-source equivalents on all 800 computers. Groups: head of finance, IT technician, a teacher of a non-technical subject, a Year 11 student, a local software company. Two minutes to prepare one benefit and one drawback each, then a round of speeches and a vote on a condition."] },
+    { "type": "embed", "title": "4. Connections: sort the software", "url": "https://beanwise.coderra.je/connections_game/",
+      "instructions": ["Play a round. Then make your own 16-tile grid for a partner: four open-source programs, four proprietary programs, four licence words, four other 1.6 terms. Can they find the groups?"] },
+    { "type": "embed", "title": "5. Issues topic practice", "url": "https://beanwise.coderra.je/GCSE_homepage/Topic5_Issues.html",
+      "instructions": ["Open the software section. For each advantage listed, say whether it is an advantage for *users* or for *developers*, and for which type."] }
+  ],
+  "check": [
+    { "q": "Open source software is software whose:", "opts": ["Price is zero", "Source code is available for anyone to read and modify", "Code is kept secret", "Licence forbids copying"], "a": 1, "fb": "The defining feature is the available, modifiable source code; price is a side effect." },
+    { "q": "Which is a disadvantage of **proprietary** software for a user?", "opts": ["Professional support is available", "The user cannot modify the code to fix a problem", "Updates are tested by the vendor", "Files are compatible with most other users"], "a": 1, "fb": "Closed code means waiting for the vendor." },
+    { "q": "Which law protects both open-source and proprietary software?", "opts": ["Computer Misuse Act 1990", "Data Protection Act 2018", "Copyright Designs and Patents Act 1988", "None, open source has no copyright"], "a": 2, "fb": "Open source is copyrighted; the licence grants freedoms." },
+    { "q": "A charity with no money and a volunteer who knows Linux needs an operating system for 20 old PCs. The best-justified choice is:", "opts": ["Proprietary, for the support", "Open source, because it is free and the volunteer can install and adapt it", "Open source, because it is always better", "Proprietary, because it is industry standard"], "a": 1, "fb": "Reasons from the scenario: no money, technical volunteer, many machines." },
+    { "q": "A copyleft licence requires that:", "opts": ["You pay per device", "Modified versions you share are also released open source", "You never change the code", "You delete the copyright notice"], "a": 1, "fb": "Share-alike keeps the code open." }
+  ],
+  "exam": [
+    { "q": "Describe what is meant by **proprietary software**.", "marks": 2,
+      "model": ["Software owned by a company/individual whose source code is not made available (1); users must buy/agree a licence that restricts copying, modifying or distributing it (1)."],
+      "commentary": "Two distinct ideas: closed source code, and restrictive licence/ownership. 'Software you pay for' alone is one weak mark at best; some proprietary software is free." },
+    { "q": "A small business is deciding between open-source and proprietary accounting software. Give **one** advantage and **one** disadvantage of choosing open source for this business.", "marks": 2,
+      "model": ["Advantage (1): no licence fee, saving money for a small business / can be adapted to the business's exact needs / can switch suppliers freely. Disadvantage (1): no guaranteed official support if something goes wrong at tax time / may not be compatible with the accountant's or HMRC's formats / staff may need training."],
+      "commentary": "Tie each to *small business accounting*: money and support are the natural hooks. Generic 'it is free' / 'less support' earn the marks but get no extra credit; applied phrasing is good practice for the 8-marker." },
+    { "q": "A game developer has written a new game engine. Explain **one** reason why they might release it as open source, and **one** reason why they might keep it proprietary.", "marks": 4,
+      "model": ["Open source (1 + 1): other developers can contribute improvements and find bugs (1), so the engine develops faster at lower cost to the developer (1). Or: builds reputation and wide adoption (1), from which the developer can sell support, tools or premium features (1).", "Proprietary (1 + 1): they can sell licences for the engine (1), giving direct income to recover development costs (1). Or: competitors cannot copy their techniques (1), keeping a competitive advantage in the games market (1)."],
+      "commentary": "Each side needs the reason and the consequence for the developer. Students often give user advantages ('people get it free'); the question says *developer*, so marks come from income, cost, control and reputation." }
+  ],
+  "home": "List five programs you used this week. For each: open source or proprietary, the evidence for your answer, and what you accepted when you first ran it (if you can find the licence, read the first paragraph). Then write a four-sentence recommendation for a friend who wants free, trustworthy software for GCSE work.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 16 · try 27 · check 5 · exam 6 · homework 2",
+    "misconceptions": [
+      "'Open source means free' (price). Define it by source code and permission; mention paid support and free proprietary apps.",
+      "'Open source has no copyright' or 'is not protected by law'. It is copyrighted; the licence grants freedoms; break the conditions and it is infringement.",
+      "'Open source is less secure because anyone can see the code.' Often the reverse: many eyes find bugs; closed code can hide problems. Both positions appear in mark schemes as arguable, so students must give the mechanism.",
+      "Confusing user and developer advantages in exam answers. Read who the question is about."
+    ],
+    "say": [
+      "'Open source is about the code being open, not about the price being zero.'",
+      "'Both boxes have a copyright symbol. The licence is what differs.'",
+      "'Reasons from the scenario, then a however.'"
+    ],
+    "skip": "Try 4 and Try 5 are optional. Try 1 (read the licence) and Try 2 (advise the client) are the exam skills.",
+    "differentiation": [
+      "Support: give the comparison table with the proprietary column filled; students complete the open-source column.",
+      "Stretch: in Try 1, explain why a company might *prefer* Licence B over Licence C when it uses other people's code, and why the authors of Licence C chose their condition."
+    ]
+  }
+}

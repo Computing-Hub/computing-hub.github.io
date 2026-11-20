@@ -1,0 +1,67 @@
+{
+  "id": "1-5-04",
+  "title": "Unit 1.5 Systems software — review and test",
+  "spec": "1.5.1 – 1.5.2",
+  "duration": 45,
+  "specPoints": [
+    "Covers all of 1.5: purpose of the OS and its five functions (user interface, memory management and multitasking, peripheral management and drivers, user management, file management); utility software (encryption, defragmentation, data compression)",
+    "26 marks · 35 minutes",
+    "Teachers: switch on Teacher view for the mark scheme"
+  ],
+  "learn": [
+    "Recall the five OS functions and the three named utilities precisely",
+    "Explain OS functions with a 'what it does + why it matters' expansion",
+    "Choose and justify a utility for a scenario, including the SSD trap"
+  ],
+  "hook": "Five jobs for the OS: interface, memory and multitasking, peripherals and drivers, users, files. Three utilities: encryption scrambles, defragmentation gathers, compression shrinks. If you can say those two lines and add a 'so that' to each, you can score on this test.",
+  "explain": [
+    { "h": "Five-minute review",
+      "list": ["OS = systems software that manages hardware and lets applications run. Five functions: **user interface** (GUI, command line, menu-driven, voice); **memory management and multitasking** (allocate RAM, keep programs apart, free it, virtual memory when full; time-slice the CPU so programs appear simultaneous); **peripheral management and drivers** (a driver translates between OS and one device); **user management** (accounts, passwords, access levels, monitoring); **file management** (folders in a hierarchy, extensions, create/move/copy/delete, permissions).",
+               "Interfaces: GUI easy but needs more resources; CLI fast and scriptable but must learn commands; menu-driven simple but limited; voice hands-free but mishears.",
+               "Utility software = systems software that maintains or protects the computer, one job each. **Encryption**: key scrambles data so stolen data cannot be read. **Defragmentation**: moves file blocks so each file is contiguous and free space is together; fewer head moves on an HDD; never for an SSD (no head, extra wear). **Compression**: smaller files, less storage, faster transfer.",
+               "Other utilities you may meet in a scenario: backup (full copies everything; incremental copies only changes) and anti-malware (scan, remove, must be updated).",
+               "Answer shape: name the function or utility, say what it does, add 'so that…' using the scenario's own words."] }
+  ],
+  "exam": [
+    { "q": "State what is meant by **systems software** and give **one** example.", "marks": 2,
+      "model": ["Software that runs, manages or maintains the computer / hardware rather than doing a task for the user (1). Example: operating system / any named OS / a utility such as encryption or defragmentation software (1)."],
+      "commentary": "Definition must contrast with 'for the user' or mention managing the hardware. A browser as the example loses the mark." },
+    { "q": "State **two** functions of an operating system other than providing a user interface.", "marks": 2,
+      "model": ["Any two: memory management / multitasking (1); peripheral management / device drivers (1); user management (1); file management (1)."],
+      "commentary": "Spec words only. 'Lets you run programs' is not a function name." },
+    { "q": "Give **one** advantage and **one** disadvantage of a command line interface compared with a graphical user interface.", "marks": 2,
+      "model": ["Advantage: faster for experienced users / commands can be scripted and automated / uses less memory and processing power (1). Disadvantage: commands must be memorised and typed exactly / harder for beginners / no visual prompts (1)."],
+      "commentary": "Each point should mention the user or the resources; 'it is faster' alone is thin — faster for whom?" },
+    { "q": "A laptop has a single-core processor. Explain how the operating system allows the user to have a video call, a document and a web browser open at the same time.", "marks": 3,
+      "model": ["The OS multitasks (1) by allocating each program a short slice of CPU time in turn / scheduling them (1); it switches between them so quickly that they appear to run at the same time although the core executes one instruction at a time (1)."],
+      "commentary": "Name, mechanism, appearance. The word 'appear' is the third mark; 'runs them all at once' contradicts 'single-core'." },
+    { "q": "Explain the purpose of a **device driver**.", "marks": 2,
+      "model": ["Software that allows the OS to communicate with / control a specific piece of hardware (1) by translating the OS's general instructions into signals that device understands (1)."],
+      "commentary": "Communicate + translate. Students who call it hardware score nothing." },
+    { "q": "A school network is used by 900 students and 80 staff. Explain **two** functions of the operating system that are important on this network.", "marks": 4,
+      "model": ["Any two functions, each named (1) with an expansion tied to the scenario (1): User management (1) — each person has an account with a password and an access level so students cannot install software or open staff files (1). File management (1) — organises each user's files in folders with permissions so students see their own work and shared resources but cannot change teachers' files (1). Memory management (1) — allocates RAM to each program and keeps them separate so one crashing program does not corrupt another's data (1). Peripheral management (1) — queues print jobs from many users to shared printers using drivers (1)."],
+      "commentary": "This is the 'explain two functions' question. One mark for the name, one for an expansion with 'so that' or 'because'. Generic expansions ('manages memory') score the name mark only. Expansions that mention students, staff or the network read as applied and are safer." },
+    { "q": "Describe **three** things the operating system's file management function does.", "marks": 3,
+      "model": ["Any three: organises files into folders/directories in a hierarchy (1); allows files to be created, opened, saved, renamed, moved, copied or deleted (1); uses file extensions to identify file type and the program that opens it (1); sets permissions controlling who can read or write a file (1); keeps track of where each file is physically stored on the disk (1)."],
+      "commentary": "Three distinct actions. 'Saves files' and 'opens files' count as one point (operations)." },
+    { "q": "A small business has two problems. (a) An office PC with a hard disk drive has become slow to open files after four years of use. (b) A sales laptop containing customer details is often left in cars. For each problem, identify a suitable utility and justify your choice.", "marks": 4,
+      "model": ["(a) Defragmentation software (1) because files have become fragmented / split across the hard disk, and defragmenting puts each file's blocks together so the read head moves less and files open faster (1). (b) Encryption software (1) because if the laptop is stolen the customer data is scrambled and cannot be read without the key (1)."],
+      "commentary": "Identify + justify for each. The justification must connect to the symptom: 'slow after four years' and 'hard disk' point to fragmentation; 'left in cars' points to theft. Anti-malware for (a) with no evidence of infection scores one mark at most." },
+    { "q": "Explain why defragmentation software should **not** be used on a computer with a **solid-state drive**.", "marks": 2,
+      "model": ["An SSD has no moving read/write head / accesses every block equally fast, so fragmented files do not slow it down and there is no benefit (1). SSD cells wear out after a limited number of writes, and defragmenting performs many writes, shortening the drive's life (1)."],
+      "commentary": "No benefit + causes wear. Either alone is one mark." },
+    { "q": "A student needs to send a 60 MB folder of coursework to a teacher by email, but the attachment limit is 25 MB. State the utility software they should use and give **one** other benefit of using it.", "marks": 2,
+      "model": ["Data compression software / zip (1). Other benefit: the compressed file uses less storage space / transfers faster over the network (1)."],
+      "commentary": "Name it, then a benefit that is not just 'fits the limit', since the question already gives that." }
+  ],
+  "teacher": {
+    "timing": "45 min: review 5 · test 35 · collect. 26 marks. Bands: 21+ secure; 15–20 developing; below 15 revisit lessons 2 and 3.",
+    "misconceptions": ["Marks lost on Q2/Q7 are vocabulary (spec function names, file operations); Q4/Q6 are 'so that' expansions; Q8/Q9 are reading the scenario (HDD vs SSD, theft vs infection). Reteach whichever dominates.", "Q6 is the question most often answered with a list instead of an explanation: show a 4-mark model answer when returning the papers."],
+    "say": ["'Five jobs. Three utilities. Name it, say what it does, say so-that.'", "'Read the storage type before you write defragmentation.'"],
+    "skip": "For 25 minutes drop Q3 and Q7 (5 marks), mark out of 21.",
+    "differentiation": [
+      "Support: allow the five-minute review list on the desk; for Q6 give the function names as a word bank.",
+      "Stretch: Q8 — add a part (c): the business also wants to protect against a ransomware attack; identify the utility and explain why anti-malware alone is not enough."
+    ]
+  }
+}

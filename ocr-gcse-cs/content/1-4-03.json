@@ -1,0 +1,116 @@
+{
+  "id": "1-4-03",
+  "title": "Preventing vulnerabilities",
+  "spec": "1.4.2",
+  "duration": 60,
+  "specPoints": [
+    "Common prevention methods: **penetration testing**, **anti-malware software**, **firewalls**, **user access levels**, **passwords**, **encryption**, **physical security**",
+    "For each: what it is, how it helps, and which **threat(s)** it counters"
+  ],
+  "learn": [
+    "Describe each of the seven prevention methods in one or two sentences",
+    "Match each method to the threat(s) from lessons 1 and 2 that it counters",
+    "Explain why a method works, not just what it is (the 'because' mark)",
+    "Recommend and justify two or three methods for a given scenario",
+    "Recognise that no single method is enough and that people must be trained as well"
+  ],
+  "hook": "Imagine your school's network is a building. Anti-malware is the security guard checking bags. The firewall is the front door that only lets certain people through. Access levels are the key cards: students open classrooms, not the server room. Encryption is writing in code so a stolen notebook is useless. Pen testing is hiring a burglar to break in and tell you how. Every defence has a job. Today you learn which job.",
+  "video": {
+    "title": "Seven defences, seven jobs",
+    "brief": "4 minutes. A building cross-section representing a network. Each defence is added as a layer with a label and the threat it stops: firewall at the gate (blocks unwanted traffic, slows DoS); anti-malware scanning files inside (viruses, worms, trojans, spyware, ransomware); key cards on doors (access levels: a cracked student account cannot reach the finance files); a strong-password rule on the lock (brute force); an envelope sealing data moving in and out (encryption vs interception); a locked server-room door and CCTV (physical security); finally a friendly burglar with a clipboard (penetration test) finding the window left open. Close with the phrase: layers, not one wall."
+  },
+  "explain": [
+    { "h": "The idea: layers, not one wall",
+      "p": ["No single defence stops every attack. A firewall does nothing about a phishing email a user opens; anti-malware does nothing about a guessed password. Organisations use **layers**, so that when one fails the next one limits the damage. In the exam, the best answers **name the method, say how it works, and say which threat it stops** in the given scenario."] },
+    { "h": "The seven methods",
+      "code": "Method               What it is                                  How it helps / threat countered\n-------------------  ------------------------------------------  -----------------------------------------------\nPenetration testing  Authorised testers try to break into the    Finds weaknesses (open ports, weak passwords,\n                     system the way an attacker would; report    unpatched software, injection flaws) BEFORE a\n                     the weaknesses found                        real attacker does, so they can be fixed\nAnti-malware         Software that scans files/memory for known  Detects, quarantines and removes viruses,\n                     malware signatures and suspicious behaviour worms, trojans, spyware, ransomware\nFirewall             Hardware or software that inspects packets  Blocks unauthorised access from outside;\n                     entering/leaving a network and blocks       stops some malware communicating; can filter\n                     those that break its rules                  the flood of a DoS attack\nUser access levels   Each user gets only the permissions their   Limits damage if an account is compromised;\n                     role needs (read / write / none per file)   stops insiders seeing or changing data they\n                                                                 should not\nPasswords            Strong (long, mixed characters), unique,    Resist brute-force and dictionary attacks;\n                     changed if leaked, with lockout after       lockout stops unlimited guessing\n                     failed attempts, often plus 2-factor\nEncryption           Data is scrambled with a key so only the    Intercepted or stolen data is unreadable\n                     holder of the key can read it               without the key (interception, stolen laptops)\nPhysical security    Locks, key cards, CCTV, security guards,    Stops theft of or tampering with servers and\n                     locked server rooms, screen privacy filters devices; makes shouldering harder" },
+    { "h": "Three methods students explain badly",
+      "list": ["**Firewall**: it is not anti-virus. It works on **network traffic**, checking each packet against rules (allowed ports, addresses, direction) and dropping what does not match. Say 'monitors incoming and outgoing traffic and blocks unauthorised packets'.",
+               "**Encryption**: it does not stop data being stolen or intercepted. It makes the stolen data **useless** without the key. Say 'even if intercepted, the data cannot be understood'.",
+               "**Penetration testing**: it is not a defence that runs all the time. It is a **check**, done by authorised people, that produces a report of weaknesses to fix. Say 'identifies vulnerabilities so they can be fixed before an attacker exploits them'."] },
+    { "h": "Passwords and access levels: the maths and the logic",
+      "p": ["A **password policy** might require 12+ characters with upper and lower case, digits and symbols, and lock the account after five wrong attempts. Length defeats brute force (from last lesson: 95^12 possibilities); lockout turns 'thousands of guesses a second' into 'five guesses, then stop'. **Two-factor authentication** adds something you have (a phone code) to something you know.", "**User access levels** apply the rule of least privilege: a student account can read shared resources but not change grades; a teacher can edit their classes' grades but not payroll; only the network manager can install software. If a student account is phished, the attacker gets a student's access, not the school's."] },
+    { "h": "The missing eighth method: people",
+      "p": ["The spec lists seven technical methods, but exam scenarios about phishing or blagging usually expect **staff training** and clear **policies** too: never share passwords, check sender addresses, report suspicious messages, lock screens when away. Training counters social engineering, which no software can fully stop. Mention it when the threat in the scenario is a person being tricked."] },
+    { "h": "Picking defences for a scenario",
+      "p": ["The exam gives a scenario and asks you to **identify and justify** measures. Method: (1) spot the threat implied by the scenario words; (2) choose the method that counters that threat; (3) explain why it works **in this situation**."],
+      "code": "Scenario clue                                  Threat implied        Best-fit defences\n---------------------------------------------  --------------------  ------------------------------------\n'staff work from cafes / on public Wi-Fi'      interception          encryption (VPN/HTTPS), training\n'customers log in with simple passwords'       brute force           password policy, lockout, 2FA\n'website went down under heavy traffic'        DoS                   firewall, traffic filtering\n'an employee opened an attachment'             malware / phishing    anti-malware, training, access levels\n'laptops left in unlocked rooms'               physical theft        physical security, encryption of disks\n'website built quickly, never tested'          SQL injection etc.    penetration testing, input validation\n'any staff member can see every record'        insider / compromised account  user access levels" }
+  ],
+  "simple": [
+    { "h": "Many layers",
+      "p": ["One defence is never enough. Use several. If one fails, the next one limits the damage."] },
+    { "h": "The seven methods",
+      "list": ["Penetration testing: friendly hackers try to break in. They write a report. You fix the holes.",
+               "Anti-malware: scans files for malware. Removes it.",
+               "Firewall: checks network traffic. Blocks packets that break the rules.",
+               "User access levels: each person can only reach what their job needs.",
+               "Passwords: long and mixed. Lock the account after a few wrong tries.",
+               "Encryption: scrambles data. Stolen data is useless without the key.",
+               "Physical security: locks, key cards, CCTV. Keep people away from the servers."] },
+    { "h": "Match defence to attack",
+      "code": "Brute force      -> strong passwords, lockout, 2FA\nMalware          -> anti-malware, training\nInterception     -> encryption\nDoS              -> firewall\nStolen laptop    -> physical security, encryption\nPhishing         -> training, access levels\nUnknown weak spot-> penetration testing" },
+    { "h": "People too",
+      "p": ["Train staff. Tell them: do not share passwords. Check who sent the email. Report anything odd. Software cannot stop a person being tricked."] }
+  ],
+  "keyterms": [
+    { "term": "Penetration testing", "def": "Authorised, simulated attacks on a system to find and report security weaknesses before a real attacker exploits them." },
+    { "term": "Anti-malware software", "def": "Software that detects, quarantines and removes malware by scanning for known signatures and suspicious behaviour." },
+    { "term": "Firewall", "def": "Hardware or software that monitors network traffic and blocks packets that do not meet its rules." },
+    { "term": "User access levels", "def": "Permissions that control which files and actions each user or role is allowed, so users only get what they need." },
+    { "term": "Encryption", "def": "Scrambling data with a key so that it can only be read by someone holding the matching key." },
+    { "term": "Physical security", "def": "Locks, key cards, CCTV and guards that stop people physically reaching or taking hardware." },
+    { "term": "Two-factor authentication", "def": "Logging in with two different kinds of evidence, for example a password and a code sent to a phone." },
+    { "term": "Least privilege", "def": "The rule that every user gets the minimum access needed for their role." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Defences in detail", "url": "https://beanwise.coderra.je/GCSE_homepage/cybersecurity.html",
+      "instructions": ["Open the prevention section. For each of the seven methods, write a 'what / how / stops' line: what it is, how it works, which threat it counters.", "Find one method the page describes that you would have explained wrongly before today. Write the correct sentence."] },
+    { "type": "task", "title": "2. Card sort: threat meets defence", "p": ["Make two sets of cards. Threats: virus, worm, trojan, spyware, ransomware, phishing, blagging, shouldering, brute force, DoS, interception, SQL injection. Defences: penetration testing, anti-malware, firewall, access levels, strong passwords and lockout, encryption, physical security, staff training."],
+      "steps": ["Lay out the threats. Place each defence card next to **every** threat it helps with. Defences may be used more than once; some threats need two.", "Which threat has the fewest defences next to it? Why is that one dangerous?", "Which defence appears most often? Explain why in one sentence.", "Finally pick any threat and write the exam sentence: '[Defence] counters [threat] because [mechanism].'"],
+      "after": ["Expected pairings include: anti-malware with all five malware types; encryption with interception and stolen devices; passwords/lockout with brute force; firewall with DoS and outside intrusion; access levels with phishing and brute force (limits damage); training with phishing, blagging, shouldering; physical security with shouldering and theft; pen testing with SQL injection and any unknown weakness."] },
+    { "type": "python", "title": "3. A tiny login with access levels", "p": ["This program is a toy school system with three roles. Run it as each user and see what the same command does for each. Then add a fourth role, 'visitor', who can view the timetable only. Notice that even if a student's password were guessed, the attacker still could not change grades."],
+      "code": "# Toy demonstration of user access levels (nothing real is protected here)\n\nusers = {\n    \"sam\":   {\"password\": \"Tr0ub4dor&3\", \"role\": \"student\"},\n    \"mrs_k\": {\"password\": \"Pl4y-the-long-game!\", \"role\": \"teacher\"},\n    \"admin\": {\"password\": \"c0rrect-horse-battery-staple\", \"role\": \"network_manager\"},\n}\n\n# Which role is allowed which action\npermissions = {\n    \"student\":         [\"view_timetable\", \"view_own_grades\"],\n    \"teacher\":         [\"view_timetable\", \"view_own_grades\", \"view_class_grades\", \"edit_class_grades\"],\n    \"network_manager\": [\"view_timetable\", \"install_software\", \"reset_passwords\"],\n}\n\nMAX_ATTEMPTS = 3   # lockout: part of a password policy\n\ndef login(username, password, attempts_so_far):\n    if attempts_so_far >= MAX_ATTEMPTS:\n        return None, \"account locked - too many failed attempts\"\n    user = users.get(username)\n    if user is None or user[\"password\"] != password:\n        return None, \"wrong username or password\"\n    return user[\"role\"], \"logged in as \" + user[\"role\"]\n\ndef try_action(role, action):\n    if role is None:\n        return \"not logged in\"\n    if action in permissions[role]:\n        return \"ALLOWED: \" + action\n    return \"DENIED:  \" + action + \" (not permitted for \" + role + \")\"\n\n# Simulate: an attacker has guessed Sam's password and tries to change grades\nrole, msg = login(\"sam\", \"Tr0ub4dor&3\", attempts_so_far=0)\nprint(msg)\nfor action in [\"view_timetable\", \"edit_class_grades\", \"install_software\"]:\n    print(\"  \", try_action(role, action))\n\nprint()\nrole, msg = login(\"mrs_k\", \"Pl4y-the-long-game!\", attempts_so_far=0)\nprint(msg)\nfor action in [\"edit_class_grades\", \"install_software\"]:\n    print(\"  \", try_action(role, action))\n\nprint()\nrole, msg = login(\"admin\", \"guess\", attempts_so_far=3)\nprint(msg)\n\n# TODO 1: add a 'visitor' role that can only view_timetable, and a user for it.\n# TODO 2: what should happen to attempts_so_far after each wrong password? Add it." },
+    { "type": "embed", "title": "4. Encryption in action", "url": "https://beanwise.coderra.je/cs_animations/cipher.html",
+      "instructions": ["Encrypt a short message. Imagine it is a packet captured by a sniffer: could the attacker read it?", "Try to decrypt it without knowing the key. How many keys would a Caesar brute force need? Why is that fine for a classroom but useless for a bank?"] },
+    { "type": "task", "title": "5. Design the defences", "p": ["A dental surgery has a reception PC, a shared laptop that the dentist takes home, patient records on a server in a cupboard, and a website where patients book online. Staff have never had security training."],
+      "steps": ["List four weaknesses you can see in that description.", "For each weakness choose one prevention method and write: '[Method] because [how it counters the threat here].'", "Rank your four measures by cost (cheapest first). Which would you do this week?"] }
+  ],
+  "check": [
+    { "q": "A firewall mainly works by:", "opts": ["Scanning files for virus signatures", "Checking network packets against rules and blocking those that fail", "Encrypting hard drives", "Guessing passwords"], "a": 1, "fb": "Firewalls act on network traffic, not on files." },
+    { "q": "Which method makes intercepted data unreadable rather than preventing the interception?", "opts": ["Firewall", "Penetration testing", "Encryption", "Access levels"], "a": 2, "fb": "The packets are still captured; without the key they are meaningless." },
+    { "q": "User access levels mostly reduce the damage from:", "opts": ["A DoS attack", "A compromised or misused account", "Slow network speeds", "A power cut"], "a": 1, "fb": "An attacker with a student's account only gets a student's permissions." },
+    { "q": "Penetration testing is best described as:", "opts": ["Software that blocks hackers", "Authorised people attempting to break in to find weaknesses", "Deleting malware", "Changing all passwords monthly"], "a": 1, "fb": "It is an authorised test that reports weaknesses to fix." },
+    { "q": "Which measure best counters a brute-force attack on logins?", "opts": ["CCTV in the server room", "Anti-malware software", "Long passwords and account lockout after failed attempts", "Penetration testing"], "a": 2, "fb": "Length multiplies the guesses needed; lockout stops the guessing." }
+  ],
+  "exam": [
+    { "q": "Describe how a **firewall** helps to protect a network.", "marks": 2,
+      "model": ["Monitors/inspects incoming and outgoing network traffic (packets) (1) and blocks any that do not meet a set of rules, e.g. from unauthorised sources or on closed ports, preventing unauthorised access (1)."],
+      "commentary": "Two parts: monitors traffic + blocks according to rules. 'Stops viruses' is the classic confusion with anti-malware and earns nothing on its own." },
+    { "q": "A company stores customer records on laptops that sales staff carry between clients. Explain why **encryption** is a suitable security measure for this company.", "marks": 3,
+      "model": ["Laptops are at risk of being lost or stolen when carried around (1). Encryption scrambles the data on the drive so that it can only be read with the key/password (1), so even if a laptop is stolen the customer records cannot be read by the thief (1)."],
+      "commentary": "Tie it to the scenario: *carried between clients* means theft or loss. The explain mark is 'even if stolen, unreadable'. Answers that define encryption without mentioning the laptops score two at most." },
+    { "q": "A school gives every user — students, teachers and office staff — full access to every folder on the network. Explain **two** reasons why the school should introduce **user access levels**.", "marks": 4,
+      "model": ["Students could view or change data they should not see, such as grades or other students' personal details (1); access levels restrict each user to the files their role needs, protecting privacy and preventing tampering (1). If a student account is compromised, e.g. by phishing or a guessed password, the attacker currently gains access to everything (1); with access levels the damage is limited to what that account is allowed to reach (1)."],
+      "commentary": "Each reason is a problem now + how access levels fix it. Many answers give one reason twice in different words ('students could see things' / 'students could change things'). The second, stronger reason is about limiting the damage of a compromised account." }
+  ],
+  "home": "Choose one organisation you know (a shop, club, school, GP surgery). Write a one-page 'security plan' with five of the seven methods: for each, one sentence on what you would do and one on which threat it stops. Add staff training as the sixth item.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 15 · try 25 · check 5 · exam 8 · homework 2",
+    "misconceptions": [
+      "Firewall = anti-virus. Firewalls filter traffic; anti-malware scans files. Use the building analogy: door versus bag check.",
+      "Encryption 'stops hackers getting the data'. It does not; it makes the data they get unreadable. Insist on 'even if intercepted/stolen'.",
+      "Penetration testing described as an ongoing protection. It is an authorised test producing a report. The fixing is what protects.",
+      "Access levels only 'stop students cheating'. The exam value is limiting damage when any account is compromised."
+    ],
+    "say": [
+      "'Name it, say how it works, say what it stops. Three ideas, two or three marks.'",
+      "'Encryption does not lock the door. It makes what is inside unreadable.'",
+      "'Pen testing is hiring a burglar who hands you a report instead of taking your TV.'"
+    ],
+    "skip": "Try 5 can be homework if time is short. Try 2 (card sort) is the core; keep it.",
+    "differentiation": [
+      "Support: give the seven-method table with the 'how it helps' column blank and the phrases to cut and stick.",
+      "Stretch: in Try 3, add a 'log' list recording every denied action with the username, and explain how a network manager would use such a log to spot an attack in progress."
+    ]
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "id": "1-3-02",
+  "title": "Client-server and peer-to-peer",
+  "spec": "1.3.1",
+  "duration": 60,
+  "specPoints": [
+    "The different roles of computers in a **client-server** and a **peer-to-peer** network",
+    "Advantages and disadvantages of each model",
+    "Choosing and justifying a model for a given scenario"
+  ],
+  "learn": [
+    "Describe the role of a client and the role of a server",
+    "Describe how a peer-to-peer network works and how it differs from client-server",
+    "Give at least three advantages and two disadvantages of each model",
+    "Recommend a model for a scenario and justify it using the scenario's details",
+    "Name common types of server (file, print, web, mail, authentication)"
+  ],
+  "hook": "When you logged on this morning, your username and password left this computer, travelled to a machine in a locked room, were checked, and an answer came back: 'yes, let them in'. You have never seen that machine. It is a server, and this room is full of its clients. At home, when you share a photo straight to your friend's phone over Bluetooth, there is no server at all. Two ways of organising who does what; today you learn both and when to pick each.",
+  "video": {
+    "title": "Who is in charge? Client-server vs peer-to-peer",
+    "brief": "4 minutes. Left half of the screen: a big central server with a crown; six client laptops send requests ('log me in', 'give me the file', 'print this') and the server answers each one. Highlight: data stored in one place, backed up once, security controlled once; then the server fails and every client greys out. Right half: six laptops with no server, each holding its own files and talking directly to the others; one fails and the rest carry on, but files are scattered and nobody is in charge of backups or updates. End with a decision table: how many users, is there money for a server and a technician, does the data need to be central and secure."
+  },
+  "explain": [
+    { "h": "Client-server: one machine serves, the rest ask",
+      "p": ["In a **client-server** network, a powerful computer called the **server** provides services, and the other computers, the **clients**, request them. The client sends a request ('give me this file', 'check this password'); the server processes it and sends a response. The server holds the shared data, runs all day and is managed by a network administrator.",
+            "Schools, offices, banks and every website you use are client-server. Your browser is the client; the web server is the server."],
+      "code": "Type of server      What it does for clients\n------------------  --------------------------------------------\nFile server         Stores users' files centrally; backs them up\nPrint server        Queues print jobs and sends them to printers\nWeb server          Sends web pages when a browser requests them\nMail server         Stores and forwards email\nAuthentication      Checks usernames and passwords at log-on\nDatabase server     Stores and searches shared data" },
+    { "h": "Client-server: why organisations use it",
+      "list": ["**Central storage**: all files in one place, so users can log on from any machine and see their work.",
+               "**Central backup**: one backup of the server protects everyone's data.",
+               "**Central security**: user accounts, passwords and access rights are set once by the administrator.",
+               "**Central updates**: software and anti-malware can be installed and updated from the server.",
+               "Disadvantages: the server is **expensive** to buy and run; it needs a **specialist** (network manager) to look after it; if the server **fails, nobody can work** (single point of failure); it can become a **bottleneck** when many clients request at once."] },
+    { "h": "Peer-to-peer: everyone is equal",
+      "p": ["In a **peer-to-peer (P2P)** network there is no server. Every computer (a **peer**) has equal status. Each one stores its own files and can share them directly with any other peer, and each peer is responsible for its own security and backups. A home network of a few laptops sharing a printer and some folders is a typical P2P network. Large-scale file sharing and some video-call systems also work peer-to-peer: the data goes straight between users' machines."] },
+    { "h": "Peer-to-peer: when it is the right choice",
+      "list": ["**Cheap**: no server to buy, no specialist to pay.",
+               "**Easy to set up**: plug in, share a folder, done.",
+               "**No single point of failure**: if one peer is off, the others keep working (though files on that peer are unavailable).",
+               "Disadvantages: **no central backup**: each user must back up their own machine; **security is weaker** because each peer sets its own rules; **files are scattered** and may be duplicated or out of date; a peer **must be switched on** for others to use its files; it **does not scale**: with more than a handful of machines it becomes unmanageable."] },
+    { "h": "Comparing the two in exam style",
+      "p": ["'Compare' means both models appear in every sentence. Use *whereas* or *while*. Example: 'In client-server the data is stored centrally on the server, **whereas** in peer-to-peer each computer stores its own data.' Three comparisons on three different points (storage, security, cost or failure) is a full-marks answer."],
+      "code": "Point            Client-server                    Peer-to-peer\n---------------  -------------------------------  -------------------------------\nRoles            Server provides, clients request   All computers equal\nData storage     Central on the server             On each peer\nBackup           Once, centrally                   Each user, separately\nSecurity         Central accounts and rights       Each peer sets its own\nCost             High (server + specialist)        Low\nIf one fails     Server down = all stop            Only that peer's files lost\nBest for         Schools, businesses, websites     Homes, very small offices" },
+    { "h": "Choosing for a scenario",
+      "p": ["Read the numbers and the needs. Fewer than about ten computers, little money, no sensitive data, no technician: **peer-to-peer**. Many users, shared data that must be secure and backed up, people who log on from different machines, someone to manage it: **client-server**. Your justification must quote the scenario: 'because the clinic stores patient records, which must be secure and backed up centrally' earns the mark; 'because it is better' does not."] }
+  ],
+  "simple": [
+    { "h": "Client-server",
+      "p": ["One big computer is the server. It holds the files and checks passwords.", "The other computers are clients. They ask the server for things.", "Good: files in one place. One backup. One set of passwords.", "Bad: expensive. Needs an expert. If the server breaks, everyone stops."] },
+    { "h": "Peer-to-peer",
+      "p": ["No server. All computers are equal. They are called peers.", "Each computer keeps its own files and shares them directly.", "Good: cheap. Easy to set up. One broken computer does not stop the rest.", "Bad: no central backup. Weaker security. Files are all over the place. Hard to manage with many computers."] },
+    { "h": "Which one?",
+      "list": ["Home or tiny office, little money: peer-to-peer.", "School, business, bank, website: client-server.", "In the exam, use a word from the question in your reason."] }
+  ],
+  "keyterms": [
+    { "term": "Client", "def": "A computer that requests a service or data from a server." },
+    { "term": "Server", "def": "A powerful computer that provides services such as file storage, printing or authentication to clients." },
+    { "term": "Client-server network", "def": "A network where a central server provides services and clients request them." },
+    { "term": "Peer-to-peer network", "def": "A network with no server, where every computer has equal status and shares its own resources directly." },
+    { "term": "Peer", "def": "A computer in a peer-to-peer network; both provides and uses resources." },
+    { "term": "Single point of failure", "def": "A component, such as a server, whose failure stops the whole system working." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Act it out",
+      "p": ["Six students stand up. Round 1: one is the server, holding the class register and a stamp. Clients must bring every request (a name to look up, a page to 'print') to the server, who deals with them one at a time. Round 2: no server. Each student holds one page of the register and swaps pages directly."],
+      "steps": ["Round 1: what happens to the queue when all five clients ask at once? What happens when the server 'goes for lunch'?", "Round 2: what happens when the student holding page 3 leaves the room? Who is checking that pages are up to date?", "Write one advantage and one disadvantage you **saw** for each round."] },
+    { "type": "task", "title": "2. Card sort: which model?",
+      "p": ["Put each statement under client-server, peer-to-peer or both."],
+      "steps": ["Data is stored centrally.", "Cheap to set up.", "Needs a network manager.", "Each computer is responsible for its own backup.", "Users can log on from any machine and see their files.", "If the central machine fails, no one can work.", "Computers communicate using protocols.", "Security settings are controlled in one place.", "Works well for a home with three laptops.", "Scales to hundreds or thousands of users.", "Files may be duplicated or out of date."],
+      "after": ["Check: 'Computers communicate using protocols' is both. Everything else should fall cleanly one side."] },
+    { "type": "embed", "title": "3. See the models", "url": "https://beanwise.coderra.je/GCSE_homepage/networks.html",
+      "instructions": ["Find the client-server and peer-to-peer section. Read the server types listed and add any you did not have to your key terms.", "Do the matching activity. Record your score."] },
+    { "type": "python", "title": "4. A toy server",
+      "p": ["This program plays the server. It holds the data; the client code just asks. Run it, then add a second client request for a user who does not exist, and a third for a 'file'. Where does the data live? What would you have to change to make this peer-to-peer?"],
+      "code": "# The SERVER holds the data and answers requests\nusers = {\"amira\": \"pass123\", \"ben\": \"qwerty\", \"chloe\": \"letmein\"}\nfiles = {\"amira\": [\"essay.docx\", \"photo.png\"], \"ben\": [\"code.py\"]}\n\ndef server(request, name, password=None):\n    if request == \"login\":\n        if users.get(name) == password:\n            return \"OK: welcome \" + name\n        return \"DENIED: wrong username or password\"\n    if request == \"files\":\n        return files.get(name, [])\n    return \"ERROR: unknown request\"\n\n# The CLIENT only sends requests and prints the reply\nprint(server(\"login\", \"amira\", \"pass123\"))\nprint(server(\"login\", \"ben\", \"wrong\"))\nprint(server(\"files\", \"amira\"))\n# Add: a login for 'dan' (not a user) and a files request for 'ben'" },
+    { "type": "task", "title": "5. Recommend and justify",
+      "p": ["For each scenario, choose a model and write a two-sentence justification that uses words from the scenario."],
+      "steps": ["A dentist with three reception computers, patient records and a legal duty to keep them secure and backed up.", "Two flatmates who want to share a printer and a music folder.", "A secondary school of 1200 students who log on from any room.", "A pop-up market stall with two tablets taking payments for one weekend.", "A video-game studio of 40 staff sharing large project files that must never be lost."] }
+  ],
+  "check": [
+    { "q": "In a client-server network, the server:", "opts": ["Requests files from the clients", "Provides services that clients request", "Must be a laptop", "Is the same as a router"], "a": 1, "fb": "Server provides; client requests." },
+    { "q": "Which is an advantage of peer-to-peer?", "opts": ["Central backup", "No expensive server needed", "Central security control", "Easy to manage with 500 users"], "a": 1, "fb": "Cheap and simple; the other three are client-server advantages." },
+    { "q": "Which statement about a client-server network is TRUE?", "opts": ["All computers have equal status", "If the server fails, clients can still access shared files", "User accounts can be managed centrally", "It is cheaper than peer-to-peer"], "a": 2, "fb": "Central management is the point; the server is a single point of failure." },
+    { "q": "A peer in a peer-to-peer network:", "opts": ["Only requests data", "Only provides data", "Both provides and requests data", "Manages all other peers"], "a": 2, "fb": "Peers do both, which is why they are 'equal'." },
+    { "q": "The best model for a hospital storing patient records for 2000 staff is:", "opts": ["Peer-to-peer, because it is cheaper", "Client-server, because data must be central, secure and backed up", "Peer-to-peer, because there is no single point of failure", "Either, it makes no difference"], "a": 1, "fb": "Scale + sensitive data + central backup all point to client-server." }
+  ],
+  "exam": [
+    { "q": "Describe the role of a **server** in a client-server network.", "marks": 2,
+      "model": ["Provides services/resources (e.g. files, printing, authentication) (1) in response to requests from clients / stores shared data centrally (1)."],
+      "commentary": "Two ideas: what it provides, and that it does so when clients request. 'A big computer' earns nothing; 'a computer that stores files' earns one. Add 'when clients request them' for the second." },
+    { "q": "Give **two** disadvantages of a peer-to-peer network compared with a client-server network.", "marks": 2,
+      "model": ["Any two (1 each): no central backup, so each user is responsible for their own data; security is weaker because each peer sets its own; files are duplicated/scattered/out of date; a peer must be switched on for its files to be available; hard to manage with many computers."],
+      "commentary": "Each disadvantage needs the reason attached: 'no backup' is thin; 'no central backup, so if a peer's disk fails its files are lost' is a full mark. Do not give the same point twice in different words." },
+    { "q": "A small charity has four volunteers who each use their own laptop in a shared office. They want to share a printer and a folder of leaflets. Money is very tight and nobody has technical training. Recommend a network model for the charity and justify your choice.", "marks": 4,
+      "model": ["Peer-to-peer (1). No server to buy, which suits the tight budget (1). Simple to set up and run, so no technical specialist is needed (1). Only four computers / the shared data is not sensitive, so the weaker security and lack of central backup are acceptable (1)."],
+      "commentary": "The recommendation mark is easy; the three justification marks each need a scenario word: 'money is tight', 'nobody has training', 'four laptops'. A student who recommends client-server can still score if the justification is coherent, but it is a harder case to make with these clues." }
+  ],
+  "home": "Write a five-line comparison of client-server and peer-to-peer for a friend who has never heard of either. Every line must mention both. Then list three servers you used today without noticing (think: logging on, email, a website).",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 12 · try 28 · check 5 · exam 7 · homework 3",
+    "misconceptions": [
+      "'A server is a special type of hardware.' It is a role. Any computer running server software is a server; in practice servers are more powerful because they are busy.",
+      "'Peer-to-peer has no security.' It has weaker, decentralised security: each peer decides. Say 'weaker' and 'not central', not 'none'.",
+      "'The internet is peer-to-peer.' The web is client-server (browser + web server). Some applications on the internet use P2P.",
+      "Justifying with 'it is better/faster/safer' and no scenario word. Train the habit: quote the question."
+    ],
+    "say": [
+      "'Server serves. Client asks. Peers do both.'",
+      "'Who does the backup? If the answer is one person, it's client-server.'",
+      "'Your justification must contain a word from the question.'"
+    ],
+    "skip": "Try 4 can go if the room has no Python; Try 1, 2 and 5 carry the exam skill.",
+    "differentiation": [
+      "Support: for Try 5 give a decision checklist (how many computers? money? sensitive data? someone technical?) to tick before choosing.",
+      "Stretch: in Try 4, make each 'peer' a dictionary holding its own files and write a function that asks every peer in turn for a file; then explain what happens when a peer is 'offline' (removed from the list)."
+    ]
+  }
+}

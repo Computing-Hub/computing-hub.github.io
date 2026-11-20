@@ -1,0 +1,107 @@
+{
+  "id": "1-2-02",
+  "title": "Secondary storage: optical, magnetic, solid state",
+  "spec": "1.2.2",
+  "duration": 60,
+  "specPoints": [
+    "The need for **secondary storage**",
+    "Common types of storage: **optical**, **magnetic**, **solid state**",
+    "Suitable storage devices and media for a given application, judged on **capacity, speed, portability, durability, reliability** and **cost**"
+  ],
+  "learn": [
+    "Explain why a computer needs secondary storage as well as RAM",
+    "Name the three types of secondary storage and give an example device of each",
+    "Describe how each type stores data, in one sentence",
+    "Rate each type for capacity, speed, portability, durability, reliability and cost",
+    "Choose and justify a storage device for a scenario, using the scenario's own words"
+  ],
+  "hook": "Hold up three things: a DVD, an old hard drive (open one if you can, students love the shiny platter) and a USB stick. All three store data. One uses light, one uses magnets, one uses electricity trapped in tiny cells. By the end of the lesson you will be able to say which one a photographer, a hospital and a music publisher should each buy, and why.",
+  "video": {
+    "title": "Three ways to keep data when the power is off",
+    "brief": "4 minutes. Start with RAM emptying at power-off: we need somewhere permanent. Zoom into a hard disk: spinning platter, read/write head flying above it, magnetised spots as 1s and 0s. Cut to a CD: a laser reading pits and lands on a spiral track. Cut to an SSD: no moving parts, electrons stored in flash cells. For each, show a scorecard filling in: capacity, speed, portability, durability, reliability, cost. End with three scenarios and the device chosen for each."
+  },
+  "explain": [
+    { "h": "Why secondary storage is needed",
+      "p": ["RAM is volatile, so anything only in RAM is lost at power-off. **Secondary storage** is **non-volatile**: it keeps programs, the operating system and files permanently, ready to be loaded into RAM when needed. It is also much larger and far cheaper per gigabyte than RAM, so it holds the things you are not using right now.", "Secondary storage is not directly accessed by the CPU. Data must be copied into RAM first. That is why it can be slower and still useful."] },
+    { "h": "Magnetic storage",
+      "p": ["A **hard disk drive (HDD)** has spinning metal platters coated in a magnetic material. A read/write head on an arm moves across the platter and sets tiny areas to one of two magnetic states to store 1s and 0s. Magnetic tape works in the same way on a long ribbon and is still used for backups.", "Strengths: very large capacity for the price, reliable for many years if not knocked. Weaknesses: moving parts make it slower than solid state, fragile if dropped while running, and noisy and power-hungry."] },
+    { "h": "Optical storage",
+      "p": ["**CDs, DVDs and Blu-ray** discs store data as microscopic **pits** and flat **lands** on a spiral track. A laser shines on the disc and the amount of light reflected back tells the drive whether it is reading a 1 or a 0. Write-once (R) and rewritable (RW) versions exist.", "Strengths: cheap to make in bulk, light and portable, good for distributing the same film or album to millions of people. Weaknesses: small capacity (CD 700 MB, DVD 4.7 GB, Blu-ray 25 GB), slow, easily scratched, and many modern computers have no drive."] },
+    { "h": "Solid state storage",
+      "p": ["**Solid state drives (SSDs)**, USB flash drives and SD cards use **flash memory**: millions of tiny cells that trap electrons to represent 1 or 0. There are **no moving parts**.", "Strengths: very fast access, silent, durable against knocks and drops, low power, so ideal for laptops and phones. Weaknesses: more expensive per gigabyte than a hard disk, and each cell can only be written a limited (but very large) number of times."] },
+    { "h": "Comparing the three",
+      "p": ["Exam questions ask you to pick a device for a scenario. Learn the six characteristics and how each type scores. Then quote the scenario's own words in your reasons."],
+      "code": "Characteristic   Magnetic (HDD)         Optical (DVD/Blu-ray)   Solid state (SSD/USB)\n---------------  ---------------------  ----------------------  ----------------------\nCapacity         Very high (1-20 TB)    Low (0.7-50 GB)         High (128 GB - 4 TB)\nSpeed            Medium (moving parts)  Slow                    Fastest\nPortability      Poor (heavy, fragile)  Good (thin, light)      Excellent (small, light)\nDurability       Poor if dropped        Poor - scratches        Excellent - no moving parts\nReliability      Good if kept still     Medium                  Very good, limited writes\nCost per GB      Lowest                 Low per disc            Highest" },
+    { "h": "Answering 'choose a device' questions",
+      "p": ["Name the device. Then give reasons that each link one characteristic to a word in the scenario: 'The journalist **travels** so a solid state USB drive is suitable because it is **portable** and **durable** if dropped.' A reason that would be true for any scenario ('it stores data') earns nothing."] }
+  ],
+  "simple": [
+    { "h": "Why we need it",
+      "p": ["RAM forgets everything when the power is off. Secondary storage remembers. It keeps your files and programs. It is big and cheap."] },
+    { "h": "Three types",
+      "list": ["Magnetic: hard disk. A spinning disk and a moving arm. Uses magnets. Big and cheap. Breaks if dropped.", "Optical: CD, DVD, Blu-ray. A laser reads tiny pits. Cheap and light. Small capacity. Scratches easily.", "Solid state: SSD, USB stick, SD card. No moving parts. Very fast. Tough. Costs more."],
+      "code": "Magnetic    = big, cheap, slow-ish, fragile\nOptical     = small, cheap, slow, scratches\nSolid state = fast, tough, portable, pricey" },
+    { "h": "Picking a device",
+      "p": ["Read the scenario. Find the key words: travels? lots of data? cheap? Pick the device. Say the device. Give a reason that uses the key word."] }
+  ],
+  "keyterms": [
+    { "term": "Secondary storage", "def": "Non-volatile storage that keeps data and programs permanently, outside the CPU and RAM." },
+    { "term": "Non-volatile", "def": "Keeps its contents when the power is turned off." },
+    { "term": "Magnetic storage", "def": "Storage that uses magnetised areas on a spinning platter or tape, e.g. a hard disk drive." },
+    { "term": "Optical storage", "def": "Storage that uses a laser to read pits and lands on a disc, e.g. CD, DVD, Blu-ray." },
+    { "term": "Solid state storage", "def": "Storage using flash memory cells with no moving parts, e.g. SSD, USB drive, SD card." },
+    { "term": "Capacity", "def": "How much data a device can hold." },
+    { "term": "Durability", "def": "How well a device survives physical damage such as drops, knocks or scratches." },
+    { "term": "Reliability", "def": "How likely a device is to keep working correctly over time without losing data." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Which type?", "p": ["Classify each as magnetic, optical or solid state and name one thing that could damage it: hard disk in a server; Blu-ray film; SD card in a camera; backup tape; USB stick on a keyring; laptop SSD; music CD."] },
+    { "type": "task", "title": "2. Choose and justify", "p": ["For each scenario name the best device and give two reasons that each quote a word from the scenario."],
+      "steps": ["A wildlife photographer who hikes for days and takes thousands of RAW photos.", "A hospital archiving 20 years of patient scans that are rarely opened.", "A band selling 5,000 copies of an album at concerts.", "A student who carries homework between school and home every day.", "A gaming PC where fast loading times matter most."],
+      "after": ["Swap with a partner and strike out any reason that does not use a scenario word."] },
+    { "type": "embed", "title": "3. Topic 3 computers: storage section", "url": "https://beanwise.coderra.je/GCSE_homepage/Topic3_Computers.html",
+      "instructions": ["Open the secondary storage section and complete the activities for the three types.", "Note any characteristic where your rating differed from the page, and decide who is right."] },
+    { "type": "python", "title": "4. How many photos fit?", "p": ["A capacity check with OCR's 1 kB = 1000 bytes rule. Change the sizes and see how many 6 MB photos fit on each device."],
+      "code": "photo_mb = 6\n\ndevices = {\n    \"CD\": 700,                 # MB\n    \"DVD\": 4700,\n    \"Blu-ray\": 25000,\n    \"64 GB USB stick\": 64 * 1000,\n    \"2 TB hard disk\": 2 * 1000 * 1000,\n}\n\nfor name, capacity_mb in devices.items():\n    photos = capacity_mb // photo_mb\n    print(f\"{name:16} {capacity_mb:>10} MB  holds {photos:>8} photos\")" },
+    { "type": "embed", "title": "5. Hardware topic games", "url": "https://beanwise.coderra.je/GCSE_homepage/Hardware_Topic_Games.html",
+      "instructions": ["Ten minutes on the storage set. Aim to beat your score from the memory set last lesson."] }
+  ],
+  "check": [
+    { "q": "Which is the main reason a computer needs secondary storage?", "opts": ["RAM is too fast", "RAM is volatile so data would be lost when the power is off", "The CPU cannot use RAM", "ROM is too large"], "a": 1, "fb": "Secondary storage is non-volatile, so files survive power-off." },
+    { "q": "Which type of storage uses a laser to read pits and lands?", "opts": ["Magnetic", "Optical", "Solid state", "RAM"], "a": 1, "fb": "CDs, DVDs and Blu-ray discs are optical." },
+    { "q": "Which is an advantage of solid state storage over a hard disk?", "opts": ["Cheaper per gigabyte", "Larger maximum capacity", "No moving parts so it is more durable and faster", "Uses a laser"], "a": 2, "fb": "No moving parts means fast access and resistance to knocks." },
+    { "q": "A film studio wants to send a 40 GB film to 100,000 shops cheaply. The best choice is:", "opts": ["Hard disk drives", "Blu-ray discs", "USB sticks", "Magnetic tape"], "a": 1, "fb": "Optical discs are cheap to mass-produce and hold 25-50 GB." },
+    { "q": "The best storage for a data centre that needs very large capacity at the lowest cost per gigabyte is:", "opts": ["Optical", "Solid state", "Magnetic hard disks", "ROM"], "a": 2, "fb": "Magnetic gives the most GB per pound." }
+  ],
+  "exam": [
+    { "q": "State **one** reason why a computer needs secondary storage.", "marks": 1,
+      "model": ["RAM is volatile so data must be kept somewhere permanent / non-volatile (1); or to store files and programs that are not currently in use (1)."],
+      "commentary": "'To store data' is not enough on its own: the examiner wants *permanently*, *non-volatile*, or *when the power is off*." },
+    { "q": "Describe how data is stored on a **magnetic** hard disk.", "marks": 2,
+      "model": ["Data is stored as magnetised areas / magnetic polarity on a spinning platter (1). A read/write head on a moving arm reads or changes the magnetism to represent 1s and 0s (1)."],
+      "commentary": "Two parts: the medium (magnetised platter) and the mechanism (moving head). Students who write only 'it uses magnets' get one mark." },
+    { "q": "Priya is a sports journalist. She travels to matches by train, types reports on her laptop and needs to carry around 50 GB of video clips with her. Recommend a suitable type of secondary storage for Priya's clips and justify your choice.", "marks": 4,
+      "model": ["Solid state (e.g. a USB flash drive or external SSD) (1). It is small and light so it is portable for travelling by train (1). It has no moving parts so it is durable if dropped or knocked in a bag (1). A 64 GB or 128 GB drive easily holds 50 GB of clips / it is fast enough to play video directly (1)."],
+      "commentary": "Marks come from matching characteristics to **travels**, **carry** and **50 GB**. Recommending a hard disk can score if justified by capacity, but loses the durability reason. Optical scores poorly: 50 GB needs several discs and they scratch in a bag." }
+  ],
+  "home": "List five storage devices in your home (phone, console, laptop, camera, old DVDs...). For each write its type (magnetic, optical, solid state), its capacity if you can find it, and the characteristic that made it the right choice for that job.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 14 · try 26 · check 5 · exam 8 · homework 2",
+    "misconceptions": [
+      "'Hard drive' means any storage. Be clear that a hard disk is magnetic and an SSD is solid state even if the OS calls both 'drives'.",
+      "Solid state storage is a type of RAM because it uses chips. It is non-volatile secondary storage.",
+      "Giving generic reasons ('it stores a lot', 'it is good') with no link to the scenario.",
+      "Optical discs are 'old' and therefore never the right answer. For cheap mass distribution they still are."
+    ],
+    "say": [
+      "'Magnets, light, electrons. Which one has moving parts? Then you know which one breaks when dropped.'",
+      "'Quote the scenario. If your reason would fit any question, it fits none.'",
+      "'Capacity, speed, portability, durability, reliability, cost. Six words. Pick the two the question cares about.'"
+    ],
+    "skip": "Try 5 is optional; Try 2 carries the exam skill and must not be cut.",
+    "differentiation": [
+      "Support: give the comparison table as a handout and a sentence frame: 'A ___ is suitable because the scenario says ___ and this device is ___.'",
+      "Stretch: research cloud storage and write a paragraph on which of the three types actually holds the data in a data centre, and why magnetic tape is still bought."
+    ]
+  }
+}

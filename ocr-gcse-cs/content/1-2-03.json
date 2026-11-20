@@ -1,0 +1,117 @@
+{
+  "id": "1-2-03",
+  "title": "Units and binary numbers",
+  "spec": "1.2.3, 1.2.4",
+  "duration": 60,
+  "specPoints": [
+    "Why data must be stored in **binary**; the units **bit, nibble, byte, kilobyte (kB), megabyte (MB), gigabyte (GB), terabyte (TB), petabyte (PB)**",
+    "Calculating **file sizes** of text, image and sound files",
+    "Converting **denary** whole numbers 0–255 to and from **8-bit binary**"
+  ],
+  "learn": [
+    "Explain why computers store everything as 1s and 0s",
+    "Convert between bits, bytes, kB, MB, GB, TB and PB using OCR's 1000 rule",
+    "Calculate the size of a text, image or sound file from its figures and give the answer in sensible units",
+    "Convert any denary number from 0 to 255 into 8-bit binary using place values",
+    "Convert an 8-bit binary number into denary and check the answer"
+  ],
+  "hook": "Hold up one hand. With five fingers up or down you can show 32 different patterns, and that is enough to count to 31. With eight fingers you could count to 255. A computer is nothing but billions of switches that are on or off, which is why every photo, song and game you own is, underneath, a very long list of 1s and 0s. Today you learn to read and write that list.",
+  "video": {
+    "title": "Place values and powers of ten",
+    "brief": "4 minutes. A transistor flips on and off: one bit. Eight of them in a row with place value cards 128, 64, 32, 16, 8, 4, 2, 1 above them. Convert 173 to binary by subtracting the biggest value that fits, left to right. Then flip it: read 01011010 by adding the lit place values to get 90. Second half: a staircase of units, each step 1000 times bigger: byte, kB, MB, GB, TB, PB, with a real example on each step (a letter, a page of text, a photo, a film, a library). Finish with one file-size calculation: 100 × 50 pixels × 8 bits, convert to kB."
+  },
+  "explain": [
+    { "h": "Why binary?",
+      "p": ["A computer is built from billions of transistors. Each one is a switch that is either **on** or **off**. Two states are easy to tell apart reliably, even if the voltage drifts a little. So every piece of data is represented using two symbols, **1** and **0**, and every instruction the CPU runs is also a binary pattern.", "One 1 or 0 is a **bit**. Bits are grouped so they can represent bigger things: four bits is a **nibble**, eight bits is a **byte**. One byte can hold 256 different patterns, enough for a character or a small number."] },
+    { "h": "The units",
+      "p": ["OCR uses multiples of **1000** between units, so 1 kB = 1000 bytes and 1 MB = 1000 kB. (Some software shows 1024; in this course and in the exam use 1000 unless told otherwise.) To go up a unit, divide by 1000. To go down, multiply by 1000. Bits to bytes: divide by 8."],
+      "code": "Unit           Symbol  Equals            Roughly\n-------------  ------  ----------------  --------------------------\nbit            b       1 or 0            one switch\nnibble                 4 bits            one hex digit\nbyte           B       8 bits            one character of text\nkilobyte       kB      1000 bytes        half a page of text\nmegabyte       MB      1000 kB           a minute of MP3 audio\ngigabyte       GB      1000 MB           a standard-definition film\nterabyte       TB      1000 GB           250 films\npetabyte       PB      1000 TB           a large data centre's slice\n\nConvert:  bits -> bytes  divide by 8\n          bytes -> kB    divide by 1000\n          kB -> MB       divide by 1000   (and so on)\nExample:  48,000 bits = 6000 bytes = 6 kB\n          3.2 GB = 3200 MB = 3,200,000 kB" } ,
+    { "h": "Calculating file sizes",
+      "p": ["Three formulas cover the exam. Always calculate in bits first, then divide by 8 for bytes, then by 1000 as many times as needed. Show every line: method marks are given even when the arithmetic slips."],
+      "code": "Text  = number of characters x bits per character\nImage = width x height x colour depth (bits per pixel)\nSound = sample rate x duration (seconds) x bit depth\n\nWorked example 1 - text\n  A message of 2000 characters, 8 bits each (ASCII)\n  2000 x 8 = 16,000 bits\n  16,000 / 8 = 2000 bytes = 2 kB\n\nWorked example 2 - image\n  100 x 50 pixels, colour depth 8 bits\n  100 x 50 = 5000 pixels\n  5000 x 8 = 40,000 bits\n  40,000 / 8 = 5000 bytes = 5 kB\n\nWorked example 3 - sound\n  Sample rate 44,100 Hz, 10 seconds, bit depth 16\n  44,100 x 10 x 16 = 7,056,000 bits\n  7,056,000 / 8 = 882,000 bytes = 882 kB\n\nShortcut: if bits per character/pixel is 8, the answer in bytes\nis just the number of characters/pixels." ,
+      "after": ["Watch the units in the question. If the colour depth is given in **bytes**, do not divide by 8 again. If the duration is in **minutes**, multiply by 60 first."] },
+    { "h": "Denary to binary (0–255)",
+      "p": ["Write the eight place values. Starting at 128, ask 'does it fit?' If yes write 1 and subtract; if no write 0. Carry on to 1. There is always exactly one pattern for each number."],
+      "code": "Convert 173 to 8-bit binary\n\nPlace   128   64   32   16    8    4    2    1\n        ---  ---  ---  ---  ---  ---  ---  ---\n173-128=45    1\n 45-64  no          0\n 45-32=13                1\n 13-16  no                    0\n 13-8=5                             1\n  5-4=1                                  1\n  1-2   no                                    0\n  1-1=0                                            1\n\nAnswer: 10101101\nCheck:  128+32+8+4+1 = 173" },
+    { "h": "Binary to denary",
+      "p": ["Write the place values above the bits. Add up the place values that have a 1 under them. Leading zeros are worth nothing but must still be written in an 8-bit answer."],
+      "code": "Convert 01011010 to denary\n\nPlace  128  64  32  16   8   4   2   1\nBit      0   1   0   1   1   0   1   0\n\nAdd the 1s: 64 + 16 + 8 + 2 = 90\n\nUseful anchors to remember:\n  00000000 = 0      10000000 = 128\n  00001111 = 15     11110000 = 240\n  01111111 = 127    11111111 = 255" }
+  ],
+  "simple": [
+    { "h": "Why 1s and 0s",
+      "p": ["A computer is made of switches. A switch is on or off. On is 1. Off is 0. One switch is a **bit**. Eight bits make a **byte**."] },
+    { "h": "Units",
+      "p": ["Each unit is 1000 times bigger than the last. 8 bits = 1 byte. 1000 bytes = 1 kB. 1000 kB = 1 MB. 1000 MB = 1 GB. 1000 GB = 1 TB. 1000 TB = 1 PB."],
+      "code": "bits  -> bytes  : divide by 8\nbytes -> kB     : divide by 1000\nkB    -> MB     : divide by 1000" },
+    { "h": "File sizes",
+      "p": ["Text: characters times bits per character. Image: width times height times colour depth. Sound: sample rate times seconds times bit depth. Get bits first. Then divide by 8 for bytes."],
+      "code": "100 x 50 pixels, 8 bits each\n100 x 50 = 5000 pixels\n5000 x 8 = 40,000 bits\n40,000 / 8 = 5000 bytes = 5 kB" },
+    { "h": "Denary to binary",
+      "p": ["Write 128 64 32 16 8 4 2 1. Start at 128. Does it fit? Yes: write 1 and take it away. No: write 0. Move right. Keep going."],
+      "code": "173: 128 fits (45 left), 64 no, 32 fits (13 left), 16 no,\n     8 fits (5 left), 4 fits (1 left), 2 no, 1 fits (0 left)\n     = 1 0 1 0 1 1 0 1" },
+    { "h": "Binary to denary",
+      "p": ["Write the place values over the bits. Add up the ones with a 1."],
+      "code": "0 1 0 1 1 0 1 0  ->  64 + 16 + 8 + 2 = 90" }
+  ],
+  "keyterms": [
+    { "term": "Binary", "def": "A number system using only the digits 0 and 1, which computers use because switches have two states." },
+    { "term": "Denary", "def": "The base-10 number system people normally use, with digits 0–9." },
+    { "term": "Bit", "def": "A single binary digit: a 1 or a 0." },
+    { "term": "Nibble", "def": "Four bits." },
+    { "term": "Byte", "def": "Eight bits; can hold 256 different values." },
+    { "term": "Kilobyte (kB)", "def": "1000 bytes (OCR convention)." },
+    { "term": "Megabyte / gigabyte / terabyte / petabyte", "def": "1000 kB / 1000 MB / 1000 GB / 1000 TB respectively." },
+    { "term": "Colour depth", "def": "The number of bits used for each pixel in an image." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Binary converter", "url": "https://beanwise.coderra.je/cs_animations/binary.html",
+      "instructions": ["Convert 37, 100, 200 and 255 to binary on paper first. Then check each on the tool.", "Enter 11001100 and 00010111 and predict the denary before pressing convert."] },
+    { "type": "task", "title": "2. Conversion drill", "p": ["Paper only, place values written at the top of the page. Time yourself: aim for under 45 seconds each."],
+      "steps": ["Denary to 8-bit binary: 19, 64, 77, 130, 201, 254.", "Binary to denary: 00000110, 00101010, 01100100, 10010011, 11100001, 11111110.", "Check two of each by adding the place values back together."] },
+    { "type": "task", "title": "3. File size ladder", "p": ["Show every line of working and give the final answer in the unit asked for."],
+      "steps": ["A text file of 1500 characters at 8 bits per character. Answer in kB.", "An image 400 pixels wide, 300 pixels high, colour depth 24 bits. Answer in kB.", "A sound clip: sample rate 8000 Hz, bit depth 8, lasting 30 seconds. Answer in kB.", "A 3-minute song at 44,100 Hz, 16-bit. Answer in MB (one decimal place).", "How many 5 kB text files fit on a 4 GB USB stick?"],
+      "after": ["Answers to check: 1.5 kB; 360 kB; 240 kB; 15.9 MB (15,876,000 bytes); 800,000 files."] },
+    { "type": "python", "title": "4. Let Python check you", "p": ["Python's `bin()` converts to binary and `int(text, 2)` converts back. Run it, then put your drill answers from Try 2 in the lists to mark yourself. The last block does the three file-size formulas; change the figures to match Try 3."],
+      "code": "# denary -> 8-bit binary\nfor n in [173, 19, 64, 77, 130, 201, 254]:\n    print(n, \"=\", format(n, \"08b\"))      # same as bin(n) but padded to 8 bits\n\n# binary -> denary\nfor b in [\"01011010\", \"00000110\", \"10010011\", \"11111110\"]:\n    print(b, \"=\", int(b, 2))\n\n# file sizes (OCR: 1 kB = 1000 bytes)\ndef show(name, bits):\n    print(f\"{name}: {bits} bits = {bits // 8} bytes = {bits / 8 / 1000} kB\")\n\nshow(\"text 2000 chars x 8\", 2000 * 8)\nshow(\"image 100 x 50 x 8\", 100 * 50 * 8)\nshow(\"sound 44100 x 10 s x 16\", 44100 * 10 * 16)" },
+    { "type": "task", "title": "5. Spot the error", "p": ["Each answer below has one slip. Find it and write the correct line."],
+      "code": "(a) 2000 characters x 8 bits = 16,000 bits = 16 kB\n(b) 100 x 50 x 8 = 40,000 bits = 5000 bytes = 50 kB\n(c) 10110010 = 128 + 32 + 16 + 2 = 180\n(d) 90 in binary = 1011010\n(e) 2.5 MB = 2500 bytes" }
+  ],
+  "check": [
+    { "q": "How many bits are in a byte?", "opts": ["4", "8", "16", "1000"], "a": 1, "fb": "8 bits = 1 byte; 4 bits = 1 nibble." },
+    { "q": "Using OCR's convention, how many bytes are in 3 kB?", "opts": ["3000", "3072", "300", "24,000"], "a": 0, "fb": "1 kB = 1000 bytes in J277." },
+    { "q": "What is 10010110 in denary?", "opts": ["150", "148", "166", "134"], "a": 0, "fb": "128 + 16 + 4 + 2 = 150." },
+    { "q": "What is 45 in 8-bit binary?", "opts": ["00101101", "00110101", "00101011", "01011010"], "a": 0, "fb": "32 + 8 + 4 + 1 = 45." },
+    { "q": "A 200 × 100 pixel image with colour depth 8 bits has a file size of:", "opts": ["20 kB", "160 kB", "2 kB", "20 MB"], "a": 0, "fb": "20,000 pixels × 8 = 160,000 bits = 20,000 bytes = 20 kB." }
+  ],
+  "exam": [
+    { "q": "Convert the denary number 118 into 8-bit binary. Show your working.", "marks": 2,
+      "model": ["01110110 (2). One mark for working showing place values or subtraction with at most one bit wrong."],
+      "commentary": "Eight bits, including the leading 0. Students who write 1110110 lose the accuracy mark on a strict scheme. Showing the place values is a cheap insurance mark." },
+    { "q": "Put these in order of size, smallest first: 2 GB, 2500 MB, 1,000,000 kB, 0.001 TB.", "marks": 2,
+      "model": ["Convert to a common unit: 2 GB = 2000 MB; 2500 MB; 1,000,000 kB = 1000 MB; 0.001 TB = 1 GB = 1000 MB (1). Order: 1,000,000 kB = 0.001 TB (equal), 2 GB, 2500 MB (1)."],
+      "commentary": "Convert everything to one unit first and write those conversions down; the conversion line earns a mark even if the ordering slips. Notice two values are equal: say so." },
+    { "q": "A school's photocopier scans a one-page notice as an image 1600 pixels wide and 1200 pixels high with a colour depth of 4 bits. Calculate the file size in kilobytes. Show your working.", "marks": 3,
+      "model": ["1600 × 1200 = 1,920,000 pixels (1). × 4 bits = 7,680,000 bits (1). ÷ 8 = 960,000 bytes = 960 kB (1)."],
+      "commentary": "Three steps, three marks. The most common lost mark is forgetting to divide by 8, giving 7680 kB. The second is dividing by 1024. Write the unit on every line." }
+  ],
+  "home": "Write out the eight place values and convert your house number, your age and the number 255 to 8-bit binary. Then convert the binary of the day of the month you were born back to denary to check it. Finally, calculate the size in kB of a 50 × 50 pixel image with 8-bit colour depth.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 15 · try 27 · check 5 · exam 8 · homework 2",
+    "misconceptions": [
+      "Using 1024 for kB. OCR J277 uses 1000; say it every lesson and write it on the board.",
+      "Forgetting to divide by 8: giving a file size in bits labelled as bytes.",
+      "Writing 7 bits for numbers under 128. Insist on all eight.",
+      "Adding place values with a 0 under them, or reading the bits right to left when the place values are written left to right."
+    ],
+    "say": [
+      "'128, 64, 32, 16, 8, 4, 2, 1. Say it until it is boring.'",
+      "'Bits first. Then divide by 8. Then by 1000. Every file-size question, same three moves.'",
+      "'Eight bits means eight bits. Leading zeros are not optional.'"
+    ],
+    "skip": "Try 5 can be homework; Try 2 and Try 3 are the core and must be completed.",
+    "differentiation": [
+      "Support: place-value strip laminated on the desk; file-size questions with the formula printed at the top.",
+      "Stretch: work out the largest denary number that fits in 10 bits, 12 bits and 16 bits, and spot the pattern (2 to the power n, minus 1)."
+    ]
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "id": "1-4-01",
+  "title": "Threats: malware, phishing, social engineering",
+  "spec": "1.4.1",
+  "duration": 60,
+  "specPoints": [
+    "Forms of attack: **malware** and **social engineering** (people as the weak point)",
+    "Types of malware — **virus**, **worm**, **trojan**, **spyware**, **ransomware** — what each does and how it spreads",
+    "Social engineering methods — **phishing**, **blagging (pretexting)**, **shouldering**"
+  ],
+  "learn": [
+    "Define malware and name five types with what each one does",
+    "Describe how a virus, a worm and a trojan each spread differently",
+    "Define social engineering and explain why people are the weakest point in a system",
+    "Recognise phishing, blagging and shouldering in a scenario and name the method",
+    "Explain the impact of an attack on a person or an organisation"
+  ],
+  "hook": "Hold up your phone (screen off). Ask: how many messages this week asked you to 'click here', 'verify your account' or 'claim a prize'? Count hands. Now the surprise: most successful attacks on big companies did not break any code. Someone just asked nicely, and a person said yes. Today is about the attacks that target software, and the attacks that target you.",
+  "video": {
+    "title": "Malware and social engineering: attacking the machine and attacking the person",
+    "brief": "4 minutes. Split screen: a laptop on the left, a person on the right. Left side: five malware icons appear one by one — virus attaches to a file and copies when the file is opened; worm crawls across a network by itself; trojan is a gift box that opens to reveal malware; spyware is an eye watching keystrokes; ransomware padlocks the files and shows a ransom note. Right side: a phone buzzes with a fake bank text (phishing); a caller claims to be from IT and asks for a password (blagging); someone peers over a shoulder at a PIN (shouldering). Close with one line: software can be patched; people have to be trained."
+  },
+  "explain": [
+    { "h": "Two ways to attack a system",
+      "p": ["Every attack on a network goes through one of two doors. **Malware** attacks the machine: it is software written to damage, steal or take control. **Social engineering** attacks the person: it tricks a user into giving access, no code needed. The exam expects you to know both doors, name the methods, and say what each one does."] },
+    { "h": "Malware: five types you must know",
+      "p": ["Malware is short for 'malicious software'. The five named types differ in **what they do** and **how they spread**. Learn both halves for each."],
+      "code": "Type        What it does                              How it spreads\n----------  ----------------------------------------  ------------------------------------\nVirus       Attaches to a file/program; damages or    Needs a user to open/run the\n            corrupts data when run                    infected file; copies itself\nWorm        Copies itself across a network; uses up   Spreads on its own through network\n            bandwidth and memory, slows systems       connections — no user action needed\nTrojan      Looks like useful software; once run it   User installs it on purpose,\n            opens a 'back door' for the attacker      believing it is legitimate\nSpyware     Secretly records activity — keystrokes,   Often bundled with other downloads\n            passwords, screen — and sends it away     or dropped by a trojan\nRansomware  Encrypts the user's files and demands     Phishing attachments, infected\n            payment for the key                       downloads, worms",
+      "after": ["Spotting the difference in the exam: a **virus needs a host file and a human to run it**; a **worm travels by itself**; a **trojan is invited in**. Those three contrasts are worth marks."] },
+    { "h": "Social engineering: the human weak point",
+      "p": ["**Social engineering** means manipulating people into breaking security rules or handing over information. It works because people want to be helpful, are in a hurry, or trust what looks official. A firewall cannot stop an employee reading out a password on the phone."],
+      "list": ["**Phishing**: a fake email, text or website pretending to be a trusted organisation (bank, school, delivery company) to get the user to enter login details or click a malicious link. Clues: urgency, odd sender address, spelling errors, links that do not match the text.",
+               "**Blagging (pretexting)**: the attacker invents a story to persuade the victim to hand over data or access — for example phoning reception as 'the new IT technician' and asking for the Wi-Fi password.",
+               "**Shouldering (shoulder surfing)**: watching someone type a PIN or password, directly or on camera, at a cash machine, a till or in a classroom."] },
+    { "h": "Impact: why organisations care",
+      "p": ["Exam questions often ask for the **impact** of an attack on a business, school or hospital. Give specific consequences, not just 'it is bad'."],
+      "list": ["Loss or theft of **personal data** — customers, patients, students — leading to identity fraud for the victims.",
+               "**Financial loss**: ransom payments, repair costs, lost sales while systems are down.",
+               "**Fines** under data protection law for failing to protect data.",
+               "**Damage to reputation** and loss of customer trust.",
+               "**Downtime**: staff cannot work, lessons stop, appointments are cancelled."] },
+    { "h": "Why people are the weak point",
+      "p": ["Software can be updated and tested. People get tired, rushed and trusting. An attacker who sends 1,000 phishing emails needs only **one** person to click. This is why the exam links social engineering to **staff training** and **user access levels**: if the person who clicks has limited access, the damage is limited too."] }
+  ],
+  "simple": [
+    { "h": "Two kinds of attack",
+      "p": ["Malware is bad software. It attacks the computer. Social engineering tricks a person. It attacks you, not the machine."] },
+    { "h": "Five kinds of malware",
+      "list": ["Virus: hides in a file. Runs when you open the file. Damages data.",
+               "Worm: copies itself across the network on its own. Slows everything down.",
+               "Trojan: looks like a useful program. You install it. It lets the attacker in.",
+               "Spyware: watches what you type and sends it to the attacker.",
+               "Ransomware: locks your files. Asks for money to unlock them."] },
+    { "h": "Three ways to trick a person",
+      "list": ["Phishing: a fake email or text. It asks you to log in or click a link.",
+               "Blagging: a made-up story. 'I am from IT. What is your password?'",
+               "Shouldering: someone watches you type your PIN."] },
+    { "h": "What it costs",
+      "list": ["Data is stolen.", "Money is lost.", "The company gets a fine.", "People stop trusting it.", "Work stops."] }
+  ],
+  "keyterms": [
+    { "term": "Malware", "def": "Software written to damage, steal from or take control of a computer system." },
+    { "term": "Virus", "def": "Malware that attaches to a file and copies itself when the infected file is run." },
+    { "term": "Worm", "def": "Malware that copies itself across a network without any user action." },
+    { "term": "Trojan", "def": "Malware disguised as legitimate software that the user installs willingly." },
+    { "term": "Spyware", "def": "Malware that secretly records a user's activity, such as keystrokes, and sends it to an attacker." },
+    { "term": "Ransomware", "def": "Malware that encrypts a user's files and demands payment for the key to unlock them." },
+    { "term": "Social engineering", "def": "Manipulating people into giving away information or access rather than attacking the technology." },
+    { "term": "Phishing", "def": "Fake messages or websites that pretend to be a trusted organisation to steal login details or install malware." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Explore the threats", "url": "https://beanwise.coderra.je/GCSE_homepage/cybersecurity.html",
+      "instructions": ["Work through the threats section. For each malware type, write one sentence: what it does AND how it spreads.", "Find the social engineering examples. Which one would most likely work on you? Be honest, then say why."] },
+    { "type": "task", "title": "2. Name that attack", "p": ["Read each scenario. Write the name of the attack and one clue that gave it away."],
+      "steps": ["A text says 'Your parcel could not be delivered. Pay £1.99 redelivery fee at this link.' The link goes to a site you have never heard of.",
+                "A school's network slows to a crawl. Every computer has a copy of the same program, which nobody installed.",
+                "A free 'video downloader' app works fine, but the attacker can now read files on your laptop.",
+                "A caller says 'Hi, it's Sam from the IT helpdesk. We are resetting accounts today. Can you confirm your current password?'",
+                "A pupil at the next desk watches your fingers as you type your login.",
+                "All the files on the office PCs now end in `.locked` and a message demands 0.5 bitcoin."],
+      "after": ["Answers: 1 phishing · 2 worm · 3 trojan · 4 blagging · 5 shouldering · 6 ransomware. Check your 'clue' matches the definition, not just a guess."] },
+    { "type": "python", "title": "3. Phishing clue checker", "p": ["This program checks an email for common phishing clues. Run it, then add two more clue words or sender checks of your own. It is a teaching toy — real spam filters are far more complex — but it shows that phishing has a **pattern**."],
+      "code": "# Spot the phishing clues in a message (teaching toy only)\nemails = [\n    {\"sender\": \"security@my-bank-login-help.com\", \"text\": \"URGENT: verify your account now or it will be closed\"},\n    {\"sender\": \"office@school.sch.je\", \"text\": \"Reminder: parents evening is on Thursday\"},\n    {\"sender\": \"prize@win-free-phone.biz\", \"text\": \"Congratulations! Click here to claim your free prize\"},\n]\n\nclue_words = [\"urgent\", \"verify\", \"click here\", \"prize\", \"closed\", \"password\"]\ntrusted_domains = [\"school.sch.je\"]\n\nfor e in emails:\n    score = 0\n    reasons = []\n    for word in clue_words:\n        if word in e[\"text\"].lower():\n            score += 1\n            reasons.append(\"word: \" + word)\n    domain = e[\"sender\"].split(\"@\")[1]\n    if domain not in trusted_domains:\n        score += 1\n        reasons.append(\"unknown sender domain: \" + domain)\n    if \"-\" in domain:\n        score += 1\n        reasons.append(\"hyphenated look-alike domain\")\n    verdict = \"SUSPICIOUS\" if score >= 2 else \"probably fine\"\n    print(e[\"sender\"], \"->\", verdict, \"(score\", score, \")\")\n    for r in reasons:\n        print(\"   \", r)\n    print()\n\n# TODO: add two more clue words and one more trusted domain, then rerun." },
+    { "type": "task", "title": "4. Card sort: machine or person?", "p": ["Cut out (or write) nine cards: virus, worm, trojan, spyware, ransomware, phishing, blagging, shouldering, 'leaving a password on a sticky note'. Sort them into two piles: **attacks the machine (malware)** and **attacks the person (social engineering / human error)**."],
+      "steps": ["Now sort the malware pile a second way: **needs a human to run it** vs **spreads by itself**.", "Write one sentence for the sticky-note card: it is not an attack, so what is it? (A vulnerability that makes shouldering and blagging easier.)"] },
+    { "type": "embed", "title": "5. Key terms and impact ladder", "url": "https://beanwise.coderra.je/revision-hub/key-terms/",
+      "instructions": ["Find the network security terms. Test yourself on the eight from today until you can give each definition without looking.", "Then, on paper: a hospital is hit by ransomware. Write five consequences in order from 'happens first' to 'happens months later'. Use the words data, money, fine, trust, downtime at least once each."] }
+  ],
+  "check": [
+    { "q": "Which type of malware spreads across a network WITHOUT a user doing anything?", "opts": ["Virus", "Worm", "Trojan", "Spyware"], "a": 1, "fb": "A worm self-replicates over network connections; a virus needs a host file to be run." },
+    { "q": "A free game installer secretly gives an attacker remote access. This is a:", "opts": ["Worm", "Phishing attack", "Trojan", "Brute-force attack"], "a": 2, "fb": "Disguised as useful software and installed by the user = trojan." },
+    { "q": "Which of these is social engineering?", "opts": ["Encrypting files and demanding payment", "Phoning staff pretending to be IT to get a password", "Copying itself across a network", "Recording keystrokes"], "a": 1, "fb": "Blagging manipulates a person; the other three are malware behaviours." },
+    { "q": "The main clue that an email is phishing is usually:", "opts": ["It has an attachment", "It arrived at night", "It creates urgency and asks you to log in via a link", "It is from a company you use"], "a": 2, "fb": "Urgency plus a request for credentials via a link is the classic pattern." },
+    { "q": "Why are people described as the 'weak point' in network security?", "opts": ["They forget to turn computers off", "They can be tricked into giving access that software would refuse", "They type slowly", "They do not understand binary"], "a": 1, "fb": "Social engineering bypasses technical defences by targeting trust and haste." }
+  ],
+  "exam": [
+    { "q": "Describe the difference between a **virus** and a **worm**.", "marks": 2,
+      "model": ["A virus attaches itself to a file/program and needs a user to run it before it spreads (1), whereas a worm replicates itself across a network on its own without user action (1)."],
+      "commentary": "The mark is in the contrast: *needs a host and a user* versus *self-replicating across a network*. 'A virus damages files and a worm spreads' is two separate facts, not a difference, and scores one at most." },
+    { "q": "A member of staff receives a phone call from someone claiming to be from the company's bank, asking for the online banking password 'to fix a problem'. State the name of this type of attack and explain **one** way the company could reduce the risk of it succeeding.", "marks": 3,
+      "model": ["Blagging / pretexting / social engineering (1). Train staff never to give out passwords by phone (1) because the bank/IT would never ask for them, so staff recognise the request as an attack (1). Or: have a policy to call back on a known official number (1) so the identity of the caller is checked before anything is shared (1)."],
+      "commentary": "'Phishing' for a phone call is a common slip — phishing is messages/websites; a spoken story is blagging. Credit 'social engineering' as the general term. The explain mark needs *because*: training works because staff then recognise and refuse the request." },
+    { "q": "An online shop has suffered a ransomware attack. Explain **two** impacts this could have on the business.", "marks": 4,
+      "model": ["Files/databases are encrypted so staff cannot access orders or stock (1), meaning the shop cannot trade and loses sales while systems are down (1). Customer personal/payment data may be stolen or lost (1), leading to a fine under data protection law and/or loss of customer trust and reputation (1). Also creditable: cost of paying the ransom or of restoring systems from backup (1) + consequence (1)."],
+      "commentary": "Two impacts, each developed: what happens + what that means for the business. 'It loses money' twice counts once. The strongest answers tie the impact to *an online shop*: no website, no sales." }
+  ],
+  "home": "Find a real phishing message (your own, with personal details hidden, or a screenshot online). Annotate it with at least four clues that show it is fake. Then write the two-sentence warning you would send to a grandparent about it.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 12 · try 25 · check 5 · exam 10 · homework 3",
+    "misconceptions": [
+      "'Virus' used as the word for all malware. Insist on the five names; in the exam, 'virus' for a self-spreading network infection loses the mark.",
+      "Phishing used for every social engineering attack. Phishing = fake message/website. A phone story is blagging. Watching a screen is shouldering.",
+      "Thinking social engineering is a type of malware. It is the opposite: no software exploit, just a person being tricked.",
+      "Impact answers that stop at 'the company loses money'. Push for the chain: data lost -> fine -> reputation -> customers leave."
+    ],
+    "say": [
+      "'Virus needs you. Worm does not. Trojan is invited.'",
+      "'The attacker does not need to beat the firewall if they can beat the receptionist.'",
+      "'Phishing is written. Blagging is spoken. Shouldering is watched.'"
+    ],
+    "skip": "Try 5 can go; Try 2 and Try 4 carry the exam skill. Try 3 is optional if there is no Python time.",
+    "differentiation": [
+      "Support: give the malware table with the 'how it spreads' column blank and the five phrases to match in.",
+      "Stretch: research one real ransomware incident on a public body (e.g. a health service or council) and present its impact chain in five bullet points, with no technical jargon."
+    ]
+  }
+}

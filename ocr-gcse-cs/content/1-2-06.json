@@ -1,0 +1,112 @@
+{
+  "id": "1-2-06",
+  "title": "Images and sound",
+  "spec": "1.2.4",
+  "duration": 60,
+  "specPoints": [
+    "How an image is represented as a series of **pixels** in binary; **metadata**; the effect of **colour depth** and **resolution** on quality and file size",
+    "How **sound** can be sampled and stored in digital form; the effect of **sample rate, duration** and **bit depth** on playback quality and file size",
+    "Calculating the file size of image and sound files"
+  ],
+  "learn": [
+    "Describe how a bitmap image is stored as a grid of pixels, each a binary colour code",
+    "Explain how colour depth and resolution affect image quality and file size, with numbers",
+    "State what metadata is and give three examples for an image",
+    "Describe how sound is sampled and turned into binary",
+    "Explain how sample rate, bit depth and duration affect sound quality and file size",
+    "Calculate image and sound file sizes and give the answer in kB or MB"
+  ],
+  "hook": "Zoom into any photo on your phone until it turns into coloured squares. Each square is a pixel, and each pixel is a number. Now think about a song: sound is a smooth wave, but a computer can only store numbers. So it measures the wave thousands of times a second and stores each measurement. The more measurements and the more bits per measurement, the better it sounds and the bigger the file. Every choice today is that same trade: quality against size.",
+  "video": {
+    "title": "Pixels and samples: turning the real world into numbers",
+    "brief": "5 minutes. A 4 × 4 black-and-white image becomes 16 bits; change colour depth to 2 bits and four greys appear; to 24 bits and it is full colour, with the file-size counter growing each time. Raise the resolution from 4 × 4 to 8 × 8 and watch detail and size both go up. Show the metadata tag attached to the file: width, height, colour depth, date. Then a sound wave with a dotted line sampling it; low sample rate gives a staircase that misses the peaks; high sample rate hugs the wave. Bit depth shown as the number of horizontal levels available. End with the formula and one calculation: 44,100 × 16 × 30 seconds."
+  },
+  "explain": [
+    { "h": "Images as pixels",
+      "p": ["A **bitmap** image is a grid of tiny squares called **pixels**. Each pixel is one colour, stored as a binary number. With 1 bit per pixel there are 2 colours (black and white). The computer stores the pixels in order, row by row, as one long binary string.", "To display the image the computer needs to know the grid size and how many bits make one pixel. That information is stored as **metadata** at the start of the file: width, height, colour depth, file type, and often the date taken, camera and GPS location."],
+      "code": "A 4 x 4 image, colour depth 1 bit (0 = white, 1 = black)\n\n  1 1 1 1       stored as: 1111 1001 1001 1111\n  1 0 0 1       = 16 bits = 2 bytes\n  1 0 0 1\n  1 1 1 1       plus metadata: width 4, height 4, depth 1\n\nWith colour depth 2 bits (4 colours):\n  00 = white  01 = light grey  10 = dark grey  11 = black\n  same grid now needs 16 x 2 = 32 bits" },
+    { "h": "Colour depth",
+      "p": ["**Colour depth** is the number of bits used for each pixel. n bits gives 2 to the power n colours. 8 bits = 256 colours. 24 bits = over 16 million colours (8 bits each for red, green and blue), which is why #FF8800 is a 24-bit colour.", "Higher colour depth means more realistic colour and smoother shading, but every pixel takes more bits so the file is larger. Doubling the colour depth doubles the file size."],
+      "code": "Colour depth   Colours      Example\n------------   ----------   ----------------------------\n   1 bit             2      black and white\n   2 bits            4      four greys\n   4 bits           16      early games consoles\n   8 bits          256      GIF images\n  24 bits   16,777,216      photographs, screens" },
+    { "h": "Resolution",
+      "p": ["**Resolution** is the number of pixels in the image, usually given as width × height, for example 1920 × 1080. Higher resolution means more pixels, so finer detail and the image can be enlarged before it looks blocky. It also means more pixels to store. Doubling both width and height makes **four** times as many pixels and four times the file size.", "Quality and file size move together. Exam answers must say both: 'higher resolution gives more detail **and** a larger file'."],
+      "code": "Image file size = width x height x colour depth\n\nWorked example\n  640 x 480 pixels, 24-bit colour\n  640 x 480 = 307,200 pixels\n  307,200 x 24 = 7,372,800 bits\n  7,372,800 / 8 = 921,600 bytes\n  = 921.6 kB  (about 0.92 MB)\n\nSame image at 8-bit colour: 307,200 bytes = 307.2 kB (a third)\nSame image at 320 x 240:   230,400 bytes = 230.4 kB (a quarter)\n\nMetadata adds a small fixed amount; ignore it unless the question\ngives you a figure to add." },
+    { "h": "Sound: sampling",
+      "p": ["Sound is an **analogue** wave: it changes smoothly. A computer can only store numbers, so a microphone's signal is **sampled**: its height (amplitude) is measured at regular intervals and each measurement is stored as a binary number. On playback the numbers are turned back into a wave. This is **analogue to digital conversion**.", "Three things decide quality and size: how often you measure, how precisely you measure, and for how long."] },
+    { "h": "Sample rate, bit depth, duration",
+      "list": ["**Sample rate**: the number of samples taken per second, measured in **hertz (Hz)**. CD quality is 44,100 Hz. A higher sample rate follows the wave more closely, so playback is more accurate, but there are more samples to store.", "**Bit depth**: the number of bits used for each sample. 16 bits gives 65,536 possible amplitude levels. A higher bit depth records quieter and louder detail more precisely (less rounding), but each sample takes more bits.", "**Duration**: the length of the recording in seconds. Twice the length, twice the samples, twice the file."],
+      "code": "Sound file size = sample rate x duration (s) x bit depth\n\nWorked example\n  Sample rate 44,100 Hz, bit depth 16, duration 30 seconds\n  44,100 x 30 = 1,323,000 samples\n  1,323,000 x 16 = 21,168,000 bits\n  21,168,000 / 8 = 2,646,000 bytes\n  = 2646 kB = 2.646 MB (about 2.6 MB)\n\nLow-quality voice recording\n  8000 Hz, 8 bits, 30 seconds\n  8000 x 30 x 8 = 1,920,000 bits = 240,000 bytes = 240 kB\n\nStereo doubles everything (two channels) - only if the question says." }
+  ],
+  "simple": [
+    { "h": "Images",
+      "p": ["An image is a grid of squares called pixels. Each pixel is a colour. Each colour is a binary number. The file also stores metadata: width, height, colour depth, date."] },
+    { "h": "Colour depth and resolution",
+      "p": ["Colour depth is bits per pixel. More bits, more colours, bigger file. Resolution is how many pixels. More pixels, more detail, bigger file."],
+      "code": "size = width x height x colour depth\n\n640 x 480 x 24 = 7,372,800 bits\n/ 8 = 921,600 bytes = 921.6 kB" },
+    { "h": "Sound",
+      "p": ["Sound is a wave. The computer measures the wave many times a second. Each measurement is a sample. Each sample is stored as a binary number."] },
+    { "h": "Sample rate, bit depth, duration",
+      "p": ["Sample rate: measurements per second, in Hz. More is better quality and bigger. Bit depth: bits per sample. More is better quality and bigger. Duration: seconds. Longer is bigger."],
+      "code": "size = sample rate x seconds x bit depth\n\n44,100 x 30 x 16 = 21,168,000 bits\n/ 8 = 2,646,000 bytes = 2.6 MB" }
+  ],
+  "keyterms": [
+    { "term": "Pixel", "def": "The smallest element of a bitmap image; one square of a single colour." },
+    { "term": "Colour depth", "def": "The number of bits used to store the colour of each pixel." },
+    { "term": "Resolution", "def": "The number of pixels in an image, usually width × height." },
+    { "term": "Metadata", "def": "Data about the file stored with it, such as width, height, colour depth and date taken." },
+    { "term": "Sample", "def": "A single measurement of the amplitude of a sound wave, stored as a binary number." },
+    { "term": "Sample rate", "def": "The number of samples taken per second, measured in hertz (Hz)." },
+    { "term": "Bit depth", "def": "The number of bits used to store each sample." },
+    { "term": "Analogue", "def": "A signal that varies smoothly and continuously, like a real sound wave." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Bitmap explorer", "url": "https://beanwise.coderra.je/GCSE_homepage/bitmap.html",
+      "instructions": ["Draw a small image at 1-bit colour depth and write down its binary. Switch to 2 bits and watch the binary string double.", "Change the resolution and record the file size each time. Write one sentence on what doubling width and height does to size."] },
+    { "type": "embed", "title": "2. Sound sampler", "url": "https://beanwise.coderra.je/GCSE_homepage/sound.html",
+      "instructions": ["Set a low sample rate and compare the stepped line with the original wave. Raise it until they match.", "Lower the bit depth and note how the samples are forced onto fewer levels. Record the file size at three settings."] },
+    { "type": "task", "title": "3. Calculation set", "p": ["Show every line. Give answers in the units asked."],
+      "steps": ["Image 800 × 600, colour depth 8 bits. Size in kB.", "Image 800 × 600, colour depth 24 bits. Size in kB. How many times bigger than (1)?", "Image 1600 × 1200, 8 bits. Size in kB. How many times bigger than (1)?", "Sound: 22,050 Hz, 8 bits, 20 seconds. Size in kB.", "Sound: 44,100 Hz, 16 bits, 4 minutes. Size in MB to one decimal place.", "A 2 × 2 image is stored as 00 11 10 01 with 2-bit colour depth. Draw it using white, black, dark grey, light grey."],
+      "after": ["Check: 480 kB; 1440 kB, ×3; 1920 kB, ×4; 441 kB; 21.2 MB (21,168,000 bytes); top row white then black, bottom row dark grey then light grey."] },
+    { "type": "python", "title": "4. Size calculator", "p": ["Run it, then change the figures to the questions in Try 3 and check your answers. Add a line that prints how many of the 4-minute songs fit on a 32 GB phone."],
+      "code": "def image_size(width, height, depth_bits):\n    bits = width * height * depth_bits\n    return bits / 8          # bytes\n\ndef sound_size(rate_hz, seconds, depth_bits):\n    bits = rate_hz * seconds * depth_bits\n    return bits / 8          # bytes\n\ndef show(label, nbytes):\n    print(f\"{label}: {nbytes:,.0f} bytes = {nbytes/1000:,.1f} kB = {nbytes/1_000_000:.3f} MB\")\n\nshow(\"640x480 24-bit image\", image_size(640, 480, 24))\nshow(\"640x480 8-bit image \", image_size(640, 480, 8))\nshow(\"30 s CD-quality sound\", sound_size(44100, 30, 16))\nshow(\"30 s voice recording \", sound_size(8000, 30, 8))\n\n# colour depth -> number of colours\nfor bits in [1, 2, 4, 8, 24]:\n    print(bits, \"bits ->\", 2 ** bits, \"colours\")" },
+    { "type": "task", "title": "5. Quality versus size: decide", "p": ["For each, choose a sensible resolution or sample rate and bit depth, then justify in two sentences that mention both quality and file size: (a) a thumbnail icon on a website; (b) a photo to be printed as a poster; (c) a voice memo app; (d) a music streaming service's top-quality tier; (e) a security camera recording 24 hours a day."] }
+  ],
+  "check": [
+    { "q": "Colour depth is:", "opts": ["The number of pixels in an image", "The number of bits used per pixel", "The width of the image", "The file type"], "a": 1, "fb": "Bits per pixel; 2 to the power n colours." },
+    { "q": "An image with colour depth 4 bits can show how many colours?", "opts": ["4", "8", "16", "256"], "a": 2, "fb": "2 to the power 4 = 16." },
+    { "q": "Doubling both the width and the height of an image (same colour depth) makes the file:", "opts": ["Twice as big", "Four times as big", "The same size", "Half as big"], "a": 1, "fb": "Twice as many pixels across and twice as many down." },
+    { "q": "Sample rate is measured in:", "opts": ["Bits", "Bytes", "Hertz", "Pixels"], "a": 2, "fb": "Samples per second = Hz." },
+    { "q": "Increasing the bit depth of a sound recording:", "opts": ["Makes the file smaller and the sound worse", "Makes the file larger and records amplitude more precisely", "Changes the length of the recording", "Has no effect on file size"], "a": 1, "fb": "More bits per sample = more levels and more storage." }
+  ],
+  "exam": [
+    { "q": "State **two** items of metadata that would be stored with a bitmap image file.", "marks": 2,
+      "model": ["Any two: width / height (resolution); colour depth; file type/format; date created; camera make; GPS location (1 each)."],
+      "commentary": "Width and height together are often taken as one item; give colour depth as the second to be safe. 'The pixels' is not metadata." },
+    { "q": "A sound engineer records a 20-second clip at a sample rate of 48,000 Hz with a bit depth of 24 bits. Calculate the file size in megabytes. Show your working.", "marks": 3,
+      "model": ["48,000 × 20 × 24 = 23,040,000 bits (1). ÷ 8 = 2,880,000 bytes (1). = 2880 kB = 2.88 MB (1)."],
+      "commentary": "Three marks for three lines. Students who stop at bits, or divide by 1024, lose the final mark but keep the method marks: always write the working." },
+    { "q": "A website owner reduces the colour depth of a product photo from 24 bits to 8 bits. Explain **one** advantage and **one** disadvantage of this change.", "marks": 4,
+      "model": ["Advantage: the file size is reduced to a third (1) so the page loads faster / uses less storage and bandwidth (1). Disadvantage: only 256 colours instead of 16 million (1) so colours may look less realistic / shading looks banded, which matters for a product photo (1)."],
+      "commentary": "Each half is point plus consequence. Numbers (a third, 256 colours) show understanding and secure the first mark of each pair. Linking back to 'product photo' or 'website' earns the second." }
+  ],
+  "home": "Find the resolution of your phone's camera (e.g. 4000 × 3000). Calculate the uncompressed file size of one photo at 24-bit colour depth in MB. Then calculate the size of a 3-minute voice recording at 16,000 Hz and 16 bits in MB. Write one sentence explaining why the actual files on your phone are smaller (next lesson's topic).",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 16 · try 27 · check 5 · exam 7 · homework 2",
+    "misconceptions": [
+      "Resolution means 'quality' in general. Pin it to the pixel count.",
+      "Colour depth is the number of colours, not the bits. Say 'bits per pixel' and let them derive the colours.",
+      "Sample rate confused with bit depth. Rate = how often; depth = how precisely.",
+      "Giving only the quality effect or only the size effect. Both, every time."
+    ],
+    "say": [
+      "'More pixels, more bits per pixel, more detail, more bytes. They all go up together.'",
+      "'How often, how precisely, how long. Multiply the three.'",
+      "'Quality up, size up. Say both or lose half the marks.'"
+    ],
+    "skip": "Try 5 can be homework; keep both embeds short (5 minutes each) if time is tight.",
+    "differentiation": [
+      "Support: the two formulas and a worked example printed on the desk; Try 3 items 1, 4 and 6 only.",
+      "Stretch: explain why a 24-bit colour is written as three hex pairs, and work out how many colours a 10-bit-per-channel (30-bit) display can show."
+    ]
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "id": "1-6-02",
+  "title": "Environmental issues and e-waste",
+  "spec": "1.6.1",
+  "duration": 60,
+  "specPoints": [
+    "Impacts of digital technology on wider society including **environmental issues**",
+    "How **stakeholders** are affected: energy use, manufacturing, **e-waste** and disposal",
+    "Positive and negative environmental effects of technology, discussed in a balanced way"
+  ],
+  "learn": [
+    "Describe the environmental cost of a device across its life: raw materials, manufacture, use, disposal",
+    "Explain why data centres and always-on devices use so much electricity and what that causes",
+    "Define e-waste, state why it is hazardous and describe what happens when it is exported",
+    "Explain planned obsolescence and link it to e-waste",
+    "Give positive environmental uses of technology and weigh them against the costs",
+    "Calculate the yearly energy and cost of a device left on standby"
+  ],
+  "hook": "Hold up a phone. Inside it are about sixty different elements, some mined in a handful of countries, some by children. Making it produced more carbon than every charge it will ever receive put together. In about three years most of us replace it. Where does the old one go? For most of the world's e-waste, the honest answer is: nobody tracks it. Today we follow that phone from the mine to the landfill, and ask who pays.",
+  "video": {
+    "title": "The life of a phone: mine, factory, pocket, landfill",
+    "brief": "4 minutes. Animated timeline left to right. Stage 1 mine: cobalt, lithium, gold, tantalum, with a map of where they come from. Stage 2 factory: energy and water, with a bar showing manufacture as most of the device's lifetime carbon. Stage 3 use: the phone is small, but zoom out to the data centre serving it, with racks and cooling fans, and a counter of global data-centre electricity. Stage 4 disposal: a container ship to West Africa or South Asia, informal recyclers burning cables. Then rewind: show the positive side, smart meters, video calls replacing flights, sensors in farms. End with a scale: costs on one side, benefits on the other, and the question 'who decides?'"
+  },
+  "explain": [
+    { "h": "A device's life has four costly stages",
+      "code": "Stage          What happens                           Environmental cost\nRaw materials  Mining metals: copper, gold, cobalt,   Habitat destruction, toxic waste,\n               lithium, tantalum, rare earths         water pollution, conflict and child labour\nManufacture    Chips, screens, batteries made and     Very high energy and water use; most of a\n               shipped worldwide                      phone's lifetime carbon is here\nUse            Charging, networks, data centres       Electricity, much of it from fossil fuels\nDisposal       Thrown away or exported                E-waste: toxic metals leak; materials lost",
+      "p": ["Most people think of the electricity bill as the environmental cost. For a phone or laptop, **manufacturing** is the biggest part, often three quarters of its lifetime carbon footprint. That is why making a device last longer matters more than charging it carefully."] },
+    { "h": "Energy: devices, networks and data centres",
+      "p": ["Every search, stream and message runs on **data centres**: warehouses of servers that need power to run and power to cool. Data centres already use roughly 1–2% of the world's electricity, similar to a mid-sized country, and the figure is rising fast with video streaming and AI. Networks (masts, routers, cables) add more. At home, devices on **standby** still draw power: a set-top box or games console in 'rest mode' can draw around 10 W all year."],
+      "code": "Energy (kWh) = power (kW) x hours\nCost         = kWh x price per kWh\n\nConsole in rest mode: 10 W = 0.010 kW, on 24 h x 365 days = 8,760 h\nEnergy = 0.010 x 8,760 = 87.6 kWh per year\nCost at 25p/kWh = 87.6 x 0.25 = about 22 pounds per year, for doing nothing",
+      "after": ["Benefit side: data centres can be built where electricity is renewable and cool air is free (Iceland, Scandinavia), and one efficient data centre replaces thousands of inefficient office servers."] },
+    { "h": "E-waste: what it is and why it is dangerous",
+      "list": ["**E-waste** (electronic waste) is any discarded device with a plug, battery or circuit board: phones, laptops, TVs, cables, toys, white goods.",
+               "The world produces over 60 million tonnes a year and less than a quarter is formally collected and recycled. The rest is landfilled, burned or untracked.",
+               "It contains **toxic** substances: lead, mercury, cadmium, brominated flame retardants. In landfill they leak into soil and water; burned, they poison the air.",
+               "It also contains **valuable** materials: gold, copper, rare earths. Throwing them away means mining more.",
+               "**Export**: wealthy countries ship e-waste, sometimes labelled 'second-hand goods', to poorer countries where it is stripped by hand, often by children, with no protection. The pollution and health damage land on people who never used the devices."] },
+    { "h": "Planned obsolescence: designed to be replaced",
+      "p": ["**Planned obsolescence** means designing a product so it becomes unusable or unfashionable sooner than it needs to: batteries that cannot be replaced, software updates that stop after a few years, parts glued in so repair is impossible, yearly new models. For the manufacturer it means repeat sales. For the environment it means more mining and more e-waste. Counter-trends: **right-to-repair** laws, modular phones, longer software support, refurbished-device markets, trade-in schemes."],
+      "code": "Stakeholder     Benefit of frequent replacement        Drawback\nManufacturer    repeat sales; newer tech sells         reputation; new repair laws; fines\nConsumer        latest features; faster                cost; data transfer hassle; guilt\nEnvironment     (almost none)                          mining, energy, e-waste\nRecyclers/poor  work and recovered metals              toxic exposure; pollution dumped on them\ncountries" },
+    { "h": "The positive side: technology for the environment",
+      "list": ["**Smart meters and smart grids** match electricity supply to demand and cut waste.",
+               "**Video conferencing and remote working** replace flights and commutes.",
+               "**Sensors and data** in farming (water only where needed), in buildings (lights and heating off when empty), in cities (traffic flow).",
+               "**Modelling and monitoring**: climate models, satellite tracking of deforestation, early warning of floods.",
+               "**Dematerialisation**: streaming replaces plastic discs; e-books replace paper; online forms replace post.",
+               "A balanced answer weighs these against the costs above. Streaming saves plastic but needs data centres; remote working saves commuting but every home runs its own heating and router."] },
+    { "h": "Writing about the environment in the exam",
+      "p": ["Environmental points are often the weakest paragraph in an 8-mark answer because students write 'it is bad for the environment'. Be specific about the **stage** (manufacture, energy use, disposal) and the **mechanism** (rare metals mined, data centres powered by fossil fuels, toxic e-waste exported). Then apply: 'a school replacing 1,200 tablets every three years creates 400 units of e-waste a year'. Then weigh: 'however, it saves the printing of 1,200 textbooks a year'."] }
+  ],
+  "simple": [
+    { "h": "Four stages, four costs",
+      "list": ["Mining metals harms land and water. Some mining uses child labour.", "Making a device uses lots of energy. This is the biggest cost.", "Using it needs electricity. Data centres use huge amounts.", "Throwing it away makes e-waste. E-waste is toxic."] },
+    { "h": "Standby maths",
+      "code": "Energy = power (kW) x hours\nCost = energy x price\n\n10 W console, all year:\n0.010 x 8,760 = 87.6 kWh\n87.6 x 25p = about 22 pounds" },
+    { "h": "E-waste",
+      "p": ["E-waste is any old device. It has poison in it (lead, mercury). It also has gold and copper in it. Most of it is not recycled. Some is sent to poor countries. People there take it apart by hand and get ill."] },
+    { "h": "Planned obsolescence",
+      "p": ["Products are made to be replaced quickly. Batteries you cannot change. Updates that stop. This sells more devices and makes more waste."] },
+    { "h": "Good side",
+      "p": ["Smart meters save energy. Video calls replace flights. Sensors save water on farms. Streaming replaces plastic discs. Always give both sides."] }
+  ],
+  "keyterms": [
+    { "term": "E-waste", "def": "Discarded electrical and electronic devices, which contain both toxic and valuable materials." },
+    { "term": "Data centre", "def": "A building full of servers that store and process data for the internet, needing large amounts of electricity for power and cooling." },
+    { "term": "Planned obsolescence", "def": "Designing a product to become outdated or unusable sooner than necessary so that it is replaced." },
+    { "term": "Rare earth metals", "def": "Scarce metals used in screens, batteries and magnets, mined in few places with heavy pollution." },
+    { "term": "Carbon footprint", "def": "The total greenhouse gas released by making, using and disposing of something." },
+    { "term": "Standby power", "def": "Electricity a device draws when switched off but still plugged in or in sleep mode." },
+    { "term": "Right to repair", "def": "Laws requiring makers to provide spare parts, manuals and repairable designs." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. What does standby cost?", "p": ["Run the code. Then add your own devices (TV, router, console, chargers, smart speaker) with sensible standby wattages and see what a household wastes in a year. Change the price to 30p and see the effect. Finally, print how many kWh a class of 30 households wastes together."],
+      "code": "price_per_kwh = 0.25   # pounds; UK prices vary, try 0.30 too\nhours_per_year = 24 * 365\n\n# device name : standby power in watts\ndevices = {\n    \"TV\": 1,\n    \"Set-top box\": 10,\n    \"Games console (rest mode)\": 10,\n    \"Wi-Fi router\": 8,\n    \"Phone charger left in\": 0.5,\n}\n\ntotal_kwh = 0\nfor name, watts in devices.items():\n    kwh = watts / 1000 * hours_per_year\n    total_kwh += kwh\n    print(f\"{name:28} {kwh:7.1f} kWh  {kwh * price_per_kwh:6.2f} pounds\")\n\nprint(\"-\" * 50)\nprint(f\"Household total: {total_kwh:.1f} kWh, {total_kwh * price_per_kwh:.2f} pounds a year\")\n# Add: total for 30 households\n" },
+    { "type": "task", "title": "2. Follow the phone: a stakeholder grid", "p": ["A phone maker releases a new model every year and stops security updates after three years. Draw the grid: manufacturer, customers, workers in mining and recycling countries, the environment. Benefit and drawback for each."],
+      "steps": ["Each cell must name a *stage* (materials, manufacture, use, disposal) or a *mechanism* (e-waste, energy, mining).", "Write a conclusion: should the law force five years of updates? Judgement, reason, condition."] },
+    { "type": "task", "title": "3. Structured debate: tablets for every student", "p": ["Your school wants to replace all printed textbooks with a tablet per student. Three groups: the school's finance lead, an environmental campaigner, a student council rep. Each prepares two environmental arguments *for* and two *against*, with a number or a mechanism in each. Speak, reply, then the class votes on a condition the school must meet if it goes ahead."] },
+    { "type": "task", "title": "4. Myth or fact?", "p": ["Decide, then explain the mechanism in one sentence."],
+      "steps": ["Most of a phone's lifetime carbon footprint comes from charging it.", "Streaming a film has no environmental cost because nothing is made.", "E-waste is valuable as well as toxic.", "Buying a refurbished laptop is usually better for the environment than buying a new energy-efficient one.", "Data centres can never be green."] },
+    { "type": "embed", "title": "5. Issues topic practice", "url": "https://beanwise.coderra.je/GCSE_homepage/Topic5_Issues.html",
+      "instructions": ["Open the environmental section. For each point, write which stage of a device's life it belongs to.", "Add any issue you had missed to your grid from Try 2."] }
+  ],
+  "check": [
+    { "q": "For a typical smartphone, the largest share of its lifetime carbon footprint comes from:", "opts": ["Charging it", "Manufacturing it", "Recycling it", "Sending messages"], "a": 1, "fb": "Manufacture dominates; use is a small share." },
+    { "q": "Which is the best definition of e-waste?", "opts": ["Spam emails", "Discarded electrical and electronic devices", "Wasted electricity", "Unused cloud storage"], "a": 1, "fb": "Anything discarded with a plug, battery or circuit board." },
+    { "q": "A console drawing 10 W in rest mode all year uses about:", "opts": ["8.76 kWh", "87.6 kWh", "876 kWh", "10 kWh"], "a": 1, "fb": "0.010 kW x 8,760 h = 87.6 kWh." },
+    { "q": "Designing a phone with a battery that cannot be replaced is an example of:", "opts": ["Right to repair", "Dematerialisation", "Planned obsolescence", "A smart grid"], "a": 2, "fb": "Shortening a product's useful life on purpose." },
+    { "q": "Which is a **positive** environmental use of technology?", "opts": ["Exporting old monitors to be stripped by hand", "Smart meters that reduce wasted electricity", "Releasing a new model every year", "Keeping a server on with no users"], "a": 1, "fb": "Smart metering cuts demand; the others add cost." }
+  ],
+  "exam": [
+    { "q": "State **two** environmental impacts of manufacturing digital devices.", "marks": 2,
+      "model": ["Any two (1 each): mining of rare/finite metals damages habitats; pollution of water/soil from mining or factories; high energy use/carbon emissions from manufacturing; use of large amounts of water; depletion of non-renewable resources."],
+      "commentary": "'Bad for the environment' scores zero. Each mark needs a specific impact tied to *manufacturing*; e-waste belongs to disposal, so it does not answer this question." },
+    { "q": "Describe what is meant by **e-waste** and explain **one** problem it causes.", "marks": 3,
+      "model": ["E-waste is discarded electrical/electronic equipment such as old phones, computers and TVs (1). Problem: it contains toxic substances such as lead or mercury (1) which leak into soil and water when landfilled, or poison people who burn or strip it, often in poorer countries it is exported to (1).", "Alternative problem: valuable materials (gold, copper) are lost (1) so more must be mined, causing further damage (1)."],
+      "commentary": "Definition mark, then a problem *and* its consequence. Many students write 'it is toxic' and stop; the third mark is for what the toxicity does and to whom." },
+    { "q": "A company replaces all 500 of its staff laptops every two years with new models, even though the old ones still work. Explain **two** ways the company could reduce the environmental impact of this policy.", "marks": 4,
+      "model": ["Any two, each 1 + 1: keep laptops longer / replace only when they fail (1), reducing the manufacturing and mining needed for 250 new devices a year (1). Sell, donate or send old laptops to a certified refurbisher (1) so they are reused rather than becoming e-waste (1). Use a certified recycler for broken devices (1) so toxic materials are handled safely and metals recovered rather than exported or landfilled (1). Buy repairable models with long software support (1) so a battery or part failure does not mean a new device (1)."],
+      "commentary": "Explain = the action + why it reduces impact. The question says the laptops *still work*, so reuse/longer life is the obvious applied point. Answers that only say 'recycle them' get the first mark but need the mechanism for the second." }
+  ],
+  "home": "Count the devices left on standby in your home tonight. Estimate each one's standby power (look it up or use 1 W small, 10 W large), calculate the yearly kWh and cost, and write two sentences: one on what the household could change, one on why that alone will not solve the e-waste problem.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 15 · try 28 · check 5 · exam 6 · homework 2",
+    "misconceptions": [
+      "'The environmental cost is the electricity bill.' For devices, manufacture dominates; for services (streaming, AI) the data centre dominates.",
+      "E-waste = 'rubbish'. It is specifically electrical/electronic, and it is both toxic and valuable; both halves earn marks.",
+      "Confusing environmental with ethical: child labour in mines is ethical; the mine's pollution is environmental. Many points sit on the border, so label which lens you are using.",
+      "Unit slips in the standby calculation: watts to kilowatts (divide by 1,000) before multiplying by hours."
+    ],
+    "say": [
+      "'Mine, make, use, bin. Which stage are you writing about?'",
+      "'Toxic and valuable. Say both.'",
+      "'Watts to kilowatts, then times hours. 10 W is 0.010 kW.'"
+    ],
+    "skip": "Try 4 and Try 5 are optional. Try 1 (calculation) and Try 2 (grid) are the core.",
+    "differentiation": [
+      "Support: give the four-stage table with the first column filled; students match costs to stages.",
+      "Stretch: research the energy use of one AI query against one web search and write a balanced paragraph about whether schools should use AI tools for homework."
+    ]
+  }
+}

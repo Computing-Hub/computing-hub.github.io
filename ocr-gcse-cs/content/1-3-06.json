@@ -1,0 +1,114 @@
+{
+  "id": "1-3-06",
+  "title": "Protocols and layers",
+  "spec": "1.3.2",
+  "duration": 60,
+  "specPoints": [
+    "**Standards** and the purpose of common **protocols**: TCP/IP, HTTP, HTTPS, FTP, POP, IMAP, SMTP",
+    "The concept of **layers**: why protocols are divided into layers",
+    "Advantages of layering: self-contained layers, interoperability, changes in one layer do not affect others"
+  ],
+  "learn": [
+    "Define 'protocol' and 'standard' and explain why networks need them",
+    "State the purpose of TCP/IP, HTTP, HTTPS, FTP, POP, IMAP and SMTP",
+    "Choose the correct protocol for a given task (sending email, viewing a secure site, uploading a file)",
+    "Explain what a layer is and why protocols are organised in layers",
+    "Give at least three advantages of layering"
+  ],
+  "hook": "Two of you: one speaks only Spanish, one only Polish. Order a pizza between you. Impossible, until you agree a set of rules: point at the menu, hold up fingers for how many, thumbs up for yes. Those agreed rules are a protocol. Every message your phone sends follows dozens of them, and they are stacked in layers like a parcel inside a box inside a van. Today: seven protocols you must know and why they are stacked.",
+  "video": {
+    "title": "Protocols: the rules, and why they come in layers",
+    "brief": "5 minutes. Open with two people who cannot talk until they agree hand signals; caption 'protocol = agreed rules'. Then a row of seven labelled doors: HTTP and HTTPS (web pages, padlock on HTTPS), FTP (moving files), SMTP (sending mail, a postbox), POP and IMAP (collecting mail: POP downloads and deletes, IMAP keeps it on the server and syncs), TCP/IP underneath carrying everything (TCP splits into packets and checks they all arrive; IP addresses and routes them). Second half: a parcel analogy for layers: the letter (application), the envelope with the order check (transport), the postcode routing (internet/network), the lorry (link). Swap the lorry for a plane; the letter does not change. Caption the three advantages: self-contained, interoperable, change one without changing the others."
+  },
+  "explain": [
+    { "h": "Protocols and standards",
+      "p": ["A **protocol** is a set of rules that devices agree to follow so they can communicate: how to start a conversation, how data is formatted, how errors are handled, how to finish. A **standard** is an agreed, published specification that manufacturers follow, so that a phone made in Korea works on a network built in Jersey using a server in Ireland. Without standards and protocols, every maker's equipment would only talk to itself."] },
+    { "h": "TCP/IP: the two that carry everything",
+      "p": ["**TCP/IP** is the pair of protocols the whole internet runs on. **TCP (Transmission Control Protocol)** breaks data into **packets**, numbers them, checks they all arrive and asks for any missing ones again, then reassembles them in order. **IP (Internet Protocol)** gives every packet a source and destination **IP address** and gets it routed across networks. Together: TCP makes delivery reliable; IP makes delivery possible."] },
+    { "h": "The five application protocols you must know",
+      "code": "Protocol  Stands for                       Used for\n--------  -------------------------------  ---------------------------------------------\nHTTP      HyperText Transfer Protocol      Requesting and sending web pages\nHTTPS     HTTP Secure                      Web pages with encryption (padlock) - log-ins,\n                                           banking, shopping\nFTP       File Transfer Protocol           Uploading and downloading files to/from a\n                                           server, e.g. putting a website on its host\nSMTP      Simple Mail Transfer Protocol    SENDING email from client to server and\n                                           between mail servers\nPOP       Post Office Protocol             RECEIVING email: downloads messages to one\n                                           device and usually deletes them from server\nIMAP      Internet Message Access Protocol RECEIVING email: messages stay on the server\n                                           and are synced across all your devices",
+      "p": ["Two traps. First, **HTTPS** is HTTP plus **encryption**: the data between browser and server is scrambled, so passwords and card numbers cannot be read if intercepted. Second, email uses **three** protocols: SMTP to **send**, and POP **or** IMAP to **receive**. POP is older: it pulls mail down to one device. IMAP keeps mail on the server so your phone, laptop and webmail all show the same inbox."] },
+    { "h": "What is a layer?",
+      "p": ["Sending a web page involves many jobs: write the request, split it into packets, address them, put the bits on the cable. A **layer** is a group of protocols that does **one** of those jobs. Each layer only talks to the layer directly above and below it. Data passes down the layers on the sender, across the network, and up the layers on the receiver. OCR does not require you to name the layers, but a simple model helps you see the idea:"],
+      "code": "Sender                                   Receiver\n-----------------------------            -----------------------------\nApplication  HTTP, FTP, SMTP ...   --->  Application  (reads the page)\nTransport    TCP: packets, order   --->  Transport    (reassembles)\nInternet     IP: addresses, route  --->  Internet     (checks address)\nLink         Ethernet / Wi-Fi      --->  Link         (receives bits)\n\nEach layer does ONE job and only talks to its neighbours." },
+    { "h": "Why layers? The three advantages",
+      "list": ["**Self-contained**: each layer does its own job and can be developed and tested on its own; a web developer does not need to know how Wi-Fi radio works.",
+               "**Interoperability**: because each layer follows an agreed standard, hardware and software from different manufacturers work together: any browser, any router, any cable.",
+               "**Changes in one layer do not affect the others**: you can swap Ethernet for Wi-Fi, or HTTP for HTTPS, without rewriting anything in the other layers. The parcel does not care whether it travels by van or by plane.",
+               "Also: breaking a complex problem into smaller parts (decomposition) makes the whole system simpler to understand and to fix."] },
+    { "h": "Protocol questions in the exam",
+      "p": ["Three kinds. **Identify**: 'Which protocol is used to send an email?' One word: SMTP. **Describe the purpose**: 'State the purpose of IMAP.' Receiving email, with the message kept on the server. **Apply**: 'A shop's website asks for card details. Which protocol should it use and why?' HTTPS, because the data is encrypted so card details cannot be read if intercepted. Always attach the reason to the scenario."] }
+  ],
+  "simple": [
+    { "h": "Protocol",
+      "p": ["A protocol is a set of rules for sending data.", "Both sides follow the same rules, so they understand each other.", "A standard is a rule everyone agrees to use, so all makers' kit works together."] },
+    { "h": "The protocols",
+      "list": ["TCP/IP: carries everything. TCP splits into packets and checks they arrive. IP gives the addresses.", "HTTP: web pages.", "HTTPS: web pages with encryption. Padlock. Use for passwords and payments.", "FTP: moving files to and from a server.", "SMTP: sending email.", "POP: receiving email, downloaded to one device.", "IMAP: receiving email, kept on the server, same on all devices."] },
+    { "h": "Layers",
+      "p": ["Sending data has many jobs. Each layer does one job.", "Each layer only talks to the layer above and below.", "Good: each layer can be built on its own. Kit from different makers works together. Change one layer, the others do not change."],
+      "code": "Application  (web, email)\nTransport    (packets)\nInternet     (addresses)\nLink         (cable or radio)" }
+  ],
+  "keyterms": [
+    { "term": "Protocol", "def": "A set of agreed rules that devices follow to communicate." },
+    { "term": "Standard", "def": "An agreed specification that manufacturers follow so that their products work together." },
+    { "term": "TCP/IP", "def": "The pair of protocols that run the internet: TCP splits data into packets and ensures reliable delivery; IP addresses and routes them." },
+    { "term": "HTTP / HTTPS", "def": "Protocols for requesting and sending web pages; HTTPS adds encryption." },
+    { "term": "FTP", "def": "File Transfer Protocol: uploads and downloads files to and from a server." },
+    { "term": "SMTP", "def": "Simple Mail Transfer Protocol: sends email." },
+    { "term": "POP / IMAP", "def": "Protocols for receiving email; POP downloads to one device, IMAP keeps mail on the server and syncs." },
+    { "term": "Layer", "def": "A group of protocols that performs one job in sending data and communicates only with the layers next to it." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Protocol match",
+      "p": ["Match each situation to the protocol. One protocol is used twice; one is not used at all. Say which."],
+      "steps": ["Reading the news on a website with no log-in.", "Entering a card number on a shopping site.", "Uploading the new version of a school website to the hosting company.", "Pressing Send on an email.", "Checking the same inbox on your phone and laptop and seeing the same read/unread marks.", "An old email program that downloads messages and removes them from the server.", "Making sure every packet of a download arrives and is put back in order.", "Logging in to a school portal.", "Sending the packets across the internet to the right address."] },
+    { "type": "embed", "title": "2. Watch the protocols work", "url": "https://beanwise.coderra.je/cs_animations/web-technologies-workbench.html",
+      "instructions": ["Request a page and watch the HTTP request and response. Note the words 'request' and 'response' and what the server sends back.", "Switch to a secure (HTTPS) request if the tool allows. What is different, and who can read the data in transit?"] },
+    { "type": "python", "title": "3. Packets, order and TCP",
+      "p": ["This program imitates what TCP does: split a message into numbered packets, deliver them in a jumbled order, then rebuild. Run it, then remove one packet from `arrived` and make the receiver report which number is missing (that is what TCP asks to be resent)."],
+      "code": "import random\n\nmessage = \"GET /index.html HTTP/1.1 Host: beanwise.coderra.je\"\nsize = 8   # characters per packet\n\n# SENDER: split into numbered packets\npackets = []\nfor i in range(0, len(message), size):\n    packets.append((len(packets), message[i:i+size]))\nprint(\"Sent\", len(packets), \"packets\")\n\n# NETWORK: packets may arrive in any order\narrived = packets[:]\nrandom.shuffle(arrived)\nprint(\"Arrived order:\", [n for n, _ in arrived])\n\n# RECEIVER: put them back in order using the numbers\narrived.sort()\nrebuilt = \"\".join(data for _, data in arrived)\nprint(\"Rebuilt:\", rebuilt)\nprint(\"Correct?\", rebuilt == message)\n\n# Now: delete one packet from 'arrived' before sorting,\n# and print which packet number is missing." },
+    { "type": "task", "title": "4. Build the layer stack with a parcel",
+      "p": ["In groups: write a short message (the data). Put it in an envelope marked with a page number out of 3 (transport). Put that in a box with a postcode (internet). Put the box in a 'van' (a tray labelled Ethernet) or a 'plane' (a tray labelled Wi-Fi) (link). Pass it across the room and unwrap it in reverse."],
+      "steps": ["Swap the van for the plane halfway. Did anything inside need to change? Which advantage of layering did you just demonstrate?", "Change the envelope from HTTP to HTTPS (seal it). Did the box or van change?", "Write the three advantages of layering in your own words using the parcel."] },
+    { "type": "embed", "title": "5. Protocol quick-fire", "url": "https://beanwise.coderra.je/GCSE_homepage/Topic4_Networks.html",
+      "instructions": ["Do the protocols activity. Any protocol you mix up goes on your traps list with a one-line reminder (e.g. 'SMTP = Send My To Pete')."] }
+  ],
+  "check": [
+    { "q": "Which protocol is used to SEND email?", "opts": ["POP", "IMAP", "SMTP", "FTP"], "a": 2, "fb": "SMTP sends; POP and IMAP receive." },
+    { "q": "The main difference between HTTP and HTTPS is:", "opts": ["HTTPS is faster", "HTTPS encrypts the data", "HTTP is for email", "HTTPS only works on Wi-Fi"], "a": 1, "fb": "The S is secure: encryption in transit." },
+    { "q": "Which protocol keeps email on the server so several devices show the same inbox?", "opts": ["POP", "IMAP", "SMTP", "TCP"], "a": 1, "fb": "IMAP syncs; POP downloads to one device." },
+    { "q": "What does TCP do?", "opts": ["Gives packets their IP addresses", "Encrypts web pages", "Splits data into packets and makes sure they all arrive in order", "Transfers files"], "a": 2, "fb": "TCP = reliable delivery; IP = addressing and routing." },
+    { "q": "Which is an advantage of dividing protocols into layers?", "opts": ["Data travels faster", "A change in one layer does not require changes in the others", "Fewer protocols are needed", "Encryption is automatic"], "a": 1, "fb": "Self-contained layers: swap one without touching the rest." }
+  ],
+  "exam": [
+    { "q": "State the purpose of each of the following protocols: (a) FTP (b) IMAP (c) HTTPS.", "marks": 3,
+      "model": ["(a) Transferring/uploading/downloading files between a client and a server (1). (b) Retrieving email from a mail server while keeping messages stored on the server / synchronised across devices (1). (c) Requesting and transferring web pages securely, with the data encrypted (1)."],
+      "commentary": "One precise phrase each. For IMAP, 'receiving email' alone may be accepted but 'kept on the server' makes it safe. For HTTPS the mark is in **encrypted** or **secure**; 'web pages' alone describes HTTP." },
+    { "q": "Explain what is meant by a **protocol** and why protocols are needed in computer networks.", "marks": 3,
+      "model": ["A protocol is a set of rules (1) that govern how data is transmitted/communication takes place between devices (1). They are needed so that devices from different manufacturers can understand each other / communicate successfully (1)."],
+      "commentary": "'Rules' is the word. The third mark is the reason: compatibility between different devices or makers. Students who write 'so the internet works' have described the result, not the reason." },
+    { "q": "Network protocols are organised into layers. Describe **two** advantages of using layers.", "marks": 4,
+      "model": ["Each layer is self-contained / does one job (1), so it can be developed or tested without needing to understand the other layers (1). A change to one layer (e.g. replacing Wi-Fi with Ethernet) does not affect the other layers (1), so parts of the system can be updated without rewriting everything (1). Also accept: layers follow agreed standards (1), so hardware and software from different manufacturers are interoperable (1)."],
+      "commentary": "Two advantages, each with its consequence. The common slip is listing the advantages as single words ('self-contained, interoperable') for two marks out of four. The concrete example of swapping one layer is the easiest way to show the 'so' part." }
+  ],
+  "home": "Make a seven-row table: protocol, what it stands for, one job, one place you used it today. Then write a parcel explanation of layers for a parent in four sentences and ask them to repeat it back.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 14 · try 26 · check 5 · exam 7 · homework 3",
+    "misconceptions": [
+      "'SMTP receives email' or 'POP sends it'. Drill: S for Send; POP and IMAP both pull mail in.",
+      "'HTTPS is a different, faster protocol.' It is HTTP with encryption; speed is not the point.",
+      "'TCP/IP is one protocol.' Two: TCP does packets and reliability, IP does addressing and routing.",
+      "Naming the four layers as if required and then writing nothing about why. The marks are for the advantages of layering, not the names. (A simple model is fine to show.)"
+    ],
+    "say": [
+      "'Rules both sides agree on. That's a protocol. Everything else is detail.'",
+      "'SMTP sends. POP and IMAP collect. IMAP keeps it on the server.'",
+      "'Swap the van for the plane: the letter doesn't change. That's layering.'"
+    ],
+    "skip": "Try 5 can go; Try 1 and Try 4 carry the exam skill. Try 3 if Python is available.",
+    "differentiation": [
+      "Support: give the protocol table as a cut-up card set (name, expansion, job) to reassemble before Try 1.",
+      "Stretch: in Try 3, add a checksum to each packet (sum of character codes) and make the receiver detect a corrupted packet as well as a missing one."
+    ]
+  }
+}

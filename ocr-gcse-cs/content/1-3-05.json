@@ -1,0 +1,118 @@
+{
+  "id": "1-3-05",
+  "title": "Wired, wireless, encryption, IP and MAC",
+  "spec": "1.3.2",
+  "duration": 60,
+  "specPoints": [
+    "Modes of connection: **wired (Ethernet)** and **wireless (Wi-Fi, Bluetooth)**",
+    "**Encryption** and why it is needed on wireless networks",
+    "**IP addressing** (IPv4 and IPv6) and **MAC addressing**: purpose and format"
+  ],
+  "learn": [
+    "Compare wired (Ethernet) and wireless (Wi-Fi, Bluetooth) connections on speed, reliability, security and convenience",
+    "Explain why encryption is needed on wireless networks and describe what it does",
+    "State the purpose and format of IPv4 and IPv6 addresses and recognise each",
+    "State the purpose and format of a MAC address and recognise one",
+    "Explain which address is used for what: MAC inside a LAN, IP across networks"
+  ],
+  "hook": "Every laptop in this room is shouting. Wi-Fi is radio: anyone with an aerial within fifty metres can hear every packet. So why has nobody stolen your passwords? Because the packets are scrambled before they leave the aerial. Second question: this laptop has two addresses, one it was born with and one it was given this morning. By the end you will know which is which and why it needs both.",
+  "video": {
+    "title": "Cables, radio, scrambling and two kinds of address",
+    "brief": "4 minutes. Split screen: a laptop on an Ethernet cable and a phone on Wi-Fi sending the same photo; cable arrives first and intact, Wi-Fi slows as the phone walks behind a wall. Then an eavesdropper's laptop appears, catching Wi-Fi packets out of the air and reading a password in plain text; switch on encryption and the same packets become unreadable gibberish; only the receiver's key unlocks them. Second half: zoom into a NIC to show the MAC address stamped on it (six pairs of hex), then show the router handing the laptop an IPv4 address (four numbers, dots); contrast with a long IPv6 address and explain we ran out of IPv4. Finish with a packet leaving the LAN: switch reads MAC, router reads IP."
+  },
+  "explain": [
+    { "h": "Wired: Ethernet",
+      "p": ["**Ethernet** is the standard for wired LAN connections: a copper twisted-pair cable from each device's NIC to a switch (fibre for longer runs). Wired connections are **faster** (commonly 1 Gbps), more **reliable** (no interference from walls or other networks), and more **secure** (you must physically plug in to join). The costs are the cable itself, the installation, and the fact that the device cannot move."] },
+    { "h": "Wireless: Wi-Fi and Bluetooth",
+      "p": ["**Wi-Fi** uses radio waves to connect devices to a wireless access point over tens of metres. It gives **mobility** and avoids cabling, but bandwidth is lower and shared, walls and interference weaken it, and anyone in range can pick up the signal. **Bluetooth** is also radio but is designed for **short range** (about 10 m), **low power**, device-to-device links: headphones, a phone to a car, a fitness tracker. It is much slower than Wi-Fi and is not used to build LANs."],
+      "code": "Feature       Ethernet (wired)      Wi-Fi (wireless)        Bluetooth\n------------  --------------------  ----------------------  --------------------\nMedium        Copper / fibre        Radio waves             Radio waves\nSpeed         High (1 Gbps+)        Lower, shared           Low\nRange         ~100 m per cable      Tens of metres          ~10 m\nReliability   High                  Affected by walls etc.  Short range only\nSecurity      Must plug in          Signal can be captured  Pairing, short range\nMobility      None                  Full                    Full\nTypical use   Desktops, servers     Phones, laptops         Headphones, wearables" },
+    { "h": "Why wireless needs encryption",
+      "p": ["Radio waves do not stop at the walls. Anyone in range with the right software can **intercept** wireless packets. **Encryption** scrambles the data using a **key** before it is transmitted, so that an interceptor sees only meaningless characters (**ciphertext**). Only a device with the correct key can turn it back into **plaintext**. On Wi-Fi the key comes from the network password; the current standards are WPA2 and WPA3. Encryption does not stop interception; it makes what is intercepted useless."],
+      "code": "Plaintext:   meet me at 7 pm\nKey:         (shared secret between sender and receiver)\nCiphertext:  qkbr fr pn 1 ai        <- this is what the eavesdropper gets\n\nReceiver uses the key:  ciphertext -> plaintext" },
+    { "h": "IP addresses: finding a device across networks",
+      "p": ["An **IP (Internet Protocol) address** identifies a device on a network so that packets can be routed to it. It is **assigned** by the network (usually the router, automatically) and can change: move your laptop from home to school and it gets a new IP address. Routers use IP addresses to send packets between networks.",
+            "**IPv4**: four numbers from 0 to 255 separated by dots, e.g. `192.168.1.24`. That is 32 bits, so about 4.3 billion addresses, and the world has run out. **IPv6**: eight groups of four hexadecimal digits separated by colons, e.g. `2001:0db8:85a3:0000:0000:8a2e:0370:7334`. That is 128 bits: enough for every device on Earth many times over."],
+      "code": "IPv4   192.168.1.24                                   32 bits   ~4.3 billion\nIPv6   2001:0db8:85a3:0000:0000:8a2e:0370:7334        128 bits  ~3.4 x 10^38\n\nIPv4: 4 decimal numbers, each 0-255, separated by dots\nIPv6: 8 groups of 4 hex digits, separated by colons" },
+    { "h": "MAC addresses: identifying the hardware",
+      "p": ["A **MAC (Media Access Control) address** is a unique identifier given to every NIC by the manufacturer. It is **fixed** (hard-coded into the hardware) and never changes, wherever the device goes. It is 48 bits, written as **six pairs of hexadecimal digits** separated by colons or dashes, e.g. `00:1A:2B:3C:4D:5E`. The first three pairs identify the manufacturer; the last three are the device's serial. **Switches** use MAC addresses to deliver frames to the right device **within** a LAN."],
+      "code": "MAC   00:1A:2B:3C:4D:5E     48 bits   6 pairs of hex   fixed by manufacturer\n      \\______/ \\______/\n      maker    device\n\nThe same laptop:\n  MAC   00:1A:2B:3C:4D:5E   at home AND at school (never changes)\n  IPv4  192.168.1.24        at home\n  IPv4  10.20.5.113         at school (assigned by each network)" },
+    { "h": "Which address when?",
+      "list": ["**Inside the LAN** (device to switch to device): the **MAC address** says which NIC the frame is for.",
+               "**Between networks** (across the internet): the **IP address** says which network and which device the packet is for; routers read it.",
+               "A packet going to a website carries **both**: the IP address of the destination server, and the MAC address of the **next hop** (the router), which changes at each router along the way.",
+               "Memory hook: MAC = Made At Construction (fixed, hardware). IP = Issued by the network (changes, logical)."] }
+  ],
+  "simple": [
+    { "h": "Wired and wireless",
+      "list": ["Ethernet: a cable. Fast. Reliable. Safe. Cannot move.", "Wi-Fi: radio. You can move. Slower. Walls weaken it. Others can hear it.", "Bluetooth: short range radio, about 10 m. Low power. Headphones, watches."] },
+    { "h": "Encryption",
+      "p": ["Wi-Fi goes through the air. Anyone nearby can catch it.", "Encryption scrambles the data with a key before sending.", "Without the key, it is nonsense. With the key, you get the message back."] },
+    { "h": "IP address",
+      "p": ["Given to a device by the network. Can change when you move networks.", "Routers use it to send data between networks.", "IPv4: four numbers with dots. 192.168.1.24", "IPv6: eight groups of hex with colons. Much longer. We needed more addresses."] },
+    { "h": "MAC address",
+      "p": ["Built into the NIC by the maker. Never changes.", "Six pairs of hex with colons. 00:1A:2B:3C:4D:5E", "Switches use it to send data to the right device inside a LAN."] }
+  ],
+  "keyterms": [
+    { "term": "Ethernet", "def": "The standard for wired connections in a LAN, using cables from devices to a switch." },
+    { "term": "Wi-Fi", "def": "A wireless connection using radio waves between devices and a wireless access point." },
+    { "term": "Bluetooth", "def": "A short-range, low-power wireless connection between two devices." },
+    { "term": "Encryption", "def": "Scrambling data with a key so that only someone with the key can read it." },
+    { "term": "IP address", "def": "An address assigned to a device by the network, used by routers to deliver packets between networks." },
+    { "term": "IPv4 / IPv6", "def": "IPv4 is 32-bit, written as four decimal numbers with dots; IPv6 is 128-bit, written as eight hex groups with colons." },
+    { "term": "MAC address", "def": "A unique 48-bit hardware address fixed in a NIC by the manufacturer, written as six pairs of hex digits." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Card sort: IPv4, IPv6, MAC or invalid",
+      "p": ["Sort each address. For every 'invalid', say what rule it breaks."],
+      "steps": ["192.168.0.1", "00:1A:2B:3C:4D:5E", "2001:0db8:0000:0000:0000:ff00:0042:8329", "10.0.256.7", "A4-5E-60-F1-02-9C", "172.16.4", "fe80:0000:0000:0000:0202:b3ff:fe1e:8329", "00:1A:2B:3C:4D:5E:6F", "8.8.8.8", "GG:12:34:56:78:9A"],
+      "after": ["Check: 10.0.256.7 (256 too big), 172.16.4 (only three numbers), the seven-pair MAC, and GG (not hex) are invalid."] },
+    { "type": "python", "title": "2. Address validator",
+      "p": ["This program checks whether a string is a valid IPv4 or MAC address. Run it, then add the three missing tests at the bottom, and then write `is_ipv6()` using the same approach (8 groups, colons, each group 1 to 4 hex digits)."],
+      "code": "HEX = \"0123456789abcdefABCDEF\"\n\ndef is_ipv4(addr):\n    parts = addr.split(\".\")\n    if len(parts) != 4:\n        return False\n    for p in parts:\n        if not p.isdigit() or int(p) > 255:\n            return False\n    return True\n\ndef is_mac(addr):\n    parts = addr.replace(\"-\", \":\").split(\":\")\n    if len(parts) != 6:\n        return False\n    for p in parts:\n        if len(p) != 2:\n            return False\n        for ch in p:\n            if ch not in HEX:\n                return False\n    return True\n\ndef what_is(addr):\n    if is_ipv4(addr):\n        return \"IPv4\"\n    if is_mac(addr):\n        return \"MAC\"\n    return \"not valid\"\n\nfor a in [\"192.168.1.24\", \"00:1A:2B:3C:4D:5E\", \"10.0.256.7\", \"A4-5E-60-F1-02-9C\"]:\n    print(a, \"->\", what_is(a))\n\n# Add tests: \"172.16.4\"   \"GG:12:34:56:78:9A\"   \"8.8.8.8\"\n# Then write is_ipv6(addr) and add it to what_is()" },
+    { "type": "embed", "title": "3. Encrypt it yourself", "url": "https://beanwise.coderra.je/cs_animations/cipher.html",
+      "instructions": ["Type a short Wi-Fi password as the message and encrypt it with a key. This is roughly what an eavesdropper would capture.", "Give the ciphertext to a partner **without** the key. Can they read it? Now give them the key. Write one sentence on why this matters for Wi-Fi but matters much less for an Ethernet cable."] },
+    { "type": "task", "title": "4. Wired or wireless?",
+      "p": ["Choose Ethernet, Wi-Fi or Bluetooth for each, and give one reason tied to speed, reliability, security, range or mobility."],
+      "steps": ["A school server in the server room.", "A student's phone in the corridor.", "Wireless headphones.", "A desktop PC in an exam room where connection must not drop.", "A smart watch sending heart rate to a phone.", "A laptop editing 4K video stored on the office server.", "A tablet used on a factory floor next to heavy machinery."] },
+    { "type": "embed", "title": "5. Connections and addressing", "url": "https://beanwise.coderra.je/GCSE_homepage/networks.html",
+      "instructions": ["Use the wired/wireless and addressing sections. Find one fact about IPv6 and one about Bluetooth not in your notes."] }
+  ],
+  "check": [
+    { "q": "Which is an advantage of a wired connection over wireless?", "opts": ["Devices can move freely", "No cables needed", "Faster and more reliable", "Easier to add a new device anywhere"], "a": 2, "fb": "Cable wins on speed, reliability and security; wireless wins on mobility." },
+    { "q": "Why is encryption needed on a wireless network?", "opts": ["To make it faster", "Because anyone in range can intercept the radio signal", "To give each device an IP address", "Because Wi-Fi uses copper cable"], "a": 1, "fb": "Radio is public; scrambling makes intercepted data useless." },
+    { "q": "Which is a valid IPv4 address?", "opts": ["192.168.1.300", "00:1A:2B:3C:4D:5E", "172.16.0.9", "2001:db8::1"], "a": 2, "fb": "Four numbers 0–255 with dots." },
+    { "q": "A MAC address is:", "opts": ["Assigned by the router and changes between networks", "Fixed in the NIC by the manufacturer", "Written as four decimal numbers", "Used by routers to send packets across the internet"], "a": 1, "fb": "Hardware address, fixed; written as six hex pairs; used by switches within a LAN." },
+    { "q": "Why was IPv6 introduced?", "opts": ["IPv4 was too slow", "IPv4 addresses were running out", "To replace MAC addresses", "To encrypt web pages"], "a": 1, "fb": "32 bits gives ~4.3 billion; 128 bits gives effectively unlimited." }
+  ],
+  "exam": [
+    { "q": "State **one** advantage and **one** disadvantage of connecting a laptop to a network using Wi-Fi rather than an Ethernet cable.", "marks": 2,
+      "model": ["Advantage (1): the laptop can be moved around / no cable needed / easy to connect new devices. Disadvantage (1): lower bandwidth / slower; less reliable due to interference and walls; less secure because the signal can be intercepted."],
+      "commentary": "Both marks are for points that are genuinely about Wi-Fi versus cable. 'Wi-Fi is more modern' or 'cheaper' are not accepted without justification. Keep the advantage and disadvantage distinct: do not write 'faster' as an advantage of Wi-Fi." },
+    { "q": "A café provides free Wi-Fi for customers. Explain why the café should use **encryption** on the wireless network.", "marks": 3,
+      "model": ["Wireless signals travel through the air and can be intercepted by anyone in range (1). Encryption scrambles the data using a key so that intercepted data cannot be understood (1). This protects customers' personal data, such as passwords or card details, from being read by an attacker (1)."],
+      "commentary": "Explain = what + because. The three marks follow the chain: signal is public, encryption scrambles with a key, result is protected data. The word **key** is the one that shows understanding; 'makes it safe' earns nothing on its own." },
+    { "q": "The table shows two addresses belonging to the same laptop. Address A: `192.168.4.17`. Address B: `3C:52:82:A1:0B:7F`. (a) Identify which address is the IP address and which is the MAC address. (b) Explain **one** difference in how the two addresses are assigned and used.", "marks": 4,
+      "model": ["(a) A is the IP address (IPv4) (1); B is the MAC address (1). (b) The MAC address is fixed in the NIC by the manufacturer and never changes, whereas the IP address is assigned by the network and changes when the laptop joins a different network (1). The MAC address is used by switches to deliver data within a LAN, whereas the IP address is used by routers to deliver packets between networks (1). (Either difference for 1; both for 2.)"],
+      "commentary": "Format recognition in (a) is quick: dots and decimal = IPv4; colons and hex pairs = MAC. In (b) the full mark needs both sides of the difference. 'MAC is permanent' is half a point until the IP side is written." }
+  ],
+  "home": "Find the IP address and MAC address of one of your devices (search 'about phone' or 'network settings'). Write them down, label which is which and what format each uses. Then connect to a different network and check: which one changed?",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 14 · try 26 · check 5 · exam 7 · homework 3",
+    "misconceptions": [
+      "'Encryption stops people intercepting the data.' It does not; it makes intercepted data unreadable. The distinction is worth a mark.",
+      "Swapping which device uses which address: switch/MAC/inside LAN; router/IP/between networks.",
+      "'MAC address is the physical address of the building' or 'MAC = Apple Mac'. It is Media Access Control, in every NIC.",
+      "Writing an IPv4 number above 255, or a MAC with decimal digits above 9 only. Have students say 'hex pairs' aloud."
+    ],
+    "say": [
+      "'Wi-Fi is shouting in a crowded room. Encryption is shouting in a language only your friend knows.'",
+      "'MAC: made at construction. IP: issued by the network.'",
+      "'Dots and decimal: IPv4. Colons and hex: MAC if six pairs, IPv6 if eight groups.'"
+    ],
+    "skip": "Try 5 can go; Try 1 and Try 3 carry the exam skill, Try 2 if Python is available.",
+    "differentiation": [
+      "Support: give the three formats on a reference strip (IPv4 pattern, IPv6 pattern, MAC pattern) for the card sort.",
+      "Stretch: in Try 2, write is_ipv6() handling the '::' shorthand, and explain in a comment why IPv6 allows it."
+    ]
+  }
+}

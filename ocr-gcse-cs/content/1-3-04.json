@@ -1,0 +1,126 @@
+{
+  "id": "1-3-04",
+  "title": "Star and mesh topologies",
+  "spec": "1.3.2",
+  "duration": 60,
+  "specPoints": [
+    "**Star** and **mesh** network topologies",
+    "How each works, advantages and disadvantages of each",
+    "Drawing a topology and choosing one for a given scenario"
+  ],
+  "learn": [
+    "Draw a star topology and a mesh topology (full and partial) with correct labels",
+    "Describe how data travels in each topology",
+    "Give at least three advantages and two disadvantages of each",
+    "Calculate the number of links in a full mesh of n devices using n(n−1)/2",
+    "Recommend a topology for a scenario and justify it"
+  ],
+  "hook": "Six of you, stand in a circle. Pass a ball to anyone, but only through me in the middle. Now I sit down. What happens? Nothing moves. Reset: this time, every one of you holds a string to every other person. I leave; nothing changes. Count the strings. Fifteen, for six people. That is the whole lesson: one hub that is cheap but critical, or lots of links that are expensive but unbreakable.",
+  "video": {
+    "title": "Star and mesh: one hub or many links",
+    "brief": "4 minutes. Draw a star: a switch in the centre, six devices on their own cables. Send a packet from A to D: it goes A to switch to D, nothing else hears it. Cut cable B: only B drops off. Then the switch fails: every link dies at once. Redraw as a full mesh: every device cabled to every other; count links with the formula n(n-1)/2 appearing on screen for n = 4, 6, 10. Send A to D directly; cut two links and show the packet re-routing. Then thin it to a partial mesh: some links removed, still more than one route. Finish with wireless mesh: a home with three mesh Wi-Fi nodes, and a city sensor network, as examples where mesh is used in practice."
+  },
+  "explain": [
+    { "h": "Star topology",
+      "p": ["In a **star** topology every device has its own cable to a **central device**, usually a **switch** (older networks used a hub). All data goes through the centre. If A sends to D, the frame goes A to switch to D; the switch reads the MAC address and forwards it only to D's port. Almost every school and office LAN is a star."],
+      "code": "            [ PC ]\n              |\n[ PC ]---[ SWITCH ]---[ Printer ]\n              |\n           [ Server ]\n\nEvery device has ONE cable to the centre.\nA to Server: A -> switch -> Server" },
+    { "h": "Star: advantages and disadvantages",
+      "list": ["**Advantage**: if one cable or device fails, only that device is affected; the rest keep working.",
+               "**Advantage**: easy to add a device: plug a new cable into the switch.",
+               "**Advantage**: fast and few collisions, because the switch sends each frame only to the right port.",
+               "**Advantage**: easy to find faults: one cable per device.",
+               "**Disadvantage**: if the **central switch fails, the whole network stops**: a single point of failure.",
+               "**Disadvantage**: needs a lot of cable and a switch, so it costs more than a single shared cable would.",
+               "**Disadvantage**: performance depends on the switch; a cheap or overloaded switch is the bottleneck."] },
+    { "h": "Mesh topology",
+      "p": ["In a **mesh** topology devices are connected to **each other**, not to a centre. In a **full mesh** every device is directly linked to every other device. In a **partial mesh** most devices have several links, but not to everyone. Data can take **many routes**: if one link is busy or broken, it goes another way. Each device helps forward data for the others.",
+            "Mesh is used where reliability matters more than cost: the backbone of the internet, military and emergency networks, and, increasingly, **wireless mesh** systems such as home Wi-Fi with several nodes or smart-city sensor networks, where links are radio rather than cable."],
+      "code": "Full mesh (4 devices, 6 links):      Partial mesh (4 devices, 4 links):\n\n   A -------- B                         A -------- B\n   | \\      / |                         |          |\n   |   \\  /   |                         |          |\n   |   /  \\   |                         |          |\n   | /      \\ |                         |          |\n   C -------- D                         C -------- D\n\nEvery pair linked directly.           Still a second route from A to D (via B or C)." },
+    { "h": "Mesh: advantages and disadvantages",
+      "list": ["**Advantage**: **no single point of failure**: if one link or node fails, data takes another route.",
+               "**Advantage**: data can travel by many paths at once, so heavy traffic is spread and there is less congestion.",
+               "**Advantage**: new nodes can be added and the network keeps working; in wireless mesh, each node extends the range.",
+               "**Disadvantage**: a wired full mesh needs a huge number of cables and ports, so it is **expensive** and impractical for many devices.",
+               "**Disadvantage**: complex to set up and manage: routing must be worked out, and faults are harder to trace.",
+               "**Disadvantage**: in wireless mesh, every node forwards traffic for others, so nodes need more processing and power."] },
+    { "h": "Counting the links: n(n−1)/2",
+      "p": ["In a full mesh with **n** devices, every device links to the other n−1, but each link is shared by two devices, so the number of links is **n(n−1)/2**. The numbers show why wired full mesh does not scale."],
+      "code": "Devices (n)   Links n(n-1)/2    Star links (n cables to switch)\n-----------   --------------    -------------------------------\n     4              6                        4\n     6             15                        6\n    10             45                       10\n    30            435                       30\n   100           4950                      100" },
+    { "h": "Choosing in a scenario",
+      "p": ["Ask two questions. **Does a stop matter?** A classroom losing its network for an hour is annoying; a hospital, a stock exchange or an emergency service cannot stop, so mesh (or at least extra links) is justified. **How many devices and how much money?** Thirty PCs on a budget is a star. The exam wants the choice plus reasons that quote the scenario: 'because the clinic cannot lose access to patient records' or 'because the office has 25 computers and a limited budget'."] }
+  ],
+  "simple": [
+    { "h": "Star",
+      "p": ["One switch in the middle. Every device has its own cable to it.", "Data goes device, switch, device.", "Good: one broken cable only affects one device. Easy to add devices. Fast.", "Bad: if the switch breaks, everything stops. Needs lots of cable."],
+      "code": "    [PC]\n      |\n[PC]-[SWITCH]-[Printer]\n      |\n   [Server]" },
+    { "h": "Mesh",
+      "p": ["Devices connect to each other. No middle.", "Full mesh: every device links to every other device.", "Partial mesh: most devices have several links, not all.", "Good: if one link breaks, data goes another way. No single point of failure.", "Bad: lots of cables. Expensive. Hard to set up."] },
+    { "h": "How many links?",
+      "p": ["Full mesh links = n(n−1)/2.", "6 devices: 6 × 5 ÷ 2 = 15 links.", "Star with 6 devices: 6 cables."] },
+    { "h": "Which one?",
+      "list": ["Must never stop (hospital, emergency services): mesh.", "Office or school on a budget: star."] }
+  ],
+  "keyterms": [
+    { "term": "Topology", "def": "The layout of how devices in a network are connected." },
+    { "term": "Star topology", "def": "A layout where every device connects by its own cable to a central switch or hub." },
+    { "term": "Mesh topology", "def": "A layout where devices connect directly to other devices, giving more than one route for data." },
+    { "term": "Full mesh", "def": "A mesh where every device is directly connected to every other device." },
+    { "term": "Partial mesh", "def": "A mesh where devices have several connections but not to every other device." },
+    { "term": "Single point of failure", "def": "One component whose failure stops the whole network, such as the switch in a star." },
+    { "term": "Node", "def": "Any device connected to a network." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Draw both",
+      "p": ["Draw, label and compare. Use a ruler; examiners cannot give marks for a diagram they cannot read."],
+      "steps": ["Star: one switch, five devices (two PCs, a laptop, a printer, a server). Label the central device. Draw an arrow showing the path from a PC to the printer.", "Full mesh: five devices, every pair connected. Count the links and check with n(n−1)/2.", "Partial mesh: same five devices, remove links until every device still has at least two routes to every other. How few links can you keep?", "Under each drawing write one sentence: what happens if the busiest device fails."] },
+    { "type": "python", "title": "2. How many cables?",
+      "p": ["Run the program. Then: at what number of devices does a full mesh need more than 1000 cables? Add a line that prints the cost difference if each cable costs 15 pounds."],
+      "code": "# Links in a full mesh = n(n-1)/2 ; links in a star = n\n\ndef mesh_links(n):\n    return n * (n - 1) // 2\n\ndef star_links(n):\n    return n\n\nprint(\"Devices  Star  Full mesh\")\nfor n in [3, 4, 6, 10, 20, 30, 50]:\n    print(f\"{n:7}  {star_links(n):4}  {mesh_links(n):9}\")\n\n# Extension: find the smallest n where mesh_links(n) > 1000\n# Extension: cost at 15 pounds per cable for 30 devices in each topology" },
+    { "type": "task", "title": "3. Break it",
+      "p": ["Use string and six students, as in the hook. Time how long each test takes to 'deliver' a message card from student 1 to student 4."],
+      "steps": ["Star round: one student is the switch. Deliver. Then the switch sits down. Deliver again.", "Mesh round: every student holds string to every other. Deliver. Cut (drop) two strings. Deliver again.", "Record: which topology kept working? How many strings did the mesh need? Who got tired of holding strings?"] },
+    { "type": "embed", "title": "4. Topology section", "url": "https://beanwise.coderra.je/GCSE_homepage/Topic4_Networks.html",
+      "instructions": ["Open the topology activities. Do the star vs mesh sort and the labelling task.", "Note one advantage or disadvantage the page gives that you had not written down."] },
+    { "type": "task", "title": "5. Choose and justify",
+      "p": ["For each scenario, pick star, full mesh or partial mesh. Two sentences each, using the scenario's words."],
+      "steps": ["A primary school with 60 computers in six classrooms and a tight budget.", "The control network for an air traffic control tower.", "A large house where Wi-Fi from one router does not reach the garden room; the owner buys three wireless 'mesh' nodes.", "A hospital operating theatre where monitors must never lose connection to the records system.", "A pop-up shop with four tablets for one weekend."] }
+  ],
+  "check": [
+    { "q": "In a star topology, all data passes through:", "opts": ["Every device in turn", "A central switch or hub", "The internet", "The nearest router"], "a": 1, "fb": "Centre in, centre out." },
+    { "q": "The main disadvantage of a star topology is:", "opts": ["Hard to add devices", "One broken cable stops everything", "If the central device fails the whole network stops", "Data collisions are common"], "a": 2, "fb": "The switch is the single point of failure." },
+    { "q": "In a full mesh, how many links join 8 devices?", "opts": ["8", "16", "28", "56"], "a": 2, "fb": "8 × 7 ÷ 2 = 28." },
+    { "q": "The main advantage of a mesh topology is:", "opts": ["It is cheap to cable", "There are many routes, so no single point of failure", "It needs no switch", "It is simple to manage"], "a": 1, "fb": "Multiple routes = resilience." },
+    { "q": "Which is TRUE of a partial mesh?", "opts": ["Every device links to every other", "Devices link to a central hub", "Most devices have several links but not to every device", "It has no redundancy"], "a": 2, "fb": "Some links removed, but more than one route remains." }
+  ],
+  "exam": [
+    { "q": "Draw a diagram of a **star** topology with one switch and four computers. Label the switch.", "marks": 2,
+      "model": ["Central device drawn and labelled switch (1); four computers each connected by a separate line to the switch only, with no links between computers (1)."],
+      "commentary": "Lose the second mark by joining computers to each other or drawing a 'daisy chain'. Lose the first by leaving the centre unlabelled or labelling it 'router'. Use a ruler; a clear diagram is quick marks." },
+    { "q": "Describe **one** advantage and **one** disadvantage of a mesh topology compared with a star topology.", "marks": 4,
+      "model": ["Advantage: there are multiple routes between devices (1), so if one link or device fails data can still be delivered, whereas in a star the failure of the switch stops everything (1). Disadvantage: many more cables/connections are needed (1), so it is more expensive and harder to set up and manage than a star (1)."],
+      "commentary": "'Describe' here wants the point and what follows from it. 'More reliable' alone is one mark; 'more reliable because data can take another route if a link fails' is two. Mentioning the star in each answer is what makes it a comparison." },
+    { "q": "A dental surgery has eight computers that must all access patient records on a server. The practice manager is concerned about reliability but has a limited budget. Recommend a topology and justify your recommendation.", "marks": 4,
+      "model": ["Star (1) with the server and computers connected to a central switch. Justification: only nine cables and one switch are needed, which suits the limited budget (1); if one computer's cable fails the rest keep working, which addresses reliability for most faults (1); a full mesh of nine devices would need 36 links, which is far too expensive for a small surgery (1). Accept a partial mesh or a star with a spare/backup switch if argued from the reliability concern."],
+      "commentary": "Both scenario clues are in the question: 'reliability' and 'limited budget'. A full-marks answer deals with both and shows it knows the star's weak point (the switch) and why it is acceptable here. Calculating 36 mesh links is a strong, concrete justification." }
+  ],
+  "home": "Draw the topology of a network you know (home, school, a shop) and label it star, mesh or partial mesh. Then work out, with the formula, how many cables a full mesh of your household's devices would need.",
+  "teacher": {
+    "timing": "60 min: hook 6 · explain 10 · try 28 · check 5 · exam 8 · homework 3",
+    "misconceptions": [
+      "Calling the central device a router. In a LAN star it is a switch (or a hub in older networks). The router is at the edge.",
+      "Drawing a 'star' where devices are also linked to each other, or a ring. Star = spokes only.",
+      "'Mesh is always wireless' or 'mesh is always wired'. Both exist; the spec cares about the layout, not the medium.",
+      "Dividing n(n−1) by 2 is forgotten, giving double the links. Use the 'each cable has two ends' explanation."
+    ],
+    "say": [
+      "'Star: one centre, one cable each, one point of failure.'",
+      "'Mesh: many links, many routes, much money.'",
+      "'n times n minus one, over two. Say it before you draw it.'"
+    ],
+    "skip": "Try 3 can go if space is tight; Try 1 and Try 5 carry the exam skill (drawing and justifying).",
+    "differentiation": [
+      "Support: give dotted-outline templates for the star and the four-node mesh to trace and label before drawing freehand.",
+      "Stretch: in Try 2, write a function that checks whether a partial mesh (given as a list of links) still connects every device when one named link is removed."
+    ]
+  }
+}

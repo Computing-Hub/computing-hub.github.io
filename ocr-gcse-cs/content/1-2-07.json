@@ -1,0 +1,109 @@
+{
+  "id": "1-2-07",
+  "title": "Compression",
+  "spec": "1.2.5",
+  "duration": 60,
+  "specPoints": [
+    "The need for **compression**",
+    "Types of compression: **lossy** and **lossless**",
+    "The effect of each on file size and quality, and suitable uses"
+  ],
+  "learn": [
+    "Give three reasons why files are compressed",
+    "Define lossy and lossless compression and state the key difference",
+    "Describe in outline how lossless compression can shrink a file without losing data",
+    "Describe in outline how lossy compression shrinks a file and what is lost",
+    "Choose lossy or lossless for a scenario and justify the choice with its words",
+    "Name common file formats for each type"
+  ],
+  "hook": "Last lesson you worked out that one photo from a phone camera is about 36 MB uncompressed. Your phone stores it in 3 MB. A three-minute CD-quality stereo song should be about 32 MB; the streaming version is 4 MB. Where did the rest go? Some of it was folded up neatly and can be unfolded perfectly. Some of it was thrown away, and you never noticed. Today: which is which, and when each is allowed.",
+  "video": {
+    "title": "Fold it or throw it away",
+    "brief": "4 minutes. A text 'AAAAAABBBCCCCCCCC' shrinks to '6A3B8C' and unfolds back exactly: lossless, run-length encoding. A sentence with repeated words replaced by numbers from a dictionary, then rebuilt: lossless again. Then a photo: zoom to near-identical neighbouring pixels being averaged, high-frequency detail quietly removed; file drops to a tenth, image looks the same at normal size but the original cannot be rebuilt: lossy. Then audio: frequencies too high to hear removed. End with a two-column chooser: text, code, medical scans and logos on the lossless side; photos, music and video streaming on the lossy side."
+  },
+  "explain": [
+    { "h": "Why compress?",
+      "p": ["**Compression** means reducing the size of a file. Smaller files take **less storage** space, **download and upload faster**, use **less bandwidth** (so more users can share a connection), and are more likely to fit under email attachment limits. Streaming video would be impossible without it: a film at raw quality would need hundreds of gigabytes."],
+      "list": ["Less storage used on the device or server.", "Faster transfer across a network or the internet.", "Less bandwidth, so cheaper data use and less congestion.", "Fits within size limits for email or upload."] },
+    { "h": "Lossless compression",
+      "p": ["**Lossless** compression reduces the file size with **no loss of data**: when the file is decompressed it is **identical** to the original, bit for bit. It works by finding patterns and repetition and storing them more efficiently.", "Two ideas you should be able to describe. **Run-length encoding (RLE)** replaces a run of identical values with one value and a count. **Dictionary** compression stores each repeated word or pattern once in a table and replaces every occurrence with a short reference number."],
+      "code": "Run-length encoding\n  Original:  WWWWWWWWBBBWWWWBBBBBBB   (22 characters)\n  Encoded:   8W 3B 4W 7B               (4 pairs)\n  Decoding gives back exactly the original.\n  Works well on images with large blocks of one colour.\n\nDictionary compression\n  Original:  the cat sat on the mat and the cat ran\n  Dictionary: 1=the  2=cat  3=sat  4=on  5=mat  6=and  7=ran\n  Encoded:   1 2 3 4 1 5 6 1 2 7\n  Every repeated 'the' and 'cat' is stored once.\n\nLossless formats: PNG, GIF (images), ZIP (any file), FLAC (audio)" ,
+      "after": ["Lossless cannot shrink a file as much as lossy, and a file with little repetition (random data, an already compressed photo) barely shrinks at all."] },
+    { "h": "Lossy compression",
+      "p": ["**Lossy** compression reduces the file size by **permanently removing** some data. The original **cannot** be restored. It is designed so that what is removed is the detail humans notice least: colours very close to their neighbours in a photo, sounds too high or too quiet to hear in a music track, or frames almost identical to the last in a video.", "Lossy gives much smaller files than lossless, often ten times smaller, but each time the quality drops a little. Compress too hard and you see blocks in the picture or hear muffled audio. Lossy is never acceptable for text, programs or data where every bit matters."],
+      "code": "Lossy in outline\n  Photo:  nearby pixels of almost the same colour are stored as one\n          colour; fine detail the eye cannot see is removed.\n  Sound:  frequencies above human hearing or masked by louder sounds\n          are removed; quiet detail is stored with fewer bits.\n  Result: much smaller file; slight, usually unnoticed, quality loss;\n          original cannot be recovered.\n\nLossy formats: JPEG (images), MP3, AAC (audio), MP4 (video)" },
+    { "h": "Comparing the two",
+      "code": "                 Lossless                      Lossy\n---------------  ----------------------------  ----------------------------\nData removed?    None - original restored      Some - permanently removed\nQuality          Identical to original         Slightly reduced\nSize reduction   Smaller (often 20-50%)        Much larger (often 90%)\nWorks on         Any file type                 Images, audio, video only\nSuitable for     Text, programs, spreadsheets, Photos on websites, music\n                 logos, medical images, data   streaming, video calls\nFormats          PNG, GIF, ZIP, FLAC           JPEG, MP3, MP4, AAC" ,
+      "p": ["Exam questions give a scenario and ask you to **choose and justify**. Ask one question of the scenario: does **every bit** need to be kept? If yes (text, code, legal or medical files), lossless. If a little quality loss is fine and size matters (sharing photos, streaming), lossy. Then quote the scenario in your reason."] }
+  ],
+  "simple": [
+    { "h": "Why compress",
+      "p": ["Compression makes a file smaller. Smaller files take less space. They send faster. They use less data."] },
+    { "h": "Lossless",
+      "p": ["Lossless keeps all the data. When you unzip it, the file is exactly the same as before. It works by finding repeats. Instead of writing WWWWWWWW it writes 8W."],
+      "code": "WWWWWWWWBBB  ->  8W 3B  ->  WWWWWWWWBBB\nUsed for: text, programs, PNG, ZIP" },
+    { "h": "Lossy",
+      "p": ["Lossy throws some data away for good. It picks details people do not notice. The file gets much smaller. The quality drops a bit. You cannot get the original back."],
+      "code": "Used for: JPEG photos, MP3 music, MP4 video\nNever for: text or programs" },
+    { "h": "Choosing",
+      "p": ["Ask: must every bit be kept? Yes: lossless. No, and size matters: lossy."] }
+  ],
+  "keyterms": [
+    { "term": "Compression", "def": "Reducing the size of a file so it takes less storage and transfers faster." },
+    { "term": "Lossless compression", "def": "Compression that reduces file size with no loss of data; the original can be restored exactly." },
+    { "term": "Lossy compression", "def": "Compression that reduces file size by permanently removing some data; the original cannot be restored." },
+    { "term": "Run-length encoding", "def": "A lossless method that stores a run of repeated values as one value and a count." },
+    { "term": "Dictionary compression", "def": "A lossless method that stores repeated patterns once in a table and replaces each occurrence with a short reference." },
+    { "term": "Decompression", "def": "Restoring a compressed file so it can be used." },
+    { "term": "Bandwidth", "def": "The amount of data a connection can carry per second; compression reduces how much is needed." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Compression explorer", "url": "https://beanwise.coderra.je/GCSE_homepage/compression.html",
+      "instructions": ["Run the run-length encoding example on a simple image and a noisy one. Which compresses better, and why?", "Apply the lossy slider to a photo. Find the point where you first notice the quality drop and note the size there."] },
+    { "type": "task", "title": "2. Be the compressor", "p": ["Compress each by hand, then swap with a partner who must decompress it and check it matches."],
+      "steps": ["RLE: `AAAAAAABBBBCCCCCCCCCCDDD`", "RLE: the 8-pixel row `0 0 0 0 1 1 0 0`, then the row `0 1 0 1 0 1 0 1`. Which one did RLE make bigger? Why?", "Dictionary: `to be or not to be that is the question to be`", "Count characters before and after each. Work out the percentage saved."] },
+    { "type": "python", "title": "3. Run-length encoder", "p": ["Run it, then change `data`. Try a string with no repeats and see what happens to the size. Then write the `decode` function and prove the round trip is identical."],
+      "code": "def rle_encode(text):\n    result = \"\"\n    i = 0\n    while i < len(text):\n        ch = text[i]\n        count = 1\n        while i + count < len(text) and text[i + count] == ch:\n            count += 1\n        result += str(count) + ch\n        i += count\n    return result\n\ndata = \"WWWWWWWWBBBWWWWBBBBBBB\"\nencoded = rle_encode(data)\nprint(\"original:\", data, \"(\", len(data), \"chars )\")\nprint(\"encoded: \", encoded, \"(\", len(encoded), \"chars )\")\nsaved = (1 - len(encoded) / len(data)) * 100\nprint(f\"saved {saved:.0f}%\")\n\n# TODO: write decode(encoded) so that decode(encoded) == data\n# print(decode(encoded) == data)" },
+    { "type": "task", "title": "4. Lossy or lossless? Justify", "p": ["Choose and give one reason that uses a word from the scenario."],
+      "steps": ["A hospital storing X-ray images for diagnosis.", "A social media app uploading holiday photos from phones.", "A software company distributing a program installer.", "A music streaming service on mobile data.", "A designer's company logo that must have exact colours on every website.", "A video call between two people.", "A novelist emailing a manuscript to a publisher."] },
+    { "type": "task", "title": "5. Explain the numbers", "p": ["A 36 MB raw photo becomes a 3 MB JPEG. A 10 MB text file becomes a 3 MB ZIP. Write two sentences on each: what kind of compression, roughly how much was saved, and whether the original can be recovered."] }
+  ],
+  "check": [
+    { "q": "Which is NOT a reason to compress a file?", "opts": ["Takes less storage", "Transfers faster over a network", "Improves the quality of the data", "Uses less bandwidth"], "a": 2, "fb": "Compression never improves quality; at best it keeps it." },
+    { "q": "With lossless compression, the decompressed file is:", "opts": ["Slightly lower quality", "Identical to the original", "Half the size", "Unreadable"], "a": 1, "fb": "No data is lost." },
+    { "q": "Which file type uses lossy compression?", "opts": ["ZIP", "PNG", "MP3", "TXT"], "a": 2, "fb": "MP3 removes sounds people cannot hear." },
+    { "q": "Run-length encoding works best on:", "opts": ["Random data", "Data with long runs of repeated values", "Encrypted files", "Already compressed photos"], "a": 1, "fb": "Runs become one value plus a count." },
+    { "q": "A program's source code must be compressed to send by email. The suitable method is:", "opts": ["Lossy, because it saves the most space", "Lossless, because every character must be kept", "Either, it makes no difference", "Neither, code cannot be compressed"], "a": 1, "fb": "One missing character would break the program." }
+  ],
+  "exam": [
+    { "q": "Give **two** reasons why a company might compress the video files on its website.", "marks": 2,
+      "model": ["Any two: files take up less storage space on the server (1); videos download / stream faster for users (1); less bandwidth is used so more users can watch at once / data costs are lower (1)."],
+      "commentary": "Two **different** reasons: storage and speed are different, 'faster download' and 'quicker to stream' are the same point written twice." },
+    { "q": "Describe how **lossless** compression reduces the size of a text file.", "marks": 3,
+      "model": ["Repeated words or patterns are identified (1) and each is stored once in a dictionary / index (1); every occurrence in the text is replaced by a shorter reference to the dictionary, so no data is lost and the file can be fully restored (1). (RLE described correctly, for runs of repeated characters, also accepted.)"],
+      "commentary": "'Describe how' means mechanism. 'It makes the file smaller without losing data' is a definition and earns one mark at most. Name the dictionary or the count." },
+    { "q": "A photographer sells prints and also posts preview images on a website. Explain which type of compression is suitable for (a) the master files kept for printing and (b) the website previews.", "marks": 4,
+      "model": ["(a) Lossless (1) because the prints need every detail / full quality and lossless keeps all the original data (1). (b) Lossy (1) because the previews only need to look good on screen and the much smaller files load faster for visitors / use less bandwidth (1)."],
+      "commentary": "Choice plus a reason tied to the scenario in each part. Students who choose lossy for both lose two marks; the word 'prints' is the signal. Saying 'lossy loses quality' without saying why that is acceptable for a **preview** scores the choice mark only." }
+  ],
+  "home": "Find three compressed files on a device at home (a photo, a song, a zip or a downloaded app). For each write the format, whether it is lossy or lossless, and one sentence on why that type suits the file. Then compress the string `GGGGGGGGGRRRRBBBBBBBBBBB` with RLE and work out the percentage saved.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 14 · try 28 · check 5 · exam 8 · homework 2",
+    "misconceptions": [
+      "Lossless means no compression / the file stays the same size. It shrinks; the data is all kept.",
+      "Lossy 'deletes part of the picture'. It removes fine detail everywhere, not a chunk.",
+      "Compression improves quality. Never; at best it preserves it.",
+      "Choosing by file type alone ('photos are always lossy') rather than by the scenario's needs."
+    ],
+    "say": [
+      "'Fold it or throw it away. Which one can you undo?'",
+      "'Does every bit matter? Then lossless. Full stop.'",
+      "'Smaller, faster, cheaper. Three reasons, three marks.'"
+    ],
+    "skip": "Try 5 can go; Try 2 and Try 4 carry the exam skills. Try 3's decode function is a stretch task.",
+    "differentiation": [
+      "Support: give the RLE example half-completed; give Try 4 as a card sort into two columns before writing reasons.",
+      "Stretch: complete the decode function in Try 3, then explain why RLE made the alternating row longer and what a real image format does about it."
+    ]
+  }
+}

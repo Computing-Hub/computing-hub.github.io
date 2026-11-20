@@ -1,0 +1,120 @@
+{
+  "id": "1-5-01",
+  "title": "Operating systems: what they do",
+  "spec": "1.5.1",
+  "duration": 60,
+  "specPoints": [
+    "The purpose and functionality of **systems software**: the **operating system**",
+    "OS functions: **user interface**, **memory management and multitasking**, **peripheral management and drivers**, user management, file management",
+    "Distinguish the operating system from **application software**"
+  ],
+  "learn": [
+    "State the purpose of an operating system in one sentence",
+    "Name the five functions of an operating system listed in the spec",
+    "Describe four types of user interface and give an advantage and disadvantage of each",
+    "Explain how an operating system multitasks on a single CPU",
+    "Explain what a device driver is and why the OS needs one for each peripheral",
+    "Sort software into operating system, utility and application"
+  ],
+  "hook": "Unplug the mouse from the teacher PC. Plug it back in. Nothing had to be installed — it just worked. Now ask: how did the computer know what that device was and what its signals mean? Something in the background has been doing that job since the machine switched on. Today we meet it.",
+  "video": {
+    "title": "The operating system: the manager you never see",
+    "brief": "4 minutes. Open on a bare computer: CPU, RAM, storage, screen, keyboard, printer, all silent. Switch on; the OS loads and lights each part up in turn. Show a person opening a browser, music and a document; split the CPU into time slices flicking between the three so they appear to run together. Plug in a printer; a driver 'translator' appears between OS and device. Show the OS as a layer between hardware and the applications stacked on top. Close with the five functions on screen: user interface, memory management and multitasking, peripheral management and drivers, user management, file management."
+  },
+  "explain": [
+    { "h": "What an operating system is",
+      "p": ["An **operating system (OS)** is **systems software** that manages the computer's hardware and lets the user and the applications use it. Without an OS the hardware does nothing useful: nothing shows on the screen, no program can load, no file can be saved. Examples: Windows, macOS, Linux, ChromeOS on laptops and desktops; Android and iOS on phones and tablets.",
+            "The exam wants five functions. Learn the list: **user interface**, **memory management and multitasking**, **peripheral management and drivers**, **user management**, **file management**. This lesson covers the first three; the next covers the other two."] },
+    { "h": "User interface",
+      "p": ["The **user interface (UI)** is the part of the OS the user sees and uses to give commands. Four kinds appear in questions."],
+      "code": "Interface            How you use it                 Advantages                        Disadvantages\n-------------------  -----------------------------  --------------------------------  ---------------------------------\nGUI (graphical)      Windows, icons, menus, pointer  Easy to learn; no commands to      Needs more RAM/processing power;\n                     (WIMP), touch                   memorise; visual feedback          slower for expert repetitive jobs\nCommand line (CLI)   Type text commands             Fast for experts; low power needs; Must memorise exact commands;\n                                                    can be scripted/automated          hard for beginners; typos fail\nMenu-driven          Pick from a list of options    Very simple; no training needed    Slow to reach deep options; limited\n                     (cash machine, old TV menus)                                      to what the menus offer\nVoice                Speak commands (smart speaker)  Hands-free; accessible for some    Misunderstands accents/noise;\n                                                    disabilities; natural              privacy concerns; limited commands" ,
+      "after": ["Exam tip: a 'suitable interface' question wants the interface **and** a reason tied to the user or device. 'A GUI because it is easy' is not enough; 'A menu-driven interface because cash-machine users need no training and only a few options are needed' is."] },
+    { "h": "Multitasking",
+      "p": ["**Multitasking** is running more than one program at the same time — a browser, music and a document all open at once. A single CPU core can only execute one instruction at a time, so the OS **switches** between programs very quickly, giving each a tiny slice of processor time. The switching is so fast that the programs **appear** to run simultaneously. The OS decides the order and how long each slice lasts; this is called **scheduling**.",
+            "On a multi-core CPU some programs genuinely run in parallel, one per core, but the OS still has to share each core between many processes. Multitasking also needs **memory management**, because each running program must have its own space in RAM (next lesson)."] },
+    { "h": "Peripheral management and drivers",
+      "p": ["A **peripheral** is any hardware device connected to the computer: keyboard, mouse, printer, monitor, webcam, USB drive. The OS controls the flow of data to and from them, and queues requests (several documents waiting for one printer). Each make and model of device speaks its own 'language', and the OS cannot know them all.",
+            "A **device driver** is a small piece of software that **translates** the OS's general instructions into the specific signals one device understands, and translates the device's replies back. Printers from two manufacturers need different drivers even though the OS says 'print this page' in the same way to both. Drivers are often downloaded automatically when a device is plugged in; updating a driver can fix bugs or add features without changing the OS."] },
+    { "h": "What the operating system is NOT",
+      "p": ["Software divides into **systems software** (the OS and utilities, which keep the computer running) and **application software** (programs that do a task for the user: word processor, browser, game, spreadsheet). Applications sit **on top of** the OS and ask it for everything — screen space, memory, files, the printer. A word processor does not talk to the hard disk; it asks the OS to save the file.",
+            "Two slips cost marks: calling a browser or Microsoft Word 'part of the operating system', and saying the OS 'runs the computer' with no function named. Always name a function."] }
+  ],
+  "simple": [
+    { "h": "What an operating system is",
+      "p": ["The operating system (OS) is the software in charge of the computer. It controls the hardware. It lets programs run. Windows, macOS, Android and iOS are operating systems.", "Learn five jobs: user interface, memory management and multitasking, peripheral management and drivers, user management, file management."] },
+    { "h": "User interface",
+      "p": ["The user interface is how you control the computer."],
+      "list": ["GUI: windows, icons, menus, pointer. Easy. Needs more power.",
+               "Command line: type commands. Fast for experts. Hard to learn.",
+               "Menu-driven: pick from a list. Simple. Limited choices.",
+               "Voice: speak. Hands-free. Can mishear you."] },
+    { "h": "Multitasking",
+      "p": ["Lots of programs seem to run at once. Really the CPU does one thing at a time. The OS swaps between programs very fast. It looks like they all run together."] },
+    { "h": "Drivers",
+      "p": ["A peripheral is a device you plug in, like a printer or mouse. A driver is a small program. It translates between the OS and that one device. Each type of device needs its own driver."] },
+    { "h": "Not applications",
+      "p": ["Word, Chrome and games are applications. They are NOT the OS. They run on top of the OS and ask it for things."] }
+  ],
+  "keyterms": [
+    { "term": "Operating system", "def": "Systems software that manages the hardware and lets users and applications use the computer." },
+    { "term": "Systems software", "def": "Software that runs and maintains the computer itself: the operating system and utility software." },
+    { "term": "Application software", "def": "Programs that carry out a task for the user, such as a browser or word processor, and run on top of the OS." },
+    { "term": "User interface", "def": "The part of the OS the user interacts with to give commands, e.g. GUI, command line, menu-driven, voice." },
+    { "term": "GUI", "def": "Graphical user interface: controlled through windows, icons, menus and a pointer or touch." },
+    { "term": "Multitasking", "def": "Running several programs at once by switching the CPU between them so quickly that they appear simultaneous." },
+    { "term": "Peripheral", "def": "A hardware device connected to the computer, such as a printer, keyboard or webcam." },
+    { "term": "Device driver", "def": "Software that translates between the OS and one specific hardware device so they can communicate." }
+  ],
+  "try": [
+    { "type": "embed", "title": "1. Explore systems software", "url": "https://beanwise.coderra.je/GCSE_homepage/Topic3_Computers.html",
+      "instructions": ["Open the systems software section. Read the operating system part and write down the five functions in your own order of importance.", "Find the part on user interfaces. Which interface does your phone use? Which does the school's network manager probably use? Write one sentence for each."] },
+    { "type": "task", "title": "2. Which interface and why?", "p": ["For each device choose the most suitable interface (GUI, command line, menu-driven or voice) and give **one reason tied to the user or the device**."],
+      "steps": ["A supermarket self-checkout used by hundreds of different people a day.", "A smart speaker in a kitchen.", "A server in a data centre managed remotely by a technician who sets up fifty machines a week.", "A tablet used by a 6-year-old to draw.", "A car's hands-free system used while driving.", "Compare answers with a partner. Where you disagree, decide whose reason is tied more closely to the scenario."] },
+    { "type": "python", "title": "3. Multitasking on one CPU",
+      "p": ["This simulates one CPU core sharing its time between three programs. Each gets a slice of 2 units, then the OS moves to the next. Run it and read the order of work.", "Change the slice to 1 and then to 5. What does a smaller slice do to how 'smooth' the sharing feels? Add a fourth program and run again."],
+      "code": "# One CPU core, several programs. The OS gives each a time slice in turn.\nprograms = {\"Browser\": 5, \"Music\": 3, \"Document\": 4}   # work units left\nslice_size = 2\ntime = 0\n\nwhile any(left > 0 for left in programs.values()):\n    for name in programs:\n        if programs[name] > 0:\n            work = min(slice_size, programs[name])\n            programs[name] -= work\n            time += work\n            print(\"t=\" + str(time).rjust(2), name.ljust(9), \"ran for\", work, \"| left:\", programs[name])\n            if programs[name] == 0:\n                print(\"        \" + name, \"finished\")\nprint(\"All programs finished at t =\", time)" },
+    { "type": "task", "title": "4. Card sort: OS function, utility or application?", "p": ["Sort each card into one of three columns: **Operating system function**, **Utility software**, **Application software**. Then write one sentence saying how you decided."],
+      "code": "Cards:\n  Web browser            Allocating RAM to a program     Antivirus scanner\n  Spreadsheet            Login screen asking for a       Defragmentation tool\n  Printer driver           password                      File compression (zip) tool\n  Video game             Showing icons and windows       Moving a file to a new folder\n  Switching the CPU      Photo editor                    Disk encryption tool\n    between programs     Backup program                  Email client",
+      "after": ["Expected: OS function = allocating RAM, login screen, showing icons and windows, switching the CPU, moving a file, printer driver (managed by the OS). Utility = antivirus, defragmentation, compression, backup, encryption. Application = browser, spreadsheet, game, photo editor, email client."] },
+    { "type": "embed", "title": "5. Software games", "url": "https://beanwise.coderra.je/GCSE_homepage/Software_Topic_Games.html",
+      "instructions": ["Play the systems software round. Note any term you got wrong and find it in the key terms above."] }
+  ],
+  "check": [
+    { "q": "Which of these is systems software?", "opts": ["A web browser", "An operating system", "A spreadsheet", "A video game"], "a": 1, "fb": "The OS manages the hardware; the others are applications." },
+    { "q": "A GUI is controlled mainly by:", "opts": ["Typing commands", "Windows, icons, menus and a pointer", "Speaking", "Choosing numbered options"], "a": 1, "fb": "WIMP: windows, icons, menus, pointer." },
+    { "q": "How does an OS multitask on a single CPU core?", "opts": ["It runs all programs at exactly the same moment", "It switches between programs so quickly they appear to run together", "It only allows one program to be open", "It copies the CPU"], "a": 1, "fb": "One instruction at a time, but very fast switching." },
+    { "q": "The purpose of a device driver is to:", "opts": ["Make the CPU faster", "Store files on the hard disk", "Translate between the OS and a specific hardware device", "Encrypt data on a USB stick"], "a": 2, "fb": "A driver lets the OS communicate with one type of device." },
+    { "q": "Which is the best advantage of a command line interface?", "opts": ["Easy for beginners", "Uses lots of memory", "Fast for experts and can be automated with scripts", "Needs a mouse"], "a": 2, "fb": "CLI trades ease of learning for speed and scripting." }
+  ],
+  "exam": [
+    { "q": "State **two** functions of an operating system.", "marks": 2,
+      "model": ["Any two of: provides a user interface (1); memory management / multitasking (1); peripheral management / device drivers (1); user management (1); file management (1)."],
+      "commentary": "One mark per distinct function from the spec list. 'Runs the computer' or 'lets you use programs' is too vague for a mark. Write the spec words." },
+    { "q": "Explain how an operating system allows a user to run a web browser, a music player and a word processor at the same time on a computer with a single-core CPU.", "marks": 3,
+      "model": ["The OS multitasks (1); it allocates each program a slice of CPU time in turn / schedules them (1); the switching is so fast the programs appear to run simultaneously, even though the CPU executes one instruction at a time (1)."],
+      "commentary": "Name it (multitasking), say how (time slices / switching), say the effect (appear simultaneous). The word 'appear' matters: a single core does not really run three programs at once." },
+    { "q": "A photographer buys a new printer and plugs it into their laptop. Explain why the laptop needs a **device driver** for the printer.", "marks": 2,
+      "model": ["The OS does not know how to communicate with every model of printer / each device uses its own instructions (1), so the driver translates the OS's commands into instructions the specific printer understands (1)."],
+      "commentary": "Reason (OS cannot know every device) + what the driver does (translates). 'It makes the printer work' scores nothing on its own." }
+  ],
+  "home": "Find out which operating system runs on three devices at home (a phone, a games console or TV, a laptop). For each, write which type of user interface it uses and one reason that interface suits the device.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 15 · try 25 · check 5 · exam 8 · homework 2",
+    "misconceptions": [
+      "Browsers, Office and games are 'part of Windows'. Draw the layer diagram: hardware, OS, applications. Applications ask the OS for everything.",
+      "Multitasking means the CPU really does several things at once. On one core it is fast switching; stress the word 'appear'.",
+      "A driver is a piece of hardware. It is software; the clue is that you download and update it.",
+      "The user interface is the whole OS. It is one function of five."
+    ],
+    "say": [
+      "'Five jobs: interface, memory and multitasking, peripherals and drivers, users, files. Say them in your sleep.'",
+      "'The driver is the interpreter. The OS speaks one language; every printer speaks its own.'",
+      "'If you can buy it in an app store, it is not the operating system.'"
+    ],
+    "skip": "Try 5 can go. Try 3 (multitasking) and Try 4 (card sort) carry the exam content.",
+    "differentiation": [
+      "Support: give the five functions as a printed list with an icon for each; in Try 4 provide the three column headings with one card already placed in each.",
+      "Stretch: in Try 3, add a 'priority' value to each program so the OS gives high-priority programs a longer slice; explain in two sentences why real operating systems do this."
+    ]
+  }
+}

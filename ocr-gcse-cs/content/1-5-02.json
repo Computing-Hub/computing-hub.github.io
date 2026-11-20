@@ -1,0 +1,118 @@
+{
+  "id": "1-5-02",
+  "title": "Memory, file and user management",
+  "spec": "1.5.1",
+  "duration": 60,
+  "specPoints": [
+    "OS functions: **memory management and multitasking** — allocating memory to programs and keeping them separate",
+    "OS function: **file management** — files, folders, naming, moving, copying, deleting, permissions",
+    "OS function: **user management** — accounts, access levels, authentication, monitoring"
+  ],
+  "learn": [
+    "Describe how the OS allocates RAM to programs and why it keeps them apart",
+    "Explain what happens when RAM is full, using virtual memory from 1.2.1",
+    "Describe how the OS organises files into a hierarchy of folders and what a file extension is for",
+    "List the file operations the OS provides and explain file permissions",
+    "Describe user management: accounts, access levels, passwords and monitoring",
+    "Write a full-mark 'explain two functions of the OS' answer"
+  ],
+  "hook": "Log in to a school computer as yourself. You see your files, your desktop, your settings. Log in as the person next to you (don't actually — but imagine). Different files, different desktop; you cannot open theirs, and they cannot install software. Same machine, same hardware. What is deciding who gets what? Not the hardware. The operating system.",
+  "video": {
+    "title": "Memory, files and users: the OS as a landlord",
+    "brief": "4 minutes. RAM drawn as a block of flats; programs are tenants. The OS hands out rooms (allocation), keeps walls between them (protection), and when the building is full moves a sleeping tenant to a shed next door (virtual memory on secondary storage), noting the shed is slower to reach. Cut to a filing cabinet: drawers are folders, files have labels ending in .docx, .jpg, .py; show move, copy, rename, delete, and a 'read only' tag that blocks a delete. Finish with a login screen: two accounts, one standard, one administrator; the administrator can install software and the standard user cannot; a log records who did what and when."
+  },
+  "explain": [
+    { "h": "Memory management: giving programs their space",
+      "p": ["Every running program needs space in **RAM** for its instructions and data. The OS **allocates** a block of memory when a program starts, keeps a record of which addresses belong to which program, and **frees** the block when the program closes so another can use it. This record-keeping is what makes multitasking possible: several programs share one RAM without knowing about each other.",
+            "The OS also **keeps programs apart**. A program may only read and write its own allocated memory. If it tries to touch another program's space, the OS stops it (the familiar 'program has stopped responding'). Without this, a bug in a game could overwrite your unsaved essay, and malware could read your password manager."],
+      "code": "RAM = 8 GB. The OS keeps an allocation table like this:\n\n  Program          Allocated    Addresses (simplified)\n  ---------------  -----------  ----------------------\n  Operating system   1.5 GB       0        - 1.5 GB\n  Browser            2.0 GB       1.5 GB   - 3.5 GB\n  Video editor       3.5 GB       3.5 GB   - 7.0 GB\n  Music player       0.5 GB       7.0 GB   - 7.5 GB\n  Free               0.5 GB       7.5 GB   - 8.0 GB\n\nA game asking for 2 GB cannot fit in 0.5 GB of free space." },
+    { "h": "When RAM runs out: virtual memory",
+      "p": ["If a program needs more RAM than is free, the OS does not simply refuse. It uses **virtual memory** (from 1.2.1): part of **secondary storage** (hard disk or SSD) is treated as if it were extra RAM. The OS moves data belonging to programs that are not currently being used out of RAM into virtual memory, which frees space for the program that needs it. When that data is wanted again it is **swapped back**.",
+            "The cost is speed. Secondary storage is far slower than RAM, so a computer that is constantly swapping data in and out becomes very slow. More RAM reduces the need for virtual memory; it does not remove the OS's job of managing it."] },
+    { "h": "File management: organising what is stored",
+      "p": ["The OS controls how data is stored on secondary storage and how the user sees it. Data is stored in **files**; files are grouped in **folders** (also called **directories**), and folders can contain other folders, forming a **hierarchy** or tree with a root at the top. A **path** such as `C:\\Users\\Sam\\Documents\\essay.docx` describes a file's position in the tree.",
+            "Every file has a **name** and usually an **extension** after the dot (`.docx`, `.py`, `.jpg`, `.mp3`). The extension tells the OS what type of data the file holds and which application should open it. The OS provides the operations users and programs rely on: **create, open, save, rename, copy, move, delete**, and search. Behind the scenes it tracks where on the disk each file's data actually sits, so a program never needs to know the physical location."],
+      "list": ["**File permissions** control who can do what to a file: typically **read** (open and view), **write** (change or delete) and **execute** (run, for programs). A teacher's mark book might be read-only for students and read/write for the teacher.",
+               "The OS also stores **metadata** about each file: size, date created, date modified, owner."] },
+    { "h": "User management: who is allowed to do what",
+      "p": ["Many computers are used by more than one person, and a network server is used by hundreds. **User management** lets the OS create and delete **user accounts**, each with its own username, settings, desktop and personal files. When someone logs in the OS **authenticates** them, usually with a **password**, sometimes with a fingerprint, face or PIN.",
+            "Each account has an **access level**. A **standard user** can run programs and work on their own files. An **administrator** can install software, change system settings, create other accounts and reach every file. Giving most people standard accounts limits the damage a mistake or malware can do. The OS can also **monitor usage**: logging who logged in and when, which files were accessed, how much storage each user has consumed, and enforcing **quotas** or time limits."] },
+    { "h": "Putting it together: a school network",
+      "p": ["When you log in at school, user management checks your password and loads your access level (student). File management shows your home folder and the shared read-only resources, and refuses to let you delete a teacher's file. Memory management gives each program you open its own RAM, and if you open too many, it swaps some out to virtual memory and the machine slows down. One login, three OS functions working at once.",
+            "Exam shape for 'explain two functions of the OS' (4 marks): **name** the function, then **say what it does and why that matters**. 'Memory management (1): allocates RAM to each program and keeps them separate so one cannot corrupt another's data (1). User management (1): lets each user log in with a password and sets access levels so students cannot install software (1).'"] }
+  ],
+  "simple": [
+    { "h": "Memory management",
+      "p": ["Programs need space in RAM. The OS gives each program its own space. It writes down who has what. It keeps programs apart so they cannot damage each other's data. When a program closes, the OS takes the space back."],
+      "code": "RAM = 8 GB\n  OS            1.5 GB\n  Browser       2.0 GB\n  Video editor  3.5 GB\n  Music         0.5 GB\n  Free          0.5 GB   <- a 2 GB game will not fit" },
+    { "h": "When RAM is full",
+      "p": ["The OS uses part of the hard disk or SSD as extra memory. This is virtual memory. It moves data from programs you are not using onto the disk. The disk is much slower than RAM, so the computer slows down."] },
+    { "h": "File management",
+      "p": ["Data is stored in files. Files go in folders. Folders can hold more folders. This makes a tree.", "A file name ends in an extension like .docx or .jpg. It tells the OS which program opens the file.", "The OS lets you create, open, save, rename, copy, move and delete files.", "Permissions say who can read a file and who can change it."] },
+    { "h": "User management",
+      "p": ["Each person has an account with a username and password. The OS checks the password when you log in.", "Standard users can run programs. Administrators can install software and change settings.", "The OS can record who logged in and what they did."] }
+  ],
+  "keyterms": [
+    { "term": "Memory management", "def": "The OS function that allocates RAM to programs, keeps their memory separate and frees it when they close." },
+    { "term": "Virtual memory", "def": "Part of secondary storage used as extra RAM by the OS when RAM is full; much slower than real RAM." },
+    { "term": "File management", "def": "The OS function that organises files into folders and provides operations such as create, move, copy, rename and delete." },
+    { "term": "Folder / directory", "def": "A container for files and other folders, forming a hierarchy." },
+    { "term": "File extension", "def": "The letters after the dot in a file name that show the file type and which program opens it." },
+    { "term": "File permissions", "def": "Settings that control which users can read, write or execute a file." },
+    { "term": "User management", "def": "The OS function that handles user accounts, authentication, access levels and monitoring of usage." },
+    { "term": "Access level", "def": "What a user account is allowed to do, e.g. standard user or administrator." }
+  ],
+  "try": [
+    { "type": "python", "title": "1. A toy memory manager",
+      "p": ["RAM is 16 blocks. Each program asks for some blocks and the OS hands out free ones. Run it and watch the memory map fill up. What happens to the video editor?", "Then add three lines after the loop: `free(\"Music\")`, `allocate(\"Video editor\", 4)`, `show()`. Run again: does it fit now? Finally, make the manager print 'Swapping to virtual memory' instead of refusing when memory runs out."],
+      "code": "# A toy memory manager. RAM has 16 blocks. '.' means a free block.\nRAM_BLOCKS = 16\nmemory = [\".\"] * RAM_BLOCKS\n\nprograms = [(\"Browser\", 5), (\"Music\", 2), (\"Game\", 7), (\"Email\", 3), (\"Video editor\", 4)]\n\ndef show():\n    print(\"   RAM:\", \" \".join(memory))\n\ndef allocate(name, size):\n    free = [i for i in range(RAM_BLOCKS) if memory[i] == \".\"]\n    if len(free) < size:\n        print(name, \"needs\", size, \"blocks but only\", len(free), \"are free -> OUT OF MEMORY\")\n        return False\n    for i in free[:size]:\n        memory[i] = name[0]          # mark the block with the program's first letter\n    print(name, \"allocated\", size, \"blocks\")\n    return True\n\ndef free(name):\n    for i in range(RAM_BLOCKS):\n        if memory[i] == name[0]:\n            memory[i] = \".\"\n    print(name, \"closed - its blocks are free again\")\n\nfor name, size in programs:\n    allocate(name, size)\n    show()" },
+    { "type": "python", "title": "2. A tiny file system",
+      "p": ["Folders are dictionaries; each file stores its permissions (`r` = read, `w` = write). Run it and read the before and after listings. Why does the delete of `holiday.jpg` fail?", "Add a `rename(folder, old, new)` function. Then add a function that prints each file's extension and which program would open it (`.docx` word processor, `.py` Python, `.jpg` image viewer)."],
+      "code": "# A tiny file system. Folders are dictionaries. Files hold their permissions.\nfs = {\n    \"Documents\": {\"essay.docx\": \"rw\", \"notes.txt\": \"rw\"},\n    \"Pictures\":  {\"holiday.jpg\": \"r\"},\n    \"School\":    {}\n}\n\ndef show():\n    for folder in fs:\n        print(folder + \"/\")\n        for f in fs[folder]:\n            print(\"    \" + f.ljust(14) + \"[\" + fs[folder][f] + \"]\")\n    print()\n\ndef create(folder, name, perms=\"rw\"):\n    fs[folder][name] = perms\n    print(\"Created\", folder + \"/\" + name)\n\ndef move(src, dst, name):\n    fs[dst][name] = fs[src].pop(name)\n    print(\"Moved\", name, \"from\", src, \"to\", dst)\n\ndef delete(folder, name):\n    if \"w\" not in fs[folder][name]:\n        print(\"Permission denied: cannot delete\", name)\n        return\n    del fs[folder][name]\n    print(\"Deleted\", folder + \"/\" + name)\n\nshow()\ncreate(\"School\", \"homework.py\")\nmove(\"Documents\", \"School\", \"notes.txt\")\ndelete(\"Pictures\", \"holiday.jpg\")\ndelete(\"Documents\", \"essay.docx\")\nprint()\nshow()" },
+    { "type": "task", "title": "3. Who can do what? A permissions table", "p": ["A school network has three kinds of user: **student**, **teacher**, **network manager**. Copy the table and fill each cell with R (read), RW (read and write) or – (no access). Then write one sentence justifying the row for the mark book."],
+      "code": "File / folder                 Student   Teacher   Network manager\n----------------------------  --------  --------  ---------------\nStudent's own homework folder\nShared revision resources\nClass mark book (spreadsheet)\nInstall new software\nOther students' folders\nSystem settings / create accounts",
+      "after": ["Discuss: why should teachers NOT have 'install software' rights? (Limits malware damage and keeps the network consistent; this is the point of access levels.)"] },
+    { "type": "embed", "title": "4. Key terms drill", "url": "https://beanwise.coderra.je/revision-hub/key-terms/",
+      "instructions": ["Choose the systems software set. Test yourself on: memory management, virtual memory, file management, file extension, permissions, user management, access level.", "Any term you cannot define in one sentence: write it out three times in your book using the key terms list above."] },
+    { "type": "task", "title": "5. The 4-mark answer", "p": ["Write a full-mark answer to: *'Explain two functions of an operating system.' (4)* using the pattern **name + what it does + why it matters**. Pick from memory, file or user management. Swap with a partner and mark: one mark for the name, one for a correct expansion that says what or why."],
+      "steps": ["Underline the function name in each of your two answers.", "Circle the word 'so' or 'because' in each expansion. If there is none, you have described, not explained.", "Check neither answer could also describe an application."] }
+  ],
+  "check": [
+    { "q": "What does memory management do when a program starts?", "opts": ["Deletes the program's files", "Allocates it a block of RAM and records which addresses it owns", "Downloads a driver", "Increases the CPU clock speed"], "a": 1, "fb": "Allocate, record, keep separate, free on close." },
+    { "q": "Why does the OS keep each program's memory separate?", "opts": ["To make programs load faster", "So a program cannot read or overwrite another program's data", "To save electricity", "So the screen refreshes"], "a": 1, "fb": "Protection: stability and security." },
+    { "q": "Virtual memory is:", "opts": ["Extra RAM chips", "Cache inside the CPU", "Part of secondary storage used as if it were RAM when RAM is full", "A type of file extension"], "a": 2, "fb": "On the HDD/SSD, so it is slow." },
+    { "q": "The main purpose of a file extension such as .jpg is to:", "opts": ["Make the file smaller", "Show the file type and which program opens it", "Encrypt the file", "Set who can delete the file"], "a": 1, "fb": "Type and associated application." },
+    { "q": "Which is an example of user management?", "opts": ["Moving a file to a new folder", "Swapping data to the hard disk", "Setting a password and an access level for an account", "Installing a printer driver"], "a": 2, "fb": "Accounts, authentication, access levels, monitoring." }
+  ],
+  "exam": [
+    { "q": "Describe how an operating system manages memory when several programs are open.", "marks": 3,
+      "model": ["Allocates each program its own area/block of RAM when it starts (1); keeps a record of which memory belongs to which program and prevents one program accessing another's memory (1); frees the memory when a program closes / moves data to virtual memory on secondary storage if RAM is full (1)."],
+      "commentary": "Three distinct actions. Students often write only 'gives programs memory'. The separation point and the free/virtual memory point are the ones that lift the answer to full marks." },
+    { "q": "A tablet has 4 GB of RAM. A user opens several large apps and the tablet becomes very slow. Explain why.", "marks": 3,
+      "model": ["The apps need more RAM than is available (1); the OS uses virtual memory, moving data from RAM to secondary storage (1); secondary storage is much slower than RAM so swapping data back and forth slows the tablet down (1)."],
+      "commentary": "This is a 1.2.1 idea asked through 1.5. The mark that is most often missed is the last one: say that secondary storage is **slower** than RAM. Without 'slower' there is no explanation of the slowdown." },
+    { "q": "A college network is used by students and lecturers. Explain **two** ways the operating system's **user management** function helps keep the network secure.", "marks": 4,
+      "model": ["Each user has an account with a username and password / authentication (1) so only authorised people can access the network and their own files (1). Access levels / permissions are set per account (1) so students cannot install software, change settings or open lecturers' files (1). Also acceptable: monitors/logs activity (1) so misuse can be detected and traced to a user (1)."],
+      "commentary": "Two features, each with a 'so' clause about security. 'Passwords' alone is 1 mark; 'passwords so only authorised users can log in' is 2. Applied answers that mention students and lecturers read better and are safer." }
+  ],
+  "home": "Open the file manager on any computer or phone. Sketch the folder tree for three levels starting from your own folder. Label two file extensions you find and the program that opens each. Then write a 4-mark answer to 'Explain two functions of an operating system' and bring it for marking.",
+  "teacher": {
+    "timing": "60 min: hook 5 · explain 15 · try 25 (Try 1 and 2 ~8 each) · check 5 · exam 8 · homework 2",
+    "misconceptions": [
+      "Virtual memory is extra RAM you can buy. It is space on secondary storage pretending to be RAM, and it is slow. Link back to 1.2.1 explicitly.",
+      "File management is just 'saving'. It includes organising folders, extensions, operations, permissions and tracking the physical location.",
+      "User management is only about passwords. Access levels and monitoring are separate marks.",
+      "Writing 'the OS manages memory' as an explanation. Insist on allocate, separate, free, virtual memory as the four actions."
+    ],
+    "say": [
+      "'Allocate, keep apart, free, swap out. Four verbs, three marks.'",
+      "'Virtual memory is the shed next door: it works, but every trip is slow.'",
+      "'Name it, say what it does, say why. That is a 2-mark function.'"
+    ],
+    "skip": "Try 4 can go. Keep Try 1 (memory) and Try 5 (the 4-mark answer).",
+    "differentiation": [
+      "Support: in Try 1, run the code as a class first and narrate each line of output; give the permissions table in Try 3 with the student row completed.",
+      "Stretch: in Try 2, add a `user` variable and make `delete` also check that the user owns the file or is an administrator; explain how this models access levels."
+    ]
+  }
+}

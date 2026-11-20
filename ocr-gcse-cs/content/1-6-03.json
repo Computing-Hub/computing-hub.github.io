@@ -1,0 +1,129 @@
+{
+  "id": "1-6-03",
+  "title": "Legislation: Data Protection, Computer Misuse, Copyright",
+  "spec": "1.6.1",
+  "duration": 60,
+  "specPoints": [
+    "**Legislation** relevant to Computer Science: **The Data Protection Act 2018**, **Computer Misuse Act 1990**, **Copyright Designs and Patents Act 1988**",
+    "The purpose of each Act, what it makes illegal and who it protects",
+    "Applying the correct Act to a scenario and explaining the consequence"
+  ],
+  "learn": [
+    "State the purpose of each of the three Acts in one sentence",
+    "List the data protection principles in outline and the main rights of a data subject",
+    "Name the three main offences under the Computer Misuse Act and match an action to the right one",
+    "Describe what the Copyright Designs and Patents Act protects and what it makes illegal",
+    "Read a scenario and say which Act applies, which part of it, and what could happen to the person or organisation"
+  ],
+  "hook": "Three stories. A student guesses a teacher's password and reads the mark book. A shop keeps every customer's address for ten years 'just in case'. A friend shares a cracked copy of a game. Which of these is a crime? (All three can be.) Which law? Which could land a 15-year-old with a criminal record? By the end of today you will be able to name the Act and the offence for each — and the exam will ask you to.",
+  "video": {
+    "title": "Three Acts, three questions",
+    "brief": "5 minutes. Three cards slide in: a padlock labelled Data Protection Act 2018, a door labelled Computer Misuse Act 1990, a copyright symbol labelled Copyright Designs and Patents Act 1988. For each: what it protects (your personal data / computer systems / creative work), who it binds, and what it bans. Animate the three Computer Misuse 'doors': looking in, looking in to steal, and breaking things inside. Show the seven data protection principles as a checklist a company must tick. Show copyright as 'you need permission, and a licence is permission'. Finish with a decision flowchart: is it about personal data? systems? someone's work?"
+  },
+  "explain": [
+    { "h": "Why three laws?",
+      "p": ["Technology created three new kinds of harm: misuse of **personal data**, attacks on **computer systems**, and copying of **digital work**. Each has its own Act. The exam gives you a scenario and expects you to name the Act (in full, with its year), say which part applies, and explain the consequence. A quick test:"],
+      "code": "Is the scenario about…                               Act\nsomeone's personal information being collected,      Data Protection Act 2018\nstored, shared or lost?\nsomeone getting into or damaging a computer system    Computer Misuse Act 1990\nthey have no permission to use?\nsomeone copying, sharing or using someone else's      Copyright Designs and Patents Act 1988\nsoftware, music, film, images or writing?" },
+    { "h": "The Data Protection Act 2018",
+      "p": ["Controls how organisations (**data controllers**) collect, store and use **personal data**: information about a living, identifiable person (**data subject**). It works alongside the UK GDPR and is enforced by the **Information Commissioner's Office (ICO)**. Organisations must follow these principles:"],
+      "list": ["Processed **lawfully, fairly and transparently** — people must know what is collected and why.",
+               "Collected for a **specified purpose** and not used for something else.",
+               "**Adequate, relevant and limited** to what is needed (data minimisation).",
+               "**Accurate** and kept up to date.",
+               "Kept **no longer than necessary**.",
+               "Kept **secure** against loss, theft or unauthorised access.",
+               "The organisation is **accountable**: it must be able to show it follows the rules."],
+      "after": ["Data subjects have **rights**: to be told what is held, to **access** a copy, to have errors **corrected**, to have data **erased** in many cases, to **object** to some uses (such as marketing), and to not be subject to purely automated decisions with significant effects without a human review. Breaking the Act can mean ICO fines of up to £17.5 million or 4% of worldwide turnover, compensation claims and loss of reputation. Note: this Act protects data *about* people; a stolen laptop is theft, but the personal data on it is a Data Protection matter."] },
+    { "h": "The Computer Misuse Act 1990",
+      "p": ["Makes **unauthorised** use of computer systems a crime. The key word is unauthorised: using a system, or part of it, that you have no permission to use, even if you did no damage and even if the password was easy to guess. Three main offences, in increasing seriousness:"],
+      "code": "Offence                                      Example                               Max sentence\n1  Unauthorised access to computer material     Guessing a friend's login and reading   up to 2 years\n   (just getting in / looking)                  their messages\n2  Unauthorised access with intent to commit    Logging into a bank system in order    up to 5 years\n   or facilitate a further offence              to steal money / blackmail\n3  Unauthorised modification of computer        Deleting files, changing grades,       up to 10 years\n   material / acts intended to impair           planting a virus, DDoS attack\n   the operation of a computer",
+      "after": ["Later changes added related crimes, such as making or supplying malware, but the three above are what the exam expects. The Act protects system owners and users; it is the law that makes hacking, malware and denial-of-service attacks criminal. Ethical hackers avoid it by getting written permission first."] },
+    { "h": "The Copyright Designs and Patents Act 1988",
+      "p": ["Gives the creator of an original work the right to control how it is copied, shared, adapted, performed or sold. It protects **software** (treated as a literary work), music, films, books, images, games and websites. Copyright is **automatic**: nothing needs to be registered, and for most works it lasts for the author's lifetime plus 70 years. It is illegal, without the owner's permission, to:"],
+      "list": ["copy or download the work (pirated films, music, games, textbooks)",
+               "distribute or share it (torrenting, uploading to a file-sharing site, giving a friend a copy)",
+               "use software outside its **licence** (installing a single-user licence on ten machines, using a cracked key)",
+               "adapt it or pass it off as your own (copying code or images into your own project)"],
+      "after": ["A **licence** is the owner's permission with conditions: single-user, site licence, subscription, or an open-source licence (next lesson). Consequences: civil claims for damages, removal of content, and for serious or commercial copying, criminal prosecution and prison. Small, limited uses for private study, criticism or quotation can be allowed ('fair dealing'), but copying a whole work is not."] },
+    { "h": "Applying the law to a scenario: Act, part, consequence",
+      "p": ["Legislation questions usually carry 2–4 marks and follow one pattern. (1) Name the Act in full. (2) Say which part applies: which offence or which principle. (3) Say what follows: who can take action, and what the penalty or duty is. Scenario words tell you the Act: *personal details, customers, kept, shared* → Data Protection; *logged in, without permission, password, deleted, virus* → Computer Misuse; *copied, downloaded, shared a film, cracked, licence* → Copyright."],
+      "code": "Scenario: An employee uses a colleague's login to read staff salary records, then emails them to a journalist.\n\nAct:         Computer Misuse Act 1990 (and the Data Protection Act 2018 for the personal data shared)\nPart:        Offence 1, unauthorised access; arguably offence 2 because the access was used to commit\n             a further act (unlawful disclosure). The employer may also have breached the security\n             principle if logins were shared.\nConsequence: Criminal prosecution of the employee (fine/prison); employer may be investigated by the\n             ICO and fined; staff whose data leaked can claim compensation." },
+    { "h": "Where marks are lost",
+      "list": ["Wrong year or no year: 'the Data Protection Act' alone usually still earns the mark, but a wrong year does not look good; 2018 is the current Act.",
+               "Mixing up Computer Misuse and Data Protection: hacking into a database is Computer Misuse; what the company did with the data (or failed to protect) is Data Protection.",
+               "Writing 'it is illegal' with no Act named or no offence/principle.",
+               "Copyright is not about *ideas*: copying the idea for a game is legal; copying its code, art or music is not."] }
+  ],
+  "simple": [
+    { "h": "Three laws for three problems",
+      "code": "About people's personal information?   Data Protection Act 2018\nAbout getting into a computer system?  Computer Misuse Act 1990\nAbout copying someone's work?          Copyright Designs and Patents Act 1988" },
+    { "h": "Data Protection Act 2018",
+      "p": ["Companies must collect only the data they need. Tell people why. Keep it correct. Keep it safe. Delete it when done. People can ask to see their data and have it fixed or deleted. The ICO can fine companies."] },
+    { "h": "Computer Misuse Act 1990",
+      "list": ["Offence 1: getting in without permission.", "Offence 2: getting in to do another crime, like stealing money.", "Offence 3: changing or damaging data or systems, like deleting files or spreading a virus."] },
+    { "h": "Copyright Designs and Patents Act 1988",
+      "p": ["If you make something (software, music, films, pictures, writing), it is yours. Nobody may copy, share or sell it without your permission. A licence is permission with rules. Pirating games or films breaks this law."] },
+    { "h": "In the exam",
+      "p": ["Name the Act. Say which part. Say what happens next (fine, prison, ICO, compensation)."] }
+  ],
+  "keyterms": [
+    { "term": "Data Protection Act 2018", "def": "UK law controlling how organisations collect, store and use personal data, giving people rights over data about them." },
+    { "term": "Personal data", "def": "Information about a living person who can be identified from it, such as name, address, health or location." },
+    { "term": "Data subject / data controller", "def": "The person the data is about / the organisation that decides how it is used." },
+    { "term": "ICO", "def": "The Information Commissioner's Office, which enforces data protection law in the UK and can fine organisations." },
+    { "term": "Computer Misuse Act 1990", "def": "UK law making unauthorised access to, or modification of, computer systems a crime." },
+    { "term": "Unauthorised", "def": "Without permission from the owner of the system or data, whether or not damage is done." },
+    { "term": "Copyright Designs and Patents Act 1988", "def": "UK law giving creators control over copying, sharing and adapting their original work, including software." },
+    { "term": "Licence", "def": "The copyright owner's permission to use a work, with conditions attached." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Which law applies? Case cards", "p": ["For each case write: Act (full name and year), the part that applies (offence number or principle), and one consequence. Some cases involve two Acts."],
+      "steps": ["A student finds a teacher's password on a sticky note and logs in to look at the seating plans.", "The same student changes three of their grades.", "An online shop emails all customers' order histories to the wrong mailing list.", "A gym keeps the details of members who left eight years ago.", "A pupil downloads a cracked copy of video-editing software for coursework.", "Someone pays a hacker to take a rival company's website offline during a sale.", "A company uses one copy of a design program on 40 computers with a single-user licence.", "A fitness app does not tell users that it sells their location data to advertisers.", "A YouTuber uploads a full film with their comments over the top.", "An employee accidentally emails a spreadsheet of staff salaries to the whole company."] },
+    { "type": "task", "title": "2. Rank the Computer Misuse offences", "p": ["Place these actions on a line from offence 1 to offence 3. Then write one sentence per action using the words 'unauthorised' and 'intent' correctly."],
+      "steps": ["Guessing a sibling's phone PIN and reading messages.", "Installing a keylogger on a school PC to collect logins.", "Logging into a company server to copy customer card numbers.", "Launching a DDoS attack on a games server.", "Finding an unlocked laptop and opening the owner's email."] },
+    { "type": "task", "title": "3. Audit the sign-up form", "p": ["A new app's sign-up form asks for: name, date of birth, home address, mother's maiden name, school, GP's name, a selfie and location access 'always on'. The purpose of the app is to share homework reminders. Using the data protection principles, decide which fields break which principle and redesign the form."],
+      "after": ["Write the privacy notice in three plain sentences: what we collect, why, how long we keep it."] },
+    { "type": "embed", "title": "4. Key terms drill", "url": "https://beanwise.coderra.je/revision-hub/key-terms/",
+      "instructions": ["Find the 1.6 legislation terms. Test yourself until you can give the full name and year of each Act, the three Computer Misuse offences and four data protection principles without looking."] },
+    { "type": "embed", "title": "5. Issues topic practice", "url": "https://beanwise.coderra.je/GCSE_homepage/Topic5_Issues.html",
+      "instructions": ["Work through the legislation section. For every example, say the Act and the part before you reveal the answer."] }
+  ],
+  "check": [
+    { "q": "A hospital keeps patient records insecurely and they are stolen. Which Act has the hospital most likely breached?", "opts": ["Computer Misuse Act 1990", "Data Protection Act 2018", "Copyright Designs and Patents Act 1988", "None, the thief is to blame"], "a": 1, "fb": "The security principle: the controller must protect personal data. The thief also breaks the Computer Misuse Act." },
+    { "q": "Logging into a friend's social media account without permission, just to look, is:", "opts": ["Legal if no harm is done", "Offence 1 of the Computer Misuse Act 1990", "Offence 3 of the Computer Misuse Act 1990", "A copyright offence"], "a": 1, "fb": "Unauthorised access is a crime even with no damage." },
+    { "q": "Which is protected by the Copyright Designs and Patents Act 1988?", "opts": ["The idea for a racing game", "The source code of a racing game", "The fact that cars have four wheels", "A customer's home address"], "a": 1, "fb": "Code is a literary work; ideas and facts are not protected." },
+    { "q": "Under the Data Protection Act 2018 a data subject has the right to:", "opts": ["Access a copy of the data held about them", "Hack into the company to check", "Copy the company's software", "Delete other customers' records"], "a": 0, "fb": "Right of access; also rectification, erasure, objection." },
+    { "q": "Spreading a virus that deletes files on other people's computers is mainly:", "opts": ["A data protection breach", "Offence 3 of the Computer Misuse Act 1990 (unauthorised modification)", "Offence 1 of the Computer Misuse Act 1990", "Legal if the virus was free"], "a": 1, "fb": "Impairing systems or modifying data is the most serious offence." }
+  ],
+  "exam": [
+    { "q": "State the name of the Act that makes it illegal to gain unauthorised access to a computer system.", "marks": 1,
+      "model": ["Computer Misuse Act (1990) (1)."],
+      "commentary": "Full name needed; 'the hacking act' or 'Data Protection Act' scores zero. The year is usually not required for the mark, but write it." },
+    { "q": "A clothing retailer stores customers' names, addresses and card details. Describe **two** things the retailer must do to comply with the Data Protection Act 2018.", "marks": 4,
+      "model": ["Any two, each 1 + 1: keep the data secure (1), e.g. by encrypting card details and limiting staff access, so it cannot be stolen or viewed by unauthorised people (1). Only collect data needed for the purpose (1), e.g. not asking for date of birth to post a parcel (1). Tell customers what data is collected and why (1), e.g. in a privacy notice at checkout (1). Delete data when no longer needed (1), e.g. card details after the order, rather than keeping them indefinitely (1). Keep it accurate (1), e.g. letting customers update their address (1). Allow customers to see/correct/erase their data on request (1), e.g. a request form or account page (1)."],
+      "commentary": "Describe = the principle + what it looks like for *this retailer*. A list of principle names with no application is capped at two marks. Card details make 'secure' the obvious applied point." },
+    { "q": "Kai, a student, uses a teacher's login to access the school network, then changes the grades on his own record. Explain which law Kai has broken and why his second action is treated more seriously than his first.", "marks": 3,
+      "model": ["Computer Misuse Act 1990 (1). Using the teacher's login is unauthorised access to computer material (offence 1) (1). Changing the grades is unauthorised modification of data / impairing the operation of the system (offence 3), which carries a higher maximum penalty because it causes actual damage rather than just viewing (1)."],
+      "commentary": "Name the Act, then distinguish the two offences using 'access' and 'modification'. 'Hacking is illegal' earns at most the first mark. The 'why more serious' mark needs the idea of damage/change versus looking." }
+  ],
+  "home": "Write three original one-sentence scenarios, one for each Act, and swap with a partner next lesson. For each of your partner's scenarios write Act, part, consequence. Include one scenario that could involve two Acts.",
+  "teacher": {
+    "timing": "60 min: hook 4 · explain 18 · try 25 · check 5 · exam 6 · homework 2",
+    "misconceptions": [
+      "'Hacking a database breaks the Data Protection Act.' The hacker breaks Computer Misuse; the company breaks Data Protection only if it failed to protect the data.",
+      "'Unauthorised access is fine if you don't change anything.' Offence 1 is looking; it is still a crime.",
+      "'If I bought it I can copy it.' Buying software or a film buys a licence to use it, not the copyright.",
+      "Giving the Data Protection Act as 1998 (the old Act). The current Act is 2018."
+    ],
+    "say": [
+      "'Personal data: Data Protection. Getting in: Computer Misuse. Copying work: Copyright.'",
+      "'Looking in, going in to steal, breaking things: offences one, two, three.'",
+      "'Name the Act. Name the part. Name the consequence.'"
+    ],
+    "skip": "Try 5 optional. Try 1 (case cards) is the lesson; give it 15 minutes and go through answers as a class.",
+    "differentiation": [
+      "Support: give the three Acts as a colour-coded key; students colour each case card before writing.",
+      "Stretch: for case card 10 (accidental email), argue whether it is a Data Protection breach at all, and what the ICO would look at (was the data secure? was it reported?)."
+    ]
+  }
+}

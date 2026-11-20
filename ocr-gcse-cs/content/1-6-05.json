@@ -1,0 +1,134 @@
+{
+  "id": "1-6-05",
+  "title": "Writing the long-answer question (unit 1.6 review and test)",
+  "spec": "1.6",
+  "duration": 60,
+  "specPoints": [
+    "The 8-mark **levels of response** question in Paper 1 almost always draws on 1.6: ethical, legal, cultural and environmental impacts, legislation, open source vs proprietary",
+    "Planning with a **stakeholder** × benefit/drawback grid, writing PEAC paragraphs, finishing with a judgement + reason + condition",
+    "This lesson doubles as the unit 1.6 end test: 25 marks, two 8-mark stems plus short questions · teachers switch on Teacher view for indicative content and bands"
+  ],
+  "learn": [
+    "Recall the whole of 1.6 from the five-minute review list",
+    "Plan an 8-mark 1.6 answer in two minutes using the stakeholder grid",
+    "Write three PEAC paragraphs that use the scenario's own details and cover more than one side",
+    "Write a conclusion that is a judgement with a reason and a condition",
+    "Band an answer using paraphrased descriptors and say what would lift it",
+    "Score on short 1.6 questions: state, describe, explain"
+  ],
+  "hook": "Here is the whole of 1.6 in one sentence: 'Who is affected, how, and is it right, legal, a change to how we live, or a cost to the planet?' Every 8-marker on this topic is that sentence with a scenario attached. You already know the content from four lessons. Today is about turning it into eight marks in twelve minutes — and proving it in a test.",
+  "video": {
+    "title": "From grid to Band 3: a 1.6 eight-marker, live",
+    "brief": "5 minutes. Stem on screen: a council replacing its paper services with an app. Two-minute timer. Draw the grid: council, residents, staff, society/environment × benefit and drawback; fill cells with scenario words only; circle three. Decide the conclusion before writing. Then write paragraph one on screen with the P, E, A, C labelled appearing one at a time. Fast-forward paragraphs two and three. Write the conclusion: judgement, because, provided that. Overlay the paraphrased band descriptors and tick each one the answer meets. End with the five-minute review list for the test."
+  },
+  "explain": [
+    { "h": "Five-minute review of 1.6",
+      "list": ["**Ethical**: right/wrong and fairness even when legal. Privacy, surveillance, AI/algorithmic bias, digital divide, cyberbullying, addiction and wellbeing, misinformation.",
+               "**Cultural**: how society lives. Communication (messaging over talking), work (remote, gig, automation), globalisation (same apps everywhere), loss of local culture and languages, access to knowledge.",
+               "**Environmental**: mine, make, use, bin. Rare metals and mining; manufacture is most of a device's carbon; data centres and standby power; e-waste is toxic and valuable, often exported; planned obsolescence vs right to repair. Positives: smart meters, video calls instead of flights, sensors, dematerialisation.",
+               "**Legislation**: Data Protection Act 2018 (personal data; principles: lawful/fair, purpose, minimised, accurate, time-limited, secure, accountable; rights to access/correct/erase; ICO fines). Computer Misuse Act 1990 (unauthorised access; access with intent to commit further offences; unauthorised modification/impairment). Copyright Designs and Patents Act 1988 (protects software, music, film, images, text; illegal to copy/share/use outside the licence; licences).",
+               "**Open source vs proprietary**: public modifiable code under a permissive or copyleft licence, usually free, community support, no lock-in, patchier support / secret code under an EULA, paid, official support, polished, locked in. Both protected by copyright. Choose with reasons from the scenario.",
+               "**Stakeholders**: organisation, users/customers, staff, wider society and environment. Benefit and drawback for each."] },
+    { "h": "How the 8-marker is marked (recap of the Exam technique unit, lesson 5)",
+      "p": ["It is a **levels of response** question: the examiner reads the whole answer, places it in a band on overall quality, then chooses a mark within the band. Paraphrased descriptors:"],
+      "code": "Band 3  (roughly 6–8)  Thorough, accurate knowledge of 1.6 content; points developed and clearly\n                       APPLIED to the scenario; BOTH sides / several stakeholders considered;\n                       sustained reasoning leading to a supported CONCLUSION. Well organised.\nBand 2  (roughly 3–5)  Reasonable knowledge; some application; some balance but uneven\n                       development; reasoning present but not sustained; weak or missing conclusion.\nBand 1  (roughly 1–2)  Basic, generic points; little application; one-sided; no real reasoning.",
+      "after": ["Four words to write at the top of your plan: **accurate, applied, balanced, concluded**."] },
+    { "h": "Step 1: the planning grid (two minutes)",
+      "p": ["Stakeholders down the side, benefit and drawback across the top. Use only words from the scenario. Then add a row for the **lens** the question names (ethical / legal / cultural / environmental) if it names one, so you do not drift into the wrong lens. Pick the three or four strongest cells and decide your conclusion before you write."],
+      "code": "Stem: A council plans to move all its services (parking permits, bin collection, benefits) to a\n      smartphone app and close its front desk. Discuss the ethical, cultural and environmental impacts. [8]\n\n                  Benefit                                    Drawback\nCouncil           lower staff costs; faster processing;       app development and security costs;\n                  data on service use                         Data Protection duties; complaints\nResidents         24/7 access; no queues; faster               digital divide: elderly, poor, disabled\n                                                              shut out of benefits (ethical);\n                                                              privacy of location/benefit data\nStaff             some retrained to digital support            job losses at the front desk\nSociety / env     less paper, fewer car trips to the office    loss of a public meeting place (cultural);\n                                                              servers and phones have an environmental cost\n\nConclusion: justified IF the council keeps a phone line and a staffed desk day for those who cannot\nuse the app, because the savings and convenience are real but the harm falls on the most vulnerable." },
+    { "h": "Step 2: PEAC paragraphs (three of them)",
+      "list": ["**P**oint: one argument in one sentence. 'Moving services to an app will exclude residents on the wrong side of the digital divide.'",
+               "**E**xplain: the mechanism. 'Around one household in twenty has no internet, and older or disabled residents may not own or manage a smartphone.'",
+               "**A**pply: the scenario's own details. 'Benefits claims are exactly the service these residents rely on most, so the people with the greatest need lose access first.'",
+               "**C**ounter or consequence: 'However, if the council keeps a phone line and a weekly staffed desk, the app can still speed things up for the majority.'",
+               "Label the lens in the margin (ethical / cultural / environmental / legal) so the examiner sees the balance, and make at least one paragraph a benefit and one a drawback."] },
+    { "h": "Step 3: the conclusion",
+      "p": ["A judgement, a reason and a condition: 'Overall the move is justified **because** the savings and convenience benefit most residents, **provided that** a non-digital route stays open for those who need it and the data collected is kept to a minimum.' Not a summary. Not a new point. Two or three sentences. Write it even if you run out of time for a third paragraph."] },
+    { "h": "What 1.6 answers in particular get wrong",
+      "list": ["Writing about the wrong lens: the question says *environmental* and the answer is about privacy. Underline the lens words in the stem.",
+               "Legislation dropped in by name only: 'this breaks the Data Protection Act'. Say which principle and what the council must do about it.",
+               "'Good for the environment / bad for the environment' with no stage or mechanism (manufacture, data centres, e-waste).",
+               "Treating stakeholders as 'people'. Name them: 'elderly residents claiming benefits'.",
+               "One-sided answers that match the student's opinion. The grid stops this if you fill both columns first."] },
+    { "h": "How this test works",
+      "p": ["25 marks in about 35 minutes. Answer the four short questions first (about 9 minutes), then the two 8-markers at 12 minutes each, with a two-minute plan for each. Teacher view shows indicative content and the paraphrased bands; mark yourself strictly and write what would lift each 8-mark answer one band."] }
+  ],
+  "simple": [
+    { "h": "The unit in five lines",
+      "list": ["Ethical: is it fair? Privacy, surveillance, bias, digital divide, bullying, addiction.", "Cultural: does it change how we live? Talking, working, same apps everywhere, local culture lost.", "Environmental: mining, making, electricity, e-waste. Also positives like smart meters.", "Laws: Data Protection Act 2018 (your data). Computer Misuse Act 1990 (getting in, getting in to steal, damaging). Copyright Designs and Patents Act 1988 (copying work).", "Open source (code public, free, change it) vs proprietary (code secret, pay, support)."] },
+    { "h": "Plan in two minutes",
+      "p": ["Grid: who is affected × good / bad. Use words from the question. Pick the best three. Decide your answer first."] },
+    { "h": "Write three paragraphs",
+      "p": ["Point. Why. What it means for this scenario. However. Then the conclusion: 'Overall … because … provided that …'."] },
+    { "h": "The test",
+      "p": ["Short questions first. Then the two long ones. Twelve minutes each. Plan, write, conclude."] }
+  ],
+  "keyterms": [
+    { "term": "Levels of response", "def": "Marking by overall quality band rather than counting points; used for the 8-mark question." },
+    { "term": "Stakeholder grid", "def": "A planning table of who is affected against benefits and drawbacks, filled from the scenario." },
+    { "term": "PEAC", "def": "Point, Explain, Apply, Counter: the structure of one developed paragraph." },
+    { "term": "Applied", "def": "Using the specific details of the scenario rather than generic statements." },
+    { "term": "Balanced", "def": "Considering benefits and drawbacks, and more than one stakeholder." },
+    { "term": "Conclusion", "def": "A judgement with a reason and a condition that follows from the arguments made." }
+  ],
+  "try": [
+    { "type": "task", "title": "1. Three grids in six minutes", "p": ["Two minutes each, grid only, conclusion in one line. (a) A secondary school installs software that monitors every keystroke on student laptops to detect bullying and self-harm risk. (b) A streaming company replaces its human recommendation editors with an AI system. (c) A phone maker decides to glue batteries in and stop updates after two years to cut costs."],
+      "after": ["Which lens did each stem lean on? Write E, L, C or Env beside each cell you filled."] },
+    { "type": "task", "title": "2. Fix the paragraph", "p": ["This paragraph is Band 2. Rewrite it as PEAC so it is Band 3: 'Technology is bad for the environment because of e-waste. Lots of phones get thrown away and it is bad. Also it uses electricity. The company should recycle.' The scenario is stem (c) from Try 1."],
+      "steps": ["Add the stage and mechanism (manufacture, materials, disposal).", "Add a number or a specific consequence.", "Add the company and its customers by name.", "Add a 'however' with the company's point of view."] },
+    { "type": "embed", "title": "3. Build an answer", "url": "https://beanwise.coderra.je/GCSE_homepage/Paper1_Answer_Builder.html",
+      "instructions": ["Choose a 1.6 stem. Build the plan and paragraphs in the tool, then read your answer against the four words: accurate, applied, balanced, concluded.", "Export or copy it and band it with a partner."] },
+    { "type": "task", "title": "4. Band and lift", "p": ["Swap one 8-mark answer from the test with a partner. Band it using the paraphrased descriptors. Write one sentence saying which descriptor it misses and exactly what to add — a stakeholder, a mechanism, an application, a counter, or a conclusion."] },
+    { "type": "embed", "title": "5. Key terms: the whole unit", "url": "https://beanwise.coderra.je/revision-hub/key-terms/",
+      "instructions": ["Run the 1.6 terms until the three Acts, the three Computer Misuse offences and the open source / proprietary definitions are automatic. These are the short-question marks in the test."] }
+  ],
+  "check": [
+    { "q": "The 8-mark question is placed in a band by:", "opts": ["Counting correct facts", "Overall quality: accuracy, application, balance, reasoning, conclusion", "Length", "Number of Acts named"], "a": 1, "fb": "Levels of response, best fit." },
+    { "q": "An answer about a council app that never mentions residents or the council is likely:", "opts": ["Band 3", "Capped at Band 2 for lack of application", "Full marks", "Zero"], "a": 1, "fb": "Application is a descriptor." },
+    { "q": "The best conclusion is:", "opts": ["'There are many pros and cons.'", "'Overall it is justified because … provided that …'", "'In conclusion, technology is good.'", "A new drawback"], "a": 1, "fb": "Judgement, reason, condition." },
+    { "q": "A paragraph on the environment should name:", "opts": ["'Nature'", "A stage or mechanism: manufacture, data centres, e-waste", "The ICO", "A licence"], "a": 1, "fb": "Specific mechanism, not 'bad for the environment'." },
+    { "q": "If the stem says 'discuss the ethical impacts', writing mainly about electricity use is:", "opts": ["Fine, it is all 1.6", "Off-lens and will lose credit", "Required", "Band 3"], "a": 1, "fb": "Answer the lens the question names." }
+  ],
+  "exam": [
+    { "q": "State **two** of the three main offences under the Computer Misuse Act 1990.", "marks": 2,
+      "model": ["Any two (1 each): unauthorised access to computer material; unauthorised access with intent to commit (or facilitate) further offences; unauthorised modification of computer material / acts intended to impair the operation of a computer."],
+      "commentary": "Each offence needs the word 'unauthorised' or an equivalent ('without permission'). 'Hacking' and 'viruses' alone are examples, not offences." },
+    { "q": "A music-streaming service recommends songs using an algorithm that learns from what users play. Describe **one** ethical issue this raises and **one** cultural impact it may have.", "marks": 3,
+      "model": ["Ethical (1 + 1): privacy, because the service builds a detailed profile of each user's habits and moods (1) which could be sold, leaked or used to target advertising without the user realising (1). Or: bias/fairness, because the algorithm promotes already-popular artists (1) so new or minority-language artists are rarely heard (1).", "Cultural (1): people around the world hear the same recommended music, reducing local or minority-language music / changing how people discover music (from radio, friends and shops to an algorithm)."],
+      "commentary": "Label the two parts. The ethical mark pair needs the issue and its effect on users; the cultural mark needs a change in how people live or what they listen to, not another ethical point." },
+    { "q": "A business is choosing between an open-source and a proprietary database system for its online shop. Explain **one** reason the business might choose the proprietary option.", "marks": 2,
+      "model": ["Any one reason + consequence: official support with guaranteed response times (1), so if the shop's database fails the business can get it fixed quickly and lose fewer sales (1). Or: the vendor is accountable and provides tested security updates (1), reducing the risk of a breach of customer data (1). Or: staff already trained / compatible with other proprietary tools the business uses (1), saving training and integration cost (1)."],
+      "commentary": "Explain = reason + why it matters for an online shop. 'It is better quality' is not a mechanism. Support, accountability and compatibility are the usual winners." },
+    { "q": "Give **two** rights that a person has over their personal data under the Data Protection Act 2018.", "marks": 2,
+      "model": ["Any two (1 each): to be told what data is held and why; to access a copy of their data; to have inaccurate data corrected; to have data erased (in many cases); to object to certain uses such as marketing; not to be subject to a significant purely automated decision without human review."],
+      "commentary": "These are the data subject's rights, not the organisation's duties. 'Keep it secure' is a duty on the controller and does not answer this question." },
+    { "q": "A town council plans to close its public front desk and move all its services, including parking permits, bin collection requests and benefit applications, to a smartphone app. Discuss the ethical, cultural and environmental impacts of this decision on the council, residents and the wider community. In your answer you might consider: access to services, privacy and data protection, jobs, community, energy and e-waste.", "marks": 8,
+      "model": ["Indicative content (any well-developed, applied selection). Council: lower staffing and printing costs, faster processing, usage data to plan services vs app development, maintenance and security costs; duties under the Data Protection Act 2018 for benefit and location data (minimise, secure, retain no longer than necessary); reputational damage if residents are excluded. Residents: 24-hour access, no queues, faster permits vs the digital divide: elderly, disabled, low-income and non-English-speaking residents may have no smartphone, data or skills, and benefit applicants are among those most likely to be excluded (ethical); privacy concerns over tracking and profiling; cyber-security risk of a single app holding everyone's data. Staff: job losses at the front desk vs retraining for digital support roles; changing nature of council work (cultural). Community: loss of a physical place where residents met staff and each other, less face-to-face contact (cultural); fewer trips to the office and less paper (environmental benefit) vs servers, data storage and residents' devices having manufacturing, energy and e-waste costs (environmental drawback), although small per transaction. Conclusion: a judgement that follows, e.g. justified on balance for most residents and the environment, provided that a phone line and a staffed drop-in remain for those who cannot use the app, that data collection is minimised and secured, and that staff are retrained rather than simply cut.", "Band 3 (6–8): accurate 1.6 knowledge across at least two of the named lenses; developed points clearly applied to this council and these residents; balanced across stakeholders; sustained reasoning to a supported conclusion. Band 2 (3–5): reasonable knowledge; some application and balance; uneven development; weak or missing conclusion. Band 1 (1–2): generic, one-sided, little reasoning."],
+      "commentary": "The stem names three lenses; Band 3 answers cover at least two well rather than all three thinly. The digital-divide point applied to benefit applicants is the strongest ethical argument because the scenario hands it to you. Environmental paragraphs must name a mechanism (servers, devices, paper saved); 'the app uses electricity' is Band 2. Legislation earns credit only when applied: which principle, what the council must do." },
+    { "q": "A secondary school is considering replacing its proprietary office software and operating system with open-source alternatives on all 800 of its computers. Discuss the impact of this decision on the school, its students and staff, and wider society. In your answer you might consider: cost, support, compatibility, security, skills, legal issues.", "marks": 8,
+      "model": ["Indicative content (any well-developed, applied selection). School: saves licence fees on 800 machines, money that could buy hardware or staff; no vendor lock-in and no risk of licence audits; can keep older machines running longer (environmental benefit, less e-waste) vs migration cost, technician time, staff training, possible loss of features, and support that depends on community forums rather than a contracted helpdesk; must still comply with each open-source licence (copyright). Students: free software they can legally install at home, closing part of the digital divide; can study the source code, useful for Computer Science; vs file-format problems when exchanging work with exam boards, colleges or employers who use the proprietary standard; learning the industry-standard tools matters for some careers. Staff: retraining time and resistance; some subject-specific proprietary software (design, music) may have no open-source equivalent, so a mixed estate may be needed. Security: open code can be inspected and patched quickly by many, but the school must manage updates itself; proprietary vendors provide tested updates but can end support. Society: supports a public-good model of software and reduces money flowing to a few large vendors; wider adoption improves the software for all; vs the practical dominance of proprietary formats in workplaces. Conclusion: a judgement that follows, e.g. justified for general-purpose software provided the school keeps a small number of proprietary licences for specialist subjects and exam-board formats, budgets for training and technician time, and plans the migration over a year.", "Band 3 (6–8): accurate knowledge of open source and proprietary (definitions, licences, support, compatibility); developed points applied to a school of 800 machines, its students and staff; balanced across stakeholders and across advantages and disadvantages; sustained reasoning to a supported conclusion. Band 2 (3–5): reasonable knowledge; some application and balance; limited development; weak conclusion. Band 1 (1–2): a list of generic advantages of one option; no conclusion."],
+      "commentary": "The trap is a one-sided list of open-source advantages. The compatibility point (exam boards, colleges, employers) and the specialist-software point are the applied arguments that lift an answer. The legal consideration is that open source is still copyrighted and licences must be followed; students who write 'open source has no legal issues' lose accuracy. A mixed-estate conclusion with conditions is a mature judgement." }
+  ],
+  "home": "Rewrite your weaker 8-mark answer from the test in twelve minutes using the examiner's indicative content as a checklist, not as a script. Band it yourself and write three sentences justifying the band. Then do the five-minute review list from memory and tick what you could recall.",
+  "teacher": {
+    "timing": "60 min: hook 3 · review + technique 12 · try 1–3 12 · test 30 (short Qs 9 · two 8-markers 12 + 12 incl. plans) · try 4 banding 3. Set as homework if the test is run in a separate 35-minute slot. 25 marks: short questions 9, 8-markers 16. Bands for the test: 20+ secure; 14–19 developing; below 14 revisit the lessons whose lens dominated the lost marks. Bands for each 8-marker: 6–8 Band 3; 3–5 Band 2; 1–2 Band 1.",
+    "misconceptions": [
+      "'More points = higher band.' Three developed PEAC paragraphs beat ten bullet points.",
+      "Answering the wrong lens, or ignoring the named stakeholders. Underline them in the stem before planning.",
+      "Legislation name-dropped without the principle or offence and its consequence.",
+      "Conclusions that summarise or contradict the body. Decide the conclusion in the plan.",
+      "Running out of time: students who write the short questions last often leave 3 marks on the table. Short questions first."
+    ],
+    "say": [
+      "'Who is affected? Good and bad for each. Which lens? Decide your verdict, then write.'",
+      "'Say the council. Say the residents. Say the school. Every paragraph.'",
+      "'Overall, because, provided that.'"
+    ],
+    "skip": "If running the test alone in 35 minutes, drop Try 1–3 and use the review list as the five-minute starter. If running the technique lesson alone, set Q4 and Q5 as timed homework and mark with Try 4 next lesson.",
+    "differentiation": [
+      "Support: provide the grid pre-drawn with stakeholders named for each 8-mark stem, and allow the five-minute review list on the desk for the short questions.",
+      "Stretch: after the test, write the opposite conclusion for one 8-marker and make it equally well supported; then explain which conclusion the evidence favours and why."
+    ],
+    "examiner_review": "For the course owner: (1) the band descriptors and mark ranges (1–2 / 3–5 / 6–8) are a paraphrase of the typical J277 levels grid, not OCR wording, matching the Exam technique unit, lesson 5; please confirm or replace. (2) The two 8-mark stems are original; the bullet prompts imitate the OCR style of 'you might consider'. (3) The mark total is 25 (2 + 3 + 2 + 2 + 8 + 8). (4) PEAC and the stakeholder grid are teaching scaffolds, not OCR requirements."
+  }
+}
