@@ -8,6 +8,12 @@
     "Use **sequence**, **selection** (if/elseif/else, switch) and **iteration** (for, while, do…until)",
     "Convert between flowcharts and pseudocode"
   ],
+  "learn": [
+    "Read and write algorithms in OCR Exam Reference Language",
+    "Use sequence, selection (`if`/`elseif`/`else`, `switch`) and iteration (`for`, `while`, `do…until`)",
+    "Choose the right kind of loop for a problem and explain the choice",
+    "Convert a flowchart into pseudocode and pseudocode into a flowchart"
+  ],
   "hook": "Here is a flowchart from last lesson, and here is the same algorithm written in eight lines of text. Which would you rather type into a computer? Which would you rather read on an exam paper? Today you learn to write the text version the way OCR writes it.",
   "video": {
     "title": "OCR pseudocode in one go: sequence, selection, iteration",

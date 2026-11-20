@@ -8,6 +8,12 @@
     "Complete or refine an algorithm so that it meets its purpose",
     "Links forward to 2.3.2 (syntax and logic errors) and 2.3.1 (input validation)"
   ],
+  "learn": [
+    "Explain the difference between a **syntax error** and a **logic error**",
+    "Identify the line that contains an error and name the kind of error",
+    "Write the corrected line",
+    "Complete or refine an algorithm so that it meets its purpose"
+  ],
   "hook": "This program is supposed to add up five prices and print the total. It prints 0 every time. Nobody typed anything wrong — every line runs. So what kind of mistake is it? (The `total = 0` is inside the loop.) Today: the mistakes that compile and run and are still wrong.",
   "video": {
     "title": "Two kinds of wrong: syntax errors and logic errors",

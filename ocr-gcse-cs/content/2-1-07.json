@@ -8,6 +8,12 @@
     "Show the steps of the search on a given list",
     "Know its advantages and disadvantages compared with binary search (next lesson)"
   ],
+  "learn": [
+    "Describe how a **linear search** works",
+    "Show the steps of a linear search on a given list",
+    "Write a linear search in pseudocode or Python",
+    "Give an advantage and a disadvantage of linear search"
+  ],
   "hook": "I have shuffled a pack of name cards face down. Find 'Priya'. How do you do it? (Turn them over one at a time.) How many cards might you turn over at worst? What if I told you the cards were in alphabetical order — would you do it differently? Hold that thought for next lesson.",
   "video": {
     "title": "Linear search: one at a time, start to finish",

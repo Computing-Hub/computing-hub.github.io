@@ -8,6 +8,12 @@
     "Determine the purpose of a simple algorithm by tracing it",
     "Identify what a variable holds at each step"
   ],
+  "learn": [
+    "Complete a trace table for an algorithm, one row per change",
+    "State the value each variable holds at any step",
+    "Work out the purpose of an algorithm by tracing it",
+    "Use a trace table to find where an algorithm goes wrong"
+  ],
   "hook": "Here are six lines of code. Without running them, what does `x` equal at the end? Nobody is sure? That is normal — human brains are bad at holding several changing numbers at once. A trace table is a piece of paper that does the remembering for you, and it is worth up to 6 marks on Paper 2.",
   "video": {
     "title": "Trace tables: how to be a computer on paper",
