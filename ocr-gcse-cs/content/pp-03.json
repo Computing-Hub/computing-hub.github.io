@@ -1,0 +1,246 @@
+{
+  "id": "pp-03",
+  "title": "Building: menus and input",
+  "spec": "Practical programming",
+  "duration": 60,
+  "specPoints": [
+    "2.2.1 Programming fundamentals: **iteration** (condition-controlled loops), **selection**, **casting** between data types",
+    "2.3.1 Defensive design: **input validation** (range check, type check, presence check), **anticipating misuse**",
+    "Practical programming skills (Section B): write robust programs that reject invalid input and keep running"
+  ],
+  "learn": [
+    "Write a `get_int(prompt, low, high)` helper that performs type and range checks and only returns a valid integer",
+    "Write `get_text` (presence check) and `get_choice` (must be one of a set of options) helpers",
+    "Build a menu function that returns a validated choice, and a main loop that uses it",
+    "Reuse the helpers everywhere input is taken instead of repeating validation code",
+    "Test input code with erroneous data: blank, letters, decimals, negatives, out of range"
+  ],
+  "hook": "Type the word 'seven' into most students' programs where a number is expected and they crash with a red traceback. In Section B, 'the program must reject invalid input' is a mark — and in a real program it is the difference between software and a toy. Today you write three small helpers once, and never write validation code again.",
+  "video": {
+    "title": "Three helpers you will use forever",
+    "brief": "4 minutes. A program asks 'Year group:' and the user types 'ten' — crash. Rewind. The same prompt now goes through `get_int('Year group: ', 7, 11)`: 'ten' is rejected, '12' is rejected, '9' is accepted. Zoom into the helper: `while True`, `isdigit`, range compare, `return`. Then `get_text` for blanks and `get_choice` for y/n. Finally the menu becomes `get_int('Choice: ', 1, 6)` — one line — and the main loop is six lines long. End with a test table of erroneous inputs, all handled."
+  },
+  "explain": [
+    {
+      "h": "Why helpers?",
+      "p": [
+        "A menu program takes input in five or six places. If each place has its own validation, that is five or six copies of the same loop — and five or six places for a bug. Instead write **one helper function** per kind of input and call it everywhere. `get_int` handles whole numbers in a range; `get_text` handles text that must not be blank; `get_choice` handles 'one of these options'. Each one **loops until the input is valid** and then **returns** it, so the calling code never sees bad data."
+      ]
+    },
+    {
+      "h": "get_int: type check then range check",
+      "p": [
+        "The order matters. `isdigit()` is the **type check** — it is true only for strings made of digits 0–9, so `\"\"`, `\"ten\"`, `\"-3\"` and `\"2.5\"` all fail it. Only after that is it safe to call `int()` and do the **range check**. `while True` with a `return` inside is the standard pattern: the loop can only be left by returning a valid value."
+      ],
+      "code": "def get_int(prompt, low, high):\n    \"\"\"Keep asking until the user types a whole number from low to high.\"\"\"\n    while True:\n        text = input(prompt)\n        if not text.isdigit():\n            print(\"Please type a whole number.\")\n        elif int(text) < low or int(text) > high:\n            print(\"Must be from\", low, \"to\", high)\n        else:\n            return int(text)\n\nyear = get_int(\"Year group (7-11): \", 7, 11)\n\nInput     isdigit?   in range?   result\n\"9\"       yes        yes         returns 9\n\"12\"      yes        no          'Must be from 7 to 11', asks again\n\"ten\"     no         -           'Please type a whole number', asks again\n\"\"        no         -           'Please type a whole number', asks again\n\"-3\"      no         -           rejected (the minus sign is not a digit)"
+    },
+    {
+      "h": "get_text and get_choice",
+      "p": [
+        "`get_text` is a **presence check**: `strip()` removes spaces so `\"   \"` counts as blank. `get_choice` takes a list of allowed answers and lowercases the input so `Y` and `y` both work — that is a **format check** plus a lookup. The menu is then just `get_int(\"Choice: \", 1, 6)`: the type and range checks do all the work, and the main loop can trust that `choice` is 1 to 6."
+      ],
+      "code": "def get_text(prompt):\n    \"\"\"Keep asking until the user types something that is not blank.\"\"\"\n    while True:\n        text = input(prompt).strip()\n        if text == \"\":\n            print(\"This cannot be blank.\")\n        else:\n            return text\n\ndef get_choice(prompt, options):\n    \"\"\"Keep asking until the answer is one of the options, e.g. [\"y\", \"n\"].\"\"\"\n    while True:\n        answer = input(prompt).strip().lower()\n        if answer in options:\n            return answer\n        print(\"Please type one of:\", \", \".join(options))\n\nname = get_text(\"Name: \")\nagain = get_choice(\"Another? (y/n): \", [\"y\", \"n\"])"
+    },
+    {
+      "h": "Testing input code",
+      "p": [
+        "Input helpers are tested with **erroneous and boundary data**, not normal data — normal data would work without the helper. For `get_int(prompt, 7, 11)` the test set is: 6 and 12 (just outside), 7 and 11 (boundaries, accepted), blank, a word, a decimal, a negative, a number with a space. Write the expected message for each **before** you run. In a Section B refine question, 'add validation so that…' is answered by exactly the loop in `get_int`."
+      ]
+    }
+  ],
+  "simple": [
+    {
+      "h": "One helper, used everywhere",
+      "p": [
+        "Write the checking code once in a function. Call the function every time you need input. Less code, fewer bugs."
+      ]
+    },
+    {
+      "h": "get_int",
+      "list": [
+        "Loop forever.",
+        "Is it all digits? If not, say so and ask again.",
+        "Is it in range? If not, say so and ask again.",
+        "If both pass, `return int(text)`. That ends the loop."
+      ]
+    },
+    {
+      "h": "Test with bad input",
+      "p": [
+        "Try blank, a word, a decimal, a negative, too small, too big. The program must say something sensible and ask again, never crash."
+      ]
+    }
+  ],
+  "keyterms": [
+    {
+      "term": "Input validation",
+      "def": "Checking that input is sensible and in the expected form before the program uses it."
+    },
+    {
+      "term": "Type check",
+      "def": "Checking that input is the right kind of data, e.g. all digits before converting to an integer."
+    },
+    {
+      "term": "Range check",
+      "def": "Checking that a number is between an allowed minimum and maximum."
+    },
+    {
+      "term": "Presence check",
+      "def": "Checking that something has been entered and the input is not blank."
+    },
+    {
+      "term": "Helper function",
+      "def": "A small reusable function that does one job, such as getting a valid integer, for the rest of the program."
+    },
+    {
+      "term": "Erroneous data",
+      "def": "Input of the wrong type or form that the program should reject without crashing."
+    }
+  ],
+  "try": [
+    {
+      "type": "python",
+      "title": "1. Break get_int, then confirm it holds",
+      "p": [
+        "Run this with each of these inputs in turn, typing the next one when asked again: `ten`, blank, `2.5`, `-3`, `6`, `12`, then `9`. Write down the message you got for each. Then **remove** the `isdigit` check and run again with `ten` to see why the type check must come first."
+      ],
+      "code": "def get_int(prompt, low, high):\n    \"\"\"Keep asking until the user types a whole number from low to high.\"\"\"\n    while True:\n        text = input(prompt)\n        if not text.isdigit():\n            print(\"Please type a whole number.\")\n        elif int(text) < low or int(text) > high:\n            print(\"Must be from\", low, \"to\", high)\n        else:\n            return int(text)\n\nyear = get_int(\"Year group (7-11): \", 7, 11)\nprint(\"Accepted:\", year)\n"
+    },
+    {
+      "type": "python",
+      "title": "2. Write get_text and get_choice",
+      "p": [
+        "Complete the two helpers so that the tests at the bottom behave as the comments say. `get_text` must reject blank and spaces-only input. `get_choice` must accept any case and reject anything not in the options list."
+      ],
+      "code": "def get_text(prompt):\n    \"\"\"Keep asking until the input is not blank.\"\"\"\n    pass\n\ndef get_choice(prompt, options):\n    \"\"\"Keep asking until the input (lowercased) is one of the options.\"\"\"\n    pass\n\n# tests: type a blank line, then three spaces, then Ada - expect two 'cannot be blank' messages\nname = get_text(\"Name: \")\nprint(\"Got:\", name)\n# tests: type maybe, then Y - expect one error message then y\nanswer = get_choice(\"Save? (y/n): \", [\"y\", \"n\"])\nprint(\"Got:\", answer)\n"
+    },
+    {
+      "type": "python",
+      "title": "3. The validated menu and main loop",
+      "p": [
+        "Put the three helpers together with the club register. Complete `show_menu()` so it prints the options and returns a validated integer 1–6. Then make `add_member` use `get_text` for the name and `get_int` for the year (7–11), and `award_points` use `get_int` for the points (1–100). Test with: menu choice `9`, `x`, blank, then `2`; name blank then `Tim`; year `12` then `8`; then `1`; then `6`."
+      ],
+      "code": "def get_int(prompt, low, high):\n    \"\"\"Keep asking until the user types a whole number from low to high.\"\"\"\n    while True:\n        text = input(prompt)\n        if not text.isdigit():\n            print(\"Please type a whole number.\")\n        elif int(text) < low or int(text) > high:\n            print(\"Must be from\", low, \"to\", high)\n        else:\n            return int(text)\n\ndef get_text(prompt):\n    while True:\n        text = input(prompt).strip()\n        if text == \"\":\n            print(\"This cannot be blank.\")\n        else:\n            return text\n\ndef get_choice(prompt, options):\n    while True:\n        answer = input(prompt).strip().lower()\n        if answer in options:\n            return answer\n        print(\"Please type one of:\", \", \".join(options))\n\nmembers = [[\"Ada\", 9, 12], [\"Grace\", 10, 30], [\"Alan\", 9, 7]]\n\ndef show_menu():\n    print()\n    print(\"1 Show all   2 Add   3 Find   4 Award points   5 Remove   6 Save and quit\")\n    return int(input(\"Choice: \"))      # TODO: replace with a validated call\n\ndef show_all(members):\n    if len(members) == 0:\n        print(\"No members\")\n    for m in members:\n        print(m[0], \"(year\", str(m[1]) + \")\", \"-\", m[2], \"points\")\n\ndef find_member(members, name):\n    for i in range(len(members)):\n        if members[i][0] == name:\n            return i\n    return -1\n\ndef add_member(members):\n    name = input(\"Name: \")             # TODO: presence check\n    year = int(input(\"Year group: \"))  # TODO: 7-11 only\n    members.append([name, year, 0])\n    print(\"Added\", name)\n\ndef award_points(members):\n    name = get_text(\"Name: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n    else:\n        points = int(input(\"Points to add: \"))   # TODO: 1-100 only\n        members[i][2] = members[i][2] + points\n        print(name, \"now has\", members[i][2], \"points\")\n\ndef remove_member(members):\n    name = get_text(\"Name to remove: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n    else:\n        members.pop(i)\n        print(\"Removed\", name)\n\n# main program\nchoice = 0\nwhile choice != 6:\n    choice = show_menu()\n    if choice == 1:\n        show_all(members)\n    elif choice == 2:\n        add_member(members)\n    elif choice == 3:\n        print(find_member(members, get_text(\"Name: \")))\n    elif choice == 4:\n        award_points(members)\n    elif choice == 5:\n        remove_member(members)\n    elif choice == 6:\n        print(\"Saving... (file handling comes next lesson)\")\n"
+    },
+    {
+      "type": "python",
+      "title": "4. Refine: a confirmation and a float helper",
+      "p": [
+        "Two refinements from a changed brief. (a) `remove_member` must ask 'Are you sure? (y/n)' using `get_choice` and only remove on `y`. (b) The club now records subs paid as money, so write `get_float(prompt, low, high)` that accepts `2.50` and `3` but rejects `abc`, blank and `-1`. Hint: `try: value = float(text) except ValueError:` is one way; another is to check the text has at most one `.` and digits either side. Test both helpers with erroneous data."
+      ],
+      "code": "def get_choice(prompt, options):\n    while True:\n        answer = input(prompt).strip().lower()\n        if answer in options:\n            return answer\n        print(\"Please type one of:\", \", \".join(options))\n\ndef get_float(prompt, low, high):\n    \"\"\"Keep asking until the user types a number (decimals allowed) from low to high.\"\"\"\n    pass\n\n# test get_float: type abc, blank, -1, 2.50 - expect three rejections then 2.5\nsubs = get_float(\"Subs paid (0-10): \", 0, 10)\nprint(\"Subs:\", subs)\n\n# test the confirmation: type maybe then n - expect 'Kept'\nif get_choice(\"Are you sure? (y/n): \", [\"y\", \"n\"]) == \"y\":\n    print(\"Removed\")\nelse:\n    print(\"Kept\")\n"
+    },
+    {
+      "type": "embed",
+      "title": "5. Save v2 with the helpers at the top",
+      "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": [
+        "Save Try 3 (with your Try 4 refinements) as `club_v2.py`. Put the three helpers at the top of the file under a comment `# ---- input helpers ----` so you can copy that block into every future program, including the mini projects."
+      ]
+    }
+  ],
+  "check": [
+    {
+      "q": "`\"-3\".isdigit()` returns:",
+      "opts": [
+        "True",
+        "False",
+        "-3",
+        "An error"
+      ],
+      "a": 1,
+      "fb": "The minus sign is not a digit, so negatives fail the type check."
+    },
+    {
+      "q": "In `get_int`, the type check must come before the range check because:",
+      "opts": [
+        "Range checks are slower",
+        "`int()` on a word crashes, so we must know it is digits first",
+        "The exam says so",
+        "Range checks need a loop"
+      ],
+      "a": 1,
+      "fb": "Convert only after you know conversion is safe."
+    },
+    {
+      "q": "A presence check makes sure that:",
+      "opts": [
+        "The input is a number",
+        "The input is in range",
+        "Something has been entered",
+        "The input is in lower case"
+      ],
+      "a": 2,
+      "fb": "Not blank."
+    },
+    {
+      "q": "The best way to validate the menu choice is:",
+      "opts": [
+        "`int(input())` and hope",
+        "A separate `if` after each option",
+        "`get_int(\"Choice: \", 1, 6)`",
+        "A `try` with no `except`"
+      ],
+      "a": 2,
+      "fb": "Reuse the helper: type and range check in one call."
+    },
+    {
+      "q": "The most useful test data for an input helper is:",
+      "opts": [
+        "Normal data only",
+        "Erroneous and boundary data",
+        "Very large files",
+        "Random numbers"
+      ],
+      "a": 1,
+      "fb": "The helper exists to handle bad input, so test it with bad input."
+    }
+  ],
+  "exam": [
+    {
+      "q": "A program asks the user to enter the number of tickets they want, from 1 to 8. Write a function `getTickets()` that keeps asking until a valid whole number is entered and then returns it.",
+      "marks": 4,
+      "model": [
+        "Function header and a loop that continues until the input is valid (1). Input taken and checked to be a whole number / digits only (1). Range check 1 to 8 inclusive with a message if outside (1). Valid value returned as an integer (1)."
+      ],
+      "commentary": "A write question. The loop must be able to repeat — a single `if` that prints an error and carries on scores the check but not the loop mark. `>= 1 and <= 8` or `> 0 and < 9` both fine; `> 1` loses the range mark because 1 is valid."
+    },
+    {
+      "q": "The following code is intended to make sure the answer is y or n. Identify the error and rewrite the line so that `Y` and `N` are also accepted.",
+      "marks": 2,
+      "code": "01 answer = input(\"Continue? (y/n): \")\n02 while answer != \"y\" and answer != \"n\"\n03     answer = input(\"Continue? (y/n): \")\n04 endwhile",
+      "model": [
+        "Capital letters are rejected / the comparison is case-sensitive (1). `answer = input(...).lower()` on lines 01 and 03, or `while answer.lower() != \"y\" and answer.lower() != \"n\"` on line 02 (1)."
+      ],
+      "commentary": "Refine question: identify, then the changed line in code. Writing 'use lower case' in English scores the first mark only."
+    },
+    {
+      "q": "A student says: 'My program validates the menu choice, so it does not need to validate the year group — the user has already shown they can type numbers.' Explain why the student is wrong.",
+      "marks": 2,
+      "model": [
+        "Each input is separate / a user can type a valid choice and then an invalid year (1); without a check an invalid year (e.g. 15 or 'ten') would be stored or crash the program (1)."
+      ],
+      "commentary": "Explain: the claim is wrong because… plus the consequence."
+    }
+  ],
+  "home": "Add `get_float` and the confirmation to `club_v2.py`. Then write a ten-row test table for your three helpers: input, which check it should fail, expected message. Run every row and tick it.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 33 · check 4 · exam 5 · homework 3",
+    "misconceptions": [
+      "Validating with a single `if` so bad input is reported but the program carries on with it.",
+      "Calling `int(input())` and then checking — the crash happens before the check.",
+      "Thinking `isdigit()` accepts negative numbers or decimals.",
+      "Copying the validation loop into every function instead of calling the helper."
+    ],
+    "say": [
+      "'Can it crash? Then it is not validated.'",
+      "'Where is the return? Inside the loop, only on the good path.'",
+      "'You wrote that loop twice. Make it a function.'"
+    ],
+    "skip": "Try 4 (b) `get_float` can be homework. Try 1 → Try 3 is the build.",
+    "differentiation": [
+      "Support: give `get_text` complete; students write `get_choice` by copying the pattern.",
+      "Stretch: make `get_int` accept an optional default so that pressing Enter returns it (e.g. year defaults to 7), and test the new boundary."
+    ]
+  }
+}

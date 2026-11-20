@@ -1,0 +1,259 @@
+{
+  "id": "pp-07",
+  "title": "Refining and evaluating",
+  "spec": "Practical programming",
+  "duration": 60,
+  "specPoints": [
+    "2.3.1 Defensive design: **maintainability** (naming conventions, indentation, commenting, sub programs); **anticipating misuse**; input validation",
+    "2.1.2 Designing, creating and **refining** algorithms; 2.3.2 refining in response to testing",
+    "Practical programming skills (Section B): refine a program to meet a changed requirement and evaluate it against the brief"
+  ],
+  "learn": [
+    "Refine code for maintainability: meaningful names, named constants, comments that explain why",
+    "Refine code for robustness: handle bad data in a file without crashing",
+    "Add a feature from a changed brief without breaking existing requirements, and re-test",
+    "Write a short evaluation: each requirement met or not, the evidence, and what would be done next",
+    "Distinguish refining (meeting the purpose better) from adding features"
+  ],
+  "hook": "The club register passes all its tests. Then the teacher who runs the club says: 'Lovely. Can it show a leaderboard? And someone edited the file by hand and now it crashes.' Real briefs change and real data is messy. Refining is the skill of changing a working program without breaking it — and then saying honestly how well it meets the brief.",
+  "video": {
+    "title": "Better, not just bigger",
+    "brief": "4 minutes. A working function with names `x`, `lst` and `temp` is shown; the names are replaced one by one and the function becomes readable without a single logic change. The magic number 11 becomes `MAX_YEAR`. Then a messy data file makes `load_members` crash; a check on the number of fields and a `try` round the casting let it skip the bad line with a warning. Then the changed brief: a leaderboard option is added, the menu range becomes 1–7, and the whole test plan is re-run. End: a three-column evaluation table — requirement, met?, evidence."
+  },
+  "explain": [
+    {
+      "h": "Refining for maintainability",
+      "p": [
+        "**Maintainability** means another programmer — or you in six months — can read and change the code safely. Three cheap refinements: **meaningful names** (`members` not `lst`, `find_member` not `f`), **named constants** for every number that means something (`MAX_YEAR = 11` instead of `11` in three places), and **comments that say why**, not what (`# names must be unique (requirement 3)` rather than `# check the name`). Indentation and blank lines between functions count too. None of these change what the program does, so the tests must still pass afterwards."
+      ],
+      "code": "Before                                  After\ndef f(l, n):                            def find_member(members, name):\n    for x in range(len(l)):                 \"\"\"Return the index of name in members, or -1.\"\"\"\n        if l[x][0] == n:                    for i in range(len(members)):\n            return x                            if members[i][0] == name:\n    return -1                                       return i\n                                            return -1\n\ny = get_int(\"Year: \", 7, 11)            MIN_YEAR = 7\n                                        MAX_YEAR = 11\n                                        year = get_int(\"Year: \", MIN_YEAR, MAX_YEAR)"
+    },
+    {
+      "h": "Refining for robustness",
+      "p": [
+        "**Robustness** means the program copes with things going wrong. Input helpers already protect the keyboard; the other weak point is the **file**. A line with the wrong number of fields, or a year written as `nine`, crashes `int()`. Refine `load_members` so it checks `len(parts) == 3` and catches `ValueError` around the casting, skipping the bad line with a message that names it. This is **anticipating misuse** (2.3.1): the file may be edited by hand."
+      ],
+      "code": "for line in f:\n    line = line.strip()\n    if line == \"\":\n        continue\n    parts = line.split(\",\")\n    if len(parts) != 3:\n        print(\"Skipping bad line:\", line)\n        continue\n    try:\n        members.append([parts[0], int(parts[1]), int(parts[2])])\n    except ValueError:\n        print(\"Skipping line with a non-number:\", line)"
+    },
+    {
+      "h": "A changed brief",
+      "p": [
+        "Clients add requirements. The safe way to add one: write the new requirement as a numbered line under the original seven; write its stub and add it to the menu (and widen the menu's range); write its test rows; implement; run the **whole** plan, not just the new rows. The new feature here — a **leaderboard** showing members in order of points — needs the list sorted without changing the saved order. Python's `sorted(members, key=..., reverse=True)` returns a new sorted list; a bubble sort over a copy is the OCR-pseudocode way and also acceptable."
+      ],
+      "code": "def leaderboard(members, how_many):\n    \"\"\"Print the top how_many members by points, highest first.\"\"\"\n    ordered = sorted(members, key=lambda m: m[2], reverse=True)\n    for position in range(min(how_many, len(ordered))):\n        print(position + 1, format_member(ordered[position]))"
+    },
+    {
+      "h": "Evaluating against the brief",
+      "p": [
+        "An **evaluation** is honest and specific. For **each** numbered requirement: met, partly met or not met; the **evidence** — which test rows passed; and for anything not fully met, **what you would do next**. Then two or three sentences on quality: robustness (what bad input is handled), maintainability (constants, functions, comments) and one limitation you know about. The exam rewards evaluation that refers to the requirements by number and to actual test results, not 'it works well and I am happy with it'."
+      ],
+      "code": "Req  Requirement        Met?    Evidence            Next step\n1    Load from file     Yes     T10, T15 (bad line) -\n2    Show all           Yes     T1, T11 (empty)     -\n3    Add, unique names  Yes     T5, T6, T7          ignore case in the duplicate check\n4    Find by name       Partly  T9 passes           search is case-sensitive: 'ada' not found\n...\n8    Leaderboard (new)  Yes     T16, T17 (ties)     show year group ties in name order"
+    }
+  ],
+  "simple": [
+    {
+      "h": "Make it easy to read",
+      "list": [
+        "Good names: `members`, not `lst`.",
+        "Constants for numbers that mean something: `MAX_YEAR = 11`.",
+        "Comments that say **why**.",
+        "Run the tests again. Nothing should change."
+      ]
+    },
+    {
+      "h": "Make it hard to break",
+      "p": [
+        "A bad line in the file must not crash the program. Check it has 3 parts. Use `try` around `int()`. Skip the line and say so."
+      ]
+    },
+    {
+      "h": "Say how good it is",
+      "p": [
+        "For each requirement: met or not? Which test proves it? What would you do next? Be honest and specific."
+      ]
+    }
+  ],
+  "keyterms": [
+    {
+      "term": "Maintainability",
+      "def": "How easy a program is to read, understand and change, helped by names, constants, comments and subprograms."
+    },
+    {
+      "term": "Named constant",
+      "def": "A value given a name in capitals, such as `MAX_YEAR = 11`, set once and used wherever the value is needed."
+    },
+    {
+      "term": "Robustness",
+      "def": "A program's ability to keep working when given unexpected or faulty input or data."
+    },
+    {
+      "term": "Anticipating misuse",
+      "def": "Designing for the ways users or data might go wrong, such as a hand-edited file."
+    },
+    {
+      "term": "Refining",
+      "def": "Improving a program so it better meets its purpose: fixing errors, handling more cases, improving structure."
+    },
+    {
+      "term": "Evaluation",
+      "def": "A judgement of how well the program meets each requirement, with evidence from testing and next steps."
+    }
+  ],
+  "try": [
+    {
+      "type": "python",
+      "title": "1. Rename, extract constants, comment",
+      "p": [
+        "This program works and passes its tests, and nobody can read it. Refine it: meaningful names for every variable and function, constants for 7, 11 and 100, one docstring per function, and comments only where they explain **why**. Run the three test calls at the bottom after every few changes — the output must not change."
+      ],
+      "code": "def f(l, n):\n    for x in range(len(l)):\n        if l[x][0] == n:\n            return x\n    return -1\n\ndef g(p, a, b):\n    while True:\n        t = input(p)\n        if not t.isdigit():\n            print(\"Please type a whole number.\")\n        elif int(t) < a or int(t) > b:\n            print(\"Must be from\", a, \"to\", b)\n        else:\n            return int(t)\n\ndef h(l):\n    temp = 0\n    for q in l:\n        temp = temp + q[2]\n    return temp\n\ndef k(l, n, v):\n    x = f(l, n)\n    if x == -1:\n        return False\n    if l[x][2] + v > 100:\n        l[x][2] = 100\n    else:\n        l[x][2] = l[x][2] + v\n    return True\n\n# tests - output must stay exactly the same after refining\ndata = [[\"Ada\", 9, 12], [\"Grace\", 10, 30]]\nprint(f(data, \"Grace\"), h(data))          # 1 42\nprint(k(data, \"Ada\", 95), data[0][2])     # True 100\nprint(k(data, \"Zed\", 5))                  # False\n"
+    },
+    {
+      "type": "python",
+      "title": "2. Survive a messy file",
+      "p": [
+        "`members.txt` has been edited by hand and now has a word where a number should be, a line with the wrong number of fields and a line of rubbish. Run: it crashes. Refine `load_members` as in the lesson so it loads the four good records and prints one warning per bad line. Then write two more bad lines you can think of and check they are handled."
+      ],
+      "files": {
+        "members.txt": "Ada,9,12\nGrace,10,30\nZed,nine,3\nAlan,9,7\nthis line is rubbish\nTim,8,0\n\nMo,11\n"
+      },
+      "code": "def load_members(filename):\n    \"\"\"Return a list of [name, year, points] read from filename; empty list if missing.\n    Bad lines are skipped with a warning.\"\"\"\n    members = []\n    try:\n        with open(filename) as f:\n            for line in f:\n                line = line.strip()\n                if line != \"\":\n                    parts = line.split(\",\")\n                    members.append([parts[0], int(parts[1]), int(parts[2])])\n    except FileNotFoundError:\n        print(\"No file found - starting empty\")\n    return members\n\nmembers = load_members(\"members.txt\")\nprint(len(members), \"members loaded\")\nfor m in members:\n    print(m)\n"
+    },
+    {
+      "type": "python",
+      "title": "3. The changed brief: add a leaderboard",
+      "p": [
+        "New requirement 8: *'Option 7 shows a leaderboard of the top 3 members by points, highest first, numbered 1 to 3. If there are fewer than 3 members, show them all.'* Follow the safe order: (a) stub `leaderboard` is given — write its test rows on paper (normal, boundary: exactly 3 members, boundary: 0 members, ties); (b) add option 7 to the menu text and the main loop, and widen the menu range to 1–7 (quit becomes 8); (c) implement; (d) run your new rows **and** the old plan. Test data: 4 members, so expect Grace, Ada, Alan."
+      ],
+      "files": {
+        "members.txt": "Ada,9,12\nGrace,10,30\nAlan,9,7\nTim,8,0\n"
+      },
+      "code": "FILENAME = \"members.txt\"\nMIN_YEAR = 7\nMAX_YEAR = 11\nMAX_POINTS = 100\n\n# ---- input helpers ----\ndef get_int(prompt, low, high):\n    \"\"\"Keep asking until a whole number from low to high is typed; return it.\"\"\"\n    while True:\n        text = input(prompt)\n        if not text.isdigit():\n            print(\"Please type a whole number.\")\n        elif int(text) < low or int(text) > high:\n            print(\"Must be from\", low, \"to\", high)\n        else:\n            return int(text)\n\ndef get_text(prompt):\n    \"\"\"Keep asking until something other than blank is typed; return it stripped.\"\"\"\n    while True:\n        text = input(prompt).strip()\n        if text != \"\":\n            return text\n        print(\"This cannot be blank.\")\n\n# ---- file handling ----\ndef load_members(filename):\n    \"\"\"Return a list of [name, year, points] read from filename; empty list if missing.\"\"\"\n    members = []\n    try:\n        with open(filename) as f:\n            for line in f:\n                line = line.strip()\n                if line != \"\":\n                    parts = line.split(\",\")\n                    members.append([parts[0], int(parts[1]), int(parts[2])])\n    except FileNotFoundError:\n        pass\n    return members\n\ndef save_members(members, filename):\n    \"\"\"Write every record to filename as name,year,points, replacing the file.\"\"\"\n    with open(filename, \"w\") as f:\n        for m in members:\n            f.write(m[0] + \",\" + str(m[1]) + \",\" + str(m[2]) + \"\\n\")\n\n# ---- register operations ----\ndef find_member(members, name):\n    \"\"\"Return the index of the member called name, or -1.\"\"\"\n    for i in range(len(members)):\n        if members[i][0] == name:\n            return i\n    return -1\n\ndef format_member(m):\n    \"\"\"Return the display line for one member.\"\"\"\n    return m[0] + \" (year \" + str(m[1]) + \") - \" + str(m[2]) + \" points\"\n\ndef show_all(members):\n    \"\"\"Print one line per member, or 'No members'.\"\"\"\n    if len(members) == 0:\n        print(\"No members\")\n    for m in members:\n        print(format_member(m))\n\ndef add_member(members):\n    \"\"\"Ask for name and year, append a new record with 0 points. Names must be unique.\"\"\"\n    name = get_text(\"Name: \")\n    if find_member(members, name) != -1:\n        print(\"That name is already in the register\")\n        return\n    year = get_int(\"Year group (7-11): \", MIN_YEAR, MAX_YEAR)\n    members.append([name, year, 0])\n    print(\"Added\", name)\n\ndef show_member(members):\n    \"\"\"Ask for a name and print that member's details or 'Not found'.\"\"\"\n    name = get_text(\"Name: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n    else:\n        print(format_member(members[i]))\n\ndef award_points(members):\n    \"\"\"Ask for a name and points (1-100); add the points to that member.\"\"\"\n    name = get_text(\"Name: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n        return\n    points = get_int(\"Points to add (1-100): \", 1, MAX_POINTS)\n    members[i][2] = members[i][2] + points\n    print(name, \"now has\", members[i][2], \"points\")\n\ndef remove_member(members):\n    \"\"\"Ask for a name and delete that member, or print 'Not found'.\"\"\"\n    name = get_text(\"Name to remove: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n    else:\n        members.pop(i)\n        print(\"Removed\", name)\n\ndef leaderboard(members, how_many):\n    \"\"\"Print the top how_many members by points, highest first, numbered from 1.\"\"\"\n    pass   # TODO (requirement 8)\n\ndef show_menu():\n    \"\"\"Print the menu and return a validated choice.\"\"\"\n    print()\n    print(\"1 Show all   2 Add   3 Find   4 Award points   5 Remove   6 Save and quit\")\n    return get_int(\"Choice: \", 1, 6)   # TODO: widen when option 7 exists\n\n# ---- main program ----\nmembers = load_members(FILENAME)\nchoice = 0\nwhile choice != 6:\n    choice = show_menu()\n    if choice == 1:\n        show_all(members)\n    elif choice == 2:\n        add_member(members)\n    elif choice == 3:\n        show_member(members)\n    elif choice == 4:\n        award_points(members)\n    elif choice == 5:\n        remove_member(members)\n    else:\n        save_members(members, FILENAME)\n        print(\"Saved. Goodbye.\")\n"
+    },
+    {
+      "type": "task",
+      "title": "4. Write the evaluation",
+      "p": [
+        "Using the table layout from the lesson, evaluate your register against all **eight** requirements plus the two rules (menu validation, unique names). Then write three sentences: one on robustness (name the bad inputs and bad file lines it now survives), one on maintainability (constants, functions, comments — give examples), and one honest limitation with the refinement you would make next."
+      ],
+      "steps": [
+        "Every 'Met' must name at least one test row as evidence.",
+        "At least one row should be 'Partly' — if everything is fully met, look harder at case-sensitivity, empty list handling, or ties in the leaderboard.",
+        "No sentence may contain the words 'works well' without a test number next to it."
+      ]
+    },
+    {
+      "type": "embed",
+      "title": "5. Save v6 — the finished register",
+      "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": [
+        "Save Try 3 (with the robust `load_members` from Try 2 pasted in) as `club_v6.py`. This is your model answer for the mini projects.",
+        "Save the evaluation as `club_evaluation.txt`. You will write one of these for each mini project."
+      ]
+    }
+  ],
+  "check": [
+    {
+      "q": "Replacing `11` with `MAX_YEAR` in three places improves:",
+      "opts": [
+        "Speed",
+        "Maintainability",
+        "Validation",
+        "File handling"
+      ],
+      "a": 1,
+      "fb": "One change updates every use, and the name says what it means."
+    },
+    {
+      "q": "A good comment says:",
+      "opts": [
+        "What the line does, in English",
+        "Why the code is there or what rule it enforces",
+        "Who wrote it",
+        "How long it took"
+      ],
+      "a": 1,
+      "fb": "Code shows what; comments explain why."
+    },
+    {
+      "q": "A data file edited by hand has a word where a number should be. A robust program should:",
+      "opts": [
+        "Crash with ValueError",
+        "Skip the line with a warning and continue",
+        "Delete the file",
+        "Ask the user to type the whole file"
+      ],
+      "a": 1,
+      "fb": "Anticipating misuse: cope and report."
+    },
+    {
+      "q": "After adding a leaderboard option you should run:",
+      "opts": [
+        "Only the leaderboard tests",
+        "The whole test plan including old rows",
+        "No tests — the old code is unchanged",
+        "The menu once"
+      ],
+      "a": 1,
+      "fb": "The menu range changed; regression is possible."
+    },
+    {
+      "q": "The best evidence in an evaluation that a requirement is met is:",
+      "opts": [
+        "'It works well'",
+        "The test rows that passed",
+        "A screenshot of the code",
+        "The number of lines"
+      ],
+      "a": 1,
+      "fb": "Requirement by number, test by number."
+    }
+  ],
+  "exam": [
+    {
+      "q": "The program below records a temperature. Refine it so that (a) the limits are named constants and (b) a reading outside -20 to 50 is rejected and asked for again. Write the refined code.",
+      "marks": 4,
+      "code": "01 reading = int(input(\"Temperature: \"))\n02 if reading < -20 or reading > 50 then\n03     print(\"Out of range\")\n04 endif\n05 print(\"Recorded\", reading)",
+      "model": [
+        "Two constants such as `MIN_TEMP = -20` and `MAX_TEMP = 50` declared before use (1). Constants used in the comparison in place of the literals (1). Loop (while/do-until) that repeats the input while the reading is out of range (1). Message inside the loop and 'Recorded' only reached with a valid reading (1)."
+      ],
+      "commentary": "Both halves of the refinement. The common loss: keeping the `if` so the program prints 'Out of range' and then records the bad value anyway."
+    },
+    {
+      "q": "A student has written a program that meets all of its requirements. Describe **two** refinements that would improve its maintainability without changing what it does.",
+      "marks": 2,
+      "model": [
+        "Any two: replace single-letter variable names with meaningful ones; replace repeated numbers with named constants; add comments explaining the purpose of each section/function; split repeated code into subprograms; use consistent indentation (1 each)."
+      ],
+      "commentary": "Must be maintainability, not features or validation. 'Add more validation' changes what the program does and does not score here."
+    },
+    {
+      "q": "A student's evaluation of their program reads: 'The program works well and does everything it should.' Explain why this is a poor evaluation and state what a better one would include.",
+      "marks": 3,
+      "model": [
+        "It gives no evidence / does not refer to the requirements or test results (1). A better evaluation would state, for each requirement, whether it is met with reference to specific tests (1), and identify limitations or improvements that could be made next (1)."
+      ],
+      "commentary": "Three distinct points: why poor, requirement-by-requirement evidence, limitations/next steps."
+    }
+  ],
+  "home": "Refine `club_v6.py` so that `find_member` and the duplicate check ignore case. Add the test rows that prove it, run the full plan, and update the evaluation table so requirement 4 becomes 'Met'.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 33 (Try 1–3 runner 25, Try 4 paper 8) · check 4 · exam 5 · homework 3",
+    "misconceptions": [
+      "Refining as 'adding features'. Refining means meeting the purpose better; a new feature is a changed brief.",
+      "Comments that repeat the code (`# add 1 to i`).",
+      "Adding the leaderboard but leaving the menu range at 1–6, so option 7 is 'invalid'.",
+      "Evaluations that are feelings ('I am proud of it') rather than evidence."
+    ],
+    "say": [
+      "'Rename it. Run the tests. Same output? Then you have refined, not broken.'",
+      "'Every number that means something gets a name.'",
+      "'Met — according to which test?'"
+    ],
+    "skip": "Try 1 can be shortened to renaming `f` and `k` only. Try 2 → 3 → 4 is the refine-and-evaluate sequence the mini projects will repeat.",
+    "differentiation": [
+      "Support: in Try 3, give `leaderboard` implemented with `sorted`; students do the menu change and the re-test.",
+      "Stretch: implement the leaderboard with a bubble sort on a copy of the list (no `sorted`), and explain in a comment why the copy matters for the saved file order."
+    ]
+  }
+}

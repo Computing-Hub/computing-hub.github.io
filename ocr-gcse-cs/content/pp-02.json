@@ -1,0 +1,261 @@
+{
+  "id": "pp-02",
+  "title": "Designing with flowcharts and pseudocode",
+  "spec": "Practical programming",
+  "duration": 60,
+  "specPoints": [
+    "2.1.2 Designing, creating and refining algorithms: produce algorithms using **pseudocode** and **flowcharts**; interpret, correct or complete algorithms",
+    "2.2.1 Programming fundamentals: **sequence, selection, iteration**; OCR Exam Reference Language syntax",
+    "Practical programming skills (Section B): design an algorithm before writing it, then write and test the program"
+  ],
+  "learn": [
+    "Design a menu loop in OCR pseudocode and as a flowchart before writing code",
+    "Design a search function in pseudocode with a parameter and a return value",
+    "Translate pseudocode into running Python line by line",
+    "Use the design as the first test: does the code do what the design says?",
+    "Spot a design error (wrong loop type, missing exit) before it becomes a code error"
+  ],
+  "hook": "A builder does not start laying bricks and hope a house appears. In Section B you are often asked for the design first — in pseudocode or a flowchart — and then the code. Today you design two parts of the club register on paper, type them, and check the code against the plan. If the plan is right, the code almost writes itself.",
+  "video": {
+    "title": "Plan, then type, then compare",
+    "brief": "4 minutes. Split screen: left, OCR pseudocode for a menu loop appears line by line; right, the matching flowchart grows (start, input choice, diamond for each option, loop back). Then a third column: the Python translation, one line lighting up for each pseudocode line. A design error is planted (loop checks choice before asking) and the flowchart shows the loop never ending. End with the fix and a short test table checking code against design."
+  },
+  "explain": [
+    {
+      "h": "OCR pseudocode: the design language",
+      "p": [
+        "OCR's Exam Reference Language is pseudocode with fixed keywords. You must be able to read it, and you may write your answers in it. The key constructs you need for a menu program are a condition-controlled loop, selection with several branches and a function that returns a value. Here is the **main menu loop** of the club register designed in it."
+      ],
+      "code": "members = loadMembers(\"members.txt\")\nchoice = \"\"\nwhile choice != \"6\"\n    print(\"1 Show  2 Add  3 Find  4 Award  5 Remove  6 Save and quit\")\n    choice = input(\"Choice: \")\n    switch choice:\n        case \"1\":\n            showAll(members)\n        case \"2\":\n            addMember(members)\n        case \"3\":\n            name = input(\"Name: \")\n            print(findMember(members, name))\n        case \"6\":\n            saveMembers(members, \"members.txt\")\n        default:\n            print(\"Not a valid choice\")\n    endswitch\nendwhile",
+      "after": [
+        "Notice the design decisions: a `while` because we do not know how many times the menu will be used; `choice` set to `\"\"` before the loop so the condition can be tested; the exit option saves before the loop ends; a `default` branch catches invalid choices."
+      ]
+    },
+    {
+      "h": "The flowchart of the same loop",
+      "p": [
+        "A **flowchart** shows the same logic as shapes: ovals for start and end, parallelograms for input and output, rectangles for processes, diamonds for decisions. The arrows make the loop visible — the line going back up from the bottom of the options to 'display menu'. Flowcharts are good at showing you a loop that has no way out."
+      ],
+      "code": "   (Start)\n      |\n [members = loadMembers]\n      |\n /display menu/ <------------------------------+\n      |                                        |\n /input choice/                                |\n      |                                        |\n <choice = \"6\"?> --yes--> [saveMembers] --> (End)\n      | no                                     |\n <choice = \"1\"?> --yes--> [showAll] -----------+\n      | no                                     |\n <choice = \"2\"?> --yes--> [addMember] ---------+\n      | no                                     |\n     ...                                       |\n /output \"Not a valid choice\"/ ----------------+"
+    },
+    {
+      "h": "Designing a function: findMember",
+      "p": [
+        "A function design needs three things: its **parameters**, its **return value** and the steps between. `findMember` takes the list and a name, and returns the position of the match or -1. The design chooses a count-controlled loop over the indexes because we need the position, not just the member. Writing `return -1` **after** the loop is the decision that most people get wrong on paper — put it inside the loop and the function gives up after the first member."
+      ],
+      "code": "function findMember(members, name)\n    for i = 0 to members.length - 1\n        if members[i][0] == name then\n            return i\n        endif\n    next i\n    return -1\nendfunction",
+      "after": [
+        "Each member is a small list `[name, year, points]`, so `members[i][0]` is the name of member `i`. Lesson 4 looks at that data choice properly."
+      ]
+    },
+    {
+      "h": "Translate, then test against the design",
+      "p": [
+        "Translation from OCR pseudocode to Python is nearly mechanical: `while … endwhile` becomes `while …:` with indentation; `switch/case` becomes `if/elif/else`; `for i = 0 to n` becomes `for i in range(0, n + 1)`; `function … endfunction` becomes `def …:`. Once it runs, the **design is your first test plan**: for every box or line in the design, is there a line of code that does it, and does running it produce what the design says? If the design said 'reject invalid choices' and the code crashes on `7`, the code — not the design — is wrong."
+      ],
+      "code": "Pseudocode                      Python\nwhile x != 0                    while x != 0:\n    ...                             ...\nendwhile\n\nfor i = 0 to 4                  for i in range(0, 5):\n    ...                             ...\nnext i\n\nswitch c:  case \"1\": ...        if c == \"1\": ...\n           default: ...         else: ...\n\nfunction f(a) ... return x      def f(a): ... return x\nendfunction\n\nmembers.length                  len(members)"
+    }
+  ],
+  "simple": [
+    {
+      "h": "Plan first",
+      "p": [
+        "Write the plan in OCR pseudocode or draw a flowchart. Then type it. The plan tells you what the code should do."
+      ]
+    },
+    {
+      "h": "The menu loop",
+      "list": [
+        "Set `choice` to `\"\"` first.",
+        "`while choice != \"6\"`: show the menu, read the choice.",
+        "One branch for each option. A `default`/`else` for wrong choices.",
+        "Option 6 saves, then the loop ends."
+      ]
+    },
+    {
+      "h": "The find function",
+      "list": [
+        "Takes the list and a name.",
+        "Loops through each position.",
+        "Returns the position when the name matches.",
+        "Returns -1 **after** the loop if nothing matched."
+      ]
+    }
+  ],
+  "keyterms": [
+    {
+      "term": "Pseudocode",
+      "def": "A structured, language-like way of writing an algorithm; OCR's version is the Exam Reference Language."
+    },
+    {
+      "term": "Flowchart",
+      "def": "A diagram of an algorithm using standard shapes for start/end, input/output, process and decision."
+    },
+    {
+      "term": "Condition-controlled loop",
+      "def": "A loop that repeats while a condition is true (`while`), used when the number of repeats is unknown."
+    },
+    {
+      "term": "Count-controlled loop",
+      "def": "A loop that repeats a known number of times (`for`), often over the indexes of a list."
+    },
+    {
+      "term": "Return value",
+      "def": "The result a function sends back to the code that called it."
+    },
+    {
+      "term": "Design",
+      "def": "The plan for a program — pseudocode, flowchart or structure diagram — produced before the code."
+    }
+  ],
+  "try": [
+    {
+      "type": "task",
+      "title": "1. Design on paper: two more parts",
+      "p": [
+        "Using the lesson's pseudocode as a model, design these two parts of the club register in **OCR pseudocode**. Then draw a flowchart for the first one."
+      ],
+      "steps": [
+        "`awardPoints(members)`: ask for a name; use `findMember` to get the position; if it is -1 output 'Not found'; otherwise ask for the number of points to add (a whole number, 1 to 100 — keep asking until it is) and add it to that member's points.",
+        "`showAll(members)`: if the list is empty output 'No members'; otherwise output one line per member in the form `name (year N) - P points`.",
+        "Check your `awardPoints` flowchart: is there a loop for the validation? Does it have a way out?"
+      ]
+    },
+    {
+      "type": "python",
+      "title": "2. Translate the main loop and findMember",
+      "p": [
+        "The lesson's two designs are in the comments. Translate them into Python **line by line** underneath each comment, keeping the comments so you can see the match. The stubs for the other options are given. Run it and test: choose 1, then 3 with `Ada`, then 3 with `Zed`, then 7, then 6. Compare the output with what the design says should happen."
+      ],
+      "code": "# Club register v1 - menu loop and find, translated from the design\n\nmembers = [[\"Ada\", 9, 12], [\"Grace\", 10, 30], [\"Alan\", 9, 7]]   # test data for now\n\ndef show_all(members):\n    for m in members:\n        print(m[0], \"(year\", str(m[1]) + \")\", \"-\", m[2], \"points\")\n\ndef add_member(members):\n    print(\"add_member not written yet\")\n\ndef award_points(members):\n    print(\"award_points not written yet\")\n\ndef remove_member(members):\n    print(\"remove_member not written yet\")\n\ndef save_members(members, filename):\n    print(\"save_members not written yet\")\n\n# function findMember(members, name)\n#     for i = 0 to members.length - 1\n#         if members[i][0] == name then\n#             return i\n#         endif\n#     next i\n#     return -1\n# endfunction\ndef find_member(members, name):\n    return -1          # replace with the translation\n\n# choice = \"\"\n# while choice != \"6\"\n#     print(\"1 Show  2 Add  3 Find  4 Award  5 Remove  6 Save and quit\")\n#     choice = input(\"Choice: \")\n#     switch choice:\n#         case \"1\": showAll(members)\n#         case \"2\": addMember(members)\n#         case \"3\": name = input(\"Name: \")\n#                   print(findMember(members, name))\n#         case \"4\": awardPoints(members)\n#         case \"5\": removeMember(members)\n#         case \"6\": saveMembers(members, \"members.txt\")\n#         default:  print(\"Not a valid choice\")\n#     endswitch\n# endwhile\nchoice = \"\"\nwhile choice != \"6\":\n    print(\"1 Show  2 Add  3 Find  4 Award  5 Remove  6 Save and quit\")\n    choice = input(\"Choice: \")\n    # translate the switch here\n    if choice == \"6\":\n        save_members(members, \"members.txt\")\n    else:\n        print(\"Not written yet:\", choice)\n"
+    },
+    {
+      "type": "python",
+      "title": "3. Translate your own designs",
+      "p": [
+        "Add your Try 1 designs for `award_points` and `show_all` (replace the given `show_all`). Paste your pseudocode as comments above each function first — the examiner cannot see your screen, so get used to the design being on paper. Test: award 10 points to Grace (expect 40); award to Zed (expect 'Not found'); award 0 and 101 to Ada (expect to be asked again); award 100 to Ada (expect 112)."
+      ],
+      "code": "members = [[\"Ada\", 9, 12], [\"Grace\", 10, 30], [\"Alan\", 9, 7]]\n\ndef find_member(members, name):\n    for i in range(0, len(members)):\n        if members[i][0] == name:\n            return i\n    return -1\n\n# paste your pseudocode design here as comments, then translate it\ndef show_all(members):\n    pass\n\n# paste your pseudocode design here as comments, then translate it\ndef award_points(members):\n    pass\n\n# quick tests - leave these in\naward_points(members)\nshow_all(members)\n"
+    },
+    {
+      "type": "python",
+      "title": "4. Find the design error",
+      "p": [
+        "This `remove_member` was coded from a faulty design. Run it and try to remove `Alan`, then `Zed`. Two things go wrong. Write the **corrected pseudocode** as a comment first, then fix the code to match. Hint: where is `return`, and what happens to `i` after an item is deleted?"
+      ],
+      "code": "members = [[\"Ada\", 9, 12], [\"Grace\", 10, 30], [\"Alan\", 9, 7]]\n\n# function removeMember(members)\n#     name = input(\"Name to remove: \")\n#     for i = 0 to members.length - 1\n#         if members[i][0] == name then\n#             members.remove(i)\n#         else\n#             print(\"Not found\")\n#         endif\n#     next i\n# endfunction\ndef remove_member(members):\n    name = input(\"Name to remove: \")\n    for i in range(0, len(members)):\n        if members[i][0] == name:\n            members.pop(i)\n        else:\n            print(\"Not found\")\n\nremove_member(members)\nprint(members)\nremove_member(members)\nprint(members)\n"
+    },
+    {
+      "type": "embed",
+      "title": "5. Save v1",
+      "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": [
+        "Combine Try 2 and Try 3 into one working program and save it as `club_v1.py`. Keep the pseudocode comments above each function — they are your design record.",
+        "Check: every box in the lesson's structure diagram is now either a working function or a clearly labelled stub."
+      ]
+    }
+  ],
+  "check": [
+    {
+      "q": "The menu loop uses `while` rather than `for` because:",
+      "opts": [
+        "`for` cannot contain `if`",
+        "The number of times the menu is used is not known in advance",
+        "`while` is faster",
+        "OCR pseudocode has no `for`"
+      ],
+      "a": 1,
+      "fb": "Unknown repeats: condition-controlled."
+    },
+    {
+      "q": "In `findMember`, `return -1` must be placed:",
+      "opts": [
+        "Inside the loop, in an `else`",
+        "After the loop",
+        "Before the loop",
+        "Inside the `if`"
+      ],
+      "a": 1,
+      "fb": "Only after every member has been checked can we say it is not there."
+    },
+    {
+      "q": "OCR pseudocode `for i = 0 to 4` translates to Python:",
+      "opts": [
+        "`for i in range(4):`",
+        "`for i in range(0, 4):`",
+        "`for i in range(0, 5):`",
+        "`for i in 0 to 4:`"
+      ],
+      "a": 2,
+      "fb": "OCR's `to` is inclusive; `range` stops before its end value."
+    },
+    {
+      "q": "In a flowchart, a diamond represents:",
+      "opts": [
+        "Input or output",
+        "A process",
+        "A decision",
+        "Start or end"
+      ],
+      "a": 2,
+      "fb": "Decisions branch, so they have two exits."
+    },
+    {
+      "q": "After translating a design into code, the design is useful as:",
+      "opts": [
+        "Nothing — it is finished",
+        "A first test: does the code do what each line of the design says?",
+        "A replacement for comments",
+        "The user guide"
+      ],
+      "a": 1,
+      "fb": "Check the code against the plan."
+    }
+  ],
+  "exam": [
+    {
+      "q": "A program needs a function `countYear(members, year)` that returns how many members in the list are in a given year group. Each member is stored as `[name, year, points]`. Write the function in OCR Exam Reference Language or Python.",
+      "marks": 4,
+      "model": [
+        "Function header with both parameters (1). Counter initialised to 0 before the loop (1). Loop through every member comparing the year field with the parameter and incrementing the counter on a match (1). Counter returned after the loop (1)."
+      ],
+      "commentary": "A write question: code only. Students who `print` the count rather than `return` it lose the last mark — the brief says 'returns'. Comparing `members[i]` to `year` instead of `members[i][1]` loses the loop mark."
+    },
+    {
+      "q": "The flowchart for a menu program has an 'input choice' box followed by decision diamonds for options 1 to 5. There is no arrow leading back to the menu after an option is carried out. Describe the effect of this error and how the design should be corrected.",
+      "marks": 2,
+      "model": [
+        "The program shows the menu once, carries out one option and then ends / the user cannot choose a second option (1). Add an arrow (loop) from the end of each option back to the display-menu box, with a decision that exits only when the quit option is chosen (1)."
+      ],
+      "commentary": "A design/refine question answered in English, which is acceptable for flowcharts. Both halves needed: effect and correction."
+    },
+    {
+      "q": "Give **one** advantage of designing an algorithm in pseudocode before writing it in a programming language.",
+      "marks": 1,
+      "model": [
+        "Any one: logic errors can be found before time is spent on syntax; the design can be checked against the brief; the pseudocode can be translated into any language; it is quicker to change a plan than code (1)."
+      ],
+      "commentary": "One clear advantage. 'It is easier' without saying why does not score."
+    }
+  ],
+  "home": "Design `add_member(members)` in OCR pseudocode and as a flowchart: ask for name (not blank), year group (7 to 11, validated) and start the member on 0 points; append to the list. Translate it into Python and add it to `club_v1.py`. Bring the paper design and the running code.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 32 (Try 1 paper 10, Try 2–4 runner 22) · check 4 · exam 6 · homework 3",
+    "misconceptions": [
+      "`return -1` inside the loop's `else`, so the function reports 'not found' on the first non-match.",
+      "Checking the exit condition before the first input (loop never runs) or never updating `choice` inside the loop (loop never ends).",
+      "Translating `for i = 0 to n` as `range(n)`, missing the last item.",
+      "Treating the design as paperwork to do after the code 'to get the marks'."
+    ],
+    "say": [
+      "'Read your pseudocode out loud. If you cannot say what a line does, the examiner cannot mark it.'",
+      "'Where is your return -1? Outside the loop? Good.'",
+      "'Code against plan: every line in the plan, point at the line of code that does it.'"
+    ],
+    "skip": "Try 4 can be done as a whole-class demonstration if time is short. Try 1 → Try 3 (design then translate) is the core.",
+    "differentiation": [
+      "Support: Try 1 with `showAll` already designed; students design only `awardPoints` and translate both.",
+      "Stretch: redesign `findMember` so the search ignores upper and lower case, in pseudocode first, then code it."
+    ]
+  }
+}

@@ -1,0 +1,261 @@
+{
+  "id": "pp-08",
+  "title": "Mini project 1: school library lending system",
+  "spec": "Practical programming",
+  "duration": 60,
+  "specPoints": [
+    "2.1.1–2.1.2 Decomposition, structure diagrams, designing and refining algorithms",
+    "2.2.1–2.2.3 Sequence, selection, iteration, string manipulation, 2D lists, file handling, sub programs",
+    "2.3.1–2.3.2 Validation, maintainability, test plans with normal/boundary/invalid/erroneous data; Practical programming skills (Section B)"
+  ],
+  "learn": [
+    "Turn a nine-requirement brief into a numbered checklist, a data design and a structure diagram",
+    "Build a file-backed, menu-driven program in three staged steps, testing after each",
+    "Implement search (partial, case-insensitive), borrow, return, overdue report and add",
+    "Write and run a test plan covering every requirement with all four data types",
+    "Evaluate the finished program requirement by requirement with test evidence"
+  ],
+  "hook": "A school library with 600 books still uses a paper book to record loans. The librarian wants a program by Friday. She has written exactly what it must do — nine things. This is the walk-through project: you will build it in three steps with help at every stage, so that in the next two projects you can do it with less, and then none.",
+  "video": {
+    "title": "Walk-through: the library system in three steps",
+    "brief": "5 minutes. The brief with its nine requirements numbered. The record design `[id, title, author, borrower, due]` and the file. Structure diagram. Step 1: load, show all, menu — run, four books listed. Step 2: search, borrow, return — borrow book 1, due day appears; try to borrow it again, 'already out'. Step 3: overdue report for day 15 shows Wonder and Noughts and Crosses; add a book, id 7 appears; quit, file updated. End: the nine requirements ticked against a test plan."
+  },
+  "explain": [
+    {
+      "h": "The brief and the requirements checklist",
+      "p": [
+        "Read it twice, then number. Each requirement is worth marks in the way a Section B question is: addressed visibly or not at all."
+      ],
+      "code": "BRIEF: A school library needs a program to manage book loans.\n\nR1  Load the books from books.txt when the program starts.                      [1]\nR2  Show a validated menu repeatedly until the user chooses Quit.                [1]\nR3  Show all books with their status (in, or out to whom and due when).          [1]\nR4  Search for books by title; any part of the title, ignoring case.             [2]\nR5  Borrow a book by its id: only if it is in; record the borrower's name         [2]\n    and the due day (today + 14).\nR6  Return a book by its id: only if it is out; clear the borrower and due day.   [1]\nR7  Overdue report: ask for today's day number and list all books whose          [2]\n    due day is before today, with the borrower's name.\nR8  Add a new book with the next unused id, title and author (not blank).        [1]\nR9  Save the books to books.txt after every change and on quit.                  [1]\n    All input validated; the program must never crash on bad input.             [1]\n                                                                        Total [13]"
+    },
+    {
+      "h": "Data design",
+      "p": [
+        "Nouns: book, id, title, author, borrower, due day, file. One **record** per book as a list of five fields; an empty borrower string means the book is in. Days are whole numbers (day of term) so no date library is needed. Index constants (`ID = 0`, `TITLE = 1` …) make `b[BORROWER]` readable instead of `b[3]` — a maintainability choice you should copy."
+      ],
+      "code": "Record:  [id, title, author, borrower, due]\n          int  str    str     str (\"\" if in)  int (0 if in)\n\nFile (books.txt), one record per line, fields separated by commas:\n1,Holes,Louis Sachar,,0\n2,Wonder,R J Palacio,Ada,14\n\nList of lists:\nbooks = [[1, \"Holes\", \"Louis Sachar\", \"\", 0],\n         [2, \"Wonder\", \"R J Palacio\", \"Ada\", 14], ...]"
+    },
+    {
+      "h": "Structure diagram and build order",
+      "p": [
+        "Verbs: load, show, search, borrow, return, report, add, save. Each is a function; `find_book` and `format_book` are helpers that several of them share. Build in three steps and **run after each**: Step 1 load + show all + menu loop (R1, R2, R3). Step 2 search + borrow + return (R4, R5, R6). Step 3 overdue + add + save (R7, R8, R9). Validation comes free from `get_int`/`get_text` if you use them for every input."
+      ],
+      "code": "                       Library system\n        ┌──────────────────┼──────────────────────┐\n   load_books          menu loop               save_books\n            ┌─────┬──────┬──────┬────────┬──────┐\n        show_all search borrow return  overdue  add\n                   └──────┴──────┘\n                  use find_book, format_book"
+    },
+    {
+      "h": "Three decisions worth making before you type",
+      "list": [
+        "**Search**: `if text.lower() in b[TITLE].lower()` gives partial, case-insensitive matching in one line. Print every match; print 'No matches' if none.",
+        "**Borrow/return state**: a book is in when `b[BORROWER] == \"\"`. Borrow must refuse if it is out; return must refuse if it is in. That is two selection statements with clear messages — and two test rows each.",
+        "**Next id**: the largest existing id plus one, or 1 if the list is empty. Do not use `len(books) + 1` — after a deletion it could repeat an id."
+      ]
+    }
+  ],
+  "simple": [
+    {
+      "h": "The job",
+      "p": [
+        "Nine things the library program must do. Number them. Each one is marks. Build them in three steps."
+      ]
+    },
+    {
+      "h": "The data",
+      "p": [
+        "One book = `[id, title, author, borrower, due]`. Borrower is `\"\"` when the book is in. One line per book in `books.txt`."
+      ]
+    },
+    {
+      "h": "The steps",
+      "list": [
+        "Step 1: load, show all, menu. Run it.",
+        "Step 2: search, borrow, return. Run it.",
+        "Step 3: overdue report, add, save. Run it.",
+        "Then: test plan, fix, evaluate."
+      ]
+    }
+  ],
+  "keyterms": [
+    {
+      "term": "Requirements checklist",
+      "def": "The brief rewritten as numbered things the program must do, used to plan, build, test and evaluate."
+    },
+    {
+      "term": "Index constant",
+      "def": "A named constant for a position in a record, e.g. `TITLE = 1`, so `b[TITLE]` reads clearly."
+    },
+    {
+      "term": "Partial match",
+      "def": "A search that succeeds when the search text appears anywhere inside the field."
+    },
+    {
+      "term": "State",
+      "def": "The current condition of a record, e.g. a book being in or out, decided here by whether the borrower is blank."
+    },
+    {
+      "term": "Report",
+      "def": "Output produced by selecting and formatting records that meet a condition, e.g. all overdue books."
+    },
+    {
+      "term": "Staged build",
+      "def": "Building a program in planned steps, running and testing after each, rather than all at once."
+    }
+  ],
+  "try": [
+    {
+      "type": "python",
+      "title": "Step 1 — load, show all, menu (R1, R2, R3)",
+      "p": [
+        "The helpers, file handling, `find_book` and `format_book` are given — read them first, especially `format_book`. Complete `show_all` and `show_menu`, and make the main loop call `show_all` for option 1. Run: option 1 must list six books with their status; invalid choices must be rejected; 8 quits. Nothing else needs to work yet."
+      ],
+      "files": {
+        "books.txt": "1,Holes,Louis Sachar,,0\n2,Wonder,R J Palacio,Ada,14\n3,The Hobbit,J R R Tolkien,,0\n4,Noughts and Crosses,Malorie Blackman,Tim,9\n5,Skellig,David Almond,,0\n6,Northern Lights,Philip Pullman,Grace,21\n"
+      },
+      "code": "FILENAME = \"books.txt\"\nLOAN_DAYS = 14\n# a book record is [id, title, author, borrower, due]  (borrower \"\" and due 0 when the book is in)\nID, TITLE, AUTHOR, BORROWER, DUE = 0, 1, 2, 3, 4\n\n# ---- input helpers (from lesson 3) ----\ndef get_int(prompt, low, high):\n    \"\"\"Keep asking until a whole number from low to high is typed; return it.\"\"\"\n    while True:\n        text = input(prompt)\n        if not text.isdigit():\n            print(\"Please type a whole number.\")\n        elif int(text) < low or int(text) > high:\n            print(\"Must be from\", low, \"to\", high)\n        else:\n            return int(text)\n\ndef get_text(prompt):\n    \"\"\"Keep asking until something other than blank is typed; return it stripped.\"\"\"\n    while True:\n        text = input(prompt).strip()\n        if text != \"\":\n            return text\n        print(\"This cannot be blank.\")\n\n# ---- file handling ----\ndef load_books(filename):\n    \"\"\"Return a list of book records read from filename; empty list if missing. Skips bad lines.\"\"\"\n    books = []\n    try:\n        with open(filename) as f:\n            for line in f:\n                parts = line.strip().split(\",\")\n                if len(parts) != 5:\n                    if line.strip() != \"\":\n                        print(\"Skipping bad line:\", line.strip())\n                    continue\n                try:\n                    books.append([int(parts[0]), parts[1], parts[2], parts[3], int(parts[4])])\n                except ValueError:\n                    print(\"Skipping bad line:\", line.strip())\n    except FileNotFoundError:\n        pass\n    return books\n\ndef save_books(books, filename):\n    \"\"\"Write every record as id,title,author,borrower,due. Replaces the file.\"\"\"\n    with open(filename, \"w\") as f:\n        for b in books:\n            f.write(str(b[ID]) + \",\" + b[TITLE] + \",\" + b[AUTHOR] + \",\" + b[BORROWER] + \",\" + str(b[DUE]) + \"\\n\")\n\ndef find_book(books, book_id):\n    \"\"\"Return the index of the book with this id, or -1.\"\"\"\n    for i in range(len(books)):\n        if books[i][ID] == book_id:\n            return i\n    return -1\n\ndef format_book(b):\n    \"\"\"Return one display line for a book, e.g. '2  Wonder - R J Palacio  [OUT to Ada, due day 14]'.\"\"\"\n    if b[BORROWER] == \"\":\n        status = \"[IN]\"\n    else:\n        status = \"[OUT to \" + b[BORROWER] + \", due day \" + str(b[DUE]) + \"]\"\n    return str(b[ID]) + \"  \" + b[TITLE] + \" - \" + b[AUTHOR] + \"  \" + status\n\n# ---- operations ----\ndef show_all(books):\n    \"\"\"R3: print every book using format_book, or 'No books'.\"\"\"\n    pass   # TODO Step 1\n\ndef show_menu():\n    \"\"\"R2: print the menu and return a validated choice 1-8.\"\"\"\n    print()\n    print(\"1 Show all  2 Search  3 Borrow  4 Return  5 Overdue  6 Add book  7 Save  8 Quit\")\n    return 8   # TODO Step 1: use get_int\n\n# ---- main program ----\nbooks = load_books(FILENAME)\nprint(len(books), \"books loaded\")\nchoice = 0\nwhile choice != 8:\n    choice = show_menu()\n    if choice == 1:\n        pass   # TODO Step 1: show_all\n    elif choice == 8:\n        save_books(books, FILENAME)\n        print(\"Saved. Goodbye.\")\n    else:\n        print(\"Option\", choice, \"is not built yet\")\n"
+    },
+    {
+      "type": "python",
+      "title": "Step 2 — search, borrow, return (R4, R5, R6)",
+      "p": [
+        "Step 1 is done for you here. Complete the three functions following the docstrings and the lesson's decisions. Then test, in this order: search `the` (expect The Hobbit **and** Northern Lights — look at Nor-the-rn; partial matching has surprises), search `HOLES` (expect Holes), search `zzz` (No matches); borrow 1 as `Mo` on day 10 (due 24); borrow 1 again (already out); borrow 99 (no such book); return 1; return 1 again (not out)."
+      ],
+      "files": {
+        "books.txt": "1,Holes,Louis Sachar,,0\n2,Wonder,R J Palacio,Ada,14\n3,The Hobbit,J R R Tolkien,,0\n4,Noughts and Crosses,Malorie Blackman,Tim,9\n5,Skellig,David Almond,,0\n6,Northern Lights,Philip Pullman,Grace,21\n"
+      },
+      "code": "FILENAME = \"books.txt\"\nLOAN_DAYS = 14\n# a book record is [id, title, author, borrower, due]  (borrower \"\" and due 0 when the book is in)\nID, TITLE, AUTHOR, BORROWER, DUE = 0, 1, 2, 3, 4\n\n# ---- input helpers (from lesson 3) ----\ndef get_int(prompt, low, high):\n    \"\"\"Keep asking until a whole number from low to high is typed; return it.\"\"\"\n    while True:\n        text = input(prompt)\n        if not text.isdigit():\n            print(\"Please type a whole number.\")\n        elif int(text) < low or int(text) > high:\n            print(\"Must be from\", low, \"to\", high)\n        else:\n            return int(text)\n\ndef get_text(prompt):\n    \"\"\"Keep asking until something other than blank is typed; return it stripped.\"\"\"\n    while True:\n        text = input(prompt).strip()\n        if text != \"\":\n            return text\n        print(\"This cannot be blank.\")\n\n# ---- file handling ----\ndef load_books(filename):\n    \"\"\"Return a list of book records read from filename; empty list if missing. Skips bad lines.\"\"\"\n    books = []\n    try:\n        with open(filename) as f:\n            for line in f:\n                parts = line.strip().split(\",\")\n                if len(parts) != 5:\n                    if line.strip() != \"\":\n                        print(\"Skipping bad line:\", line.strip())\n                    continue\n                try:\n                    books.append([int(parts[0]), parts[1], parts[2], parts[3], int(parts[4])])\n                except ValueError:\n                    print(\"Skipping bad line:\", line.strip())\n    except FileNotFoundError:\n        pass\n    return books\n\ndef save_books(books, filename):\n    \"\"\"Write every record as id,title,author,borrower,due. Replaces the file.\"\"\"\n    with open(filename, \"w\") as f:\n        for b in books:\n            f.write(str(b[ID]) + \",\" + b[TITLE] + \",\" + b[AUTHOR] + \",\" + b[BORROWER] + \",\" + str(b[DUE]) + \"\\n\")\n\ndef find_book(books, book_id):\n    \"\"\"Return the index of the book with this id, or -1.\"\"\"\n    for i in range(len(books)):\n        if books[i][ID] == book_id:\n            return i\n    return -1\n\ndef format_book(b):\n    \"\"\"Return one display line for a book, e.g. '2  Wonder - R J Palacio  [OUT to Ada, due day 14]'.\"\"\"\n    if b[BORROWER] == \"\":\n        status = \"[IN]\"\n    else:\n        status = \"[OUT to \" + b[BORROWER] + \", due day \" + str(b[DUE]) + \"]\"\n    return str(b[ID]) + \"  \" + b[TITLE] + \" - \" + b[AUTHOR] + \"  \" + status\n\n# ---- operations ----\ndef show_all(books):\n    \"\"\"R3: print every book, or 'No books'.\"\"\"\n    if len(books) == 0:\n        print(\"No books\")\n    for b in books:\n        print(format_book(b))\n\ndef search_books(books):\n    \"\"\"R4: ask for text; print every book whose title contains it (any case); 'No matches' if none.\"\"\"\n    text = get_text(\"Title contains: \")\n    pass   # TODO Step 2\n\ndef borrow_book(books):\n    \"\"\"R5: ask for id; if the book exists and is in, ask borrower name and today's day;\n    set borrower and due = today + LOAN_DAYS. Otherwise print why not.\"\"\"\n    book_id = get_int(\"Book id: \", 1, 9999)\n    i = find_book(books, book_id)\n    pass   # TODO Step 2\n\ndef return_book(books):\n    \"\"\"R6: ask for id; if the book exists and is out, clear borrower and due. Otherwise print why not.\"\"\"\n    pass   # TODO Step 2\n\ndef show_menu():\n    print()\n    print(\"1 Show all  2 Search  3 Borrow  4 Return  5 Overdue  6 Add book  7 Save  8 Quit\")\n    return get_int(\"Choice: \", 1, 8)\n\n# ---- main program ----\nbooks = load_books(FILENAME)\nchoice = 0\nwhile choice != 8:\n    choice = show_menu()\n    if choice == 1:\n        show_all(books)\n    elif choice == 2:\n        search_books(books)\n    elif choice == 3:\n        borrow_book(books)\n    elif choice == 4:\n        return_book(books)\n    elif choice == 8:\n        save_books(books, FILENAME)\n        print(\"Saved. Goodbye.\")\n    else:\n        print(\"Option\", choice, \"is not built yet\")\n"
+    },
+    {
+      "type": "python",
+      "title": "Step 3 — overdue report, add, save (R7, R8, R9)",
+      "p": [
+        "Steps 1 and 2 are complete here (compare with yours). Finish `overdue_report`, `add_book` and `next_id`, then make borrow, return and add call `save_books` so the file is always in step (R9). Test: overdue for day 15 (expect Wonder and Noughts and Crosses, not Northern Lights); day 9 (expect none — 9 is not before 9); add `Wolf Brother` by `Michelle Paver` (expect id 7); show all; quit; look at the file."
+      ],
+      "files": {
+        "books.txt": "1,Holes,Louis Sachar,,0\n2,Wonder,R J Palacio,Ada,14\n3,The Hobbit,J R R Tolkien,,0\n4,Noughts and Crosses,Malorie Blackman,Tim,9\n5,Skellig,David Almond,,0\n6,Northern Lights,Philip Pullman,Grace,21\n"
+      },
+      "code": "FILENAME = \"books.txt\"\nLOAN_DAYS = 14\n# a book record is [id, title, author, borrower, due]  (borrower \"\" and due 0 when the book is in)\nID, TITLE, AUTHOR, BORROWER, DUE = 0, 1, 2, 3, 4\n\n# ---- input helpers (from lesson 3) ----\ndef get_int(prompt, low, high):\n    \"\"\"Keep asking until a whole number from low to high is typed; return it.\"\"\"\n    while True:\n        text = input(prompt)\n        if not text.isdigit():\n            print(\"Please type a whole number.\")\n        elif int(text) < low or int(text) > high:\n            print(\"Must be from\", low, \"to\", high)\n        else:\n            return int(text)\n\ndef get_text(prompt):\n    \"\"\"Keep asking until something other than blank is typed; return it stripped.\"\"\"\n    while True:\n        text = input(prompt).strip()\n        if text != \"\":\n            return text\n        print(\"This cannot be blank.\")\n\n# ---- file handling ----\ndef load_books(filename):\n    \"\"\"Return a list of book records read from filename; empty list if missing. Skips bad lines.\"\"\"\n    books = []\n    try:\n        with open(filename) as f:\n            for line in f:\n                parts = line.strip().split(\",\")\n                if len(parts) != 5:\n                    if line.strip() != \"\":\n                        print(\"Skipping bad line:\", line.strip())\n                    continue\n                try:\n                    books.append([int(parts[0]), parts[1], parts[2], parts[3], int(parts[4])])\n                except ValueError:\n                    print(\"Skipping bad line:\", line.strip())\n    except FileNotFoundError:\n        pass\n    return books\n\ndef save_books(books, filename):\n    \"\"\"Write every record as id,title,author,borrower,due. Replaces the file.\"\"\"\n    with open(filename, \"w\") as f:\n        for b in books:\n            f.write(str(b[ID]) + \",\" + b[TITLE] + \",\" + b[AUTHOR] + \",\" + b[BORROWER] + \",\" + str(b[DUE]) + \"\\n\")\n\ndef find_book(books, book_id):\n    \"\"\"Return the index of the book with this id, or -1.\"\"\"\n    for i in range(len(books)):\n        if books[i][ID] == book_id:\n            return i\n    return -1\n\ndef format_book(b):\n    \"\"\"Return one display line for a book, e.g. '2  Wonder - R J Palacio  [OUT to Ada, due day 14]'.\"\"\"\n    if b[BORROWER] == \"\":\n        status = \"[IN]\"\n    else:\n        status = \"[OUT to \" + b[BORROWER] + \", due day \" + str(b[DUE]) + \"]\"\n    return str(b[ID]) + \"  \" + b[TITLE] + \" - \" + b[AUTHOR] + \"  \" + status\n\n# ---- operations ----\ndef show_all(books):\n    if len(books) == 0:\n        print(\"No books\")\n    for b in books:\n        print(format_book(b))\n\ndef search_books(books):\n    text = get_text(\"Title contains: \").lower()\n    found = 0\n    for b in books:\n        if text in b[TITLE].lower():\n            print(format_book(b))\n            found = found + 1\n    if found == 0:\n        print(\"No matches\")\n\ndef borrow_book(books):\n    book_id = get_int(\"Book id: \", 1, 9999)\n    i = find_book(books, book_id)\n    if i == -1:\n        print(\"No book has id\", book_id)\n    elif books[i][BORROWER] != \"\":\n        print(\"Already out to\", books[i][BORROWER])\n    else:\n        books[i][BORROWER] = get_text(\"Borrower name: \")\n        today = get_int(\"Today's day number: \", 1, 365)\n        books[i][DUE] = today + LOAN_DAYS\n        print(books[i][TITLE], \"is due on day\", books[i][DUE])\n        # TODO R9: save\n\ndef return_book(books):\n    book_id = get_int(\"Book id: \", 1, 9999)\n    i = find_book(books, book_id)\n    if i == -1:\n        print(\"No book has id\", book_id)\n    elif books[i][BORROWER] == \"\":\n        print(\"That book is not out\")\n    else:\n        books[i][BORROWER] = \"\"\n        books[i][DUE] = 0\n        print(\"Returned\", books[i][TITLE])\n        # TODO R9: save\n\ndef overdue_report(books):\n    \"\"\"R7: ask for today's day; print every book that is out with due < today, with borrower; or 'Nothing overdue'.\"\"\"\n    today = get_int(\"Today's day number: \", 1, 365)\n    pass   # TODO Step 3\n\ndef next_id(books):\n    \"\"\"Return the largest id + 1, or 1 if there are no books.\"\"\"\n    return 1   # TODO Step 3\n\ndef add_book(books):\n    \"\"\"R8: ask for title and author (not blank); append [next_id, title, author, \"\", 0]; save.\"\"\"\n    pass   # TODO Step 3\n\ndef show_menu():\n    print()\n    print(\"1 Show all  2 Search  3 Borrow  4 Return  5 Overdue  6 Add book  7 Save  8 Quit\")\n    return get_int(\"Choice: \", 1, 8)\n\n# ---- main program ----\nbooks = load_books(FILENAME)\nchoice = 0\nwhile choice != 8:\n    choice = show_menu()\n    if choice == 1:\n        show_all(books)\n    elif choice == 2:\n        search_books(books)\n    elif choice == 3:\n        borrow_book(books)\n    elif choice == 4:\n        return_book(books)\n    elif choice == 5:\n        overdue_report(books)\n    elif choice == 6:\n        add_book(books)\n    elif choice == 7:\n        save_books(books, FILENAME)\n        print(\"Saved\")\n    else:\n        save_books(books, FILENAME)\n        print(\"Saved. Goodbye.\")\n"
+    },
+    {
+      "type": "task",
+      "title": "Test plan and evaluation",
+      "p": [
+        "Write the test plan **before** your final run — at least 16 rows, at least one per requirement, every input with a boundary and an erroneous row. Suggested boundary rows: overdue on the exact due day; borrow with id equal to the highest id; add when the list is empty (delete the file contents first). Run it all on your Step 3 program. Log and fix failures. Then write the evaluation table (R1–R9 + validation: met/partly/not, test evidence, next step) and three sentences on robustness, maintainability and one limitation."
+      ],
+      "steps": [
+        "Common failures to look for: search matching the author instead of the title; borrowing a book that is out; overdue using `<=` so books due today appear; `next_id` using `len(books) + 1`.",
+        "Your evaluation must mention one thing the brief did **not** say that a real librarian would want (a borrower's loan limit? renewals?) — and say you did not build it. That is honest scoping, not failure."
+      ]
+    },
+    {
+      "type": "embed",
+      "title": "Save the project",
+      "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": [
+        "Save your finished Step 3 program as `library.py`, with `books.txt` beside it, your test plan as `library_tests.txt` and the evaluation as `library_evaluation.txt`.",
+        "At the top of `library.py` paste the nine requirements as comments and write the function name that meets each one beside it."
+      ]
+    }
+  ],
+  "check": [
+    {
+      "q": "In the record design, a book is 'in' when:",
+      "opts": [
+        "`b[DUE] > 0`",
+        "`b[BORROWER] == \"\"`",
+        "`b[ID] == 0`",
+        "`b[TITLE] == \"\"`"
+      ],
+      "a": 1,
+      "fb": "Blank borrower means nobody has it."
+    },
+    {
+      "q": "Case-insensitive partial title search is best written as:",
+      "opts": [
+        "`text == b[TITLE]`",
+        "`text in b[TITLE]`",
+        "`text.lower() in b[TITLE].lower()`",
+        "`b[TITLE].startswith(text)`"
+      ],
+      "a": 2,
+      "fb": "Lower both sides, then `in` for any part."
+    },
+    {
+      "q": "A book due on day 14 is checked on day 14. It should appear in the overdue report:",
+      "opts": [
+        "Yes — `due <= today`",
+        "No — overdue means `due < today`",
+        "Only if the borrower is Ada",
+        "Yes, because 14 is a boundary"
+      ],
+      "a": 1,
+      "fb": "The brief says 'before today'; 14 is a boundary that tests the comparison."
+    },
+    {
+      "q": "The next id for a new book should be:",
+      "opts": [
+        "`len(books) + 1`",
+        "The largest existing id + 1",
+        "A random number",
+        "The user types it"
+      ],
+      "a": 1,
+      "fb": "After a deletion, `len + 1` could repeat an id."
+    },
+    {
+      "q": "R9 says save after every change. The simplest way to meet it is:",
+      "opts": [
+        "Open the file in append mode in each function",
+        "Call `save_books` at the end of borrow, return and add",
+        "Save only on quit",
+        "Write to the file inside `find_book`"
+      ],
+      "a": 1,
+      "fb": "One call after each change keeps the file in step."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Write a function `countOut(books)` that returns the number of books currently on loan. Each book is stored as `[id, title, author, borrower, due]` and the borrower field is an empty string when the book is in.",
+      "marks": 3,
+      "model": [
+        "Function header with the parameter and a counter set to 0 (1). Loop through every book testing whether the borrower field is not empty, incrementing the counter (1). Counter returned after the loop (1)."
+      ],
+      "commentary": "Write question. Testing `due > 0` is also accepted because the design sets due to 0 when in. Returning inside the loop loses the last mark."
+    },
+    {
+      "q": "The librarian now wants the borrow option to refuse a loan if the borrower already has 3 books out. Describe how the program would be refined to meet this, naming the data checked and where the check goes.",
+      "marks": 3,
+      "model": [
+        "Count the books whose borrower field equals the name entered (1) — in `borrow_book` after the name is entered and before the record is changed (1); if the count is 3 or more print a refusal and do not set borrower/due (1)."
+      ],
+      "commentary": "Refine/design question answerable in English. 'Add a check' alone scores nothing; what is counted, where, and what happens are the three marks."
+    },
+    {
+      "q": "Give **two** items of test data for the overdue report when a book is due on day 20, stating the type of each and the expected result.",
+      "marks": 4,
+      "model": [
+        "Today = 20: boundary (1), book not listed (1). Today = 21 (or any later day): normal (1), book listed with borrower (1). Also accepted: today = 19 normal, not listed; 'twenty' erroneous, rejected and asked again."
+      ],
+      "commentary": "Value, type and expected result. The boundary row is the one that catches `<=` — students who only give 'day 30' have not tested the edge."
+    }
+  ],
+  "home": "Finish the test plan and evaluation if they are not done. Then refine: make the overdue report also show how many days overdue each book is, add the test rows for it, and update the evaluation.",
+  "teacher": {
+    "timing": "60 min: hook 2 · explain 10 · Step 1: 10 · Step 2: 15 · Step 3: 13 · test plan and evaluation 8 · homework 2. If the class is slower, Step 3 and the evaluation can run into a second lesson; do not shorten the test plan.",
+    "misconceptions": [
+      "Searching with `==` so only the whole title matches, or searching the author field.",
+      "Borrow that overwrites an existing borrower because the 'is it in?' check is missing.",
+      "Overdue report using `<=` — the boundary row (today equals due) catches it.",
+      "Saving only on quit, so a crash loses every loan made in the session (R9)."
+    ],
+    "say": [
+      "'Run after Step 1. Six books on screen? Then Step 2.'",
+      "'Which requirement number does that function meet? Write it in the docstring.'",
+      "'Book due day 14, today day 14. Overdue or not? Test it.'"
+    ],
+    "skip": "Nothing. If time is short, Step 3's `add_book` can be homework, but the overdue report (the only report in the brief) and the test plan must be done in class.",
+    "differentiation": [
+      "Support: students work on Step 2 and Step 3 only, using the given completed code for the earlier steps; pair the weakest with the test plan task first so they know what the program must do.",
+      "Stretch: after Step 3, implement the 3-book loan limit from exam question 2 and a 'renew' option that adds 14 days to the due day if the book is out and not overdue."
+    ]
+  }
+}

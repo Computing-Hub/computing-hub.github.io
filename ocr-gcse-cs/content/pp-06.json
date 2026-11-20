@@ -1,0 +1,263 @@
+{
+  "id": "pp-06",
+  "title": "Testing against a plan",
+  "spec": "Practical programming",
+  "duration": 60,
+  "specPoints": [
+    "2.3.2 Testing: the purpose of testing; **iterative** and **final/terminal** testing; identify **syntax** and **logic** errors",
+    "2.3.2 Selecting and using suitable **test data**: normal, boundary, invalid, erroneous; refining algorithms",
+    "Practical programming skills (Section B): test a program against its requirements, record results and refine"
+  ],
+  "learn": [
+    "Write a test plan from the requirements with normal, boundary, invalid and erroneous data for each",
+    "Run the plan, record actual results and log every failure with the test that found it",
+    "Trace a failure back to the line that caused it and fix it without breaking anything else",
+    "Re-run the failed test and the tests around it after each fix",
+    "Use `assert` lines as a quick, repeatable test harness for functions that return values"
+  ],
+  "hook": "This register has been through five lessons and 'works' — everyone who ran it says so. It has three bugs. Nobody found them because nobody tested the edges: the biggest valid year, a name typed twice, closing and reopening. A test plan is a list of the places bugs hide. Today you write one, and the bugs come out.",
+  "video": {
+    "title": "The plan finds what the demo misses",
+    "brief": "4 minutes. A requirements list on the left; for each requirement four rows appear on the right labelled normal, boundary, invalid, erroneous, with expected results filled in. The program runs row by row: ticks, then a cross on 'year = 11' — expected accepted, actual rejected. The faulty upper limit is highlighted and fixed; the row is re-run and the rows around it too. Second cross: a duplicate name accepted. Third: the saved file has all records on one line. End with five `assert` lines running silently and one failing loudly."
+  },
+  "explain": [
+    {
+      "h": "From requirements to test plan",
+      "p": [
+        "A **test plan** is a table written **before** testing, with one or more rows per requirement. Each row has: test number, what is being tested, the input, the **type** of data, the **expected** result, and empty columns for actual result and pass/fail. The four data types make sure you test the edges: **normal** (typical, should work), **boundary** (exactly on a limit — the most bug-finding kind), **invalid** (right type, outside the rules) and **erroneous** (wrong type altogether). The expected column is filled from the brief, not from running the program."
+      ],
+      "code": "No  Requirement       Input               Type        Expected                       Actual  P/F\n1   Menu choice       3                   normal      Find runs\n2   Menu choice       6                   boundary    Save and quit\n3   Menu choice       7                   invalid     'Must be from 1 to 6', ask again\n4   Menu choice       six                 erroneous   'whole number', ask again\n5   Add - year        11                  boundary    accepted\n6   Add - year        12                  invalid     rejected\n7   Add - name        Ada (exists)        normal      'already in the register'\n8   Award points      Ada, 100            boundary    Ada has 112\n9   Award points      Zed, 10             normal      'Not found'\n10  Save then load    (quit, run again)   normal      same 4 members shown"
+    },
+    {
+      "h": "Running the plan and logging failures",
+      "p": [
+        "Run **every** row, even the ones you are sure of, and write the actual result in the actual column — exactly what appeared, not 'works'. A row fails if actual differs from expected **or** the program crashes. Keep a **failure log**: test number, what happened, suspected cause, the fix, and the re-test result. The log is evidence that you tested and refined — in the exam's language, it is the 'refine' step made visible."
+      ],
+      "code": "Failure log\nTest  Actual                          Cause (line)                     Fix                  Re-test\n5     'Must be from 7 to 10'          add_member passes 10 as the limit  changed to 11      5 pass, 6 pass\n7     Added Ada again                 add_member has no duplicate check  added find_member  7 pass, 8 pass\n10    One line, then crash on load    save_members missing \\n            added + \"\\n\"       10 pass"
+    },
+    {
+      "h": "Fix, then re-run — the right rows",
+      "p": [
+        "After a fix, re-run the row that failed **and** every row that touches the same code. Fixing the year limit affects tests 5 and 6; fixing a shared helper such as `get_int` would affect every row that takes input. A fix that breaks a passing test is a **regression**, and it is common: a hurried change to the upper limit could become 12 and let invalid data in. The rule: one fix, then re-test, then the next fix. Never fix three things and run once."
+      ]
+    },
+    {
+      "h": "assert: a test that runs itself",
+      "p": [
+        "Tests that go through the menu are slow to repeat. For functions that **return a value**, write `assert` lines instead: `assert find_member(test, \"Grace\") == 1`. If the condition is true nothing happens; if it is false the program stops with `AssertionError` and the line number — a failed test that shouts. Put the asserts in a block at the bottom of the file (or a separate test file) and run them after every change. They are your plan for the pure functions, written as code."
+      ],
+      "code": "test = [[\"Ada\", 9, 12], [\"Grace\", 10, 30]]\nassert find_member(test, \"Grace\") == 1        # normal\nassert find_member(test, \"Ada\") == 0          # boundary: first item\nassert find_member(test, \"Zed\") == -1         # invalid: not present\nassert find_member([], \"Ada\") == -1           # boundary: empty list\nprint(\"All find_member tests passed\")           # only reached if none failed"
+    }
+  ],
+  "simple": [
+    {
+      "h": "The plan",
+      "p": [
+        "A table. One row per test: input, type (normal, boundary, invalid, erroneous), what should happen. Write it before you run anything."
+      ]
+    },
+    {
+      "h": "Run and record",
+      "list": [
+        "Run every row. Write down what really happened.",
+        "Different from expected, or a crash? That row fails.",
+        "Keep a log: which test, what went wrong, what you changed."
+      ]
+    },
+    {
+      "h": "Fix and re-run",
+      "list": [
+        "Fix one thing.",
+        "Run the failed row again. Run the rows near it too.",
+        "`assert f(x) == 5` is a test that checks itself. Put several at the bottom of the file."
+      ]
+    }
+  ],
+  "keyterms": [
+    {
+      "term": "Test plan",
+      "def": "A table of tests written before testing: input, data type, expected result, with space for the actual result."
+    },
+    {
+      "term": "Boundary data",
+      "def": "Values exactly on the edge of what is allowed, e.g. 7 and 11 for a 7–11 range."
+    },
+    {
+      "term": "Invalid data",
+      "def": "Data of the right type but outside the allowed rules, e.g. 12 for a 7–11 range."
+    },
+    {
+      "term": "Erroneous data",
+      "def": "Data of the wrong type altogether, e.g. 'ten' when a number is expected."
+    },
+    {
+      "term": "Logic error",
+      "def": "An error where the program runs but gives the wrong result, e.g. `>=` instead of `>`."
+    },
+    {
+      "term": "Regression",
+      "def": "A previously passing test that fails after a change."
+    },
+    {
+      "term": "assert",
+      "def": "A statement that stops the program with an error if its condition is false; used as a self-checking test."
+    }
+  ],
+  "try": [
+    {
+      "type": "task",
+      "title": "1. Write the plan first",
+      "p": [
+        "Using the requirements from lesson 1 (load, show all, add, find, award, remove, save; menu rejects invalid choices; names must be unique; year 7–11; points 1–100), write a test plan of **at least 14 rows**. Every requirement needs at least one row; every input needs a boundary row and an erroneous row. Fill in the expected column from the requirements. Leave actual and pass/fail blank."
+      ],
+      "steps": [
+        "Number the rows. You will refer to them in the failure log.",
+        "Underline the three rows you think are most likely to find a bug and say why.",
+        "Swap plans with a partner and add any test type they covered that you missed."
+      ]
+    },
+    {
+      "type": "python",
+      "title": "2. Run the plan: three bugs",
+      "p": [
+        "This is the register from lesson 5 with three bugs that normal data never finds. Run your plan row by row (you will need to re-run the program for some rows — that is normal). Record the actual result for every row. **Do not fix anything yet.** Which rows failed? Which data type found each bug?"
+      ],
+      "files": {
+        "members.txt": "Ada,9,12\nGrace,10,30\nAlan,9,7\nTim,8,0\n"
+      },
+      "code": "FILENAME = \"members.txt\"\n\n# ---- input helpers ----\ndef get_int(prompt, low, high):\n    \"\"\"Keep asking until a whole number from low to high is typed; return it.\"\"\"\n    while True:\n        text = input(prompt)\n        if not text.isdigit():\n            print(\"Please type a whole number.\")\n        elif int(text) < low or int(text) > high:\n            print(\"Must be from\", low, \"to\", high)\n        else:\n            return int(text)\n\ndef get_text(prompt):\n    \"\"\"Keep asking until something other than blank is typed; return it stripped.\"\"\"\n    while True:\n        text = input(prompt).strip()\n        if text != \"\":\n            return text\n        print(\"This cannot be blank.\")\n\n# ---- file handling ----\ndef load_members(filename):\n    \"\"\"Return a list of [name, year, points] read from filename; empty list if missing.\"\"\"\n    members = []\n    try:\n        with open(filename) as f:\n            for line in f:\n                line = line.strip()\n                if line != \"\":\n                    parts = line.split(\",\")\n                    members.append([parts[0], int(parts[1]), int(parts[2])])\n    except FileNotFoundError:\n        pass\n    return members\n\ndef save_members(members, filename):\n    \"\"\"Write every record to filename as name,year,points, replacing the file.\"\"\"\n    with open(filename, \"w\") as f:\n        for m in members:\n            f.write(m[0] + \",\" + str(m[1]) + \",\" + str(m[2]))\n\n# ---- register operations ----\ndef find_member(members, name):\n    \"\"\"Return the index of the member called name, or -1.\"\"\"\n    for i in range(len(members)):\n        if members[i][0] == name:\n            return i\n    return -1\n\ndef show_all(members):\n    \"\"\"Print one line per member, or 'No members'.\"\"\"\n    if len(members) == 0:\n        print(\"No members\")\n    for m in members:\n        print(m[0], \"(year\", str(m[1]) + \")\", \"-\", m[2], \"points\")\n\ndef add_member(members):\n    \"\"\"Ask for name and year, append a new record with 0 points. Names must be unique.\"\"\"\n    name = get_text(\"Name: \")\n    year = get_int(\"Year group (7-11): \", 7, 10)\n    members.append([name, year, 0])\n    print(\"Added\", name)\n\ndef show_member(members):\n    \"\"\"Ask for a name and print that member's details or 'Not found'.\"\"\"\n    name = get_text(\"Name: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n    else:\n        print(members[i][0], \"is in year\", members[i][1], \"with\", members[i][2], \"points\")\n\ndef award_points(members):\n    \"\"\"Ask for a name and points (1-100); add the points to that member.\"\"\"\n    name = get_text(\"Name: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n        return\n    points = get_int(\"Points to add (1-100): \", 1, 100)\n    members[i][2] = members[i][2] + points\n    print(name, \"now has\", members[i][2], \"points\")\n\ndef remove_member(members):\n    \"\"\"Ask for a name and delete that member, or print 'Not found'.\"\"\"\n    name = get_text(\"Name to remove: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n    else:\n        members.pop(i)\n        print(\"Removed\", name)\n\ndef show_menu():\n    \"\"\"Print the menu and return a validated choice 1-6.\"\"\"\n    print()\n    print(\"1 Show all   2 Add   3 Find   4 Award points   5 Remove   6 Save and quit\")\n    return get_int(\"Choice: \", 1, 6)\n\n# ---- main program ----\nmembers = load_members(FILENAME)\nchoice = 0\nwhile choice != 6:\n    choice = show_menu()\n    if choice == 1:\n        show_all(members)\n    elif choice == 2:\n        add_member(members)\n    elif choice == 3:\n        show_member(members)\n    elif choice == 4:\n        award_points(members)\n    elif choice == 5:\n        remove_member(members)\n    else:\n        save_members(members, FILENAME)\n        print(\"Saved. Goodbye.\")\n"
+    },
+    {
+      "type": "python",
+      "title": "3. Fix, log, re-run",
+      "p": [
+        "Same program. For each failed row: find the line responsible, write a failure-log entry as a comment at the **top** of the file (test number, cause, fix), make the fix, then re-run that row **and** the rows that share the code. Fix one bug at a time. When all three are fixed, run the whole plan once more from the top. Hints: read the message the year check prints; read `add_member`'s docstring; look at the file contents shown after saving."
+      ],
+      "files": {
+        "members.txt": "Ada,9,12\nGrace,10,30\nAlan,9,7\nTim,8,0\n"
+      },
+      "code": "# FAILURE LOG\n# Test  Cause (function, line)            Fix                        Re-tested\n# ...\n\nFILENAME = \"members.txt\"\n\n# ---- input helpers ----\ndef get_int(prompt, low, high):\n    \"\"\"Keep asking until a whole number from low to high is typed; return it.\"\"\"\n    while True:\n        text = input(prompt)\n        if not text.isdigit():\n            print(\"Please type a whole number.\")\n        elif int(text) < low or int(text) > high:\n            print(\"Must be from\", low, \"to\", high)\n        else:\n            return int(text)\n\ndef get_text(prompt):\n    \"\"\"Keep asking until something other than blank is typed; return it stripped.\"\"\"\n    while True:\n        text = input(prompt).strip()\n        if text != \"\":\n            return text\n        print(\"This cannot be blank.\")\n\n# ---- file handling ----\ndef load_members(filename):\n    \"\"\"Return a list of [name, year, points] read from filename; empty list if missing.\"\"\"\n    members = []\n    try:\n        with open(filename) as f:\n            for line in f:\n                line = line.strip()\n                if line != \"\":\n                    parts = line.split(\",\")\n                    members.append([parts[0], int(parts[1]), int(parts[2])])\n    except FileNotFoundError:\n        pass\n    return members\n\ndef save_members(members, filename):\n    \"\"\"Write every record to filename as name,year,points, replacing the file.\"\"\"\n    with open(filename, \"w\") as f:\n        for m in members:\n            f.write(m[0] + \",\" + str(m[1]) + \",\" + str(m[2]))\n\n# ---- register operations ----\ndef find_member(members, name):\n    \"\"\"Return the index of the member called name, or -1.\"\"\"\n    for i in range(len(members)):\n        if members[i][0] == name:\n            return i\n    return -1\n\ndef show_all(members):\n    \"\"\"Print one line per member, or 'No members'.\"\"\"\n    if len(members) == 0:\n        print(\"No members\")\n    for m in members:\n        print(m[0], \"(year\", str(m[1]) + \")\", \"-\", m[2], \"points\")\n\ndef add_member(members):\n    \"\"\"Ask for name and year, append a new record with 0 points. Names must be unique.\"\"\"\n    name = get_text(\"Name: \")\n    year = get_int(\"Year group (7-11): \", 7, 10)\n    members.append([name, year, 0])\n    print(\"Added\", name)\n\ndef show_member(members):\n    \"\"\"Ask for a name and print that member's details or 'Not found'.\"\"\"\n    name = get_text(\"Name: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n    else:\n        print(members[i][0], \"is in year\", members[i][1], \"with\", members[i][2], \"points\")\n\ndef award_points(members):\n    \"\"\"Ask for a name and points (1-100); add the points to that member.\"\"\"\n    name = get_text(\"Name: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n        return\n    points = get_int(\"Points to add (1-100): \", 1, 100)\n    members[i][2] = members[i][2] + points\n    print(name, \"now has\", members[i][2], \"points\")\n\ndef remove_member(members):\n    \"\"\"Ask for a name and delete that member, or print 'Not found'.\"\"\"\n    name = get_text(\"Name to remove: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n    else:\n        members.pop(i)\n        print(\"Removed\", name)\n\ndef show_menu():\n    \"\"\"Print the menu and return a validated choice 1-6.\"\"\"\n    print()\n    print(\"1 Show all   2 Add   3 Find   4 Award points   5 Remove   6 Save and quit\")\n    return get_int(\"Choice: \", 1, 6)\n\n# ---- main program ----\nmembers = load_members(FILENAME)\nchoice = 0\nwhile choice != 6:\n    choice = show_menu()\n    if choice == 1:\n        show_all(members)\n    elif choice == 2:\n        add_member(members)\n    elif choice == 3:\n        show_member(members)\n    elif choice == 4:\n        award_points(members)\n    elif choice == 5:\n        remove_member(members)\n    else:\n        save_members(members, FILENAME)\n        print(\"Saved. Goodbye.\")\n"
+    },
+    {
+      "type": "python",
+      "title": "4. Build an assert harness",
+      "p": [
+        "The functions below are correct except one. Write **at least ten** `assert` lines covering normal, boundary and invalid cases for `find_member`, `total_points`, `format_member` and `top_member`. Run. The failing assert tells you which function is wrong; fix it and run until the final message appears. Then add one assert that you expect to fail on purpose, to see what the report looks like."
+      ],
+      "code": "def find_member(members, name):\n    \"\"\"Return the index of the member called name, or -1.\"\"\"\n    for i in range(len(members)):\n        if members[i][0] == name:\n            return i\n    return -1\n\ndef total_points(members):\n    \"\"\"Return the sum of all members' points.\"\"\"\n    total = 0\n    for m in members:\n        total = total + m[2]\n    return total\n\ndef format_member(m):\n    \"\"\"Return the display line for one member, e.g. 'Ada (year 9) - 12 points'.\"\"\"\n    return m[0] + \" (year \" + str(m[1]) + \") - \" + str(m[2]) + \" points\"\n\ndef top_member(members):\n    \"\"\"Return the name of the member with the most points, or '' if the list is empty.\"\"\"\n    if len(members) == 0:\n        return \"\"\n    best = members[0]\n    for m in members:\n        if m[2] > best[2]:\n            best = m\n    return best\n\n# ---- test harness ----\ntest = [[\"Ada\", 9, 12], [\"Grace\", 10, 30], [\"Alan\", 9, 7]]\nassert find_member(test, \"Alan\") == 2\nassert find_member(test, \"Zed\") == -1\nassert total_points(test) == 49\nassert total_points([]) == 0\nassert format_member([\"Ada\", 9, 12]) == \"Ada (year 9) - 12 points\"\n# add more here, including top_member\n\nprint(\"All tests passed\")\n"
+    },
+    {
+      "type": "embed",
+      "title": "5. Save v5 with its tests",
+      "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": [
+        "Save the fixed register as `club_v5.py`. Add your assert harness for `find_member` at the bottom, after the main loop, behind `if input(\"Run tests? (y/n): \") == \"y\":` so it only runs when you want it.",
+        "Save your test plan and failure log as `club_tests.txt` next to it."
+      ]
+    }
+  ],
+  "check": [
+    {
+      "q": "For an input that must be 7–11, the boundary test values are:",
+      "opts": [
+        "6 and 12",
+        "7 and 11",
+        "9",
+        "0 and 100"
+      ],
+      "a": 1,
+      "fb": "Exactly on the limits; 6 and 12 are invalid data."
+    },
+    {
+      "q": "The expected result column of a test plan is filled in:",
+      "opts": [
+        "After running the program",
+        "From the requirements, before running",
+        "By the teacher",
+        "Only for failed tests"
+      ],
+      "a": 1,
+      "fb": "Otherwise you are only checking the program agrees with itself."
+    },
+    {
+      "q": "After fixing a bug in `get_int` you should re-run:",
+      "opts": [
+        "Only the test that failed",
+        "The failed test and every test that uses `get_int`",
+        "Nothing — the fix is obvious",
+        "The whole plan twice"
+      ],
+      "a": 1,
+      "fb": "Shared code means shared risk of regression."
+    },
+    {
+      "q": "`assert find_member(test, \"Zed\") == -1` does what when the function is correct?",
+      "opts": [
+        "Prints -1",
+        "Prints 'passed'",
+        "Nothing",
+        "Stops the program"
+      ],
+      "a": 2,
+      "fb": "Asserts are silent when true and loud when false."
+    },
+    {
+      "q": "A program that accepts a duplicate name when the brief says names must be unique has:",
+      "opts": [
+        "A syntax error",
+        "A logic error",
+        "A runtime crash",
+        "No error — it runs"
+      ],
+      "a": 1,
+      "fb": "Runs, but does the wrong thing against the requirement."
+    }
+  ],
+  "exam": [
+    {
+      "q": "A program accepts a test score from 0 to 50. Give **one** item of boundary test data and **one** item of erroneous test data, stating the expected result for each.",
+      "marks": 4,
+      "model": [
+        "Boundary: 0 or 50 (1) — accepted (1). Erroneous: a non-number such as 'ten' or blank (1) — rejected with a message and asked again, without crashing (1)."
+      ],
+      "commentary": "Value and expected result for each: four marks. 51 is invalid, not boundary, and loses the mark; -1 is also invalid (right type, outside range)."
+    },
+    {
+      "q": "The function below should return True when `n` is between 1 and 10 inclusive. A tester enters 10 and the function returns False. Identify the line with the error, state the type of error, and write the corrected line.",
+      "marks": 3,
+      "code": "01 function inRange(n)\n02     if n >= 1 and n < 10 then\n03         return True\n04     else\n05         return False\n06     endif\n07 endfunction",
+      "model": [
+        "Line 02 (1). Logic error (1). `if n >= 1 and n <= 10 then` (1)."
+      ],
+      "commentary": "A test-and-refine question. 'Syntax error' loses the type mark — the code runs. The corrected line must be written in code."
+    },
+    {
+      "q": "A student tests a menu program by choosing each option once with sensible data and declares it finished. Explain why this testing is inadequate.",
+      "marks": 2,
+      "model": [
+        "Only normal data has been used (1); boundary, invalid and erroneous data have not been tested, so errors such as a wrong comparison on a limit or a crash on text input would not be found (1)."
+      ],
+      "commentary": "Name what is missing and the consequence. Listing the four data types without saying why they matter scores one."
+    }
+  ],
+  "home": "Write a complete test plan (12+ rows) for your lesson 1 homework program, run it and log at least one failure and fix — if you cannot find a bug, your boundary rows are not close enough to the edges. Bring the plan and log.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 33 (Try 1 paper 8, Try 2–4 runner 25) · check 4 · exam 5 · homework 3",
+    "misconceptions": [
+      "Filling the expected column by running the program first.",
+      "Treating 'boundary' as 'any number near the edge' — 12 is invalid, 11 is boundary.",
+      "Fixing all failures at once and running once, so a regression cannot be traced.",
+      "Writing 'works' in the actual column instead of the real output."
+    ],
+    "say": [
+      "'What did it actually print? Write that. Not works.'",
+      "'Which rows share that function? Run them too.'",
+      "'Your plan found nothing? Then your boundaries are not on the boundary.'"
+    ],
+    "skip": "Try 4 can be shortened to five asserts. Try 1 → 2 → 3 is the plan-run-fix cycle and must be done in full.",
+    "differentiation": [
+      "Support: give the first eight rows of the plan from the lesson; students add six more and run all of them.",
+      "Stretch: in Try 3, write the fix for the duplicate-name bug so that the comparison ignores case, and add the two test rows that prove it."
+    ]
+  }
+}

@@ -1,0 +1,260 @@
+{
+  "id": "pp-05",
+  "title": "Building: subprograms",
+  "spec": "Practical programming",
+  "duration": 60,
+  "specPoints": [
+    "2.2.3 Additional programming techniques: **sub programs (functions and procedures)** to produce structured code; **parameters** and **return values**",
+    "2.3.1 Defensive design: **maintainability** — sub programs, naming conventions, indentation, commenting",
+    "Practical programming skills (Section B): write and refine programs using subprograms with parameters and returns; local and global variables"
+  ],
+  "learn": [
+    "Identify repeated and self-contained code in a long program and turn it into functions",
+    "Choose parameters (what goes in) and a return value (what comes out) for each function",
+    "Write a comment header or docstring that states a function's purpose, parameters and return",
+    "Explain the difference between local and global variables and avoid relying on globals",
+    "Test each function on its own with fixed test calls before running the whole program"
+  ],
+  "hook": "Here is a program that works perfectly — 60 lines, no functions, the search code copied three times. Now the client wants the search to ignore capital letters. That is three places to change, and you will miss one. By the end of the lesson the same program is 12 functions, the search is written once, and each function can be tested with a single line.",
+  "video": {
+    "title": "From monolith to modules",
+    "brief": "4 minutes. The 60-line program scrolls past with the three identical search blocks highlighted. One block is cut out, given a name, parameters and a return, and the three places become three one-line calls. The validation loops become `get_int`. The main loop shrinks to 15 lines. Side panel: a variable created inside a function fades when the function ends (local); a variable at the top level stays (global). End: each function called on its own with test data and a tick."
+  },
+  "explain": [
+    {
+      "h": "Why break it up?",
+      "p": [
+        "A **monolith** is one long block of code. It runs, but: the same code appears several times, so a fix must be made several times; nothing can be tested on its own; and to understand what option 4 does you must read everything above it. **Subprograms** fix all three. The refactoring rule: anything that appears twice becomes a function; anything that is a complete idea ('find a member', 'save the file') becomes a function even if it appears once. **Refactoring** means changing the structure of code without changing what it does — so the refactored program must pass exactly the same tests as the monolith."
+      ]
+    },
+    {
+      "h": "Parameters in, return value out",
+      "p": [
+        "For each function ask two questions. **What does it need to know?** Those are the **parameters**. **What does it produce?** That is the **return value** — or nothing, in which case it is a procedure that only has an effect, such as printing or saving. `find_member` needs the list and a name and produces an index. `show_all` needs the list and produces nothing. `get_int` needs a prompt and the range and produces an integer. A function that needs something but has no parameter for it is relying on a global variable — avoid that."
+      ],
+      "code": "Function            Parameters (in)            Returns (out)\nload_members        filename                   list of records\nsave_members        members, filename          nothing (writes the file)\nfind_member         members, name              index or -1\nshow_all            members                    nothing (prints)\nadd_member          members                    nothing (changes the list)\nget_int             prompt, low, high          a valid integer\nshow_menu           (none)                     the validated choice 1-6"
+    },
+    {
+      "h": "Local and global",
+      "p": [
+        "A variable created **inside** a function is **local**: it exists only while that function runs and cannot be seen outside. `i`, `text` and `found` inside `find_member` are local, so three functions can each have their own `i` without clashing. A variable created at the top level of the program is **global**: every function can read it. Reading a global is tempting but makes a function impossible to test alone and hides what it depends on. Pass the data in as a parameter instead. The one exception people accept is a **constant** such as `FILENAME = \"members.txt\"`, written in capitals and never changed."
+      ],
+      "code": "FILENAME = \"members.txt\"        # global constant: fine\n\ndef find_member(members, name):  # members comes in as a parameter: good\n    for i in range(len(members)):  # i is local to this function\n        if members[i][0] == name:\n            return i\n    return -1\n\ndef bad_find(name):              # relies on a global called members: avoid\n    for i in range(len(members)):\n        ...\n\nprint(i)   # NameError: i does not exist out here"
+    },
+    {
+      "h": "The header comment and testing alone",
+      "p": [
+        "Every function gets a **docstring** (or a comment header): one line saying what it does, what the parameters are and what it returns. This is the maintainability mark in the exam, and it is how your future self knows what `find_member` returns when nothing is found. Then **test the function alone**: call it with fixed data and print the result, before the menu exists. `print(find_member([[\"Ada\", 9, 12]], \"Ada\"))` should print `0`; with `\"Zed\"` it should print `-1`. These one-line tests take seconds and find most bugs."
+      ]
+    }
+  ],
+  "simple": [
+    {
+      "h": "Why functions?",
+      "list": [
+        "Write the code once. Call it many times.",
+        "Fix a bug in one place.",
+        "Test each part by itself.",
+        "The main program becomes short and easy to read."
+      ]
+    },
+    {
+      "h": "In and out",
+      "p": [
+        "**Parameters** are what the function needs. **Return** is what it gives back. If it needs the list, pass the list in. Do not use a variable from outside."
+      ]
+    },
+    {
+      "h": "Local and global",
+      "p": [
+        "A variable made inside a function is **local**. It disappears when the function ends. A variable at the top of the program is **global**. Use parameters, not globals."
+      ]
+    }
+  ],
+  "keyterms": [
+    {
+      "term": "Subprogram",
+      "def": "A named block of code (function or procedure) that can be called from elsewhere in the program."
+    },
+    {
+      "term": "Refactoring",
+      "def": "Changing the structure of code to make it clearer or easier to maintain without changing what it does."
+    },
+    {
+      "term": "Parameter",
+      "def": "A variable in a subprogram's header that receives a value when the subprogram is called."
+    },
+    {
+      "term": "Return value",
+      "def": "The result a function passes back to the code that called it."
+    },
+    {
+      "term": "Local variable",
+      "def": "A variable created inside a subprogram that exists only while that subprogram runs."
+    },
+    {
+      "term": "Global variable",
+      "def": "A variable created at the top level of a program that can be read anywhere in it."
+    },
+    {
+      "term": "Docstring",
+      "def": "A string in quotes just under a `def` line that documents what the function does."
+    }
+  ],
+  "try": [
+    {
+      "type": "python",
+      "title": "1. Read the monolith",
+      "p": [
+        "Run it: add a member, find Ada, quit. It works. Now **do not change it** — read it and, on paper, draw brackets round every block that should become a function. Count how many times the search loop appears and how many times a validation loop appears. Write the parameter list and return value for each bracket. You should find about ten functions."
+      ],
+      "files": {
+        "members.txt": "Ada,9,12\nGrace,10,30\nAlan,9,7\nTim,8,0\n"
+      },
+      "code": "# Club register - the monolith. It works. It is also 60 lines with no functions.\nmembers = []\nf = open(\"members.txt\")\nfor line in f:\n    line = line.strip()\n    if line != \"\":\n        parts = line.split(\",\")\n        members.append([parts[0], int(parts[1]), int(parts[2])])\nf.close()\nchoice = 0\nwhile choice != 6:\n    print()\n    print(\"1 Show all   2 Add   3 Find   4 Award points   5 Remove   6 Save and quit\")\n    text = input(\"Choice: \")\n    while not text.isdigit() or int(text) < 1 or int(text) > 6:\n        print(\"Please type a number from 1 to 6\")\n        text = input(\"Choice: \")\n    choice = int(text)\n    if choice == 1:\n        if len(members) == 0:\n            print(\"No members\")\n        for m in members:\n            print(m[0], \"(year\", str(m[1]) + \")\", \"-\", m[2], \"points\")\n    elif choice == 2:\n        name = input(\"Name: \").strip()\n        while name == \"\":\n            print(\"This cannot be blank.\")\n            name = input(\"Name: \").strip()\n        text = input(\"Year group (7-11): \")\n        while not text.isdigit() or int(text) < 7 or int(text) > 11:\n            print(\"Please type a number from 7 to 11\")\n            text = input(\"Year group (7-11): \")\n        members.append([name, int(text), 0])\n        print(\"Added\", name)\n    elif choice == 3:\n        name = input(\"Name: \").strip()\n        found = -1\n        for i in range(len(members)):\n            if members[i][0] == name:\n                found = i\n        if found == -1:\n            print(\"Not found\")\n        else:\n            print(members[found][0], \"is in year\", members[found][1], \"with\", members[found][2], \"points\")\n    elif choice == 4:\n        name = input(\"Name: \").strip()\n        found = -1\n        for i in range(len(members)):\n            if members[i][0] == name:\n                found = i\n        if found == -1:\n            print(\"Not found\")\n        else:\n            text = input(\"Points to add (1-100): \")\n            while not text.isdigit() or int(text) < 1 or int(text) > 100:\n                print(\"Please type a number from 1 to 100\")\n                text = input(\"Points to add (1-100): \")\n            members[found][2] = members[found][2] + int(text)\n            print(name, \"now has\", members[found][2], \"points\")\n    elif choice == 5:\n        name = input(\"Name to remove: \").strip()\n        found = -1\n        for i in range(len(members)):\n            if members[i][0] == name:\n                found = i\n        if found == -1:\n            print(\"Not found\")\n        else:\n            members.pop(found)\n            print(\"Removed\", name)\n    elif choice == 6:\n        f = open(\"members.txt\", \"w\")\n        for m in members:\n            f.write(m[0] + \",\" + str(m[1]) + \",\" + str(m[2]) + \"\\n\")\n        f.close()\n        print(\"Saved. Goodbye.\")\n"
+    },
+    {
+      "type": "python",
+      "title": "2. Extract and test alone",
+      "p": [
+        "Step 1 of the refactor: the three functions below are extracted from the monolith but incomplete. Finish them, then run the **test calls** at the bottom. Expected output is in the comments. Do not write a menu yet — the point is that each function can be proved right alone."
+      ],
+      "files": {
+        "members.txt": "Ada,9,12\nGrace,10,30\nAlan,9,7\nTim,8,0\n"
+      },
+      "code": "def load_members(filename):\n    \"\"\"Read filename and return a list of [name, year, points] records (empty list if no file).\"\"\"\n    members = []\n    # copy the loading code from the monolith here, using the parameter instead of \"members.txt\"\n    return members\n\ndef find_member(members, name):\n    \"\"\"Return the index of the member called name, or -1 if there is none.\"\"\"\n    found = -1\n    # copy one search loop from the monolith here; better still, return i as soon as it matches\n    return found\n\ndef get_int(prompt, low, high):\n    \"\"\"Keep asking until a whole number from low to high is typed; return it as an int.\"\"\"\n    text = input(prompt)\n    # copy one validation loop from the monolith here, using prompt, low and high\n    return int(text)\n\n# ---- tests: run these before writing any menu ----\ntest = [[\"Ada\", 9, 12], [\"Grace\", 10, 30]]\nprint(find_member(test, \"Grace\"))       # expect 1\nprint(find_member(test, \"Zed\"))         # expect -1\nprint(find_member([], \"Ada\"))           # expect -1\nprint(len(load_members(\"members.txt\")))   # expect 4\nprint(len(load_members(\"missing.txt\")))   # expect 0 and no crash\nprint(get_int(\"Type 12 then 5: \", 1, 10))  # expect a rejection then 5\n"
+    },
+    {
+      "type": "python",
+      "title": "3. Complete the refactor",
+      "p": [
+        "Here is the refactored skeleton with the helpers done. Fill in the four bodies marked TODO by moving code from the monolith, replacing every copied search with a call to `find_member` and every copied validation with `get_int`/`get_text`. Then run the **same test** you used in Try 1 (add Mo, find Ada, quit) and check the output is identical. Count the lines of the main program at the bottom."
+      ],
+      "files": {
+        "members.txt": "Ada,9,12\nGrace,10,30\nAlan,9,7\nTim,8,0\n"
+      },
+      "code": "FILENAME = \"members.txt\"\n\n# ---- input helpers ----\ndef get_int(prompt, low, high):\n    \"\"\"Keep asking until a whole number from low to high is typed; return it.\"\"\"\n    while True:\n        text = input(prompt)\n        if not text.isdigit():\n            print(\"Please type a whole number.\")\n        elif int(text) < low or int(text) > high:\n            print(\"Must be from\", low, \"to\", high)\n        else:\n            return int(text)\n\ndef get_text(prompt):\n    \"\"\"Keep asking until something other than blank is typed; return it stripped.\"\"\"\n    while True:\n        text = input(prompt).strip()\n        if text != \"\":\n            return text\n        print(\"This cannot be blank.\")\n\n# ---- file handling ----\ndef load_members(filename):\n    \"\"\"Return a list of [name, year, points] read from filename; empty list if missing.\"\"\"\n    members = []\n    try:\n        with open(filename) as f:\n            for line in f:\n                line = line.strip()\n                if line != \"\":\n                    parts = line.split(\",\")\n                    members.append([parts[0], int(parts[1]), int(parts[2])])\n    except FileNotFoundError:\n        pass\n    return members\n\ndef save_members(members, filename):\n    \"\"\"Write every record to filename as name,year,points, replacing the file.\"\"\"\n    with open(filename, \"w\") as f:\n        for m in members:\n            f.write(m[0] + \",\" + str(m[1]) + \",\" + str(m[2]) + \"\\n\")\n\n# ---- register operations ----\ndef find_member(members, name):\n    \"\"\"Return the index of the member called name, or -1.\"\"\"\n    for i in range(len(members)):\n        if members[i][0] == name:\n            return i\n    return -1\n\ndef show_all(members):\n    \"\"\"Print one line per member, or 'No members'.\"\"\"\n    if len(members) == 0:\n        print(\"No members\")\n    for m in members:\n        print(m[0], \"(year\", str(m[1]) + \")\", \"-\", m[2], \"points\")\n\ndef add_member(members):\n    \"\"\"Ask for name and year, append a new record with 0 points.\"\"\"\n    pass   # TODO\n\ndef show_member(members):\n    \"\"\"Ask for a name and print that member's details or 'Not found'.\"\"\"\n    pass   # TODO\n\ndef award_points(members):\n    \"\"\"Ask for a name and points (1-100); add the points to that member.\"\"\"\n    pass   # TODO\n\ndef remove_member(members):\n    \"\"\"Ask for a name and delete that member, or print 'Not found'.\"\"\"\n    pass   # TODO\n\ndef show_menu():\n    \"\"\"Print the menu and return a validated choice 1-6.\"\"\"\n    print()\n    print(\"1 Show all   2 Add   3 Find   4 Award points   5 Remove   6 Save and quit\")\n    return get_int(\"Choice: \", 1, 6)\n\n# ---- main program ----\nmembers = load_members(FILENAME)\nchoice = 0\nwhile choice != 6:\n    choice = show_menu()\n    if choice == 1:\n        show_all(members)\n    elif choice == 2:\n        add_member(members)\n    elif choice == 3:\n        show_member(members)\n    elif choice == 4:\n        award_points(members)\n    elif choice == 5:\n        remove_member(members)\n    else:\n        save_members(members, FILENAME)\n        print(\"Saved. Goodbye.\")\n"
+    },
+    {
+      "type": "python",
+      "title": "4. Local or global? Predict, then run",
+      "p": [
+        "Before running, write down what each of the four `print` lines will output, or whether it will crash. Then run it and fix the **one** function that wrongly depends on a global so that it takes a parameter instead. Finally explain in a comment why `total_points` is the better-written function."
+      ],
+      "code": "members = [[\"Ada\", 9, 12], [\"Grace\", 10, 30]]\nbonus = 5\n\ndef total_points(members):\n    total = 0\n    for m in members:\n        total = total + m[2]\n    return total\n\ndef add_bonus_to_all():\n    for m in members:            # uses the global list - works, but only for THIS list\n        m[2] = m[2] + bonus      # uses the global bonus too\n\nprint(total_points(members))                       # 1: predict\nadd_bonus_to_all()\nprint(total_points(members))                       # 2: predict\nprint(total_points([[\"Tim\", 8, 1]]))              # 3: predict - can total_points work on a different list?\n# add_bonus_to_all([[\"Tim\", 8, 1]])              # 4: uncomment - can add_bonus_to_all? Fix it so it can.\nprint(\"total is local:\", \"total\" in dir())      # False: total only existed inside the function\n"
+    },
+    {
+      "type": "embed",
+      "title": "5. Save v4 and see the structure",
+      "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": [
+        "Save Try 3 as `club_v4.py`. Section headers (`# ---- input helpers ----` and so on) are part of maintainability; keep them.",
+        "Open `https://beanwise.coderra.je/pythonblocks/` if available and build `find_member` in blocks to see the parameter and return as shapes."
+      ]
+    }
+  ],
+  "check": [
+    {
+      "q": "Refactoring means:",
+      "opts": [
+        "Adding new features",
+        "Changing the structure of code without changing what it does",
+        "Fixing syntax errors",
+        "Deleting comments"
+      ],
+      "a": 1,
+      "fb": "Same behaviour, better structure."
+    },
+    {
+      "q": "A variable created inside a function is:",
+      "opts": [
+        "Global",
+        "Local",
+        "A constant",
+        "A parameter"
+      ],
+      "a": 1,
+      "fb": "It exists only while the function runs."
+    },
+    {
+      "q": "`find_member(members, name)` should get the list through:",
+      "opts": [
+        "A global variable",
+        "A parameter",
+        "A file",
+        "A return value"
+      ],
+      "a": 1,
+      "fb": "Pass in what the function needs."
+    },
+    {
+      "q": "The best time to test a function is:",
+      "opts": [
+        "When the whole program is finished",
+        "As soon as it is written, with fixed test calls",
+        "Never — the menu tests it",
+        "Only with the real file"
+      ],
+      "a": 1,
+      "fb": "Test alone, then integrate."
+    },
+    {
+      "q": "A docstring should state:",
+      "opts": [
+        "The author's name",
+        "The purpose, parameters and return value",
+        "How many lines the function has",
+        "The test results"
+      ],
+      "a": 1,
+      "fb": "What it does, what goes in, what comes out."
+    }
+  ],
+  "exam": [
+    {
+      "q": "The following lines appear three times in a program, with different values in place of `target`. Write a function `countOver(scores, target)` that returns the number of items in the array `scores` that are greater than `target`, and show how one of the three copies would be replaced by a call to it.",
+      "marks": 4,
+      "code": "count = 0\nfor i = 0 to scores.length - 1\n    if scores[i] > target then\n        count = count + 1\n    endif\nnext i",
+      "model": [
+        "Function header with both parameters (1). Body counts items greater than target using a loop (1). `return count` (1). A call such as `count = countOver(scores, 50)` replacing the copied block (1)."
+      ],
+      "commentary": "Write and refine. The call is the mark most often missed — students write the function and stop. The return (not print) is needed because the original code stored a value in `count`."
+    },
+    {
+      "q": "Explain **one** reason why a function that uses a global variable instead of a parameter is harder to test.",
+      "marks": 2,
+      "model": [
+        "The function only works on the one global variable / its result depends on data outside it (1), so it cannot be called with different test data without changing the global first (1)."
+      ],
+      "commentary": "Reason plus consequence for testing. 'Globals are bad practice' alone scores nothing."
+    },
+    {
+      "q": "A student's menu program is 90 lines long with no subprograms. Describe **two** ways the program would be improved by rewriting it using subprograms.",
+      "marks": 2,
+      "model": [
+        "Any two: repeated code (e.g. validation) is written once and reused; each part can be tested separately; the main program is shorter and easier to read; a change is made in one place only (1 each)."
+      ],
+      "commentary": "Two distinct improvements. 'It is shorter' and 'it is easier to read' are often treated as one point; pair reuse or testing with readability."
+    }
+  ],
+  "home": "Compare `club_v4.py` with the monolith and write five lines: the line count of each, how many times the search appears in each, and the one change you would need to make in each to ignore capital letters in names. Then make that change in v4 only.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 33 · check 4 · exam 5 · homework 3",
+    "misconceptions": [
+      "Functions that print a result when the caller needs a value (then `x = f()` is `None`).",
+      "Functions that read the global list because it 'works' — until there are two lists.",
+      "Refactoring and adding features at the same time, so a new bug cannot be traced to either.",
+      "Thinking a variable with the same name inside and outside a function is the same variable."
+    ],
+    "say": [
+      "'Same tests, same output. Otherwise it is not refactoring, it is rewriting.'",
+      "'What goes in? What comes out? Write it under the def before the body.'",
+      "'Test it alone. One line. Did you get -1?'"
+    ],
+    "skip": "Try 4 can be a whole-class prediction on the board. Try 1 → 2 → 3 is the refactor and takes most of the lesson.",
+    "differentiation": [
+      "Support: in Try 3 give `add_member` and `show_member` complete; students write `award_points` and `remove_member`.",
+      "Stretch: make `find_member` ignore case and leading/trailing spaces, and write three test calls that prove it."
+    ]
+  }
+}

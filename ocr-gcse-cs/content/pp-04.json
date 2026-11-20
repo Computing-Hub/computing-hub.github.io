@@ -1,0 +1,258 @@
+{
+  "id": "pp-04",
+  "title": "Building: data in lists and files",
+  "spec": "Practical programming",
+  "duration": 60,
+  "specPoints": [
+    "2.2.3 Additional programming techniques: **arrays/lists** (one- and two-dimensional), **records** to store data",
+    "2.2.3 **File handling**: open, read, write, close; **string manipulation** (`split`, `strip`, concatenation)",
+    "Practical programming skills (Section B): store, search, add, delete and update records and keep a file in step with the data"
+  ],
+  "learn": [
+    "Choose between parallel lists and a list of lists for a set of records, and justify the choice",
+    "Load records from a text file into a list of lists, converting each field to the right type",
+    "Save a list of lists back to a file in the same format, one record per line",
+    "Implement add, delete, update and search on the list and keep the file in sync",
+    "Handle the edge cases: empty file, missing file, record not found"
+  ],
+  "hook": "Close the club register and open it again: every member has gone. A program whose data lives only in memory forgets everything when it stops. Today the register gets a memory — a text file — and you learn the pattern that every file-backed program uses: load at the start, work on the list, save at the end.",
+  "video": {
+    "title": "Load, work, save",
+    "brief": "4 minutes. A text file `members.txt` with four lines. Each line is split at the commas and becomes a small list; the small lists stack into a list of lists — an animated table. Add a row, change a number, delete a row — the table changes, the file does not. Then save: each inner list joins back into a line and the file updates. Side panel: the same data as three parallel lists, with an arrow showing the danger when one list is changed and the others are not."
+  },
+  "explain": [
+    {
+      "h": "Parallel lists or a list of lists?",
+      "p": [
+        "A **record** is one member: name, year, points. Two ways to store many records. **Parallel lists** keep one list per field — `names[2]`, `years[2]` and `points[2]` all belong to member 2. **A list of lists** keeps one inner list per member — `members[2]` is `[\"Alan\", 9, 7]`. OCR questions often use parallel arrays, so you must be able to read them. For your own programs a list of lists is safer: adding or deleting a member changes **one** thing, and you cannot leave the lists out of step."
+      ],
+      "code": "Parallel lists                      List of lists (2D)\nnames  = [\"Ada\", \"Grace\", \"Alan\"]    members = [[\"Ada\", 9, 12],\nyears  = [9, 10, 9]                            [\"Grace\", 10, 30],\npoints = [12, 30, 7]                           [\"Alan\", 9, 7]]\n\nAlan's points:  points[2]           members[2][2]\nAdd a member:   3 appends           1 append\nDelete member 1: 3 pops (easy to forget one)   members.pop(1)\nField names:    the list name says  position says: [0]=name [1]=year [2]=points"
+    },
+    {
+      "h": "Loading from a file",
+      "p": [
+        "The file stores one record per line with fields separated by commas: `Ada,9,12`. Loading means: open, read each line, `strip()` the newline, `split(\",\")` into fields, **cast** the numbers (everything read from a file is text), and append the record. The two edge cases are an **empty line** (skip it) and a **missing file** (start with an empty list rather than crash — `try/except FileNotFoundError` or check first)."
+      ],
+      "code": "def load_members(filename):\n    members = []\n    try:\n        with open(filename) as f:\n            for line in f:\n                line = line.strip()\n                if line != \"\":\n                    fields = line.split(\",\")\n                    members.append([fields[0], int(fields[1]), int(fields[2])])\n    except FileNotFoundError:\n        print(\"No file yet - starting with an empty register\")\n    return members"
+    },
+    {
+      "h": "Saving back to the file",
+      "p": [
+        "Saving is the mirror image: open in **write mode** `\"w\"` (which replaces the old contents), and for each record join the fields back with commas and write the line with `\\n`. Numbers must be turned back into strings. Because `\"w\"` wipes the file, save writes the **whole list** every time — that is what keeps the file in step with memory. Never use `\"a\"` (append) for this: after deleting a member, appending would put the deleted member back."
+      ],
+      "code": "def save_members(members, filename):\n    with open(filename, \"w\") as f:\n        for m in members:\n            f.write(m[0] + \",\" + str(m[1]) + \",\" + str(m[2]) + \"\\n\")"
+    },
+    {
+      "h": "Search, add, delete, update — on the list",
+      "p": [
+        "All four operations work on the **list in memory**, not the file. Search loops through the list and returns an index or -1. Add appends a new inner list. Delete `pop`s at the found index. Update changes one field at the found index, e.g. `members[i][2] = members[i][2] + 10`. Then the file is written once, at the end — or, for extra safety, after every change, so a crash loses nothing. Both are acceptable; what the exam wants to see is that the file and the list end up the same."
+      ]
+    }
+  ],
+  "simple": [
+    {
+      "h": "Two ways to store records",
+      "list": [
+        "**Parallel lists**: one list for names, one for years, one for points. Item 2 in each list belongs together.",
+        "**List of lists**: each member is a small list `[name, year, points]`. Easier to add and delete."
+      ]
+    },
+    {
+      "h": "Load",
+      "list": [
+        "Open the file.",
+        "For each line: strip it, split at commas, turn the numbers into `int`, add the record to the list.",
+        "If there is no file, start with an empty list."
+      ]
+    },
+    {
+      "h": "Save",
+      "list": [
+        "Open the file with `\"w\"` — this empties it.",
+        "Write every record as one line: `name,year,points`.",
+        "Now the file matches the list."
+      ]
+    }
+  ],
+  "keyterms": [
+    {
+      "term": "Record",
+      "def": "One set of related fields about one thing, e.g. a member's name, year and points."
+    },
+    {
+      "term": "Parallel lists (arrays)",
+      "def": "Several lists where the items at the same index belong to the same record."
+    },
+    {
+      "term": "Two-dimensional list",
+      "def": "A list whose items are themselves lists, e.g. one inner list per record."
+    },
+    {
+      "term": "Casting",
+      "def": "Converting a value from one data type to another, e.g. `int(\"12\")` after reading text from a file."
+    },
+    {
+      "term": "Write mode",
+      "def": "Opening a file with `\"w\"`, which replaces its contents; `\"a\"` (append) adds to the end instead."
+    },
+    {
+      "term": "Persistence",
+      "def": "Keeping data in a file so that it still exists after the program ends."
+    }
+  ],
+  "try": [
+    {
+      "type": "python",
+      "title": "1. Load and inspect",
+      "p": [
+        "Run it and read the output. Then: (a) print only the names; (b) print the total points; (c) explain to a partner what the line `if line != \"\"` protects against (hint: files often end with a blank line). (d) Change the filename to `nobody.txt` and run again: it must not crash."
+      ],
+      "files": {
+        "members.txt": "Ada,9,12\nGrace,10,30\nAlan,9,7\nTim,8,0\n"
+      },
+      "code": "def load_members(filename):\n    members = []\n    try:\n        with open(filename) as f:\n            for line in f:\n                line = line.strip()\n                if line != \"\":\n                    fields = line.split(\",\")\n                    members.append([fields[0], int(fields[1]), int(fields[2])])\n    except FileNotFoundError:\n        print(\"No file yet - starting with an empty register\")\n    return members\n\nmembers = load_members(\"members.txt\")\nprint(members)\nprint(\"Number of members:\", len(members))\nprint(\"Second member's name:\", members[1][0])\nprint(\"Second member's points:\", members[1][2])\n"
+    },
+    {
+      "type": "python",
+      "title": "2. Save, and prove the file matches",
+      "p": [
+        "Complete `save_members`. Then run: the program loads, awards Tim 25 points, adds a member, deletes Alan, saves, and loads again into a **second** list. The last line must print `True` — the reloaded list is identical to the one in memory. Look at the file contents shown after the run."
+      ],
+      "files": {
+        "members.txt": "Ada,9,12\nGrace,10,30\nAlan,9,7\nTim,8,0\n"
+      },
+      "code": "def load_members(filename):\n    members = []\n    try:\n        with open(filename) as f:\n            for line in f:\n                line = line.strip()\n                if line != \"\":\n                    fields = line.split(\",\")\n                    members.append([fields[0], int(fields[1]), int(fields[2])])\n    except FileNotFoundError:\n        pass\n    return members\n\ndef save_members(members, filename):\n    \"\"\"Write every member as name,year,points on its own line. Replace the old file.\"\"\"\n    pass\n\ndef find_member(members, name):\n    for i in range(len(members)):\n        if members[i][0] == name:\n            return i\n    return -1\n\nmembers = load_members(\"members.txt\")\n\ni = find_member(members, \"Tim\")\nmembers[i][2] = members[i][2] + 25          # update\nmembers.append([\"Mo\", 11, 3])              # add\nmembers.pop(find_member(members, \"Alan\"))  # delete\n\nsave_members(members, \"members.txt\")\n\nreloaded = load_members(\"members.txt\")\nprint(\"In memory:\", members)\nprint(\"From file:\", reloaded)\nprint(\"Match:\", members == reloaded)\n"
+    },
+    {
+      "type": "python",
+      "title": "3. The register with a real file",
+      "p": [
+        "Plug load and save into the menu program. Complete the four TODOs: `add_member` must append a record and save; `award_points` must update and save; `remove_member` must delete and save; option 6 must save and quit. Test: add `Mo` (year 11); award Ada 10; remove Alan; show all; quit. Then run the program **again** and choose 1 — your changes must still be there."
+      ],
+      "files": {
+        "members.txt": "Ada,9,12\nGrace,10,30\nAlan,9,7\nTim,8,0\n"
+      },
+      "code": "FILENAME = \"members.txt\"\n\ndef get_int(prompt, low, high):\n    while True:\n        text = input(prompt)\n        if not text.isdigit():\n            print(\"Please type a whole number.\")\n        elif int(text) < low or int(text) > high:\n            print(\"Must be from\", low, \"to\", high)\n        else:\n            return int(text)\n\ndef get_text(prompt):\n    while True:\n        text = input(prompt).strip()\n        if text != \"\":\n            return text\n        print(\"This cannot be blank.\")\n\ndef load_members(filename):\n    members = []\n    try:\n        with open(filename) as f:\n            for line in f:\n                line = line.strip()\n                if line != \"\":\n                    fields = line.split(\",\")\n                    members.append([fields[0], int(fields[1]), int(fields[2])])\n    except FileNotFoundError:\n        pass\n    return members\n\ndef save_members(members, filename):\n    with open(filename, \"w\") as f:\n        for m in members:\n            f.write(m[0] + \",\" + str(m[1]) + \",\" + str(m[2]) + \"\\n\")\n\ndef find_member(members, name):\n    for i in range(len(members)):\n        if members[i][0] == name:\n            return i\n    return -1\n\ndef show_all(members):\n    if len(members) == 0:\n        print(\"No members\")\n    for m in members:\n        print(m[0], \"(year\", str(m[1]) + \")\", \"-\", m[2], \"points\")\n\ndef add_member(members):\n    name = get_text(\"Name: \")\n    if find_member(members, name) != -1:\n        print(\"That name is already in the register\")\n        return\n    year = get_int(\"Year group (7-11): \", 7, 11)\n    # TODO: append the new record with 0 points, then save\n    print(\"Added\", name)\n\ndef award_points(members):\n    name = get_text(\"Name: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n        return\n    points = get_int(\"Points to add (1-100): \", 1, 100)\n    # TODO: update the member's points, then save\n    print(name, \"now has\", members[i][2], \"points\")\n\ndef remove_member(members):\n    name = get_text(\"Name to remove: \")\n    i = find_member(members, name)\n    if i == -1:\n        print(\"Not found\")\n        return\n    # TODO: delete the record, then save\n    print(\"Removed\", name)\n\ndef show_menu():\n    print()\n    print(\"1 Show all   2 Add   3 Find   4 Award points   5 Remove   6 Save and quit\")\n    return get_int(\"Choice: \", 1, 6)\n\n# main program\nmembers = load_members(FILENAME)\nchoice = 0\nwhile choice != 6:\n    choice = show_menu()\n    if choice == 1:\n        show_all(members)\n    elif choice == 2:\n        add_member(members)\n    elif choice == 3:\n        i = find_member(members, get_text(\"Name: \"))\n        if i == -1:\n            print(\"Not found\")\n        else:\n            print(members[i][0], \"is in year\", members[i][1], \"with\", members[i][2], \"points\")\n    elif choice == 4:\n        award_points(members)\n    elif choice == 5:\n        remove_member(members)\n    elif choice == 6:\n        # TODO: save\n        print(\"Goodbye\")\n"
+    },
+    {
+      "type": "python",
+      "title": "4. Read the parallel-array version",
+      "p": [
+        "Exam questions often give parallel arrays. This program uses them for the same register. Run it. Then (a) write a comment next to each line of `remove` saying why all three `pop` calls are needed; (b) delete one of the `pop` lines, run, and describe what has gone wrong with the data; (c) write one sentence comparing the two ways of storing records, mentioning both."
+      ],
+      "code": "names = [\"Ada\", \"Grace\", \"Alan\", \"Tim\"]\nyears = [9, 10, 9, 8]\npoints = [12, 30, 7, 0]\n\ndef find(names, name):\n    for i in range(len(names)):\n        if names[i] == name:\n            return i\n    return -1\n\ndef remove(names, years, points, name):\n    i = find(names, name)\n    if i != -1:\n        names.pop(i)\n        years.pop(i)\n        points.pop(i)\n\ndef show(names, years, points):\n    for i in range(len(names)):\n        print(names[i], \"(year\", str(years[i]) + \")\", \"-\", points[i], \"points\")\n\nremove(names, years, points, \"Grace\")\nshow(names, years, points)\n"
+    },
+    {
+      "type": "embed",
+      "title": "5. Save v3",
+      "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": [
+        "Save Try 3 as `club_v3.py`. Create `members.txt` next to it with the four sample lines. Run it twice to prove the data persists.",
+        "Add a comment at the top: 'Data: list of lists [name, year, points]; file: members.txt one record per line.'"
+      ]
+    }
+  ],
+  "check": [
+    {
+      "q": "In `members = [[\"Ada\", 9, 12], [\"Grace\", 10, 30]]`, Grace's points are:",
+      "opts": [
+        "`members[1][2]`",
+        "`members[2][1]`",
+        "`members[1]`",
+        "`members[0][2]`"
+      ],
+      "a": 0,
+      "fb": "Second record (index 1), third field (index 2)."
+    },
+    {
+      "q": "After reading `\"Ada,9,12\"` from a file and splitting it, `fields[1]` is:",
+      "opts": [
+        "The integer 9",
+        "The string `\"9\"`",
+        "The string `\"Ada\"`",
+        "The integer 12"
+      ],
+      "a": 1,
+      "fb": "Everything from a file is text until you cast it."
+    },
+    {
+      "q": "Saving the whole list with mode `\"w\"` is correct because:",
+      "opts": [
+        "It is faster than `\"a\"`",
+        "It replaces the file so deleted records do not come back",
+        "`\"a\"` does not exist",
+        "It keeps the old contents"
+      ],
+      "a": 1,
+      "fb": "The file becomes exactly the list."
+    },
+    {
+      "q": "A danger of parallel lists is:",
+      "opts": [
+        "They cannot hold numbers",
+        "Deleting from one list but not the others puts the data out of step",
+        "They are too slow",
+        "They cannot be searched"
+      ],
+      "a": 1,
+      "fb": "Three pops needed; forget one and indexes no longer line up."
+    },
+    {
+      "q": "When the data file does not exist yet, the program should:",
+      "opts": [
+        "Crash with FileNotFoundError",
+        "Start with an empty list",
+        "Create 100 blank records",
+        "Ask the user to type the file"
+      ],
+      "a": 1,
+      "fb": "Anticipate the first run."
+    }
+  ],
+  "exam": [
+    {
+      "q": "A file `stock.txt` stores one product per line in the form `name,quantity`. Write a program that reads the file into two arrays, `names` and `quantities`, and then outputs the name of every product with a quantity below 5.",
+      "marks": 5,
+      "model": [
+        "File opened for reading (1). Loop reading each line until the end of the file (1). Line split at the comma; name appended to `names` and quantity cast to integer and appended to `quantities` (1). Loop through the arrays comparing each quantity with 5 (1). Name at the same index output when quantity < 5 (1)."
+      ],
+      "commentary": "Parallel arrays are given by the brief, so use them. The casting mark is lost if the quantity is compared as a string; the output mark needs `names[i]`, not the quantity."
+    },
+    {
+      "q": "A program stores members in a 2D array and saves it to a file when the user quits. A user adds three members and then the program crashes before quitting. Describe the problem and how the program should be refined.",
+      "marks": 2,
+      "model": [
+        "The three new members are lost because the file is only written on quit / the file is out of step with the data (1). Save the array to the file after every add (and delete/update), or write each new record immediately (1)."
+      ],
+      "commentary": "Problem then refinement. Students who say 'add error handling' miss the point — the fix is to save more often."
+    },
+    {
+      "q": "Give **one** advantage of storing records in a 2D array rather than in parallel 1D arrays.",
+      "marks": 1,
+      "model": [
+        "Any one: adding or deleting a record changes only one structure so the fields cannot get out of step; all the fields of a record are kept together; a whole record can be passed to a subprogram as one value (1)."
+      ],
+      "commentary": "Must be a genuine advantage of the 2D version. 'It uses less memory' is not true and does not score."
+    }
+  ],
+  "home": "Add a 'Report' option to `club_v3.py` that writes `report.txt`: one line per member sorted by points (highest first) and a final line with the total. Use `\"w\"` mode. Explain in a comment why `\"a\"` would be wrong here.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 33 · check 4 · exam 5 · homework 3",
+    "misconceptions": [
+      "Forgetting that file data is text: `\"30\" + 10` crashes, `\"30\" > \"7\"` is False.",
+      "Using append mode to save, so the file grows with duplicates and deleted records return.",
+      "Trying to edit the file directly instead of editing the list and rewriting the file.",
+      "Forgetting `strip()`, so the last field is `\"12\\n\"` and `int()` works but a name comparison fails."
+    ],
+    "say": [
+      "'Load at the start. Work on the list. Save the list.'",
+      "'What type is it after split? Text. All of it. Cast it.'",
+      "'Shut the program and open it again. Is your data still there? Then it persists.'"
+    ],
+    "skip": "Try 4 can be reading homework; Try 2 → Try 3 is the build.",
+    "differentiation": [
+      "Support: give `save_members` complete in Try 2; students do the three TODOs in Try 3.",
+      "Stretch: make `load_members` report the line number of any line that does not have exactly three fields and skip it, instead of crashing."
+    ]
+  }
+}

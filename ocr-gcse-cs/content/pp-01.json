@@ -1,0 +1,251 @@
+{
+  "id": "pp-01",
+  "title": "Reading a brief and decomposing it",
+  "spec": "Practical programming",
+  "duration": 60,
+  "specPoints": [
+    "2.1.1 Computational thinking: **abstraction** and **decomposition** of a problem into sub-problems",
+    "2.1.2 Designing algorithms: identify the **inputs, processes and outputs** for a problem; **structure diagrams**",
+    "Practical programming skills (Section B): design, write, test and refine a program from a written brief"
+  ],
+  "learn": [
+    "Turn a written brief into a numbered requirements checklist",
+    "Identify the data a program must store (nouns) and the actions it must perform (verbs)",
+    "Draw a structure diagram that decomposes a brief into subprograms",
+    "Write function stubs (`def` lines with parameters and a `pass` body) before any logic",
+    "Match each requirement in a brief to the stub that will meet it"
+  ],
+  "hook": "Here is a brief: 'A program to keep a register of club members and the points they have earned.' Thirty seconds — how many separate things does the program have to do? Most people say two or three. By the end of today you will find seven, and each one will already have a name in your code before you write a single line of logic.",
+  "video": {
+    "title": "Nouns are data, verbs are functions",
+    "brief": "4 minutes. A brief appears on screen. Nouns are highlighted in one colour (member, name, year group, points, file), verbs in another (add, show, find, award, remove, save). The nouns slide into a box labelled 'data: a list of members, each with name, year, points; members.txt'. The verbs slide into boxes under a 'main menu' box — a structure diagram. Each verb box turns into a `def` line with `pass` underneath. End: the requirements numbered 1–7 beside the stubs, lines joining each requirement to a stub."
+  },
+  "explain": [
+    {
+      "h": "A brief is a checklist in disguise",
+      "p": [
+        "A **brief** describes what a program must do. In the exam each sentence of the brief is usually worth one or two marks, so the first job is to **number the requirements**. Read the brief twice. On the second read, write a number in the margin at every 'must', 'should', 'allow the user to' and 'output'. Nothing else matters until you can list the requirements without looking."
+      ],
+      "code": "Brief: A school club needs a program to keep a register of its members. The\nprogram must (1) load the members from a file when it starts, (2) show all\nmembers, (3) add a new member with their name and year group, (4) find a\nmember by name, (5) award points to a member, (6) remove a member, and\n(7) save the register back to the file when the user quits. The program\nshould use a menu and reject invalid choices.\n\nRequirements checklist\n 1 load from file         5 award points\n 2 show all               6 remove member\n 3 add member             7 save on quit\n 4 find by name           + menu with validation"
+    },
+    {
+      "h": "Nouns become data, verbs become functions",
+      "p": [
+        "Underline the **nouns**: member, name, year group, points, file. These are things the program stores — variables, lists, records in a file. Underline the **verbs**: load, show, add, find, award, remove, save. These are things the program does — each one is a candidate **subprogram**. One verb, one `def`. If a verb needs information to do its job (find needs a name), that information is a **parameter**. If it produces an answer (find produces a member or 'not found'), that answer is a **return value**."
+      ],
+      "code": "Noun            Data decision\nmember          one record: name, year, points\nall members     a list of records\nfile            members.txt, one member per line: name,year,points\n\nVerb            Function stub                       Needs (parameters)   Gives back\nload            load_members(filename)              filename             list\nshow            show_all(members)                   list                 nothing\nadd             add_member(members)                 list                 nothing\nfind            find_member(members, name)          list, name           index or -1\naward           award_points(members)               list                 nothing\nremove          remove_member(members)              list                 nothing\nsave            save_members(members, filename)     list, filename       nothing"
+    },
+    {
+      "h": "The structure diagram",
+      "p": [
+        "A **structure diagram** shows the decomposition as boxes: the whole program at the top, the main parts underneath, and smaller parts under those. For a menu program the second row is almost always 'load', 'menu loop', 'save', and the menu's options hang below the loop. Drawing it takes two minutes and gives you the skeleton of your code. In a Section B 'design' question the diagram itself can score."
+      ],
+      "code": "                    Club register\n          ┌───────────────┼─────────────────┐\n     load_members      menu loop        save_members\n                 ┌────┬────┼─────┬──────┐\n            show_all  add  find  award  remove"
+    },
+    {
+      "h": "Stubs: names before bodies",
+      "p": [
+        "A **stub** is a function with the right name and parameters but no logic yet — just `pass` or a `return` of a dummy value. Writing all the stubs first means the program runs from the very first minute, and the main menu can call every option even though none of them work yet. You then fill in one body at a time and test it. This is how the whole unit will work."
+      ],
+      "code": "def find_member(members, name):\n    \"\"\"Return the index of the member called name, or -1 if not found.\"\"\"\n    return -1          # stub: real search comes later\n\nindex = find_member([], \"Ada\")\nprint(index)         # -1, and the program runs"
+    }
+  ],
+  "simple": [
+    {
+      "h": "Number the jobs",
+      "p": [
+        "Read the brief twice. Each 'must' or 'should' is one job. Write a number next to each one. Each job is worth marks."
+      ]
+    },
+    {
+      "h": "Nouns and verbs",
+      "list": [
+        "**Nouns** are things to store: member, name, points, file.",
+        "**Verbs** are things to do: add, show, find, save.",
+        "Each verb becomes one function. Each noun becomes a variable, a list or a file."
+      ]
+    },
+    {
+      "h": "Draw boxes, then write stubs",
+      "p": [
+        "Put the program name in a box at the top. Put one box under it for each job. Then write a `def` line for each box with `pass` inside. Now the program runs, even though it does nothing yet."
+      ]
+    }
+  ],
+  "keyterms": [
+    {
+      "term": "Brief",
+      "def": "The written description of what a program must do, given by a client or an exam question."
+    },
+    {
+      "term": "Requirement",
+      "def": "One thing the brief says the program must do; in the exam, usually one or two marks each."
+    },
+    {
+      "term": "Decomposition",
+      "def": "Breaking a problem into smaller sub-problems, each of which can be solved separately."
+    },
+    {
+      "term": "Structure diagram",
+      "def": "A diagram of boxes showing how a program is decomposed into parts and sub-parts."
+    },
+    {
+      "term": "Stub",
+      "def": "A function with the correct name and parameters but no real body yet, so the program runs before the logic is written."
+    },
+    {
+      "term": "Parameter",
+      "def": "A value passed into a subprogram so that it has the information it needs."
+    }
+  ],
+  "try": [
+    {
+      "type": "task",
+      "title": "1. Decompose two briefs on paper",
+      "p": [
+        "For **each** brief below: (a) number the requirements; (b) list the nouns and decide the data (variable, list or file); (c) list the verbs and write one function name with parameters for each; (d) draw the structure diagram."
+      ],
+      "steps": [
+        "**Brief A — homework tracker.** A program must let a student add a piece of homework with its subject, title and due date; show all homework; mark a piece of homework as done; show only the homework not yet done; and save the list to a file so it is there next time.",
+        "**Brief B — tuck shop till.** A program must load item names and prices from a file; let the server type item names one at a time until they type 'done', adding each price to a total and rejecting names that are not on the list; apply a 10% discount if the total is over £5; output the total to two decimal places; and record each sale's total in a sales file.",
+        "Swap with a partner. Do your function lists have the same number of verbs? Argue about any difference."
+      ]
+    },
+    {
+      "type": "python",
+      "title": "2. Stub the club register",
+      "p": [
+        "The brief from the lesson, with the structure diagram's boxes turned into stubs. Run it: it works, because every function exists. Then **add a comment inside each stub** saying which numbered requirement it meets, and add a `print` inside each stub saying its own name so you can see the menu calling it."
+      ],
+      "code": "# Club register - stubs only. Requirements 1-7 are in the lesson.\n\ndef load_members(filename):\n    \"\"\"Requirement 1: read members from the file into a list.\"\"\"\n    return []                      # stub: empty register for now\n\ndef show_all(members):\n    pass\n\ndef add_member(members):\n    pass\n\ndef find_member(members, name):\n    return -1                      # stub: nothing is ever found yet\n\ndef award_points(members):\n    pass\n\ndef remove_member(members):\n    pass\n\ndef save_members(members, filename):\n    pass\n\ndef show_menu():\n    print(\"1 Show all  2 Add  3 Find  4 Award points  5 Remove  6 Save and quit\")\n    return input(\"Choice: \")\n\n# main program\nmembers = load_members(\"members.txt\")\nchoice = \"\"\nwhile choice != \"6\":\n    choice = show_menu()\n    if choice == \"1\":\n        show_all(members)\n    elif choice == \"2\":\n        add_member(members)\n    elif choice == \"3\":\n        name = input(\"Name to find: \")\n        print(find_member(members, name))\n    elif choice == \"4\":\n        award_points(members)\n    elif choice == \"5\":\n        remove_member(members)\n    elif choice == \"6\":\n        save_members(members, \"members.txt\")\n        print(\"Saved. Goodbye.\")\n    else:\n        print(\"Not a valid choice.\")\n"
+    },
+    {
+      "type": "python",
+      "title": "3. Stub Brief A yourself",
+      "p": [
+        "Turn your paper decomposition of the **homework tracker** into stubs. Rules: one `def` per verb, a docstring on each saying which requirement it meets, a `show_menu()` function, and a main loop that calls every stub. It must run without error even though nothing is implemented. Compare your function list with the one in the comments only after you have run it."
+      ],
+      "code": "# Homework tracker - write the stubs.\n# Hint: the verbs were add, show all, mark done, show not done, save (and load, which the brief implies).\n# Each piece of homework has: subject, title, due date, done (True/False).\n\nhomework = []            # the data: a list of pieces of homework\n\n# def add_homework(homework):\n\n\n# main program\nprint(\"Stubs ready\")\n"
+    },
+    {
+      "type": "python",
+      "title": "4. Match requirements to stubs",
+      "p": [
+        "This program's stubs were written by someone in a hurry. Two requirements from the tuck shop brief (Try 1, Brief B) have **no** stub, and one stub is not needed by the brief at all. Add the missing stubs, delete the extra one, and fix the one parameter list that is wrong (a function that needs information but has no parameter). Keep it running."
+      ],
+      "code": "# Tuck shop till - stubs with mistakes\n\ndef load_prices(filename):\n    \"\"\"Load item names and prices from the file.\"\"\"\n    return [], []\n\ndef get_price(names, prices):\n    \"\"\"Return the price of the item the user typed, or -1 if not on the list.\"\"\"\n    return -1\n\ndef print_receipt_in_colour(total):\n    \"\"\"Print the receipt in colour.\"\"\"\n    pass\n\ndef record_sale(total, filename):\n    \"\"\"Append the sale total to the sales file.\"\"\"\n    pass\n\nnames, prices = load_prices(\"prices.txt\")\ntotal = 0.0\nitem = input(\"Item (or done): \")\nwhile item != \"done\":\n    price = get_price(names, prices)\n    if price == -1:\n        print(\"Not on the list\")\n    else:\n        total = total + price\n    item = input(\"Item (or done): \")\nprint(\"Total:\", total)\n"
+    },
+    {
+      "type": "embed",
+      "title": "5. Save your stubs",
+      "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": [
+        "Paste your club register stubs (Try 2) into the IDE and save them as `club_v0.py`. You will build on this file for the next six lessons, so keep it somewhere you can find it.",
+        "Add a comment block at the top listing the seven requirements."
+      ]
+    }
+  ],
+  "check": [
+    {
+      "q": "In a brief, the nouns usually tell you:",
+      "opts": [
+        "Which loops to use",
+        "What data the program must store",
+        "How many marks the question is worth",
+        "Which language to use"
+      ],
+      "a": 1,
+      "fb": "Nouns are things to store; verbs are things to do."
+    },
+    {
+      "q": "A stub is:",
+      "opts": [
+        "A function that has been tested",
+        "A function with the right name and parameters but no real body",
+        "A syntax error",
+        "A comment at the top of a program"
+      ],
+      "a": 1,
+      "fb": "Name and parameters now, logic later."
+    },
+    {
+      "q": "The first thing to do with a brief is:",
+      "opts": [
+        "Choose variable names",
+        "Start the main loop",
+        "Read it twice and number the requirements",
+        "Write the output lines"
+      ],
+      "a": 2,
+      "fb": "Requirements are marks; find them all first."
+    },
+    {
+      "q": "A structure diagram shows:",
+      "opts": [
+        "The order statements run in",
+        "How a program is decomposed into parts",
+        "The data flowing through a loop",
+        "The test data"
+      ],
+      "a": 1,
+      "fb": "Boxes for the whole and its parts."
+    },
+    {
+      "q": "`find_member` needs a name to search for. In the stub, the name should be:",
+      "opts": [
+        "A global variable",
+        "A parameter",
+        "Typed inside the function every time",
+        "A constant"
+      ],
+      "a": 1,
+      "fb": "Information a function needs comes in as a parameter."
+    }
+  ],
+  "exam": [
+    {
+      "q": "A gym needs a program to record the equipment it owns. The program must allow the user to add an item with its name and cost, display all items, search for an item by name, and output the total cost of all items. Identify **four** subprograms the program should have and state one parameter each would need.",
+      "marks": 4,
+      "model": [
+        "add_item (needs the list of items / name and cost) (1); display_items (needs the list) (1); search_item (needs the list and the name to find) (1); total_cost (needs the list / costs) (1). One mark per sensible subprogram with a suitable parameter."
+      ],
+      "commentary": "This is a design question, so names in English are accepted, but each one must match a verb in the brief and have a sensible parameter. 'menu' on its own without a parameter does not score here because it is not one of the four requirements."
+    },
+    {
+      "q": "State the inputs, processes and outputs of the search part of the gym program.",
+      "marks": 3,
+      "model": [
+        "Input: the name to search for (1). Process: compare the name with each item in the list until a match is found or the list ends (1). Output: the item's details / cost, or a 'not found' message (1)."
+      ],
+      "commentary": "Three distinct columns, three marks. Students often write the input as 'the list' — the list is data the process uses, the input is what the user types."
+    },
+    {
+      "q": "Explain **one** benefit of writing function stubs before writing the full code.",
+      "marks": 2,
+      "model": [
+        "The program runs from the start / the structure can be tested early (1) because every function exists even without its logic, so each body can then be added and tested one at a time (1)."
+      ],
+      "commentary": "Benefit plus 'because'. 'It is good practice' earns nothing."
+    }
+  ],
+  "home": "Find a program brief of your own — a real need at home or school (a chore rota, a film watch-list, a scores table). Write it as five numbered requirements, list the nouns and verbs, draw the structure diagram and write the stubs. Bring the stubs running.",
+  "teacher": {
+    "timing": "60 min: hook 3 · explain 12 · try 32 (Try 1 paper 10, Try 2–4 runner 22) · check 4 · exam 6 · homework 3",
+    "misconceptions": [
+      "Believing the whole program must be planned perfectly before stubs are written; stubs are cheap and can be renamed.",
+      "One giant function called `main` that does everything — the verbs have not been separated.",
+      "Treating the menu as a requirement that replaces the others; the menu is the frame, the options are the marks.",
+      "Forgetting the implied requirements (load as well as save; validation when the brief says 'reject')."
+    ],
+    "say": [
+      "'Underline the verbs. Count them. That is roughly how many functions you need.'",
+      "'Does it run? Good. Now it can do nothing, correctly.'",
+      "'Which requirement number does this function meet? Write it in the docstring.'"
+    ],
+    "skip": "Try 4 can become homework if Try 1 runs long. Try 1 and Try 2 are the lesson; Try 3 shows whether they can do it alone.",
+    "differentiation": [
+      "Support: give Brief A with the nouns and verbs already underlined; students only write the stubs and the structure diagram.",
+      "Stretch: Brief B — decide which functions should return a value rather than print, and justify each in a comment."
+    ]
+  }
+}

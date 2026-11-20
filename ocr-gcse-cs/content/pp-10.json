@@ -1,0 +1,255 @@
+{
+  "id": "pp-10",
+  "title": "Mini project 3: car park system (Section B conditions)",
+  "spec": "Practical programming",
+  "duration": 60,
+  "specPoints": [
+    "2.1.2 Designing algorithms (inputs, processes, outputs; flowcharts; pseudocode); 2.2.1–2.2.3 selection, iteration, parallel arrays, file handling, sub programs, string handling",
+    "2.3.1–2.3.2 Validation, maintainability, testing with suitable test data, refining",
+    "Practical programming skills (Section B): design, write, test and refine on paper under time, then in code"
+  ],
+  "learn": [
+    "Hand-write a Section B set (design, write, test, refine) for a realistic brief in 35 minutes",
+    "Type the hand-written answer, run it, and classify every difference as forgiven or penalised",
+    "Build a complete car park system from a brief with only a comment outline as scaffolding",
+    "Use parallel lists as the exam often does, keeping them in step through every operation",
+    "Map the skills practised in this unit to the four Section B question types"
+  ],
+  "hook": "Last project, no help. First you do it the way the exam does: pen, paper, 35 minutes, nothing runs, you are the interpreter. Then you type what you wrote and find out what the computer thinks of it. Then you build the full system. By the end you will know exactly which Section B skills you own and which need another week.",
+  "video": {
+    "title": "Paper, then runner, then the real thing",
+    "brief": "4 minutes. A clock counting down from 35:00 over a hand-written page: an IPO table, a flowchart, then code for a charge function with parallel arrays. The page is typed into the runner; two red lines appear — one a missing colon (forgiven), one a `=` for `==` (penalised). Then the full brief with eight requirements and the outline; the system is built and the report prints free spaces, occupied spaces and takings. End with a four-column grid: Design, Write, Test, Refine, each filled with the lessons that practised it."
+  },
+  "explain": [
+    {
+      "h": "The brief",
+      "code": "BRIEF: A small car park with 6 numbered spaces needs a program.\n\nR1  Load the spaces from spaces.txt: one line per space, registration (blank if free)   [1]\n    and arrival hour.\nR2  Validated menu: Show spaces, Arrive, Leave, Report, Quit; repeat until Quit.          [1]\nR3  Show every space as free, or occupied with registration and arrival hour.             [1]\nR4  Arrive: ask a registration (2-8 characters, letters and digits only, stored in        [3]\n    capitals) and the arrival hour (0-23). Refuse if the car park is full or if that\n    registration is already parked. Otherwise put the car in the lowest-numbered free space.\nR5  Leave: ask a registration; if it is parked, ask the departure hour (not before          [3]\n    arrival), calculate the charge, output it to 2 decimal places, free the space and\n    append registration,hours,charge to takings.txt.\n    Charge: GBP 1.50 per hour, minimum 1 hour, capped at GBP 12.00.\nR6  Report: number of free spaces, number occupied, and total takings from takings.txt.    [2]\nR7  Save spaces.txt after every arrive and leave.                                            [1]\nR8  All input validated; no crash on bad input or a missing file.                            [1]\n                                                                                   Total [13]"
+    },
+    {
+      "h": "Data design: parallel lists, as the exam likes",
+      "p": [
+        "This time use **parallel lists** on purpose, because Section B questions often give them: `regs[i]` is the registration in space `i + 1` (`\"\"` if free) and `arrivals[i]` is its arrival hour. Every operation that changes one list must change the other — that is the discipline parallel arrays demand, and a test row (arrive then show, leave then show) proves it. The charge rule has three cases, so it deserves its own pure function and a worked table."
+      ],
+      "code": "spaces.txt           regs                       arrivals\n,0                   [\"\",                       [0,\nAB12CDE,8             \"AB12CDE\",                 8,\n,0                    \"\",                        0,\nXY34ZZZ,11            \"XY34ZZZ\",                 11,\n,0                    \"\",                        0,\n,0                    \"\"]                        0]\n\ncharge(arrival, departure):  hours = departure - arrival\n  arrival 8, departure 10   hours 2    2 x 1.50 = 3.00\n  arrival 8, departure 8    hours 0    minimum 1 hour  = 1.50\n  arrival 8, departure 16   hours 8    8 x 1.50 = 12.00  (exactly the cap)\n  arrival 8, departure 20   hours 12   18.00 -> capped at 12.00"
+    },
+    {
+      "h": "The exam-conditions version",
+      "p": [
+        "Try 1 is a 30-mark Section B on this brief, done **on paper in 35 minutes** with no computer: a design question (6), a write question (14) and test/refine questions (10). Number the requirements in the margin, pick one language and stay in it, write the `def` lines first, and never leave a write question blank. When time is up, stop. Then in Try 2 you type exactly what you wrote and run it. Every difference is one of two kinds: **forgiven** (a missing colon, `print` without brackets) or **penalised** (reversed assignment, wrong loop type, a condition that is never updated). Record which."
+      ],
+      "code": "Paper habit found when typed            Forgiven?   What it would cost\nmissing colon after if/while/def        yes         nothing\nparallel list only half updated         no          the 'keeps data in step' mark\ncharge cap written as > 12 then = 12    yes         nothing (meaning is clear)\nhours = arrival - departure (reversed)  no          the calculation mark\nreg stored without .upper()             no          one requirement mark (R4 says capitals)\nfor loop that never finds a free space  no          the search mark"
+    },
+    {
+      "h": "What you have practised: the Section B map",
+      "p": [
+        "Section B asks you to **design**, **write**, **test** and **refine**. Each lesson of this unit practised at least one. Use this grid to decide where to spend revision time: if the paper version in Try 1 lost marks on 'write', go back to lessons 3–5 and rebuild the register from the stubs; if on 'test', redo lesson 6's plan for project 2."
+      ],
+      "code": "Section B verb   What it looks like                          Lessons that practised it\nDESIGN           IPO, structure diagram, flowchart,          1 (brief, nouns/verbs, diagram), 2 (pseudocode,\n                 pseudocode, 'identify the inputs'           flowchart), 8-10 (data design)\nWRITE            'Write a program/function that...'          3 (validation), 4 (lists, files), 5 (subprograms,\n                 in ERL or Python, requirement by            parameters, return), 8-10 (whole programs from\n                 requirement                                 a brief)\nTEST             test data types, test plans, trace          6 (plan, boundary, assert), 8-9 (plans on real\n                 tables, 'which test would reveal...'        programs), 10 (paper test questions)\nREFINE           'The program should also...', 'correct      7 (maintainability, robustness, changed brief),\n                 the error on line...', changed lines        6 (fix and re-run), 9-10 (homework refinements)"
+    }
+  ],
+  "simple": [
+    {
+      "h": "The job",
+      "p": [
+        "A car park with 6 spaces. Cars arrive and leave. Work out the charge. Save the spaces. Show a report."
+      ]
+    },
+    {
+      "h": "Do it on paper first",
+      "p": [
+        "35 minutes. No computer. Three exam questions. Then type what you wrote and see what runs. Small slips are fine. Wrong meaning is not."
+      ]
+    },
+    {
+      "h": "Two lists that must match",
+      "p": [
+        "`regs` holds the registrations. `arrivals` holds the hours. Space 1 is position 0 in both. Change one, change the other."
+      ]
+    }
+  ],
+  "keyterms": [
+    {
+      "term": "Section B",
+      "def": "The 30-mark programming section of Paper 2 that tests design, write, test and refine."
+    },
+    {
+      "term": "Parallel arrays",
+      "def": "Two or more lists where the same index refers to the same record; both must be updated together."
+    },
+    {
+      "term": "Cap",
+      "def": "An upper limit applied to a calculated value, e.g. a charge that cannot exceed GBP 12.00."
+    },
+    {
+      "term": "Format check",
+      "def": "Validation that input has the right pattern, e.g. letters and digits only, 2 to 8 characters."
+    },
+    {
+      "term": "Forgiven slip",
+      "def": "A minor syntax error, such as a missing colon, that does not normally lose marks in Section B."
+    },
+    {
+      "term": "Exam conditions",
+      "def": "Working on paper, in silence, against the clock, with nothing to run the code."
+    }
+  ],
+  "try": [
+    {
+      "type": "task",
+      "title": "1. Section B on paper — 35 minutes, 30 marks",
+      "p": [
+        "Pen and paper only. Start the clock. Pick ERL or Python and stay in it."
+      ],
+      "steps": [
+        "**Q1 Design [6].** (a) Give the inputs, processes and outputs of the Arrive option (R4). [3] (b) Draw a flowchart for finding the lowest-numbered free space in `regs`, outputting 'Full' if there is none. [3]",
+        "**Q2 Write [14].** (a) Write a function `charge(arrival, departure)` that returns the cost using the rule in R5. [4] (b) Write a procedure `arrive(regs, arrivals)` that asks for a registration and arrival hour, validates both as in R4, refuses if full or already parked, and otherwise stores the car in the first free space in both lists. Use `charge` style helper functions where sensible. [8] (c) Write the lines that append `registration,hours,charge` to takings.txt. [2]",
+        "**Q3 Test and refine [10].** (a) Give one item each of normal, boundary and erroneous test data for the departure hour when the arrival hour is 8, with the expected result of each. [6] (b) The car park owner now wants a flat GBP 5.00 charge for any stay that starts at or after hour 18. Write only the changed or added lines of `charge`, with line references. [4]",
+        "Stop at 35 minutes even if unfinished. Mark the requirements you ticked."
+      ]
+    },
+    {
+      "type": "python",
+      "title": "2. Type what you wrote and run it",
+      "p": [
+        "Type your Q2 answers **exactly as written** into the gaps — do not improve them as you type. Run. Then fix each error in turn and, for each, write a comment: `# forgiven` or `# penalised`, and why. The test calls at the bottom check `charge` against the worked table and run `arrive` once: expect `AB12CDE` refused as already parked, then `ZZ99ZZZ` to land in space 1."
+      ],
+      "code": "# ---- paste your Q2(a) charge here ----\ndef charge(arrival, departure):\n    pass\n\n# ---- paste your Q2(b) arrive here (and any helpers you wrote) ----\ndef arrive(regs, arrivals):\n    pass\n\n# ---- tests ----\nregs = [\"\", \"AB12CDE\", \"\", \"XY34ZZZ\", \"\", \"\"]\narrivals = [0, 8, 0, 11, 0, 0]\n\nprint(charge(8, 10), \"expected 3.0\")\nprint(charge(8, 8), \"expected 1.5\")\nprint(charge(8, 16), \"expected 12.0\")\nprint(charge(8, 20), \"expected 12.0\")\n\narrive(regs, arrivals)      # type AB12CDE, then any hour: expect refused\narrive(regs, arrivals)      # type zz99zzz and 14: expect space 1, stored as ZZ99ZZZ\nprint(regs)\nprint(arrivals)\n"
+    },
+    {
+      "type": "python",
+      "title": "3. Build the whole system",
+      "p": [
+        "Minimal scaffolding: constants, the files, and a comment outline of the functions you need. Decompose on paper first (five minutes), then build in the order you have practised: helpers → load/save → pure functions (`charge`, `find_free`, `find_reg`, `is_valid_reg`) with asserts → screens → menu. Run after each. Both data files are provided; `takings.txt` already has two lines."
+      ],
+      "files": {
+        "spaces.txt": ",0\nAB12CDE,8\n,0\nXY34ZZZ,11\n,0\n,0\n",
+        "takings.txt": "LM56NOP,2,3.00\nQR78STU,9,12.00\n"
+      },
+      "code": "SPACES_FILE = \"spaces.txt\"\nTAKINGS_FILE = \"takings.txt\"\nRATE = 1.50\nCAP = 12.00\nMIN_HOURS = 1\n\n# ---- input helpers: get_int(prompt, low, high), get_text(prompt) ----\n\n# ---- file handling ----\n# load_spaces(filename) -> regs, arrivals        (two lists; \"\" and 0 for a free space; [] [] if missing)\n# save_spaces(regs, arrivals, filename)          (one line per space: reg,arrival)\n# append_taking(reg, hours, cost, filename)      (append mode)\n# total_takings(filename) -> float               (sum of the third field; 0.0 if missing)\n\n# ---- pure functions (assert these first) ----\n# charge(arrival, departure) -> float            (R5 rule)\n# find_free(regs) -> index or -1                 (lowest free space)\n# find_reg(regs, reg) -> index or -1\n# is_valid_reg(text) -> bool                     (2-8 chars, letters and digits only)\n\n# ---- screens ----\n# show_spaces(regs, arrivals)                    (R3)\n# arrive(regs, arrivals)                         (R4, then save)\n# leave(regs, arrivals)                          (R5, then save and append taking)\n# report(regs, arrivals)                         (R6)\n# show_menu() -> int                             (R2)\n\n# ---- main program ----\nprint(\"Car park system - start by decomposing on paper, then build top to bottom.\")\n"
+    },
+    {
+      "type": "task",
+      "title": "4. Test plan, evaluation and the Section B map",
+      "p": [
+        "Test plan of at least 16 rows before the final run — include: arrive when exactly one space is free then when none; departure hour equal to arrival; a stay of exactly 8 hours (hits the cap exactly); registration of 1 character and of 9; registration in lower case; leave for a registration not parked; report with an empty `takings.txt`. Run, log, fix, re-run. Evaluation table R1–R8 with test evidence."
+      ],
+      "steps": [
+        "Finish with your personal Section B map: copy the four-row grid from the lesson and, beside each verb, write the Try 1 question that tested it, the marks you think you earned, and the lesson you will revisit.",
+        "Compare your hand-written `charge` with the one in your final program. Which is clearer? Why?"
+      ]
+    },
+    {
+      "type": "embed",
+      "title": "5. Save the project and the unit",
+      "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": [
+        "Save as `carpark.py` with both data files, `carpark_tests.txt` and `carpark_evaluation.txt`.",
+        "You should now have `club_v6.py`, `library.py`, `quiz.py` and `carpark.py`. Together with their test plans and evaluations they are your evidence for the Practical Programming activity. Keep them all in one folder."
+      ]
+    }
+  ],
+  "check": [
+    {
+      "q": "With `regs` and `arrivals` as parallel lists, a car leaving space 3 requires:",
+      "opts": [
+        "`regs[2] = \"\"` only",
+        "`regs[2] = \"\"` and `arrivals[2] = 0`",
+        "`regs.pop(2)`",
+        "`arrivals[3] = 0` only"
+      ],
+      "a": 1,
+      "fb": "Both lists, same index; popping would renumber the spaces."
+    },
+    {
+      "q": "`charge(8, 8)` should return:",
+      "opts": [
+        "0.00",
+        "1.50",
+        "12.00",
+        "An error"
+      ],
+      "a": 1,
+      "fb": "Minimum of 1 hour."
+    },
+    {
+      "q": "In the exam, writing `if hours > 8 then cost = 12` instead of using a named constant is:",
+      "opts": [
+        "Penalised heavily",
+        "Normally forgiven — the meaning is clear",
+        "A syntax error",
+        "Not allowed in ERL"
+      ],
+      "a": 1,
+      "fb": "Constants are good practice, not a requirement for the mark."
+    },
+    {
+      "q": "Which hand-written slip would lose a mark when typed?",
+      "opts": [
+        "A missing colon after `def`",
+        "`print` without brackets",
+        "`hours = arrival - departure`",
+        "Indenting with 2 spaces"
+      ],
+      "a": 2,
+      "fb": "The subtraction is reversed: wrong meaning, wrong result."
+    },
+    {
+      "q": "Boundary test data for the departure hour when arrival is 8:",
+      "opts": [
+        "7",
+        "8",
+        "10",
+        "'eight'"
+      ],
+      "a": 1,
+      "fb": "Equal to arrival — the edge of 'not before arrival'. 7 is invalid, 'eight' erroneous."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Write a function `findFree(regs)` that returns the index of the first empty string in the array `regs`, or -1 if every space is occupied.",
+      "marks": 3,
+      "model": [
+        "Function header with the parameter (1). Loop through the indexes testing for an empty string and returning the index when found (1). `return -1` after the loop (1)."
+      ],
+      "commentary": "The `-1` must be after the loop. Returning `regs[i]` (the empty string) instead of `i` loses the loop mark — the brief asks for the index."
+    },
+    {
+      "q": "The charge for a stay is 1.50 per hour with a minimum of one hour and a maximum of 12.00. A programmer writes the code below. Give **one** item of test data for `hours` that would reveal an error in this code, and state the expected and actual results.",
+      "marks": 3,
+      "code": "if hours > 8 then\n    cost = 12.00\nelse\n    cost = hours * 1.50\nendif",
+      "model": [
+        "hours = 0 (1); expected 1.50 because of the one-hour minimum (1); actual 0.00 because the code has no minimum rule (1)."
+      ],
+      "commentary": "The cap is handled correctly (8 hours gives 12.00 either way), so the only revealing value is the minimum boundary. Students who offer 8 or 9 hours and claim an error have not calculated the actual result."
+    },
+    {
+      "q": "A student's program stores the registration exactly as typed. The brief says registrations must be stored in capitals, and the Leave option fails to find cars whose registration was typed in lower case. Describe the refinement needed and state **two** places in the program it must be applied.",
+      "marks": 3,
+      "model": [
+        "Convert the registration to upper case with `.upper()` (1) when it is entered in Arrive before storing (1) and when it is entered in Leave before searching (1)."
+      ],
+      "commentary": "The second place is the one students forget. Converting only on arrive stores capitals but still cannot find a lower-case search."
+    }
+  ],
+  "home": "Pick the project (library, quiz or car park) where your evaluation had the most 'Partly' rows. Make every 'Partly' a 'Met' with new test rows as evidence, and hand in the updated evaluation. Then hand-write the answer to this unit's lesson 8 exam question 1 and lesson 9 exam question 2 in 12 minutes, timed.",
+  "teacher": {
+    "timing": "Two lessons recommended. Lesson A (60): hook 3 · explain 7 · Try 1 paper 35 · Try 2 runner 15. Lesson B (60): Try 3 build 40 · Try 4 plan/evaluation/map 15 · homework 5. If one lesson only: Try 1 shortened to Q2 (20 min), Try 2 (10), then Try 3 as homework.",
+    "misconceptions": [
+      "Updating `regs` but not `arrivals` (or the reverse) on leave.",
+      "Charge with `max(hours, 1)` forgotten so a same-hour stay is free, or cap applied to hours instead of cost.",
+      "Searching for the lower-case registration after storing in capitals.",
+      "On paper: switching between ERL and Python mid-answer; improving the answer while typing it in Try 2 so the comparison is lost."
+    ],
+    "say": [
+      "'Pen down at 35. The exam does not wait either.'",
+      "'Type it as you wrote it. The point is to see what the computer thinks of your paper habits.'",
+      "'Two lists, one index. Show me both lines.'"
+    ],
+    "skip": "Do not skip Try 1 or Try 2 — they are the point of the lesson. Try 3 can be reduced to R1–R5 for a weaker group, with R6 as stretch.",
+    "differentiation": [
+      "Support: Try 1 with Q2(a) and Q3(a) only (10 marks, 15 minutes); Try 3 with `load_spaces` and `save_spaces` provided.",
+      "Stretch: Try 3 with a 'change of day' option that writes the day's takings total to a summary file and empties takings.txt; and a leave-time earlier than arrival treated as 'overnight' (add 24)."
+    ]
+  }
+}

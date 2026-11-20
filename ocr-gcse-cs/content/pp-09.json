@@ -1,0 +1,248 @@
+{
+  "id": "pp-09",
+  "title": "Mini project 2: revision quiz",
+  "spec": "Practical programming",
+  "duration": 60,
+  "specPoints": [
+    "2.1.1–2.1.2 Decomposition, designing algorithms in pseudocode; 2.2.3 random numbers, string manipulation, lists, file handling, sub programs",
+    "2.3.1–2.3.2 Validation, maintainability, test plans and refining; 2.1.3 searching and sorting a list",
+    "Practical programming skills (Section B): build a complete program from a brief with less scaffolding"
+  ],
+  "learn": [
+    "Decompose a nine-requirement brief into pure functions (testable with assert) and screens (tested through the menu)",
+    "Design and implement random selection without repeats",
+    "Compare answers ignoring case and spaces; filter a list by a field; find the top n of a list",
+    "Use a file in append mode for a log and compare it with the whole-file rewrite used before",
+    "Write the test plan and evaluation with less guidance than project 1"
+  ],
+  "hook": "Project 1 gave you the file handling, the helpers and the main loop. This time you get the brief, the data files and a skeleton of function names with docstrings — nothing else. The docstrings are the design. Half the functions are 'pure': they take values and return values, so you can prove them right with assert before you build a single menu.",
+  "video": {
+    "title": "Pure functions first",
+    "brief": "4 minutes. The quiz brief, numbered. The skeleton with its two groups: pure functions (categories, filter, pick, check, top) and screens (choose category, play, high scores, menu). Asserts run against the pure functions — one fails: `pick_questions` returned a repeat; the fix uses a copy and `pop`. Then the screens are built on top and a quiz is played: three Maths questions, two right, 67%, score saved. High scores show the top five. End with the test plan's boundary rows highlighted."
+  },
+  "explain": [
+    {
+      "h": "The brief",
+      "code": "BRIEF: A revision quiz that reads its questions from a file.\n\nR1  Load questions from questions.txt (category,question,answer per line).        [1]\nR2  Validated menu: Play, High scores, Categories, Quit; repeat until Quit.         [1]\nR3  Before playing, show the categories numbered plus an 'All' option and let      [2]\n    the user choose one.\nR4  Ask the user how many questions (1 to the number available); choose them at    [2]\n    random with no repeats.\nR5  Accept answers in any case and ignore spaces around them.                        [1]\nR6  Keep the score; after a wrong answer show the correct one; at the end show      [2]\n    score, total and percentage (whole number).\nR7  Ask for the player's name and append name,score,total to highscores.txt.        [1]\nR8  High scores option shows the best 5 by score, highest first.                    [2]\nR9  All input validated; if fewer questions exist than asked for, use all of them;  [1]\n    the program must not crash on a missing or faulty file.\n                                                                           Total [13]"
+    },
+    {
+      "h": "Pure functions and screens",
+      "p": [
+        "Split the functions into two groups. **Pure functions** take values and return values and never use `input` or `print`: `categories`, `filter_by_category`, `pick_questions`, `check_answer`, `top_scores`. Test them with `assert` before anything else. **Screens** talk to the user: `choose_category`, `play_quiz`, `show_high_scores`, `show_menu`. They are short because they call the pure functions. This split is what makes a program testable, and it is what the examiner means by 'use subprograms appropriately'."
+      ],
+      "code": "Pure (assert-tested)                    Screen (menu-tested)\ncheck_answer(\" PARIS \", \"Paris\") → True   play_quiz: ask, call check_answer, score\npick_questions(qs, 3) → 3 different      choose_category: print list, get_int\nfilter_by_category(qs, \"Maths\") → 4 qs   show_high_scores: load_scores, top_scores, print\ntop_scores(scores, 5) → best 5"
+    },
+    {
+      "h": "Two designs worth writing in pseudocode first",
+      "p": [
+        "**Random without repeats**: copy the list, then `how_many` times pick a random index, `pop` it from the copy and append it to the result. The copy matters — popping from the real list would delete questions. **Top n**: sort a copy by score descending (`sorted(scores, key=..., reverse=True)` or a bubble sort), then take the first `min(n, len)` items. Both have a boundary at 'fewer items than asked for' — that is R9, and it is a test row."
+      ],
+      "code": "function pickQuestions(questions, howMany)\n    pool = copy of questions\n    chosen = empty list\n    if howMany > pool.length then howMany = pool.length endif\n    for i = 1 to howMany\n        index = random(0, pool.length - 1)\n        chosen.append(pool[index])\n        pool.remove(index)\n    next i\n    return chosen\nendfunction"
+    },
+    {
+      "h": "Append mode, this time",
+      "p": [
+        "Project 1 rewrote the whole book file with `\"w\"` because records changed. High scores are a **log**: nothing is ever edited, lines are only added, so `\"a\"` (append) is right and simpler — one line per game. Reading them back is the same `split(\",\")` and cast pattern. Note the design consequence: the top-5 is computed when displayed, not stored."
+      ]
+    }
+  ],
+  "simple": [
+    {
+      "h": "The job",
+      "p": [
+        "A quiz. Questions come from a file. Pick a category and how many. Random questions, no repeats. Score at the end. Save the score. Show the best five."
+      ]
+    },
+    {
+      "h": "Two kinds of function",
+      "list": [
+        "**Pure**: value in, value out. No input or print. Test with `assert`.",
+        "**Screens**: talk to the user. Call the pure functions."
+      ]
+    },
+    {
+      "h": "No repeats",
+      "p": [
+        "Copy the list. Pick a random position. Take that question out of the copy and add it to the chosen list. Repeat."
+      ]
+    }
+  ],
+  "keyterms": [
+    {
+      "term": "Pure function",
+      "def": "A function whose result depends only on its parameters and that has no input, output or other side effects."
+    },
+    {
+      "term": "Side effect",
+      "def": "Anything a function does besides returning a value, such as printing, reading input or changing a file."
+    },
+    {
+      "term": "Random selection without replacement",
+      "def": "Choosing items at random so that no item can be chosen twice."
+    },
+    {
+      "term": "Append mode",
+      "def": "Opening a file with `\"a\"` so new lines are added at the end and existing lines are kept."
+    },
+    {
+      "term": "Filter",
+      "def": "Producing a new list containing only the items that meet a condition."
+    },
+    {
+      "term": "Log file",
+      "def": "A file that only ever has lines added, such as a record of every game played."
+    }
+  ],
+  "try": [
+    {
+      "type": "task",
+      "title": "1. Decompose and design (paper, 10 minutes)",
+      "p": [
+        "Number the requirements. List nouns → data (what is a question record? what is a score record? which file is rewritten and which is appended?). List verbs → functions, and sort them into pure and screen. Draw the structure diagram. Then write **OCR pseudocode** for `check_answer` and for `top_scores` (a bubble sort or a repeated 'find the max and remove' are both fine). Keep the paper: you will compare it with your code."
+      ]
+    },
+    {
+      "type": "python",
+      "title": "2. Build it from the skeleton",
+      "p": [
+        "Only stubs and docstrings. Build in this order and **run after each**: (1) paste your helpers from lesson 3; (2) `load_questions` — print how many loaded; (3) the five pure functions — write at least two `assert` lines for each at the bottom before moving on; (4) `choose_category` and `show_menu`; (5) `play_quiz` with `save_score`; (6) `show_high_scores`. The data files are provided; `highscores.txt` already has three lines."
+      ],
+      "files": {
+        "questions.txt": "CS,What does CPU stand for?,central processing unit\nCS,How many bits are in a byte?,8\nCS,What is 1011 in denary?,11\nCS,Which Python keyword starts a function?,def\nCS,What type of error is a missing colon?,syntax\nMaths,What is 7 times 8?,56\nMaths,What is the square root of 144?,12\nMaths,How many degrees in a right angle?,90\nMaths,What is 15% of 200?,30\nGeography,What is the capital of France?,Paris\nGeography,Which is the largest ocean?,Pacific\nGeography,What is the capital of Japan?,Tokyo\n",
+        "highscores.txt": "Ada,5,5\nTim,2,4\nGrace,7,10\n"
+      },
+      "code": "import random\n\nQUESTIONS_FILE = \"questions.txt\"\nSCORES_FILE = \"highscores.txt\"\nTOP_N = 5\n# a question record is [category, question, answer]\nCAT, QUESTION, ANSWER = 0, 1, 2\n\n# ---- input helpers (paste yours from lesson 3) ----\ndef get_int(prompt, low, high):\n    \"\"\"Keep asking until a whole number from low to high is typed; return it.\"\"\"\n    pass\n\ndef get_text(prompt):\n    \"\"\"Keep asking until something other than blank is typed; return it stripped.\"\"\"\n    pass\n\n# ---- file handling ----\ndef load_questions(filename):\n    \"\"\"R1: return a list of [category, question, answer] records; skip bad lines; [] if missing.\"\"\"\n    pass\n\ndef save_score(name, score, total, filename):\n    \"\"\"R7: append one line name,score,total to the high-score file.\"\"\"\n    pass\n\ndef load_scores(filename):\n    \"\"\"R8: return a list of [name, score, total] records; [] if missing.\"\"\"\n    pass\n\n# ---- pure functions (test these with assert first) ----\ndef categories(questions):\n    \"\"\"R3: return a list of the distinct categories, in the order first seen.\"\"\"\n    pass\n\ndef filter_by_category(questions, category):\n    \"\"\"R3: return only the questions in this category (\"All\" returns every question).\"\"\"\n    pass\n\ndef pick_questions(questions, how_many):\n    \"\"\"R4/R9: return how_many different questions chosen at random (all of them if fewer exist).\"\"\"\n    pass\n\ndef check_answer(given, correct):\n    \"\"\"R5: return True if given matches correct ignoring case and surrounding spaces.\"\"\"\n    pass\n\ndef top_scores(scores, n):\n    \"\"\"R8: return the n best records by score (highest first).\"\"\"\n    pass\n\n# ---- screens ----\ndef choose_category(questions):\n    \"\"\"R3: show the categories numbered, plus 'All'; return the chosen category name.\"\"\"\n    pass\n\ndef play_quiz(questions):\n    \"\"\"R3-R7: choose category and number of questions, ask them, score, show result, save score.\"\"\"\n    pass\n\ndef show_high_scores():\n    \"\"\"R8: print the top TOP_N scores as 'name score/total'.\"\"\"\n    pass\n\ndef show_menu():\n    \"\"\"R2: print the menu and return a validated choice.\"\"\"\n    pass\n\n# ---- main program ----\nquestions = load_questions(QUESTIONS_FILE)\nprint(\"Quiz skeleton loaded.\", \"Questions in file:\", 0 if questions is None else len(questions))\n# TODO: menu loop - 1 Play  2 High scores  3 Categories  4 Quit\n"
+    },
+    {
+      "type": "python",
+      "title": "3. Prove the pure functions",
+      "p": [
+        "Paste your five pure functions over the stubs here and run. Every assert must pass. Then add asserts of your own for: `check_answer(\"8\", \"8 \")`, `pick_questions` on an empty list, `top_scores` with fewer than 5 records, `categories` when a category appears twice, `filter_by_category(qs, \"All\")`. One of the given asserts is deliberately strict about repeats — if it fails, read the pseudocode in the lesson again."
+      ],
+      "code": "import random\nCAT, QUESTION, ANSWER = 0, 1, 2\n\ndef categories(questions):\n    pass\n\ndef filter_by_category(questions, category):\n    pass\n\ndef pick_questions(questions, how_many):\n    pass\n\ndef check_answer(given, correct):\n    pass\n\ndef top_scores(scores, n):\n    pass\n\n# ---- harness ----\nqs = [[\"CS\", \"q1\", \"a1\"], [\"Maths\", \"q2\", \"a2\"], [\"CS\", \"q3\", \"a3\"], [\"Geography\", \"q4\", \"a4\"]]\nscores = [[\"Ada\", 5, 5], [\"Tim\", 2, 4], [\"Grace\", 7, 10], [\"Mo\", 3, 3]]\n\nif categories(qs) is not None:   # remove this line once you have written the functions\n    assert categories(qs) == [\"CS\", \"Maths\", \"Geography\"]\n    assert filter_by_category(qs, \"CS\") == [[\"CS\", \"q1\", \"a1\"], [\"CS\", \"q3\", \"a3\"]]\n    assert filter_by_category(qs, \"All\") == qs\n    assert check_answer(\" PARIS \", \"Paris\") == True\n    assert check_answer(\"Pari\", \"Paris\") == False\n    chosen = pick_questions(qs, 3)\n    assert len(chosen) == 3\n    assert chosen[0] != chosen[1] and chosen[1] != chosen[2] and chosen[0] != chosen[2]\n    assert len(pick_questions(qs, 10)) == 4          # R9: capped at what exists\n    assert len(qs) == 4                              # the original list was not changed\n    assert top_scores(scores, 2) == [[\"Grace\", 7, 10], [\"Ada\", 5, 5]]\n    assert len(top_scores(scores, 5)) == 4\n    print(\"All pure-function tests passed\")\nelse:\n    print(\"Write the functions, then delete the if/else wrapper\")\n"
+    },
+    {
+      "type": "task",
+      "title": "4. Test plan, run, evaluate",
+      "p": [
+        "Write the plan (at least 16 rows) before the final run. Rows you must include: number of questions = 1 and = all available (boundary); number = available + 1 (invalid); answer in capitals with spaces (normal for R5); a category with exactly one question; empty `highscores.txt` (delete its contents); `questions.txt` with a bad line. Run, log, fix, re-run. Then the evaluation table R1–R9 with test evidence, and three sentences on robustness, maintainability and one limitation."
+      ],
+      "steps": [
+        "Percentage: 2 out of 3 should show 67, not 66.66666 — which rounding did you use, and is 0 out of 0 possible?",
+        "Which functions did your assert harness prove, and which could only be tested through the menu? Say so in the evaluation."
+      ]
+    },
+    {
+      "type": "embed",
+      "title": "5. Save the project",
+      "url": "https://beanwise.coderra.je/Python_IDE/",
+      "instructions": [
+        "Save as `quiz.py` with `questions.txt` and `highscores.txt`, plus `quiz_tests.txt` (plan, log, asserts) and `quiz_evaluation.txt`.",
+        "Add five questions of your own to `questions.txt` in a new category and check the categories screen picks it up without any code change."
+      ]
+    }
+  ],
+  "check": [
+    {
+      "q": "A pure function:",
+      "opts": [
+        "Uses `input()` to get its data",
+        "Returns a value that depends only on its parameters",
+        "Always prints its result",
+        "Cannot have parameters"
+      ],
+      "a": 1,
+      "fb": "No input, no print, no side effects — easy to assert."
+    },
+    {
+      "q": "To pick questions at random with no repeats you should:",
+      "opts": [
+        "Call `random.choice` each time",
+        "Copy the list and pop each chosen item from the copy",
+        "Sort the list",
+        "Pick the first n questions"
+      ],
+      "a": 1,
+      "fb": "Removing from a copy prevents repeats and protects the original."
+    },
+    {
+      "q": "`check_answer(\" paris\", \"Paris\")` should return True. The implementation needs:",
+      "opts": [
+        "`given == correct`",
+        "`given.strip().lower() == correct.strip().lower()`",
+        "`given in correct`",
+        "`len(given) == len(correct)`"
+      ],
+      "a": 1,
+      "fb": "Strip spaces and match case on both sides."
+    },
+    {
+      "q": "The high-score file is opened with `\"a\"` rather than `\"w\"` because:",
+      "opts": [
+        "`\"w\"` is slower",
+        "Scores are only ever added, never changed, so append keeps the old ones",
+        "`\"a\"` sorts the file",
+        "The file is very large"
+      ],
+      "a": 1,
+      "fb": "A log file: append."
+    },
+    {
+      "q": "The user asks for 10 questions but the category has 4. The program should:",
+      "opts": [
+        "Crash",
+        "Ask the same questions again to make 10",
+        "Use all 4 (cap at what exists)",
+        "Switch to 'All'"
+      ],
+      "a": 2,
+      "fb": "R9: cap the number; also validate the input against the count."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Write a function `percentage(score, total)` that returns the score as a whole-number percentage of the total, returning 0 if the total is 0.",
+      "marks": 3,
+      "model": [
+        "Function header with both parameters (1). Check for total equal to 0 returning 0 (1). Otherwise return `round(score / total * 100)` or integer division equivalent (1)."
+      ],
+      "commentary": "The zero check is a mark — dividing by zero is the crash the brief warns about. `int()` truncates (66) while `round()` gives 67; either accepted if consistent, but state which."
+    },
+    {
+      "q": "A quiz program chooses questions with `random.randint(0, len(questions) - 1)` inside a loop and asks `questions[index]` each time. A tester reports that the same question was asked twice in one game. Explain why and describe how the program should be refined.",
+      "marks": 3,
+      "model": [
+        "Each random index is independent so the same index can be generated more than once (1). Keep a list of indexes already used and re-pick when a repeat occurs, or remove each chosen question from a copy of the list (1). Also ensure the number requested cannot exceed the number available, to avoid an endless re-pick (1)."
+      ],
+      "commentary": "Cause, refinement, and the edge case the refinement creates. The third mark separates students who have built it from those who have read about it."
+    },
+    {
+      "q": "The high-score file stores `name,score,total`. Describe how the program finds the five highest scores to display.",
+      "marks": 3,
+      "model": [
+        "Read every line, split at the commas and store the records in a list with the score cast to an integer (1). Sort the list by score in descending order, e.g. with a bubble sort or a sort function (1). Output the first five records, or all of them if there are fewer than five (1)."
+      ],
+      "commentary": "Describe = what/how in order. Casting is needed because `\"9\" > \"10\"` as strings. The fewer-than-five case is the boundary mark."
+    }
+  ],
+  "home": "Refine the quiz so a question answered wrongly is asked again at the end of the game (once), and the final score counts only first attempts. Write the three test rows that prove it and update the evaluation.",
+  "teacher": {
+    "timing": "60 min: hook 2 · explain 8 · Try 1 paper 10 · Try 2–3 build 30 · Try 4 plan and evaluation 8 · homework 2. Realistically a lesson and a half; if so, end lesson 1 after the pure functions pass (Try 3) and start lesson 2 with the screens.",
+    "misconceptions": [
+      "Popping chosen questions from the real list, so the quiz destroys its own question bank.",
+      "Comparing scores read from the file as strings, so '9' beats '10'.",
+      "`check_answer` that strips one side only, or lowercases the given answer but not the correct one.",
+      "Asking for the number of questions before the category is known, so the range is wrong."
+    ],
+    "say": [
+      "'Pure first. Does the assert pass? Then build the screen on top.'",
+      "'Where did you copy the list? Show me.'",
+      "'How many questions are in Geography? Ask for four. What should happen?'"
+    ],
+    "skip": "If short of time, `show_high_scores` can be homework once `save_score` works. Do not skip Try 3.",
+    "differentiation": [
+      "Support: give `load_questions` and `save_score` written (they mirror project 1), and the harness in Try 3 as a checklist of exactly what each pure function must return.",
+      "Stretch: add a per-category high-score table (store the category in the scores file) and a 'hardest question' report counting wrong answers across all games."
+    ]
+  }
+}

@@ -82,7 +82,17 @@
     "1-6-02",
     "1-6-03",
     "1-6-04",
-    "1-6-05"
+    "1-6-05",
+    "pp-01",
+    "pp-02",
+    "pp-03",
+    "pp-04",
+    "pp-05",
+    "pp-06",
+    "pp-07",
+    "pp-08",
+    "pp-09",
+    "pp-10"
   ],
   "units": [
     {
@@ -565,17 +575,17 @@
         },
         {
           "id": "pp-08",
-          "title": "Mini project 1",
+          "title": "Mini project 1: school library lending system",
           "spec": "Practical programming"
         },
         {
           "id": "pp-09",
-          "title": "Mini project 2",
+          "title": "Mini project 2: revision quiz",
           "spec": "Practical programming"
         },
         {
           "id": "pp-10",
-          "title": "Mini project 3",
+          "title": "Mini project 3: car park system (Section B conditions)",
           "spec": "Practical programming"
         }
       ]
