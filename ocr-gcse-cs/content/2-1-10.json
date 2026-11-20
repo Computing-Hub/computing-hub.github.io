@@ -8,6 +8,12 @@
     "Show the stages of each sort on a given list",
     "Compare the three sorts: bubble, insertion, merge"
   ],
+  "learn": [
+    "Show the stages of an **insertion sort** on a given list",
+    "Show the stages of a **merge sort** on a given list: split, then merge",
+    "Compare bubble, insertion and merge sort",
+    "Choose a suitable sort for a situation and justify the choice"
+  ],
   "hook": "Two ways people sort a hand of cards. Some pick up one card at a time and slide it into the right place among the cards already held. Others split the pile, sort each half, and then merge. Both work. One is what you probably do already; the other is what big computers do. Today you learn both and when each wins.",
   "video": {
     "title": "Insertion sort and merge sort, side by side",

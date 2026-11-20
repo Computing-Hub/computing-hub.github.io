@@ -8,6 +8,12 @@
     "30 marks · 45 minutes · no notes · pseudocode or Python accepted",
     "Teachers: switch on Teacher view for the mark scheme and marking notes"
   ],
+  "learn": [
+    "Apply abstraction and decomposition to a scenario, and draw a structure diagram",
+    "Complete a trace table, then find and correct an error in an algorithm",
+    "Write an algorithm in pseudocode or Python from a brief",
+    "Show the steps of the standard searching and sorting algorithms"
+  ],
   "hook": "Read every question twice. Underline the command word (state, describe, explain, show the steps). Marks in brackets tell you how many separate points to make. Show your working for every trace and every search or sort — the steps are where most of the marks are.",
   "explain": [
     { "h": "How to use this test",

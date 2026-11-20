@@ -57,7 +57,7 @@
     { "type": "python", "title": "1. Predict every line first", "p": ["Write your prediction for each print, then run. Any surprises? Those are the ones to remember."],
       "code": "print(17 // 5, 17 % 5)\nprint(2 ** 10)\nprint(10 / 4, 10 // 4)\nprint(100 % 7)\nprint(3 + 4 * 2, (3 + 4) * 2)\nprint(7 > 3, 7 == 3, 7 != 3)\nprint(True and False, True or False, not True)\nprint(\"cat\" < \"dog\")" },
     { "type": "python", "title": "2. Minutes to hours", "p": ["Ask for a number of minutes and print it as hours and minutes, e.g. 135 → 2 hours 15 minutes. Then extend to seconds → h:m:s."],
-      "code": "minutes = int(input(\"Minutes: \"))\nhours = \n mins = \nprint(hours, \"hours\", mins, \"minutes\")" },
+      "code": "minutes = int(input(\"Minutes: \"))\nhours = \nmins = \nprint(hours, \"hours\", mins, \"minutes\")" },
     { "type": "python", "title": "3. Digit sum", "p": ["Use MOD and DIV in a loop to add up the digits of a number (e.g. 472 → 13). No strings allowed."],
       "code": "n = int(input(\"Number: \"))\ntotal = 0\nwhile n > 0:\n    # take the last digit with % and add it; remove it with //\n    pass\nprint(total)" },
     { "type": "python", "title": "4. Boolean logic", "p": ["Complete the conditions. Test with several ages and days."],

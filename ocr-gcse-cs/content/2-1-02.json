@@ -8,6 +8,12 @@
     "Use **structure diagrams** to show how a problem has been decomposed",
     "Produce a design using a structure diagram from a description"
   ],
+  "learn": [
+    "Identify the **inputs**, **processes** and **outputs** of a described problem",
+    "Read a structure diagram and say how the problem has been broken down",
+    "Draw a structure diagram from a description",
+    "Spot and correct mistakes in an input–process–output table or a structure diagram"
+  ],
   "hook": "A vending machine. Shout out everything that goes **in** (coins, button press), everything that comes **out** (drink, change, message), and everything that happens **inside** that you cannot see. Three columns on the board. Every program you will ever write has these three columns.",
   "video": {
     "title": "Input, process, output — and the box diagram that organises them",

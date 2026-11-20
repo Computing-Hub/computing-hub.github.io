@@ -8,6 +8,12 @@
     "Show the state of the list after **each pass**",
     "Know when it stops and why it is inefficient"
   ],
+  "learn": [
+    "Describe how a **bubble sort** works",
+    "Show the list after **each pass** of a bubble sort",
+    "Say when a bubble sort stops",
+    "Explain why bubble sort is slow on a long list"
+  ],
   "hook": "Five students at the front holding numbers, in a random order. Only rule: you may compare two **neighbours** and swap them if they are the wrong way round. Start at the left and work along. What happened to the biggest number after one trip along the line? (It 'bubbled' to the end.) How many trips until everything is sorted?",
   "video": {
     "title": "Bubble sort: compare neighbours, swap, repeat",
