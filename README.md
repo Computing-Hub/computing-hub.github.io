@@ -39,6 +39,8 @@ in the repo's **Settings → Pages** and tick *Enforce HTTPS* once the certifica
 
 ### What still runs on Django (`members.coderra.je`)
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for why the site is split between GitHub Pages and the Django app.
+
 Login, the members-only resource library, the course builder and student dashboards
 stay on the Django app (`Coderraje/tuition`, Railway). Static pages link to it via
 `https://members.coderra.je/...`; search for that host if it moves to another subdomain.
