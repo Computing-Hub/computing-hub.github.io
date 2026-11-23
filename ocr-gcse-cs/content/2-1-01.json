@@ -7,6 +7,12 @@
     "Principles of computational thinking: **abstraction**, **decomposition**, **algorithmic thinking**",
     "You will be asked to **define** each one and to **apply** it to a scenario (e.g. 'Describe how decomposition could be used to design this program')"
   ],
+  "learn": [
+    "Define **abstraction**, **decomposition** and **algorithmic thinking**",
+    "Apply each one to a given scenario, using details from that scenario",
+    "Say which details an abstraction removes and which it keeps",
+    "Break a problem down into smaller parts that can each be solved separately"
+  ],
   "hook": "Look at the London Underground map. Which real things has it left out? (Distances, roads, what the stations look like.) Why is it still useful? Now imagine the map showed every detail. Would it be better or worse? That is the whole of this lesson.",
   "video": {
     "title": "Three ways to think like a computer scientist",

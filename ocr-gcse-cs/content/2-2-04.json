@@ -60,7 +60,7 @@
     { "type": "python", "title": "1. Guess the number", "p": ["Run and play. Then add a counter and print how many guesses it took."],
       "code": "import random\nsecret = random.randint(1, 20)\nguess = 0\nwhile guess != secret:\n    guess = int(input(\"Guess (1-20): \"))\n    if guess < secret:\n        print(\"Higher\")\n    elif guess > secret:\n        print(\"Lower\")\nprint(\"Correct!\")" },
     { "type": "python", "title": "2. Fix the infinite loop", "p": ["This is meant to print 1 to 5. Don't run it yet — find why it never stops, fix it, then run."],
-      "code": "n = 1\nwhile n <= 5:\n    print(n)\n# (if this runs forever, press Reset and reload the page)" },
+      "code": "n = 1\nwhile n <= 5:\n    print(n)\n# (if this runs forever, press Stop)" },
     { "type": "python", "title": "3. Validation", "p": ["Write a loop that keeps asking for a menu choice until the user types 1, 2 or 3. Print \"Invalid\" each time they get it wrong, and \"You chose X\" at the end."],
       "code": "choice = input(\"Choose 1, 2 or 3: \")\n# while the choice is not valid, say so and ask again\n\nprint(\"You chose\", choice)" },
     { "type": "python", "title": "4. do…until in Python", "p": ["Convert this OCR pseudocode into Python using `while True` and `break`."],

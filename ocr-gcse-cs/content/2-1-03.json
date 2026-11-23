@@ -8,6 +8,12 @@
     "Use the standard flowchart symbols: terminator, process, decision, input/output, sub-program, flow lines",
     "Complete or correct a flowchart from a description"
   ],
+  "learn": [
+    "Name each standard flowchart symbol and say what it is used for",
+    "Follow a flowchart step by step and state its output",
+    "Complete or correct a flowchart so that it matches a description",
+    "Draw a flowchart that includes a decision and a loop"
+  ],
   "hook": "Give someone directions from the classroom to the canteen using only 'go straight', 'turn' and 'if you see X then…'. Now draw it as boxes and arrows instead of words. Which is quicker to check for mistakes? That is why flowcharts exist.",
   "video": {
     "title": "Flowcharts: the five shapes and how to read one",

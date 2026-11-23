@@ -8,6 +8,12 @@
     "Show the steps of the search on a given **sorted** list, including the middle item at each step",
     "Compare binary search with linear search: precondition, speed"
   ],
+  "learn": [
+    "Describe how a **binary search** works",
+    "Show the steps of a binary search on a sorted list, naming the middle item each time",
+    "Explain why the list must be sorted first",
+    "Compare binary search with linear search and say which suits a given situation"
+  ],
   "hook": "I'm thinking of a number between 1 and 1000. You can only ask 'is it higher or lower than X?'. How many questions do you need to be certain? (Ten.) Not 500 — ten. That halving trick is binary search, and it is why your phone finds a contact instantly.",
   "video": {
     "title": "Binary search: halve the list every time",
