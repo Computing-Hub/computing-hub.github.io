@@ -421,8 +421,7 @@ footer.site .legal { border-top: 1px solid var(--border); padding-top: 16px; }
 .brand img { width: 32px; height: 32px; border-radius: 50%; }
 /* Tools: three across, then two wider cards (as on the original tuition site) */
 .grid.tools { grid-template-columns: repeat(6, 1fr); }
-.grid.tools > :nth-child(-n+3) { grid-column: span 2; }
-.grid.tools > :nth-child(n+4) { grid-column: span 3; }
+.grid.tools > * { grid-column: span 2; }
 @media (max-width: 900px) {
   .grid.tools { grid-template-columns: repeat(2, 1fr); }
   .grid.tools > * { grid-column: span 1 !important; }
