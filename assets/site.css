@@ -444,3 +444,6 @@ a.card.lib h3, a.card.lib h4 { color: var(--text); }
 .badge { align-self: flex-start; font-size: 0.75rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
 .badge.free { background: var(--accent-soft); color: var(--accent); }
 .badge.members { background: var(--tag-bg); color: var(--tag-text); }
+
+/* Featured resources on the homepage: three across on desktop, two on tablets, one on phones */
+.grid.featured { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
